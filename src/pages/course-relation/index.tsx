@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Settings } from 'lucide-react';
+import { Pen, Plus } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -54,17 +54,20 @@ export default function CourseRelationPage() {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-semibold">Course Relations</h1>
-        <Button onClick={() => {
+        <Button 
+        className="bg-supperagent text-white hover:bg-supperagent/90" size={'sm'}
+        onClick={() => {
           setEditingCourseRelation(null);  // Clear editing course relation when creating a new one
           setDialogOpen(true);
         }}>
           <Plus className="w-4 h-4 mr-2" />
-          New Course Relation
+          New Course
         </Button>
       </div>
+      <div className="rounded-md bg-white shadow-2xl p-4">
       <Table>
         <TableHeader>
           <TableRow>
@@ -95,16 +98,18 @@ export default function CourseRelationPage() {
               <TableCell className="text-center">
                 <Button
                   variant="ghost"
+                  className="bg-supperagent text-white hover:bg-supperagent/90 border-none"
                   size="icon"
                   onClick={() => handleEdit(relation)}
                 >
-                  <Settings className="w-4 h-4" />
+                  <Pen className="w-4 h-4" />
                 </Button>
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
+      </div>
       <CourseRelationDialog
         open={dialogOpen}
         onOpenChange={(open) => {

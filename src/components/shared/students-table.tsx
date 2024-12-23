@@ -2,6 +2,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { Eye, Trash2Icon } from 'lucide-react'
+import { Link } from "react-router-dom"
 
 interface Student {
   id: number
@@ -274,9 +275,12 @@ export function StudentsTable() {
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end space-x-2">
+                <Link to='1'>
                   <Button variant="outline" size="icon">
+                    
                     <Eye className="h-4 w-4" />
                   </Button>
+                  </Link>
                   <Button variant="destructive" size="icon">
                     <Trash2Icon className="h-4 w-4" />
                   </Button>

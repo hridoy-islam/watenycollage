@@ -85,7 +85,7 @@ export function TermDialog({
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit">Submit</Button>
+            <Button className="bg-supperagent text-white hover:bg-supperagent/90" type="submit">Submit</Button>
           </div>
         </form>
       </DialogContent>

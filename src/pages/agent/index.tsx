@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Plus, Settings } from 'lucide-react'
+import { Pen, Plus, } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import {
@@ -52,10 +52,10 @@ export default function AgentsPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-semibold">All Agents</h1>
-        <Button onClick={() => {
+        <Button className="bg-supperagent text-white hover:bg-supperagent/90" size={'sm'} onClick={() => {
           setEditingAgent(null)  // Clear editing agent when creating a new agent
           setDialogOpen(true)
         }}>
@@ -63,6 +63,7 @@ export default function AgentsPage() {
           New Agent
         </Button>
       </div>
+      <div className="rounded-md bg-white shadow-2xl p-4">
       <Table>
         <TableHeader>
           <TableRow>
@@ -91,22 +92,24 @@ export default function AgentsPage() {
                 <Switch
                   checked={agent.active}
                   onCheckedChange={(checked) => handleStatusChange(agent.id, checked)}
-                  className="mx-auto"
+                  className={'mx-auto'}
                 />
               </TableCell>
               <TableCell className="text-center">
                 <Button
-                  variant="ghost"
+                  variant="outline"
+                  className="bg-supperagent text-white hover:bg-supperagent/90 border-none"
                   size="icon"
                   onClick={() => handleEdit(agent)}
                 >
-                  <Settings className="w-4 h-4" />
+                  <Pen className="w-4 h-4" />
                 </Button>
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
+      </div>
       <AgentDialog
         open={dialogOpen}
         onOpenChange={(open) => {

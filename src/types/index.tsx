@@ -97,3 +97,31 @@ export const questions: Question[] = [
   { id: 'country', question: "What's your country?", type: 'select', options: mockData.countries, required: true },
   { id: 'agent', question: "Who's your agent?", type: 'select', options: mockData.agents, required: true },
 ];
+
+export interface Student {
+  id: string
+  title: string
+  firstName: string
+  lastName: string
+  email: string
+  phone: string
+  dateOfBirth: string
+  maritalStatus: string
+  gender: string
+  nationality: string
+  countryOfResidence: string
+  countryOfBirth: string
+  nativeLanguage: string
+  institution: string
+  passportName: string
+  passportIssueLocation: string
+  passportNumber: string
+  profileImage?: string
+  address: {
+    street: string
+    city: string
+    country: string
+    postalCode: string
+  }
+}
+

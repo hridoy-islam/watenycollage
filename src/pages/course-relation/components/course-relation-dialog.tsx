@@ -117,7 +117,7 @@ export const CourseRelationDialog = ({ open, onOpenChange, onSubmit, initialData
           </div>
         </div>
         <DialogFooter>
-          <Button onClick={handleSubmit}>{initialData ? "Save Changes" : "Create Course Relation"}</Button>
+          <Button className="bg-supperagent text-white hover:bg-supperagent/90" onClick={handleSubmit}>{initialData ? "Save Changes" : "Create Course Relation"}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

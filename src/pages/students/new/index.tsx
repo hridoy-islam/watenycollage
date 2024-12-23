@@ -10,6 +10,7 @@ import { StudentFormData, initialFormData } from "@/types/index"
 import { ArrowLeft } from 'lucide-react'
 import { useRouter } from '@/routes/hooks'
 import { Link } from 'react-router-dom'
+import { WorkDetails } from '../components/work-details'
 
 const steps = [
   {
@@ -19,6 +20,10 @@ const steps = [
   {
     title: "Contact",
     description: "How to reach you",
+  },
+  {
+    title: "Work Details",
+    description: "Describe Experience",
   },
   {
     title: "Address",
@@ -62,21 +67,23 @@ export default function NewStudentPage() {
     <div className="px-4 mx-auto py-6">
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => router.push('/students')}
-          >
-            <Link to='/admin/students/'>
-            <ArrowLeft className="h-4 w-4" /></Link>
-          </Button>
+          <Link to='/admin/students'>
+            <Button
+              variant="outline"
+              size="icon"
+              className="bg-supperagent border-none hover:bg-supperagent/90"
+            >
+
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+          </Link>
           <h1 className="text-2xl font-semibold">Add New Student</h1>
         </div>
       </div>
 
       <Card className="mx-auto px-4 p-6">
         <Stepper currentStep={currentStep} steps={steps} />
-        
+
         <form onSubmit={handleSubmit} className="mt-8">
           {currentStep === 0 && (
             <PersonalInfo data={formData} updateFields={updateFields} />
@@ -84,17 +91,20 @@ export default function NewStudentPage() {
           {currentStep === 1 && (
             <ContactInfo data={formData} updateFields={updateFields} />
           )}
-          {currentStep === 2 && (
+          {currentStep === 3 && (
+            <WorkDetails data={formData} updateFields={updateFields} />
+          )}
+          {currentStep === 4 && (
             <AddressInfo data={formData} updateFields={updateFields} />
           )}
-          {currentStep === 3 && (
+          {currentStep === 5 && (
             <AdditionalInfo data={formData} updateFields={updateFields} />
           )}
 
           <div className="mt-6 flex justify-between">
             <Button
               type="button"
-              variant="outline"
+              variant="secondary"
               onClick={back}
               disabled={currentStep === 0}
             >
@@ -107,7 +117,7 @@ export default function NewStudentPage() {
             ) : (
               <Button
                 type="button"
-                className="bg-[#1e40af]"
+                className="bg-supperagent text-white border-none hover:bg-supperagent/90"
                 onClick={next}
               >
                 Next

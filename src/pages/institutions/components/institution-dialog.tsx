@@ -54,7 +54,7 @@ export function InstitutionDialog({
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit">Submit</Button>
+            <Button type="submit" className="bg-supperagent text-white hover:bg-supperagent/90 border-none">Submit</Button>
           </div>
         </form>
       </DialogContent>

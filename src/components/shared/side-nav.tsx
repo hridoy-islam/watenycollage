@@ -68,7 +68,7 @@ const NavItem = ({ item, depth = 0 }) => {
 
 export function SideNav() {
   return (
-    <nav className="flex space-x-6 border-b bg-white px-4 py-4">
+    <nav className="flex space-x-6 shadow-sm bg-white px-4 py-4">
       {navItems.map((item) => (
         <div key={item.href}>
           {item.subItems ? (

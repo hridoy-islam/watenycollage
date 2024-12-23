@@ -1,68 +1,3 @@
-// import { StudentFormData, mockData } from "@/types/index"
-// import { Label } from "@/components/ui/label"
-// import { Input } from "@/components/ui/input"
-// import {
-//   Select,
-//   SelectContent,
-//   SelectItem,
-//   SelectTrigger,
-//   SelectValue,
-// } from "@/components/ui/select"
-
-// interface PersonalInfoProps {
-//   data: StudentFormData
-//   updateFields: (fields: Partial<StudentFormData>) => void
-// }
-
-// export function PersonalInfo({ data, updateFields }: PersonalInfoProps) {
-//   return (
-//     <div className="grid gap-4 py-4">
-//       <div className="grid grid-cols-4 gap-4">
-//         <div>
-//           <Label htmlFor="title">Title *</Label>
-//           <Select value={data.title} onValueChange={(value) => updateFields({ title: value })}>
-//             <SelectTrigger>
-//               <SelectValue placeholder="Select title" />
-//             </SelectTrigger>
-//             <SelectContent>
-//               {mockData.titles.map((title) => (
-//                 <SelectItem key={title} value={title}>
-//                   {title}
-//                 </SelectItem>
-//               ))}
-//             </SelectContent>
-//           </Select>
-//         </div>
-//         <div className="col-span-3">
-//           <Label htmlFor="firstName">First Name *</Label>
-//           <Input
-//             id="firstName"
-//             value={data.firstName}
-//             onChange={(e) => updateFields({ firstName: e.target.value })}
-//           />
-//         </div>
-//       </div>
-//       <div>
-//         <Label htmlFor="lastName">Last Name *</Label>
-//         <Input
-//           id="lastName"
-//           value={data.lastName}
-//           onChange={(e) => updateFields({ lastName: e.target.value })}
-//         />
-//       </div>
-//       <div>
-//         <Label htmlFor="dateOfBirth">Date of Birth *</Label>
-//         <Input
-//           id="dateOfBirth"
-//           type="date"
-//           value={data.dateOfBirth}
-//           onChange={(e) => updateFields({ dateOfBirth: e.target.value })}
-//         />
-//       </div>
-//     </div>
-//   )
-// }
-
 import { StudentFormData, mockData } from "@/types/index";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -79,7 +14,7 @@ interface PersonalInfoProps {
   updateFields: (fields: Partial<StudentFormData>) => void;
 }
 
-export function PersonalInfo({ data, updateFields }: PersonalInfoProps) {
+export function WorkDetails({ data, updateFields }: PersonalInfoProps) {
   return (
     <div className="grid gap-4 py-4">
       <div className="grid grid-cols-4 gap-4">

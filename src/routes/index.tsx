@@ -20,6 +20,7 @@ import AcademicYearPage from '@/pages/academic-year';
 import StaffPage from '@/pages/staff';
 import AgentsPage from '@/pages/agent';
 import CourseRelationPage from '@/pages/course-relation';
+import StudentViewPage from '@/pages/students/view';
 
 const DashboardLayout = lazy(
   () => import('@/components/layout/dashboard-layout')
@@ -77,6 +78,10 @@ export default function AppRouter() {
         {
           path: 'students',
           element: <StudentsPage />
+        },
+        {
+          path: 'students/:id',
+          element: <StudentViewPage />
         },
         {
           path: 'students/new',

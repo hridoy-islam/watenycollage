@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Plus, Settings } from 'lucide-react'
+import { Plus, Pen } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import {
@@ -48,14 +48,15 @@ export default function StaffPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-semibold">All Staff</h1>
-        <Button onClick={() => setDialogOpen(true)}>
+        <Button className="bg-supperagent text-white hover:bg-supperagent/90" size={'sm'} onClick={() => setDialogOpen(true)}>
           <Plus className="w-4 h-4 mr-2" />
           New Staff
         </Button>
       </div>
+      <div className="rounded-md bg-white shadow-2xl p-4">
       <Table>
         <TableHeader>
           <TableRow>
@@ -87,15 +88,17 @@ export default function StaffPage() {
                 <Button
                   variant="ghost"
                   size="icon"
+                  className="bg-supperagent text-white hover:bg-supperagent/90"
                   onClick={() => handleEdit(staffMember)}
                 >
-                  <Settings className="w-4 h-4" />
+                  <Pen className="w-4 h-4" />
                 </Button>
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
+      </div>
       <StaffDialog
         open={dialogOpen}
         onOpenChange={(open) => {

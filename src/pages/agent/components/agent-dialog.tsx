@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
@@ -67,12 +67,12 @@ export function AgentDialog({ open, onOpenChange, onSubmit, initialData, staffOp
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-w-4xl">
         <DialogHeader>
           <DialogTitle>{initialData ? "Edit Agent" : "Add New Agent"}</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium">Agent Name *</label>
             <Input
@@ -207,7 +207,7 @@ export function AgentDialog({ open, onOpenChange, onSubmit, initialData, staffOp
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit}>
+          <Button onClick={handleSubmit} className="bg-supperagent text-white hover:bg-supperagent/90">
             {initialData ? "Save Changes" : "Add Agent"}
           </Button>
         </DialogFooter>
