@@ -7,6 +7,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { StudentProfile } from "./components/student-profile"
 import { PersonalDetailsForm } from "./components/personal-details-form"
 import type { Student } from "@/types/index"
+import { TravelImmigrationHistory } from "./components/travel-immigration-history"
+import { AcademicRecords } from "./components/academic-records"
+import { WorkExperienceSection } from "./components/work-experience"
+import { ApplicationsSection } from "./components/application-section"
+import { EmergencyContacts } from "./components/emergency-contacts"
+import { PersonalInfoForm } from "./components/personal-info-form"
+import { AddressForm } from "./components/address-form"
 
 const mockStudent: Student = {
   id: "STD000001",
@@ -81,7 +88,25 @@ export default function StudentViewPage() {
         </TabsList>
         <TabsContent value="personal">
           <PersonalDetailsForm student={student} onSave={handleSave} />
+          <AddressForm student={student} onSave={handleSave} />
+          <PersonalInfoForm student={student} onSave={handleSave}/>
+          <EmergencyContacts student={student} onSave={handleSave}/>
+          
         </TabsContent>
+        <TabsContent value="travel">
+          <TravelImmigrationHistory student={student} onSave={handleSave} />
+        </TabsContent>
+        <TabsContent value="education">
+          <AcademicRecords student={student} onSave={handleSave} />
+        </TabsContent>
+        <TabsContent value="work">
+          <WorkExperienceSection student={student} onSave={handleSave} />
+        </TabsContent>
+
+        <TabsContent value="application">
+          <ApplicationsSection student={student} onSave={handleSave} />
+        </TabsContent>
+        
         {/* Add other tab contents as needed */}
       </Tabs>
     </div>

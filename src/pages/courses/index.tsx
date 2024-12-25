@@ -26,6 +26,7 @@ export default function CoursesPage() {
   const [editingCourse, setEditingCourse] = useState()
 
   const handleSubmit = (data) => {
+    console.log(data)
     if (editingCourse) {
       setCourses(courses.map(course => 
         course.id === editingCourse?.id
@@ -40,6 +41,7 @@ export default function CoursesPage() {
   }
 
   const handleStatusChange = (id: number, active: boolean) => {
+    console.log(id, active)
     setCourses(courses.map(course => 
       course.id === id ? { ...course, active } : course
     ))

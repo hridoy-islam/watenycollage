@@ -69,6 +69,7 @@ export const initialFormData: StudentFormData = {
 
 export const mockData = {
   titles: ['Mr.', 'Mrs.', 'Ms.', 'Dr.', 'Prof.'],
+  gender: ['Male', 'Female'],
   maritalStatuses: ['Single', 'Married', 'Divorced', 'Widowed'],
   agents: ['Omniscient', 'Global Education', 'Study International', 'Education First'],
   countries: ['United Kingdom', 'United States', 'Canada', 'Australia', 'New Zealand']
@@ -125,3 +126,94 @@ export interface Student {
   }
 }
 
+export interface VisaHistory {
+  id: string
+  purpose: string
+  arrival: string
+  departure: string
+  visaStart: string
+  visaExpiry: string
+  visaType: string
+  status: string
+}
+
+export interface RefusalHistory {
+  id: string
+  refusalType: string
+  refusalDate: string
+  details: string
+  country: string
+  visaType: string
+  status: string
+}
+
+export interface AcademicRecord {
+  id: string
+  institution: string
+  course: string
+  studyLevel: string
+  resultScore: string
+  startDate: string
+  endDate: string
+  status: string
+}
+
+export interface EnglishExam {
+  id: string
+  exam: string
+  examDate: string
+  score: string
+  status: string
+}
+
+export interface WorkExperience {
+  id: string
+  jobTitle: string
+  organizationName: string
+  organizationAddress: string
+  phone: string
+  fromDate: string
+  toDate: string | null
+  currentlyWorking: boolean
+  status: string
+}
+export type DocumentType = 'passport' | 'bankStatement' | 'qualification' | 'workExperience' | 'cv'
+
+export interface Document {
+  id: string
+  type: DocumentType
+  fileName: string
+  fileUrl: string
+  uploadDate: string
+  status: 'pending' | 'approved' | 'rejected'
+}
+
+export interface Application {
+  id: number
+  institution: string
+  course: string
+  term: string
+  type: 'Local' | 'International'
+  amount: number
+  status: 'Pending' | 'Approved' | 'Rejected'
+  statusDate?: string
+  actions?: string
+}
+
+export interface EmergencyContact {
+  id: string
+  name: string
+  phone: string
+  email: string
+  address: string
+  relationship: string
+  status: boolean
+}
+
+export interface PersonalInfo {
+  disabilities: string
+  ethnicity: string
+  genderIdentity: string
+  sexualOrientation: string
+  religion: string
+}

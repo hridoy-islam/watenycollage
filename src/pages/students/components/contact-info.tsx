@@ -1,34 +1,34 @@
-import { StudentFormData } from "@/types/index"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
+import { useForm } from "react-hook-form";
+import { StudentFormData } from "@/types/index";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 interface ContactInfoProps {
-  data: StudentFormData
-  updateFields: (fields: Partial<StudentFormData>) => void
+  defaultValues: StudentFormData;
+  onSubmit: (data: StudentFormData) => void;
 }
 
-export function ContactInfo({ data, updateFields }: ContactInfoProps) {
+export function ContactInfo({ defaultValues, onSubmit }: ContactInfoProps) {
+  const { register, handleSubmit } = useForm<StudentFormData>({
+    defaultValues,
+  });
+
   return (
-    <div className="grid gap-4 py-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 py-4">
+      <div className="grid grid-cols-4 gap-4">
+      {/* Email */}
       <div>
         <Label htmlFor="email">Email *</Label>
-        <Input
-          id="email"
-          type="email"
-          value={data.email}
-          onChange={(e) => updateFields({ email: e.target.value })}
-        />
+        <Input id="email" type="email" {...register("email")} />
       </div>
+
+      {/* Phone */}
       <div>
         <Label htmlFor="phone">Phone *</Label>
-        <Input
-          id="phone"
-          type="tel"
-          value={data.phone}
-          onChange={(e) => updateFields({ phone: e.target.value })}
-        />
+        <Input id="phone" type="tel" {...register("phone")} />
       </div>
-    </div>
-  )
-}
 
+      </div>
+    </form>
+  );
+}

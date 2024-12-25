@@ -1,82 +1,65 @@
-import { StudentFormData, mockData } from "@/types/index"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
+import { useForm, Controller } from "react-hook-form";
+import { StudentFormData, mockData } from "@/types/index";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 
 interface AddressInfoProps {
-  data: StudentFormData
-  updateFields: (fields: Partial<StudentFormData>) => void
+  defaultValues: StudentFormData;
+  onSubmit: (data: StudentFormData) => void;
 }
 
-export function AddressInfo({ data, updateFields }: AddressInfoProps) {
+export function AddressInfo({ defaultValues, onSubmit }: AddressInfoProps) {
+  const { control, handleSubmit, register } = useForm<StudentFormData>({
+    defaultValues,
+  });
+
   return (
-    <div className="grid gap-4 py-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 py-4">
+       <div className="grid grid-cols-4 gap-4">
+      {/* Address Line 1 */}
       <div>
         <Label htmlFor="addressLine1">Address Line 1 *</Label>
-        <Input
-          id="addressLine1"
-          value={data.addressLine1}
-          onChange={(e) => updateFields({ addressLine1: e.target.value })}
-        />
+        <Input id="addressLine1" {...register("addressLine1")} />
       </div>
+
+      {/* Address Line 2 */}
       <div>
         <Label htmlFor="addressLine2">Address Line 2</Label>
-        <Input
-          id="addressLine2"
-          value={data.addressLine2}
-          onChange={(e) => updateFields({ addressLine2: e.target.value })}
-        />
+        <Input id="addressLine2" {...register("addressLine2")} />
       </div>
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor="townCity">Town/City *</Label>
-          <Input
-            id="townCity"
-            value={data.townCity}
-            onChange={(e) => updateFields({ townCity: e.target.value })}
-          />
-        </div>
-        <div>
-          <Label htmlFor="state">State</Label>
-          <Input
-            id="state"
-            value={data.state}
-            onChange={(e) => updateFields({ state: e.target.value })}
-          />
-        </div>
-      </div>
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor="postCode">Post Code *</Label>
-          <Input
-            id="postCode"
-            value={data.postCode}
-            onChange={(e) => updateFields({ postCode: e.target.value })}
-          />
-        </div>
-        <div>
-          <Label htmlFor="country">Country *</Label>
-          <Select value={data.country} onValueChange={(value) => updateFields({ country: value })}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select country" />
-            </SelectTrigger>
-            <SelectContent>
-              {mockData.countries.map((country) => (
-                <SelectItem key={country} value={country}>
-                  {country}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-    </div>
-  )
-}
 
+      {/* Town/City */}
+      <div>
+        <Label htmlFor="city">Town/City *</Label>
+        <Input id="city" {...register("townCity")} />
+      </div>
+
+      {/* State */}
+      <div>
+        <Label htmlFor="state">State</Label>
+        <Input id="state" {...register("state")} />
+      </div>
+
+      {/* Post Code */}
+      <div>
+        <Label htmlFor="postCode">Post Code *</Label>
+        <Input id="postCode" {...register("postCode")} />
+      </div>
+
+      {/* Country */}
+      <div>
+        <Label htmlFor="country">Country *</Label>
+        <Input id="country" {...register("country")} />
+      </div>
+      
+      </div>
+    </form>
+  );
+}

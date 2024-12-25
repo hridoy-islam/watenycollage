@@ -17,8 +17,9 @@ interface PersonalDetailsFormProps {
 
 export function PersonalDetailsForm({ student, onSave }: PersonalDetailsFormProps) {
   return (
-    <form className="space-y-6 p-6" onSubmit={(e) => e.preventDefault()}>
-      <div className="grid grid-cols-3 gap-6">
+    <div>
+    <form className="space-y-4 p-4 shadow-md rounded-md mb-2" onSubmit={(e) => e.preventDefault()}>
+      <div className="grid grid-cols-3 gap-4">
         <div className="space-y-2">
           <Label htmlFor="title">Title</Label>
           <Select defaultValue={student.title}>
@@ -54,6 +55,14 @@ export function PersonalDetailsForm({ student, onSave }: PersonalDetailsFormProp
           <Input id="dateOfBirth" type="date" defaultValue={student.dateOfBirth} />
         </div>
         <div className="space-y-2">
+          <Label htmlFor="dateOfBirth">Maritual Status</Label>
+          <Input id="dateOfBirth" type="text" />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="dateOfBirth">Gender</Label>
+          <Input id="dateOfBirth" type="text" />
+        </div>
+        <div className="space-y-2">
           <Label htmlFor="nationality">Nationality</Label>
           <Select defaultValue={student.nationality}>
             <SelectTrigger id="nationality">
@@ -62,6 +71,19 @@ export function PersonalDetailsForm({ student, onSave }: PersonalDetailsFormProp
             <SelectContent>
               <SelectItem value="United Kingdom">United Kingdom</SelectItem>
               <SelectItem value="United States">United States</SelectItem>
+              {/* Add more countries */}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="countryOfBirth">Country of Residence</Label>
+          <Select defaultValue={student.countryOfBirth}>
+            <SelectTrigger id="countryOfBirth">
+              <SelectValue placeholder="Select country" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="United Kingdom">United Kingdom</SelectItem>
+              <SelectItem value="Hungary">Hungary</SelectItem>
               {/* Add more countries */}
             </SelectContent>
           </Select>
@@ -92,11 +114,33 @@ export function PersonalDetailsForm({ student, onSave }: PersonalDetailsFormProp
             </SelectContent>
           </Select>
         </div>
+        <div className="space-y-2">
+          <Label htmlFor="dateOfBirth">Name as it appear in Passport:</Label>
+          <Input id="dateOfBirth" type="text" />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="dateOfBirth">Passport issue Location:</Label>
+          <Input id="dateOfBirth" type="text" />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="dateOfBirth">Passport Number</Label>
+          <Input id="dateOfBirth" type="text" />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="dateOfBirth">Passport Issue Date</Label>
+          <Input id="dateOfBirth" type="date" />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="dateOfBirth">Passport Expiry Date</Label>
+          <Input id="dateOfBirth" type="date" />
+        </div>
       </div>
       <div className="flex justify-end">
         <Button variant={'outline'} className="bg-supperagent text-white hover:bg-supperagent/90 border-none" onClick={() => onSave(student)}>Save Changes</Button>
       </div>
     </form>
+    </div>
   )
 }
 

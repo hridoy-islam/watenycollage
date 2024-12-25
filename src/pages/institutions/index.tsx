@@ -26,6 +26,7 @@ export default function InstitutionsPage() {
   const [editingInstitution, setEditingInstitution] = useState()
 
   const handleSubmit = (data) => {
+    console.log(data);
     if (editingInstitution) {
       setInstitutions(institutions.map(inst => 
         inst.id === editingInstitution?.id
@@ -40,6 +41,7 @@ export default function InstitutionsPage() {
   }
 
   const handleStatusChange = (id: number, active: boolean) => {
+    console.log(id, active)
     setInstitutions(institutions.map(inst => 
       inst.id === id ? { ...inst, active } : inst
     ))
