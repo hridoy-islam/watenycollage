@@ -10,8 +10,21 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { LogOut, UserPlus, User, KeyRound } from 'lucide-react'
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useNavigate } from 'react-router-dom';
+import { logout } from '@/redux/features/authSlice';
+import { AppDispatch } from '@/redux/store';
 
 export function UserNav() {
+  const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
+
+  const { user } = useSelector((state: any) => state.auth);
+
+  const handleLogout = async () => {
+    await dispatch(logout());
+    navigate('/'); // Redirect to login after logout
+  };
   return (
     <div className="flex items-center gap-4">
       <DropdownMenu>
@@ -26,9 +39,9 @@ export function UserNav() {
         <DropdownMenuContent className="w-56" align="end" forceMount>
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium leading-none">Super Admin</p>
+              <p className="text-sm font-medium leading-none">{user?.name}</p>
               <p className="text-xs leading-none text-muted-foreground">
-                admin@admin.com
+              {user?.email}
               </p>
             </div>
           </DropdownMenuLabel>
@@ -36,7 +49,7 @@ export function UserNav() {
           <DropdownMenuGroup>
             <DropdownMenuItem>
               <User className="mr-2 h-4 w-4" />
-              <span>Profile</span>
+              <Link to="profile">Profile</Link>
             </DropdownMenuItem>
             <DropdownMenuItem>
               <UserPlus className="mr-2 h-4 w-4" />
@@ -48,7 +61,7 @@ export function UserNav() {
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>
+          <DropdownMenuItem onClick={handleLogout}>
             <LogOut className="mr-2 h-4 w-4" />
             <span>Log out</span>
           </DropdownMenuItem>

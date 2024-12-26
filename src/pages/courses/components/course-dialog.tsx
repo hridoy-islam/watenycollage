@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
+// import { Switch } from "@/components/ui/switch"
 
 export function CourseDialog({ 
   open, 
@@ -12,14 +12,14 @@ export function CourseDialog({
   initialData 
 }) {
   const [name, setName] = useState(initialData?.name ?? "")
-  const [active, setActive] = useState(initialData?.active ?? true)
+  // const [active, setActive] = useState(initialData?.active ?? true)
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    onSubmit({ name, active })
+    onSubmit({ name })
     onOpenChange(false)
     setName("")
-    setActive(true)
+    // setActive(true)
   }
 
   return (
@@ -40,14 +40,14 @@ export function CourseDialog({
               required
             />
           </div>
-          <div className="flex items-center justify-between">
+          {/* <div className="flex items-center justify-between">
             <Label htmlFor="active">Active</Label>
             <Switch
               id="active"
               checked={active}
               onCheckedChange={setActive}
             />
-          </div>
+          </div> */}
           <div className="flex justify-end space-x-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel

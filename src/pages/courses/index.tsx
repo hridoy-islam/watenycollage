@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Plus, Pen } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
@@ -11,38 +11,45 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { CourseDialog } from "./components/course-dialog"
-
-const initialCourses = [
-  { id: 1, name: "Demo Course", active: true },
-  { id: 2, name: "Mathematics 101", active: true },
-  { id: 3, name: "Physics Advanced", active: true },
-  { id: 4, name: "Computer Science Basics", active: true },
-  { id: 5, name: "Economics Principles", active: true },
-]
+import axiosInstance from '../../lib/axios';
+import { useToast } from "@/components/ui/use-toast";
+import { BlinkingDots } from "@/components/shared/blinking-dots";
 
 export default function CoursesPage() {
-  const [courses, setCourses] = useState(initialCourses)
+  const [courses, setCourses] = useState<any>([])
+  const [loading, setLoading] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingCourse, setEditingCourse] = useState()
+  const { toast } = useToast();
 
-  const handleSubmit = (data) => {
-    console.log(data)
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const response = await axiosInstance.get(`/courses`);
+      setCourses(response.data.data.result);
+    } catch (error) {
+      console.error("Error fetching institutions:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (data) => {
     if (editingCourse) {
-      setCourses(courses.map(course => 
-        course.id === editingCourse?.id
-          ? { ...course, ...data }
-          : course
-      ))
+      await axiosInstance.put(`/courses/${editingCourse?.id}`, data);
+      toast({ title: "Record Updated successfully", className: "bg-supperagent border-none text-white", });
+      fetchData();
       setEditingCourse(undefined)
     } else {
-      const newId = Math.max(...courses.map(c => c.id)) + 1
-      setCourses([...courses, { id: newId, ...data }])
+      await axiosInstance.post(`/courses`, data);
+      toast({ title: "Record Created successfully", className: "bg-supperagent border-none text-white", });
+      fetchData()
     }
   }
 
   const handleStatusChange = (id: number, active: boolean) => {
     console.log(id, active)
-    setCourses(courses.map(course => 
+    setCourses(courses.map(course =>
       course.id === id ? { ...course, active } : course
     ))
   }
@@ -51,6 +58,10 @@ export default function CoursesPage() {
     setEditingCourse(course)
     setDialogOpen(true)
   }
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -62,41 +73,51 @@ export default function CoursesPage() {
         </Button>
       </div>
       <div className="rounded-md bg-white shadow-2xl p-4">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-20">#ID</TableHead>
-            <TableHead>Course</TableHead>
-            <TableHead className="w-32 text-center">Status</TableHead>
-            <TableHead className="w-32 text-center">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {courses.map((course) => (
-            <TableRow key={course.id}>
-              <TableCell>{course.id}</TableCell>
-              <TableCell>{course.name}</TableCell>
-              <TableCell className="text-center">
-                <Switch
-                  checked={course.active}
-                  onCheckedChange={(checked) => handleStatusChange(course.id, checked)}
-                  className="mx-auto"
-                />
-              </TableCell>
-              <TableCell className="text-center">
-                <Button
-                  variant="ghost"
-                  className="bg-supperagent text-white hover:bg-supperagent/90 border-none"
-                  size="icon"
-                  onClick={() => handleEdit(course)}
-                >
-                  <Pen className="w-4 h-4" />
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+        {loading ? (
+          <div className="flex justify-center py-6">
+            <BlinkingDots size="large" color="bg-supperagent" />
+          </div>
+        ) : courses.length === 0 ? (
+          <div className="flex justify-center py-6 text-gray-500">
+            No records found.
+          </div>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-20">#ID</TableHead>
+                <TableHead>Course</TableHead>
+                <TableHead className="w-32 text-center">Status</TableHead>
+                <TableHead className="w-32 text-center">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {courses.map((course) => (
+                <TableRow key={course.id}>
+                  <TableCell>{course.id}</TableCell>
+                  <TableCell>{course.name}</TableCell>
+                  <TableCell className="text-center">
+                    <Switch
+                      checked={course.active}
+                      onCheckedChange={(checked) => handleStatusChange(course.id, checked)}
+                      className="mx-auto"
+                    />
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <Button
+                      variant="ghost"
+                      className="bg-supperagent text-white hover:bg-supperagent/90 border-none"
+                      size="icon"
+                      onClick={() => handleEdit(course)}
+                    >
+                      <Pen className="w-4 h-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       </div>
       <CourseDialog
         open={dialogOpen}

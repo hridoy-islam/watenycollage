@@ -1,7 +1,6 @@
 import ProtectedRoute from '@/components/shared/ProtectedRoute';
 import ForgotPassword from '@/pages/auth/forget-password';
 import SignUpPage from '@/pages/auth/sign-up';
-import HomePage from '@/pages/home';
 import NotFound from '@/pages/not-found';
 import ProfilePage from '@/pages/profile';
 import { Suspense, lazy } from 'react';
@@ -22,26 +21,23 @@ import AgentsPage from '@/pages/agent';
 import CourseRelationPage from '@/pages/course-relation';
 import StudentViewPage from '@/pages/students/view';
 
-const DashboardLayout = lazy(
-  () => import('@/components/layout/dashboard-layout')
-);
 const SignInPage = lazy(() => import('@/pages/auth/signin'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
 
 // ----------------------------------------------------------------------
 
 export default function AppRouter() {
-  const dashboardRoutes = [
+  const adminRoutes = [
     {
-      path: '/dashboard',
+      path: '/admin',
       element: (
-        <DashboardLayout>
+        <AdminLayout>
           <ProtectedRoute>
             <Suspense>
               <Outlet />
             </Suspense>
-          </ProtectedRoute>
-        </DashboardLayout>
+            </ProtectedRoute>
+        </AdminLayout>
       ),
       children: [
         {
@@ -55,25 +51,6 @@ export default function AppRouter() {
         {
           path: 'notifications',
           element: <NotificationsPage />
-        }
-      ]
-    }
-  ];
-
-  const adminRoutes = [
-    {
-      path: '/admin',
-      element: (
-        <AdminLayout>
-            <Suspense>
-              <Outlet />
-            </Suspense>
-        </AdminLayout>
-      ),
-      children: [
-        {
-          element: <DashboardPage />,
-          index: true
         },
         {
           path: 'students',
@@ -127,12 +104,8 @@ export default function AppRouter() {
   const publicRoutes = [
     {
       path: '/',
-      element: <HomePage />,
+      element: <SignInPage />,
       index: true
-    },
-    {
-      path: '/login',
-      element: <SignInPage />
     },
     {
       path: '/signup',
@@ -164,7 +137,7 @@ export default function AppRouter() {
     }
   ];
 
-  const routes = useRoutes([...dashboardRoutes, ...publicRoutes, ...adminRoutes]);
+  const routes = useRoutes([...publicRoutes, ...adminRoutes]);
 
   return routes;
 }

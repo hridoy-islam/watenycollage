@@ -103,9 +103,11 @@ export const loginUser = createAsyncThunk<UserResponse, UserCredentials>(
         }
       }
     );
+    
     const response = await request.data;
+    console.log(response)
     localStorage.setItem(
-      'taskplanner',
+      'uniaid',
       JSON.stringify(response.data.accessToken)
     );
     return response;
@@ -128,8 +130,8 @@ export const authWithFbORGoogle = createAsyncThunk<
   );
   const response = await request.data;
   localStorage.setItem(
-    'taskplanner',
-    JSON.stringify(response.data.accessToken)
+    'uniaid',
+    JSON.stringify(response.data.access_token)
   );
   return response;
 });
@@ -196,7 +198,7 @@ export const changePassword = createAsyncThunk<
 });
 
 export const logout = createAsyncThunk<void>('user/logout', async () => {
-  localStorage.removeItem('taskplanner');
+  localStorage.removeItem('uniaid');
 });
 
 const authSlice = createSlice({
@@ -217,8 +219,8 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action: any) => {
         state.loading = false;
-        state.token = action.payload.data.accessToken;
-        const decodedUser = jwtDecode(action.payload.data.accessToken);
+        state.token = action.payload.data.access_token;
+        const decodedUser = jwtDecode(action.payload.data.access_token);
         state.user = decodedUser;
         state.error = null;
       })
@@ -236,8 +238,8 @@ const authSlice = createSlice({
       })
       .addCase(authWithFbORGoogle.fulfilled, (state, action: any) => {
         state.loading = false;
-        state.token = action.payload.data.accessToken;
-        const decodedUser = jwtDecode(action.payload.data.accessToken);
+        state.token = action.payload.data.access_token;
+        const decodedUser = jwtDecode(action.payload.data.access_token);
         state.user = decodedUser;
         state.error = null;
       })

@@ -1,28 +1,31 @@
-import { useState } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
+import { useEffect, useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+// import { Switch } from "@/components/ui/switch";
 
+export function InstitutionDialog({ open, onOpenChange, onSubmit, initialData }) {
+  const [name, setName] = useState("");
+  // const [active, setActive] = useState(true);
 
-
-export function InstitutionDialog({ 
-  open, 
-  onOpenChange, 
-  onSubmit,
-  initialData 
-}) {
-  const [name, setName] = useState(initialData?.name ?? "")
-  const [active, setActive] = useState(initialData?.active ?? true)
+  // Update form fields when initialData changes
+  useEffect(() => {
+    setName(initialData?.name || "");
+    //setActive(initialData?.status == 1); // Assuming status 1 is active
+  }, [initialData]);
 
   const handleSubmit = (e) => {
-    e.preventDefault()
-    onSubmit({ name, active })
-    onOpenChange(false)
-    setName("")
-    setActive(true)
-  }
+    e.preventDefault();
+    onSubmit({ name});
+    onOpenChange(false);
+    setName("");
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -42,23 +45,33 @@ export function InstitutionDialog({
               required
             />
           </div>
-          <div className="flex items-center justify-between">
+          {/* <div className="flex items-center justify-between">
             <Label htmlFor="active">Active</Label>
             <Switch
               id="active"
               checked={active}
               onCheckedChange={setActive}
             />
-          </div>
+          </div> */}
           <div className="flex justify-end space-x-2">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                onOpenChange(false);
+              }}
+            >
               Cancel
             </Button>
-            <Button type="submit" className="bg-supperagent text-white hover:bg-supperagent/90 border-none">Submit</Button>
+            <Button
+              type="submit"
+              className="bg-supperagent text-white hover:bg-supperagent/90 border-none"
+            >
+              Submit
+            </Button>
           </div>
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
-

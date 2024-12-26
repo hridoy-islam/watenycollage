@@ -51,7 +51,8 @@ export default function ForgotPassword() {
       <div className="container grid h-svh flex-col items-center justify-center bg-primary lg:max-w-none lg:px-0">
         <div className="mx-auto flex w-full flex-col justify-center space-y-2 sm:w-[480px] lg:p-8">
           <div className="mb-4 flex items-center justify-center">
-            <img src="/logo.png" alt="Logo" className="w-1/2" />
+            {/* <img src="/logo.png" alt="Logo" className="w-1/2" /> */}
+            <h3 className='text-4xl font-bold'>UniAid</h3>
           </div>
           <Card className="p-6">
             <div className="mb-2 flex flex-col space-y-2 text-left">

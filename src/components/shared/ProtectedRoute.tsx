@@ -6,7 +6,7 @@ const ProtectedRoute = ({ children }) => {
 
   if (!user) {
     // If there's no user, redirect to the login page
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return children; // If user exists, render the children (dashboard)
