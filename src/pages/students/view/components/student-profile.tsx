@@ -3,15 +3,10 @@ import { Camera } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { ImageUploader } from "@/components/shared/image-uploader"
-import type { Student } from "@/types/index"
 
-interface StudentProfileProps {
-    student: Student
-    onImageUpdate: (url: string) => void
-}
-
-export function StudentProfile({ student, onImageUpdate }: StudentProfileProps) {
+export function StudentProfile({ student, onImageUpdate }) {
     const [uploadOpen, setUploadOpen] = useState(false)
+    console.log(student)
 
     return (
         <Card className="border-0 shadow-none">
@@ -38,7 +33,6 @@ export function StudentProfile({ student, onImageUpdate }: StudentProfileProps) 
                         <h2 className="text-2xl font-bold">
                             {student.title} {student.firstName} {student.lastName}
                         </h2>
-                        <p className="text-sm text-muted-foreground">{student.id}</p>
                     </div>
 
                     <div className="grid gap-2">
@@ -56,7 +50,7 @@ export function StudentProfile({ student, onImageUpdate }: StudentProfileProps) 
                         </div>
                         <div className="flex items-center gap-2">
                             <span className="text-sm font-medium">Date of Birth:</span>
-                            <span className="text-sm text-muted-foreground">{student.dateOfBirth}</span>
+                            <span className="text-sm text-muted-foreground">{student.dob}</span>
                         </div>
                     </div>
                 </div>
@@ -65,11 +59,12 @@ export function StudentProfile({ student, onImageUpdate }: StudentProfileProps) 
                     <div>
                         <h3 className="font-medium">Address</h3>
                         <div className="mt-2 space-y-1 text-sm text-muted-foreground">
-                            <p>{student.address.street}</p>
-                            <p>{student.address.city}</p>
-                            <p>{student.address.country}</p>
-                            <p>{student.address.postalCode}</p>
-                        </div>
+                            <p>{student.addressLine1}</p>
+                            <p>{student.addressLine2}</p>
+                            <p>{student.state}</p>
+                            <p>{student.postCode}</p>
+                            <p>{student.country}</p>
+                        </div> 
                     </div>
                 </div>
             </CardContent>

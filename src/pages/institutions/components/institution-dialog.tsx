@@ -12,12 +12,9 @@ import { Label } from "@/components/ui/label";
 
 export function InstitutionDialog({ open, onOpenChange, onSubmit, initialData }) {
   const [name, setName] = useState("");
-  // const [active, setActive] = useState(true);
-
-  // Update form fields when initialData changes
+  
   useEffect(() => {
     setName(initialData?.name || "");
-    //setActive(initialData?.status == 1); // Assuming status 1 is active
   }, [initialData]);
 
   const handleSubmit = (e) => {
@@ -45,14 +42,6 @@ export function InstitutionDialog({ open, onOpenChange, onSubmit, initialData })
               required
             />
           </div>
-          {/* <div className="flex items-center justify-between">
-            <Label htmlFor="active">Active</Label>
-            <Switch
-              id="active"
-              checked={active}
-              onCheckedChange={setActive}
-            />
-          </div> */}
           <div className="flex justify-end space-x-2">
             <Button
               type="button"

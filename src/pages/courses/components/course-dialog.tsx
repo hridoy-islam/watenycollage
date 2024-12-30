@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -11,15 +11,17 @@ export function CourseDialog({
   onSubmit,
   initialData 
 }) {
-  const [name, setName] = useState(initialData?.name ?? "")
-  // const [active, setActive] = useState(initialData?.active ?? true)
+  const [name, setName] = useState("")
+  
+  useEffect(() => {
+      setName(initialData?.name || "");
+    }, [initialData]);
 
   const handleSubmit = (e) => {
     e.preventDefault()
     onSubmit({ name })
     onOpenChange(false)
     setName("")
-    // setActive(true)
   }
 
   return (
@@ -40,14 +42,6 @@ export function CourseDialog({
               required
             />
           </div>
-          {/* <div className="flex items-center justify-between">
-            <Label htmlFor="active">Active</Label>
-            <Switch
-              id="active"
-              checked={active}
-              onCheckedChange={setActive}
-            />
-          </div> */}
           <div className="flex justify-end space-x-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel

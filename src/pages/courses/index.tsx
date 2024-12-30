@@ -17,20 +17,20 @@ import { BlinkingDots } from "@/components/shared/blinking-dots";
 
 export default function CoursesPage() {
   const [courses, setCourses] = useState<any>([])
-  const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true); // New state for initial loading
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [editingCourse, setEditingCourse] = useState()
+  const [editingCourse, setEditingCourse] = useState<any>()
   const { toast } = useToast();
 
   const fetchData = async () => {
     try {
-      setLoading(true);
+      if (initialLoading) setInitialLoading(true);
       const response = await axiosInstance.get(`/courses`);
       setCourses(response.data.data.result);
     } catch (error) {
       console.error("Error fetching institutions:", error);
     } finally {
-      setLoading(false);
+      setInitialLoading(false); // Disable initial loading after the first fetch
     }
   };
 
@@ -47,12 +47,16 @@ export default function CoursesPage() {
     }
   }
 
-  const handleStatusChange = (id: number, active: boolean) => {
-    console.log(id, active)
-    setCourses(courses.map(course =>
-      course.id === id ? { ...course, active } : course
-    ))
-  }
+  const handleStatusChange = async (id, status) => {
+    try {
+      const updatedStatus = status ? "1" : "0";
+      await axiosInstance.patch(`/courses/${id}`, { status: updatedStatus });
+      toast({ title: "Record updated successfully", className: "bg-supperagent border-none text-white", });
+      fetchData();
+    } catch (error) {
+      console.error("Error updating status:", error);
+    }
+  };
 
   const handleEdit = (course) => {
     setEditingCourse(course)
@@ -73,7 +77,7 @@ export default function CoursesPage() {
         </Button>
       </div>
       <div className="rounded-md bg-white shadow-2xl p-4">
-        {loading ? (
+        {initialLoading ? (
           <div className="flex justify-center py-6">
             <BlinkingDots size="large" color="bg-supperagent" />
           </div>
@@ -97,11 +101,11 @@ export default function CoursesPage() {
                   <TableCell>{course.id}</TableCell>
                   <TableCell>{course.name}</TableCell>
                   <TableCell className="text-center">
-                    <Switch
-                      checked={course.active}
-                      onCheckedChange={(checked) => handleStatusChange(course.id, checked)}
-                      className="mx-auto"
-                    />
+                  <Switch
+                    checked={course.status == 1}
+                    onCheckedChange={(checked) => handleStatusChange(course.id, checked)}
+                    className="mx-auto"
+                  />
                   </TableCell>
                   <TableCell className="text-center">
                     <Button

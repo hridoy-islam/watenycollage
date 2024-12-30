@@ -1,9 +1,8 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
 
 export function AcademicYearDialog({ 
   open, 
@@ -11,15 +10,17 @@ export function AcademicYearDialog({
   onSubmit,
   initialData 
 }) {
-  const [name, setName] = useState(initialData?.name ?? "")
-  const [active, setActive] = useState(initialData?.active ?? true)
+  const [name, setName] = useState("")
+
+  useEffect(() => {
+        setName(initialData?.academic_year || "");
+      }, [initialData]);
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    onSubmit({ name, active })
+    onSubmit({ academic_year : name })
     onOpenChange(false)
     setName("")
-    setActive(true)
   }
 
   return (
@@ -38,14 +39,6 @@ export function AcademicYearDialog({
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-            />
-          </div>
-          <div className="flex items-center justify-between">
-            <Label htmlFor="active">Active</Label>
-            <Switch
-              id="active"
-              checked={active}
-              onCheckedChange={setActive}
             />
           </div>
           <div className="flex justify-end space-x-2">

@@ -133,59 +133,46 @@
 import { useForm, Controller } from "react-hook-form";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Link } from "react-router-dom";
+// import {
+//   Select,
+//   SelectContent,
+//   SelectItem,
+//   SelectTrigger,
+//   SelectValue,
+// } from "@/components/ui/select";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import { mockData } from "@/types";
-
-interface StudentFormData {
-  title: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  dateOfBirth: string;
-  gender: string;
-  maritalStatus: string;
-  addressLine1: string;
-  addressLine2: string;
-  townCity: string;
-  state: string;
-  postCode: string;
-  country: string;
-}
-
-
+import { useState } from "react";
+import { countries, mockData } from "@/types";
+import ErrorMessage from "@/components/shared/error-message";
+import axiosInstance from '../../../lib/axios';
+import moment from "moment";
+import { useToast } from "@/components/ui/use-toast";
+import Select from 'react-select';
 
 export default function NewStudentPage() {
-  const { control, handleSubmit, register, formState: { errors }, } = useForm<StudentFormData>({
-    defaultValues: {
-      title: "",
-      firstName: "",
-      lastName: "",
-      email: "",
-      phone: "",
-      dateOfBirth: "",
-      gender: "",
-      maritalStatus: "",
-      addressLine1: '',
-      addressLine2: '',
-      townCity: '',
-      state: '',
-      postCode: '',
-      country: ''
-    },
-  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { control, handleSubmit, register, formState: { errors }, } = useForm();
+  const { toast } = useToast();
+  const navigate = useNavigate();
 
-  const onSubmit = (data: StudentFormData) => {
-    console.log(data);
+ 
+
+  const onSubmit = async (data) => {
+    setIsSubmitting(true);
+    try {
+      const formattedDate = moment(data.dob).format("DD-MM-YYYY");
+      const formattedData = { ...data, dob: formattedDate };
+      await axiosInstance.post(`/students`, formattedData);
+      toast({ title: "Student Created successfully", className: "bg-supperagent border-none text-white", });
+      navigate('/admin/students');
+
+    } catch (error) {
+      console.error("Error fetching institutions:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -210,52 +197,61 @@ export default function NewStudentPage() {
             <Controller
               name="title"
               control={control}
+              defaultValue="" // Set the default value for the select
+              rules={{ required: "Title is required" }} // Validation rule
               render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select title" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {mockData.titles.map((title) => (
-                      <SelectItem key={title} value={title}>
-                        {title}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Select
+                  {...field}
+                  className="border-gray-300 focus:outline-transparent focus:border-gray-300 focus:ring-transparent"
+                  classNamePrefix="select"
+                  options={mockData.titles}
+                />
               )}
             />
-            {errors.title && <p className="text-red-600 text-sm">{errors.title.message}</p>}
+            <ErrorMessage message={errors.title?.message?.toString()} />
           </div>
 
           {/* First Name */}
           <div>
             <Label htmlFor="firstName">First Name *</Label>
-            <Input id="firstName" {...register("firstName", { required: true })} />
+            <Input id="firstName" {...register("firstName", { required: "First Name is required" })}
+            />
+            <ErrorMessage message={errors.firstName?.message?.toString()} />
+
           </div>
 
           {/* Last Name */}
           <div>
             <Label htmlFor="lastName">Last Name *</Label>
-            <Input id="lastName" {...register("lastName", { required: true })} />
+            <Input id="lastName" {...register("lastName", { required: "Last Name is required" })} />
+            <ErrorMessage message={errors.lastName?.message?.toString()} />
           </div>
 
           {/* Email */}
           <div>
             <Label htmlFor="email">Email *</Label>
-            <Input id="email" type="email" {...register("email", { required: true })} />
+            <Input id="email" type="email" {...register("email", {
+              required: "Email is required",
+              pattern: {
+                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                message: "Invalid email address",
+              },
+            })} />
+            <ErrorMessage message={errors.email?.message?.toString()} />
           </div>
 
           {/* Phone */}
           <div>
             <Label htmlFor="phone">Phone *</Label>
-            <Input id="phone" type="tel" {...register("phone", { required: true })} />
+            <Input id="phone" type="tel" {...register("phone", { required: "Phone is required" })} />
+            <ErrorMessage message={errors.phone?.message?.toString()} />
           </div>
 
           {/* Date of Birth */}
           <div>
-            <Label htmlFor="dateOfBirth">Date of Birth *</Label>
-            <Input id="dateOfBirth" type="date" {...register("dateOfBirth", { required: true })} />
+            <Label htmlFor="dob">Date of Birth *</Label>
+            <Input id="dob" type="date" {...register("dob", { required: "Date of Birth Requried" })} />
+            <ErrorMessage message={errors.dob?.message?.toString()} />
           </div>
 
           {/* Gender */}
@@ -264,44 +260,39 @@ export default function NewStudentPage() {
             <Controller
               name="gender"
               control={control}
+              defaultValue="" // Set the default value for the select
+              rules={{ required: "gender is required" }} // Validation rule
               render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select gender" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {mockData.gender.map((status) => (
-                      <SelectItem key={status} value={status}>
-                        {status}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Select
+                  {...field}
+                  className="border-gray-300 focus:outline-transparent focus:border-gray-300 focus:ring-transparent"
+                  classNamePrefix="select"
+                  options={mockData.gender}
+                />
               )}
             />
+            <ErrorMessage message={errors.gender?.message?.toString()} />
           </div>
 
           {/* Marital Status */}
           <div>
-            <Label htmlFor="maritalStatus">Marital Status *</Label>
+            <Label htmlFor="maritualStatus">Maritual Status *</Label>
             <Controller
               name="maritalStatus"
               control={control}
+              defaultValue="" // Set the default value for the select
+              rules={{ required: "Maritual Status is required" }} // Validation rule
               render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select marital status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {mockData.maritalStatuses.map((status) => (
-                      <SelectItem key={status} value={status}>
-                        {status}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Select
+                  {...field}
+                  className="border-gray-300 focus:outline-transparent focus:border-gray-300 focus:ring-transparent"
+                  classNamePrefix="select"
+                  options={mockData.maritalStatuses}
+                />
               )}
             />
+            <ErrorMessage message={errors.maritalStatus?.message?.toString()} />
+
           </div>
         </div>
 
@@ -310,46 +301,66 @@ export default function NewStudentPage() {
           {/* Title */}
           <div>
             <Label htmlFor="title">Address Line 1 *</Label>
-            <Input id="addressLine1" {...register("addressLine1", { required: true })} />
+            <Input id="addressLine1" {...register("addressLine1", { required: 'Address Line 1 Required' })} />
+            <ErrorMessage message={errors.addressLine1?.message?.toString()} />
           </div>
 
           {/* First Name */}
           <div>
             <Label htmlFor="addressLine2">Address Line 2</Label>
-            <Input id="addressLine2" {...register("addressLine2", { required: true })} />
+            <Input id="addressLine2" {...register("addressLine2", { required: 'Address Line 2 Required' })} />
+            <ErrorMessage message={errors.addressLine2?.message?.toString()} />
           </div>
 
           {/* Last Name */}
           <div>
             <Label htmlFor="townCity">Town / City *</Label>
-            <Input id="townCity" {...register("townCity", { required: true })} />
+            <Input id="townCity" {...register("townCity", { required: 'Town / City is Required' })} />
+            <ErrorMessage message={errors.townCity?.message?.toString()} />
           </div>
 
           {/* Email */}
           <div>
             <Label htmlFor="state">State *</Label>
-            <Input id="state" type="email" {...register("state", { required: true })} />
+            <Input id="state" {...register("state", { required: 'State is Required' })} />
+            <ErrorMessage message={errors.state?.message?.toString()} />
+
           </div>
 
           {/* Phone */}
           <div>
             <Label htmlFor="postCode">Post Code *</Label>
-            <Input id="postCode" type="tel" {...register("postCode", { required: true })} />
+            <Input id="postCode" {...register("postCode", { required: 'Post Code is Required' })} />
+            <ErrorMessage message={errors.postCode?.message?.toString()} />
           </div>
 
           {/* Phone */}
           <div>
             <Label htmlFor="country">Country</Label>
-            <Input id="country" type="tel" {...register("country", { required: true })} />
+            <Controller
+              name="country"
+              control={control}
+              defaultValue="" // Set the default value for the select
+              rules={{ required: "Country is required" }} // Validation rule
+              render={({ field }) => (
+                <Select
+                  {...field}
+                  className="border-gray-300 focus:outline-transparent focus:border-gray-300 focus:ring-transparent"
+                  classNamePrefix="select"
+                  options={countries}
+                />
+              )}
+            />
+            <ErrorMessage message={errors.country?.message?.toString()} />
           </div>
 
         </div>
         <div className="flex justify-end">
-          <Button type="submit" className="bg-supperagent text-white hover:bg-supperagent/90">
-            Submit
+          <Button type="submit" disabled={isSubmitting} className="bg-supperagent text-white hover:bg-supperagent/90">
+            {isSubmitting ? "Submitting..." : "Submit"}
           </Button>
         </div>
-      </form>
+      </form >
     </>
   );
 }

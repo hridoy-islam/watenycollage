@@ -1,6 +1,4 @@
-"use client"
-
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { ArrowLeft, Printer, Plus } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -14,35 +12,16 @@ import { ApplicationsSection } from "./components/application-section"
 import { EmergencyContacts } from "./components/emergency-contacts"
 import { PersonalInfoForm } from "./components/personal-info-form"
 import { AddressForm } from "./components/address-form"
+import { useParams } from "react-router-dom"
+import { useToast } from "@/components/ui/use-toast"
+import axiosInstance from '../../../lib/axios'
 
-const mockStudent: Student = {
-  id: "STD000001",
-  title: "Mr",
-  firstName: "Mark",
-  lastName: "Nemes",
-  email: "nemes.mark@yahoo.com",
-  phone: "07706457032",
-  dateOfBirth: "06-06-1976",
-  maritalStatus: "Single",
-  gender: "Male",
-  nationality: "United Kingdom",
-  countryOfResidence: "United Kingdom",
-  countryOfBirth: "Hungary",
-  nativeLanguage: "Hungarian",
-  institution: "Omniscient",
-  passportName: "",
-  passportIssueLocation: "",
-  passportNumber: "",
-  address: {
-    street: "19A London Road",
-    city: "Barking",
-    country: "England",
-    postalCode: "IG11 8AF"
-  }
-}
 
 export default function StudentViewPage() {
-  const [student, setStudent] = useState<Student>(mockStudent)
+  const { id } = useParams();
+  const [student, setStudent] = useState<any>([])
+  const [initialLoading, setInitialLoading] = useState(true); // New state for initial loading
+  const { toast } = useToast();
 
   const handleImageUpdate = (url: string) => {
     setStudent({ ...student, profileImage: url })
@@ -51,6 +30,22 @@ export default function StudentViewPage() {
   const handleSave = (data: Partial<Student>) => {
     setStudent({ ...student, ...data })
   }
+
+  const fetchData = async () => {
+    try {
+      if (initialLoading) setInitialLoading(true);
+      const response = await axiosInstance.get(`/students/${id}`);
+      setStudent(response.data.data);
+    } catch (error) {
+      console.error("Error fetching institutions:", error);
+    } finally {
+      setInitialLoading(false); // Disable initial loading after the first fetch
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [id]);
 
   return (
     <div className="min-h-screen">
@@ -88,10 +83,10 @@ export default function StudentViewPage() {
         </TabsList>
         <TabsContent value="personal">
           <PersonalDetailsForm student={student} onSave={handleSave} />
-          <AddressForm student={student} onSave={handleSave} />
-          <PersonalInfoForm student={student} onSave={handleSave}/>
-          <EmergencyContacts student={student} onSave={handleSave}/>
-          
+           <AddressForm student={student} onSave={handleSave} />
+          <PersonalInfoForm student={student} onSave={handleSave} />
+          <EmergencyContacts student={student} onSave={handleSave} />
+
         </TabsContent>
         <TabsContent value="travel">
           <TravelImmigrationHistory student={student} onSave={handleSave} />
@@ -106,7 +101,7 @@ export default function StudentViewPage() {
         <TabsContent value="application">
           <ApplicationsSection student={student} onSave={handleSave} />
         </TabsContent>
-        
+
         {/* Add other tab contents as needed */}
       </Tabs>
     </div>
