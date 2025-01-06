@@ -37,13 +37,13 @@ const initialApplications: Application[] = [
   }
 ]
 
-export function ApplicationsSection({ student, onSave }: PersonalDetailsFormProps) {
-  const [applications, setApplications] = useState<Application[]>(initialApplications)
+export function ApplicationsSection({ student, onSave }) {
+  const [applications, setApplications] = useState()
   const [pageSize, setPageSize] = useState(10)
   const [page, setPage] = useState(1)
   const [dialogOpen, setDialogOpen] = useState(false)
 
-  const handleAddCourse = (data: Omit<Application, "id" | "status" | "statusDate">) => {
+  const handleAddCourse = (data) => {
     const newApplication: Application = {
       id: Math.max(...applications.map(c => c.id)) + 1,
       ...data,
@@ -64,11 +64,7 @@ export function ApplicationsSection({ student, onSave }: PersonalDetailsFormProp
     }
   }
 
-  const totalPages = Math.ceil(applications.length / pageSize)
-  const paginatedapplications = applications.slice(
-    (page - 1) * pageSize,
-    page * pageSize
-  )
+ 
 
   return (
     <div className="space-y-4 p-4 rounded-md shadow-md">
@@ -94,14 +90,14 @@ export function ApplicationsSection({ student, onSave }: PersonalDetailsFormProp
           </TableRow>
         </TableHeader>
         <TableBody>
-          {paginatedapplications.length === 0 ? (
+          {applications.length === 0 ? (
             <TableRow>
               <TableCell colSpan={8} className="text-center">
                 No courses found
               </TableCell>
             </TableRow>
           ) : (
-            paginatedapplications.map((course) => (
+            applications.map((course) => (
               <TableRow key={course.id}>
                 <TableCell>{course.id}</TableCell>
                 <TableCell>{course.institution}</TableCell>
@@ -141,21 +137,13 @@ export function ApplicationsSection({ student, onSave }: PersonalDetailsFormProp
         </TableBody>
       </Table>
 
-      {applications.length > 0 && (
-        <DataTablePagination
-          pageSize={pageSize}
-          setPageSize={setPageSize}
-          currentPage={page}
-          totalPages={totalPages}
-          onPageChange={setPage}
-        />
-      )}
+      
 
-      <ApplicationDialog
+      {/* <ApplicationDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         onSubmit={handleAddCourse}
-      />
+      /> */}
     </div>
   )
 }

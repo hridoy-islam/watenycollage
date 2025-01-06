@@ -1,7 +1,7 @@
-import { useState } from "react"
-import { Plus } from 'lucide-react'
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
+import { useEffect, useState } from "react";
+import { Plus, Pencil } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
   TableBody,
@@ -9,58 +9,83 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { DataTablePagination } from "./data-table-pagination"
-import { AcademicHistoryDialog } from "./academic-history-dialog"
-import { EnglishExamDialog } from "./english-exam-dialog"
-import type { AcademicRecord, EnglishExam } from "@/types/index"
+} from "@/components/ui/table";
+import { AcademicHistoryDialog } from "./academic-history-dialog";
+import { EnglishExamDialog } from "./english-exam-dialog";
+import moment from "moment";
+import { Switch } from "@/components/ui/switch";
 
-export function AcademicRecords({ student, onSave }: PersonalDetailsFormProps) {
-  // State for academic history
-  const [academicNotRequired, setAcademicNotRequired] = useState(false)
-  const [academicHistory, setAcademicHistory] = useState<AcademicRecord[]>([])
-  const [academicPageSize, setAcademicPageSize] = useState(10)
-  const [academicPage, setAcademicPage] = useState(1)
-  const [newAcademicOpen, setNewAcademicOpen] = useState(false)
+export function AcademicRecords({ student, onSave }) {
+  const [academicNotRequired, setAcademicNotRequired] = useState(student.academicHistoryRequired);
+  const [academicHistory, setAcademicHistory] = useState<any>([]);
+  const [newAcademicOpen, setNewAcademicOpen] = useState(false);
+  const [editingAcademic, setEditingAcademic] = useState<any>(null);
 
-  // State for English exams
-  const [examNotRequired, setExamNotRequired] = useState(false)
-  const [examHistory, setExamHistory] = useState<EnglishExam[]>([])
-  const [examPageSize, setExamPageSize] = useState(10)
-  const [examPage, setExamPage] = useState(1)
-  const [newExamOpen, setNewExamOpen] = useState(false)
+  const [examNotRequired, setExamNotRequired] = useState(student.englishLanguageRequired);
+  const [examHistory, setExamHistory] = useState<any>([]);
+  const [newExamOpen, setNewExamOpen] = useState(false);
+  const [editingExam, setEditingExam] = useState<any>(null);
 
-  // Handlers for academic history
-  const handleAddAcademic = (data: Omit<AcademicRecord, "id">) => {
-    const newRecord: AcademicRecord = {
-      id: `AC${academicHistory.length + 1}`,
-      ...data,
+  useEffect(() => {
+    if (Array.isArray(student.academicHistory)) {
+      setAcademicHistory(student.academicHistory);
     }
-    setAcademicHistory([...academicHistory, newRecord])
-  }
-
-  // Handlers for English exams
-  const handleAddExam = (data: Omit<EnglishExam, "id">) => {
-    const newExam: EnglishExam = {
-      id: `EX${examHistory.length + 1}`,
-      ...data,
+    if (Array.isArray(student.examHistory)) {
+      setExamHistory(student.examHistory);
     }
-    setExamHistory([...examHistory, newExam])
-  }
+  }, [student.academicHistory, student.examHistory]);
 
-  // Pagination calculations
-  const academicTotalPages = Math.ceil(academicHistory.length / academicPageSize)
-  const examTotalPages = Math.ceil(examHistory.length / examPageSize)
+  const handleAddAcademic = async (data) => {
+    if (editingAcademic) {
+      const updatedRecord = { ...data, id: editingAcademic.id };
+      onSave({ academicHistory: [updatedRecord] });
+      setEditingAcademic(null);
+    } else {
+      onSave({ academicHistory: [data] });
+    }
+  };
 
-  const paginatedAcademicHistory = academicHistory.slice(
-    (academicPage - 1) * academicPageSize,
-    academicPage * academicPageSize
-  )
+  const handleAddExam = async (data) => {
+    if (editingExam) {
+      const updatedExam = { ...data, id: editingExam.id };
+      onSave({ englishLanguageExam: [updatedExam] });
+      setEditingExam(null);
+    } else {
+      onSave({ englishLanguageExam: [data] });
+    }
+  };
 
-  const paginatedExamHistory = examHistory.slice(
-    (examPage - 1) * examPageSize,
-    examPage * examPageSize
-  )
+  const handleEditAcademic = (record) => {
+    setEditingAcademic(record);
+    setNewAcademicOpen(true);
+  };
+
+  const handleEditExam = (exam) => {
+    setEditingExam(exam);
+    setNewExamOpen(true);
+  };
+
+
+  const handleAcademicNotRequiredChange = (checked) => {
+    setAcademicNotRequired(checked);
+    onSave({ academicHistoryRequired: checked });
+  };
+
+  const handleExamNotRequiredChange = (checked) => {
+    setExamNotRequired(checked);
+    onSave({ englishLanguageRequired: checked });
+  };
+
+  const handleStatusChange = (id, currentStatus) => {
+    // Toggle the status
+    const newStatus = currentStatus === 1 ? 0 : 1;
+    // Persist the change using onSave
+    const updatedContact = academicHistory.find(contact => contact.id === id);
+    if (updatedContact) {
+      const updatedContactWithStatus = { ...updatedContact, status: newStatus };
+      onSave({ academicHistoryRequired: [updatedContactWithStatus] });
+    }
+  };
 
   return (
     <div className="space-y-8">
@@ -68,7 +93,10 @@ export function AcademicRecords({ student, onSave }: PersonalDetailsFormProps) {
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">Academic History</h2>
           {!academicNotRequired && (
-            <Button className="bg-supperagent text-white hover:bg-supperagent/90" onClick={() => setNewAcademicOpen(true)}>
+            <Button
+              className="bg-supperagent text-white hover:bg-supperagent/90"
+              onClick={() => setNewAcademicOpen(true)}
+            >
               <Plus className="w-4 h-4 mr-2" />
               New History
             </Button>
@@ -79,7 +107,7 @@ export function AcademicRecords({ student, onSave }: PersonalDetailsFormProps) {
           <Checkbox
             id="academicNotRequired"
             checked={academicNotRequired}
-            onCheckedChange={(checked) => setAcademicNotRequired(checked as boolean)}
+            onCheckedChange={(checked) => handleAcademicNotRequiredChange(checked)}
           />
           <label htmlFor="academicNotRequired">
             Academic History not required for this student.
@@ -91,46 +119,59 @@ export function AcademicRecords({ student, onSave }: PersonalDetailsFormProps) {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[100px]">#ID</TableHead>
+                  
                   <TableHead>Institution</TableHead>
                   <TableHead>Course</TableHead>
                   <TableHead>Study Level</TableHead>
                   <TableHead>Result Score</TableHead>
+                  <TableHead>Out Of</TableHead>
                   <TableHead>Start Date</TableHead>
                   <TableHead>End Date</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {paginatedAcademicHistory.length === 0 ? (
+                {academicHistory.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center">
+                    <TableCell colSpan={9} className="text-center">
                       No matching records found
                     </TableCell>
                   </TableRow>
                 ) : (
-                  paginatedAcademicHistory.map((record) => (
+                  academicHistory.map((record) => (
                     <TableRow key={record.id}>
-                      <TableCell>{record.id}</TableCell>
+                      
                       <TableCell>{record.institution}</TableCell>
                       <TableCell>{record.course}</TableCell>
                       <TableCell>{record.studyLevel}</TableCell>
                       <TableCell>{record.resultScore}</TableCell>
-                      <TableCell>{record.startDate}</TableCell>
-                      <TableCell>{record.endDate}</TableCell>
-                      <TableCell>{record.status}</TableCell>
+                      <TableCell>{record.outOf}</TableCell>
+                      <TableCell>{moment(record.startDate).format('DD-MM-YYYY')}</TableCell>
+                      <TableCell>{moment(record.endDate).format('DD-MM-YYYY')}</TableCell>
+                      <TableCell>
+                      <Switch
+                            checked={parseInt(record.status) === 1}
+                            onCheckedChange={(checked) => handleStatusChange(record.id, checked ? 0 : 1)}
+                            className="mx-auto"
+                          />
+
+
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleEditAcademic(record)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   ))
                 )}
               </TableBody>
             </Table>
-            <DataTablePagination
-              pageSize={academicPageSize}
-              setPageSize={setAcademicPageSize}
-              currentPage={academicPage}
-              totalPages={academicTotalPages}
-              onPageChange={setAcademicPage}
-            />
           </>
         )}
       </div>
@@ -139,7 +180,10 @@ export function AcademicRecords({ student, onSave }: PersonalDetailsFormProps) {
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">English Language Exams</h2>
           {!examNotRequired && (
-            <Button className="bg-supperagent text-white hover:bg-supperagent/90" onClick={() => setNewExamOpen(true)}>
+            <Button
+              className="bg-supperagent text-white hover:bg-supperagent/90"
+              onClick={() => setNewExamOpen(true)}
+            >
               <Plus className="w-4 h-4 mr-2" />
               New Exam
             </Button>
@@ -150,7 +194,7 @@ export function AcademicRecords({ student, onSave }: PersonalDetailsFormProps) {
           <Checkbox
             id="examNotRequired"
             checked={examNotRequired}
-            onCheckedChange={(checked) => setExamNotRequired(checked as boolean)}
+            onCheckedChange={(checked) => handleExamNotRequiredChange(checked)}
           />
           <label htmlFor="examNotRequired">
             English exam not required for this student.
@@ -162,56 +206,66 @@ export function AcademicRecords({ student, onSave }: PersonalDetailsFormProps) {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[100px]">#ID</TableHead>
+                  
                   <TableHead>Exam</TableHead>
                   <TableHead>Exam Date</TableHead>
                   <TableHead>Score</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {paginatedExamHistory.length === 0 ? (
+                {examHistory.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center">
+                    <TableCell colSpan={6} className="text-center">
                       No matching records found
                     </TableCell>
                   </TableRow>
                 ) : (
-                  paginatedExamHistory.map((exam) => (
+                  examHistory.map((exam) => (
                     <TableRow key={exam.id}>
-                      <TableCell>{exam.id}</TableCell>
+                      
                       <TableCell>{exam.exam}</TableCell>
                       <TableCell>{exam.examDate}</TableCell>
                       <TableCell>{exam.score}</TableCell>
                       <TableCell>{exam.status}</TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleEditExam(exam)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   ))
                 )}
               </TableBody>
             </Table>
-            <DataTablePagination
-              pageSize={examPageSize}
-              setPageSize={setExamPageSize}
-              currentPage={examPage}
-              totalPages={examTotalPages}
-              onPageChange={setExamPage}
-            />
           </>
         )}
       </div>
 
       <AcademicHistoryDialog
         open={newAcademicOpen}
-        onOpenChange={setNewAcademicOpen}
+        onOpenChange={(open) => {
+          setNewAcademicOpen(open);
+          if (!open) setEditingAcademic(null);
+        }}
         onSubmit={handleAddAcademic}
+        initialData={editingAcademic}
       />
 
       <EnglishExamDialog
         open={newExamOpen}
-        onOpenChange={setNewExamOpen}
+        onOpenChange={(open) => {
+          setNewExamOpen(open);
+          if (!open) setEditingExam(null);
+        }}
         onSubmit={handleAddExam}
+        initialData={editingExam}
       />
     </div>
-  )
+  );
 }
-

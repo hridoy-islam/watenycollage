@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Pen, Plus, } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
@@ -11,19 +11,31 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { AgentDialog } from "./components/agent-dialog"
+import axiosInstance from '../../lib/axios';
+import { BlinkingDots } from "@/components/shared/blinking-dots"
 
-// Example initial agent data
-const initialAgents = [
-  { id: 1, agentName: "Acme Agency", organization: "Acme Corp", contactPerson: "Alice Smith", phone: "123-456-7890", email: "alice@acme.com", addressLine1: "123 Acme St", addressLine2: "Suite 101", townCity: "London", state: "London", postCode: "EC1A 1BB", country: "UK", nominatedStaff: "John Doe", active: true },
-  { id: 2, agentName: "Beta Solutions", organization: "Beta Ltd", contactPerson: "Bob Brown", phone: "234-567-8901", email: "bob@beta.com", addressLine1: "456 Beta Rd", addressLine2: "Building 2", townCity: "Manchester", state: "Greater Manchester", postCode: "M1 1AA", country: "UK", nominatedStaff: "Jane Smith", active: true },
-]
+
 
 const initialStaff = ["John Doe", "Jane Smith", "Sam Brown"]  // Example list of staff
 
 export default function AgentsPage() {
-  const [agents, setAgents] = useState(initialAgents)
+  const [agents, setAgents] = useState<any>([])
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingAgent, setEditingAgent] = useState(null)
+  const [initialLoading, setInitialLoading] = useState(true);
+
+
+  const fetchData = async () => {
+      try {
+        if (initialLoading) setInitialLoading(true);
+        const response = await axiosInstance.get(`/agents`);
+        setAgents(response.data.data.result);
+      } catch (error) {
+        console.error("Error fetching institutions:", error);
+      } finally {
+        setInitialLoading(false); // Disable initial loading after the first fetch
+      }
+    };
 
   const handleSubmit = (data) => {
     if (editingAgent) {
@@ -51,6 +63,10 @@ export default function AgentsPage() {
     setDialogOpen(true)
   }
 
+  useEffect(() => {
+      fetchData();
+    }, []);
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -64,6 +80,15 @@ export default function AgentsPage() {
         </Button>
       </div>
       <div className="rounded-md bg-white shadow-2xl p-4">
+        {initialLoading ? (
+                  <div className="flex justify-center py-6">
+                    <BlinkingDots size="large" color="bg-supperagent" />
+                  </div>
+                ) : agents.length === 0 ? (
+                  <div className="flex justify-center py-6 text-gray-500">
+                    No records found.
+                  </div>
+                ) : (
       <Table>
         <TableHeader>
           <TableRow>
@@ -109,6 +134,7 @@ export default function AgentsPage() {
           ))}
         </TableBody>
       </Table>
+      )}
       </div>
       <AgentDialog
         open={dialogOpen}

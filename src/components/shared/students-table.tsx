@@ -4,14 +4,13 @@ import { Switch } from "@/components/ui/switch"
 import { Eye, Trash2Icon } from 'lucide-react'
 import { Link } from "react-router-dom"
 
-export function StudentsTable({students, handleStatusChange}) {
+export function StudentsTable({students, handleStatusChange, currentPage, rowsPerPage}) {
   
   return (
-    <div className="rounded-md bg-white shadow-2xl p-4">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-12">#ID</TableHead>
+            
             <TableHead>Reference No</TableHead>
             <TableHead>Student Name</TableHead>
             <TableHead>Email</TableHead>
@@ -23,9 +22,9 @@ export function StudentsTable({students, handleStatusChange}) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {students.length > 0 && students?.map((student) => (
+          {students.length > 0 && students?.map((student, index) => (
             <TableRow key={student.id}>
-              <TableCell>{student.id}</TableCell>
+             
               <TableCell>{student.refId}</TableCell>
               <TableCell>{student.firstName} {student.lastName}</TableCell>
               <TableCell>{student.email}</TableCell>
@@ -59,7 +58,6 @@ export function StudentsTable({students, handleStatusChange}) {
           ))}
         </TableBody>
       </Table>
-    </div>
   )
 }
 

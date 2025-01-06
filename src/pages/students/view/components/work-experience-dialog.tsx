@@ -13,57 +13,72 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
-import type { WorkExperience } from "@/types/work"
+import { useEffect } from "react"
+import moment from "moment"
 
 const formSchema = z.object({
   jobTitle: z.string().min(1, "Job title is required"),
-  organizationName: z.string().min(1, "Organization name is required"),
-  organizationAddress: z.string().min(1, "Organization address is required"),
+  organization: z.string().min(1, "Organization name is required"),
+  address: z.string().min(1, "Organization address is required"),
   phone: z.string(),
   fromDate: z.string().min(1, "Start date is required"),
   toDate: z.string().nullable(),
   currentlyWorking: z.boolean(),
-  status: z.string().default("Active"),
 })
-
-interface WorkExperienceDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onSubmit: (data: Omit<WorkExperience, "id">) => void
-}
 
 export function WorkExperienceDialog({
   open,
   onOpenChange,
   onSubmit,
-}: WorkExperienceDialogProps) {
-  const form = useForm<z.infer<typeof formSchema>>({
+  initialData,
+}) {
+  const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       jobTitle: "",
-      organizationName: "",
-      organizationAddress: "",
+      organization: "",
+      address: "",
       phone: "",
       fromDate: "",
       toDate: null,
       currentlyWorking: false,
-      status: "Active",
     },
   })
 
   const currentlyWorking = form.watch("currentlyWorking")
 
-  const handleSubmit = (values: z.infer<typeof formSchema>) => {
-    onSubmit(values)
-    form.reset()
-    onOpenChange(false)
-  }
+
+  useEffect(() => {
+    if (initialData) {
+      form.reset({
+        ...initialData,
+        fromDate: moment(initialData.fromDate).format("YYYY-MM-DD"), // Format fromDate
+        toDate: initialData.toDate ? moment(initialData.toDate).format("YYYY-MM-DD") : null, // Format toDate if exists
+        currentlyWorking: initialData.currentlyWorking == 1 ? true : false, 
+      });  // Reset form with initial data when it changes
+    } else {
+      form.reset();  // Reset to empty values when adding a new contact
+    }
+  }, [initialData, form]);
+
+  console.log(initialData?.currentlyWorking)
+
+  const handleSubmit = (values) => {
+    const transformedData = {
+      ...values,
+      currentlyWorking: values.currentlyWorking ? 1 : 0,
+    };
+    onSubmit(transformedData);
+    form.reset();
+    onOpenChange(false);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add Work Experience</DialogTitle>
+
+          <DialogTitle>{initialData ? "Edit Work Experience" : "Add Work Experience"}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
@@ -82,7 +97,7 @@ export function WorkExperienceDialog({
             />
             <FormField
               control={form.control}
-              name="organizationName"
+              name="organization"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Organization Name</FormLabel>
@@ -95,7 +110,7 @@ export function WorkExperienceDialog({
             />
             <FormField
               control={form.control}
-              name="organizationAddress"
+              name="address"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Organization Address</FormLabel>
@@ -140,8 +155,8 @@ export function WorkExperienceDialog({
                   <FormItem>
                     <FormLabel>To Date</FormLabel>
                     <FormControl>
-                      <Input 
-                        type="date" 
+                      <Input
+                        type="date"
                         {...field}
                         value={value || ""}
                         onChange={onChange}
@@ -153,6 +168,7 @@ export function WorkExperienceDialog({
                 )}
               />
             </div>
+            
             <FormField
               control={form.control}
               name="currentlyWorking"
@@ -174,7 +190,9 @@ export function WorkExperienceDialog({
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
-              <Button type="submit">Add Work Experience</Button>
+              <Button className="bg-supperagent hover:bg-supperagent/90 text-white" type="submit">
+              {initialData ? "Update Work Experience" : "Add Work Experience"}
+              </Button>
             </div>
           </form>
         </Form>

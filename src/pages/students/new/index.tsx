@@ -133,13 +133,6 @@
 import { useForm, Controller } from "react-hook-form";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-// import {
-//   Select,
-//   SelectContent,
-//   SelectItem,
-//   SelectTrigger,
-//   SelectValue,
-// } from "@/components/ui/select";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -149,7 +142,14 @@ import ErrorMessage from "@/components/shared/error-message";
 import axiosInstance from '../../../lib/axios';
 import moment from "moment";
 import { useToast } from "@/components/ui/use-toast";
-import Select from 'react-select';
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function NewStudentPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -157,13 +157,19 @@ export default function NewStudentPage() {
   const { toast } = useToast();
   const navigate = useNavigate();
 
- 
+
 
   const onSubmit = async (data) => {
     setIsSubmitting(true);
     try {
-      const formattedDate = moment(data.dob).format("DD-MM-YYYY");
-      const formattedData = { ...data, dob: formattedDate };
+      const formattedData = {
+        ...data,
+        dob: moment(data.dob).format("DD-MM-YYYY"),
+        title: data.title,
+        gender: data.gender,
+        maritualStatus: data.maritalStatus,
+        country: data.country,
+      };
       await axiosInstance.post(`/students`, formattedData);
       toast({ title: "Student Created successfully", className: "bg-supperagent border-none text-white", });
       navigate('/admin/students');
@@ -197,17 +203,22 @@ export default function NewStudentPage() {
             <Controller
               name="title"
               control={control}
-              defaultValue="" // Set the default value for the select
-              rules={{ required: "Title is required" }} // Validation rule
+              rules={{ required: "Title is required" }}
               render={({ field }) => (
-                <Select
-                  {...field}
-                  className="border-gray-300 focus:outline-transparent focus:border-gray-300 focus:ring-transparent"
-                  classNamePrefix="select"
-                  options={mockData.titles}
-                />
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Please select" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {mockData.titles.map((title, index) => (
+                      <SelectItem key={index} value={title}>{title}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               )}
             />
+
+
             <ErrorMessage message={errors.title?.message?.toString()} />
           </div>
 
@@ -260,15 +271,18 @@ export default function NewStudentPage() {
             <Controller
               name="gender"
               control={control}
-              defaultValue="" // Set the default value for the select
-              rules={{ required: "gender is required" }} // Validation rule
+              rules={{ required: "Gender is required" }}
               render={({ field }) => (
-                <Select
-                  {...field}
-                  className="border-gray-300 focus:outline-transparent focus:border-gray-300 focus:ring-transparent"
-                  classNamePrefix="select"
-                  options={mockData.gender}
-                />
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Please select" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {mockData.gender.map((gender, index) => (
+                      <SelectItem key={index} value={gender}>{gender}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               )}
             />
             <ErrorMessage message={errors.gender?.message?.toString()} />
@@ -280,15 +294,18 @@ export default function NewStudentPage() {
             <Controller
               name="maritalStatus"
               control={control}
-              defaultValue="" // Set the default value for the select
-              rules={{ required: "Maritual Status is required" }} // Validation rule
+              rules={{ required: "Marital Status is required" }}
               render={({ field }) => (
-                <Select
-                  {...field}
-                  className="border-gray-300 focus:outline-transparent focus:border-gray-300 focus:ring-transparent"
-                  classNamePrefix="select"
-                  options={mockData.maritalStatuses}
-                />
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Please select" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {mockData.maritalStatuses.map((status, index) => (
+                      <SelectItem key={index} value={status}>{status}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               )}
             />
             <ErrorMessage message={errors.maritalStatus?.message?.toString()} />
@@ -340,15 +357,18 @@ export default function NewStudentPage() {
             <Controller
               name="country"
               control={control}
-              defaultValue="" // Set the default value for the select
-              rules={{ required: "Country is required" }} // Validation rule
+              rules={{ required: "Country is required" }}
               render={({ field }) => (
-                <Select
-                  {...field}
-                  className="border-gray-300 focus:outline-transparent focus:border-gray-300 focus:ring-transparent"
-                  classNamePrefix="select"
-                  options={countries}
-                />
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Please select" />
+                  </SelectTrigger>
+                  <SelectContent>
+                  {countries.map((country, index) => (
+                  <SelectItem key={index} value={country}>{country}</SelectItem>
+                ))}
+                  </SelectContent>
+                </Select>
               )}
             />
             <ErrorMessage message={errors.country?.message?.toString()} />

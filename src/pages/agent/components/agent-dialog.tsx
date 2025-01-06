@@ -194,13 +194,12 @@ export function AgentDialog({ open, onOpenChange, onSubmit, initialData, staffOp
             </Select>
           </div>
 
-          <div className="flex items-center space-x-2">
-            <label className="text-sm">Active</label>
-            <Switch
-              checked={active}
-              onCheckedChange={(checked) => setActive(checked)}
-            />
+          <div>
+            <label className="block text-sm font-medium">Password</label>
+            <Input type="password" />
           </div>
+
+          
         </div>
 
         <DialogFooter>

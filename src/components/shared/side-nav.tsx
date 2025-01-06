@@ -1,4 +1,4 @@
-import { HomeIcon, UsersIcon, Settings2Icon, FileTextIcon, UserIcon, ClipboardListIcon, UserCogIcon, ShieldIcon, ChevronDown, Settings2, CalendarCheck, RefreshCw, BookOpenCheck, Landmark, Users, CircleUser, Link2 } from 'lucide-react'
+import { HomeIcon, UsersIcon, Settings2Icon, FileTextIcon, UserIcon, ClipboardListIcon, ShieldIcon, ChevronDown, Settings2, CalendarCheck, RefreshCw, BookOpenCheck, Landmark, Users, CircleUser, Link2 } from 'lucide-react'
 import { cn } from "@/lib/utils"
 import { Link } from 'react-router-dom'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from '../ui/dropdown-menu'
@@ -14,8 +14,8 @@ const navItems = [
     ]
   },
   { icon: UsersIcon, label: "Students", href: "students" },
-  { icon: UserIcon, label: "Enrolled", href: "/enrolled" },
-  { icon: FileTextIcon, label: "Invoices", href: "/invoices" },
+  { icon: UserIcon, label: "Enrolled", href: "#" },
+  { icon: FileTextIcon, label: "Invoices", href: "#" },
   {
     icon: Settings2Icon,
     label: "Settings",

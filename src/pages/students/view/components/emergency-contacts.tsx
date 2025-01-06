@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -12,29 +12,25 @@ import {
 } from "@/components/ui/table";
 import { EmergencyContactDialog } from "./emergency-contact-dialog";
 
-export function EmergencyContacts({ student }) {
-  const [contacts, setContacts] = useState(student.emergencyContact);
+export function EmergencyContacts({ student, onSave }) {
+  const [contacts, setContacts] = useState(student.emergencyContact || []);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingContact, setEditingContact] = useState();
+  const [editingContact, setEditingContact] = useState<any>(null);
 
 
-  console.log(student.emergencyContact)
+  useEffect(() => {
+    if (Array.isArray(student.emergencyContact)) {
+      setContacts(student.emergencyContact);
+    }
+  }, [student.emergencyContact]);
 
-  const handleAddContact = (data) => {
+  const handleAddContact = async (data) => {
     if (editingContact) {
-      setContacts(
-        contacts.map((contact) =>
-          contact.id === editingContact.id ? { ...contact, ...data } : contact
-        )
-      );
-      setEditingContact(undefined);
+      const updatedContacts = { ...data, id: editingContact.id }
+      onSave({ emergencyContact: [updatedContacts] });
+      setEditingContact(null);
     } else {
-      const newContact = {
-        id: `EC${contacts.length + 1}`,
-        ...data,
-        status: true,
-      };
-      setContacts([...contacts, newContact]);
+      onSave({ emergencyContact: [data] });
     }
   };
 
@@ -43,12 +39,15 @@ export function EmergencyContacts({ student }) {
     setDialogOpen(true);
   };
 
-  const handleStatusChange = (id, status) => {
-    setContacts(
-      contacts.map((contact) =>
-        contact.id === id ? { ...contact, status } : contact
-      )
-    );
+  const handleStatusChange = (id, currentStatus) => {
+    // Toggle the status
+    const newStatus = currentStatus === 1 ? 0 : 1;
+    // Persist the change using onSave
+    const updatedContact = contacts.find(contact => contact.id === id);
+    if (updatedContact) {
+      const updatedContactWithStatus = { ...updatedContact, status: newStatus };
+      onSave({ emergencyContact: [updatedContactWithStatus] });
+    }
   };
 
   return (
@@ -67,7 +66,7 @@ export function EmergencyContacts({ student }) {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[100px]">#ID</TableHead>
+            
             <TableHead>Name</TableHead>
             <TableHead>Phone</TableHead>
             <TableHead>Email</TableHead>
@@ -78,7 +77,7 @@ export function EmergencyContacts({ student }) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {/* {contacts?.length === 0 ? (
+          {contacts.length === 0 ? (
             <TableRow>
               <TableCell colSpan={8} className="text-center">
                 No contacts found
@@ -87,7 +86,6 @@ export function EmergencyContacts({ student }) {
           ) : (
             contacts.map((contact) => (
               <TableRow key={contact.id}>
-                <TableCell>{contact.id}</TableCell>
                 <TableCell>{contact.name}</TableCell>
                 <TableCell>{contact.phone}</TableCell>
                 <TableCell>{contact.email}</TableCell>
@@ -95,10 +93,9 @@ export function EmergencyContacts({ student }) {
                 <TableCell>{contact.relationship}</TableCell>
                 <TableCell className="text-center">
                   <Switch
-                    checked={contact.status}
-                    onCheckedChange={(checked) =>
-                      handleStatusChange(contact.id, checked)
-                    }
+                    checked={parseInt(contact.status) === 1}
+                    onCheckedChange={(checked) => handleStatusChange(contact.id, checked ? 0 : 1)}
+                    className="mx-auto"
                   />
                 </TableCell>
                 <TableCell className="text-right">
@@ -112,7 +109,7 @@ export function EmergencyContacts({ student }) {
                 </TableCell>
               </TableRow>
             ))
-          )} */}
+          )}
         </TableBody>
       </Table>
 
@@ -120,7 +117,7 @@ export function EmergencyContacts({ student }) {
         open={dialogOpen}
         onOpenChange={(open) => {
           setDialogOpen(open);
-          if (!open) setEditingContact(undefined);
+          if (!open) setEditingContact(null);
         }}
         onSubmit={handleAddContact}
         initialData={editingContact}

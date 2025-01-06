@@ -6,7 +6,6 @@ import { ImageUploader } from "@/components/shared/image-uploader"
 
 export function StudentProfile({ student, onImageUpdate }) {
     const [uploadOpen, setUploadOpen] = useState(false)
-    console.log(student)
 
     return (
         <Card className="border-0 shadow-none">
@@ -14,7 +13,7 @@ export function StudentProfile({ student, onImageUpdate }) {
                 <div className="relative">
                     <div className="relative h-48 w-48 overflow-hidden rounded-full">
                         <img
-                            src={student.profileImage || "https://kzmjkvje8tr2ra724fhh.lite.vusercontent.net/placeholder.svg"}
+                            src={student.profile || "https://kzmjkvje8tr2ra724fhh.lite.vusercontent.net/placeholder.svg"}
                             alt={`${student.firstName} ${student.lastName}`}
                             className="object-cover h-full w-full"
                         />
@@ -73,6 +72,7 @@ export function StudentProfile({ student, onImageUpdate }) {
                 open={uploadOpen}
                 onOpenChange={setUploadOpen}
                 onUploadComplete={onImageUpdate}
+                studentId={student.id}
             />
         </Card>
     )

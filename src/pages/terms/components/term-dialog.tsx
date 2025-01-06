@@ -13,7 +13,7 @@ import AsyncSelect from "react-select/async";
 
 export function TermDialog({ open, onOpenChange, onSubmit, initialData }) {
   const [name, setName] = useState(""); // State for term name
-  const [academicYear, setAcademicYear] = useState(null); // State for selected academic year
+  const [academicYear, setAcademicYear] = useState<any>(null); // State for selected academic year
 
   // Fetch options for academic year dropdown
   const loadOptions = async (inputValue) => {

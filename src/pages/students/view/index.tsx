@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { StudentProfile } from "./components/student-profile"
 import { PersonalDetailsForm } from "./components/personal-details-form"
-import type { Student } from "@/types/index"
 import { TravelImmigrationHistory } from "./components/travel-immigration-history"
 import { AcademicRecords } from "./components/academic-records"
 import { WorkExperienceSection } from "./components/work-experience"
@@ -12,24 +11,18 @@ import { ApplicationsSection } from "./components/application-section"
 import { EmergencyContacts } from "./components/emergency-contacts"
 import { PersonalInfoForm } from "./components/personal-info-form"
 import { AddressForm } from "./components/address-form"
-import { useParams } from "react-router-dom"
-import { useToast } from "@/components/ui/use-toast"
+import { Link, useParams } from "react-router-dom"
 import axiosInstance from '../../../lib/axios'
+import { RefusalHistory } from "./components/refusal-history"
+import { DocumentsSection } from "./components/documents-section"
 
 
 export default function StudentViewPage() {
   const { id } = useParams();
   const [student, setStudent] = useState<any>([])
   const [initialLoading, setInitialLoading] = useState(true); // New state for initial loading
-  const { toast } = useToast();
 
-  const handleImageUpdate = (url: string) => {
-    setStudent({ ...student, profileImage: url })
-  }
-
-  const handleSave = (data: Partial<Student>) => {
-    setStudent({ ...student, ...data })
-  }
+  
 
   const fetchData = async () => {
     try {
@@ -43,6 +36,15 @@ export default function StudentViewPage() {
     }
   };
 
+  const handleImageUpdate = (data) => {
+    fetchData()
+  }
+
+  const handleSave = async(data) => {
+    await axiosInstance.patch(`/students/${id}`, data);
+    fetchData();
+  }
+
   useEffect(() => {
     fetchData();
   }, [id]);
@@ -52,10 +54,12 @@ export default function StudentViewPage() {
       <header className="flex items-center justify-between px-6 py-3">
         <h1 className="text-2xl font-semibold">View Student</h1>
         <div className="flex items-center gap-2">
+        <Link to={'/admin/students'}>
           <Button variant="outline" size="sm" className="bg-supperagent border-none hover:bg-supperagent/90">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to List
           </Button>
+          </Link>
           <Button variant="outline" size="sm">
             <Printer className="mr-2 h-4 w-4" />
             Print
@@ -82,24 +86,27 @@ export default function StudentViewPage() {
           <TabsTrigger value="communications" className="data-[state=active]:bg-supperagent data-[state=active]:text-white">Communications</TabsTrigger>
         </TabsList>
         <TabsContent value="personal">
-          <PersonalDetailsForm student={student} onSave={handleSave} />
-           <AddressForm student={student} onSave={handleSave} />
-          <PersonalInfoForm student={student} onSave={handleSave} />
-          <EmergencyContacts student={student} onSave={handleSave} />
+          <PersonalDetailsForm student={student} onSave={handleSave}/>
+           <AddressForm student={student} onSave={handleSave}/>
+          <PersonalInfoForm student={student} onSave={handleSave}/>
+          <EmergencyContacts student={student} onSave={handleSave}/>
 
         </TabsContent>
         <TabsContent value="travel">
-          <TravelImmigrationHistory student={student} onSave={handleSave} />
+          <TravelImmigrationHistory student={student} onSave={handleSave}/>
+          <RefusalHistory student={student} onSave={handleSave} />
         </TabsContent>
         <TabsContent value="education">
-          <AcademicRecords student={student} onSave={handleSave} />
+          <AcademicRecords student={student} onSave={handleSave}/>
         </TabsContent>
         <TabsContent value="work">
-          <WorkExperienceSection student={student} onSave={handleSave} />
+          <WorkExperienceSection student={student} onSave={handleSave}/>
         </TabsContent>
-
+        <TabsContent value="documents">
+          <DocumentsSection student={student} onDocumentUpdate={fetchData}/>
+        </TabsContent>
         <TabsContent value="application">
-          <ApplicationsSection student={student} onSave={handleSave} />
+          <ApplicationsSection student={student}/>
         </TabsContent>
 
         {/* Add other tab contents as needed */}

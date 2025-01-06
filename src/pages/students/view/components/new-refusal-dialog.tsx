@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -11,27 +11,49 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import type { RefusalHistory } from "@/types/index"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
+import moment from "moment"
+import { mockData } from "@/types"
 
-interface NewRefusalDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onSubmit: (data: Omit<RefusalHistory, "id">) => void
-}
+const formSchema = z.object({
+  refusalType: z.string().min(1, "Refusal Type is required"),
+  refusalDate: z.string().min(1, "Refusal Date is required"),
+  details: z.string().min(1, "Details are required"),
+  country: z.string().min(1, "Country is required"),
+  visaType: z.string().min(1, "Visa Type is required"),
+})
 
-export function NewRefusalDialog({ open, onOpenChange, onSubmit }: NewRefusalDialogProps) {
-  const [formData, setFormData] = useState({
-    refusalType: "",
-    refusalDate: "",
-    details: "",
-    country: "",
-    visaType: "",
-    status: "Refused"
+export function NewRefusalDialog({ open, onOpenChange, onSubmit, initialData }) {
+  const form = useForm({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      refusalType: "",
+      refusalDate: initialData?.refusalDate ? moment(initialData.refusalDate, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD') : moment().format('YYYY-MM-DD'),
+      details: "",
+      country: "",
+      visaType: "",
+    },
   })
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    onSubmit(formData)
+  useEffect(() => {
+    if (initialData) {
+      form.reset({
+        ...initialData,
+        refusalDate: initialData?.refusalDate ? moment(initialData.refusalDate, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD') : moment().format('YYYY-MM-DD'),
+      })
+    } else {
+      form.reset()
+    }
+  }, [initialData, form])
+
+  const handleSubmit = (values) => {
+    const transformedData = {
+      ...values,
+    };
+    onSubmit(transformedData)
+    form.reset()
     onOpenChange(false)
   }
 
@@ -39,23 +61,26 @@ export function NewRefusalDialog({ open, onOpenChange, onSubmit }: NewRefusalDia
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add New Refusal History</DialogTitle>
+          <DialogTitle>
+            {initialData ? "Edit Refusal History" : "Add New Refusal History"}
+          </DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="refusalType">Refusal Type</Label>
+            <Label>Refusal Type</Label>
             <Select
-              value={formData.refusalType}
-              onValueChange={(value) => setFormData({ ...formData, refusalType: value })}
+              value={form.watch("refusalType")}
+              onValueChange={(value) => form.setValue("refusalType", value)}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select refusal type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="visa">Visa Refusal</SelectItem>
-                <SelectItem value="permission">Permission to Stay</SelectItem>
-                <SelectItem value="asylum">Asylum</SelectItem>
-                <SelectItem value="deportation">Deportation</SelectItem>
+                {mockData.refusalTypes.map((title, index) => (
+                  <SelectItem key={index} value={title}>
+                    {title}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -64,43 +89,38 @@ export function NewRefusalDialog({ open, onOpenChange, onSubmit }: NewRefusalDia
             <Input
               id="refusalDate"
               type="date"
-              value={formData.refusalDate}
-              onChange={(e) => setFormData({ ...formData, refusalDate: e.target.value })}
-              required
+              {...form.register("refusalDate")}
             />
           </div>
           <div className="space-y-2">
             <Label htmlFor="details">Details</Label>
             <Textarea
               id="details"
-              value={formData.details}
-              onChange={(e) => setFormData({ ...formData, details: e.target.value })}
-              required
+              {...form.register("details")}
             />
           </div>
           <div className="space-y-2">
             <Label htmlFor="country">Country</Label>
             <Input
               id="country"
-              value={formData.country}
-              onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-              required
+              {...form.register("country")}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="visaType">Visa Type</Label>
+            <Label>Visa Type</Label>
             <Select
-              value={formData.visaType}
-              onValueChange={(value) => setFormData({ ...formData, visaType: value })}
+              value={form.watch("visaType")}
+              onValueChange={(value) => form.setValue("visaType", value)}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select visa type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="student">Student</SelectItem>
-                <SelectItem value="work">Work</SelectItem>
-                <SelectItem value="tourist">Tourist</SelectItem>
-                <SelectItem value="family">Family</SelectItem>
+                {mockData.visaTypes.map((title, index) => (
+                  <SelectItem key={index} value={title}>
+                    {title}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -108,11 +128,10 @@ export function NewRefusalDialog({ open, onOpenChange, onSubmit }: NewRefusalDia
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit">Add Refusal</Button>
+            <Button className="bg-supperagent hover:bg-supperagent/90 text-white" type="submit">{initialData ? "Update Refusal" : "Add Refusal"}</Button>
           </div>
         </form>
       </DialogContent>
     </Dialog>
   )
 }
-

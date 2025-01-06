@@ -1,8 +1,9 @@
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -10,32 +11,25 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import type { EmergencyContact } from "@/types/student"
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 
+// Schema for form validation
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
   phone: z.string().min(1, "Phone number is required"),
   email: z.string().email("Invalid email address"),
   address: z.string().min(1, "Address is required"),
   relationship: z.string().min(1, "Relationship is required"),
-})
-
-interface EmergencyContactDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onSubmit: (data: Omit<EmergencyContact, "id" | "status">) => void
-  initialData?: EmergencyContact
-}
+});
 
 export function EmergencyContactDialog({
   open,
   onOpenChange,
   onSubmit,
   initialData,
-}: EmergencyContactDialogProps) {
-  const form = useForm<z.infer<typeof formSchema>>({
+}) {
+  const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: initialData || {
       name: "",
@@ -44,24 +38,31 @@ export function EmergencyContactDialog({
       address: "",
       relationship: "",
     },
-  })
+  });
 
-  const handleSubmit = (values: z.infer<typeof formSchema>) => {
-    onSubmit(values)
-    form.reset()
-    onOpenChange(false)
-  }
+  useEffect(() => {
+    if (initialData) {
+      form.reset(initialData);  // Reset form with initial data when it changes
+    } else {
+      form.reset();  // Reset to empty values when adding a new contact
+    }
+  }, [initialData, form]);
+
+  const handleSubmit = (values) => {
+    onSubmit(values);
+    form.reset();
+    onOpenChange(false);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>
-            {initialData ? 'Edit Contact' : 'Add Emergency Contact'}
-          </DialogTitle>
+          <DialogTitle>{initialData ? "Edit Contact" : "Add Emergency Contact"}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+            {/* Name Field */}
             <FormField
               control={form.control}
               name="name"
@@ -75,6 +76,7 @@ export function EmergencyContactDialog({
                 </FormItem>
               )}
             />
+            {/* Phone Field */}
             <FormField
               control={form.control}
               name="phone"
@@ -88,6 +90,7 @@ export function EmergencyContactDialog({
                 </FormItem>
               )}
             />
+            {/* Email Field */}
             <FormField
               control={form.control}
               name="email"
@@ -101,6 +104,7 @@ export function EmergencyContactDialog({
                 </FormItem>
               )}
             />
+            {/* Address Field */}
             <FormField
               control={form.control}
               name="address"
@@ -114,6 +118,7 @@ export function EmergencyContactDialog({
                 </FormItem>
               )}
             />
+            {/* Relationship Field */}
             <FormField
               control={form.control}
               name="relationship"
@@ -127,18 +132,16 @@ export function EmergencyContactDialog({
                 </FormItem>
               )}
             />
+            {/* Action Buttons */}
             <div className="flex justify-end space-x-2">
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
-              <Button type="submit">
-                {initialData ? 'Update' : 'Add'} Contact
-              </Button>
+              <Button type="submit" className={"bg-supperagent text-white hover:bg-supperagent/90"}>{initialData ? "Update" : "Add"} Contact</Button>
             </div>
           </form>
         </Form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
-

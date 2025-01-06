@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Plus, Pencil } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -11,55 +11,52 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { DataTablePagination } from "./data-table-pagination"
 import { WorkExperienceDialog } from "./work-experience-dialog"
-import type { WorkExperience } from "@/types/index"
+import moment from "moment"
 
-export function WorkExperienceSection({ student, onSave }: PersonalDetailsFormProps) {
+export function WorkExperienceSection({ student, onSave }) {
   const [noExperience, setNoExperience] = useState(false)
-  const [workExperiences, setWorkExperiences] = useState<WorkExperience[]>([
-    {
-      id: "22",
-      jobTitle: "Chef",
-      organizationName: "Champer Champer",
-      organizationAddress: "Holborn",
-      phone: "",
-      fromDate: "2019-01-01",
-      toDate: "2021-12-31",
-      currentlyWorking: false,
-      status: "Completed"
-    }
-  ])
-  const [pageSize, setPageSize] = useState(10)
-  const [page, setPage] = useState(1)
+  const [workExperiences, setWorkExperiences] = useState<any>(student.workDetails || [])
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [editingExperience, setEditingExperience] = useState<WorkExperience | null>(null)
+  const [editingWorkDetail, setEditingWorkDetail] = useState<any>(null)
 
-  const handleAddExperience = (data: Omit<WorkExperience, "id">) => {
-    if (editingExperience) {
-      setWorkExperiences(workExperiences.map(exp => 
-        exp.id === editingExperience.id ? { ...exp, ...data } : exp
-      ))
-      setEditingExperience(null)
-    } else {
-      const newExperience: WorkExperience = {
-        id: `WE${workExperiences.length + 1}`,
-        ...data
-      }
-      setWorkExperiences([...workExperiences, newExperience])
-    }
-  }
 
-  const handleEdit = (experience: WorkExperience) => {
-    setEditingExperience(experience)
+  const handleEdit = (experience) => {
+    setEditingWorkDetail(experience)
     setDialogOpen(true)
   }
 
-  const totalPages = Math.ceil(workExperiences.length / pageSize)
-  const paginatedExperiences = workExperiences.slice(
-    (page - 1) * pageSize,
-    page * pageSize
-  )
+  useEffect(() => {
+    if (Array.isArray(student.workDetails)) {
+      setWorkExperiences(student.workDetails);
+    }
+  }, [student.workDetails]);
+
+  const handleAddWorkDetail = async (data) => {
+    if (editingWorkDetail) {
+      const updatedWorkDetail = { ...data, id: editingWorkDetail.id }
+      onSave({ workDetails: [updatedWorkDetail] });
+      setEditingWorkDetail(null);
+    } else {
+      onSave({ workDetails: [data] });
+    }
+  };
+
+  const handleWorkExperience = (checked) => {
+    setNoExperience(checked);
+    onSave({ workExperience: checked });
+  };
+
+  const handleStatusChange = (id, currentStatus) => {
+    // Toggle the status
+    const newStatus = currentStatus === 1 ? 0 : 1;
+    // Persist the change using onSave
+    const updatedContact = workExperiences.find(contact => contact.id === id);
+    if (updatedContact) {
+      const updatedContactWithStatus = { ...updatedContact, status: newStatus };
+      onSave({ workDetails: [updatedContactWithStatus] });
+    }
+  };
 
   return (
     <div className="space-y-4 rounded-md shadow-md p-4">
@@ -74,11 +71,14 @@ export function WorkExperienceSection({ student, onSave }: PersonalDetailsFormPr
       </div>
 
       <div className="flex items-center space-x-2">
+
+
         <Checkbox
           id="noExperience"
           checked={noExperience}
-          onCheckedChange={(checked) => setNoExperience(checked as boolean)}
+          onCheckedChange={(checked) => handleWorkExperience(checked)}
         />
+
         <label htmlFor="noExperience">
           No work Experiences.
         </label>
@@ -89,7 +89,7 @@ export function WorkExperienceSection({ student, onSave }: PersonalDetailsFormPr
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[100px]">#ID</TableHead>
+
                 <TableHead>Job Title</TableHead>
                 <TableHead>Name of Org.</TableHead>
                 <TableHead>Org. Address</TableHead>
@@ -102,37 +102,36 @@ export function WorkExperienceSection({ student, onSave }: PersonalDetailsFormPr
               </TableRow>
             </TableHeader>
             <TableBody>
-              {paginatedExperiences.length === 0 ? (
+              {workExperiences?.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={10} className="text-center">
                     No matching records found
                   </TableCell>
                 </TableRow>
               ) : (
-                paginatedExperiences.map((experience) => (
+                workExperiences.map((experience) => (
                   <TableRow key={experience.id}>
-                    <TableCell>{experience.id}</TableCell>
                     <TableCell>{experience.jobTitle}</TableCell>
-                    <TableCell>{experience.organizationName}</TableCell>
-                    <TableCell>{experience.organizationAddress}</TableCell>
+                    <TableCell>{experience.organization}</TableCell>
+                    <TableCell>{experience.address}</TableCell>
                     <TableCell>{experience.phone}</TableCell>
-                    <TableCell>{experience.fromDate}</TableCell>
+                    <TableCell>{moment(experience.fromDate).format('DD-MM-YYYY')}</TableCell>
                     <TableCell>
-                      {experience.currentlyWorking ? "Present" : experience.toDate}
+                      {experience.toDate !==null && moment(experience.toDate).format('DD-MM-YYYY')}
                     </TableCell>
                     <TableCell className="text-center">
-                      <Switch
-                        checked={experience.currentlyWorking}
-                        onCheckedChange={(checked) => {
-                          setWorkExperiences(workExperiences.map(exp =>
-                            exp.id === experience.id
-                              ? { ...exp, currentlyWorking: checked }
-                              : exp
-                          ))
-                        }}
-                      />
+                    {experience.currentlyWorking == 1 && "Yes"}
                     </TableCell>
-                    <TableCell>{experience.status}</TableCell>
+                    <TableCell>
+
+                      <Switch
+                        checked={parseInt(experience.status) === 1}
+                        onCheckedChange={(checked) => handleStatusChange(experience.id, checked ? 0 : 1)}
+                        className="mx-auto"
+                      />
+
+
+                    </TableCell>
                     <TableCell className="text-right">
                       <Button
                         variant="ghost"
@@ -147,13 +146,7 @@ export function WorkExperienceSection({ student, onSave }: PersonalDetailsFormPr
               )}
             </TableBody>
           </Table>
-          <DataTablePagination
-            pageSize={pageSize}
-            setPageSize={setPageSize}
-            currentPage={page}
-            totalPages={totalPages}
-            onPageChange={setPage}
-          />
+
         </>
       )}
 
@@ -161,9 +154,10 @@ export function WorkExperienceSection({ student, onSave }: PersonalDetailsFormPr
         open={dialogOpen}
         onOpenChange={(open) => {
           setDialogOpen(open)
-          if (!open) setEditingExperience(null)
+          if (!open) setEditingWorkDetail(null)
         }}
-        onSubmit={handleAddExperience}
+        onSubmit={handleAddWorkDetail}
+        initialData={editingWorkDetail}
       />
     </div>
   )

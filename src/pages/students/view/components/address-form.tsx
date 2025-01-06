@@ -1,30 +1,49 @@
-import { useForm, FormProvider, Controller } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import Select from 'react-select';
 import { countries } from "@/types";
-import axiosInstance from '../../../../lib/axios'
-import { useToast } from "@/components/ui/use-toast";
+import ErrorMessage from "@/components/shared/error-message";
+import { useEffect } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-export function AddressForm({ student }) {
-  const { control, handleSubmit, register } = useForm();
-  const { toast } = useToast();
-  const onSubmit = async (data) => {
-    try {
-      const countryValue = data.country ? data.country.value : "";
-      const formData = {
-        ...data,
-        country: countryValue,  // Update country field to only contain the value
-      };
-      await axiosInstance.patch(`/students/${student.id}`, formData);
-      toast({ title: "Student Updated successfully", className: "bg-supperagent border-none text-white", });
-      
-    } catch (error) {
-      console.error("Error fetching institutions:", error);
+export function AddressForm({ student, onSave }) {
+  const { handleSubmit, register, control, reset, formState: { errors } } = useForm({
+    defaultValues: {
+      addressLine1: "",
+      addressLine2: "",
+      townCity: "",
+      state: "",
+      postCode: "",
+      country: "",
+    },
+  });
+
+  // Populate form fields when `student` data is available
+  useEffect(() => {
+    if (student) {
+      reset({
+        addressLine1: student.addressLine1 || "",
+        addressLine2: student.addressLine2 || "",
+        townCity: student.townCity || "",
+        state: student.state || "",
+        postCode: student.postCode || "",
+        country: student.country || "",
+      });
     }
+  }, [student, reset]);
 
+  const onSubmit = (data) => {
+    console.log("on address", data);
+    onSave(data);
   };
+
 
   return (
     <div className="space-y-4 p-4 shadow-md rounded-md">
@@ -35,44 +54,50 @@ export function AddressForm({ student }) {
         <div className="grid grid-cols-3 gap-6">
           <div className="space-y-2">
             <Label htmlFor="addressLine1">Address Line 1*</Label>
-            <Input id="addressLine1"
-              defaultValue={student.addressLine1}
-              {...register("addressLine1")}
-            />
+            <Input id="addressLine1" {...register("addressLine1", { required: "Address Line 1 is required" })}  />
+            <ErrorMessage message={errors.addressLine1?.message?.toString()} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="addressLine2">Address Line 2*</Label>
             <Input id="addressLine2"
-              defaultValue={student.addressLine2}
-              {...register("addressLine2")} />
+              
+              {...register("addressLine2", { required: "Address Line 2 is required" })} />
+            <ErrorMessage message={errors.addressLine2?.message?.toString()} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="townCity">Town / City</Label>
-            <Input id="townCity" defaultValue={student.townCity} {...register("townCity")} />
+            <Input id="townCity"  {...register("townCity")} />
 
           </div>
           <div className="space-y-2">
             <Label htmlFor="state">State</Label>
-            <Input id="state" defaultValue={student.state} {...register("state")} />
+            <Input id="state"  {...register("state")} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="postCode">Post Code</Label>
-            <Input id="postCode" defaultValue={student.postCode} {...register("postCode")} />
+            <Input id="postCode" {...register("postCode")} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="country">Country</Label>
-            <Controller
+            <Input id="country" {...register("country")} />
+            {/* <Controller
               name="country"
               control={control}
-              defaultValue={student.country || ""}
               render={({ field }) => (
-                <Select
-                  {...field}
-                  classNamePrefix="select"
-                  options={countries}
-                />
+                <Select {...field} value={field.value}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Please select" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {countries.map((title, index) => (
+                      <SelectItem key={index} value={title}>
+                        {title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               )}
-            />
+            /> */}
           </div>
 
         </div>
