@@ -17,7 +17,6 @@ export function EmergencyContacts({ student, onSave }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingContact, setEditingContact] = useState<any>(null);
 
-
   useEffect(() => {
     if (Array.isArray(student.emergencyContact)) {
       setContacts(student.emergencyContact);
@@ -26,7 +25,7 @@ export function EmergencyContacts({ student, onSave }) {
 
   const handleAddContact = async (data) => {
     if (editingContact) {
-      const updatedContacts = { ...data, id: editingContact.id }
+      const updatedContacts = { ...data, id: editingContact.id };
       onSave({ emergencyContact: [updatedContacts] });
       setEditingContact(null);
     } else {
@@ -43,11 +42,24 @@ export function EmergencyContacts({ student, onSave }) {
     // Toggle the status
     const newStatus = currentStatus === 1 ? 0 : 1;
     // Persist the change using onSave
-    const updatedContact = contacts.find(contact => contact.id === id);
+    const updatedContact = contacts.find((contact) => contact.id === id);
     if (updatedContact) {
       const updatedContactWithStatus = { ...updatedContact, status: newStatus };
       onSave({ emergencyContact: [updatedContactWithStatus] });
     }
+  };
+
+  // Reset editingContact to default blank values when opening the dialog for a new contact
+  const handleOpenDialog = () => {
+    setEditingContact({
+      name: "",
+      phone: "",
+      email: "",
+      address: "",
+      relationship: "",
+      status: 1, // Default status (active)
+    });
+    setDialogOpen(true);
   };
 
   return (
@@ -56,7 +68,7 @@ export function EmergencyContacts({ student, onSave }) {
         <h2 className="text-lg font-semibold">Emergency Contacts</h2>
         <Button
           className="bg-supperagent hover:bg-supperagent/90 text-white"
-          onClick={() => setDialogOpen(true)}
+          onClick={handleOpenDialog} // Use handleOpenDialog instead of directly setting dialogOpen
         >
           <Plus className="w-4 h-4 mr-2" />
           New Contact
@@ -66,7 +78,6 @@ export function EmergencyContacts({ student, onSave }) {
       <Table>
         <TableHeader>
           <TableRow>
-            
             <TableHead>Name</TableHead>
             <TableHead>Phone</TableHead>
             <TableHead>Email</TableHead>
@@ -94,7 +105,9 @@ export function EmergencyContacts({ student, onSave }) {
                 <TableCell className="text-center">
                   <Switch
                     checked={parseInt(contact.status) === 1}
-                    onCheckedChange={(checked) => handleStatusChange(contact.id, checked ? 0 : 1)}
+                    onCheckedChange={(checked) =>
+                      handleStatusChange(contact.id, checked ? 0 : 1)
+                    }
                     className="mx-auto"
                   />
                 </TableCell>
@@ -117,10 +130,10 @@ export function EmergencyContacts({ student, onSave }) {
         open={dialogOpen}
         onOpenChange={(open) => {
           setDialogOpen(open);
-          if (!open) setEditingContact(null);
+          if (!open) setEditingContact(null); // Reset editingContact when dialog is closed
         }}
         onSubmit={handleAddContact}
-        initialData={editingContact}
+        initialData={editingContact} // Pass the editingContact as initialData
       />
     </div>
   );
