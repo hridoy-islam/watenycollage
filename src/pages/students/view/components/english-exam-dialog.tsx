@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import moment from "moment";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -51,6 +50,7 @@ export function EnglishExamDialog({ open, onOpenChange, onSubmit, initialData })
   const handleSubmit = (values) => {
     const transformedData = {
       ...values,
+      
     };
     onSubmit(transformedData);
     form.reset();
@@ -107,7 +107,7 @@ export function EnglishExamDialog({ open, onOpenChange, onSubmit, initialData })
                 <FormItem>
                   <FormLabel>Score</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input {...field} type="number" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

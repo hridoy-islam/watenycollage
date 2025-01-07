@@ -20,7 +20,7 @@ export function TravelImmigrationHistory({ student, onSave }) {
   const [currentlyInUK, setCurrentlyInUK] = useState(student.currentlyInUk)
   const [visaHistory, setVisaHistory] = useState<VisaHistory[]>([])
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [editingHistory, setEditingHistory] = useState<any>(null)
+  const [editingHistory, setEditingHistory] = useState(null)
 
   const handleEditHistory = (experience) => {
     setEditingHistory(experience)

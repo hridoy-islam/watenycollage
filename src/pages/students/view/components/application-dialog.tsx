@@ -19,7 +19,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import type { Application } from "@/types/index"
 
 const formSchema = z.object({
   institution: z.string().min(1, "Institution is required"),
@@ -29,18 +28,14 @@ const formSchema = z.object({
   amount: z.number().min(0, "Amount must be positive"),
 })
 
-interface ApplicationDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onSubmit: (data: Omit<Application, "id" | "status" | "statusDate">) => void
-}
+
 
 export function ApplicationDialog({
   open,
   onOpenChange,
   onSubmit,
-}: ApplicationDialogProps) {
-  const form = useForm<z.infer<typeof formSchema>>({
+}) {
+  const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       institution: "",
@@ -51,11 +46,13 @@ export function ApplicationDialog({
     },
   })
 
-  const handleSubmit = (values: z.infer<typeof formSchema>) => {
-    onSubmit(values)
-    form.reset()
-    onOpenChange(false)
-  }
+  
+    const handleSubmit = (values) => {
+      onSubmit(values);
+      form.reset();
+      onOpenChange(false);
+    };
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

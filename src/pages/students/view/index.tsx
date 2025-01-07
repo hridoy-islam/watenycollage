@@ -106,7 +106,7 @@ export default function StudentViewPage() {
           <DocumentsSection student={student} onDocumentUpdate={fetchData}/>
         </TabsContent>
         <TabsContent value="application">
-          <ApplicationsSection student={student}/>
+          <ApplicationsSection student={student} onSave={handleSave}/>
         </TabsContent>
 
         {/* Add other tab contents as needed */}

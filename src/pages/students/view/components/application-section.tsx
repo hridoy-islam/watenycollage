@@ -1,5 +1,5 @@
-import { useState } from "react"
-import { Plus, Settings } from 'lucide-react'
+import { useState, useEffect } from "react"
+import { Eye, Plus } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -10,49 +10,27 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { DataTablePagination } from "./data-table-pagination"
 import { ApplicationDialog } from "./application-dialog"
-import type { Application } from "@/types/index"
+import { Application } from "@/types/index"
+import axiosInstance from "../../../../lib/axios"
 
-const initialApplications: Application[] = [
-  {
-    id: 1,
-    institution: "GBS (UOS)",
-    course: "BA (Hons) Global Business (Business)",
-    term: "October 2021",
-    type: "International",
-    amount: 0,
-    status: "Rejected",
-    statusDate: "27-09-2022"
-  },
-  {
-    id: 2,
-    institution: "London Churchill College (Weekday)",
-    course: "HND in Business (ESBM)",
-    term: "April 2022",
-    type: "Local",
-    amount: 6000,
-    status: "Rejected",
-    statusDate: "13-06-2022"
-  }
-]
 
 export function ApplicationsSection({ student, onSave }) {
-  const [applications, setApplications] = useState()
-  const [pageSize, setPageSize] = useState(10)
-  const [page, setPage] = useState(1)
+  const [applications, setApplications] = useState<any>(student.applications)
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [editingCourse, setEditingCourse] = useState<any>(null)
 
   const handleAddCourse = (data) => {
-    const newApplication: Application = {
-      id: Math.max(...applications.map(c => c.id)) + 1,
-      ...data,
-      status: "Pending",
-      statusDate: new Date().toLocaleDateString("en-GB")
+    if (editingCourse) {
+      const updatedHistory = { ...data, id: editingCourse.id };
+      onSave({ applications: applications.map(app => app.id === editingCourse.id ? updatedHistory : app) });
+      setEditingCourse(null);
+    } else {
+      onSave({ applications: [data] });
     }
-    setApplications([...applications, newApplication])
-  }
+  };
 
+  // Get the status badge color
   const getStatusBadgeColor = (status: Application['status']) => {
     switch (status) {
       case 'Approved':
@@ -64,7 +42,12 @@ export function ApplicationsSection({ student, onSave }) {
     }
   }
 
- 
+  // Fetch applications when the component mounts or when student.applications changes
+  useEffect(() => {
+    if (student.applications) {
+      setApplications(student.applications);
+    }
+  }, [student.applications]);
 
   return (
     <div className="space-y-4 p-4 rounded-md shadow-md">
@@ -79,7 +62,7 @@ export function ApplicationsSection({ student, onSave }) {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[100px]">#ID</TableHead>
+
             <TableHead>Institution</TableHead>
             <TableHead>Course</TableHead>
             <TableHead>Term</TableHead>
@@ -99,7 +82,7 @@ export function ApplicationsSection({ student, onSave }) {
           ) : (
             applications.map((course) => (
               <TableRow key={course.id}>
-                <TableCell>{course.id}</TableCell>
+
                 <TableCell>{course.institution}</TableCell>
                 <TableCell>{course.course}</TableCell>
                 <TableCell>{course.term}</TableCell>
@@ -109,12 +92,17 @@ export function ApplicationsSection({ student, onSave }) {
                       Local
                     </Badge>
                   )}
+                  {course.type === 'International' && (
+                    <Badge variant="secondary" className="bg-blue-500">
+                      International
+                    </Badge>
+                  )}
                 </TableCell>
                 <TableCell>{course.amount}</TableCell>
                 <TableCell>
                   <div className="flex flex-col gap-1">
-                    <Badge 
-                      variant="secondary" 
+                    <Badge
+                      variant="secondary"
                       className={getStatusBadgeColor(course.status)}
                     >
                       {course.status}
@@ -127,8 +115,9 @@ export function ApplicationsSection({ student, onSave }) {
                   </div>
                 </TableCell>
                 <TableCell className="text-right">
+                  
                   <Button variant="ghost" size="icon">
-                    <Settings className="h-4 w-4" />
+                    <Eye className="h-4 w-4" />
                   </Button>
                 </TableCell>
               </TableRow>
@@ -137,14 +126,11 @@ export function ApplicationsSection({ student, onSave }) {
         </TableBody>
       </Table>
 
-      
-
-      {/* <ApplicationDialog
+      <ApplicationDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         onSubmit={handleAddCourse}
-      /> */}
+      />
     </div>
   )
 }
-

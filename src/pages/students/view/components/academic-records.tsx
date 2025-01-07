@@ -22,7 +22,7 @@ export function AcademicRecords({ student, onSave }) {
   const [editingAcademic, setEditingAcademic] = useState<any>(null);
 
   const [examNotRequired, setExamNotRequired] = useState(student.englishLanguageRequired);
-  const [examHistory, setExamHistory] = useState<any>([]);
+  const [examHistory, setExamHistory] = useState<any>(student.englishLanguageExam);
   const [newExamOpen, setNewExamOpen] = useState(false);
   const [editingExam, setEditingExam] = useState<any>(null);
 
@@ -30,12 +30,13 @@ export function AcademicRecords({ student, onSave }) {
     if (Array.isArray(student.academicHistory)) {
       setAcademicHistory(student.academicHistory);
     }
-    if (Array.isArray(student.examHistory)) {
-      setExamHistory(student.examHistory);
+    if (Array.isArray(student.englishLanguageExam)) {
+      setExamHistory(student.englishLanguageExam);
     }
   }, [student.academicHistory, student.examHistory]);
 
   const handleAddAcademic = async (data) => {
+    console.log(data)
     if (editingAcademic) {
       const updatedRecord = { ...data, id: editingAcademic.id };
       onSave({ academicHistory: [updatedRecord] });
@@ -83,7 +84,7 @@ export function AcademicRecords({ student, onSave }) {
     const updatedContact = academicHistory.find(contact => contact.id === id);
     if (updatedContact) {
       const updatedContactWithStatus = { ...updatedContact, status: newStatus };
-      onSave({ academicHistoryRequired: [updatedContactWithStatus] });
+      onSave({ academicHistory: [updatedContactWithStatus] });
     }
   };
 
