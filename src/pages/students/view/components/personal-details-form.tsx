@@ -1,8 +1,8 @@
 import ErrorMessage from "@/components/shared/error-message";
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useForm, Controller } from "react-hook-form"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useForm, Controller } from "react-hook-form";
 import {
   Select,
   SelectContent,
@@ -14,7 +14,6 @@ import { mockData } from "@/types";
 import { useEffect } from "react";
 
 export function PersonalDetailsForm({ student, onSave }) {
-
   const { handleSubmit, register, control, reset, formState: { errors } } = useForm({
     defaultValues: {
       title: "",
@@ -51,9 +50,9 @@ export function PersonalDetailsForm({ student, onSave }) {
         countryResidence: student.countryResidence || '',
         countryBirth: student.countryBirth || '',
         nativeLanguage: student.nativeLanguage || '',
-        passportName: student.passportName || '', // Corrected to use `student.passportName`
+        passportName: student.passportName || '',
         passportIssueLocation: student.passportIssueLocation || '',
-        passportNumber: student.passportNumber || '', // Corrected to use `student.passportNumber`
+        passportNumber: student.passportNumber || '',
         passportIssueDate: student.passportIssueDate || '',
         passportExpiryDate: student.passportExpiryDate || '',
       });
@@ -67,7 +66,7 @@ export function PersonalDetailsForm({ student, onSave }) {
 
   return (
     <div>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 p-4 shadow-md rounded-md mb-2"  >
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 p-4 shadow-md rounded-md mb-2">
         <div className="grid grid-cols-3 gap-4">
           <div className="space-y-2">
             <Label htmlFor="title">Title</Label>
@@ -75,7 +74,7 @@ export function PersonalDetailsForm({ student, onSave }) {
               name="title"
               control={control}
               render={({ field }) => (
-                <Select {...field}>
+                <Select onValueChange={field.onChange} value={field.value}>
                   <SelectTrigger>
                     <SelectValue placeholder="Please select" />
                   </SelectTrigger>
@@ -89,7 +88,6 @@ export function PersonalDetailsForm({ student, onSave }) {
                 </Select>
               )}
             />
-
           </div>
           <div className="space-y-2">
             <Label htmlFor="firstName">First Name</Label>
@@ -115,12 +113,11 @@ export function PersonalDetailsForm({ student, onSave }) {
           </div>
           <div className="space-y-2">
             <Label htmlFor="maritualStatus">Maritual Status *</Label>
-
             <Controller
               name="maritualStatus"
               control={control}
               render={({ field }) => (
-                <Select {...field}>
+                <Select onValueChange={field.onChange} value={field.value}>
                   <SelectTrigger>
                     <SelectValue placeholder="Please select" />
                   </SelectTrigger>
@@ -141,7 +138,7 @@ export function PersonalDetailsForm({ student, onSave }) {
               name="gender"
               control={control}
               render={({ field }) => (
-                <Select {...field}>
+                <Select onValueChange={field.onChange} value={field.value}>
                   <SelectTrigger>
                     <SelectValue placeholder="Please select" />
                   </SelectTrigger>
@@ -155,7 +152,6 @@ export function PersonalDetailsForm({ student, onSave }) {
                 </Select>
               )}
             />
-
           </div>
           <div className="space-y-2">
             <Label htmlFor="nationality">Nationality</Label>
@@ -177,11 +173,9 @@ export function PersonalDetailsForm({ student, onSave }) {
             <Label htmlFor="passportName">Name as it appear in Passport:</Label>
             <Input id="passportName" type="text" {...register("passportName")} />
           </div>
-
           <div className="space-y-2">
             <Label htmlFor="passportIssueLocation">Passport issue Location:</Label>
             <Input id="passportIssueLocation" {...register("passportIssueLocation")} />
-
           </div>
           <div className="space-y-2">
             <Label htmlFor="passportNumber">Passport Number</Label>
@@ -201,6 +195,5 @@ export function PersonalDetailsForm({ student, onSave }) {
         </div>
       </form>
     </div>
-  )
+  );
 }
-
