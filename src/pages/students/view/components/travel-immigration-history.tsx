@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react"
-import { Pencil, Plus } from 'lucide-react'
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
+import { useEffect, useState } from "react";
+import { Pencil, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
   TableBody,
@@ -9,23 +9,18 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { NewHistoryDialog } from "./new-history-dialog"
-import type { VisaHistory } from "@/types/index"
-import moment from "moment"
-import { Switch } from "@/components/ui/switch"
+} from "@/components/ui/table";
+import { NewHistoryDialog } from "./new-history-dialog";
+import type { VisaHistory } from "@/types/index";
+import moment from "moment";
+import { Switch } from "@/components/ui/switch";
 
 export function TravelImmigrationHistory({ student, onSave }) {
-  const [ukInPast, setUkInPast] = useState(student.ukInPast)
-  const [currentlyInUK, setCurrentlyInUK] = useState(student.currentlyInUk)
-  const [visaHistory, setVisaHistory] = useState<VisaHistory[]>([])
-  const [dialogOpen, setDialogOpen] = useState(false)
-  const [editingHistory, setEditingHistory] = useState(null)
-
-  const handleEditHistory = (experience) => {
-    setEditingHistory(experience)
-    setDialogOpen(true)
-  }
+  const [ukInPast, setUkInPast] = useState(student.ukInPast);
+  const [currentlyInUK, setCurrentlyInUK] = useState(student.currentlyInUk);
+  const [visaHistory, setVisaHistory] = useState<VisaHistory[]>([]);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingHistory, setEditingHistory] = useState<any>(null);
 
   useEffect(() => {
     if (Array.isArray(student.travelHistory)) {
@@ -35,7 +30,7 @@ export function TravelImmigrationHistory({ student, onSave }) {
 
   const handleAddHistory = async (data) => {
     if (editingHistory) {
-      const updatedHistory = { ...data, id: editingHistory.id }
+      const updatedHistory = { ...data, id: editingHistory.id };
       onSave({ travelHistory: [updatedHistory] });
       setEditingHistory(null);
     } else {
@@ -43,31 +38,45 @@ export function TravelImmigrationHistory({ student, onSave }) {
     }
   };
 
+  const handleEditHistory = (history) => {
+    setEditingHistory(history);
+    setDialogOpen(true);
+  };
+
   const handleUkInPastChange = (applied) => {
     setUkInPast(applied);
     onSave({ ukInPast: applied });
   };
-
 
   const handleCurrentlyInUK = (applied) => {
     setCurrentlyInUK(applied);
     onSave({ currentlyInUk: applied });
   };
 
-
-
   const handleStatusChange = (id, currentStatus) => {
     // Toggle the status
     const newStatus = currentStatus === 1 ? 0 : 1;
     // Persist the change using onSave
-    const updatedContact = visaHistory.find(contact => contact.id === id);
-    if (updatedContact) {
-      const updatedContactWithStatus = { ...updatedContact, status: newStatus };
-      onSave({ travelHistory: [updatedContactWithStatus] });
+    const updatedHistory = visaHistory.find((history) => history.id === id);
+    if (updatedHistory) {
+      const updatedHistoryWithStatus = { ...updatedHistory, status: newStatus };
+      onSave({ travelHistory: [updatedHistoryWithStatus] });
     }
   };
 
-
+  // Reset editingHistory to default blank values when opening the dialog for a new history
+  const handleOpenDialog = () => {
+    setEditingHistory({
+      purpose: "",
+      arrival: "",
+      departure: "",
+      visaStart: "",
+      visaExpiry: "",
+      visaType: "",
+      status: 1, // Default status (active)
+    });
+    setDialogOpen(true);
+  };
 
   return (
     <div className="space-y-8">
@@ -95,12 +104,11 @@ export function TravelImmigrationHistory({ student, onSave }) {
           {ukInPast && (
             <>
               <div className="flex items-center space-x-2">
-                
-              <Checkbox
-                id="currentlyInUK"
-                checked={currentlyInUK}
-                onCheckedChange={(checked) => handleCurrentlyInUK(checked as boolean)}  // Use handleCurrentlyInUK here
-              />
+                <Checkbox
+                  id="currentlyInUK"
+                  checked={currentlyInUK}
+                  onCheckedChange={(checked) => handleCurrentlyInUK(checked as boolean)}
+                />
                 <label htmlFor="currentlyInUK">
                   Please tick if you are currently in the UK.
                 </label>
@@ -111,7 +119,10 @@ export function TravelImmigrationHistory({ student, onSave }) {
                   <p className="text-sm text-muted-foreground">
                     Please provide details of each visa you have held to stay in the United Kingdom.
                   </p>
-                  <Button className="bg-supperagent text-white hover:bg-supperagent/90" onClick={() => setDialogOpen(true)}>
+                  <Button
+                    className="bg-supperagent text-white hover:bg-supperagent/90"
+                    onClick={handleOpenDialog} // Use handleOpenDialog instead of directly setting dialogOpen
+                  >
                     <Plus className="w-4 h-4 mr-2" />
                     New History
                   </Button>
@@ -120,7 +131,6 @@ export function TravelImmigrationHistory({ student, onSave }) {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      
                       <TableHead>Purpose</TableHead>
                       <TableHead>Arrival</TableHead>
                       <TableHead>Departure</TableHead>
@@ -141,22 +151,19 @@ export function TravelImmigrationHistory({ student, onSave }) {
                     ) : (
                       visaHistory.map((history) => (
                         <TableRow key={history.id}>
-                          
                           <TableCell>{history.purpose}</TableCell>
-                          <TableCell>{moment(history.arrival).format('DD-MM-YYYY')}</TableCell>
-                          <TableCell>{moment(history.departure).format('DD-MM-YYYY')}</TableCell>
-                          <TableCell>{moment(history.visaStart).format('DD-MM-YYYY')}</TableCell>
-                          <TableCell>{moment(history.visaExpiry).format('DD-MM-YYYY')}</TableCell>
+                          <TableCell>{moment(history.arrival).format("DD-MM-YYYY")}</TableCell>
+                          <TableCell>{moment(history.departure).format("DD-MM-YYYY")}</TableCell>
+                          <TableCell>{moment(history.visaStart).format("DD-MM-YYYY")}</TableCell>
+                          <TableCell>{moment(history.visaExpiry).format("DD-MM-YYYY")}</TableCell>
                           <TableCell>{history.visaType}</TableCell>
-                          
                           <TableCell>
-                          <Switch
-                            checked={parseInt(history.status) === 1}
-                            onCheckedChange={(checked) => handleStatusChange(history.id, checked ? 0 : 1)}
-                            className="mx-auto"
-                          />
+                            <Switch
+                              checked={parseInt(history.status) === 1}
+                              onCheckedChange={(checked) => handleStatusChange(history.id, checked ? 0 : 1)}
+                              className="mx-auto"
+                            />
                           </TableCell>
-
                           <TableCell className="text-right">
                             <Button
                               variant="ghost"
@@ -177,17 +184,15 @@ export function TravelImmigrationHistory({ student, onSave }) {
         </div>
       </div>
 
-
       <NewHistoryDialog
         open={dialogOpen}
         onOpenChange={(open) => {
-          setDialogOpen(open)
-          if (!open) setEditingHistory(null)
+          setDialogOpen(open);
+          if (!open) setEditingHistory(null); // Reset editingHistory when dialog is closed
         }}
         onSubmit={handleAddHistory}
-        initialData={editingHistory}
+        initialData={editingHistory} // Pass the editingHistory as initialData
       />
     </div>
-  )
+  );
 }
-
