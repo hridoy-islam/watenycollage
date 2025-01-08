@@ -11,7 +11,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
 import {
   Select,
   SelectContent,
@@ -27,8 +26,6 @@ const formSchema = z.object({
   type: z.enum(['Local', 'International']),
   amount: z.number().min(0, "Amount must be positive"),
 })
-
-
 
 export function ApplicationDialog({
   open,
@@ -46,13 +43,11 @@ export function ApplicationDialog({
     },
   })
 
-  
-    const handleSubmit = (values) => {
-      onSubmit(values);
-      form.reset();
-      onOpenChange(false);
-    };
-
+  const handleSubmit = (values) => {
+    onSubmit(values);
+    form.reset();
+    onOpenChange(false);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -68,9 +63,18 @@ export function ApplicationDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Institution</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select institution" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="Institution 1">Institution 1</SelectItem>
+                      <SelectItem value="Institution 2">Institution 2</SelectItem>
+                      <SelectItem value="Institution 3">Institution 3</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -81,9 +85,18 @@ export function ApplicationDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Course</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select course" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="Course 1">Course 1</SelectItem>
+                      <SelectItem value="Course 2">Course 2</SelectItem>
+                      <SelectItem value="Course 3">Course 3</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -94,47 +107,18 @@ export function ApplicationDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Term</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="type"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Type</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select type" />
+                        <SelectValue placeholder="Select term" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="Local">Local</SelectItem>
-                      <SelectItem value="International">International</SelectItem>
+                      <SelectItem value="Term 1">Term 1</SelectItem>
+                      <SelectItem value="Term 2">Term 2</SelectItem>
+                      <SelectItem value="Term 3">Term 3</SelectItem>
                     </SelectContent>
                   </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="amount"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Amount</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="number" 
-                      {...field}
-                      onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                    />
-                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -143,7 +127,7 @@ export function ApplicationDialog({
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
-              <Button type="submit">Add Course</Button>
+              <Button type="submit" className="bg-supperagent text-white hover:bg-supperagent">Add Course</Button>
             </div>
           </form>
         </Form>
@@ -151,4 +135,3 @@ export function ApplicationDialog({
     </Dialog>
   )
 }
-
