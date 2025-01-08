@@ -3,6 +3,7 @@ import { Camera } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { ImageUploader } from "@/components/shared/image-uploader"
+import moment from "moment"
 
 export function StudentProfile({ student, onImageUpdate }) {
     const [uploadOpen, setUploadOpen] = useState(false)
@@ -43,13 +44,10 @@ export function StudentProfile({ student, onImageUpdate }) {
                             <span className="text-sm font-medium">Phone:</span>
                             <span className="text-sm text-muted-foreground">{student.phone}</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium">Institution:</span>
-                            <span className="text-sm text-muted-foreground">{student.institution}</span>
-                        </div>
+                        
                         <div className="flex items-center gap-2">
                             <span className="text-sm font-medium">Date of Birth:</span>
-                            <span className="text-sm text-muted-foreground">{student.dob}</span>
+                            <span className="text-sm text-muted-foreground">{moment(student.dob).format('DD-MM-YYYY')}</span>
                         </div>
                     </div>
                 </div>

@@ -11,7 +11,6 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { ApplicationDialog } from "./application-dialog"
-import { Application } from "@/types/index"
 
 
 

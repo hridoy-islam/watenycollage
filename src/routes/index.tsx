@@ -20,6 +20,8 @@ import StaffPage from '@/pages/staff';
 import AgentsPage from '@/pages/agent';
 import CourseRelationPage from '@/pages/course-relation';
 import StudentViewPage from '@/pages/students/view';
+import EmailConfigPage from '@/pages/emails';
+import { DraftsManager } from '@/pages/emails/drafts';
 
 const SignInPage = lazy(() => import('@/pages/auth/signin'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
@@ -95,6 +97,14 @@ export default function AppRouter() {
         {
           path: 'course-fee',
           element: <CourseRelationPage />
+        },
+        {
+          path: 'emails',
+          element: <EmailConfigPage />
+        },
+        {
+          path: 'drafts',
+          element: <DraftsManager />
         }
         
       ]

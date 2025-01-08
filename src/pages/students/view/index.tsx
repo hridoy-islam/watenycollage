@@ -15,6 +15,10 @@ import { Link, useParams } from "react-router-dom"
 import axiosInstance from '../../../lib/axios'
 import { RefusalHistory } from "./components/refusal-history"
 import { DocumentsSection } from "./components/documents-section"
+import { SendEmailComponent } from "./components/send-email-component"
+import { NotesPage } from "./components/notes"
+import { AssignStaff } from "./components/assign-staff"
+import AgentsPage from "@/pages/agent"
 
 
 export default function StudentViewPage() {
@@ -109,7 +113,16 @@ export default function StudentViewPage() {
           <ApplicationsSection student={student} onSave={handleSave}/>
         </TabsContent>
         <TabsContent value="agent">
-          
+          <AgentsPage />
+        </TabsContent>
+        <TabsContent value="staff">
+          <AssignStaff />
+        </TabsContent>
+        <TabsContent value="notes">
+          <NotesPage />
+        </TabsContent>
+        <TabsContent value="communications">
+          <SendEmailComponent />
         </TabsContent>
 
         {/* Add other tab contents as needed */}
