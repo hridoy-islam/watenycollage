@@ -33,10 +33,9 @@ export function AcademicRecords({ student, onSave }) {
     if (Array.isArray(student.englishLanguageExam)) {
       setExamHistory(student.englishLanguageExam);
     }
-  }, [student.academicHistory, student.examHistory]);
+  }, [student.academicHistory, student.englishLanguageExam]);
 
   const handleAddAcademic = async (data) => {
-    console.log(data)
     if (editingAcademic) {
       const updatedRecord = { ...data, id: editingAcademic.id };
       onSave({ academicHistory: [updatedRecord] });
@@ -66,7 +65,6 @@ export function AcademicRecords({ student, onSave }) {
     setNewExamOpen(true);
   };
 
-
   const handleAcademicNotRequiredChange = (checked) => {
     setAcademicNotRequired(checked);
     onSave({ academicHistoryRequired: checked });
@@ -81,11 +79,37 @@ export function AcademicRecords({ student, onSave }) {
     // Toggle the status
     const newStatus = currentStatus === 1 ? 0 : 1;
     // Persist the change using onSave
-    const updatedContact = academicHistory.find(contact => contact.id === id);
-    if (updatedContact) {
-      const updatedContactWithStatus = { ...updatedContact, status: newStatus };
-      onSave({ academicHistory: [updatedContactWithStatus] });
+    const updatedRecord = academicHistory.find((record) => record.id === id);
+    if (updatedRecord) {
+      const updatedRecordWithStatus = { ...updatedRecord, status: newStatus };
+      onSave({ academicHistory: [updatedRecordWithStatus] });
     }
+  };
+
+  // Reset editingAcademic to default blank values when opening the dialog for a new academic history
+  const handleOpenAcademicDialog = () => {
+    setEditingAcademic({
+      institution: "",
+      course: "",
+      studyLevel: "",
+      resultScore: "",
+      outOf: "",
+      startDate: "",
+      endDate: "",
+      status: 1, // Default status (active)
+    });
+    setNewAcademicOpen(true);
+  };
+
+  // Reset editingExam to default blank values when opening the dialog for a new exam
+  const handleOpenExamDialog = () => {
+    setEditingExam({
+      exam: "",
+      examDate: "",
+      score: "",
+      status: 1, // Default status (active)
+    });
+    setNewExamOpen(true);
   };
 
   return (
@@ -96,7 +120,7 @@ export function AcademicRecords({ student, onSave }) {
           {!academicNotRequired && (
             <Button
               className="bg-supperagent text-white hover:bg-supperagent/90"
-              onClick={() => setNewAcademicOpen(true)}
+              onClick={handleOpenAcademicDialog} // Use handleOpenAcademicDialog instead of directly setting newAcademicOpen
             >
               <Plus className="w-4 h-4 mr-2" />
               New History
@@ -120,7 +144,6 @@ export function AcademicRecords({ student, onSave }) {
             <Table>
               <TableHeader>
                 <TableRow>
-                  
                   <TableHead>Institution</TableHead>
                   <TableHead>Course</TableHead>
                   <TableHead>Study Level</TableHead>
@@ -142,22 +165,19 @@ export function AcademicRecords({ student, onSave }) {
                 ) : (
                   academicHistory.map((record) => (
                     <TableRow key={record.id}>
-                      
                       <TableCell>{record.institution}</TableCell>
                       <TableCell>{record.course}</TableCell>
                       <TableCell>{record.studyLevel}</TableCell>
                       <TableCell>{record.resultScore}</TableCell>
                       <TableCell>{record.outOf}</TableCell>
-                      <TableCell>{moment(record.startDate).format('DD-MM-YYYY')}</TableCell>
-                      <TableCell>{moment(record.endDate).format('DD-MM-YYYY')}</TableCell>
+                      <TableCell>{moment(record.startDate).format("DD-MM-YYYY")}</TableCell>
+                      <TableCell>{moment(record.endDate).format("DD-MM-YYYY")}</TableCell>
                       <TableCell>
-                      <Switch
-                            checked={parseInt(record.status) === 1}
-                            onCheckedChange={(checked) => handleStatusChange(record.id, checked ? 0 : 1)}
-                            className="mx-auto"
-                          />
-
-
+                        <Switch
+                          checked={parseInt(record.status) === 1}
+                          onCheckedChange={(checked) => handleStatusChange(record.id, checked ? 0 : 1)}
+                          className="mx-auto"
+                        />
                       </TableCell>
                       <TableCell className="text-right">
                         <Button
@@ -183,7 +203,7 @@ export function AcademicRecords({ student, onSave }) {
           {!examNotRequired && (
             <Button
               className="bg-supperagent text-white hover:bg-supperagent/90"
-              onClick={() => setNewExamOpen(true)}
+              onClick={handleOpenExamDialog} // Use handleOpenExamDialog instead of directly setting newExamOpen
             >
               <Plus className="w-4 h-4 mr-2" />
               New Exam
@@ -207,7 +227,6 @@ export function AcademicRecords({ student, onSave }) {
             <Table>
               <TableHeader>
                 <TableRow>
-                  
                   <TableHead>Exam</TableHead>
                   <TableHead>Exam Date</TableHead>
                   <TableHead>Score</TableHead>
@@ -225,7 +244,6 @@ export function AcademicRecords({ student, onSave }) {
                 ) : (
                   examHistory.map((exam) => (
                     <TableRow key={exam.id}>
-                      
                       <TableCell>{exam.exam}</TableCell>
                       <TableCell>{exam.examDate}</TableCell>
                       <TableCell>{exam.score}</TableCell>
@@ -252,20 +270,20 @@ export function AcademicRecords({ student, onSave }) {
         open={newAcademicOpen}
         onOpenChange={(open) => {
           setNewAcademicOpen(open);
-          if (!open) setEditingAcademic(null);
+          if (!open) setEditingAcademic(null); // Reset editingAcademic when dialog is closed
         }}
         onSubmit={handleAddAcademic}
-        initialData={editingAcademic}
+        initialData={editingAcademic} // Pass the editingAcademic as initialData
       />
 
       <EnglishExamDialog
         open={newExamOpen}
         onOpenChange={(open) => {
           setNewExamOpen(open);
-          if (!open) setEditingExam(null);
+          if (!open) setEditingExam(null); // Reset editingExam when dialog is closed
         }}
         onSubmit={handleAddExam}
-        initialData={editingExam}
+        initialData={editingExam} // Pass the editingExam as initialData
       />
     </div>
   );

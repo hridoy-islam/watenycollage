@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Pencil, Plus } from 'lucide-react';
+import { Pencil, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -21,10 +21,11 @@ export function RefusalHistory({ student, onSave }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingRefusal, setEditingRefusal] = useState<any>(null);
 
-  const handleEditRefusal = (history) => {
-    setEditingRefusal(history);
-    setDialogOpen(true);
-  };
+  useEffect(() => {
+    if (Array.isArray(student.refuseHistory)) {
+      setRefusalHistory(student.refuseHistory);
+    }
+  }, [student.refuseHistory]);
 
   const handleAddRefusal = async (data) => {
     if (editingRefusal) {
@@ -36,35 +37,47 @@ export function RefusalHistory({ student, onSave }) {
     }
   };
 
-  useEffect(() => {
-    if (Array.isArray(student.refuseHistory)) {
-      setRefusalHistory(student.refuseHistory);
-    }
-  }, [student.refuseHistory]);
+  const handleEditRefusal = (history) => {
+    setEditingRefusal(history);
+    setDialogOpen(true);
+  };
 
   const handlevisaNeed = (applied) => {
-    if(student.visaNeed !== applied){
-    setVisaNeed(applied);
-    onSave({ visaNeed: applied });
-  }
+    if (student.visaNeed !== applied) {
+      setVisaNeed(applied);
+      onSave({ visaNeed: applied });
+    }
   };
 
   const handleRefusedPermission = (applied) => {
-    if(student.refusedPermission !== applied){
+    if (student.refusedPermission !== applied) {
       setHasRefusal(applied);
-      onSave({refusedPermission: applied});
+      onSave({ refusedPermission: applied });
     }
-  }
+  };
 
   const handleStatusChange = (id, currentStatus) => {
     // Toggle the status
     const newStatus = currentStatus === 1 ? 0 : 1;
     // Persist the change using onSave
-    const updatedContact = refusalHistory.find(contact => contact.id === id);
-    if (updatedContact) {
-      const updatedContactWithStatus = { ...updatedContact, status: newStatus };
-      onSave({ refuseHistory: [updatedContactWithStatus] });
+    const updatedHistory = refusalHistory.find((history) => history.id === id);
+    if (updatedHistory) {
+      const updatedHistoryWithStatus = { ...updatedHistory, status: newStatus };
+      onSave({ refuseHistory: [updatedHistoryWithStatus] });
     }
+  };
+
+  // Reset editingRefusal to default blank values when opening the dialog for a new refusal
+  const handleOpenDialog = () => {
+    setEditingRefusal({
+      refusalType: "",
+      refusalDate: "",
+      details: "",
+      country: "",
+      visaType: "",
+      status: 1, // Default status (active)
+    });
+    setDialogOpen(true);
   };
 
   return (
@@ -92,7 +105,10 @@ export function RefusalHistory({ student, onSave }) {
           </div>
 
           <div className="flex items-center gap-4">
-            <p>For the UK or any other country, has this student ever been refused a visa, refused permission to stay or remain, refused asylum, or deported?</p>
+            <p>
+              For the UK or any other country, has this student ever been refused a visa, refused
+              permission to stay or remain, refused asylum, or deported?
+            </p>
             <div className="flex gap-2">
               <Button
                 className={hasRefusal ? "bg-supperagent text-white hover:bg-supperagent/90" : "bg-white"}
@@ -116,7 +132,7 @@ export function RefusalHistory({ student, onSave }) {
                   Please provide details of any visa refusals or immigration issues.
                 </p>
                 <Button
-                  onClick={() => setDialogOpen(true)}
+                  onClick={handleOpenDialog} // Use handleOpenDialog instead of directly setting dialogOpen
                   className={"bg-supperagent text-white hover:bg-supperagent/90"}
                 >
                   <Plus className="w-4 h-4 mr-2" />
@@ -127,7 +143,6 @@ export function RefusalHistory({ student, onSave }) {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    
                     <TableHead>Refusal Type</TableHead>
                     <TableHead>Refusal Date</TableHead>
                     <TableHead>Details</TableHead>
@@ -147,19 +162,17 @@ export function RefusalHistory({ student, onSave }) {
                   ) : (
                     refusalHistory.map((history) => (
                       <TableRow key={history.id}>
-                        
                         <TableCell>{history.refusalType}</TableCell>
-                        <TableCell>{moment(history.refusalDate).format('DD-MM-YYYY')}</TableCell>
+                        <TableCell>{moment(history.refusalDate).format("DD-MM-YYYY")}</TableCell>
                         <TableCell>{history.details}</TableCell>
                         <TableCell>{history.country}</TableCell>
                         <TableCell>{history.visaType}</TableCell>
                         <TableCell>
-                        <Switch
+                          <Switch
                             checked={parseInt(history.status) === 1}
                             onCheckedChange={(checked) => handleStatusChange(history.id, checked ? 0 : 1)}
                             className="mx-auto"
                           />
-
                         </TableCell>
                         <TableCell className="text-right">
                           <Button
@@ -184,10 +197,10 @@ export function RefusalHistory({ student, onSave }) {
         open={dialogOpen}
         onOpenChange={(open) => {
           setDialogOpen(open);
-          if (!open) setEditingRefusal(null);
+          if (!open) setEditingRefusal(null); // Reset editingRefusal when dialog is closed
         }}
         onSubmit={handleAddRefusal}
-        initialData={editingRefusal}
+        initialData={editingRefusal} // Pass the editingRefusal as initialData
       />
     </div>
   );
