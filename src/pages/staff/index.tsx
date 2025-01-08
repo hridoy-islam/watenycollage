@@ -11,6 +11,8 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { StaffDialog } from "./components/staff-dialog"
+import axiosInstance from '../../lib/axios';
+import { toast } from "@/components/ui/use-toast"
 
 const initialStaff = [
   { id: 1, firstName: "John", lastName: "Doe", nickname: "Johnny", email: "john@example.com", phone: "123-456-7890", active: true },
@@ -20,21 +22,37 @@ const initialStaff = [
 export default function StaffPage() {
   const [staff, setStaff] = useState(initialStaff)
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [editingStaff, setEditingStaff] = useState()
-
-  const handleSubmit = (data) => {
-    if (editingStaff) {
-      setStaff(staff.map(stf =>
-        stf.id === editingStaff?.id
-          ? { ...stf, ...data }
-          : stf
-      ))
-      setEditingStaff(undefined)
-    } else {
-      const newId = Math.max(...staff.map(s => s.id)) + 1
-      setStaff([...staff, { id: newId, ...data }])
+  const [editingStaff, setEditingStaff] = useState<any>(null)
+  const [initialLoading, setInitialLoading] = useState(true);
+  const fetchData = async () => {
+    try {
+      if (initialLoading) setInitialLoading(true);
+      const response = await axiosInstance.get(`/staffs`);
+      setStaff(response.data.data.result);
+    } catch (error) {
+      console.error("Error fetching institutions:", error);
+    } finally {
+      setInitialLoading(false); // Disable initial loading after the first fetch
     }
-  }
+  };
+
+const handleSubmit = async (data) => {
+    try {
+      if (editingStaff) {
+        // Update institution
+        await axiosInstance.put(`/staffs/${editingStaff?.id}`, data);
+        toast({ title: "Record Updated successfully", className: "bg-supperagent border-none text-white", });
+        fetchData();
+        setEditingStaff(null);
+      } else {
+        await axiosInstance.post(`/staffs`, data);
+        toast({ title: "Record Created successfully", className: "bg-supperagent border-none text-white", });
+        fetchData()
+      }
+    } catch (error) {
+      console.error("Error saving data:", error);
+    }
+  };
 
   const handleStatusChange = (id: number, active: boolean) => {
     setStaff(staff.map(stf =>

@@ -13,6 +13,7 @@ import {
 import { AgentDialog } from "./components/agent-dialog"
 import axiosInstance from '../../lib/axios';
 import { BlinkingDots } from "@/components/shared/blinking-dots"
+import { toast } from "@/components/ui/use-toast"
 
 
 
@@ -21,7 +22,7 @@ const initialStaff = ["John Doe", "Jane Smith", "Sam Brown"]  // Example list of
 export default function AgentsPage() {
   const [agents, setAgents] = useState<any>([])
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [editingAgent, setEditingAgent] = useState(null)
+  const [editingAgent, setEditingAgent] = useState<any>(null)
   const [initialLoading, setInitialLoading] = useState(true);
 
 
@@ -37,20 +38,25 @@ export default function AgentsPage() {
       }
     };
 
-  const handleSubmit = (data) => {
-    if (editingAgent) {
-      setAgents(agents.map(agent =>
-        agent.id === editingAgent?.id
-          ? { ...agent, ...data }
-          : agent
-      ))
-      setEditingAgent(null)
-    } else {
-      const newId = Math.max(...agents.map(a => a.id)) + 1
-      setAgents([...agents, { id: newId, ...data }])
-    }
-    setDialogOpen(false)  // Close the dialog after submission
-  }
+  const handleSubmit = async (data) => {
+    console.log(data)
+      try {
+        if (editingAgent) {
+          // Update institution
+          await axiosInstance.put(`/agents/${editingAgent?.id}`, data);
+          toast({ title: "Record Updated successfully", className: "bg-supperagent border-none text-white", });
+          fetchData();
+          setEditingAgent(null);
+        } else {
+          await axiosInstance.post(`/agents`, data);
+          toast({ title: "Record Created successfully", className: "bg-supperagent border-none text-white", });
+          fetchData()
+        }
+      } catch (error) {
+        console.error("Error saving institution:", error);
+      }
+    };
+
 
   const handleStatusChange = (id: number, active: boolean) => {
     setAgents(agents.map(agent =>

@@ -81,6 +81,7 @@ export default function StudentViewPage() {
           <TabsTrigger value="work" className="data-[state=active]:bg-supperagent data-[state=active]:text-white">Work Details</TabsTrigger>
           <TabsTrigger value="documents" className="data-[state=active]:bg-supperagent data-[state=active]:text-white">Documents</TabsTrigger>
           <TabsTrigger value="application" className="data-[state=active]:bg-supperagent data-[state=active]:text-white">Application</TabsTrigger>
+          <TabsTrigger value="agent" className="data-[state=active]:bg-supperagent data-[state=active]:text-white">Assigned Agent</TabsTrigger>
           <TabsTrigger value="staff" className="data-[state=active]:bg-supperagent data-[state=active]:text-white">Assigned Staffs</TabsTrigger>
           <TabsTrigger value="notes" className="data-[state=active]:bg-supperagent data-[state=active]:text-white">Notes</TabsTrigger>
           <TabsTrigger value="communications" className="data-[state=active]:bg-supperagent data-[state=active]:text-white">Communications</TabsTrigger>
@@ -90,7 +91,6 @@ export default function StudentViewPage() {
            <AddressForm student={student} onSave={handleSave}/>
           <PersonalInfoForm student={student} onSave={handleSave}/>
           <EmergencyContacts student={student} onSave={handleSave}/>
-
         </TabsContent>
         <TabsContent value="travel">
           <TravelImmigrationHistory student={student} onSave={handleSave}/>
@@ -107,6 +107,9 @@ export default function StudentViewPage() {
         </TabsContent>
         <TabsContent value="application">
           <ApplicationsSection student={student} onSave={handleSave}/>
+        </TabsContent>
+        <TabsContent value="agent">
+          
         </TabsContent>
 
         {/* Add other tab contents as needed */}

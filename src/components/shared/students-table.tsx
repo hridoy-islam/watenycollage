@@ -4,7 +4,7 @@ import { Switch } from "@/components/ui/switch"
 import { Eye, Trash2Icon } from 'lucide-react'
 import { Link } from "react-router-dom"
 
-export function StudentsTable({students, handleStatusChange, currentPage, rowsPerPage}) {
+export function StudentsTable({students, handleStatusChange}) {
   
   return (
       <Table>

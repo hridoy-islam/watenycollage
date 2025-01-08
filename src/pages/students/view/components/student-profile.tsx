@@ -13,7 +13,7 @@ export function StudentProfile({ student, onImageUpdate }) {
                 <div className="relative">
                     <div className="relative h-48 w-48 overflow-hidden rounded-full">
                         <img
-                            src={student.profile || "https://kzmjkvje8tr2ra724fhh.lite.vusercontent.net/placeholder.svg"}
+                            src={student.profilePhotoUrl || "https://kzmjkvje8tr2ra724fhh.lite.vusercontent.net/placeholder.svg"}
                             alt={`${student.firstName} ${student.lastName}`}
                             className="object-cover h-full w-full"
                         />

@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import axiosInstance from '../../lib/axios'
 import { useToast } from "@/components/ui/use-toast";
 import { DataTablePagination } from "./view/components/data-table-pagination";
+import { BlinkingDots } from "@/components/shared/blinking-dots";
 
 export default function StudentsPage() {
   const [students, setStudents] = useState<any>([]);
@@ -67,18 +68,29 @@ export default function StudentsPage() {
         <h1 className="text-2xl font-semibold">All Students</h1>
         <Button className="bg-supperagent text-white hover:bg-supperagent/90"><Link to='new'>New Student</Link></Button>
       </div>
-      <StudentFilter onSubmit={handleFilterSubmit}/>
-      <div className="rounded-md bg-white shadow-2xl p-4 space-y-2">
-        <StudentsTable students={students} handleStatusChange={handleStatusChange} />
+      <StudentFilter onSubmit={handleFilterSubmit} />
+      {initialLoading ? (
+        <div className="flex justify-center py-6">
+          <BlinkingDots size="large" color="bg-supperagent" />
+        </div>
+      ) : students.length === 0 ? (
+        <div className="flex justify-center py-6 text-gray-500">
+          No records found.
+        </div>
+      ) : (
+        <div className="rounded-md bg-white shadow-2xl p-4 space-y-2">
 
-        <DataTablePagination
-          pageSize={entriesPerPage}
-          setPageSize={setEntriesPerPage}
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-        />
-      </div>
+          <StudentsTable students={students} handleStatusChange={handleStatusChange} />
+
+          <DataTablePagination
+            pageSize={entriesPerPage}
+            setPageSize={setEntriesPerPage}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        </div>
+      )}
     </>
   )
 }

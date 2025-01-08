@@ -1,35 +1,30 @@
-import { useState } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { useForm } from "react-hook-form";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import ErrorMessage from "@/components/shared/error-message";
 
-export function StaffDialog({
-  open,
-  onOpenChange,
-  onSubmit,
-  initialData
-}) {
-  const [firstName, setFirstName] = useState(initialData?.firstName ?? "")
-  const [lastName, setLastName] = useState(initialData?.lastName ?? "")
-  const [nickname, setNickname] = useState(initialData?.nickname ?? "")
-  const [email, setEmail] = useState(initialData?.email ?? "")
-  const [username, setUsername] = useState(initialData?.username ?? "")
-  const [password, setPassword] = useState(initialData?.password ?? "")
-  const [phone, setPhone] = useState(initialData?.phone ?? "")
+export function StaffDialog({ open, onOpenChange, onSubmit, initialData }) {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      firstName: initialData?.firstName ?? "",
+      lastName: initialData?.lastName ?? "",
+      email: initialData?.email ?? "",
+      phone: initialData?.phone ?? "",
+      password: initialData?.password ?? "",
+    },
+  });
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    onSubmit({ firstName, lastName, nickname, email, username, password, phone })
-    onOpenChange(false)
-    setFirstName("")
-    setLastName("")
-    setNickname("")
-    setEmail("")
-    setUsername("")
-    setPassword("")
-    setPhone("")
-  }
+  const onSubmitForm = (data) => {
+    console.log(data);
+    onSubmit(data);
+    onOpenChange(false);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -37,7 +32,7 @@ export function StaffDialog({
         <DialogHeader>
           <DialogTitle>{initialData ? "Edit" : "Add"} Staff</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-6">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="firstName">
@@ -45,30 +40,22 @@ export function StaffDialog({
               </Label>
               <Input
                 id="firstName"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                required
+                {...register("firstName", { required: "First Name is required" })}
               />
+              <ErrorMessage message={errors.firstName?.message?.toString()} />
             </div>
+
             <div className="space-y-2">
               <Label htmlFor="lastName">
                 Last Name <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="lastName"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                required
+                {...register("lastName", { required: "Last Name is required" })}
               />
+              <ErrorMessage message={errors.lastName?.message?.toString()} />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="nickname">Nickname</Label>
-              <Input
-                id="nickname"
-                value={nickname}
-                onChange={(e) => setNickname(e.target.value)}
-              />
-            </div>
+
             <div className="space-y-2">
               <Label htmlFor="email">
                 Email <span className="text-red-500">*</span>
@@ -76,21 +63,17 @@ export function StaffDialog({
               <Input
                 id="email"
                 type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
+                {...register("email", {
+                  required: "Email is required",
+                  pattern: { value: /^\S+@\S+$/i, message: "Invalid email format" },
+                })}
               />
+              <ErrorMessage message={errors.email?.message?.toString()} />
             </div>
+
             <div className="space-y-2">
-              <Label htmlFor="username">
-                User Name <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-              />
+              <Label htmlFor="phone">Phone</Label>
+              <Input id="phone" type="tel" {...register("phone")} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">
@@ -99,29 +82,22 @@ export function StaffDialog({
               <Input
                 id="password"
                 type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
+                {...register("password", { required: "Password is required" })}
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="phone">Phone</Label>
-              <Input
-                id="phone"
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-              />
+              <ErrorMessage message={errors.password?.message?.toString()} />
             </div>
           </div>
+
           <div className="flex justify-end space-x-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button className="bg-supperagent text-white hover:bg-supperagent/90" type="submit">Submit</Button>
+            <Button className="bg-supperagent text-white hover:bg-supperagent/90" type="submit">
+              Submit
+            </Button>
           </div>
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

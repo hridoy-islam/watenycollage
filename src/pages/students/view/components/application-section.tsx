@@ -12,11 +12,11 @@ import {
 } from "@/components/ui/table"
 import { ApplicationDialog } from "./application-dialog"
 import { Application } from "@/types/index"
-import axiosInstance from "../../../../lib/axios"
+
 
 
 export function ApplicationsSection({ student, onSave }) {
-  const [applications, setApplications] = useState<any>(student.applications)
+  const [applications, setApplications] = useState<any>([])
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingCourse, setEditingCourse] = useState<any>(null)
 
@@ -31,7 +31,7 @@ export function ApplicationsSection({ student, onSave }) {
   };
 
   // Get the status badge color
-  const getStatusBadgeColor = (status: Application['status']) => {
+  const getStatusBadgeColor = (status) => {
     switch (status) {
       case 'Approved':
         return 'bg-green-500'
@@ -43,11 +43,11 @@ export function ApplicationsSection({ student, onSave }) {
   }
 
   // Fetch applications when the component mounts or when student.applications changes
-  useEffect(() => {
-    if (student.applications) {
-      setApplications(student.applications);
-    }
-  }, [student.applications]);
+  // useEffect(() => {
+  //   if (student.applications) {
+  //     setApplications(student.applications || []);
+  //   }
+  // }, [student.applications]);
 
   return (
     <div className="space-y-4 p-4 rounded-md shadow-md">

@@ -10,6 +10,8 @@ import { Button } from "../ui/button"
 import { Printer, Search } from "lucide-react"
 import { useEffect, useState } from "react";
 import axiosInstance from '../../lib/axios'
+
+
 export default function StudentFilter({ onSubmit }){
   const [searchTerm, setSearchTerm] = useState("");
   const [status, setStatus] = useState<any>(null);
@@ -40,8 +42,6 @@ export default function StudentFilter({ onSubmit }){
       onSubmit({ searchTerm, status });
     };
   
-
-
     return(
         
         <div >
@@ -55,8 +55,7 @@ export default function StudentFilter({ onSubmit }){
           </div>
           <div>
             <label className="mb-2 block text-sm font-medium">DOB</label>
-            <Input placeholder="DOB" />
-         
+            <Input placeholder="DOB" type="date" /> 
           </div>
           
           <div>
