@@ -1,6 +1,4 @@
-"use client"
-
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import {
   Table,
   TableBody,
@@ -14,40 +12,46 @@ import { Button } from "@/components/ui/button"
 import { Pen, Trash2 } from 'lucide-react'
 import { StaffDialog } from "./assign-staff-dialog"
 
-// Demo data
-const demoStaff = [
-  { id: "1", name: "John Doe", role: "Academic Advisor" },
-  { id: "2", name: "Jane Smith", role: "Course Coordinator" },
-  { id: "3", name: "Mike Johnson", role: "Student Counselor" },
-]
 
-export function AssignStaff() {
-  const [notes, setNotes] = useState<any>([])
+
+export function AssignStaff({ student , onSave}) {
+  const [staffs, setStaffs] = useState<any>(student.assignStaff || [])
   const [dialogOpen, setDialogOpen] = useState(false)
 
-  const handleAddNote = (note) => {
-    const newNote = {
-      id: Math.random().toString(36).substr(2, 9),
-      created: new Date(),
-      ...note,
+  useEffect(() => {
+    if (Array.isArray(student.assignStaff)) {
+      setStaffs(student.assignStaff);
     }
-    setNotes([newNote, ...notes])
-    setDialogOpen(false)
+  }, [student.workDetails]);
+
+  const handleSubmit = (data) => {
+    console.log(data)
+      onSave({ assignStaff: [data] });
   }
 
-  const handleDelete = (id) => {
-    setNotes(notes.filter(note => note.id !== id))
-  }
+
+
+
+  // const handleStatusChange = (id, currentStatus) => {
+  //   // Toggle the status
+  //   const newStatus = currentStatus === 1 ? 0 : 1;
+  //   // Persist the change using onSave
+  //   const updatedContact = workExperiences.find(contact => contact.id === id);
+  //   if (updatedContact) {
+  //     const updatedContactWithStatus = { ...updatedContact, status: newStatus };
+  //     onSave({ workDetails: [updatedContactWithStatus] });
+  //   }
+  // };
 
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold">Notes</h2>
-        <Button 
+        <h2 className="text-xl font-semibold">Assigned Staffs</h2>
+        <Button
           onClick={() => setDialogOpen(true)}
           className="bg-supperagent text-white hover:bg-supperagent"
         >
-          Add Note
+          Add Staff
         </Button>
       </div>
 
@@ -55,36 +59,36 @@ export function AssignStaff() {
         <Table>
           <TableHeader>
             <TableRow>
-              
+
               <TableHead>Staff</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {notes.length === 0 ? (
+            {staffs.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="text-center text-muted-foreground">
                   No matching records found
                 </TableCell>
               </TableRow>
             ) : (
-              notes.map((note) => (
-                <TableRow key={note.id}>
-                  
-                  <TableCell>{note.course}</TableCell>
-                  
+              staffs.map((staff) => (
+                <TableRow key={staff.id}>
+
+                  <TableCell>{staff.staff.firstName}</TableCell>
+
                   <TableCell className="text-right">
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => console.log("Edit", note.id)}
+                      onClick={() => console.log("Edit", staff.id)}
                     >
                       <Pen className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => handleDelete(note.id)}
+                      
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -99,8 +103,7 @@ export function AssignStaff() {
       <StaffDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
-        onSubmit={handleAddNote}
-        staffMembers={demoStaff}
+        onSubmit={handleSubmit}
       />
     </div>
   )

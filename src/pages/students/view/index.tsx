@@ -17,16 +17,15 @@ import { RefusalHistory } from "./components/refusal-history"
 import { DocumentsSection } from "./components/documents-section"
 import { SendEmailComponent } from "./components/send-email-component"
 import { NotesPage } from "./components/notes"
+import { AgentPage } from "./components/agent"
 import { AssignStaff } from "./components/assign-staff"
-import AgentsPage from "@/pages/agent"
+
 
 
 export default function StudentViewPage() {
   const { id } = useParams();
-  const [student, setStudent] = useState<any>([])
+  const [student, setStudent] = useState<any>()
   const [initialLoading, setInitialLoading] = useState(true); // New state for initial loading
-
-  
 
   const fetchData = async () => {
     try {
@@ -113,10 +112,10 @@ export default function StudentViewPage() {
           <ApplicationsSection student={student} onSave={handleSave}/>
         </TabsContent>
         <TabsContent value="agent">
-          <AgentsPage />
+          <AgentPage student={student}/>
         </TabsContent>
         <TabsContent value="staff">
-          <AssignStaff />
+          <AssignStaff student={student} onSave={handleSave}/>
         </TabsContent>
         <TabsContent value="notes">
           <NotesPage />

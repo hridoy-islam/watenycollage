@@ -60,6 +60,7 @@ export default function StudentsPage() {
 
   useEffect(() => {
     fetchData(currentPage, entriesPerPage, filters); // Refresh data
+   
   }, [currentPage, entriesPerPage]);
 
   return (
@@ -80,7 +81,7 @@ export default function StudentsPage() {
       ) : (
         <div className="rounded-md bg-white shadow-2xl p-4 space-y-2">
 
-          <StudentsTable students={students} handleStatusChange={handleStatusChange} />
+  <StudentsTable students={students} handleStatusChange={handleStatusChange} />
 
           <DataTablePagination
             pageSize={entriesPerPage}

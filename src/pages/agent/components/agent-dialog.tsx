@@ -1,32 +1,88 @@
-import { useForm } from "react-hook-form";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Controller, useForm } from "react-hook-form";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import ErrorMessage from "@/components/shared/error-message";
+import { useEffect, useState } from "react";
+import axiosInstance from "../../../lib/axios";
 
-export function AgentDialog({ open, onOpenChange, onSubmit, initialData, staffOptions }) {
+export function AgentDialog({ open, onOpenChange, onSubmit, initialData }) {
+  const [staffOptions, setStaffOptions] = useState<any>([]);
+
   const {
     register,
     handleSubmit,
-    setValue,
+    control,
+    reset,
     formState: { errors },
   } = useForm({
     defaultValues: {
-      agent_name: initialData?.agent_name ?? "",
-      organization: initialData?.organization ?? "",
-      contact_person: initialData?.contact_person ?? "",
-      phone: initialData?.phone ?? "",
-      email: initialData?.email ?? "",
-      location: initialData?.location ?? "",
-      nominatedStaff: initialData?.nominatedStaff ?? "",
+      agentName: "",
+      organization: "",
+      contactPerson: "",
+      phone: "",
+      email: "",
+      location: "",
+      nominatedStaff: "",
+      password: "",
     },
   });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axiosInstance.get(`/staffs?limit=all`);
+        setStaffOptions(response.data.data.result);
+      } catch (error) {
+        console.error("Error fetching staff options:", error);
+      }
+    };
+
+    if (open) {
+      fetchData();
+    }
+
+    return () => {
+      if (!open) {
+        reset();
+      }
+    };
+  }, [open, reset]);
+
+  useEffect(() => {
+    if (initialData) {
+      reset({
+        agentName: initialData.agentName ?? "",
+        organization: initialData.organization ?? "",
+        contactPerson: initialData.contactPerson ?? "",
+        phone: initialData.phone ?? "",
+        email: initialData.email ?? "",
+        location: initialData.location ?? "",
+        nominatedStaff: initialData.nominatedStaff ?? "",
+        password: initialData.password ?? "",
+      });
+    }
+  }, [initialData, reset]);
 
   const onSubmitForm = (data) => {
     onSubmit(data);
     onOpenChange(false);
   };
+
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -35,15 +91,15 @@ export function AgentDialog({ open, onOpenChange, onSubmit, initialData, staffOp
           <DialogTitle>{initialData ? "Edit Agent" : "Add New Agent"}</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmitForm)}>
+        <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-2">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium">Agent Name *</label>
               <Input
-                {...register("agent_name", { required: "Agent Name is required" })}
+                {...register("agentName", { required: "Agent Name is required" })}
                 placeholder="Agent Name"
               />
-              <ErrorMessage message={errors.agent_name?.message?.toString()} />
+              <ErrorMessage message={errors.agentName?.message?.toString()} />
             </div>
 
             <div>
@@ -55,10 +111,10 @@ export function AgentDialog({ open, onOpenChange, onSubmit, initialData, staffOp
             <div>
               <label className="block text-sm font-medium">Contact Person *</label>
               <Input
-                {...register("contact_person", { required: "Contact Person is required" })}
+                {...register("contactPerson", { required: "Contact Person is required" })}
                 placeholder="Contact Person"
               />
-              <ErrorMessage message={errors.contact_person?.message?.toString()} />
+              <ErrorMessage message={errors.contactPerson?.message?.toString()} />
             </div>
 
             <div>
@@ -69,14 +125,19 @@ export function AgentDialog({ open, onOpenChange, onSubmit, initialData, staffOp
 
             <div>
               <label className="block text-sm font-medium">Email</label>
-              <Input {...register("email", { pattern: { value: /^\S+@\S+$/i, message: "Invalid email format" } })} placeholder="Email" />
+              <Input
+                {...register("email", {
+                  pattern: { value: /^\S+@\S+$/i, message: "Invalid email format" },
+                })}
+                placeholder="Email"
+              />
               <ErrorMessage message={errors.email?.message?.toString()} />
             </div>
 
             <div>
               <label className="block text-sm font-medium">Location *</label>
               <Input
-                {...register("location", { required: "location is required" })}
+                {...register("location", { required: "Location is required" })}
                 placeholder="Location"
               />
               <ErrorMessage message={errors.location?.message?.toString()} />
@@ -84,26 +145,41 @@ export function AgentDialog({ open, onOpenChange, onSubmit, initialData, staffOp
 
             <div>
               <label className="block text-sm font-medium">Nominated Staff</label>
-              <Select
-                value={initialData?.nominatedStaff ?? ""}
-                onValueChange={(value) => setValue("nominatedStaff", value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select Staff" />
-                </SelectTrigger>
-                <SelectContent>
-                  {staffOptions?.map((staff) => (
-                    <SelectItem key={staff} value={staff}>
-                      {staff}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Controller
+                name="nominatedStaff"
+                control={control}
+                rules={{ required: "Please select a staff member" }}
+                render={({ field }) => (
+                  <Select
+                    value={field.value}
+                    onValueChange={(value) => field.onChange(value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue>
+                        {field.value
+                          ? staffOptions.find((staff) => staff.id === field.value)?.firstName +
+                          ' ' +
+                          staffOptions.find((staff) => staff.id === field.value)?.lastName
+                          : "Please select"}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {staffOptions.map((staff) => (
+                        <SelectItem key={staff.id} value={staff.id}>
+                          {staff.firstName} {staff.lastName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              <ErrorMessage message={errors.nominatedStaff?.message?.toString()} />
+
             </div>
 
             <div>
               <label className="block text-sm font-medium">Password</label>
-              <Input type="password" />
+              <Input type="password" {...register("password")} />
             </div>
           </div>
 

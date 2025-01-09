@@ -1,73 +1,65 @@
-import { useState } from "react"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
+import { useEffect, useState } from "react";
+import * as z from "zod";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import Select from "react-select";
+import axiosInstance from "@/lib/axios"; // Adjust the path as needed
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 import {
   Form,
-  FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch"
-import { Textarea } from "@/components/ui/textarea"
-const formSchema = z.object({
-  course: z.string().min(1, "Course is required"),
-  notes: z.string().min(1, "Note is required"),
-  followUp: z.boolean().default(false),
-  followUpBy: z.string().optional(),
-})
+} from "@/components/ui/form";
 
+const schema = z.object({
+  followUpBy: z.string().nonempty("Please select a staff member"),
+});
 
-export function StaffDialog({ 
-  open, 
-  onOpenChange, 
-  onSubmit,
-  staffMembers,
-}) {
-  const [isFollowUp, setIsFollowUp] = useState(false)
+export function StaffDialog({ open, onOpenChange, onSubmit }) {
+  const [staffOptions, setStaffOptions] = useState<any>([]);
 
   const form = useForm({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
-      course: "",
-      notes: "",
-      followUp: false,
-      followUpBy: undefined,
+      assignStaff: "",
     },
-  })
+  });
 
-  const handleSubmit = (values) => {
-    const staffMember = values.followUpBy 
-      ? staffMembers.find(staff => staff.id === values.followUpBy)
-      : undefined
+  useEffect(() => {
+    const fetchStaffMembers = async () => {
+      try {
+        const response = await axiosInstance.get('/staffs?limit=all');
+        const options = response.data.data.result.map((staff) => ({
+          value: staff.id,
+          label: `${staff.firstName} ${staff.lastName}`,
+        }));
 
-    onSubmit({
-      course: values.course,
-      notes: values.notes,
-      followUp: values.followUp,
-      followUpBy: staffMember,
-    })
+        setStaffOptions(options);
+      } catch (error) {
+        console.error("Error fetching staff members:", error);
+      }
+    };
 
-    form.reset()
-    setIsFollowUp(false)
-  }
+    if (open) {
+      fetchStaffMembers();
+    }
+  }, [open]);
+
+  const handleSubmit = (data) => {
+    onSubmit(data); // 'data' will contain { followUpBy: selectedStaffId }
+    onOpenChange(false);
+  };
+
+  
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -77,31 +69,20 @@ export function StaffDialog({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="followUpBy"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Select Staff</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select staff member" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {staffMembers.map((staff) => (
-                          <SelectItem key={staff.id} value={staff.id}>
-                            {staff.name} - {staff.role}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-           
+            <Controller
+              name="assignStaff"
+              control={form.control}
+              render={({ field }) => {
+                return (
+                  <Select
+                    options={staffOptions}
+                    onChange={(selectedOption) => field.onChange(selectedOption?.value)}
+                    value={staffOptions.find(option => option.value === field.value)}
+                    placeholder="Select staff member"
+                  />
+                );
+              }}
+            />
             <div className="flex justify-end space-x-2">
               <Button
                 type="button"
@@ -118,6 +99,5 @@ export function StaffDialog({
         </Form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
-

@@ -14,8 +14,8 @@ export function StudentProfile({ student, onImageUpdate }) {
                 <div className="relative">
                     <div className="relative h-48 w-48 overflow-hidden rounded-full">
                         <img
-                            src={student.profilePhotoUrl || "https://kzmjkvje8tr2ra724fhh.lite.vusercontent.net/placeholder.svg"}
-                            alt={`${student.firstName} ${student.lastName}`}
+                            src={student?.profilePhotoUrl || "https://kzmjkvje8tr2ra724fhh.lite.vusercontent.net/placeholder.svg"}
+                            alt={`${student?.firstName} ${student?.lastName}`}
                             className="object-cover h-full w-full"
                         />
                         <Button
@@ -31,23 +31,23 @@ export function StudentProfile({ student, onImageUpdate }) {
                 <div className="space-y-4">
                     <div>
                         <h2 className="text-2xl font-bold">
-                            {student.title} {student.firstName} {student.lastName}
+                            {student?.title} {student?.firstName} {student?.lastName}
                         </h2>
                     </div>
 
                     <div className="grid gap-2">
                         <div className="flex items-center gap-2">
                             <span className="text-sm font-medium">Email:</span>
-                            <span className="text-sm text-muted-foreground">{student.email}</span>
+                            <span className="text-sm text-muted-foreground">{student?.email}</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <span className="text-sm font-medium">Phone:</span>
-                            <span className="text-sm text-muted-foreground">{student.phone}</span>
+                            <span className="text-sm text-muted-foreground">{student?.phone}</span>
                         </div>
                         
                         <div className="flex items-center gap-2">
                             <span className="text-sm font-medium">Date of Birth:</span>
-                            <span className="text-sm text-muted-foreground">{moment(student.dob).format('DD-MM-YYYY')}</span>
+                            <span className="text-sm text-muted-foreground">{moment(student?.dob).format('DD-MM-YYYY')}</span>
                         </div>
                     </div>
                 </div>
@@ -56,11 +56,11 @@ export function StudentProfile({ student, onImageUpdate }) {
                     <div>
                         <h3 className="font-medium">Address</h3>
                         <div className="mt-2 space-y-1 text-sm text-muted-foreground">
-                            <p>{student.addressLine1}</p>
-                            <p>{student.addressLine2}</p>
-                            <p>{student.state}</p>
-                            <p>{student.postCode}</p>
-                            <p>{student.country}</p>
+                            <p>{student?.addressLine1}</p>
+                            <p>{student?.addressLine2}</p>
+                            <p>{student?.state}</p>
+                            <p>{student?.postCode}</p>
+                            <p>{student?.country}</p>
                         </div> 
                     </div>
                 </div>
@@ -70,7 +70,7 @@ export function StudentProfile({ student, onImageUpdate }) {
                 open={uploadOpen}
                 onOpenChange={setUploadOpen}
                 onUploadComplete={onImageUpdate}
-                studentId={student.id}
+                studentId={student?.id}
             />
         </Card>
     )

@@ -4,24 +4,46 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import ErrorMessage from "@/components/shared/error-message";
+import { useEffect } from "react";
 
 export function StaffDialog({ open, onOpenChange, onSubmit, initialData }) {
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm({
     defaultValues: {
-      firstName: initialData?.firstName ?? "",
-      lastName: initialData?.lastName ?? "",
-      email: initialData?.email ?? "",
-      phone: initialData?.phone ?? "",
-      password: initialData?.password ?? "",
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      password: "",
     },
   });
 
+   // Reset form when initialData changes
+   useEffect(() => {
+    if (initialData) {
+      reset({
+        firstName: initialData.firstName ?? "",
+        lastName: initialData.lastName ?? "",
+        email: initialData.email ?? "",
+        phone: initialData.phone ?? "",
+        password: initialData.password ?? "",
+      });
+    } else {
+      reset(); // Reset to default values if no initialData is provided
+    }
+  }, [initialData, reset]);
+
+  useEffect(() => {
+    if (!open) {
+      reset(); // Reset form data when dialog closes
+    }
+  }, [open, reset]);
+
   const onSubmitForm = (data) => {
-    console.log(data);
     onSubmit(data);
     onOpenChange(false);
   };
@@ -75,6 +97,7 @@ export function StaffDialog({ open, onOpenChange, onSubmit, initialData }) {
               <Label htmlFor="phone">Phone</Label>
               <Input id="phone" type="tel" {...register("phone")} />
             </div>
+
             <div className="space-y-2">
               <Label htmlFor="password">
                 Password <span className="text-red-500">*</span>
@@ -82,7 +105,7 @@ export function StaffDialog({ open, onOpenChange, onSubmit, initialData }) {
               <Input
                 id="password"
                 type="password"
-                {...register("password", { required: "Password is required" })}
+                {...register("password")}
               />
               <ErrorMessage message={errors.password?.message?.toString()} />
             </div>

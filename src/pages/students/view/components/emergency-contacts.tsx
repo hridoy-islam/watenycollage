@@ -13,16 +13,16 @@ import {
 import { EmergencyContactDialog } from "./emergency-contact-dialog";
 
 export function EmergencyContacts({ student, onSave }) {
-  const [contacts, setContacts] = useState(student.emergencyContact || []);
+  const [contacts, setContacts] = useState(student?.emergencyContact || []);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingContact, setEditingContact] = useState<any>(null);
 
 
   useEffect(() => {
-    if (Array.isArray(student.emergencyContact)) {
-      setContacts(student.emergencyContact);
+    if (Array.isArray(student?.emergencyContact)) {
+      setContacts(student?.emergencyContact);
     }
-  }, [student.emergencyContact]);
+  }, [student?.emergencyContact]);
 
   const handleAddContact = async (data) => {
     if (editingContact) {

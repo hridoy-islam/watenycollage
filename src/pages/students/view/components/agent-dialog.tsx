@@ -20,8 +20,8 @@ import {
 import { Input } from "@/components/ui/input"
 
 const formSchema = z.object({
-  agent_name: z.string().min(1, "Agent name is required"),
-  contact_person: z.string().min(1, "Contact person is required"),
+    agentName: z.string().min(1, "Agent name is required"),
+  contactPerson: z.string().min(1, "Contact person is required"),
   email: z.string().email("Invalid email address"),
   location: z.string().min(1, "Location is required"),
   nominated_staff: z.string().min(1, "Nominated staff is required"),
@@ -38,8 +38,8 @@ export function AgentDialog({
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      agent_name: "",
-      contact_person: "",
+      agentName: "",
+      contactPerson: "",
       email: "",
       location: "",
       nominated_staff: "",
@@ -63,7 +63,7 @@ export function AgentDialog({
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="agent_name"
+              name="agentName"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Agent Name</FormLabel>
@@ -76,7 +76,7 @@ export function AgentDialog({
             />
             <FormField
               control={form.control}
-              name="contact_person"
+              name="contactPerson"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Contact Person</FormLabel>

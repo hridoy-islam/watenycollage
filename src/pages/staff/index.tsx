@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Plus, Pen } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
@@ -14,16 +14,13 @@ import { StaffDialog } from "./components/staff-dialog"
 import axiosInstance from '../../lib/axios';
 import { toast } from "@/components/ui/use-toast"
 
-const initialStaff = [
-  { id: 1, firstName: "John", lastName: "Doe", nickname: "Johnny", email: "john@example.com", phone: "123-456-7890", active: true },
-  { id: 2, firstName: "Jane", lastName: "Smith", nickname: "Janey", email: "jane@example.com", phone: "234-567-8901", active: true },
-]
-
 export default function StaffPage() {
-  const [staff, setStaff] = useState(initialStaff)
+  const [staff, setStaff] = useState<any>([])
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingStaff, setEditingStaff] = useState<any>(null)
   const [initialLoading, setInitialLoading] = useState(true);
+
+
   const fetchData = async () => {
     try {
       if (initialLoading) setInitialLoading(true);
@@ -36,7 +33,7 @@ export default function StaffPage() {
     }
   };
 
-const handleSubmit = async (data) => {
+  const handleSubmit = async (data) => {
     try {
       if (editingStaff) {
         // Update institution
@@ -52,18 +49,39 @@ const handleSubmit = async (data) => {
     } catch (error) {
       console.error("Error saving data:", error);
     }
+    finally {
+      setEditingStaff(null);
+    }
   };
 
-  const handleStatusChange = (id: number, active: boolean) => {
-    setStaff(staff.map(stf =>
-      stf.id === id ? { ...stf, active } : stf
-    ))
-  }
+
+
+  const handleStatusChange = async (id, status) => {
+    try {
+      const updatedStatus = status ? "1" : "0";
+      await axiosInstance.patch(`/staffs/${id}`, { status: updatedStatus });
+      toast({ title: "Record updated successfully", className: "bg-supperagent border-none text-white", });
+      fetchData(); // Refresh data
+    } catch (error) {
+      console.error("Error updating status:", error);
+    }
+  };
+
 
   const handleEdit = (staffMember) => {
     setEditingStaff(staffMember)
     setDialogOpen(true)
   }
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    if (!dialogOpen) {
+      setEditingStaff(null);
+    }
+  }, [dialogOpen]);
 
   return (
     <div className="space-y-6">
@@ -75,53 +93,51 @@ const handleSubmit = async (data) => {
         </Button>
       </div>
       <div className="rounded-md bg-white shadow-2xl p-4">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-20">#ID</TableHead>
-            <TableHead>Staff Name</TableHead>
-            <TableHead>Nickname</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Phone</TableHead>
-            <TableHead className="w-32 text-center">Status</TableHead>
-            <TableHead className="w-32 text-center">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {staff.map((staffMember) => (
-            <TableRow key={staffMember.id}>
-              <TableCell>{staffMember.id}</TableCell>
-              <TableCell>{`${staffMember.firstName} ${staffMember.lastName}`}</TableCell>
-              <TableCell>{staffMember.nickname}</TableCell>
-              <TableCell>{staffMember.email}</TableCell>
-              <TableCell>{staffMember.phone}</TableCell>
-              <TableCell className="text-center">
-                <Switch
-                  checked={staffMember.active}
-                  onCheckedChange={(checked) => handleStatusChange(staffMember.id, checked)}
-                  className="mx-auto"
-                />
-              </TableCell>
-              <TableCell className="text-center">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="bg-supperagent text-white hover:bg-supperagent/90"
-                  onClick={() => handleEdit(staffMember)}
-                >
-                  <Pen className="w-4 h-4" />
-                </Button>
-              </TableCell>
+        <Table>
+          <TableHeader>
+            <TableRow>
+
+              <TableHead>Staff Name</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Phone</TableHead>
+              <TableHead className="w-32 text-center">Status</TableHead>
+              <TableHead className="w-32 text-center">Actions</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {staff.map((staffMember) => (
+              <TableRow key={staffMember.id}>
+                <TableCell>{`${staffMember.firstName} ${staffMember.lastName}`}</TableCell>
+                <TableCell>{staffMember.email}</TableCell>
+                <TableCell>{staffMember.phone}</TableCell>
+                <TableCell className="text-center">
+
+                  <Switch
+                    checked={staffMember.status == 1}
+                    onCheckedChange={(checked) => handleStatusChange(staffMember.id, checked)}
+                    className="mx-auto"
+                  />
+                </TableCell>
+                <TableCell className="text-center">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="bg-supperagent text-white hover:bg-supperagent/90"
+                    onClick={() => handleEdit(staffMember)}
+                  >
+                    <Pen className="w-4 h-4" />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
       <StaffDialog
         open={dialogOpen}
         onOpenChange={(open) => {
           setDialogOpen(open)
-          if (!open) setEditingStaff(undefined)
+          if (!open) setEditingStaff(null)
         }}
         onSubmit={handleSubmit}
         initialData={editingStaff}

@@ -29,7 +29,7 @@ export function StudentsTable({students, handleStatusChange}) {
               <TableCell>{student.firstName} {student.lastName}</TableCell>
               <TableCell>{student.email}</TableCell>
               <TableCell>{student.phone}</TableCell>
-              <TableCell>{student.agent}</TableCell>
+              <TableCell></TableCell>
               {/* <TableCell>
                 <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700">
                   {student.type}

@@ -10,24 +10,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
 import { mockData } from "@/types";
 import { useEffect } from "react";
-import { CalendarIcon } from "lucide-react";
-import { Calendar } from "@/components/ui/calendar"
+
 
 export function PersonalDetailsForm({ student, onSave }) {
 
@@ -36,6 +21,7 @@ export function PersonalDetailsForm({ student, onSave }) {
       title: "",
       firstName: "",
       lastName: "",
+      phone: "",
       dob: "",
       email: "",
       gender: "",
@@ -60,6 +46,7 @@ export function PersonalDetailsForm({ student, onSave }) {
         firstName: student.firstName || "",
         lastName: student.lastName || "",
         dob: student.dob || "",
+        phone: student.phone || "",
         email: student.email || "",
         gender: student.gender || "",
         maritualStatus: student.maritualStatus || "",
@@ -76,9 +63,13 @@ export function PersonalDetailsForm({ student, onSave }) {
     }
   }, [student, reset]);
 
+  
+
   const onSubmit = (data) => {
     onSave(data);
   };
+
+  
 
   return (
     <div>
@@ -122,52 +113,12 @@ export function PersonalDetailsForm({ student, onSave }) {
           </div>
           <div className="space-y-2">
             <Label htmlFor="phone">Phone</Label>
-            <Input id="phone" type="tel" defaultValue={student.phone} />
+            <Input id="phone" type="tel" {...register("phone")} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="dob">Date of Birth</Label>
             <Input id="dob" type="date" {...register("dob")} />
-            {/* <FormField
-                control={form.control}
-                name="dob"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>Joining Date</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant={"outline"}
-                            className={cn(
-                              "w-full pl-3 text-left font-normal",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            {field.value ? (
-                              format(field.value, "PPP")
-                            ) : (
-                              <span>Pick a date</span>
-                            )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          disabled={(date) =>
-                            date > new Date() || date < new Date("1900-01-01")
-                          }
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              /> */}
+            
           </div>
           <div className="space-y-2">
             <Label htmlFor="maritualStatus">Maritual Status *</Label>

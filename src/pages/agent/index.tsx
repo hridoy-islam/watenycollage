@@ -14,8 +14,7 @@ import { AgentDialog } from "./components/agent-dialog"
 import axiosInstance from '../../lib/axios';
 import { BlinkingDots } from "@/components/shared/blinking-dots"
 import { toast } from "@/components/ui/use-toast"
-
-
+import { Badge } from "@/components/ui/badge"
 
 const initialStaff = ["John Doe", "Jane Smith", "Sam Brown"]  // Example list of staff
 
@@ -39,11 +38,10 @@ export default function AgentsPage() {
     };
 
   const handleSubmit = async (data) => {
-    console.log(data)
       try {
         if (editingAgent) {
           // Update institution
-          await axiosInstance.put(`/agents/${editingAgent?.id}`, data);
+          await axiosInstance.patch(`/agents/${editingAgent?.id}`, data);
           toast({ title: "Record Updated successfully", className: "bg-supperagent border-none text-white", });
           fetchData();
           setEditingAgent(null);
@@ -58,11 +56,16 @@ export default function AgentsPage() {
     };
 
 
-  const handleStatusChange = (id: number, active: boolean) => {
-    setAgents(agents.map(agent =>
-      agent.id === id ? { ...agent, active } : agent
-    ))
-  }
+  const handleStatusChange = async (id, status) => {
+      try {
+        const updatedStatus = status ? "1" : "0";
+        await axiosInstance.patch(`/agents/${id}`, { status: updatedStatus });
+        toast({ title: "Record updated successfully", className: "bg-supperagent border-none text-white", });
+        fetchData(); // Refresh data
+      } catch (error) {
+        console.error("Error updating status:", error);
+      }
+    };
 
   const handleEdit = (agent) => {
     setEditingAgent(agent)
@@ -98,13 +101,13 @@ export default function AgentsPage() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-20">#ID</TableHead>
             <TableHead>Agent Name</TableHead>
             <TableHead>Organization</TableHead>
             <TableHead>Contact Person</TableHead>
             <TableHead>Phone</TableHead>
             <TableHead>Email</TableHead>
             <TableHead>Location</TableHead>
+            <TableHead>Nominated Staff</TableHead>
             <TableHead className="w-32 text-center">Status</TableHead>
             <TableHead className="w-32 text-center">Actions</TableHead>
           </TableRow>
@@ -112,19 +115,19 @@ export default function AgentsPage() {
         <TableBody>
           {agents.map((agent) => (
             <TableRow key={agent.id}>
-              <TableCell>{agent.id}</TableCell>
               <TableCell>{agent.agentName}</TableCell>
               <TableCell>{agent.organization}</TableCell>
               <TableCell>{agent.contactPerson}</TableCell>
               <TableCell>{agent.phone}</TableCell>
               <TableCell>{agent.email}</TableCell>
-              <TableCell>{agent.addressLine1}, {agent.townCity}</TableCell>
+              <TableCell>{agent.location}</TableCell>
+              <TableCell><Badge className="bg-supperagent text-white hover:bg-supperagent">{agent.nominatedStaff.firstName} {agent.nominatedStaff.lastName}</Badge></TableCell>
               <TableCell className="text-center">
-                <Switch
-                  checked={agent.active}
-                  onCheckedChange={(checked) => handleStatusChange(agent.id, checked)}
-                  className={'mx-auto'}
-                />
+              <Switch
+                    checked={agent.status == 1}
+                    onCheckedChange={(checked) => handleStatusChange(agent.id, checked)}
+                    className="mx-auto"
+                  />
               </TableCell>
               <TableCell className="text-center">
                 <Button
@@ -150,7 +153,6 @@ export default function AgentsPage() {
         }}
         onSubmit={handleSubmit}
         initialData={editingAgent}
-        staffOptions={initialStaff}  // Corrected staff options
       />
     </div>
   )

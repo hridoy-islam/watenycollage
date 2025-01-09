@@ -1,25 +1,21 @@
-import { useState } from "react"
-import { Plus } from 'lucide-react'
-import { Button } from "@/components/ui/button"
-import { AgentDialog } from "./agent-dialog"
-import { AgentDetails } from "./agent-details"
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import { AgentDetails } from "./agent-details";
+import { AgentDialog } from "./agent-dialog";
+import { useState } from "react";
 
-export function AgentPage() {
-  const [agent, setAgent] = useState<any>(null)
-  const [dialogOpen, setDialogOpen] = useState(false)
+export function AgentPage({student}) {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [agent, setAgent] = useState(student.agent)
 
-  const handleSubmit = (data) => {
-    const newAgent = {
-      id: Math.random().toString(36).substr(2, 9),
-      ...data,
-      created_at: new Date(),
-    }
-    setAgent(newAgent)
-    setDialogOpen(false)
+
+
+  const handleSubmit = ()=> {
+    
   }
 
-  const handleDelete = () => {
-    setAgent(null)
+  const handleDelete = ()=> {
+
   }
 
   return (
@@ -38,18 +34,19 @@ export function AgentPage() {
       </div>
 
       {agent ? (
-        <AgentDetails agent={agent} onDelete={handleDelete} />
+        // <AgentDetails agent={agent} onDelete={handleDelete} />
+        <h1>A</h1>
       ) : (
         <div className="text-center py-12 bg-gray-50 rounded-lg border border-dashed">
           <p className="text-muted-foreground">No agent assigned</p>
         </div>
       )}
 
-      <AgentDialog
+      {/* <AgentDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         onSubmit={handleSubmit}
-      />
+      /> */}
     </div>
   )
 }
