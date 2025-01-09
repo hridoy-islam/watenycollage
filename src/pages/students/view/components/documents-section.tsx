@@ -59,7 +59,7 @@ export function DocumentsSection({ student, onDocumentUpdate }) {
   }, [student.documents]);
 
   return (
-        <div className="space-y-4">
+        <div className="space-y-4 rounded-md shadow-md p-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">Documents</h2>
             <Button className="bg-supperagent text-white hover:bg-supperagent" onClick={() => setDialogOpen(true)}>

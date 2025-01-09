@@ -2,9 +2,7 @@ import { useEffect, useState } from "react";
 import * as z from "zod";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Select from "react-select";
 import axiosInstance from "@/lib/axios"; // Adjust the path as needed
-
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -12,16 +10,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 
 const schema = z.object({
-  followUpBy: z.string().nonempty("Please select a staff member"),
+  staffId: z.string().nonempty("Please select a staff member"),
 });
 
 export function StaffDialog({ open, onOpenChange, onSubmit }) {
@@ -30,7 +22,7 @@ export function StaffDialog({ open, onOpenChange, onSubmit }) {
   const form = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
-      assignStaff: "",
+      staffId: "",
     },
   });
 
@@ -42,7 +34,6 @@ export function StaffDialog({ open, onOpenChange, onSubmit }) {
           value: staff.id,
           label: `${staff.firstName} ${staff.lastName}`,
         }));
-
         setStaffOptions(options);
       } catch (error) {
         console.error("Error fetching staff members:", error);
@@ -55,11 +46,10 @@ export function StaffDialog({ open, onOpenChange, onSubmit }) {
   }, [open]);
 
   const handleSubmit = (data) => {
-    onSubmit(data); // 'data' will contain { followUpBy: selectedStaffId }
+    console.log(data)
+    onSubmit(data); 
     onOpenChange(false);
   };
-
-  
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -69,20 +59,26 @@ export function StaffDialog({ open, onOpenChange, onSubmit }) {
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-            <Controller
-              name="assignStaff"
-              control={form.control}
-              render={({ field }) => {
-                return (
-                  <Select
-                    options={staffOptions}
-                    onChange={(selectedOption) => field.onChange(selectedOption?.value)}
-                    value={staffOptions.find(option => option.value === field.value)}
-                    placeholder="Select staff member"
-                  />
-                );
-              }}
-            />
+            <div>
+              <Controller
+                name="staffId"
+                control={form.control}
+                render={({ field }) => (
+                  <select {...field}
+                  className="w-full rounded-md border border-gray-300 bg-white p-2 text-gray-900 shadow-sm focus:border-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-500"
+                  >
+                    <option value="" disabled>
+                      Select a staff member
+                    </option>
+                    {staffOptions.map((staff) => (
+                      <option key={staff.value} value={staff.value}>
+                        {staff.label}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              />
+            </div>
             <div className="flex justify-end space-x-2">
               <Button
                 type="button"

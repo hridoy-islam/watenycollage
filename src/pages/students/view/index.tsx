@@ -112,7 +112,7 @@ export default function StudentViewPage() {
           <ApplicationsSection student={student} onSave={handleSave}/>
         </TabsContent>
         <TabsContent value="agent">
-          <AgentPage student={student}/>
+          <AgentPage student={student} onSave={handleSave}/>
         </TabsContent>
         <TabsContent value="staff">
           <AssignStaff student={student} onSave={handleSave}/>

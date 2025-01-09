@@ -20,7 +20,6 @@ export function AcademicRecords({ student, onSave }) {
   const [academicHistory, setAcademicHistory] = useState<any>([]);
   const [newAcademicOpen, setNewAcademicOpen] = useState(false);
   const [editingAcademic, setEditingAcademic] = useState<any>(null);
-
   const [examNotRequired, setExamNotRequired] = useState(student.englishLanguageRequired);
   const [examHistory, setExamHistory] = useState<any>(student.englishLanguageExam);
   const [newExamOpen, setNewExamOpen] = useState(false);
@@ -83,6 +82,18 @@ export function AcademicRecords({ student, onSave }) {
     if (updatedRecord) {
       const updatedRecordWithStatus = { ...updatedRecord, status: newStatus };
       onSave({ academicHistory: [updatedRecordWithStatus] });
+    }
+  };
+
+  
+  const handleExamStatus = (id, currentStatus) => {
+    // Toggle the status
+    const newStatus = currentStatus === 1 ? 0 : 1;
+    // Persist the change using onSave
+    const updatedRecord = examHistory.find((record) => record.id === id);
+    if (updatedRecord) {
+      const updatedRecordWithStatus = { ...updatedRecord, status: newStatus };
+      onSave({ englishLanguageExam: [updatedRecordWithStatus] });
     }
   };
 
@@ -179,8 +190,9 @@ export function AcademicRecords({ student, onSave }) {
                           className="mx-auto"
                         />
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell>
                         <Button
+                        className="bg-supperagent text-white hover:bg-supperagent/90 border-none"
                           variant="ghost"
                           size="icon"
                           onClick={() => handleEditAcademic(record)}
@@ -247,10 +259,19 @@ export function AcademicRecords({ student, onSave }) {
                       <TableCell>{exam.exam}</TableCell>
                       <TableCell>{exam.examDate}</TableCell>
                       <TableCell>{exam.score}</TableCell>
-                      <TableCell>{exam.status}</TableCell>
-                      <TableCell className="text-right">
+                      <TableCell>
+
+                      <Switch
+                          checked={parseInt(exam.status) === 1}
+                          onCheckedChange={(checked) => handleExamStatus(exam.id, checked ? 0 : 1)}
+                          className="mx-auto"
+                        />
+
+                      </TableCell>
+                      <TableCell>
                         <Button
                           variant="ghost"
+                          className="bg-supperagent text-white hover:bg-supperagent/90 border-none"
                           size="icon"
                           onClick={() => handleEditExam(exam)}
                         >

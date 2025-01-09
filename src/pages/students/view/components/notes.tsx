@@ -46,7 +46,7 @@ export function NotesPage() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 rounded-md shadow-md p-4">
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold">Notes</h2>
         <Button 

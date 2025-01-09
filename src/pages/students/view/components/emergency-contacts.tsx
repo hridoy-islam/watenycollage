@@ -114,6 +114,7 @@ export function EmergencyContacts({ student, onSave }) {
                 <TableCell className="text-right">
                   <Button
                     variant="ghost"
+                    className="bg-supperagent text-white hover:bg-supperagent/90 border-none"
                     size="icon"
                     onClick={() => handleEdit(contact)}
                   >

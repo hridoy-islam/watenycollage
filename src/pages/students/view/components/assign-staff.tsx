@@ -44,7 +44,7 @@ export function AssignStaff({ student , onSave}) {
   // };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 rounded-md shadow-md p-4">
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold">Assigned Staffs</h2>
         <Button
@@ -61,7 +61,8 @@ export function AssignStaff({ student , onSave}) {
             <TableRow>
 
               <TableHead>Staff</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>Email</TableHead>
+              {/* <TableHead className="text-right">Actions</TableHead> */}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -75,16 +76,10 @@ export function AssignStaff({ student , onSave}) {
               staffs.map((staff) => (
                 <TableRow key={staff.id}>
 
-                  <TableCell>{staff.staff.firstName}</TableCell>
-
-                  <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => console.log("Edit", staff.id)}
-                    >
-                      <Pen className="h-4 w-4" />
-                    </Button>
+                  <TableCell>{staff.staff.firstName} {staff.staff.lastName}</TableCell>
+                  <TableCell>{staff.staff.email} </TableCell>
+                  {/* <TableCell className="text-right">
+                    
                     <Button
                       variant="ghost"
                       size="icon"
@@ -92,7 +87,7 @@ export function AssignStaff({ student , onSave}) {
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
-                  </TableCell>
+                  </TableCell> */}
                 </TableRow>
               ))
             )}

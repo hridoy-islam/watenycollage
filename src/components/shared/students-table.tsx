@@ -15,7 +15,6 @@ export function StudentsTable({students, handleStatusChange}) {
             <TableHead>Student Name</TableHead>
             <TableHead>Email</TableHead>
             <TableHead>Phone</TableHead>
-            <TableHead>Agent</TableHead>
             {/* <TableHead>Type</TableHead> */}
             <TableHead>Status</TableHead>
             <TableHead className="text-right">Actions</TableHead>
@@ -29,12 +28,6 @@ export function StudentsTable({students, handleStatusChange}) {
               <TableCell>{student.firstName} {student.lastName}</TableCell>
               <TableCell>{student.email}</TableCell>
               <TableCell>{student.phone}</TableCell>
-              <TableCell></TableCell>
-              {/* <TableCell>
-                <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700">
-                  {student.type}
-                </span>
-              </TableCell> */}
               <TableCell>
               <Switch
                     checked={student.status == 1}

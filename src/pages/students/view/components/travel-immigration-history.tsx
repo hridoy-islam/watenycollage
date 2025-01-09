@@ -164,9 +164,10 @@ export function TravelImmigrationHistory({ student, onSave }) {
                               className="mx-auto"
                             />
                           </TableCell>
-                          <TableCell className="text-right">
+                          <TableCell>
                             <Button
                               variant="ghost"
+                              className="bg-supperagent text-white hover:bg-supperagent/90 border-none"
                               size="icon"
                               onClick={() => handleEditHistory(history)}
                             >

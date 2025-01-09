@@ -1,157 +1,90 @@
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
-
-import { Button } from "@/components/ui/button"
+import { useEffect, useState } from "react";
+import * as z from "zod";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import axiosInstance from "@/lib/axios"; // Adjust the path as needed
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
+} from "@/components/ui/dialog";
+import { Form } from "@/components/ui/form";
 
-const formSchema = z.object({
-    agentName: z.string().min(1, "Agent name is required"),
-  contactPerson: z.string().min(1, "Contact person is required"),
-  email: z.string().email("Invalid email address"),
-  location: z.string().min(1, "Location is required"),
-  nominated_staff: z.string().min(1, "Nominated staff is required"),
-  organization: z.string().min(1, "Organization is required"),
-  phone: z.string().min(1, "Phone number is required"),
-})
+const schema = z.object({
+  agent: z.string().nonempty("Please select an agent"),
+});
 
+export function AgentDialog({ open, onOpenChange, onSubmit, initialData }) {
+  const [staffOptions, setStaffOptions] = useState<any>([]);
 
-export function AgentDialog({ 
-  open, 
-  onOpenChange, 
-  onSubmit,
-}) {
   const form = useForm({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
-      agentName: "",
-      contactPerson: "",
-      email: "",
-      location: "",
-      nominated_staff: "",
-      organization: "",
-      phone: "",
+      agent: initialData ? initialData.id : "",
     },
-  })
+  });
 
-  const handleSubmit = (values) => {
-    onSubmit(values)
-    form.reset()
-  }
+  useEffect(() => {
+    const fetchAgents = async () => {
+      try {
+        const response = await axiosInstance.get('/agents?limit=all');
+        const options = response.data.data.result.map((agent) => ({
+          value: agent.id,
+          label: agent.agentName,
+        }));
+        setStaffOptions(options);
+      } catch (error) {
+        console.error("Error fetching agents:", error);
+      }
+    };
+
+    if (open) {
+      fetchAgents();
+    }
+  }, [open]);
+
+  useEffect(() => {
+    if (initialData) {
+      form.reset({ agent: initialData.id }); // Ensure agentId is correctly set
+    }
+  }, [initialData, form]);
+
+  const handleSubmit = (data) => {
+    onSubmit(data);
+    onOpenChange(false);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Add Agent</DialogTitle>
+          <DialogTitle>{initialData ? "Edit Agent" : "Add Agent"}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="agentName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Agent Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter agent name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="contactPerson"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Contact Person</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter contact person name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input type="email" placeholder="Enter email address" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="location"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Location</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter location" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="nominated_staff"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nominated Staff</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter nominated staff" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="organization"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Organization</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter organization name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Phone</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter phone number" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div>
+              <Controller
+                name="agent"
+                control={form.control}
+                render={({ field }) => (
+                  <select
+                    {...field}
+                    className="w-full rounded-md border border-gray-300 bg-white p-2 text-gray-900 shadow-sm focus:border-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-500"
+                  >
+                    <option value="" disabled>
+                      Select an Agent
+                    </option>
+                    {staffOptions.map((agent) => (
+                      <option key={agent.value} value={agent.value}>
+                        {agent.label}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              />
+            </div>
             <div className="flex justify-end space-x-2">
               <Button
                 type="button"
@@ -160,7 +93,7 @@ export function AgentDialog({
               >
                 Cancel
               </Button>
-              <Button type="submit" className="bg-blue-600 text-white hover:bg-blue-700">
+              <Button type="submit" className="bg-supperagent text-white hover:bg-supperagent">
                 Submit
               </Button>
             </div>
@@ -168,6 +101,5 @@ export function AgentDialog({
         </Form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
-
