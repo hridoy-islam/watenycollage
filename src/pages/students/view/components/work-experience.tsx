@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react"
-import { Plus, Pencil } from 'lucide-react'
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Switch } from "@/components/ui/switch"
+import { useEffect, useState } from "react";
+import { Plus, Pencil } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import {
   Table,
   TableBody,
@@ -10,21 +10,15 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { WorkExperienceDialog } from "./work-experience-dialog"
-import moment from "moment"
+} from "@/components/ui/table";
+import { WorkExperienceDialog } from "./work-experience-dialog";
+import moment from "moment";
 
 export function WorkExperienceSection({ student, onSave }) {
-  const [noExperience, setNoExperience] = useState(false)
-  const [workExperiences, setWorkExperiences] = useState<any>(student.workDetails || [])
-  const [dialogOpen, setDialogOpen] = useState(false)
-  const [editingWorkDetail, setEditingWorkDetail] = useState<any>(null)
-
-
-  const handleEdit = (experience) => {
-    setEditingWorkDetail(experience)
-    setDialogOpen(true)
-  }
+  const [noExperience, setNoExperience] = useState(false);
+  const [workExperiences, setWorkExperiences] = useState<any>(student.workDetails || []);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingWorkDetail, setEditingWorkDetail] = useState<any>(null);
 
   useEffect(() => {
     if (Array.isArray(student.workDetails)) {
@@ -34,12 +28,17 @@ export function WorkExperienceSection({ student, onSave }) {
 
   const handleAddWorkDetail = async (data) => {
     if (editingWorkDetail) {
-      const updatedWorkDetail = { ...data, id: editingWorkDetail.id }
+      const updatedWorkDetail = { ...data, id: editingWorkDetail.id };
       onSave({ workDetails: [updatedWorkDetail] });
       setEditingWorkDetail(null);
     } else {
       onSave({ workDetails: [data] });
     }
+  };
+
+  const handleEdit = (experience) => {
+    setEditingWorkDetail(experience);
+    setDialogOpen(true);
   };
 
   const handleWorkExperience = (checked) => {
@@ -51,11 +50,26 @@ export function WorkExperienceSection({ student, onSave }) {
     // Toggle the status
     const newStatus = currentStatus === 1 ? 0 : 1;
     // Persist the change using onSave
-    const updatedContact = workExperiences.find(contact => contact.id === id);
-    if (updatedContact) {
-      const updatedContactWithStatus = { ...updatedContact, status: newStatus };
-      onSave({ workDetails: [updatedContactWithStatus] });
+    const updatedExperience = workExperiences.find((experience) => experience.id === id);
+    if (updatedExperience) {
+      const updatedExperienceWithStatus = { ...updatedExperience, status: newStatus };
+      onSave({ workDetails: [updatedExperienceWithStatus] });
     }
+  };
+
+  // Reset editingWorkDetail to default blank values when opening the dialog for a new work experience
+  const handleOpenDialog = () => {
+    setEditingWorkDetail({
+      jobTitle: "",
+      organization: "",
+      address: "",
+      phone: "",
+      fromDate: "",
+      toDate: "",
+      currentlyWorking: 0, // Default to "No"
+      status: 1, // Default status (active)
+    });
+    setDialogOpen(true);
   };
 
   return (
@@ -63,7 +77,10 @@ export function WorkExperienceSection({ student, onSave }) {
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">Work Details</h2>
         {!noExperience && (
-          <Button className="bg-supperagent text-white hover:bg-supperagent/90" onClick={() => setDialogOpen(true)}>
+          <Button
+            className="bg-supperagent text-white hover:bg-supperagent/90"
+            onClick={handleOpenDialog} // Use handleOpenDialog instead of directly setting dialogOpen
+          >
             <Plus className="w-4 h-4 mr-2" />
             New Work
           </Button>
@@ -71,17 +88,12 @@ export function WorkExperienceSection({ student, onSave }) {
       </div>
 
       <div className="flex items-center space-x-2">
-
-
         <Checkbox
           id="noExperience"
           checked={noExperience}
           onCheckedChange={(checked) => handleWorkExperience(checked)}
         />
-
-        <label htmlFor="noExperience">
-          No work Experiences.
-        </label>
+        <label htmlFor="noExperience">No work Experiences.</label>
       </div>
 
       {!noExperience && (
@@ -89,7 +101,6 @@ export function WorkExperienceSection({ student, onSave }) {
           <Table>
             <TableHeader>
               <TableRow>
-
                 <TableHead>Job Title</TableHead>
                 <TableHead>Name of Org.</TableHead>
                 <TableHead>Org. Address</TableHead>
@@ -115,22 +126,19 @@ export function WorkExperienceSection({ student, onSave }) {
                     <TableCell>{experience.organization}</TableCell>
                     <TableCell>{experience.address}</TableCell>
                     <TableCell>{experience.phone}</TableCell>
-                    <TableCell>{moment(experience.fromDate).format('DD-MM-YYYY')}</TableCell>
+                    <TableCell>{moment(experience.fromDate).format("DD-MM-YYYY")}</TableCell>
                     <TableCell>
-                      {experience.toDate !==null && moment(experience.toDate).format('DD-MM-YYYY')}
+                      {experience.toDate !== null && moment(experience.toDate).format("DD-MM-YYYY")}
                     </TableCell>
                     <TableCell className="text-center">
-                    {experience.currentlyWorking == 1 && "Yes"}
+                      {experience.currentlyWorking == 1 && "Yes"}
                     </TableCell>
                     <TableCell>
-
                       <Switch
                         checked={parseInt(experience.status) === 1}
                         onCheckedChange={(checked) => handleStatusChange(experience.id, checked ? 0 : 1)}
                         className="mx-auto"
                       />
-
-
                     </TableCell>
                     <TableCell className="text-right">
                       <Button
@@ -146,20 +154,18 @@ export function WorkExperienceSection({ student, onSave }) {
               )}
             </TableBody>
           </Table>
-
         </>
       )}
 
       <WorkExperienceDialog
         open={dialogOpen}
         onOpenChange={(open) => {
-          setDialogOpen(open)
-          if (!open) setEditingWorkDetail(null)
+          setDialogOpen(open);
+          if (!open) setEditingWorkDetail(null); // Reset editingWorkDetail when dialog is closed
         }}
         onSubmit={handleAddWorkDetail}
-        initialData={editingWorkDetail}
+        initialData={editingWorkDetail} // Pass the editingWorkDetail as initialData
       />
     </div>
-  )
+  );
 }
-
