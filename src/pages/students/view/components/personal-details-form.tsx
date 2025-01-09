@@ -29,7 +29,6 @@ export function PersonalDetailsForm({ student, onSave }) {
       phone: "",
       dob: "",
       email: "",
-      phone: "", // Add phone to defaultValues
       gender: "",
       maritualStatus: "",
       nationality: "",
@@ -54,7 +53,6 @@ export function PersonalDetailsForm({ student, onSave }) {
         dob: student.dob || "",
         phone: student.phone || "",
         email: student.email || "",
-        phone: student.phone || "", // Include phone in reset
         gender: student.gender || "",
         maritualStatus: student.maritualStatus || "",
         nationality: student.nationality || "",
@@ -75,8 +73,6 @@ export function PersonalDetailsForm({ student, onSave }) {
   const onSubmit = (data) => {
     onSave(data);
   };
-
-  
 
   return (
     <div>
