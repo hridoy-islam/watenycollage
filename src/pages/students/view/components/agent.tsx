@@ -1,10 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { Pen } from 'lucide-react'
-import {
-  CardTitle,
-} from "@/components/ui/card"
 import { AgentDialog } from "./agent-dialog";
 
 export function AgentPage({ student, onSave }) {
@@ -19,6 +16,11 @@ export function AgentPage({ student, onSave }) {
   const handleEdit = () => {
     setDialogOpen(true);
   };
+
+  useEffect(() => {
+    // Ensure the agent state updates when student.agent changes
+    setAgent(student.agent);
+  }, [student.agent]);
 
   const hasAgent = agent && Object.keys(agent).length > 0;
 

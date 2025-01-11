@@ -7,13 +7,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import ErrorMessage from "@/components/shared/error-message";
 import { useEffect, useState } from "react";
@@ -44,8 +37,12 @@ export function AgentDialog({ open, onOpenChange, onSubmit, initialData }) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axiosInstance.get(`/staffs?limit=all`);
-        setStaffOptions(response.data.data.result);
+        const response = await axiosInstance.get('/staffs?limit=all');
+        const options = response.data.data.result.map((staff) => ({
+          value: staff.id,
+          label: `${staff.firstName} ${staff.lastName}`,
+        }));
+        setStaffOptions(options);
       } catch (error) {
         console.error("Error fetching staff options:", error);
       }
@@ -71,16 +68,21 @@ export function AgentDialog({ open, onOpenChange, onSubmit, initialData }) {
         phone: initialData.phone ?? "",
         email: initialData.email ?? "",
         location: initialData.location ?? "",
-        nominatedStaff: initialData.nominatedStaff ?? "",
+        nominatedStaff: initialData.nominatedStaff.id ?? "",
         password: initialData.password ?? "",
       });
     }
   }, [initialData, reset]);
 
   const onSubmitForm = (data) => {
+    if (!data.password) {
+      delete data.password; // Remove password field if it's empty
+    }
     onSubmit(data);
     onOpenChange(false);
   };
+
+
 
 
 
@@ -145,34 +147,51 @@ export function AgentDialog({ open, onOpenChange, onSubmit, initialData }) {
 
             <div>
               <label className="block text-sm font-medium">Nominated Staff</label>
+              {/* <Controller
+                name="nominatedStaff"
+                control={form.control}
+                render={({ field }) => (
+                  <select {...field}
+                  className="w-full rounded-md border border-gray-300 bg-white p-2 text-gray-900 shadow-sm focus:border-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-500"
+                  >
+                    <option value="" disabled>
+                      Select a staff member
+                    </option>
+                    {staffOptions.map((staff) => (
+                      <option key={staff.value} value={staff.value}>
+                        {staff.label}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              />  */}
+
               <Controller
                 name="nominatedStaff"
                 control={control}
-                rules={{ required: "Please select a staff member" }}
                 render={({ field }) => (
-                  <Select
-                    value={field.value}
-                    onValueChange={(value) => field.onChange(value)}
+                  <select
+                    {...field}
+                    className="w-full rounded-md border border-gray-300 bg-white p-2 text-gray-900 shadow-sm focus:border-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-500"
                   >
-                    <SelectTrigger>
-                      <SelectValue>
-                        {field.value
-                          ? staffOptions.find((staff) => staff.id === field.value)?.firstName +
-                          ' ' +
-                          staffOptions.find((staff) => staff.id === field.value)?.lastName
-                          : "Please select"}
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {staffOptions.map((staff) => (
-                        <SelectItem key={staff.id} value={staff.id}>
-                          {staff.firstName} {staff.lastName}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    <option value="" disabled>
+                      Select a staff member
+                    </option>
+                    {staffOptions.map((staff) => (
+                      <option key={staff.value} value={staff.value}>
+                        {staff.label}
+                      </option>
+                    ))}
+                  </select>
                 )}
               />
+
+              <ErrorMessage message={errors.nominatedStaff?.message?.toString()} />
+
+
+
+
+
               <ErrorMessage message={errors.nominatedStaff?.message?.toString()} />
 
             </div>

@@ -13,7 +13,7 @@ import {
 import { Form } from "@/components/ui/form";
 
 const schema = z.object({
-  agent: z.string().nonempty("Please select an agent"),
+  agentId : z.string().nonempty("Please select an agent"),
 });
 
 export function AgentDialog({ open, onOpenChange, onSubmit, initialData }) {
@@ -22,7 +22,7 @@ export function AgentDialog({ open, onOpenChange, onSubmit, initialData }) {
   const form = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
-      agent: initialData ? initialData.id : "",
+      agentId : initialData ? initialData.id : "",
     },
   });
 
@@ -47,7 +47,7 @@ export function AgentDialog({ open, onOpenChange, onSubmit, initialData }) {
 
   useEffect(() => {
     if (initialData) {
-      form.reset({ agent: initialData.id }); // Ensure agentId is correctly set
+      form.reset({ agentId : initialData.id }); // Ensure agentId is correctly set
     }
   }, [initialData, form]);
 
@@ -66,7 +66,7 @@ export function AgentDialog({ open, onOpenChange, onSubmit, initialData }) {
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             <div>
               <Controller
-                name="agent"
+                name="agentId"
                 control={form.control}
                 render={({ field }) => (
                   <select

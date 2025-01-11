@@ -44,6 +44,9 @@ export function StaffDialog({ open, onOpenChange, onSubmit, initialData }) {
   }, [open, reset]);
 
   const onSubmitForm = (data) => {
+    if (!data.password) {
+      delete data.password; // Remove password field if it's empty
+    }
     onSubmit(data);
     onOpenChange(false);
   };
