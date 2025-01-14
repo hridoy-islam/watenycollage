@@ -1,22 +1,64 @@
+import { useEffect, useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Controller, useForm } from "react-hook-form";
+import * as z from "zod";
+
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
-import axiosInstance from '../../../lib/axios'
-import { Controller, useForm } from "react-hook-form";
+import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import axiosInstance from '@/lib/axios';
 
-export const CourseRelationDialog = ({ open, onOpenChange, onSubmit, initialData }) => {
-  
+const newEntrySchema = z.object({
+  institute_id: z.string().min(1, "Institution is required"),
+  course_id: z.string().min(1, "Course is required"),
+  term_id: z.string().min(1, "Term is required"),
+  local: z.boolean(),
+  local_amount: z.string().optional(),
+  international: z.boolean(),
+  international_amount: z.string().optional(),
+});
+
+const editEntrySchema = z.object({
+  institute_id: z.string().optional(),
+  course_id: z.string().optional(),
+  term_id: z.string().optional(),
+  local: z.boolean(),
+  local_amount: z.string().optional(),
+  international: z.boolean(),
+  international_amount: z.string().optional(),
+});
+
+interface CourseRelationDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSubmit: (data: any) => void;
+  initialData?: any;
+}
+
+export function CourseRelationDialog({
+  open,
+  onOpenChange,
+  onSubmit,
+  initialData
+}: CourseRelationDialogProps) {
   const [institutes, setInstitutes] = useState<any>([]);
   const [terms, setTerms] = useState<any>([]);
   const [courses, setCourses] = useState<any>([]);
 
-  const { register, handleSubmit, control, reset, formState: { errors } } = useForm({
+  const schema = initialData ? editEntrySchema : newEntrySchema;
+
+  const form = useForm<z.infer<typeof schema>>({
+    resolver: zodResolver(schema),
     defaultValues: {
-      institution: "",
-      course: "",
-      term: "",
-      courseAvailableTo: "",
-      active: true, // Default active status
+      institute_id: "",
+      course_id: "",
+      term_id: "",
+      local: false,
+      local_amount: "",
+      international: false,
+      international_amount: "",
     },
   });
 
@@ -29,22 +71,18 @@ export const CourseRelationDialog = ({ open, onOpenChange, onSubmit, initialData
           axiosInstance.get('/courses?limit=all'),
         ]);
 
-        const instituteOptions = institutesResponse.data.data.result.map(institute => ({
+        setInstitutes(institutesResponse.data.data.result.map((institute: any) => ({
           value: institute.id,
           label: institute.name,
-        }));
-        const termOptions = termsResponse.data.data.result.map(term => ({
+        })));
+        setTerms(termsResponse.data.data.result.map((term: any) => ({
           value: term.id,
-          label: term.name,
-        }));
-        const courseOptions = coursesResponse.data.data.result.map(course => ({
+          label: term.term,
+        })));
+        setCourses(coursesResponse.data.data.result.map((course: any) => ({
           value: course.id,
           label: course.name,
-        }));
-
-        setInstitutes(instituteOptions);
-        setTerms(termOptions);
-        setCourses(courseOptions);
+        })));
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -53,104 +91,158 @@ export const CourseRelationDialog = ({ open, onOpenChange, onSubmit, initialData
     if (open) {
       fetchData();
     }
-
-    return () => {
-      if (!open) {
-        reset();
-      }
-    };
-  }, [open, reset]);
+  }, [open]);
 
   useEffect(() => {
     if (initialData) {
-      reset({
-        institution: initialData.institution ?? "",
-        course: initialData.course ?? "",
-        term: initialData.term ?? "",
-        courseAvailableTo: initialData.courseAvailableTo ?? "",
-        active: initialData.active ?? true,
+      form.reset({
+        institute_id: initialData.institute?.id || "",
+        course_id: initialData.course?.id || "",
+        term_id: initialData.term?.id || "",
+        local: initialData.local || false,
+        local_amount: initialData.local_amount || "",
+        international: initialData.international || false,
+        international_amount: initialData.international_amount || "",
       });
     }
-  }, [initialData, reset]);
+  }, [initialData, form]);
 
-  const onSubmitForm = (data) => {
+  const onSubmitForm = (data: z.infer<typeof schema>) => {
     onSubmit(data);
     onOpenChange(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>{initialData ? "Edit Course Relation" : "New Course Relation"}</DialogTitle>
+          <DialogTitle>
+            {initialData ? "Edit Course Relation" : "New Course Relation"}
+          </DialogTitle>
         </DialogHeader>
-        <div className="space-y-4">
-          {/* Institution Field */}
-          <div>
-            <label className="block">Institution</label>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmitForm)} className="space-y-4">
             <Controller
-              name="institution"
-              control={control}
-              rules={{ required: "Institution is required" }}
+              name="institute_id"
+              control={form.control}
               render={({ field }) => (
-                <select {...field} className="w-full rounded-md border bg-white p-2">
+                <select {...field} className="w-full rounded-md border border-gray-300 bg-white p-2 text-gray-900 shadow-sm focus:border-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-500">
                   <option value="" disabled>Select an institution</option>
-                  {institutes.map(inst => (
-                    <option key={inst.value} value={inst.value}>{inst.label}</option>
+                  {institutes.map((institute) => (
+                    <option key={institute.value} value={institute.value}>
+                      {institute.label}
+                    </option>
                   ))}
                 </select>
               )}
             />
-          </div>
-
-          {/* Course Field */}
-          <div>
-            <label className="block">Course</label>
             <Controller
-              name="course"
-              control={control}
-              rules={{ required: "Course is required" }}
+              name="course_id"
+              control={form.control}
               render={({ field }) => (
-                <select {...field} className="w-full rounded-md border bg-white p-2">
-                  <option value="" disabled>Select a course</option>
-                  {courses.map(course => (
-                    <option key={course.value} value={course.value}>{course.label}</option>
+                <select {...field} className="w-full rounded-md border border-gray-300 bg-white p-2 text-gray-900 shadow-sm focus:border-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-500">
+                  <option value="" disabled>Select a Course</option>
+                  {courses.map((item) => (
+                    <option key={item.value} value={item.value}>
+                      {item.label}
+                    </option>
                   ))}
                 </select>
               )}
             />
-          </div>
-
-          {/* Term Field */}
-          <div>
-            <label className="block">Term</label>
             <Controller
-              name="term"
-              control={control}
-              rules={{ required: "Term is required" }}
+              name="term_id"
+              control={form.control}
               render={({ field }) => (
-                <select {...field} className="w-full rounded-md border bg-white p-2">
-                  <option value="" disabled>Select a term</option>
-                  {terms.map(term => (
-                    <option key={term.value} value={term.value}>{term.label}</option>
+                <select {...field} className="w-full rounded-md border border-gray-300 bg-white p-2 text-gray-900 shadow-sm focus:border-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-500">
+                  <option value="" disabled>Select a Term</option>
+                  {terms.map((item) => (
+                    <option key={item.value} value={item.value}>
+                      {item.label}
+                    </option>
                   ))}
                 </select>
               )}
             />
-          </div>
-
-          {/* Course Available to Field */}
-          <div>
-            <label className="block">Course Available to</label>
-            
-          </div>
-
-          
-        </div>
-        <DialogFooter>
-          <Button className="bg-supperagent text-white hover:bg-supperagent/90" onClick={handleSubmit}>{initialData ? "Save Changes" : "Create Course Relation"}</Button>
-        </DialogFooter>
+            <div className="space-y-4">
+              <FormLabel>Course Available To <span className="text-red-500">*</span></FormLabel>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label>Local</label>
+                    <FormField
+                      control={form.control}
+                      name="local"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Switch checked={field.value} onCheckedChange={field.onChange} />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  {form.watch("local") && (
+                    <FormField
+                      control={form.control}
+                      name="local_amount"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <div className="relative">
+                              <span className="absolute left-3 top-1/2 -translate-y-1/2">£</span>
+                              <Input className="pl-7" placeholder="Amount" {...field} />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label>International</label>
+                    <FormField
+                      control={form.control}
+                      name="international"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Switch checked={field.value} onCheckedChange={field.onChange} />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  {form.watch("international") && (
+                    <FormField
+                      control={form.control}
+                      name="international_amount"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <div className="relative">
+                              <span className="absolute left-3 top-1/2 -translate-y-1/2">£</span>
+                              <Input className="pl-7" placeholder="Amount" {...field} />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="submit" className="bg-supperagent text-white hover:bg-supperagent/90">
+                {initialData ? "Save Changes" : "Create Course Relation"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
-};
+}

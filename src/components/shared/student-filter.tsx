@@ -19,19 +19,22 @@ export default function StudentFilter({ onSubmit }){
     const [terms, setTerms] = useState<any>([]);
     const [academicYear, setAcademicYear] = useState<any>([]);
     const [agents, setAgents] = useState<any>([]);
+    const [staffs, setStaffs] = useState<any>([]);
 
     const fetchData = async () => {
       try {
-        const [institueResponse, termsResponse, academicYearResponse, agentResponse] = await Promise.all([
+        const [institueResponse, termsResponse, academicYearResponse, agentResponse, staffResponse] = await Promise.all([
           axiosInstance.get('/institutions?limit=all'),  // Adjust the endpoint as needed
           axiosInstance.get('/terms?limit=all'),
           axiosInstance.get('/academic-years?limit=all'),
           axiosInstance.get('/agents?limit=all'),
+          axiosInstance.get('/staffs?limit=all'),
         ]);
         setInstitutes(institueResponse.data.data.result);
         setTerms(termsResponse.data.data.result);
         setAcademicYear(academicYearResponse.data.data.result);
         setAgents(agentResponse.data.data.result);
+        setStaffs(staffResponse.data.data.result);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -141,7 +144,11 @@ export default function StudentFilter({ onSubmit }){
                 <SelectValue placeholder="Select Staff" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="omniscient">Omniscient</SelectItem>
+              {staffs.map((item) => (
+                <SelectItem key={item.id} value={item.id}>
+                  {item.firstName} {item.lastName}
+                </SelectItem>
+              ))}
               </SelectContent>
             </Select>
           </div>

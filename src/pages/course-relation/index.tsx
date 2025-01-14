@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Pen, Plus } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -11,35 +11,51 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { CourseRelationDialog } from "./components/course-relation-dialog";
+import axiosInstance from '../../lib/axios';
 
 // Example initial course relation data
-const initialCourseRelations = [
-  { id: 1, institution: "Harvard University", course: "Computer Science", term: "Fall 2024", courseAvailableTo: "Local", active: true },
-  { id: 2, institution: "MIT", course: "Mechanical Engineering", term: "Spring 2024", courseAvailableTo: "International", active: true },
-];
 
-// Example options for institutions, courses, terms, and courseAvailableTo
-const institutions = ["Harvard University", "MIT", "Stanford University"];
-const courses = ["Computer Science", "Mechanical Engineering", "Electrical Engineering"];
-const terms = ["Fall 2024", "Spring 2024", "Summer 2024"];
-const courseAvailableTo = ["Local", "International"];
+
+
+import { toast } from "@/components/ui/use-toast"
+import { Badge } from "@/components/ui/badge";
 
 export default function CourseRelationPage() {
-  const [courseRelations, setCourseRelations] = useState(initialCourseRelations);
+  const [courseRelations, setCourseRelations] = useState<any>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingCourseRelation, setEditingCourseRelation] = useState(null);
+  const [editingCourseRelation, setEditingCourseRelation] = useState<any>(null);
+  const [initialLoading, setInitialLoading] = useState(true);
 
-  const handleSubmit = (data) => {
-    if (editingCourseRelation) {
-      setCourseRelations(courseRelations.map((relation) =>
-        relation.id === editingCourseRelation.id ? { ...relation, ...data } : relation
-      ));
-      setEditingCourseRelation(null);
-    } else {
-      const newId = Math.max(...courseRelations.map(r => r.id)) + 1;
-      setCourseRelations([...courseRelations, { id: newId, ...data }]);
+  const fetchData = async () => {
+    try {
+      if (initialLoading) setInitialLoading(true);
+      const response = await axiosInstance.get(`/course-relations`);
+      setCourseRelations(response.data.data.result);
+    } catch (error) {
+      console.error("Error fetching institutions:", error);
+    } finally {
+      setInitialLoading(false); // Disable initial loading after the first fetch
     }
-    setDialogOpen(false); // Close the dialog after submission
+  };
+
+  const handleSubmit = async (data) => {
+
+    try {
+      if (editingCourseRelation) {
+        // Update institution
+        await axiosInstance.patch(`/course-relations/${editingCourseRelation?.id}`, data);
+        toast({ title: "Record Updated successfully", className: "bg-supperagent border-none text-white", });
+        fetchData();
+        setEditingCourseRelation(null);
+      } else {
+        await axiosInstance.post(`/course-relations`, data);
+        toast({ title: "Record Created successfully", className: "bg-supperagent border-none text-white", });
+        fetchData()
+      }
+    } catch (error) {
+      console.error("Error saving Course Relation:", error);
+    }
+
   };
 
   const handleEdit = (relation) => {
@@ -47,81 +63,88 @@ export default function CourseRelationPage() {
     setDialogOpen(true);
   };
 
-  const handleStatusChange = (id, active) => {
-    setCourseRelations(courseRelations.map(relation =>
-      relation.id === id ? { ...relation, active } : relation
-    ));
+  const handleStatusChange = async (id, status) => {
+
+    try {
+      const updatedStatus = status ? "1" : "0";
+      await axiosInstance.patch(`/course-relations/${id}`, { status: updatedStatus });
+      toast({ title: "Record updated successfully", className: "bg-supperagent border-none text-white", });
+      fetchData(); // Refresh data
+    } catch (error) {
+      console.error("Error updating status:", error);
+    }
   };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-semibold">Course Relations</h1>
-        <Button 
-        className="bg-supperagent text-white hover:bg-supperagent/90" size={'sm'}
-        onClick={() => {
-          setEditingCourseRelation(null);  // Clear editing course relation when creating a new one
-          setDialogOpen(true);
-        }}>
+        <Button
+          className="bg-supperagent text-white hover:bg-supperagent/90" size={'sm'}
+          onClick={() => {
+            setEditingCourseRelation(null);  // Clear editing course relation when creating a new one
+            setDialogOpen(true);
+          }}>
           <Plus className="w-4 h-4 mr-2" />
           New Course
         </Button>
       </div>
       <div className="rounded-md bg-white shadow-2xl p-4">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>#ID</TableHead>
-            <TableHead>Institution</TableHead>
-            <TableHead>Course</TableHead>
-            <TableHead>Term</TableHead>
-            <TableHead>Course Available To</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead className="w-32 text-center">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {courseRelations.map((relation) => (
-            <TableRow key={relation.id}>
-              <TableCell>{relation.id}</TableCell>
-              <TableCell>{relation.institution}</TableCell>
-              <TableCell>{relation.course}</TableCell>
-              <TableCell>{relation.term}</TableCell>
-              <TableCell>{relation.courseAvailableTo}</TableCell>
-              <TableCell>
-                <Switch
-                  checked={relation.active}
-                  onCheckedChange={(checked) => handleStatusChange(relation.id, checked)}
-                  className="mx-auto"
-                />
-              </TableCell>
-              <TableCell className="text-center">
-                <Button
-                  variant="ghost"
-                  className="bg-supperagent text-white hover:bg-supperagent/90 border-none"
-                  size="icon"
-                  onClick={() => handleEdit(relation)}
-                >
-                  <Pen className="w-4 h-4" />
-                </Button>
-              </TableCell>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>#ID</TableHead>
+              <TableHead>Institution</TableHead>
+              <TableHead>Course</TableHead>
+              <TableHead>Term</TableHead>
+              <TableHead>Course Available To</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="w-32 text-center">Actions</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {courseRelations.map((relation) => (
+              <TableRow key={relation?.id}>
+                <TableCell>{relation?.id}</TableCell>
+                <TableCell>{relation?.institute?.name}</TableCell>
+                <TableCell>{relation?.course?.name}</TableCell>
+                <TableCell>{relation?.term?.term}</TableCell>
+                <TableCell>
+                  {relation?.local && <Badge className="bg-green-300 hover:bg-green-300">{relation?.local ? 'Local' : ''} £ {relation?.local_amount}</Badge>}
+                   <br /><br /> 
+                   {relation?.international && <Badge className="bg-blue-300 hover:bg-blue-300">{relation?.international ? 'International' : ''}  £ {relation?.international_amount}</Badge> }
+                </TableCell>
+                <TableCell>
+                  <Switch
+                    checked={relation?.status == 1}
+                    onCheckedChange={(checked) => handleStatusChange(relation?.id, checked)}
+                    className="mx-auto"
+                  />
+                </TableCell>
+                <TableCell className="text-center">
+                  <Button
+                    variant="ghost"
+                    className="bg-supperagent text-white hover:bg-supperagent/90 border-none"
+                    size="icon"
+                    onClick={() => handleEdit(relation)}
+                  >
+                    <Pen className="w-4 h-4" />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
       <CourseRelationDialog
         open={dialogOpen}
-        onOpenChange={(open) => {
-          setDialogOpen(open);
-          if (!open) setEditingCourseRelation(null);
-        }}
+        onOpenChange={setDialogOpen}
         onSubmit={handleSubmit}
         initialData={editingCourseRelation}
-        institutions={institutions}
-        courses={courses}
-        terms={terms}
-        courseAvailableTo={courseAvailableTo}
       />
     </div>
   );
