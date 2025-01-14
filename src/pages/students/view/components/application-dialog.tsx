@@ -1,137 +1,255 @@
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import {
   Form,
-  FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/form";
+import axiosInstance from '@/lib/axios';
 
 const formSchema = z.object({
+  term: z.string().min(1, "Term is required"),
   institution: z.string().min(1, "Institution is required"),
   course: z.string().min(1, "Course is required"),
-  term: z.string().min(1, "Term is required"),
-  type: z.enum(['Local', 'International']),
-  amount: z.number().min(0, "Amount must be positive"),
-})
+  choice: z.string().min(1, "Choice is required"),
+  amount: z.string().min(1, "Amount is required"), // New field for amount
+});
 
-export function ApplicationDialog({
-  open,
-  onOpenChange,
-  onSubmit,
-}) {
+export function ApplicationDialog({ open, onOpenChange }) {
+  const [data, setData] = useState([]);
+  const [institutions, setInstitutions] = useState([]);
+  const [courses, setCourses] = useState([]);
+  const [selectedCourse, setSelectedCourse] = useState(null);
+
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      term: "",
       institution: "",
       course: "",
-      term: "",
-      type: "Local",
-      amount: 0,
+      choice: "",
+      amount: "", // Initialize amount
     },
-  })
+  });
 
-  const handleSubmit = (values) => {
-    onSubmit(values);
-    form.reset();
-    onOpenChange(false);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axiosInstance.get('/course-relations?limit=all');
+        setData(response.data.data.result);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    if (open) {
+      fetchData();
+    }
+  }, [open]);
+
+  const handleTermChange = (termId) => {
+    form.setValue('institution', '');
+    form.setValue('course', '');
+    form.setValue('choice', '');
+    form.setValue('amount', ''); // Reset amount
+    setSelectedCourse(null);
+
+    const filteredInstitutions = data
+      .filter(item => item.term.id === parseInt(termId))
+      .map(item => ({
+        value: item.institute.id,
+        label: item.institute.name,
+      }));
+    setInstitutions(filteredInstitutions);
+  };
+
+  const handleInstitutionChange = (institutionId) => {
+    form.setValue('course', '');
+    form.setValue('choice', '');
+    form.setValue('amount', ''); // Reset amount
+    setSelectedCourse(null);
+
+    const filteredCourses = data
+      .filter(item => item.institute.id === parseInt(institutionId))
+      .map(item => ({
+        value: item.course.id,
+        label: item.course.name,
+      }));
+    setCourses(filteredCourses);
+  };
+
+  const handleCourseChange = (courseId) => {
+    const courseData = data.find(item => item.course.id === parseInt(courseId));
+    setSelectedCourse(courseData);
+    form.setValue('choice', '');
+    form.setValue('amount', ''); // Reset amount
+  };
+
+  const handleChoiceChange = (value) => {
+    form.setValue('choice', value);
+    const amount = value === 'Local' ? selectedCourse.local_amount : selectedCourse.international_amount;
+    form.setValue('amount', amount || ''); // Set amount based on choice
+  };
+
+  const onSubmit = async (formData) => {
+    try {
+      const response = await axiosInstance.post('/submit-course', formData);
+      console.log('Form submitted successfully:', response.data);
+      form.reset(); // Reset form on successful submit
+      onOpenChange(false);
+    } catch (error) {
+      console.error('Error submitting form:', error);
+    }
+  };
+
+  const handleDialogClose = (isOpen) => {
+    if (!isOpen) {
+      form.reset(); // Reset the form when the dialog is closed
+    }
+    onOpenChange(isOpen);
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleDialogClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Add Interested Course</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="institution"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Institution</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select institution" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Institution 1">Institution 1</SelectItem>
-                      <SelectItem value="Institution 2">Institution 2</SelectItem>
-                      <SelectItem value="Institution 3">Institution 3</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="course"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Course</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select course" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Course 1">Course 1</SelectItem>
-                      <SelectItem value="Course 2">Course 2</SelectItem>
-                      <SelectItem value="Course 3">Course 3</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            {/* Term Selection */}
             <FormField
               control={form.control}
               name="term"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Term</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select term" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Term 1">Term 1</SelectItem>
-                      <SelectItem value="Term 2">Term 2</SelectItem>
-                      <SelectItem value="Term 3">Term 3</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <select
+                    {...field}
+                    onChange={(e) => {
+                      field.onChange(e);
+                      handleTermChange(e.target.value);
+                    }}
+                    className="w-full rounded-md border border-gray-300 bg-white p-2 text-gray-900 shadow-sm focus:border-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-500"
+                  >
+                    <option value="">Select term</option>
+                    {[...new Set(data.map(item => ({ value: item.term.id, label: item.term.term })))].map(option => (
+                      <option key={option.value} value={option.value}>{option.label}</option>
+                    ))}
+                  </select>
                   <FormMessage />
                 </FormItem>
               )}
             />
+            {/* Institution Selection */}
+            <FormField
+              control={form.control}
+              name="institution"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Institution</FormLabel>
+                  <select
+                    {...field}
+                    onChange={(e) => {
+                      field.onChange(e);
+                      handleInstitutionChange(e.target.value);
+                    }}
+                    className="w-full rounded-md border border-gray-300 bg-white p-2 text-gray-900 shadow-sm focus:border-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-500"
+                  >
+                    <option value="">Select institution</option>
+                    {institutions.map(option => (
+                      <option key={option.value} value={option.value}>{option.label}</option>
+                    ))}
+                  </select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {/* Course Selection */}
+            <FormField
+              control={form.control}
+              name="course"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Course</FormLabel>
+                  <select
+                    {...field}
+                    onChange={(e) => {
+                      field.onChange(e);
+                      handleCourseChange(e.target.value);
+                    }}
+                    className="w-full rounded-md border border-gray-300 bg-white p-2 text-gray-900 shadow-sm focus:border-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-500"
+                  >
+                    <option value="">Select course</option>
+                    {courses.map(option => (
+                      <option key={option.value} value={option.value}>{option.label}</option>
+                    ))}
+                  </select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {/* Choice (Local/International) Selection */}
+            {selectedCourse && (
+              <FormField
+                control={form.control}
+                name="choice"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Choose Option</FormLabel>
+                    {selectedCourse.local && (
+                      <div>
+                        <input
+                          type="radio"
+                          value="Local"
+                          id="local"
+                          checked={field.value === 'Local'}
+                          onChange={(e) => {
+                            field.onChange(e.target.value);
+                            handleChoiceChange(e.target.value);
+                          }}
+                        />
+                        <label htmlFor="local">Local - {selectedCourse.local_amount}</label>
+                      </div>
+                    )}
+                    {selectedCourse.international && (
+                      <div>
+                        <input
+                          type="radio"
+                          value="International"
+                          id="international"
+                          checked={field.value === 'International'}
+                          onChange={(e) => {
+                            field.onChange(e.target.value);
+                            handleChoiceChange(e.target.value);
+                          }}
+                        />
+                        <label htmlFor="international">International - {selectedCourse.international_amount}</label>
+                      </div>
+                    )}
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+            {/* Submit Button */}
             <div className="flex justify-end space-x-2">
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              <Button type="button" variant="outline" onClick={() => handleDialogClose(false)}>
                 Cancel
               </Button>
-              <Button type="submit" className="bg-supperagent text-white hover:bg-supperagent">Add Course</Button>
+              <Button type="submit" className="bg-supperagent text-white hover:bg-supperagent">
+                Add Course
+              </Button>
             </div>
           </form>
         </Form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

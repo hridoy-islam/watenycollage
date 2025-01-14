@@ -66,9 +66,9 @@ export function CourseRelationDialog({
     const fetchData = async () => {
       try {
         const [institutesResponse, termsResponse, coursesResponse] = await Promise.all([
-          axiosInstance.get('/institutions?limit=all'),
-          axiosInstance.get('/terms?limit=all'),
-          axiosInstance.get('/courses?limit=all'),
+          axiosInstance.get('/institutions?limit=all&status=1'),
+          axiosInstance.get('/terms?limit=all&status=1'),
+          axiosInstance.get('/courses?limit=all&status=1'),
         ]);
 
         setInstitutes(institutesResponse.data.data.result.map((institute: any) => ({

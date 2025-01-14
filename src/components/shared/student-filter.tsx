@@ -24,9 +24,9 @@ export default function StudentFilter({ onSubmit }){
     const fetchData = async () => {
       try {
         const [institueResponse, termsResponse, academicYearResponse, agentResponse, staffResponse] = await Promise.all([
-          axiosInstance.get('/institutions?limit=all'),  // Adjust the endpoint as needed
-          axiosInstance.get('/terms?limit=all'),
-          axiosInstance.get('/academic-years?limit=all'),
+          axiosInstance.get('/institutions?limit=all&status=1'),  // Adjust the endpoint as needed
+          axiosInstance.get('/terms?limit=all&status=1'),
+          axiosInstance.get('/academic-years?limit=all&status=1'),
           axiosInstance.get('/agents?limit=all'),
           axiosInstance.get('/staffs?limit=all'),
         ]);

@@ -97,7 +97,7 @@ export default function CourseRelationPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>#ID</TableHead>
+              
               <TableHead>Institution</TableHead>
               <TableHead>Course</TableHead>
               <TableHead>Term</TableHead>
@@ -109,7 +109,7 @@ export default function CourseRelationPage() {
           <TableBody>
             {courseRelations.map((relation) => (
               <TableRow key={relation?.id}>
-                <TableCell>{relation?.id}</TableCell>
+                
                 <TableCell>{relation?.institute?.name}</TableCell>
                 <TableCell>{relation?.course?.name}</TableCell>
                 <TableCell>{relation?.term?.term}</TableCell>
