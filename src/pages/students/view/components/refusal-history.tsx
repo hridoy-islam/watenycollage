@@ -69,14 +69,7 @@ export function RefusalHistory({ student, onSave }) {
 
   // Reset editingRefusal to default blank values when opening the dialog for a new refusal
   const handleOpenDialog = () => {
-    setEditingRefusal({
-      refusalType: "",
-      refusalDate: "",
-      details: "",
-      country: "",
-      visaType: "",
-      status: 1, // Default status (active)
-    });
+    setEditingRefusal(null);
     setDialogOpen(true);
   };
 

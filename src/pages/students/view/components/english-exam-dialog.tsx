@@ -41,16 +41,23 @@ export function EnglishExamDialog({ open, onOpenChange, onSubmit, initialData })
     if (initialData) {
       form.reset({
         ...initialData,
+        examDate: initialData.examDate
+          ? new Date(initialData.examDate).toISOString().split('T')[0]
+          : "",
       });
     } else {
-      form.reset();
+      form.reset({
+        exam: "",
+        examDate: "",
+        score: "",
+      });
     }
   }, [initialData, form]);
 
   const handleSubmit = (values) => {
     const transformedData = {
       ...values,
-      
+      score: parseInt(values.score, 10),
     };
     onSubmit(transformedData);
     form.reset();
@@ -107,18 +114,17 @@ export function EnglishExamDialog({ open, onOpenChange, onSubmit, initialData })
                 <FormItem>
                   <FormLabel>Score</FormLabel>
                   <FormControl>
-                    <Input {...field} type="number" />
+                    <Input {...field} type="number" min="0" step="any" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            
             <div className="flex justify-end space-x-2">
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
-              <Button type="submit">{initialData ? "Update Exam" : "Add Exam"}</Button>
+              <Button className="bg-supperagent hover:bg-supperagent text-white" type="submit">{initialData ? "Update Exam" : "Add Exam"}</Button>
             </div>
           </form>
         </Form>

@@ -50,7 +50,7 @@ export function NewHistoryDialog({ open, onOpenChange, onSubmit, initialData }) 
         visaType: initialData.visaType || "",
       });
     } else {
-      form.reset(); // Reset for new entry
+      form.reset({}); // Reset for new entry
     }
   }, [initialData, form]);
 

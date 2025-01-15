@@ -99,27 +99,13 @@ export function AcademicRecords({ student, onSave }) {
 
   // Reset editingAcademic to default blank values when opening the dialog for a new academic history
   const handleOpenAcademicDialog = () => {
-    setEditingAcademic({
-      institution: "",
-      course: "",
-      studyLevel: "",
-      resultScore: "",
-      outOf: "",
-      startDate: "",
-      endDate: "",
-      status: 1, // Default status (active)
-    });
+    setEditingAcademic(null);
     setNewAcademicOpen(true);
   };
 
   // Reset editingExam to default blank values when opening the dialog for a new exam
   const handleOpenExamDialog = () => {
-    setEditingExam({
-      exam: "",
-      examDate: "",
-      score: "",
-      status: 1, // Default status (active)
-    });
+    setEditingExam(null);
     setNewExamOpen(true);
   };
 

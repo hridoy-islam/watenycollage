@@ -60,7 +60,15 @@ export function AcademicHistoryDialog({
       endDate: initialData?.endDate ? moment(initialData.endDate, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD') : moment().format('YYYY-MM-DD'),
       });
     } else {
-      form.reset();
+      form.reset({
+        institution: "",
+      course: "",
+      studyLevel: "",
+      resultScore: "",
+      outOf: "",
+      startDate: initialData?.startDate ? moment(initialData.startDate, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD') : moment().format('YYYY-MM-DD'),
+      endDate: initialData?.endDate ? moment(initialData.endDate, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD') : moment().format('YYYY-MM-DD'),
+      });
     }
   }, [initialData, form]);
 
@@ -188,7 +196,7 @@ export function AcademicHistoryDialog({
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
-              <Button type="submit">{initialData ? "Update History" : "Add History"}</Button>
+              <Button className="bg-supperagent hover:bg-supperagent text-white" type="submit">{initialData ? "Update History" : "Add History"}</Button>
             </div>
           </form>
         </Form>
