@@ -46,7 +46,7 @@ export function StaffDialog({ open, onOpenChange, onSubmit }) {
   }, [open]);
 
   const handleSubmit = (data) => {
-    console.log(data)
+    
     onSubmit(data); 
     onOpenChange(false);
   };

@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/table"
 
 import { Button } from "@/components/ui/button"
-import { Pen, Trash2 } from 'lucide-react'
 import { StaffDialog } from "./assign-staff-dialog"
 import {
   AlertDialog,
@@ -22,7 +21,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 
-import axiosInstance from "../../../../lib/axios";
 import { Switch } from "@/components/ui/switch"
 
 export function AssignStaff({ student, onSave }) {
@@ -30,28 +28,13 @@ export function AssignStaff({ student, onSave }) {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [deleteDialog, setDeleteDialog] = useState<string | null>(null)
 
-  const handleDelete = async (id) => {
-
-    // try {
-    //   await axiosInstance.delete(`/student/${id}`);
-    //   if (onDocumentUpdate) {
-    //     onDocumentUpdate();
-    //   }
-    //   // Close the delete confirmation dialog
-    //   setDeleteDialog(null);
-    // } catch (error) {
-    //   console.error("Error deleting the document:", error);
-    //   // Optionally, you can show an error message to the user
-    // }
-  }
-
   const handleStatusChange = (id, currentStatus) => {
     // Toggle the status
     const newStatus = currentStatus === 1 ? 0 : 1;
     // Persist the change using onSave
     const updatedStaff = staffs.find((staff) => staff.id === id);
     if (updatedStaff) {
-      const updatedStaffWithStatus = { ...updatedStaff, status: newStatus };
+      const updatedStaffWithStatus = { id: updatedStaff.id, status: newStatus };
       onSave({ assignStaff: [updatedStaffWithStatus] });
     }
   };
@@ -60,26 +43,12 @@ export function AssignStaff({ student, onSave }) {
     if (Array.isArray(student.assignStaff)) {
       setStaffs(student.assignStaff);
     }
-  }, [student.workDetails]);
+  }, [student.assignStaff]);
 
   const handleSubmit = (data) => {
-    console.log(data)
     onSave({ assignStaff: [data] });
   }
 
-
-
-
-  // const handleStatusChange = (id, currentStatus) => {
-  //   // Toggle the status
-  //   const newStatus = currentStatus === 1 ? 0 : 1;
-  //   // Persist the change using onSave
-  //   const updatedContact = workExperiences.find(contact => contact.id === id);
-  //   if (updatedContact) {
-  //     const updatedContactWithStatus = { ...updatedContact, status: newStatus };
-  //     onSave({ workDetails: [updatedContactWithStatus] });
-  //   }
-  // };
 
   return (
     <div className="space-y-4 rounded-md shadow-md p-4">
@@ -122,14 +91,6 @@ export function AssignStaff({ student, onSave }) {
                       onCheckedChange={(checked) => handleStatusChange(staff.id, checked ? 0 : 1)}
                       className="mx-auto"
                     />
-
-                    {/* <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setDeleteDialog(staff.id)}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button> */}
                   </TableCell>
                 </TableRow>
               ))

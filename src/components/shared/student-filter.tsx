@@ -27,8 +27,8 @@ export default function StudentFilter({ onSubmit }){
           axiosInstance.get('/institutions?limit=all&status=1'),  // Adjust the endpoint as needed
           axiosInstance.get('/terms?limit=all&status=1'),
           axiosInstance.get('/academic-years?limit=all&status=1'),
-          axiosInstance.get('/agents?limit=all'),
-          axiosInstance.get('/staffs?limit=all'),
+          axiosInstance.get('/agents?where=with:user,status,1'),
+          axiosInstance.get('/staffs?where=with:user,status,1'),
         ]);
         setInstitutes(institueResponse.data.data.result);
         setTerms(termsResponse.data.data.result);

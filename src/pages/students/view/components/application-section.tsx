@@ -11,22 +11,16 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { ApplicationDialog } from "./application-dialog"
+import moment from "moment"
 
 
 
 export function ApplicationsSection({ student, onSave }) {
   const [applications, setApplications] = useState<any>([])
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [editingCourse, setEditingCourse] = useState<any>(null)
 
-  const handleAddCourse = (data) => {
-    if (editingCourse) {
-      const updatedHistory = { ...data, id: editingCourse.id };
-      onSave({ applications: applications.map(app => app.id === editingCourse.id ? updatedHistory : app) });
-      setEditingCourse(null);
-    } else {
+  const handleSubmit = (data) => {
       onSave({ applications: [data] });
-    }
   };
 
   // Get the status badge color
@@ -42,11 +36,11 @@ export function ApplicationsSection({ student, onSave }) {
   }
 
   // Fetch applications when the component mounts or when student.applications changes
-  // useEffect(() => {
-  //   if (student.applications) {
-  //     setApplications(student.applications || []);
-  //   }
-  // }, [student.applications]);
+  useEffect(() => {
+    if (student.applications) {
+      setApplications(student.applications || []);
+    }
+  }, [student.applications]);
 
   return (
     <div className="space-y-4 p-4 rounded-md shadow-md">
@@ -82,16 +76,16 @@ export function ApplicationsSection({ student, onSave }) {
             applications.map((course) => (
               <TableRow key={course.id}>
 
-                <TableCell>{course.institution}</TableCell>
-                <TableCell>{course.course}</TableCell>
-                <TableCell>{course.term}</TableCell>
+                <TableCell>{course.institution.name}</TableCell>
+                <TableCell>{course.course.name}</TableCell>
+                <TableCell>{course.term.term}</TableCell>
                 <TableCell>
-                  {course.type === 'Local' && (
+                  {course.choice === 'Local' && (
                     <Badge variant="secondary" className="bg-green-500">
                       Local
                     </Badge>
                   )}
-                  {course.type === 'International' && (
+                  {course.choice === 'International' && (
                     <Badge variant="secondary" className="bg-blue-500">
                       International
                     </Badge>
@@ -106,9 +100,10 @@ export function ApplicationsSection({ student, onSave }) {
                     >
                       {course.status}
                     </Badge>
-                    {course.statusDate && (
+                    {course.created_at && (
                       <span className="text-xs text-muted-foreground">
-                        {course.statusDate}
+                        
+                        {moment(course.created_at).format("DD-MM-YYYY")}
                       </span>
                     )}
                   </div>
@@ -128,7 +123,7 @@ export function ApplicationsSection({ student, onSave }) {
       <ApplicationDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
-        onSubmit={handleAddCourse}
+        onSubmit={handleSubmit}
       />
     </div>
   )

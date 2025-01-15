@@ -2,26 +2,20 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import axiosInstance from "@/lib/axios"; // Adjust the path as needed
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import axiosInstance from '@/lib/axios';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Form, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 
 const formSchema = z.object({
-  term: z.string().min(1, "Term is required"),
-  institution: z.string().min(1, "Institution is required"),
-  course: z.string().min(1, "Course is required"),
+  termId: z.string().min(1, "Term is required"),
+  instituteId: z.string().min(1, "Institution is required"),
+  courseId: z.string().min(1, "Course is required"),
   choice: z.string().min(1, "Choice is required"),
   amount: z.string().min(1, "Amount is required"), // New field for amount
 });
 
-export function ApplicationDialog({ open, onOpenChange }) {
+export function ApplicationDialog({ open, onOpenChange, onSubmit }) {
   const [data, setData] = useState([]);
   const [institutions, setInstitutions] = useState([]);
   const [courses, setCourses] = useState([]);
@@ -30,9 +24,9 @@ export function ApplicationDialog({ open, onOpenChange }) {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      term: "",
-      institution: "",
-      course: "",
+      termId: "",
+      instituteId: "",
+      courseId: "",
       choice: "",
       amount: "", // Initialize amount
     },
@@ -54,8 +48,8 @@ export function ApplicationDialog({ open, onOpenChange }) {
   }, [open]);
 
   const handleTermChange = (termId) => {
-    form.setValue('institution', '');
-    form.setValue('course', '');
+    form.setValue('instituteId', '');
+    form.setValue('courseId', '');
     form.setValue('choice', '');
     form.setValue('amount', ''); // Reset amount
     setSelectedCourse(null);
@@ -97,15 +91,9 @@ export function ApplicationDialog({ open, onOpenChange }) {
     form.setValue('amount', amount || ''); // Set amount based on choice
   };
 
-  const onSubmit = async (formData) => {
-    try {
-      const response = await axiosInstance.post('/submit-course', formData);
-      console.log('Form submitted successfully:', response.data);
-      form.reset(); // Reset form on successful submit
-      onOpenChange(false);
-    } catch (error) {
-      console.error('Error submitting form:', error);
-    }
+  const handleSubmit = (data) => {
+    onSubmit(data); 
+    onOpenChange(false);
   };
 
   const handleDialogClose = (isOpen) => {
@@ -122,11 +110,11 @@ export function ApplicationDialog({ open, onOpenChange }) {
           <DialogTitle>Add Interested Course</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             {/* Term Selection */}
             <FormField
               control={form.control}
-              name="term"
+              name="termId"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Term</FormLabel>
@@ -150,7 +138,7 @@ export function ApplicationDialog({ open, onOpenChange }) {
             {/* Institution Selection */}
             <FormField
               control={form.control}
-              name="institution"
+              name="instituteId"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Institution</FormLabel>
@@ -174,7 +162,7 @@ export function ApplicationDialog({ open, onOpenChange }) {
             {/* Course Selection */}
             <FormField
               control={form.control}
-              name="course"
+              name="courseId"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Course</FormLabel>
