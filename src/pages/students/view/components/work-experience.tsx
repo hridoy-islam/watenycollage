@@ -59,16 +59,7 @@ export function WorkExperienceSection({ student, onSave }) {
 
   // Reset editingWorkDetail to default blank values when opening the dialog for a new work experience
   const handleOpenDialog = () => {
-    setEditingWorkDetail({
-      jobTitle: "",
-      organization: "",
-      address: "",
-      phone: "",
-      fromDate: "",
-      toDate: "",
-      currentlyWorking: 0, // Default to "No"
-      status: 1, // Default status (active)
-    });
+    setEditingWorkDetail(null);
     setDialogOpen(true);
   };
 

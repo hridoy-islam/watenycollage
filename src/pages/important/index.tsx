@@ -29,7 +29,7 @@ export default function ImportantPage() {
       `/task/${taskId}`,
       { important: !task.important } // Toggle important status
     );
-    console.log(response.data);
+    
 
     if (response.data.success) {
       fetchTasks();

@@ -9,13 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+
 import { Button } from "@/components/ui/button"
 import { AddNoteDialog } from "./note-dialog"
 import { Pen, Trash2 } from 'lucide-react'
@@ -90,7 +84,7 @@ export function NotesPage() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => console.log("Edit", note.id)}
+                      // onClick={() => console.log("Edit", note.id)}
                     >
                       <Pen className="h-4 w-4" />
                     </Button>

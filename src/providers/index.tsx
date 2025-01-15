@@ -12,7 +12,7 @@ export const queryClient = new QueryClient();
 
 const ErrorFallback = ({ error }: FallbackProps) => {
   const router = useRouter();
-  console.log('error', error);
+  
   return (
     <div
       className="flex h-screen w-screen flex-col items-center  justify-center text-red-500"

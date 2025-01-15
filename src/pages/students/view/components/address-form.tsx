@@ -40,7 +40,7 @@ export function AddressForm({ student, onSave }) {
   }, [student, reset]);
 
   const onSubmit = (data) => {
-    console.log("on address", data);
+    
     onSave(data);
   };
 

@@ -105,7 +105,7 @@ export const loginUser = createAsyncThunk<UserResponse, UserCredentials>(
     );
     
     const response = await request.data;
-    console.log(response)
+    
     localStorage.setItem(
       'uniaid',
       JSON.stringify(response.data.accessToken)

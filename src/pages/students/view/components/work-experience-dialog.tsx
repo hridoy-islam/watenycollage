@@ -47,21 +47,29 @@ export function WorkExperienceDialog({
 
   const currentlyWorking = form.watch("currentlyWorking")
 
-
   useEffect(() => {
+  if (open) {
     if (initialData) {
       form.reset({
         ...initialData,
-        fromDate: moment(initialData.fromDate).format("YYYY-MM-DD"), // Format fromDate
-        toDate: initialData.toDate ? moment(initialData.toDate).format("YYYY-MM-DD") : null, // Format toDate if exists
-        currentlyWorking: initialData.currentlyWorking == 1 ? true : false, 
-      });  // Reset form with initial data when it changes
+        fromDate: moment(initialData.fromDate).format("YYYY-MM-DD"),
+        toDate: initialData.toDate ? moment(initialData.toDate).format("YYYY-MM-DD") : null,
+        currentlyWorking: !!initialData.currentlyWorking,
+      });
     } else {
-      form.reset();  // Reset to empty values when adding a new contact
+      form.reset({
+        jobTitle: "",
+        organization: "",
+        address: "",
+        phone: "",
+        fromDate: "",
+        toDate: null,
+        currentlyWorking: false,
+      }); // Reset to blank default values for a new entry
     }
-  }, [initialData, form]);
+  }
+}, [open, initialData, form]);
 
-  console.log(initialData?.currentlyWorking)
 
   const handleSubmit = (values) => {
     const transformedData = {
@@ -186,6 +194,7 @@ export function WorkExperienceDialog({
                 </FormItem>
               )}
             />
+            
             <div className="flex justify-end space-x-2">
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel

@@ -50,7 +50,7 @@ const updateDraft = async (draft) => {
 }
 
 const deleteDraft = async (id) => {
-  console.log(id)
+  
 }
 
 export function DraftsManager() {

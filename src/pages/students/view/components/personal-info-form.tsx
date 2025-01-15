@@ -223,7 +223,7 @@ export function PersonalInfoForm({ student, onSave }) {
   }, [student, reset]);
 
   const onSubmit = (data) => {
-    console.log("Submitted Data:", data);
+    
     onSave(data);
   };
 

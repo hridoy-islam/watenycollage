@@ -11,7 +11,7 @@ export function SendEmailComponent() {
 
   const handleSendEmail = (to: string, subject: string, body: string, attachments: File[]) => {
     // In a real application, you would send the email here
-    console.log("Sending email:", { to, subject, body, attachments })
+   
 
     // Add to email logs
     const newLog = {

@@ -40,10 +40,10 @@ export default function FormPage() {
     formState: { errors, isSubmitting }
   } = form;
 
-  console.log('formState', errors);
+  
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    console.log('onSubmit', data);
+   
   };
 
   return (
