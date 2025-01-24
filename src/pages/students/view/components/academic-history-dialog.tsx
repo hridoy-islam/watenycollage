@@ -1,96 +1,124 @@
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+  FormMessage
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import moment from "moment";
-
+  SelectValue
+} from '@/components/ui/select';
+import moment from 'moment';
 
 const formSchema = z.object({
-  institution: z.string().min(1, "Institution is required"),
-  course: z.string().min(1, "Course is required"),
-  studyLevel: z.string().min(1, "Study level is required"),
+  institution: z.string().min(1, 'Institution is required'),
+  course: z.string().min(1, 'Course is required'),
+  studyLevel: z.string().min(1, 'Study level is required'),
   resultScore: z.string(),
   outOf: z.string(),
-  startDate: z.string().min(1, "Start date is required"),
-  endDate: z.string().min(1, "End date is required"),
+  startDate: z.string().min(1, 'Start date is required'),
+  endDate: z.string().min(1, 'End date is required')
 });
 
 export function AcademicHistoryDialog({
   open,
   onOpenChange,
   onSubmit,
-  initialData,
+  initialData
 }) {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      institution: "",
-      course: "",
-      studyLevel: "",
-      resultScore: "",
-      outOf: "",
-      startDate: initialData?.startDate ? moment(initialData.startDate, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD') : moment().format('YYYY-MM-DD'),
-      endDate: initialData?.endDate ? moment(initialData.endDate, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD') : moment().format('YYYY-MM-DD'),
-    },
+      institution: '',
+      course: '',
+      studyLevel: '',
+      resultScore: '',
+      outOf: '',
+      startDate: initialData?.startDate
+        ? moment(initialData.startDate, 'YYYY-MM-DD HH:mm:ss').format(
+            'YYYY-MM-DD'
+          )
+        : moment().format('YYYY-MM-DD'),
+      endDate: initialData?.endDate
+        ? moment(initialData.endDate, 'YYYY-MM-DD HH:mm:ss').format(
+            'YYYY-MM-DD'
+          )
+        : moment().format('YYYY-MM-DD')
+    }
   });
 
   useEffect(() => {
     if (initialData) {
       form.reset({
         ...initialData,
-        startDate: initialData?.startDate ? moment(initialData.startDate, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD') : moment().format('YYYY-MM-DD'),
-      endDate: initialData?.endDate ? moment(initialData.endDate, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD') : moment().format('YYYY-MM-DD'),
+        startDate: initialData?.startDate
+          ? moment(initialData.startDate, 'YYYY-MM-DD HH:mm:ss').format(
+              'YYYY-MM-DD'
+            )
+          : moment().format('YYYY-MM-DD'),
+        endDate: initialData?.endDate
+          ? moment(initialData.endDate, 'YYYY-MM-DD HH:mm:ss').format(
+              'YYYY-MM-DD'
+            )
+          : moment().format('YYYY-MM-DD')
       });
     } else {
       form.reset({
-        institution: "",
-      course: "",
-      studyLevel: "",
-      resultScore: "",
-      outOf: "",
-      startDate: initialData?.startDate ? moment(initialData.startDate, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD') : moment().format('YYYY-MM-DD'),
-      endDate: initialData?.endDate ? moment(initialData.endDate, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD') : moment().format('YYYY-MM-DD'),
+        institution: '',
+        course: '',
+        studyLevel: '',
+        resultScore: '',
+        outOf: '',
+        startDate: initialData?.startDate
+          ? moment(initialData.startDate, 'YYYY-MM-DD HH:mm:ss').format(
+              'YYYY-MM-DD'
+            )
+          : moment().format('YYYY-MM-DD'),
+        endDate: initialData?.endDate
+          ? moment(initialData.endDate, 'YYYY-MM-DD HH:mm:ss').format(
+              'YYYY-MM-DD'
+            )
+          : moment().format('YYYY-MM-DD')
       });
     }
   }, [initialData, form]);
 
   const handleSubmit = (values) => {
-    const transformedData = {
-      ...values,
-      resultScore: parseInt(values.resultScore, 10),
-      outOf: parseInt(values.outOf, 10)
-    };
-    onSubmit(transformedData)
-    form.reset()
-    onOpenChange(false)
+    onSubmit(values);
+    form.reset();
+    onOpenChange(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{initialData ? "Edit Academic History" : "Add Academic History"}</DialogTitle>
+          <DialogTitle>
+            {initialData ? 'Edit Academic History' : 'Add Academic History'}
+          </DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-4"
+          >
             <FormField
               control={form.control}
               name="institution"
@@ -123,7 +151,10 @@ export function AcademicHistoryDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Study Level</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select study level" />
@@ -131,7 +162,9 @@ export function AcademicHistoryDialog({
                     </FormControl>
                     <SelectContent>
                       <SelectItem value="undergraduate">High School</SelectItem>
-                      <SelectItem value="postgraduate">Higher Secondary</SelectItem>
+                      <SelectItem value="postgraduate">
+                        Higher Secondary
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -173,7 +206,7 @@ export function AcademicHistoryDialog({
                 <FormItem>
                   <FormLabel>Result Score</FormLabel>
                   <FormControl>
-                    <Input {...field} type="number" min="0" step="any" />
+                    <Input {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -186,17 +219,26 @@ export function AcademicHistoryDialog({
                 <FormItem>
                   <FormLabel>Out Of</FormLabel>
                   <FormControl>
-                    <Input {...field} type="number" min="0" step="any"/>
+                    <Input {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <div className="flex justify-end space-x-2">
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+              >
                 Cancel
               </Button>
-              <Button className="bg-supperagent hover:bg-supperagent text-white" type="submit">{initialData ? "Update History" : "Add History"}</Button>
+              <Button
+                className="bg-supperagent text-white hover:bg-supperagent"
+                type="submit"
+              >
+                {initialData ? 'Update History' : 'Add History'}
+              </Button>
             </div>
           </form>
         </Form>
