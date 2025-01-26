@@ -1,16 +1,16 @@
-import { useEffect, useState } from "react";
-import { Plus, Pencil } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
+import { useEffect, useState } from 'react';
+import { Plus, Pencil } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import {
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { EmergencyContactDialog } from "./emergency-contact-dialog";
+  TableRow
+} from '@/components/ui/table';
+import { EmergencyContactDialog } from './emergency-contact-dialog';
 
 export function EmergencyContacts({ student, onSave }) {
   const [contacts, setContacts] = useState(student?.emergencyContact || []);
@@ -51,26 +51,19 @@ export function EmergencyContacts({ student, onSave }) {
 
   // Reset editingContact to default blank values when opening the dialog for a new contact
   const handleOpenDialog = () => {
-    setEditingContact({
-      name: "",
-      phone: "",
-      email: "",
-      address: "",
-      relationship: "",
-      status: 1, // Default status (active)
-    });
+    setEditingContact(null);
     setDialogOpen(true);
   };
 
   return (
-    <div className="space-y-4 p-4 shadow-md rounded-md">
+    <div className="space-y-4 rounded-md p-4 shadow-md">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">Emergency Contacts</h2>
         <Button
-          className="bg-supperagent hover:bg-supperagent/90 text-white"
+          className="bg-supperagent text-white hover:bg-supperagent/90"
           onClick={handleOpenDialog} // Use handleOpenDialog instead of directly setting dialogOpen
         >
-          <Plus className="w-4 h-4 mr-2" />
+          <Plus className="mr-2 h-4 w-4" />
           New Contact
         </Button>
       </div>
@@ -114,7 +107,7 @@ export function EmergencyContacts({ student, onSave }) {
                 <TableCell className="text-right">
                   <Button
                     variant="ghost"
-                    className="bg-supperagent text-white hover:bg-supperagent/90 border-none"
+                    className="border-none bg-supperagent text-white hover:bg-supperagent/90"
                     size="icon"
                     onClick={() => handleEdit(contact)}
                   >

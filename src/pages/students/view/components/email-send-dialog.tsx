@@ -1,81 +1,101 @@
-import { useState, useEffect } from "react"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
+import { useState, useEffect } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
+import axiosInstance from '@/lib/axios';
 
-import { Button } from "@/components/ui/button"
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+  DialogTitle
+} from '@/components/ui/dialog';
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
+  FormMessage
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+  SelectValue
+} from '@/components/ui/select';
 
 const formSchema = z.object({
-  to: z.string().email("Invalid email address"),
-  subject: z.string().min(1, "Subject is required"),
-  body: z.string().min(1, "Body is required"),
-})
-
-// Mock data for email drafts
-const mockDrafts = [
-  { id: "1", subject: "Meeting Tomorrow", body: "Let's discuss the project progress." },
-  { id: "2", subject: "Quarterly Report", body: "Please find attached the quarterly report." },
-]
-
-
+  to: z.string().email('Invalid email address'),
+  subject: z.string().min(1, 'Subject is required'),
+  body: z.string().min(1, 'Body is required')
+});
 
 export function EmailSendDialog({ open, onOpenChange, onSend }) {
-  const [attachments, setAttachments] = useState<File[]>([])
-  const [selectedDraft, setSelectedDraft] = useState<any>(null)
+  const [attachments, setAttachments] = useState<File[]>([]);
+  const [emailConfigs, setEmailConfigs] = useState<any[]>([]); // For "To" options
+  const [emailDrafts, setEmailDrafts] = useState<any[]>([]); // For draft options
 
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      to: "",
-      subject: "",
-      body: "",
-    },
-  })
-
-  useEffect(() => {
-    if (selectedDraft) {
-      form.setValue("subject", selectedDraft.subject)
-      form.setValue("body", selectedDraft.body)
+      to: '',
+      subject: '',
+      body: ''
     }
-  }, [selectedDraft, form])
+  });
+
+  // Handle draft selection and update form values
+  const handleDraftChange = (draftId: string) => {
+    const selectedDraft = emailDrafts.find((draft) => draft.id === draftId);
+
+    if (selectedDraft) {
+      form.setValue('subject', selectedDraft.subject || '');
+      form.setValue('body', selectedDraft.body || '');
+    }
+  };
 
   const handleSubmit = (values: z.infer<typeof formSchema>) => {
-    onSend(values.to, values.subject, values.body, attachments)
-    form.reset()
-    setAttachments([])
-    setSelectedDraft(null)
-  }
+    onSend(values.to, values.subject, values.body, attachments);
+    form.reset();
+    setAttachments([]);
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setAttachments(Array.from(e.target.files))
+      setAttachments(Array.from(e.target.files));
     }
-  }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch email configs (for "To" options)
+        const emailConfigResponse = await axiosInstance.get(
+          '/email-configs?limit=all'
+        );
+        setEmailConfigs(emailConfigResponse.data.data.result);
+
+        // Fetch email drafts
+        const emailDraftResponse = await axiosInstance.get(
+          '/email-drafts?limit=all'
+        );
+        setEmailDrafts(emailDraftResponse.data.data.result);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    if (open) {
+      fetchData();
+    }
+  }, [open]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -87,30 +107,37 @@ export function EmailSendDialog({ open, onOpenChange, onSend }) {
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="to"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>To</FormLabel>
-                  <FormControl>
-                    <Input placeholder="recipient@example.com" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-4"
+          >
+            <FormItem>
+              <FormLabel>From</FormLabel>
+              <Select onValueChange={(value) => form.setValue('to', value)}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select recipient" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {emailConfigs.map((config) => (
+                    <SelectItem key={config.id} value={config.email}>
+                      {config.email}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FormItem>
             <FormItem>
               <FormLabel>Draft</FormLabel>
-              <Select onValueChange={(value) => setSelectedDraft(mockDrafts.find(draft => draft.id === value) || null)}>
+              <Select onValueChange={handleDraftChange}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a draft" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {mockDrafts.map((draft) => (
+                  {emailDrafts.map((draft) => (
                     <SelectItem key={draft.id} value={draft.id}>
                       {draft.subject}
                     </SelectItem>
@@ -155,7 +182,10 @@ export function EmailSendDialog({ open, onOpenChange, onSend }) {
               </FormControl>
             </FormItem>
             <DialogFooter>
-              <Button type="submit" className="bg-supperagent text-white hover:bg-supperagent/90">
+              <Button
+                type="submit"
+                className="bg-supperagent text-white hover:bg-supperagent/90"
+              >
                 Send Email
               </Button>
             </DialogFooter>
@@ -163,6 +193,5 @@ export function EmailSendDialog({ open, onOpenChange, onSend }) {
         </Form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
-

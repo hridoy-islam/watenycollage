@@ -22,6 +22,7 @@ import CourseRelationPage from '@/pages/course-relation';
 import StudentViewPage from '@/pages/students/view';
 import EmailConfigPage from '@/pages/emails';
 import { DraftsManager } from '@/pages/emails/drafts';
+import CourseDetails from '@/pages/courseDetails';
 
 const SignInPage = lazy(() => import('@/pages/auth/signin'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
@@ -38,7 +39,7 @@ export default function AppRouter() {
             <Suspense>
               <Outlet />
             </Suspense>
-            </ProtectedRoute>
+          </ProtectedRoute>
         </AdminLayout>
       ),
       children: [
@@ -61,6 +62,10 @@ export default function AppRouter() {
         {
           path: 'students/:id',
           element: <StudentViewPage />
+        },
+        {
+          path: 'students/:id/course/:courseid',
+          element: <CourseDetails />
         },
         {
           path: 'students/new',
@@ -106,7 +111,6 @@ export default function AppRouter() {
           path: 'drafts',
           element: <DraftsManager />
         }
-        
       ]
     }
   ];

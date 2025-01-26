@@ -1,84 +1,84 @@
-import { useEffect } from "react"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
+import { useEffect } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
 
-import { Button } from "@/components/ui/button"
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+  DialogTitle
+} from '@/components/ui/dialog';
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { EmailDraft } from "@/types/email"
+  FormMessage
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 
 const formSchema = z.object({
-  subject: z.string().min(1, "Subject is required"),
-  body: z.string().min(1, "Body is required"),
-})
+  subject: z.string().min(1, 'Subject is required'),
+  body: z.string().min(1, 'Body is required')
+});
 
-interface EmailDraftDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onSubmit: (data: Omit<EmailDraft, 'id' | 'createdAt' | 'updatedAt'> | EmailDraft) => void
-  initialData?: EmailDraft
-}
-
-export function EmailDraftDialog({ open, onOpenChange, onSubmit, initialData }: EmailDraftDialogProps) {
+export function EmailDraftDialog({
+  open,
+  onOpenChange,
+  onSubmit,
+  initialData
+}) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      subject: "",
-      body: "",
-    },
-  })
+      subject: '',
+      body: ''
+    }
+  });
 
   useEffect(() => {
     if (initialData) {
       form.reset({
         subject: initialData.subject,
-        body: initialData.body,
-      })
+        body: initialData.body
+      });
     } else {
       form.reset({
-        subject: "",
-        body: "",
-      })
+        subject: '',
+        body: ''
+      });
     }
-  }, [initialData, form])
+  }, [initialData, form]);
 
-  const handleSubmit = (values: z.infer<typeof formSchema>) => {
-    if (initialData) {
-      onSubmit({ ...initialData, ...values })
-    } else {
-      onSubmit(values)
-    }
-    onOpenChange(false)
-  }
+  const handleSubmit = (data) => {
+    onSubmit(data);
+    onOpenChange(false);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>{initialData ? "Edit Email Draft" : "Create New Email Draft"}</DialogTitle>
+          <DialogTitle>
+            {initialData ? 'Edit Email Draft' : 'Create New Email Draft'}
+          </DialogTitle>
           <DialogDescription>
-            {initialData ? "Edit your email draft below." : "Create a new email draft. You can send it later."}
+            {initialData
+              ? 'Edit your email draft below.'
+              : 'Create a new email draft. You can send it later.'}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-4"
+          >
             <FormField
               control={form.control}
               name="subject"
@@ -110,14 +110,16 @@ export function EmailDraftDialog({ open, onOpenChange, onSubmit, initialData }: 
               )}
             />
             <DialogFooter>
-              <Button type="submit" className="bg-supperagent text-white hover:bg-supperagent/90">
-                {initialData ? "Update Draft" : "Save Draft"}
+              <Button
+                type="submit"
+                className="bg-supperagent text-white hover:bg-supperagent/90"
+              >
+                {initialData ? 'Update Draft' : 'Save Draft'}
               </Button>
             </DialogFooter>
           </form>
         </Form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
-

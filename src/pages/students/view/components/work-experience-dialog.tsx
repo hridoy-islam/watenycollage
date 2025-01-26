@@ -1,80 +1,86 @@
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Switch } from "@/components/ui/switch"
-import { useEffect } from "react"
-import moment from "moment"
+  FormMessage
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
+import { useEffect } from 'react';
+import moment from 'moment';
 
 const formSchema = z.object({
-  jobTitle: z.string().min(1, "Job title is required"),
-  organization: z.string().min(1, "Organization name is required"),
-  address: z.string().min(1, "Organization address is required"),
+  jobTitle: z.string().min(1, 'Job title is required'),
+  organization: z.string().min(1, 'Organization name is required'),
+  address: z.string().min(1, 'Organization address is required'),
   phone: z.string(),
-  fromDate: z.string().min(1, "Start date is required"),
+  fromDate: z.string().min(1, 'Start date is required'),
   toDate: z.string().nullable(),
-  currentlyWorking: z.boolean(),
-})
+  currentlyWorking: z.boolean()
+});
 
 export function WorkExperienceDialog({
   open,
   onOpenChange,
   onSubmit,
-  initialData,
+  initialData
 }) {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      jobTitle: "",
-      organization: "",
-      address: "",
-      phone: "",
-      fromDate: "",
+      jobTitle: '',
+      organization: '',
+      address: '',
+      phone: '',
+      fromDate: '',
       toDate: null,
-      currentlyWorking: false,
-    },
-  })
+      currentlyWorking: false
+    }
+  });
 
-  const currentlyWorking = form.watch("currentlyWorking")
+  const currentlyWorking = form.watch('currentlyWorking');
 
   useEffect(() => {
-  if (open) {
-    if (initialData) {
-      form.reset({
-        ...initialData,
-        fromDate: moment(initialData.fromDate).format("YYYY-MM-DD"),
-        toDate: initialData.toDate ? moment(initialData.toDate).format("YYYY-MM-DD") : null,
-        currentlyWorking: !!initialData.currentlyWorking,
-      });
-    } else {
-      form.reset({
-        jobTitle: "",
-        organization: "",
-        address: "",
-        phone: "",
-        fromDate: "",
-        toDate: null,
-        currentlyWorking: false,
-      }); // Reset to blank default values for a new entry
+    if (open) {
+      if (initialData) {
+        form.reset({
+          ...initialData,
+          fromDate: moment(initialData.fromDate).format('YYYY-MM-DD'),
+          toDate: initialData.toDate
+            ? moment(initialData.toDate).format('YYYY-MM-DD')
+            : null,
+          currentlyWorking: !!initialData.currentlyWorking
+        });
+      } else {
+        form.reset({
+          jobTitle: '',
+          organization: '',
+          address: '',
+          phone: '',
+          fromDate: '',
+          toDate: null,
+          currentlyWorking: false
+        }); // Reset to blank default values for a new entry
+      }
     }
-  }
-}, [open, initialData, form]);
-
+  }, [open, initialData, form]);
 
   const handleSubmit = (values) => {
     const transformedData = {
       ...values,
-      currentlyWorking: values.currentlyWorking ? 1 : 0,
+      currentlyWorking: values.currentlyWorking ? 1 : 0
     };
     onSubmit(transformedData);
     form.reset();
@@ -85,11 +91,15 @@ export function WorkExperienceDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-
-          <DialogTitle>{initialData ? "Edit Work Experience" : "Add Work Experience"}</DialogTitle>
+          <DialogTitle>
+            {initialData ? 'Edit Work Experience' : 'Add Work Experience'}
+          </DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-4"
+          >
             <FormField
               control={form.control}
               name="jobTitle"
@@ -166,7 +176,7 @@ export function WorkExperienceDialog({
                       <Input
                         type="date"
                         {...field}
-                        value={value || ""}
+                        value={value || ''}
                         onChange={onChange}
                         disabled={currentlyWorking}
                       />
@@ -176,14 +186,16 @@ export function WorkExperienceDialog({
                 )}
               />
             </div>
-            
+
             <FormField
               control={form.control}
               name="currentlyWorking"
               render={({ field }) => (
                 <FormItem className="flex items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
-                    <FormLabel className="text-base">Currently Working</FormLabel>
+                    <FormLabel className="text-base">
+                      Currently Working
+                    </FormLabel>
                   </div>
                   <FormControl>
                     <Switch
@@ -194,19 +206,25 @@ export function WorkExperienceDialog({
                 </FormItem>
               )}
             />
-            
+
             <div className="flex justify-end space-x-2">
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+              >
                 Cancel
               </Button>
-              <Button className="bg-supperagent hover:bg-supperagent/90 text-white" type="submit">
-              {initialData ? "Update Work Experience" : "Add Work Experience"}
+              <Button
+                className="bg-supperagent text-white hover:bg-supperagent/90"
+                type="submit"
+              >
+                {initialData ? 'Update Work Experience' : 'Add Work Experience'}
               </Button>
             </div>
           </form>
         </Form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
-

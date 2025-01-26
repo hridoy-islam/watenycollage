@@ -1,73 +1,83 @@
-import { useState } from "react"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
+import { useEffect, useState } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
 
-import { Button } from "@/components/ui/button"
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+  DialogTitle
+} from '@/components/ui/dialog';
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch"
-import { Textarea } from "@/components/ui/textarea"
+  FormMessage
+} from '@/components/ui/form';
+import Select from 'react-select';
+import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
+import axiosInstance from '@/lib/axios';
 const formSchema = z.object({
-  course: z.string().min(1, "Course is required"),
-  notes: z.string().min(1, "Note is required"),
+  course: z.string().min(1, 'Course is required'),
+  notes: z.string().min(1, 'Note is required'),
   followUp: z.boolean().default(false),
-  followUpBy: z.string().optional(),
-})
+  followUpBy: z.array(z.string()).optional()
+});
 
-
-export function AddNoteDialog({ 
-  open, 
-  onOpenChange, 
-  onSubmit,
-  staffMembers,
-}) {
-  const [isFollowUp, setIsFollowUp] = useState(false)
-
+export function AddNoteDialog({ open, onOpenChange, onSubmit, staffMembers }) {
+  const [isFollowUp, setIsFollowUp] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [staffs, setStaffs] = useState<any>([]);
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      course: "",
-      notes: "",
+      course: '',
+      notes: '',
       followUp: false,
-      followUpBy: undefined,
-    },
-  })
+      followUpBy: [] //
+    }
+  });
 
   const handleSubmit = (values) => {
-    const staffMember = values.followUpBy 
-      ? staffMembers.find(staff => staff.id === values.followUpBy)
-      : undefined
+    const selectedStaffMembers = values.followUpBy
+      ? values.followUpBy.map((id) =>
+          staffMembers.find((staff) => staff.id === id)
+        )
+      : [];
+
+    console.log(selectedStaffMembers);
 
     onSubmit({
       course: values.course,
       notes: values.notes,
       followUp: values.followUp,
-      followUpBy: staffMember,
-    })
+      followUpBy: selectedStaffMembers
+    });
 
-    form.reset()
-    setIsFollowUp(false)
-  }
+    form.reset();
+    setIsFollowUp(false);
+  };
+
+  const fetchData = async () => {
+    try {
+      if (initialLoading) setInitialLoading(true);
+      const response = await axiosInstance.get(`/staffs?limit=all`);
+      setStaffs(response.data.data.result);
+    } catch (error) {
+      console.error('Error fetching institutions:', error);
+    } finally {
+      setInitialLoading(false); // Disable initial loading after the first fetch
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -76,8 +86,10 @@ export function AddNoteDialog({
           <DialogTitle>Add Note</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-            
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-4"
+          >
             <FormField
               control={form.control}
               name="notes"
@@ -85,10 +97,10 @@ export function AddNoteDialog({
                 <FormItem>
                   <FormLabel>Note</FormLabel>
                   <FormControl>
-                    <Textarea 
-                      placeholder="Enter your note here" 
+                    <Textarea
+                      placeholder="Enter your note here"
                       className="min-h-[100px]"
-                      {...field} 
+                      {...field}
                     />
                   </FormControl>
                   <FormMessage />
@@ -101,16 +113,14 @@ export function AddNoteDialog({
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
-                    <FormLabel className="text-base">
-                      Is Follow Up
-                    </FormLabel>
+                    <FormLabel className="text-base">Is Follow Up</FormLabel>
                   </div>
                   <FormControl>
                     <Switch
                       checked={field.value}
                       onCheckedChange={(checked) => {
-                        field.onChange(checked)
-                        setIsFollowUp(checked)
+                        field.onChange(checked);
+                        setIsFollowUp(checked);
                       }}
                     />
                   </FormControl>
@@ -124,20 +134,28 @@ export function AddNoteDialog({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Follow Up By</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select staff member" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {staffMembers.map((staff) => (
-                          <SelectItem key={staff.id} value={staff.id}>
-                            {staff.name} - {staff.role}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Select
+                      isMulti
+                      name="followUpBy"
+                      options={staffs.map((staff) => ({
+                        value: staff.id,
+                        label: `${staff.firstName} ${staff.lastName}`
+                      }))}
+                      onChange={(selectedOptions) => {
+                        // Update form value with selected staff IDs
+                        const selectedIds = selectedOptions
+                          ? selectedOptions.map((option) => option.value)
+                          : [];
+                        field.onChange(selectedIds);
+                      }}
+                      value={staffs
+                        .filter((staff) => field.value?.includes(staff.id))
+                        .map((staff) => ({
+                          value: staff.id,
+                          label: `${staff.firstName} ${staff.lastName}`
+                        }))}
+                      placeholder="Select staff members"
+                    />
                     <FormMessage />
                   </FormItem>
                 )}
@@ -151,7 +169,10 @@ export function AddNoteDialog({
               >
                 Cancel
               </Button>
-              <Button type="submit" className="bg-blue-600 text-white hover:bg-blue-700">
+              <Button
+                type="submit"
+                className="bg-supperagent text-white hover:bg-supperagent"
+              >
                 Submit
               </Button>
             </div>
@@ -159,6 +180,5 @@ export function AddNoteDialog({
         </Form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
-

@@ -1,53 +1,55 @@
-import { useState, useEffect } from "react"
-import { Eye, Plus } from 'lucide-react'
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { useState, useEffect } from 'react';
+import { Eye, Plus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import {
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import { ApplicationDialog } from "./application-dialog"
-import moment from "moment"
-
-
+  TableRow
+} from '@/components/ui/table';
+import { ApplicationDialog } from './application-dialog';
+import moment from 'moment';
+import { Link } from 'react-router-dom';
 
 export function ApplicationsSection({ student, onSave }) {
-  const [applications, setApplications] = useState<any>([])
-  const [dialogOpen, setDialogOpen] = useState(false)
+  const [applications, setApplications] = useState<any>([]);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const handleSubmit = (data) => {
-      onSave({ applications: [data] });
+    onSave({ applications: [data] });
   };
 
   // Get the status badge color
   const getStatusBadgeColor = (status) => {
     switch (status) {
       case 'Approved':
-        return 'bg-green-500'
+        return 'bg-green-500';
       case 'Rejected':
-        return 'bg-red-500'
+        return 'bg-red-500';
       default:
-        return 'bg-yellow-500'
+        return 'bg-yellow-500';
     }
-  }
+  };
 
   // Fetch applications when the component mounts or when student.applications changes
   useEffect(() => {
-    if (student.applications) {
-      setApplications(student.applications || []);
+    if (student?.applications) {
+      setApplications(student?.applications || []);
     }
-  }, [student.applications]);
+  }, [student?.applications]);
 
   return (
-    <div className="space-y-4 p-4 rounded-md shadow-md">
+    <div className="space-y-4 rounded-md p-4 shadow-md">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">Interested Courses</h2>
-        <Button className="bg-supperagent text-white hover:bg-supperagent/90" onClick={() => setDialogOpen(true)}>
-          <Plus className="w-4 h-4 mr-2" />
+        <Button
+          className="bg-supperagent text-white hover:bg-supperagent/90"
+          onClick={() => setDialogOpen(true)}
+        >
+          <Plus className="mr-2 h-4 w-4" />
           Add Course
         </Button>
       </div>
@@ -55,7 +57,6 @@ export function ApplicationsSection({ student, onSave }) {
       <Table>
         <TableHeader>
           <TableRow>
-
             <TableHead>Institution</TableHead>
             <TableHead>Course</TableHead>
             <TableHead>Term</TableHead>
@@ -75,7 +76,6 @@ export function ApplicationsSection({ student, onSave }) {
           ) : (
             applications.map((course) => (
               <TableRow key={course.id}>
-
                 <TableCell>{course.institution.name}</TableCell>
                 <TableCell>{course.course.name}</TableCell>
                 <TableCell>{course.term.term}</TableCell>
@@ -102,17 +102,17 @@ export function ApplicationsSection({ student, onSave }) {
                     </Badge>
                     {course.created_at && (
                       <span className="text-xs text-muted-foreground">
-                        
-                        {moment(course.created_at).format("DD-MM-YYYY")}
+                        {moment(course.created_at).format('DD-MM-YYYY')}
                       </span>
                     )}
                   </div>
                 </TableCell>
                 <TableCell className="text-right">
-                  
-                  <Button variant="ghost" size="icon">
-                    <Eye className="h-4 w-4" />
-                  </Button>
+                  <Link to={`course/${course.id}`}>
+                    <Button variant="ghost" size="icon">
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                  </Link>
                 </TableCell>
               </TableRow>
             ))
@@ -126,5 +126,5 @@ export function ApplicationsSection({ student, onSave }) {
         onSubmit={handleSubmit}
       />
     </div>
-  )
+  );
 }

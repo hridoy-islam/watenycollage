@@ -54,12 +54,20 @@ export function EmergencyContactDialog({
   });
 
   useEffect(() => {
-    if (initialData) {
-      form.reset(initialData); // Reset form with initial data when it changes
-    } else {
-      form.reset(); // Reset to empty values when adding a new contact
+    if (open) {
+      if (initialData) {
+        form.reset(initialData);
+      } else {
+        form.reset({
+          name: '',
+          phone: '',
+          email: '',
+          address: '',
+          relationship: ''
+        }); // Reset to blank default values for a new entry
+      }
     }
-  }, [initialData, form]);
+  }, [open, initialData, form]);
 
   const handleSubmit = (values) => {
     onSubmit(values);
@@ -137,20 +145,7 @@ export function EmergencyContactDialog({
               )}
             />
             {/* Relationship Field */}
-            {/* <FormField
-              control={form.control}
-              name="relationship"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Relationship</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            /> */}
-            {/* Relationship Dropdown */}
+
             <FormField
               control={form.control}
               name="relationship"

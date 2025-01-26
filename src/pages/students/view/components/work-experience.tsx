@@ -1,22 +1,24 @@
-import { useEffect, useState } from "react";
-import { Plus, Pencil } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Switch } from "@/components/ui/switch";
+import { useEffect, useState } from 'react';
+import { Plus, Pencil } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Switch } from '@/components/ui/switch';
 import {
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { WorkExperienceDialog } from "./work-experience-dialog";
-import moment from "moment";
+  TableRow
+} from '@/components/ui/table';
+import { WorkExperienceDialog } from './work-experience-dialog';
+import moment from 'moment';
 
 export function WorkExperienceSection({ student, onSave }) {
   const [noExperience, setNoExperience] = useState(false);
-  const [workExperiences, setWorkExperiences] = useState<any>(student.workDetails || []);
+  const [workExperiences, setWorkExperiences] = useState<any>(
+    student.workDetails || []
+  );
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingWorkDetail, setEditingWorkDetail] = useState<any>(null);
 
@@ -50,9 +52,14 @@ export function WorkExperienceSection({ student, onSave }) {
     // Toggle the status
     const newStatus = currentStatus === 1 ? 0 : 1;
     // Persist the change using onSave
-    const updatedExperience = workExperiences.find((experience) => experience.id === id);
+    const updatedExperience = workExperiences.find(
+      (experience) => experience.id === id
+    );
     if (updatedExperience) {
-      const updatedExperienceWithStatus = { ...updatedExperience, status: newStatus };
+      const updatedExperienceWithStatus = {
+        ...updatedExperience,
+        status: newStatus
+      };
       onSave({ workDetails: [updatedExperienceWithStatus] });
     }
   };
@@ -64,7 +71,7 @@ export function WorkExperienceSection({ student, onSave }) {
   };
 
   return (
-    <div className="space-y-4 rounded-md shadow-md p-4">
+    <div className="space-y-4 rounded-md p-4 shadow-md">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">Work Details</h2>
         {!noExperience && (
@@ -72,7 +79,7 @@ export function WorkExperienceSection({ student, onSave }) {
             className="bg-supperagent text-white hover:bg-supperagent/90"
             onClick={handleOpenDialog} // Use handleOpenDialog instead of directly setting dialogOpen
           >
-            <Plus className="w-4 h-4 mr-2" />
+            <Plus className="mr-2 h-4 w-4" />
             New Work
           </Button>
         )}
@@ -117,24 +124,29 @@ export function WorkExperienceSection({ student, onSave }) {
                     <TableCell>{experience.organization}</TableCell>
                     <TableCell>{experience.address}</TableCell>
                     <TableCell>{experience.phone}</TableCell>
-                    <TableCell>{moment(experience.fromDate).format("DD-MM-YYYY")}</TableCell>
                     <TableCell>
-                      {experience.toDate !== null && moment(experience.toDate).format("DD-MM-YYYY")}
+                      {moment(experience.fromDate).format('DD-MM-YYYY')}
+                    </TableCell>
+                    <TableCell>
+                      {experience.toDate !== null &&
+                        moment(experience.toDate).format('DD-MM-YYYY')}
                     </TableCell>
                     <TableCell className="text-center">
-                      {experience.currentlyWorking == 1 && "Yes"}
+                      {experience.currentlyWorking == 1 && 'Yes'}
                     </TableCell>
                     <TableCell>
                       <Switch
                         checked={parseInt(experience.status) === 1}
-                        onCheckedChange={(checked) => handleStatusChange(experience.id, checked ? 0 : 1)}
+                        onCheckedChange={(checked) =>
+                          handleStatusChange(experience.id, checked ? 0 : 1)
+                        }
                         className="mx-auto"
                       />
                     </TableCell>
                     <TableCell className="text-right">
                       <Button
                         variant="ghost"
-                        className="bg-supperagent text-white hover:bg-supperagent/90 border-none"
+                        className="border-none bg-supperagent text-white hover:bg-supperagent/90"
                         size="icon"
                         onClick={() => handleEdit(experience)}
                       >

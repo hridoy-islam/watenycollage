@@ -1,17 +1,20 @@
-"use client"
-
-import { useState } from 'react'
-import { Button } from "@/components/ui/button"
-import { EmailSendDialog } from "./email-send-dialog"
-import { EmailLogTable } from "./email-log-table"
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { EmailSendDialog } from './email-send-dialog';
+import { EmailLogTable } from './email-log-table';
+import axiosInstance from '@/lib/axios';
 
 export function SendEmailComponent() {
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [emailLogs, setEmailLogs] = useState<any>([])
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [emailLogs, setEmailLogs] = useState<any>([]);
 
-  const handleSendEmail = (to: string, subject: string, body: string, attachments: File[]) => {
+  const handleSendEmail = (
+    to: string,
+    subject: string,
+    body: string,
+    attachments: File[]
+  ) => {
     // In a real application, you would send the email here
-   
 
     // Add to email logs
     const newLog = {
@@ -19,24 +22,24 @@ export function SendEmailComponent() {
       to,
       subject,
       sentAt: new Date(),
-      status: 'sent', // You might want to handle failures in a real application
-    }
-    setEmailLogs([newLog, ...emailLogs])
+      status: 'sent' // You might want to handle failures in a real application
+    };
+    setEmailLogs([newLog, ...emailLogs]);
 
-    setIsDialogOpen(false)
-  }
+    setIsDialogOpen(false);
+  };
 
   return (
-    <div className="space-y-4 rounded-md shadow-md p-4">
-       <div className='flex justify-between'>
-       <h2 className="text-xl font-semibold mb-4">Email Logs</h2>
-      <Button 
-        onClick={() => setIsDialogOpen(true)}
-        className="bg-supperagent text-white hover:bg-supperagent/90 flex justify-end"
-      >
-        Send Email
-      </Button>
-       </div>
+    <div className="space-y-4 rounded-md p-4 shadow-md">
+      <div className="flex justify-between">
+        <h2 className="mb-4 text-xl font-semibold">Email Logs</h2>
+        <Button
+          onClick={() => setIsDialogOpen(true)}
+          className="flex justify-end bg-supperagent text-white hover:bg-supperagent/90"
+        >
+          Send Email
+        </Button>
+      </div>
       <EmailSendDialog
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
@@ -44,6 +47,5 @@ export function SendEmailComponent() {
       />
       <EmailLogTable logs={emailLogs} />
     </div>
-  )
+  );
 }
-
