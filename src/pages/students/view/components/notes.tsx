@@ -13,35 +13,37 @@ import { AddNoteDialog } from './note-dialog';
 import { Eye, Pen, Trash2 } from 'lucide-react';
 import axiosInstance from '@/lib/axios';
 import moment from 'moment';
-
-// Demo data
-const demoStaff = [
-  { id: '1', name: 'John Doe', role: 'Academic Advisor' },
-  { id: '2', name: 'Jane Smith', role: 'Course Coordinator' },
-  { id: '3', name: 'Mike Johnson', role: 'Student Counselor' }
-];
+import { Badge } from '@/components/ui/badge';
+import { useParams } from 'react-router-dom';
 
 export function NotesPage() {
+  const { id } = useParams();
   const [notes, setNotes] = useState<any>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const handleAddNote = (note) => {
-    const newNote = {
-      id: Math.random().toString(36).substr(2, 9),
-      created: new Date(),
-      ...note
-    };
-    setNotes([newNote, ...notes]);
-    setDialogOpen(false);
+  const handleAddNote = async (data) => {
+    try {
+      const formattedValues = {
+        ...data,
+        studentId: id
+      };
+      const response = await axiosInstance.post('/notes', formattedValues);
+      console.log('Note added successfully:', response.data);
+      // Handle success (e.g., show a success message or refresh data)
+
+      // Close the dialog after successful submission
+      setDialogOpen(false);
+      fetchNotes();
+    } catch (error) {
+      console.error('Error adding note:', error);
+      // Handle error (e.g., show an error message)
+    }
   };
 
-  const handleDelete = (id) => {
-    setNotes(notes.filter((note) => note.id !== id));
-  };
   // Fetch data when the component mounts
   const fetchNotes = async () => {
     try {
-      const response = await axiosInstance.get('/notes?where=student_id,1'); // Update with your API endpoint
+      const response = await axiosInstance.get(`/notes?where=student_id,${id}`); // Update with your API endpoint
       setNotes(response.data.data.result);
     } catch (error) {
       console.error('Error fetching notes:', error);
@@ -64,7 +66,7 @@ export function NotesPage() {
         </Button>
       </div>
 
-      <div className="rounded-md ">
+      <div className="rounded-md">
         <Table>
           <TableHeader>
             <TableRow>
@@ -72,6 +74,7 @@ export function NotesPage() {
               <TableHead>Follow Up</TableHead>
               <TableHead>Follow Up By</TableHead>
               <TableHead>Created</TableHead>
+              <TableHead>Staus</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -89,17 +92,45 @@ export function NotesPage() {
               notes.map((note) => (
                 <TableRow key={note.id}>
                   <TableCell>{note.note}</TableCell>
-                  <TableCell>{note.followUp ? 'Yes' : 'No'}</TableCell>
-                  <TableCell>{note.followUpBy?.name || '-'}</TableCell>
                   <TableCell>
-                    {moment(note.createdAt).format('DD-MM-YYYY')}
+                    {note.isFollowUp === true ? 'Yes' : 'No'}
+                  </TableCell>
+
+                  <TableCell>
+                    {note.followUpBy && note.followUpBy.length > 0 ? (
+                      <div className="flex flex-wrap gap-1">
+                        {note.followUpBy.map((staff) => (
+                          <Badge
+                            key={staff.id}
+                            className="bg-blue-500 text-white hover:bg-blue-500"
+                          >
+                            {staff.firstName} {staff.lastName}
+                          </Badge>
+                        ))}
+                      </div>
+                    ) : (
+                      '-'
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-col gap-1">
+                      <Badge className="bg-green-500 text-white hover:bg-green-500">
+                        {note.createdBy.name}
+                      </Badge>
+
+                      <span className="text-xs text-muted-foreground">
+                        {moment(note.createdAt).format('DD-MM-YYYY')}
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {' '}
+                    <Badge className="bg-yellow-500 text-white hover:bg-yellow-500">
+                      {note.status}{' '}
+                    </Badge>
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDelete(note.id)}
-                    >
+                    <Button variant="ghost" size="icon">
                       <Eye className="h-4 w-4" />
                     </Button>
                   </TableCell>
@@ -114,7 +145,6 @@ export function NotesPage() {
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         onSubmit={handleAddNote}
-        staffMembers={demoStaff}
       />
     </div>
   );

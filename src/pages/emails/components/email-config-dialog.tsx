@@ -1,110 +1,140 @@
-import { useState, useEffect } from "react"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
+import { useState, useEffect } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
 
-import { Button } from "@/components/ui/button"
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+  DialogTitle
+} from '@/components/ui/dialog';
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
+  FormMessage
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+  SelectValue
+} from '@/components/ui/select';
 
 const formSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(1, "Password is required"),
-  host: z.string().min(1, "Host is required"),
-  port: z.coerce.number().min(1, "Port is required"),
-  encryption: z.enum(["ssl", "tls"]),
-  authentication: z.enum(["true", "false"]),
-})
+  email: z.string().email('Invalid email address'),
+  password: z
+    .string()
+    .min(1, 'Password is required')
+    .optional()
+    .or(z.literal('')),
+  host: z.string().min(1, 'Host is required'),
+  port: z.coerce.number().min(1, 'Port is required'),
+  encryption: z.enum(['ssl', 'tls']),
+  authentication: z.enum(['true', 'false'])
+});
 
-export function EmailConfigDialog({ open, onOpenChange, onSubmit, initialData }) {
-  const [isSubmitting, setIsSubmitting] = useState(false)
+export function EmailConfigDialog({
+  open,
+  onOpenChange,
+  onSubmit,
+  initialData
+}) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
-      password: "",
-      host: "",
+      email: '',
+      password: '',
+      host: '',
       port: 587,
-      encryption: "tls",
-      authentication: "true",
-    },
-  })
+      encryption: 'tls',
+      authentication: 'true'
+    }
+  });
 
   useEffect(() => {
     if (initialData) {
       form.reset({
         email: initialData.email,
-        password: initialData.password,
+        password: '',
         host: initialData.host,
         port: initialData.port,
         encryption: initialData.encryption,
-        authentication: initialData.authentication ? "true" : "false",
-      })
+        authentication: initialData.authentication ? 'true' : 'false'
+      });
     } else {
       form.reset({
-        email: "",
-        password: "",
-        host: "",
+        email: '',
+        password: '',
+        host: '',
         port: 587,
-        encryption: "tls",
-        authentication: "true",
-      })
+        encryption: 'tls',
+        authentication: 'true'
+      });
     }
-  }, [initialData, form])
+  }, [initialData, form]);
 
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
-      await onSubmit(values)
-      onOpenChange(false)
+      const formattedValues = {
+        ...values,
+        authentication: values.authentication === 'true' // Convert string to boolean
+      };
+
+      // Exclude the password field if it's empty (only in edit mode)
+      if (initialData && !formattedValues.password) {
+        delete formattedValues.password;
+      }
+
+      await onSubmit(formattedValues);
+      onOpenChange(false);
     } catch (error) {
-      console.error("Error submitting form:", error)
+      console.error('Error submitting form:', error);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>{initialData ? "Edit Email Configuration" : "Add New Email Configuration"}</DialogTitle>
+          <DialogTitle>
+            {initialData
+              ? 'Edit Email Configuration'
+              : 'Add New Email Configuration'}
+          </DialogTitle>
           <DialogDescription>
-            {initialData ? "Edit the email configuration details below." : "Add a new email configuration to the system."}
+            {initialData
+              ? 'Edit the email configuration details below.'
+              : 'Add a new email configuration to the system.'}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-4"
+          >
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email <span className="text-red-500">*</span></FormLabel>
+                    <FormLabel>
+                      Email <span className="text-red-500">*</span>
+                    </FormLabel>
                     <FormControl>
                       <Input placeholder="SMTP Email" {...field} />
                     </FormControl>
@@ -117,9 +147,15 @@ export function EmailConfigDialog({ open, onOpenChange, onSubmit, initialData })
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password <span className="text-red-500">*</span></FormLabel>
+                    <FormLabel>
+                      Password <span className="text-red-500">*</span>
+                    </FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="SMTP Email Password" {...field} />
+                      <Input
+                        type="password"
+                        placeholder="SMTP Email Password"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -132,7 +168,9 @@ export function EmailConfigDialog({ open, onOpenChange, onSubmit, initialData })
                 name="host"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Host <span className="text-red-500">*</span></FormLabel>
+                    <FormLabel>
+                      Host <span className="text-red-500">*</span>
+                    </FormLabel>
                     <FormControl>
                       <Input placeholder="SMTP Host" {...field} />
                     </FormControl>
@@ -145,7 +183,9 @@ export function EmailConfigDialog({ open, onOpenChange, onSubmit, initialData })
                 name="port"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Port <span className="text-red-500">*</span></FormLabel>
+                    <FormLabel>
+                      Port <span className="text-red-500">*</span>
+                    </FormLabel>
                     <FormControl>
                       <Input type="number" placeholder="SMTP Port" {...field} />
                     </FormControl>
@@ -160,8 +200,13 @@ export function EmailConfigDialog({ open, onOpenChange, onSubmit, initialData })
                 name="encryption"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Encryption <span className="text-red-500">*</span></FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormLabel>
+                      Encryption <span className="text-red-500">*</span>
+                    </FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select encryption" />
@@ -181,8 +226,13 @@ export function EmailConfigDialog({ open, onOpenChange, onSubmit, initialData })
                 name="authentication"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Authentication <span className="text-red-500">*</span></FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormLabel>
+                      Authentication <span className="text-red-500">*</span>
+                    </FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select authentication" />
@@ -199,14 +249,17 @@ export function EmailConfigDialog({ open, onOpenChange, onSubmit, initialData })
               />
             </div>
             <DialogFooter>
-              <Button type="submit" disabled={isSubmitting} className="bg-supperagent text-white hover:bg-supperagent/90">
-                {isSubmitting ? "Saving..." : (initialData ? "Update" : "Save")}
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="bg-supperagent text-white hover:bg-supperagent/90"
+              >
+                {isSubmitting ? 'Saving...' : initialData ? 'Update' : 'Save'}
               </Button>
             </DialogFooter>
           </form>
         </Form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
-
