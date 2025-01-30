@@ -14,7 +14,7 @@ import { Eye, Pen, Trash2 } from 'lucide-react';
 import axiosInstance from '@/lib/axios';
 import moment from 'moment';
 import { Badge } from '@/components/ui/badge';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 
 export function NotesPage() {
   const { id } = useParams();
@@ -130,9 +130,11 @@ export function NotesPage() {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="icon">
-                      <Eye className="h-4 w-4" />
-                    </Button>
+                    <Link to={`note/${note.id}/comments`}>
+                      <Button variant="ghost" size="icon">
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    </Link>
                   </TableCell>
                 </TableRow>
               ))

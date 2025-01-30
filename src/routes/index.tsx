@@ -23,6 +23,8 @@ import StudentViewPage from '@/pages/students/view';
 import EmailConfigPage from '@/pages/emails';
 import { DraftsManager } from '@/pages/emails/drafts';
 import CourseDetails from '@/pages/courseDetails';
+import CommentsPage from '@/pages/comments';
+import FollowupsPage from '@/pages/followup';
 
 const SignInPage = lazy(() => import('@/pages/auth/signin'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
@@ -66,6 +68,14 @@ export default function AppRouter() {
         {
           path: 'students/:id/course/:courseid',
           element: <CourseDetails />
+        },
+        {
+          path: 'students/:id/note/:noteid/comments',
+          element: <CommentsPage />
+        },
+        {
+          path: 'followup',
+          element: <FollowupsPage />
         },
         {
           path: 'students/new',
