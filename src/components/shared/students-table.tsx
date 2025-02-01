@@ -24,10 +24,10 @@ export function StudentsTable({students, handleStatusChange}) {
           {students.length > 0 && students?.map((student, index) => (
             <TableRow key={student.id}>
              
-              <TableCell>{student.refId}</TableCell>
-              <TableCell>{student.firstName} {student.lastName}</TableCell>
-              <TableCell>{student.email}</TableCell>
-              <TableCell>{student.phone}</TableCell>
+              <TableCell><Link to={`${student.id}`}>{student.refId}</Link></TableCell>
+              <TableCell><Link to={`${student.id}`}>{student.firstName} {student.lastName}</Link></TableCell>
+              <TableCell><Link to={`${student.id}`}>{student.email}</Link></TableCell>
+              <TableCell><Link to={`${student.id}`}>{student.phone}</Link></TableCell>
               <TableCell>
               <Switch
                     checked={student.status == 1}

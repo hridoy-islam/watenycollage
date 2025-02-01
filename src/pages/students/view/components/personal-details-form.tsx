@@ -191,7 +191,7 @@ export function PersonalDetailsForm({ student, onSave }) {
 
           {/* Nationality */}
           <div className="space-y-2">
-            <Label htmlFor="nationality">Nationality</Label>
+            <Label htmlFor="nationality">Nationality *</Label>
 
             <Controller
               name="nationality"
@@ -214,6 +214,7 @@ export function PersonalDetailsForm({ student, onSave }) {
                 </Select>
               )}
             />
+            <ErrorMessage message={errors.nationality?.message?.toString()} />
           </div>
 
           {/* Country of Residence */}
@@ -244,7 +245,7 @@ export function PersonalDetailsForm({ student, onSave }) {
 
           {/* Country of Birth */}
           <div className="space-y-2">
-            <Label htmlFor="countryBirth">Country of Birth</Label>
+            <Label htmlFor="countryBirth">Country of Birth *</Label>
             <Controller
               name="countryBirth"
               control={control}
@@ -270,7 +271,7 @@ export function PersonalDetailsForm({ student, onSave }) {
 
           {/* Native Language */}
           <div className="space-y-2">
-            <Label htmlFor="nativeLanguage">Native Language</Label>
+            <Label htmlFor="nativeLanguage">Native Language *</Label>
             <Controller
               name="nativeLanguage"
               control={control}
@@ -346,6 +347,8 @@ export function PersonalDetailsForm({ student, onSave }) {
               {...register('passportExpiryDate')}
             />
           </div>
+
+          
         </div>
 
         {/* Save Button */}

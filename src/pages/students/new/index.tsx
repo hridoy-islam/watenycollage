@@ -325,7 +325,7 @@ export default function NewStudentPage() {
           {/* First Name */}
           <div>
             <Label htmlFor="addressLine2">Address Line 2</Label>
-            <Input id="addressLine2" {...register("addressLine2", { required: 'Address Line 2 Required' })} />
+            <Input id="addressLine2" {...register("addressLine2")} />
             <ErrorMessage message={errors.addressLine2?.message?.toString()} />
           </div>
 
@@ -339,7 +339,7 @@ export default function NewStudentPage() {
           {/* Email */}
           <div>
             <Label htmlFor="state">State *</Label>
-            <Input id="state" {...register("state", { required: 'State is Required' })} />
+            <Input id="state" {...register("state")} />
             <ErrorMessage message={errors.state?.message?.toString()} />
 
           </div>

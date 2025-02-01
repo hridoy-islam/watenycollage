@@ -1,20 +1,12 @@
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { countries } from "@/types";
 import ErrorMessage from "@/components/shared/error-message";
 import { useEffect } from "react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 export function AddressForm({ student, onSave }) {
-  const { handleSubmit, register, control, reset, formState: { errors } } = useForm({
+  const { handleSubmit, register, reset, formState: { errors } } = useForm({
     defaultValues: {
       addressLine1: "",
       addressLine2: "",
@@ -61,7 +53,7 @@ export function AddressForm({ student, onSave }) {
             <Label htmlFor="addressLine2">Address Line 2*</Label>
             <Input id="addressLine2"
               
-              {...register("addressLine2", { required: "Address Line 2 is required" })} />
+              {...register("addressLine2")} />
             <ErrorMessage message={errors.addressLine2?.message?.toString()} />
           </div>
           <div className="space-y-2">

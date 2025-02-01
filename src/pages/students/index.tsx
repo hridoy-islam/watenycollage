@@ -17,20 +17,31 @@ export default function StudentsPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(10);
 
-  const [filters, setFilters] = useState({ searchTerm: "", status: "" });
+  const [filters, setFilters] = useState({ searchTerm: "", status: "", agent: "", staffId: "" });
+
 
   const fetchData = async (page, entriesPerPage, filters) => {
     try {
       if (initialLoading) setInitialLoading(true);
-      const { searchTerm, status } = filters;
-      const response = await axiosInstance.get(`/students`, {
-        params: {
-          page,
-          limit: entriesPerPage,
-          searchTerm,
-          ...(status ? { status } : {}),
-        },
-      });
+      const { searchTerm, status, dob, agent, staffId, institute } = filters;
+      // Conditionally build the where parameter
+      const params = {
+        page,
+        limit: entriesPerPage,
+        searchTerm,
+        ...(status ? { status } : {}),
+        ...(agent ? { "agent.id": agent } : {}),
+        ...(dob ? { dob } : {}), // Add dob to the params if it exists
+      };
+
+      // Only include 'where' if staffId exists
+      if (staffId) {
+        params.where = `with:assignStaffs,with:staff,id,${staffId}`;
+      }
+      // if (institute) {
+      //   params.where = `with:applications,with:institution,id,${institute}`;
+      // }
+      const response = await axiosInstance.get(`/students`, { params });
       setStudents(response.data.data.result);
       setTotalPages(response.data.data.meta.totalPage);
     } catch (error) {
@@ -39,7 +50,6 @@ export default function StudentsPage() {
       setInitialLoading(false); // Disable initial loading after the first fetch
     }
   };
-
 
   const handleStatusChange = async (id, status) => {
     try {
@@ -60,7 +70,7 @@ export default function StudentsPage() {
 
   useEffect(() => {
     fetchData(currentPage, entriesPerPage, filters); // Refresh data
-   
+
   }, [currentPage, entriesPerPage]);
 
   return (
@@ -81,7 +91,7 @@ export default function StudentsPage() {
       ) : (
         <div className="rounded-md bg-white shadow-2xl p-4 space-y-2">
 
-  <StudentsTable students={students} handleStatusChange={handleStatusChange} />
+          <StudentsTable students={students} handleStatusChange={handleStatusChange} />
 
           <DataTablePagination
             pageSize={entriesPerPage}

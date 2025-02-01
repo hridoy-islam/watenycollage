@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { StudentProfile } from './components/student-profile';
 import { PersonalDetailsForm } from './components/personal-details-form';
-import { TravelImmigrationHistory } from './components/travel-immigration-history';
 import { AcademicRecords } from './components/academic-records';
 import { WorkExperienceSection } from './components/work-experience';
 import { ApplicationsSection } from './components/application-section';
@@ -13,15 +12,16 @@ import { PersonalInfoForm } from './components/personal-info-form';
 import { AddressForm } from './components/address-form';
 import { Link, useParams } from 'react-router-dom';
 import axiosInstance from '../../../lib/axios';
-import { RefusalHistory } from './components/refusal-history';
 import { DocumentsSection } from './components/documents-section';
 import { SendEmailComponent } from './components/send-email-component';
 import { NotesPage } from './components/notes';
 import { AgentPage } from './components/agent';
 import { AssignStaff } from './components/assign-staff';
+import { useToast } from '@/components/ui/use-toast';
 
 export default function StudentViewPage() {
   const { id } = useParams();
+  const { toast } = useToast();
   const [student, setStudent] = useState<any>();
   const [initialLoading, setInitialLoading] = useState(true); // New state for initial loading
 
@@ -44,6 +44,7 @@ export default function StudentViewPage() {
   const handleSave = async (data) => {
     await axiosInstance.patch(`/students/${id}`, data);
     fetchData();
+    toast({ title: "Student updated successfully", className: "bg-supperagent border-none text-white", });
   };
 
   useEffect(() => {
