@@ -338,7 +338,7 @@ export default function NewStudentPage() {
 
           {/* Email */}
           <div>
-            <Label htmlFor="state">State *</Label>
+            <Label htmlFor="state">State </Label>
             <Input id="state" {...register("state")} />
             <ErrorMessage message={errors.state?.message?.toString()} />
 

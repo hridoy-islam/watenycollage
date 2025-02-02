@@ -32,7 +32,7 @@ import {
 } from '@/components/ui/select';
 
 const formSchema = z.object({
-  to: z.string().email('Invalid email address'),
+  emailConfigId: z.string(),
   subject: z.string().min(1, 'Subject is required'),
   body: z.string().min(1, 'Body is required')
 });
@@ -41,13 +41,14 @@ export function EmailSendDialog({ open, onOpenChange, onSend }) {
   const [attachments, setAttachments] = useState<File[]>([]);
   const [emailConfigs, setEmailConfigs] = useState<any[]>([]); // For "To" options
   const [emailDrafts, setEmailDrafts] = useState<any[]>([]); // For draft options
-
+  const [isLoading, setIsLoading] = useState(false);
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      to: '',
+      emailConfigId: '',
       subject: '',
-      body: ''
+      body: '',
+      draftId: '' // Initialize draftId
     }
   });
 
@@ -58,11 +59,19 @@ export function EmailSendDialog({ open, onOpenChange, onSend }) {
     if (selectedDraft) {
       form.setValue('subject', selectedDraft.subject || '');
       form.setValue('body', selectedDraft.body || '');
+      form.setValue('draftId', draftId); // Set draftId in the form state
     }
   };
 
   const handleSubmit = (values: z.infer<typeof formSchema>) => {
-    onSend(values.to, values.subject, values.body, attachments);
+
+    const payload = {
+      emailConfigId: values.emailConfigId,
+      subject: values.subject,
+      body: values.body
+    }
+
+    onSend(payload);
     form.reset();
     setAttachments([]);
   };
@@ -75,20 +84,18 @@ export function EmailSendDialog({ open, onOpenChange, onSend }) {
 
   useEffect(() => {
     const fetchData = async () => {
+      setIsLoading(true);
       try {
-        // Fetch email configs (for "To" options)
-        const emailConfigResponse = await axiosInstance.get(
-          '/email-configs?limit=all'
-        );
+        const [emailConfigResponse, emailDraftResponse] = await Promise.all([
+          axiosInstance.get('/email-configs?limit=all'),
+          axiosInstance.get('/email-drafts?limit=all')
+        ]);
         setEmailConfigs(emailConfigResponse.data.data.result);
-
-        // Fetch email drafts
-        const emailDraftResponse = await axiosInstance.get(
-          '/email-drafts?limit=all'
-        );
         setEmailDrafts(emailDraftResponse.data.data.result);
       } catch (error) {
         console.error('Error fetching data:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -113,15 +120,15 @@ export function EmailSendDialog({ open, onOpenChange, onSend }) {
           >
             <FormItem>
               <FormLabel>From</FormLabel>
-              <Select onValueChange={(value) => form.setValue('to', value)}>
+              <Select onValueChange={(value) => form.setValue('emailConfigId', value)}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select recipient" />
+                    <SelectValue placeholder="Select Email" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
                   {emailConfigs.map((config) => (
-                    <SelectItem key={config.id} value={config.email}>
+                    <SelectItem key={config.id} value={config.id.toString()}>
                       {config.email}
                     </SelectItem>
                   ))}
@@ -130,7 +137,7 @@ export function EmailSendDialog({ open, onOpenChange, onSend }) {
             </FormItem>
             <FormItem>
               <FormLabel>Draft</FormLabel>
-              <Select onValueChange={handleDraftChange}>
+              <Select value={form.watch('draftId')} onValueChange={handleDraftChange}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a draft" />
@@ -138,9 +145,7 @@ export function EmailSendDialog({ open, onOpenChange, onSend }) {
                 </FormControl>
                 <SelectContent>
                   {emailDrafts.map((draft) => (
-                    <SelectItem key={draft.id} value={draft.id}>
-                      {draft.subject}
-                    </SelectItem>
+                    <SelectItem key={draft.id} value={draft.id}>{draft.subject}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>

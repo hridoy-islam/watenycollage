@@ -178,7 +178,7 @@ export default function StudentViewPage() {
           <NotesPage />
         </TabsContent>
         <TabsContent value="communications">
-          <SendEmailComponent />
+          <SendEmailComponent student={student}/>
         </TabsContent>
 
         {/* Add other tab contents as needed */}

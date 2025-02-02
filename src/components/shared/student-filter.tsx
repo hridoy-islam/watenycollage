@@ -16,6 +16,8 @@ export default function StudentFilter({ onSubmit }) {
   const [selectedAgent, setSelectedAgent] = useState<any>(null);
   const [selectedStaff, setSelectedStaff] = useState<any>(null);
   const [selectedInstitute, setSelectedInstitute] = useState<any>(null);
+  const [selectedTerm, setSelectedTerm] = useState<any>(null);
+  const [selectedAcademicYear, setSelectedAcademicYear] = useState<any>(null);
 
   const fetchData = async () => {
     try {
@@ -49,6 +51,8 @@ export default function StudentFilter({ onSubmit }) {
       agent: selectedAgent || null,
       staffId: selectedStaff || null,
       institute: selectedInstitute || null, // Include the selected institute
+      term: selectedTerm || null,
+      academic_year_id: selectedAcademicYear || null,
     });
   };
 
@@ -72,7 +76,7 @@ export default function StudentFilter({ onSubmit }) {
           <label className="mb-2 block text-sm font-medium">Academic Year</label>
           <select
             className="w-full rounded-md border border-gray-300 bg-white p-2 text-gray-900 shadow-sm focus:border-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-500"
-            onChange={(e) => setAcademicYear(e.target.value)}>
+            onChange={(e) => setSelectedAcademicYear(e.target.value)}>
             <option value="">Select Academic Year</option>
             {academicYear.map((year) => (
               <option key={year.id} value={year.id}>
@@ -85,7 +89,7 @@ export default function StudentFilter({ onSubmit }) {
           <label className="mb-2 block text-sm font-medium">Select Terms</label>
           <select
             className="w-full rounded-md border border-gray-300 bg-white p-2 text-gray-900 shadow-sm focus:border-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-500"
-            onChange={(e) => setTerms(e.target.value)}>
+            onChange={(e) => setSelectedTerm(e.target.value)}>
             <option value="">Select Term</option>
             {terms.map((item) => (
               <option key={item.id} value={item.id}>

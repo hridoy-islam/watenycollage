@@ -1,33 +1,39 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { EmailSendDialog } from './email-send-dialog';
 import { EmailLogTable } from './email-log-table';
 import axiosInstance from '@/lib/axios';
 
-export function SendEmailComponent() {
+export function SendEmailComponent({ student}) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [emailLogs, setEmailLogs] = useState<any>([]);
 
-  const handleSendEmail = (
-    to: string,
-    subject: string,
-    body: string,
-    attachments: File[]
-  ) => {
-    // In a real application, you would send the email here
-
-    // Add to email logs
-    const newLog = {
-      id: Date.now().toString(),
-      to,
-      subject,
-      sentAt: new Date(),
-      status: 'sent' // You might want to handle failures in a real application
-    };
-    setEmailLogs([newLog, ...emailLogs]);
-
+  const handleSendEmail = async (payload) => {
+      try {
+        const data = {...payload, studentId: student.id, emails: [student.email]};
+        
+        await axiosInstance.post(`/email-send`, data);
+        fetchData(); // Refresh data
+      } catch (error) {
+        console.error("Error updating status:", error);
+      }
     setIsDialogOpen(false);
   };
+
+  const fetchData = async () => {
+      try {
+        const response = await axiosInstance.get(
+          `/email-logs?where=student_id,${student.id}`
+        ); // Update with your API endpoint
+        setEmailLogs(response.data.data.result);
+      } catch (error) {
+        console.error('Error fetching notes:', error);
+      }
+    };
+  
+    useEffect(() => {
+      fetchData();
+    }, [student]);
 
   return (
     <div className="space-y-4 rounded-md p-4 shadow-md">

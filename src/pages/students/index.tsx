@@ -23,7 +23,7 @@ export default function StudentsPage() {
   const fetchData = async (page, entriesPerPage, filters) => {
     try {
       if (initialLoading) setInitialLoading(true);
-      const { searchTerm, status, dob, agent, staffId, institute } = filters;
+      const { searchTerm, status, dob, agent, staffId, institute, term, academic_year_id } = filters;
       // Conditionally build the where parameter
       const params = {
         page,
@@ -38,9 +38,15 @@ export default function StudentsPage() {
       if (staffId) {
         params.where = `with:assignStaffs,with:staff,id,${staffId}`;
       }
-      // if (institute) {
-      //   params.where = `with:applications,with:institution,id,${institute}`;
-      // }
+      if (institute) {
+        params.where = `with:applications,with:institute,id,${institute}`;
+      }
+      if (term) {
+        params.where = `with:applications,with:term,id,${term}`;
+      }
+      if(academic_year_id){
+        params.where = `with:applications,with:term,with:academicYear,id,${academic_year_id}`;
+      }
       const response = await axiosInstance.get(`/students`, { params });
       setStudents(response.data.data.result);
       setTotalPages(response.data.data.meta.totalPage);

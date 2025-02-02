@@ -67,8 +67,14 @@ const stats = [
   },
   {
     title: 'Follow Ups Pending',
-    value: '11'
-  }
+    value: '11',
+    href: 'followup'
+  },
+  {
+    title: 'Follow Ups Done',
+    value: '16',
+    href: 'followup/created'
+  },
 ];
 
 export default function DashboardPage() {
@@ -110,9 +116,9 @@ export default function DashboardPage() {
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {stats.map((stat) => (
-            <Link to={'followup'} key={stat.title}>
-              <StatCard title={stat.title} value={stat.value} />
-            </Link>
+            
+              <StatCard key={stat.title} href={stat.href} title={stat.title} value={stat.value} />
+            
           ))}
         </div>
       </div>

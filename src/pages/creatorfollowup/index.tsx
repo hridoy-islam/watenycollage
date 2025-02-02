@@ -15,10 +15,10 @@ import axiosInstance from '@/lib/axios';
 import { Link } from 'react-router-dom';
 import { AlertModal } from '@/components/shared/alert-modal';
 
-export default function FollowupsPage() {
+export default function CreatorFollowupsPage() {
   const { user } = useSelector((state: any) => state.auth);
-  const [term, setTerm] = useState('all');
-  const [status, setStatus] = useState('pending');
+  // const [term, setTerm] = useState('all');
+  const [status, setStatus] = useState('done');
   const [followups, setFollowups] = useState([]);
 
   const [selectedNote, setSelectedNote] = useState(null);
@@ -51,15 +51,14 @@ export default function FollowupsPage() {
   };
 
   const handleReset = () => {
-    setTerm('all');
-    setStatus('pending');
+    setStatus('done');
     setFollowups([]);
   };
 
   const fetchData = async () => {
     try {
       const response = await axiosInstance.get(
-        `/notes?where=with:followUpStaffs,with:user,email,${user.email}&status=${status}`
+        `/notes?where=with:createdBy,email,${user.email}&status=${status}`
       ); // Update with your API endpoint
       setFollowups(response.data.data.result);
     } catch (error) {
@@ -74,7 +73,7 @@ export default function FollowupsPage() {
   return (
     <div className="py-1">
       <div className="mb-2 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Pending Followups</h1>
+        <h1 className="text-2xl font-bold">Completed Followups</h1>
         <Button
           variant="default"
           className="bg-supperagent text-white hover:bg-supperagent/90"
@@ -84,20 +83,6 @@ export default function FollowupsPage() {
       </div>
 
       <div className="mb-6 flex items-end gap-4">
-        {/* <div className="space-y-2">
-          <label className="text-sm font-medium">Terms</label>
-          <Select value={term} onValueChange={setTerm}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="All Terms" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Terms</SelectItem>
-              <SelectItem value="current">Current Term</SelectItem>
-              <SelectItem value="previous">Previous Term</SelectItem>
-            </SelectContent>
-          </Select>
-        </div> */}
-
         <div className="space-y-2">
           <label className="text-sm font-medium">Status</label>
           <Select value={status} onValueChange={setStatus}>
@@ -107,6 +92,7 @@ export default function FollowupsPage() {
             <SelectContent>
               <SelectItem value="pending">Pending</SelectItem>
               <SelectItem value="done">Done</SelectItem>
+              <SelectItem value="complete">Complete</SelectItem>
 
             </SelectContent>
           </Select>
@@ -206,6 +192,7 @@ export default function FollowupsPage() {
           </tbody>
         </table>
       </div>
+
       <AlertModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

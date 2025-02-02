@@ -25,6 +25,7 @@ import { DraftsManager } from '@/pages/emails/drafts';
 import CourseDetails from '@/pages/courseDetails';
 import CommentsPage from '@/pages/comments';
 import FollowupsPage from '@/pages/followup';
+import CreatorFollowupsPage from '@/pages/creatorfollowup';
 
 const SignInPage = lazy(() => import('@/pages/auth/signin'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
@@ -76,6 +77,10 @@ export default function AppRouter() {
         {
           path: 'followup',
           element: <FollowupsPage />
+        },
+        {
+          path: 'followup/created',
+          element: <CreatorFollowupsPage />
         },
         {
           path: 'students/new',
