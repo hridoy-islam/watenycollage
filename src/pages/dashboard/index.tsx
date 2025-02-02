@@ -71,7 +71,7 @@ const stats = [
     href: 'followup'
   },
   {
-    title: 'Follow Ups Done',
+    title: 'Created Follow Ups',
     value: '16',
     href: 'followup/created'
   },
