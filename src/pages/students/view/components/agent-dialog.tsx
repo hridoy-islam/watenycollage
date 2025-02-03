@@ -52,6 +52,7 @@ export function AgentDialog({ open, onOpenChange, onSubmit, initialData }) {
   }, [initialData, form]);
 
   const handleSubmit = (data) => {
+    console.log(data)
     onSubmit(data);
     onOpenChange(false);
   };

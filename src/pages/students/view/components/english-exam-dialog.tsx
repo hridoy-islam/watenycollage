@@ -55,11 +55,7 @@ export function EnglishExamDialog({ open, onOpenChange, onSubmit, initialData })
   }, [initialData, form]);
 
   const handleSubmit = (values) => {
-    const transformedData = {
-      ...values,
-      score: parseInt(values.score, 10),
-    };
-    onSubmit(transformedData);
+    onSubmit(values);
     form.reset();
     onOpenChange(false);
   };
@@ -114,7 +110,7 @@ export function EnglishExamDialog({ open, onOpenChange, onSubmit, initialData })
                 <FormItem>
                   <FormLabel>Score</FormLabel>
                   <FormControl>
-                    <Input {...field} type="number" min="0" step="any" />
+                    <Input {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
