@@ -37,10 +37,6 @@ export default function StudentViewPage() {
     }
   };
 
-  const handleImageUpdate = (data) => {
-    fetchData();
-  };
-
   const handleSave = async (data) => {
     await axiosInstance.patch(`/students/${id}`, data);
     fetchData();
@@ -81,7 +77,7 @@ export default function StudentViewPage() {
         </div>
       </header>
 
-      <StudentProfile student={student} onImageUpdate={handleImageUpdate} />
+      <StudentProfile student={student} />
 
       <Tabs defaultValue="personal" className="mt-1 px-2">
         <TabsList>

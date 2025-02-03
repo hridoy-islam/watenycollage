@@ -172,7 +172,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ImageIcon, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import axiosInstance from '../../lib/axios'; // Adjust the path as necessary
+import axios from 'axios'
 
 export function ImageUploader({ open, onOpenChange, onUploadComplete, studentId }) {
   const [dragActive, setDragActive] = useState(false);
@@ -228,13 +228,14 @@ export function ImageUploader({ open, onOpenChange, onUploadComplete, studentId 
       }
 
       const formData = new FormData();
-      formData.append("student_id", studentId);
+      formData.append("entity_id", studentId);
       formData.append("file_type", "profile");
       formData.append("files[]", file);
 
-      const response = await axiosInstance.post("/documents", formData, {
+      const response = await axios.post("https://core.qualitees.co.uk/api/documents", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
+          "x-company-token": "admissionhubz-0123"
         },
         onUploadProgress: (progressEvent) => {
           const percentCompleted = Math.round(
