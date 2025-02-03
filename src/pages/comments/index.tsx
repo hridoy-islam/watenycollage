@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { format } from 'date-fns';
 import { useNavigate, useParams } from "react-router-dom";
 import axiosInstance from '@/lib/axios'
 import moment from 'moment-timezone';
 import { Badge } from '@/components/ui/badge';
 import { useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
+import { AlertModal } from '@/components/shared/alert-modal';
 
 export default function CommentsPage() {
   const { noteid } = useParams();
@@ -15,6 +15,9 @@ export default function CommentsPage() {
   const [note, setNote] = useState();
   const { register, handleSubmit, reset } = useForm();
   const navigate = useNavigate();
+
+  const [isModalOpen, setIsModalOpen] = useState(false); // State for modal visibility
+
 
   const onSubmit = async (data) => {
     await axiosInstance.post(`/notes/comments`, { comment: data.comment, noteId: noteid });
@@ -35,7 +38,7 @@ export default function CommentsPage() {
     fetchData();
   }, []);
 
-  // **Handle Status Change**
+
   const handleStatusChange = async () => {
     const isCreator = user.email === note?.createdBy?.email;
     const status = isCreator ? "complete" : "done";
@@ -51,6 +54,8 @@ export default function CommentsPage() {
       fetchData(); // Refresh data
     } catch (error) {
       console.error("Error updating status:", error);
+    } finally {
+      setIsModalOpen(false); // Close the modal
     }
   };
 
@@ -93,9 +98,12 @@ export default function CommentsPage() {
         </div>
         {note?.status != 'complete' &&
           <Button
-            onClick={handleStatusChange}
+            onClick={() => {
+              setIsModalOpen(true);
+            }}
             variant="default"
             className="bg-supperagent text-white hover:bg-supperagent/90"
+            
           >
             {user.email === note?.createdBy?.email ? "Complete" : "Done"}
           </Button>
@@ -131,6 +139,14 @@ export default function CommentsPage() {
           <Button type="submit" className="bg-supperagent text-white hover:bg-supperagent">Add Comment</Button>
         </form>
       </div>
+      <AlertModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handleStatusChange}
+        loading={false}
+        title="Confirm Status Change"
+        description="Are you sure you want to change the status of this note?"
+      />
     </div>
   );
 }

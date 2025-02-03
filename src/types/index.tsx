@@ -126,10 +126,11 @@ export const mockData = {
   refusalTypes: ['Visa', 'Permission', 'Asylum', 'Deportation'],
   DocumentType: [
     'Passport',
-    'Bank_Statement',
+    'Bank Statement',
     'Qualification',
-    'Work_Experience',
-    'CV'
+    'Work Experience',
+    'CV',
+    'Other'
   ]
 };
 

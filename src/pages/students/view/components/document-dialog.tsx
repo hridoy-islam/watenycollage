@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,8 +10,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
-import axiosInstance from "../../../../lib/axios"; // Adjust the import path as needed
 import { mockData } from "@/types";
+import axios from "axios";
 
 export function DocumentDialog({
   open,
@@ -23,7 +23,7 @@ export function DocumentDialog({
   const [type, setType] = useState<string>("");
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-
+  const [customType, setCustomType] = useState<string>(""); // New state for custom type description
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
@@ -34,17 +34,18 @@ export function DocumentDialog({
     setUploadProgress(0);
 
     const formData = new FormData();
-    formData.append("student_id", initialData); // Assuming inititalData is the student ID
-    formData.append("file_type", type.toLowerCase());
+    formData.append("entity_id", initialData); // Assuming inititalData is the student ID
+    formData.append("file_type", type === "Other" ? customType : type.toLowerCase());
     formData.append("files[]", file); // 'files' is expected as an array
 
     try {
-      await axiosInstance.post("/documents", formData, {
+      await axios.post("https://core.qualitees.co.uk/api/documents", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
+          "x-company-token": "admissionhubz-0123"
         },
         onUploadProgress: (progressEvent) => {
-          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent?.total);
           setUploadProgress(percentCompleted);
         },
       });
@@ -79,6 +80,14 @@ export function DocumentDialog({
                 ))}
               </SelectContent>
             </Select>
+            {type === "Other" && (
+              <Input
+                type="text"
+                placeholder="Describe the document type"
+                value={customType}
+                onChange={(e) => setCustomType(e.target.value)}
+              />
+            )}
           </div>
           <div className="space-y-2">
             <Input
@@ -103,7 +112,7 @@ export function DocumentDialog({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={!file || !type || isUploading}>
+            <Button type="submit" disabled={!file || !type || isUploading || (type === "Other" && !customType)}>
               {isUploading ? "Uploading..." : "Upload"}
             </Button>
           </div>

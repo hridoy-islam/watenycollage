@@ -88,7 +88,7 @@ export default function CourseDetails() {
       <header className="flex items-center justify-between px-6 py-3">
         <h1 className="text-2xl font-semibold"></h1>
         <div className="flex items-center gap-2">
-          <Link to={'/admin/students'}>
+          <Link to={`/admin/students/${id}`}>
             <Button
               variant="outline"
               size="sm"

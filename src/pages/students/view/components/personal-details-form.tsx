@@ -38,7 +38,8 @@ export function PersonalDetailsForm({ student, onSave }) {
       passportIssueLocation: '',
       passportNumber: '',
       passportIssueDate: '',
-      passportExpiryDate: ''
+      passportExpiryDate: '',
+      collageRoll: '',
     }
   });
 
@@ -62,7 +63,8 @@ export function PersonalDetailsForm({ student, onSave }) {
         passportIssueLocation: student.passportIssueLocation || '',
         passportNumber: student.passportNumber || '',
         passportIssueDate: student.passportIssueDate || '',
-        passportExpiryDate: student.passportExpiryDate || ''
+        passportExpiryDate: student.passportExpiryDate || '',
+        collageRoll: student.collageRoll || '',
       });
     }
   }, [student, reset]);
@@ -345,6 +347,15 @@ export function PersonalDetailsForm({ student, onSave }) {
               id="passportExpiryDate"
               type="date"
               {...register('passportExpiryDate')}
+            />
+          </div>
+
+          {/* Collage Roll */}
+          <div className="space-y-2">
+            <Label htmlFor="collageRoll">Collage Roll</Label>
+            <Input
+              id="collageRoll"
+              {...register('collageRoll')}
             />
           </div>
 

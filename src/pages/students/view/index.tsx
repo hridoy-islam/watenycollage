@@ -163,7 +163,7 @@ export default function StudentViewPage() {
           <WorkExperienceSection student={student} onSave={handleSave} />
         </TabsContent>
         <TabsContent value="documents">
-          <DocumentsSection student={student} onDocumentUpdate={fetchData} />
+          <DocumentsSection student={student} />
         </TabsContent>
         <TabsContent value="application">
           <ApplicationsSection student={student} onSave={handleSave} />
