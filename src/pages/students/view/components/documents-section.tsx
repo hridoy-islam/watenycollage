@@ -32,7 +32,7 @@ export function DocumentsSection({ student }) {
   const fetchData = async () => {
     try {
       const response = await axios.get(
-        `https://core.qualitees.co.uk/api/documents?where=entity_id,${student.id}`,
+        `https://core.qualitees.co.uk/api/documents?where=entity_id,${student.id}&exclude=file_type,profile`,
         {
           headers: {
             "x-company-token": "admissionhubz-0123", // Add the custom header
