@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Pen, Trash2 } from 'lucide-react';
+import { Plus, Pen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Table,
@@ -15,33 +15,6 @@ import { BlinkingDots } from '@/components/shared/blinking-dots';
 import axiosInstance from '@/lib/axios';
 import { DataTablePagination } from '@/pages/students/view/components/data-table-pagination';
 
-// Simulated API calls
-
-const createDraft = async (draft) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        ...draft,
-        id: Math.random().toString(36).substr(2, 9),
-        createdAt: new Date(),
-        updatedAt: new Date()
-      });
-    }, 500);
-  });
-};
-
-const updateDraft = async (draft) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        ...draft,
-        updatedAt: new Date()
-      });
-    }, 500);
-  });
-};
-
-const deleteDraft = async (id) => {};
 
 export function DraftsManager() {
   const [drafts, setDrafts] = useState<any>([]);
@@ -51,7 +24,7 @@ export function DraftsManager() {
   const { toast } = useToast();
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [entriesPerPage, setEntriesPerPage] = useState(50);
+  const [entriesPerPage, setEntriesPerPage] = useState(10);
 
   const fetchData = async (page, entriesPerPage) => {
     try {

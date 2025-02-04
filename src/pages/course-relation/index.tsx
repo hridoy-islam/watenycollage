@@ -19,18 +19,28 @@ import axiosInstance from '../../lib/axios';
 
 import { toast } from "@/components/ui/use-toast"
 import { Badge } from "@/components/ui/badge";
+import { DataTablePagination } from "../students/view/components/data-table-pagination";
 
 export default function CourseRelationPage() {
   const [courseRelations, setCourseRelations] = useState<any>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingCourseRelation, setEditingCourseRelation] = useState<any>(null);
   const [initialLoading, setInitialLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [entriesPerPage, setEntriesPerPage] = useState(10);
 
-  const fetchData = async () => {
+  const fetchData = async (page, entriesPerPage) => {
     try {
       if (initialLoading) setInitialLoading(true);
-      const response = await axiosInstance.get(`/course-relations`);
+      const response = await axiosInstance.get(`/course-relations`, {
+        params: {
+          page,
+          limit: entriesPerPage,
+        },
+      });
       setCourseRelations(response.data.data.result);
+      setTotalPages(response.data.data.meta.totalPage);
     } catch (error) {
       console.error("Error fetching institutions:", error);
     } finally {
@@ -38,25 +48,70 @@ export default function CourseRelationPage() {
     }
   };
 
-  const handleSubmit = async (data) => {
+  // const handleSubmit = async (data) => {
 
+  //   try {
+  //     if (editingCourseRelation) {
+  //       // Update institution
+  //       await axiosInstance.patch(`/course-relations/${editingCourseRelation?.id}`, data);
+  //       toast({ title: "Record Updated successfully", className: "bg-supperagent border-none text-white", });
+  //       fetchData(currentPage, entriesPerPage);
+  //       setEditingCourseRelation(null);
+  //     } else {
+  //       await axiosInstance.post(`/course-relations`, data);
+  //       toast({ title: "Record Created successfully", className: "bg-supperagent border-none text-white", });
+  //       fetchData(currentPage, entriesPerPage);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error saving Course Relation:", error);
+  //   }
+  // };
+
+
+  const handleSubmit = async (data) => {
     try {
+      let response;
       if (editingCourseRelation) {
-        // Update institution
-        await axiosInstance.patch(`/course-relations/${editingCourseRelation?.id}`, data);
-        toast({ title: "Record Updated successfully", className: "bg-supperagent border-none text-white", });
-        fetchData();
-        setEditingCourseRelation(null);
+        // Update course relation
+        response = await axiosInstance.patch(`/course-relations/${editingCourseRelation?.id}`, data);
       } else {
-        await axiosInstance.post(`/course-relations`, data);
-        toast({ title: "Record Created successfully", className: "bg-supperagent border-none text-white", });
-        fetchData()
+        // Create new course relation
+        response = await axiosInstance.post(`/course-relations`, data);
       }
+
+      // Check if the API response indicates success
+      if (response.data && response.data.success === true) {
+        toast({
+          title: response.data.message || "Record Updated successfully",
+          className: "bg-supperagent border-none text-white",
+        });
+      } else if (response.data && response.data.success === false) {
+        toast({
+          title: response.data.message || "Operation failed",
+          className: "bg-red-500 border-none text-white",
+        });
+      } else {
+        toast({
+          title: "Unexpected response. Please try again.",
+          className: "bg-red-500 border-none text-white",
+        });
+      }
+      // Refresh data
+      fetchData(currentPage, entriesPerPage);
+      setEditingCourseRelation(null); // Reset editing state
+
     } catch (error) {
       console.error("Error saving Course Relation:", error);
+      // Display an error toast if the request fails
+      toast({
+        title: error.response.data.message || "An error occurred. Please try again.",
+        className: "bg-red-500 border-none text-white",
+      });
     }
-
   };
+
+
+
 
   const handleEdit = (relation) => {
     setEditingCourseRelation(relation);
@@ -69,15 +124,16 @@ export default function CourseRelationPage() {
       const updatedStatus = status ? "1" : "0";
       await axiosInstance.patch(`/course-relations/${id}`, { status: updatedStatus });
       toast({ title: "Record updated successfully", className: "bg-supperagent border-none text-white", });
-      fetchData(); // Refresh data
+      fetchData(currentPage, entriesPerPage);
     } catch (error) {
       console.error("Error updating status:", error);
     }
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    fetchData(currentPage, entriesPerPage); // Refresh data
+
+  }, [currentPage, entriesPerPage]);
 
   return (
     <div className="space-y-6">
@@ -97,7 +153,7 @@ export default function CourseRelationPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              
+
               <TableHead>Institution</TableHead>
               <TableHead>Course</TableHead>
               <TableHead>Term</TableHead>
@@ -109,14 +165,14 @@ export default function CourseRelationPage() {
           <TableBody>
             {courseRelations.map((relation) => (
               <TableRow key={relation?.id}>
-                
+
                 <TableCell>{relation?.institute?.name}</TableCell>
                 <TableCell>{relation?.course?.name}</TableCell>
                 <TableCell>{relation?.term?.term}</TableCell>
                 <TableCell>
                   {relation?.local && <Badge className="bg-green-300 hover:bg-green-300">{relation?.local ? 'Local' : ''} £ {relation?.local_amount}</Badge>}
-                   <br /><br /> 
-                   {relation?.international && <Badge className="bg-blue-300 hover:bg-blue-300">{relation?.international ? 'International' : ''}  £ {relation?.international_amount}</Badge> }
+                  <br /><br />
+                  {relation?.international && <Badge className="bg-blue-300 hover:bg-blue-300">{relation?.international ? 'International' : ''}  £ {relation?.international_amount}</Badge>}
                 </TableCell>
                 <TableCell>
                   <Switch
@@ -139,6 +195,13 @@ export default function CourseRelationPage() {
             ))}
           </TableBody>
         </Table>
+        <DataTablePagination
+          pageSize={entriesPerPage}
+          setPageSize={setEntriesPerPage}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
       </div>
       <CourseRelationDialog
         open={dialogOpen}

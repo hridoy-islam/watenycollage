@@ -46,24 +46,46 @@ export default function AgentsPage() {
     }
   };
 
-
-
-
   const handleSubmit = async (data) => {
     try {
+      let response;
       if (editingAgent) {
-        // Update institution
-        await axiosInstance.patch(`/agents/${editingAgent?.id}`, data);
-        toast({ title: "Record Updated successfully", className: "bg-supperagent border-none text-white", });
-        fetchData(currentPage, entriesPerPage);
-        setEditingAgent(null);
+        // Update agent
+        response = await axiosInstance.patch(`/agents/${editingAgent?.id}`, data);
       } else {
-        await axiosInstance.post(`/agents`, data);
-        toast({ title: "Record Created successfully", className: "bg-supperagent border-none text-white", });
-        fetchData(currentPage, entriesPerPage);
+        // Create new agent
+        response = await axiosInstance.post(`/agents`, data);
       }
+  
+      // Check if the API response indicates success
+      if (response.data && response.data.success === true) {
+        toast({
+          title: response.data.message || "Operation completed successfully",
+          className: "bg-supperagent border-none text-white",
+        });
+      } else if (response.data && response.data.success === false) {
+        toast({
+          title: response.data.message || "Operation failed",
+          className: "bg-red-500 border-none text-white",
+        });
+      } else {
+        toast({
+          title: "Unexpected response. Please try again.",
+          className: "bg-red-500 border-none text-white",
+        });
+      }
+  
+      // Refresh data
+      fetchData(currentPage, entriesPerPage);
+      setEditingAgent(null); // Reset editing state
+  
     } catch (error) {
-      console.error("Error saving institution:", error);
+
+      // Display an error toast if the request fails
+      toast({
+        title: "An error occurred. Please try again.",
+        className: "bg-red-500 border-none text-white",
+      });
     }
   };
 
@@ -159,14 +181,14 @@ export default function AgentsPage() {
             </TableBody>
           </Table>
         )}
-        
+
         <DataTablePagination
-        pageSize={entriesPerPage}
-        setPageSize={setEntriesPerPage}
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={setCurrentPage}
-      />
+          pageSize={entriesPerPage}
+          setPageSize={setEntriesPerPage}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
       </div>
       <AgentDialog
         open={dialogOpen}
@@ -178,7 +200,7 @@ export default function AgentsPage() {
         initialData={editingAgent}
       />
 
-      
+
     </div>
   )
 }

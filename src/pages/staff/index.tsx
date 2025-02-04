@@ -13,19 +13,29 @@ import {
 import { StaffDialog } from "./components/staff-dialog"
 import axiosInstance from '../../lib/axios';
 import { toast } from "@/components/ui/use-toast"
+import { DataTablePagination } from "../students/view/components/data-table-pagination"
 
 export default function StaffPage() {
   const [staff, setStaff] = useState<any>([])
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingStaff, setEditingStaff] = useState<any>(null)
   const [initialLoading, setInitialLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [entriesPerPage, setEntriesPerPage] = useState(10);
 
 
-  const fetchData = async () => {
+  const fetchData = async (page, entriesPerPage) => {
     try {
       if (initialLoading) setInitialLoading(true);
-      const response = await axiosInstance.get(`/staffs`);
+      const response = await axiosInstance.get(`/staffs`, {
+        params: {
+          page,
+          limit: entriesPerPage,
+        },
+      });
       setStaff(response.data.data.result);
+      setTotalPages(response.data.data.meta.totalPage);
     } catch (error) {
       console.error("Error fetching institutions:", error);
     } finally {
@@ -33,26 +43,68 @@ export default function StaffPage() {
     }
   };
 
+  // const handleSubmit = async (data) => {
+  //   try {
+  //     if (editingStaff) {
+  //       // Update institution
+  //       await axiosInstance.put(`/staffs/${editingStaff?.id}`, data);
+  //       toast({ title: "Record Updated successfully", className: "bg-supperagent border-none text-white", });
+  //       fetchData(currentPage, entriesPerPage);
+  //       setEditingStaff(null);
+  //     } else {
+  //       await axiosInstance.post(`/staffs`, data);
+  //       toast({ title: "Record Created successfully", className: "bg-supperagent border-none text-white", });
+  //       fetchData(currentPage, entriesPerPage);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error saving data:", error);
+  //   }
+  //   finally {
+  //     setEditingStaff(null);
+  //   }
+  // };
+
   const handleSubmit = async (data) => {
     try {
+      let response;
       if (editingStaff) {
-        // Update institution
-        await axiosInstance.put(`/staffs/${editingStaff?.id}`, data);
-        toast({ title: "Record Updated successfully", className: "bg-supperagent border-none text-white", });
-        fetchData();
-        setEditingStaff(null);
+        // Update staff
+        response = await axiosInstance.put(`/staffs/${editingStaff?.id}`, data);
       } else {
-        await axiosInstance.post(`/staffs`, data);
-        toast({ title: "Record Created successfully", className: "bg-supperagent border-none text-white", });
-        fetchData()
+        // Create new staff
+        response = await axiosInstance.post(`/staffs`, data);
       }
+  
+      // Check if the API response indicates success
+      if (response.data && response.data.success === true) {
+        toast({
+          title: response.data.message || "Record Updated successfully",
+          className: "bg-supperagent border-none text-white",
+        });
+      } else if (response.data && response.data.success === false) {
+        toast({
+          title: response.data.message || "Operation failed",
+          className: "bg-red-500 border-none text-white",
+        });
+      } else {
+        toast({
+          title: "Unexpected response. Please try again.",
+          className: "bg-red-500 border-none text-white",
+        });
+      }
+  
+      // Refresh data
+      fetchData(currentPage, entriesPerPage);
     } catch (error) {
-      console.error("Error saving data:", error);
-    }
-    finally {
-      setEditingStaff(null);
+      toast({
+        title: error.response?.data?.message || "An error occurred. Please try again.",
+        className: "bg-red-500 border-none text-white",
+      });
+    } finally {
+      setEditingStaff(null); // Ensure editing state is reset after completion
     }
   };
+  
 
 
 
@@ -61,7 +113,7 @@ export default function StaffPage() {
       const updatedStatus = status ? "1" : "0";
       await axiosInstance.patch(`/staffs/${id}`, { status: updatedStatus });
       toast({ title: "Record updated successfully", className: "bg-supperagent border-none text-white", });
-      fetchData(); // Refresh data
+      fetchData(currentPage, entriesPerPage);// Refresh data
     } catch (error) {
       console.error("Error updating status:", error);
     }
@@ -74,8 +126,8 @@ export default function StaffPage() {
   }
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    fetchData(currentPage, entriesPerPage);
+  }, [currentPage, entriesPerPage]);
 
   useEffect(() => {
     if (!dialogOpen) {
@@ -132,6 +184,13 @@ export default function StaffPage() {
             ))}
           </TableBody>
         </Table>
+        <DataTablePagination
+          pageSize={entriesPerPage}
+          setPageSize={setEntriesPerPage}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
       </div>
       <StaffDialog
         open={dialogOpen}

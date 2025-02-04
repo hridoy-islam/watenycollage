@@ -14,6 +14,7 @@ import { InstitutionDialog } from "./components/institution-dialog";
 import axiosInstance from '../../lib/axios';
 import { useToast } from "@/components/ui/use-toast";
 import { BlinkingDots } from "@/components/shared/blinking-dots";
+import { DataTablePagination } from "../students/view/components/data-table-pagination";
 
 export default function InstitutionsPage() {
   const [institutions, setInstitutions] = useState<any>([]);
@@ -21,12 +22,21 @@ export default function InstitutionsPage() {
   const [editingInstitution, setEditingInstitution] = useState<any>();
   const [initialLoading, setInitialLoading] = useState(true); // New state for initial loading
   const { toast } = useToast();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [entriesPerPage, setEntriesPerPage] = useState(10);
 
-  const fetchData = async () => {
+  const fetchData = async (page, entriesPerPage) => {
     try {
       if (initialLoading) setInitialLoading(true);
-      const response = await axiosInstance.get(`/institutions?limit=100`);
+      const response = await axiosInstance.get(`/institutions`, {
+        params: {
+          page,
+          limit: entriesPerPage,
+        },
+      });
       setInstitutions(response.data.data.result);
+      setTotalPages(response.data.data.meta.totalPage);
     } catch (error) {
       console.error("Error fetching institutions:", error);
     } finally {
@@ -34,31 +44,74 @@ export default function InstitutionsPage() {
     }
   };
 
+  // const handleSubmit = async (data) => {
+  //   try {
+  //     if (editingInstitution) {
+  //       // Update institution
+  //       await axiosInstance.put(`/institutions/${editingInstitution?.id}`, data);
+  //       toast({ title: "Record Updated successfully", className: "bg-supperagent border-none text-white", });
+  //       fetchData(currentPage, entriesPerPage);
+  //       setEditingInstitution(undefined);
+  //     } else {
+  //       data.status = "1"
+  //       await axiosInstance.post(`/institutions`, data);
+  //       toast({ title: "Record Created successfully", className: "bg-supperagent border-none text-white", });
+  //       fetchData(currentPage, entriesPerPage);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error saving institution:", error);
+  //   }
+  // };
+
   const handleSubmit = async (data) => {
     try {
+      let response;
       if (editingInstitution) {
         // Update institution
-        await axiosInstance.put(`/institutions/${editingInstitution?.id}`, data);
-        toast({ title: "Record Updated successfully", className: "bg-supperagent border-none text-white", });
-        fetchData();
-        setEditingInstitution(undefined);
+        response = await axiosInstance.put(`/institutions/${editingInstitution?.id}`, data);
       } else {
-        data.status = "1"
-        await axiosInstance.post(`/institutions`, data);
-        toast({ title: "Record Created successfully", className: "bg-supperagent border-none text-white", });
-        fetchData()
+        // Create new institution
+        data.status = "1";
+        response = await axiosInstance.post(`/institutions`, data);
       }
+  
+      // Check if the API response indicates success
+      if (response.data && response.data.success === true) {
+        toast({
+          title: response.data.message || "Record Updated successfully",
+          className: "bg-supperagent border-none text-white",
+        });
+      } else if (response.data && response.data.success === false) {
+        toast({
+          title: response.data.message || "Operation failed",
+          className: "bg-red-500 border-none text-white",
+        });
+      } else {
+        toast({
+          title: "Unexpected response. Please try again.",
+          className: "bg-red-500 border-none text-white",
+        });
+      }
+  
+      // Refresh data
+      fetchData(currentPage, entriesPerPage);
+      setEditingInstitution(undefined); // Reset editing state
+  
     } catch (error) {
-      console.error("Error saving institution:", error);
+      toast({
+        title: error.response.data.message || "An error occurred. Please try again.",
+        className: "bg-red-500 border-none text-white",
+      });
     }
   };
+  
 
   const handleStatusChange = async (id, status) => {
     try {
       const updatedStatus = status ? "1" : "0";
       await axiosInstance.patch(`/institutions/${id}`, { status: updatedStatus });
       toast({ title: "Record updated successfully", className: "bg-supperagent border-none text-white", });
-      fetchData();
+      fetchData(currentPage, entriesPerPage);
     } catch (error) {
       console.error("Error updating status:", error);
     }
@@ -70,8 +123,8 @@ export default function InstitutionsPage() {
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    fetchData(currentPage, entriesPerPage);
+  }, [currentPage, entriesPerPage]);
 
 
   return (
@@ -96,7 +149,7 @@ export default function InstitutionsPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-20">#ID</TableHead>
+                
                 <TableHead>Institution</TableHead>
                 <TableHead className="w-32 text-center">Status</TableHead>
                 <TableHead className="w-32 text-center">Actions</TableHead>
@@ -105,7 +158,6 @@ export default function InstitutionsPage() {
             <TableBody>
               {institutions.map((institution) => (
                 <TableRow key={institution.id}>
-                  <TableCell>{institution.id}</TableCell>
                   <TableCell>{institution.name}</TableCell>
                   <TableCell className="text-center">
                     <Switch
@@ -129,6 +181,13 @@ export default function InstitutionsPage() {
             </TableBody>
           </Table>
         )}
+        <DataTablePagination
+                  pageSize={entriesPerPage}
+                  setPageSize={setEntriesPerPage}
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setCurrentPage}
+                />
       </div>
       <InstitutionDialog
         open={dialogOpen}

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Pen, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
 import {
   Table,
   TableBody,
@@ -14,6 +13,7 @@ import { EmailConfigDialog } from './components/email-config-dialog';
 import { useToast } from '@/components/ui/use-toast';
 import axiosInstance from '../../lib/axios';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
+import { DataTablePagination } from '../students/view/components/data-table-pagination';
 
 export default function EmailConfigPage() {
   const [emailConfigs, setEmailConfigs] = useState<any>([]);
@@ -21,12 +21,21 @@ export default function EmailConfigPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingEmailConfig, setEditingEmailConfig] = useState<any>();
   const { toast } = useToast();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [entriesPerPage, setEntriesPerPage] = useState(10);
 
-  const fetchData = async () => {
+  const fetchData = async (page, entriesPerPage) => {
     try {
       if (initialLoading) setInitialLoading(true);
-      const response = await axiosInstance.get(`/email-configs`);
+      const response = await axiosInstance.get(`/email-configs`, {
+        params: {
+          page,
+          limit: entriesPerPage,
+        },
+      });
       setEmailConfigs(response.data.data.result);
+      setTotalPages(response.data.data.meta.totalPage);
     } catch (error) {
       console.error('Error fetching email configurations:', error);
     } finally {
@@ -34,40 +43,82 @@ export default function EmailConfigPage() {
     }
   };
 
+  // const handleSubmit = async (data) => {
+  //   if (editingEmailConfig) {
+  //     await axiosInstance.put(`/email-configs/${editingEmailConfig?.id}`, data);
+  //     toast({
+  //       title: 'Email configuration updated successfully',
+  //       className: 'bg-supperagent border-none text-white'
+  //     });
+  //     fetchData(currentPage, entriesPerPage);
+  //     setEditingEmailConfig(undefined);
+  //   } else {
+  //     await axiosInstance.post(`/email-configs`, data);
+  //     toast({
+  //       title: 'Email configuration created successfully',
+  //       className: 'bg-supperagent border-none text-white'
+  //     });
+  //     fetchData(currentPage, entriesPerPage);
+  //   }
+  // };
+
   const handleSubmit = async (data) => {
-    if (editingEmailConfig) {
-      await axiosInstance.put(`/email-configs/${editingEmailConfig?.id}`, data);
+    try {
+      let response;
+      
+      if (editingEmailConfig) {
+        // Update email configuration
+        response = await axiosInstance.put(`/email-configs/${editingEmailConfig?.id}`, data);
+      } else {
+        // Create new email configuration
+        response = await axiosInstance.post(`/email-configs`, data);
+      }
+  
+      // Check if the API response indicates success
+      if (response.data && response.data.success === true) {
+        toast({
+          title: response.data.message || "Email configuration updated successfully",
+          className: "bg-supperagent border-none text-white",
+        });
+      } else if (response.data && response.data.success === false) {
+        toast({
+          title: response.data.message || "Operation failed",
+          className: "bg-red-500 border-none text-white",
+        });
+      } else {
+        toast({
+          title: "Unexpected response. Please try again.",
+          className: "bg-red-500 border-none text-white",
+        });
+      }
+  
+      // Refresh data
+      fetchData(currentPage, entriesPerPage);
+    } catch (error) {
       toast({
-        title: 'Email configuration updated successfully',
-        className: 'bg-supperagent border-none text-white'
+        title: error.response?.data?.message || "An error occurred. Please try again.",
+        className: "bg-red-500 border-none text-white",
       });
-      fetchData();
-      setEditingEmailConfig(undefined);
-    } else {
-      await axiosInstance.post(`/email-configs`, data);
-      toast({
-        title: 'Email configuration created successfully',
-        className: 'bg-supperagent border-none text-white'
-      });
-      fetchData();
+    } finally {
+      setEditingEmailConfig(undefined); // Reset editing state
     }
   };
 
-  const handleStatusChange = async (id, status) => {
-    try {
-      const updatedStatus = status ? '1' : '0';
-      await axiosInstance.patch(`/email-configs/${id}`, {
-        status: updatedStatus
-      });
-      toast({
-        title: 'Email configuration updated successfully',
-        className: 'bg-supperagent border-none text-white'
-      });
-      fetchData();
-    } catch (error) {
-      console.error('Error updating status:', error);
-    }
-  };
+  // const handleStatusChange = async (id, status) => {
+  //   try {
+  //     const updatedStatus = status ? '1' : '0';
+  //     await axiosInstance.patch(`/email-configs/${id}`, {
+  //       status: updatedStatus
+  //     });
+  //     toast({
+  //       title: 'Email configuration updated successfully',
+  //       className: 'bg-supperagent border-none text-white'
+  //     });
+  //     fetchData();
+  //   } catch (error) {
+  //     console.error('Error updating status:', error);
+  //   }
+  // };
 
   const handleEdit = (emailConfig) => {
     setEditingEmailConfig(emailConfig);
@@ -75,8 +126,8 @@ export default function EmailConfigPage() {
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    fetchData(currentPage, entriesPerPage);
+  }, [currentPage, entriesPerPage]);
 
   return (
     <div className="space-y-6">
@@ -139,6 +190,13 @@ export default function EmailConfigPage() {
             </TableBody>
           </Table>
         )}
+        <DataTablePagination
+          pageSize={entriesPerPage}
+          setPageSize={setEntriesPerPage}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
       </div>
       <EmailConfigDialog
         open={dialogOpen}
