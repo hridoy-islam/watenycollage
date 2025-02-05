@@ -10,7 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import ErrorMessage from "@/components/shared/error-message";
 import { useEffect, useState } from "react";
-import axiosInstance from "../../../lib/axios";
+import axiosInstance from "@/lib/axios";
+import Select from 'react-select'; // Import react-select
 
 export function AgentDialog({ open, onOpenChange, onSubmit, initialData }) {
   const [staffOptions, setStaffOptions] = useState<any>([]);
@@ -29,7 +30,7 @@ export function AgentDialog({ open, onOpenChange, onSubmit, initialData }) {
       phone: "",
       email: "",
       location: "",
-      nominatedStaff: "",
+      nominatedStaff: [],
       password: "",
     },
   });
@@ -68,7 +69,10 @@ export function AgentDialog({ open, onOpenChange, onSubmit, initialData }) {
         phone: initialData.phone ?? "",
         email: initialData.email ?? "",
         location: initialData.location ?? "",
-        nominatedStaff: initialData.nominatedStaff.id ?? "",
+        nominatedStaff: initialData.nominatedStaff?.map(staff => ({
+          value: staff.id,
+          label: `${staff.firstName} ${staff.lastName}`,
+        })) ?? [], // Map initial data to react-select format
         password: initialData.password ?? "",
       });
     }
@@ -78,6 +82,8 @@ export function AgentDialog({ open, onOpenChange, onSubmit, initialData }) {
     if (!data.password) {
       delete data.password; // Remove password field if it's empty
     }
+    // Extract only the IDs from nominatedStaff
+    data.nominatedStaff = data.nominatedStaff?.map(staff => staff.value) || [];
     onSubmit(data);
     onOpenChange(false);
   };
@@ -147,25 +153,7 @@ export function AgentDialog({ open, onOpenChange, onSubmit, initialData }) {
 
             <div>
               <label className="block text-sm font-medium">Nominated Staff</label>
-              {/* <Controller
-                name="nominatedStaff"
-                control={form.control}
-                render={({ field }) => (
-                  <select {...field}
-                  className="w-full rounded-md border border-gray-300 bg-white p-2 text-gray-900 shadow-sm focus:border-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-500"
-                  >
-                    <option value="" disabled>
-                      Select a staff member
-                    </option>
-                    {staffOptions.map((staff) => (
-                      <option key={staff.value} value={staff.value}>
-                        {staff.label}
-                      </option>
-                    ))}
-                  </select>
-                )}
-              />  */}
-
+              {/*               
               <Controller
                 name="nominatedStaff"
                 control={control}
@@ -184,15 +172,25 @@ export function AgentDialog({ open, onOpenChange, onSubmit, initialData }) {
                     ))}
                   </select>
                 )}
+              /> */}
+
+              <Controller
+                name="nominatedStaff"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    {...field}
+                    options={staffOptions}
+                    isMulti // Enable multiple selection
+                    className="w-full"
+                    classNamePrefix="select"
+                    placeholder="Select staff members"
+                  />
+                )}
               />
 
               <ErrorMessage message={errors.nominatedStaff?.message?.toString()} />
 
-
-
-
-
-              <ErrorMessage message={errors.nominatedStaff?.message?.toString()} />
 
             </div>
 

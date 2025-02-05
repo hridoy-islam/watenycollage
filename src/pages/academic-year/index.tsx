@@ -14,6 +14,7 @@ import { AcademicYearDialog } from "./components/academic-year-dialog"
 import { useToast } from "@/components/ui/use-toast"
 import axiosInstance from '../../lib/axios';
 import { BlinkingDots } from "@/components/shared/blinking-dots"
+import { DataTablePagination } from "../students/view/components/data-table-pagination"
 
 export default function AcademicYearPage() {
 
@@ -22,12 +23,22 @@ export default function AcademicYearPage() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingAcademicYear, setEditingAcademicYear] = useState<any>()
   const { toast } = useToast();
+  const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [entriesPerPage, setEntriesPerPage] = useState(10);
 
-  const fetchData = async () => {
+
+  const fetchData = async (page, entriesPerPage) => {
     try {
       if (initialLoading) setInitialLoading(true);
-      const response = await axiosInstance.get(`/academic-years`);
+      const response = await axiosInstance.get(`/academic-years`, {
+        params: {
+          page,
+          limit: entriesPerPage,
+        },
+      });
       setAcademicYears(response.data.data.result);
+      setTotalPages(response.data.data.meta.totalPage);
     } catch (error) {
       console.error("Error fetching institutions:", error);
     } finally {
@@ -35,25 +46,68 @@ export default function AcademicYearPage() {
     }
   };
 
+  // const handleSubmit = async (data) => {
+  //   if (editingAcademicYear) {
+  //     await axiosInstance.put(`/academic-years/${editingAcademicYear?.id}`, data);
+  //     toast({ title: "Record Updated successfully", className: "bg-supperagent border-none text-white", });
+  //     fetchData(currentPage, entriesPerPage);
+  //     setEditingAcademicYear(undefined)
+  //   } else {
+  //     await axiosInstance.post(`/academic-years`, data);
+  //     toast({ title: "Record Created successfully", className: "bg-supperagent border-none text-white", });
+  //     fetchData(currentPage, entriesPerPage);
+  //   }
+  // }
+
   const handleSubmit = async (data) => {
-    if (editingAcademicYear) {
-      await axiosInstance.put(`/academic-years/${editingAcademicYear?.id}`, data);
-      toast({ title: "Record Updated successfully", className: "bg-supperagent border-none text-white", });
-      fetchData();
-      setEditingAcademicYear(undefined)
-    } else {
-      await axiosInstance.post(`/academic-years`, data);
-      toast({ title: "Record Created successfully", className: "bg-supperagent border-none text-white", });
-      fetchData()
+    try {
+      let response;
+      if (editingAcademicYear) {
+        // Update course relation
+        response = await axiosInstance.patch(`/academic-years/${editingAcademicYear?.id}`, data);
+      } else {
+        // Create new course relation
+        response = await axiosInstance.post(`/academic-years`, data);
+      }
+
+      // Check if the API response indicates success
+      if (response.data && response.data.success === true) {
+        toast({
+          title: response.data.message || "Record Updated successfully",
+          className: "bg-supperagent border-none text-white",
+        });
+      } else if (response.data && response.data.success === false) {
+        toast({
+          title: response.data.message || "Operation failed",
+          className: "bg-red-500 border-none text-white",
+        });
+      } else {
+        toast({
+          title: "Unexpected response. Please try again.",
+          className: "bg-red-500 border-none text-white",
+        });
+      }
+      // Refresh data
+      fetchData(currentPage, entriesPerPage);
+      setEditingAcademicYear(undefined) // Reset editing state
+
+    } catch (error) {
+      console.error("Error saving Course Relation:", error);
+      // Display an error toast if the request fails
+      toast({
+        title: error.response.data.message || "An error occurred. Please try again.",
+        className: "bg-red-500 border-none text-white",
+      });
     }
-  }
+  };
+
 
   const handleStatusChange = async (id, status) => {
     try {
       const updatedStatus = status ? "1" : "0";
       await axiosInstance.patch(`/academic-years/${id}`, { status: updatedStatus });
       toast({ title: "Record updated successfully", className: "bg-supperagent border-none text-white", });
-      fetchData();
+      fetchData(currentPage, entriesPerPage);
     } catch (error) {
       console.error("Error updating status:", error);
     }
@@ -65,8 +119,8 @@ export default function AcademicYearPage() {
   }
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    fetchData(currentPage, entriesPerPage); // Refresh data
+  }, [currentPage, entriesPerPage]);
 
   return (
     <div className="space-y-6">
@@ -90,7 +144,6 @@ export default function AcademicYearPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-20">#ID</TableHead>
                 <TableHead>Academic Year</TableHead>
                 <TableHead className="w-32 text-center">Status</TableHead>
                 <TableHead className="w-32 text-center">Actions</TableHead>
@@ -99,7 +152,6 @@ export default function AcademicYearPage() {
             <TableBody>
               {academicYears.map((year) => (
                 <TableRow key={year.id}>
-                  <TableCell>{year.id}</TableCell>
                   <TableCell>{year.academic_year}</TableCell>
                   <TableCell className="text-center">
                     <Switch
@@ -123,6 +175,13 @@ export default function AcademicYearPage() {
             </TableBody>
           </Table>
         )}
+        <DataTablePagination
+                  pageSize={entriesPerPage}
+                  setPageSize={setEntriesPerPage}
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setCurrentPage}
+                />
       </div>
       <AcademicYearDialog
         open={dialogOpen}

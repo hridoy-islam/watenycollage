@@ -117,12 +117,12 @@ export default function StudentViewPage() {
           >
             Application
           </TabsTrigger>
-          <TabsTrigger
+          {/* <TabsTrigger
             value="agent"
             className="data-[state=active]:bg-supperagent data-[state=active]:text-white"
           >
             Assigned Agent
-          </TabsTrigger>
+          </TabsTrigger> */}
           <TabsTrigger
             value="staff"
             className="data-[state=active]:bg-supperagent data-[state=active]:text-white"
@@ -164,9 +164,9 @@ export default function StudentViewPage() {
         <TabsContent value="application">
           <ApplicationsSection student={student} onSave={handleSave} />
         </TabsContent>
-        <TabsContent value="agent">
+        {/* <TabsContent value="agent">
           <AgentPage student={student} onSave={handleSave} />
-        </TabsContent>
+        </TabsContent> */}
         <TabsContent value="staff">
           <AssignStaff student={student} onSave={handleSave} />
         </TabsContent>

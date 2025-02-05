@@ -14,6 +14,7 @@ import { CourseDialog } from "./components/course-dialog"
 import axiosInstance from '../../lib/axios';
 import { useToast } from "@/components/ui/use-toast";
 import { BlinkingDots } from "@/components/shared/blinking-dots";
+import { DataTablePagination } from "../students/view/components/data-table-pagination"
 
 export default function CoursesPage() {
   const [courses, setCourses] = useState<any>([])
@@ -22,11 +23,21 @@ export default function CoursesPage() {
   const [editingCourse, setEditingCourse] = useState<any>()
   const { toast } = useToast();
 
-  const fetchData = async () => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [entriesPerPage, setEntriesPerPage] = useState(10);
+
+  const fetchData = async (page, entriesPerPage) => {
     try {
       if (initialLoading) setInitialLoading(true);
-      const response = await axiosInstance.get(`/courses`);
+      const response = await axiosInstance.get(`/courses`, {
+        params: {
+          page,
+          limit: entriesPerPage,
+        },
+      });
       setCourses(response.data.data.result);
+      setTotalPages(response.data.data.meta.totalPage);
     } catch (error) {
       console.error("Error fetching institutions:", error);
     } finally {
@@ -34,25 +45,69 @@ export default function CoursesPage() {
     }
   };
 
+  // const handleSubmit = async (data) => {
+  //   if (editingCourse) {
+  //     await axiosInstance.put(`/courses/${editingCourse?.id}`, data);
+  //     toast({ title: "Record Updated successfully", className: "bg-supperagent border-none text-white", });
+  //     fetchData(currentPage, entriesPerPage);
+  //     setEditingCourse(undefined)
+  //   } else {
+  //     await axiosInstance.post(`/courses`, data);
+  //     toast({ title: "Record Created successfully", className: "bg-supperagent border-none text-white", });
+  //     fetchData(currentPage, entriesPerPage);
+  //   }
+  // }
+
   const handleSubmit = async (data) => {
-    if (editingCourse) {
-      await axiosInstance.put(`/courses/${editingCourse?.id}`, data);
-      toast({ title: "Record Updated successfully", className: "bg-supperagent border-none text-white", });
-      fetchData();
-      setEditingCourse(undefined)
-    } else {
-      await axiosInstance.post(`/courses`, data);
-      toast({ title: "Record Created successfully", className: "bg-supperagent border-none text-white", });
-      fetchData()
+    try {
+      let response;
+      if (editingCourse) {
+        // Update course relation
+        response = await axiosInstance.patch(`/courses/${editingCourse?.id}`, data);
+      } else {
+        // Create new course relation
+        response = await axiosInstance.post(`/courses`, data);
+      }
+
+      // Check if the API response indicates success
+      if (response.data && response.data.success === true) {
+        toast({
+          title: response.data.message || "Record Updated successfully",
+          className: "bg-supperagent border-none text-white",
+        });
+      } else if (response.data && response.data.success === false) {
+        toast({
+          title: response.data.message || "Operation failed",
+          className: "bg-red-500 border-none text-white",
+        });
+      } else {
+        toast({
+          title: "Unexpected response. Please try again.",
+          className: "bg-red-500 border-none text-white",
+        });
+      }
+      // Refresh data
+      fetchData(currentPage, entriesPerPage);
+      setEditingCourse(undefined) // Reset editing state
+
+    } catch (error) {
+      // Display an error toast if the request fails
+      toast({
+        title: error.response.data.message || "An error occurred. Please try again.",
+        className: "bg-red-500 border-none text-white",
+      });
     }
-  }
+  };
+
+
+
 
   const handleStatusChange = async (id, status) => {
     try {
       const updatedStatus = status ? "1" : "0";
       await axiosInstance.patch(`/courses/${id}`, { status: updatedStatus });
       toast({ title: "Record updated successfully", className: "bg-supperagent border-none text-white", });
-      fetchData();
+      fetchData(currentPage, entriesPerPage);
     } catch (error) {
       console.error("Error updating status:", error);
     }
@@ -64,8 +119,9 @@ export default function CoursesPage() {
   }
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    fetchData(currentPage, entriesPerPage); // Refresh data
+
+  }, [currentPage, entriesPerPage]);
 
   return (
     <div className="space-y-6">
@@ -101,11 +157,11 @@ export default function CoursesPage() {
                   <TableCell>{course.id}</TableCell>
                   <TableCell>{course.name}</TableCell>
                   <TableCell className="text-center">
-                  <Switch
-                    checked={course.status == 1}
-                    onCheckedChange={(checked) => handleStatusChange(course.id, checked)}
-                    className="mx-auto"
-                  />
+                    <Switch
+                      checked={course.status == 1}
+                      onCheckedChange={(checked) => handleStatusChange(course.id, checked)}
+                      className="mx-auto"
+                    />
                   </TableCell>
                   <TableCell className="text-center">
                     <Button
@@ -122,6 +178,13 @@ export default function CoursesPage() {
             </TableBody>
           </Table>
         )}
+        <DataTablePagination
+          pageSize={entriesPerPage}
+          setPageSize={setEntriesPerPage}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
       </div>
       <CourseDialog
         open={dialogOpen}

@@ -11,14 +11,17 @@ import {
   SelectValue
 } from '@/components/ui/select';
 import { countries, languages, mockData } from '@/types';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import axiosInstance from '@/lib/axios'
 
 export function PersonalDetailsForm({ student, onSave }) {
+
   const {
     handleSubmit,
     register,
     control,
     reset,
+    setValue, // Needed to set the selected agent
     formState: { errors }
   } = useForm({
     defaultValues: {
@@ -40,10 +43,33 @@ export function PersonalDetailsForm({ student, onSave }) {
       passportIssueDate: '',
       passportExpiryDate: '',
       collageRoll: '',
+      agentId: '',
     }
   });
+  const [staffOptions, setStaffOptions] = useState<any>([]);
 
-  // Populate form fields when `student` data is available
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchAgents = async () => {
+    try {
+      if (isLoading) setIsLoading(true);
+      const response = await axiosInstance.get('/agents?limit=all');
+      const options = response.data.data.result.map((agent) => ({
+        value: agent.id,
+        label: agent.agentName,
+      }));
+      setStaffOptions(options);
+      setIsLoading(false); // Set loading to false after fetching
+    } catch (error) {
+      console.error("Error fetching agents:", error);
+      setIsLoading(false); // Set loading to false even if there's an error
+    }
+  };
+
+  useEffect(() => {
+    fetchAgents();
+  }, []);
+
   useEffect(() => {
     if (student) {
       reset({
@@ -65,9 +91,20 @@ export function PersonalDetailsForm({ student, onSave }) {
         passportIssueDate: student.passportIssueDate || '',
         passportExpiryDate: student.passportExpiryDate || '',
         collageRoll: student.collageRoll || '',
+        agentId: student.agent?.id || '',
       });
     }
   }, [student, reset]);
+
+  // Ensure agentId is set again when staffOptions are updated
+  useEffect(() => {
+    if (student?.agent?.id) {
+      setValue('agentId', student.agent.id);
+    }
+  }, [staffOptions, student, setValue]);
+
+  // Fetch agents when the component mounts
+
 
   const onSubmit = (data) => {
     onSave(data);
@@ -358,8 +395,28 @@ export function PersonalDetailsForm({ student, onSave }) {
               {...register('collageRoll')}
             />
           </div>
+          <div>
+            <Label htmlFor="agentId">Agent</Label>
+            <Controller
+              name="agentId"
+              control={control}
+              render={({ field }) => (
+                <select
+                  {...field}
+                  className="border rounded p-2 w-full"
+                >
+                  <option value="">Select an Agent</option>
+                  {staffOptions.map((agent) => (
+                    <option key={agent.value} value={agent.value}>
+                      {agent.label}
+                    </option>
+                  ))}
+                </select>
+              )}
+            />
+          </div>
 
-          
+
         </div>
 
         {/* Save Button */}

@@ -243,7 +243,7 @@ export function AcademicRecords({ student, onSave }) {
                   examHistory.map((exam) => (
                     <TableRow key={exam.id}>
                       <TableCell>{exam.exam}</TableCell>
-                      <TableCell>{exam.examDate}</TableCell>
+                      <TableCell>{moment(exam.examDate).format('DD-MM-YYYY')}</TableCell>
                       <TableCell>{exam.score}</TableCell>
                       <TableCell>
 

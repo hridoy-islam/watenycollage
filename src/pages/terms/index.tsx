@@ -14,6 +14,7 @@ import { TermDialog } from "./components/term-dialog"
 import { useToast } from "@/components/ui/use-toast"
 import axiosInstance from '../../lib/axios';
 import { BlinkingDots } from "@/components/shared/blinking-dots";
+import { DataTablePagination } from "../students/view/components/data-table-pagination"
 
 
 export default function TermsPage() {
@@ -23,12 +24,21 @@ export default function TermsPage() {
   const [initialLoading, setInitialLoading] = useState(true); // New state for initial loading
 
   const { toast } = useToast();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [entriesPerPage, setEntriesPerPage] = useState(10);
 
-  const fetchData = async () => {
+  const fetchData = async (page, entriesPerPage) => {
     try {
       if (initialLoading) setInitialLoading(true);
-      const response = await axiosInstance.get(`/terms`);
+      const response = await axiosInstance.get(`/terms`, {
+        params: {
+          page,
+          limit: entriesPerPage,
+        },
+      });
       setTerms(response.data.data.result);
+      setTotalPages(response.data.data.meta.totalPage);
     } catch (error) {
       console.error("Error fetching institutions:", error);
     } finally {
@@ -36,25 +46,67 @@ export default function TermsPage() {
     }
   };
 
+  // const handleSubmit = async (data) => {
+  //   if (editingTerm) {
+  //     await axiosInstance.patch(`/terms/${editingTerm?.id}`, data);
+  //     toast({ title: "Record Updated successfully", className: "bg-supperagent border-none text-white", });
+  //     fetchData(currentPage, entriesPerPage);
+  //     setEditingTerm(undefined)
+  //   } else {
+  //     await axiosInstance.post(`/terms`, data);
+  //     toast({ title: "Record Created successfully", className: "bg-supperagent border-none text-white", });
+  //     fetchData(currentPage, entriesPerPage);
+  //   }
+  // }
+
   const handleSubmit = async (data) => {
-    if (editingTerm) {
-      await axiosInstance.patch(`/terms/${editingTerm?.id}`, data);
-      toast({ title: "Record Updated successfully", className: "bg-supperagent border-none text-white", });
-      fetchData();
-      setEditingTerm(undefined)
-    } else {
-      await axiosInstance.post(`/terms`, data);
-      toast({ title: "Record Created successfully", className: "bg-supperagent border-none text-white", });
-      fetchData()
-    }
-  }
+      try {
+        let response;
+        if (editingTerm) {
+          // Update course relation
+          response = await axiosInstance.patch(`/terms/${editingTerm?.id}`, data);
+        } else {
+          // Create new course relation
+          response = await axiosInstance.post(`/terms`, data);
+        }
+  
+        // Check if the API response indicates success
+        if (response.data && response.data.success === true) {
+          toast({
+            title: response.data.message || "Record Updated successfully",
+            className: "bg-supperagent border-none text-white",
+          });
+        } else if (response.data && response.data.success === false) {
+          toast({
+            title: response.data.message || "Operation failed",
+            className: "bg-red-500 border-none text-white",
+          });
+        } else {
+          toast({
+            title: "Unexpected response. Please try again.",
+            className: "bg-red-500 border-none text-white",
+          });
+        }
+        // Refresh data
+        fetchData(currentPage, entriesPerPage);
+        setEditingTerm(undefined) // Reset editing state
+  
+      } catch (error) {
+        // Display an error toast if the request fails
+        toast({
+          title: error.response.data.message || "An error occurred. Please try again.",
+          className: "bg-red-500 border-none text-white",
+        });
+      }
+    };
+
 
   const handleStatusChange = async (id, status) => {
     try {
       const updatedStatus = status ? "1" : "0";
       await axiosInstance.patch(`/terms/${id}`, { status: updatedStatus });
       toast({ title: "Record updated successfully", className: "bg-supperagent border-none text-white", });
-      fetchData();
+      fetchData(currentPage, entriesPerPage);
     } catch (error) {
       console.error("Error updating status:", error);
     }
@@ -66,8 +118,9 @@ export default function TermsPage() {
   }
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    fetchData(currentPage, entriesPerPage); // Refresh data
+
+  }, [currentPage, entriesPerPage]);
 
 
 
@@ -93,7 +146,7 @@ export default function TermsPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-20">#ID</TableHead>
+                
                 <TableHead>Term</TableHead>
                 <TableHead>Academic Year</TableHead>
                 <TableHead className="w-32 text-center">Status</TableHead>
@@ -103,7 +156,7 @@ export default function TermsPage() {
             <TableBody>
               {terms.map((term) => (
                 <TableRow key={term.id}>
-                  <TableCell>{term.id}</TableCell>
+                  
                   <TableCell>{term.term}</TableCell>
                   <TableCell>{term.academic_year}</TableCell>
                   <TableCell className="text-center">
@@ -128,6 +181,13 @@ export default function TermsPage() {
             </TableBody>
           </Table>
         )}
+        <DataTablePagination
+          pageSize={entriesPerPage}
+          setPageSize={setEntriesPerPage}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
       </div>
       <TermDialog
         open={dialogOpen}
