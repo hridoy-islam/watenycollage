@@ -30,7 +30,7 @@ export function AgentDialog({ open, onOpenChange, onSubmit, initialData }) {
       phone: "",
       email: "",
       location: "",
-      nominatedStaff: [],
+      nominatedStaffs: [],
       password: "",
     },
   });
@@ -69,7 +69,7 @@ export function AgentDialog({ open, onOpenChange, onSubmit, initialData }) {
         phone: initialData.phone ?? "",
         email: initialData.email ?? "",
         location: initialData.location ?? "",
-        nominatedStaff: initialData.nominatedStaff?.map(staff => ({
+        nominatedStaffs: initialData.nominatedStaffs?.map(staff => ({
           value: staff.id,
           label: `${staff.firstName} ${staff.lastName}`,
         })) ?? [], // Map initial data to react-select format
@@ -83,14 +83,10 @@ export function AgentDialog({ open, onOpenChange, onSubmit, initialData }) {
       delete data.password; // Remove password field if it's empty
     }
     // Extract only the IDs from nominatedStaff
-    data.nominatedStaff = data.nominatedStaff?.map(staff => staff.value) || [];
+    data.nominatedStaffs = data.nominatedStaffs?.map(staff => staff.value) || [];
     onSubmit(data);
     onOpenChange(false);
   };
-
-
-
-
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -175,7 +171,7 @@ export function AgentDialog({ open, onOpenChange, onSubmit, initialData }) {
               /> */}
 
               <Controller
-                name="nominatedStaff"
+                name="nominatedStaffs"
                 control={control}
                 render={({ field }) => (
                   <Select
@@ -188,8 +184,7 @@ export function AgentDialog({ open, onOpenChange, onSubmit, initialData }) {
                   />
                 )}
               />
-
-              <ErrorMessage message={errors.nominatedStaff?.message?.toString()} />
+              <ErrorMessage message={errors.nominatedStaffs?.message?.toString()} />
 
 
             </div>

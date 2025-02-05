@@ -145,7 +145,7 @@ export default function CoursesPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-20">#ID</TableHead>
+                
                 <TableHead>Course</TableHead>
                 <TableHead className="w-32 text-center">Status</TableHead>
                 <TableHead className="w-32 text-center">Actions</TableHead>
@@ -154,7 +154,7 @@ export default function CoursesPage() {
             <TableBody>
               {courses.map((course) => (
                 <TableRow key={course.id}>
-                  <TableCell>{course.id}</TableCell>
+                  
                   <TableCell>{course.name}</TableCell>
                   <TableCell className="text-center">
                     <Switch

@@ -156,7 +156,6 @@ export default function TermsPage() {
             <TableBody>
               {terms.map((term) => (
                 <TableRow key={term.id}>
-                  
                   <TableCell>{term.term}</TableCell>
                   <TableCell>{term.academic_year}</TableCell>
                   <TableCell className="text-center">

@@ -158,7 +158,9 @@ export default function AgentsPage() {
                   <TableCell>{agent.phone}</TableCell>
                   <TableCell>{agent.email}</TableCell>
                   <TableCell>{agent.location}</TableCell>
-                  <TableCell><Badge className="bg-supperagent text-white hover:bg-supperagent">{agent.nominatedStaff.firstName} {agent.nominatedStaff.lastName}</Badge></TableCell>
+                  <TableCell>
+                    {agent.nominatedStaffs.map((item, index)=> 
+                    <Badge key={index} className="bg-supperagent text-white hover:bg-supperagent m-1">{item.firstName} {item.lastName}</Badge>)}</TableCell> 
                   <TableCell className="text-center">
                     <Switch
                       checked={agent.status == 1}
