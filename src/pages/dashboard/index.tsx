@@ -105,15 +105,15 @@ export default function DashboardPage() {
     try {
       // Fetch follow-ups pending
       const response1 = await axiosInstance.get(
-        `/notes?where=with:createdBy,email,${user.email}&status=pending`
+        `/notes?where=with:createdBy,email,${user.email}&status=done`
       );
-      setFollowUpsPending(response1.data.data.meta.total);
-
+      setCreatedFollowUps(response1.data.data.meta.total);
+      
       // Fetch created follow-ups
       const response2 = await axiosInstance.get(
         `/notes?where=with:followUpStaffs,with:user,email,${user.email}&status=pending`
       );
-      setCreatedFollowUps(response2.data.data.meta.total);
+      setFollowUpsPending(response2.data.data.meta.total);
     } catch (error) {
       setError('Failed to fetch data. Please try again later.');
       console.error('Error fetching notes:', error);

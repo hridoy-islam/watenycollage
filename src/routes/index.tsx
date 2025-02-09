@@ -26,6 +26,12 @@ import CourseDetails from '@/pages/courseDetails';
 import CommentsPage from '@/pages/comments';
 import FollowupsPage from '@/pages/followup';
 import CreatorFollowupsPage from '@/pages/creatorfollowup';
+import CourseRelationDetails from '@/pages/course-relation/details';
+import AgentDetails from '@/pages/agent/details';
+import InvoicesPage from '@/pages/invoice';
+import StudentListPage from '@/pages/invoice/student';
+import GenerateInvoicePage from '@/pages/invoice/generate';
+import { ProfessionalInvoice } from '@/pages/invoice/pdf';
 
 const SignInPage = lazy(() => import('@/pages/auth/signin'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
@@ -57,6 +63,22 @@ export default function AppRouter() {
         {
           path: 'notifications',
           element: <NotificationsPage />
+        },
+        {
+          path: 'invoice',
+          element: <InvoicesPage />
+        },
+        {
+          path: 'invoice/students',
+          element: <StudentListPage />
+        },
+        {
+          path: 'invoice/generate',
+          element: <GenerateInvoicePage />
+        },
+        {
+          path: 'invoice/pdf',
+          element: <ProfessionalInvoice />
         },
         {
           path: 'students',
@@ -115,8 +137,16 @@ export default function AppRouter() {
           element: <AgentsPage />
         },
         {
+          path: 'agents/:id',
+          element: <AgentDetails />
+        },
+        {
           path: 'course-fee',
           element: <CourseRelationPage />
+        },
+        {
+          path: 'course-fee/:id',
+          element: <CourseRelationDetails />
         },
         {
           path: 'emails',

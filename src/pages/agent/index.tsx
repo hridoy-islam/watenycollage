@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Pen, Plus, } from 'lucide-react'
+import { Link, Pen, Plus, } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import {
@@ -168,7 +168,15 @@ export default function AgentsPage() {
                       className="mx-auto"
                     />
                   </TableCell>
-                  <TableCell className="text-center">
+                  <TableCell className="text-center space-x-1">
+                  <Button
+                      variant="outline"
+                      className="bg-blue-500 text-white hover:bg-blue-500/90 border-none"
+                      size="icon"
+                      
+                    >
+                      <Link className="w-4 h-4" />
+                    </Button>
                     <Button
                       variant="outline"
                       className="bg-supperagent text-white hover:bg-supperagent/90 border-none"

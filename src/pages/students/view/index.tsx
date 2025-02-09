@@ -18,6 +18,7 @@ import { NotesPage } from './components/notes';
 import { AgentPage } from './components/agent';
 import { AssignStaff } from './components/assign-staff';
 import { useToast } from '@/components/ui/use-toast';
+import AccountPage from './components/account';
 
 export default function StudentViewPage() {
   const { id } = useParams();
@@ -141,6 +142,12 @@ export default function StudentViewPage() {
           >
             Communications
           </TabsTrigger>
+          <TabsTrigger
+            value="account"
+            className="data-[state=active]:bg-supperagent data-[state=active]:text-white"
+          >
+            Account
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="personal">
           <PersonalDetailsForm student={student} onSave={handleSave} />
@@ -175,6 +182,9 @@ export default function StudentViewPage() {
         </TabsContent>
         <TabsContent value="communications">
           <SendEmailComponent student={student}/>
+        </TabsContent>
+        <TabsContent value="account">
+          <AccountPage student={student}/>
         </TabsContent>
 
         {/* Add other tab contents as needed */}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Pen, Plus } from 'lucide-react';
+import { Link2, Pen, Plus } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -12,14 +12,10 @@ import {
 } from "@/components/ui/table";
 import { CourseRelationDialog } from "./components/course-relation-dialog";
 import axiosInstance from '../../lib/axios';
-
-// Example initial course relation data
-
-
-
 import { toast } from "@/components/ui/use-toast"
 import { Badge } from "@/components/ui/badge";
 import { DataTablePagination } from "../students/view/components/data-table-pagination";
+import { Link } from "react-router-dom";
 
 export default function CourseRelationPage() {
   const [courseRelations, setCourseRelations] = useState<any>([]);
@@ -181,7 +177,16 @@ export default function CourseRelationPage() {
                     className="mx-auto"
                   />
                 </TableCell>
-                <TableCell className="text-center">
+                <TableCell className="text-center space-x-1">
+                  <Link to={`${relation.id}`}>
+                    <Button
+                      variant="ghost"
+                      className="bg-blue-500 text-white hover:bg-blue-500 border-none"
+                      size="icon"
+                    >
+                      <Link2 className="w-4 h-4" />
+                    </Button>
+                  </Link>
                   <Button
                     variant="ghost"
                     className="bg-supperagent text-white hover:bg-supperagent/90 border-none"
