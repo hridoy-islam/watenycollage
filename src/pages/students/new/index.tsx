@@ -170,9 +170,27 @@ export default function NewStudentPage() {
         maritualStatus: data.maritalStatus,
         country: data.country,
       };
-      await axiosInstance.post(`/students`, formattedData);
-      toast({ title: "Student Created successfully", className: "bg-supperagent border-none text-white", });
-      navigate('/admin/students');
+      let response;
+      response = await axiosInstance.post(`/students`, formattedData);
+
+      // Check if the API response indicates success
+      if (response.data && response.data.success === true) {
+        toast({
+          title: response.data.message || "Student Created successfully",
+          className: "bg-supperagent border-none text-white",
+        });
+        navigate('/admin/students');
+      } else if (response.data && response.data.success === false) {
+        toast({
+          title: response.data.message || "Operation failed",
+          className: "bg-red-500 border-none text-white",
+        });
+      } else {
+        toast({
+          title: "Unexpected response. Please try again.",
+          className: "bg-red-500 border-none text-white",
+        });
+      }
 
     } catch (error) {
       console.error("Error fetching institutions:", error);
@@ -364,9 +382,9 @@ export default function NewStudentPage() {
                     <SelectValue placeholder="Please select" />
                   </SelectTrigger>
                   <SelectContent>
-                  {countries.map((country, index) => (
-                  <SelectItem key={index} value={country}>{country}</SelectItem>
-                ))}
+                    {countries.map((country, index) => (
+                      <SelectItem key={index} value={country}>{country}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               )}
