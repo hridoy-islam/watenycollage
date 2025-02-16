@@ -170,30 +170,38 @@ export default function NewStudentPage() {
         maritualStatus: data.maritalStatus,
         country: data.country,
       };
-      let response;
-      response = await axiosInstance.post(`/students`, formattedData);
+      let response = await axiosInstance.post(`/students`, formattedData);
 
-      // Check if the API response indicates success
+      // Handle success response
       if (response.data && response.data.success === true) {
         toast({
           title: response.data.message || "Student Created successfully",
           className: "bg-supperagent border-none text-white",
         });
         navigate('/admin/students');
-      } else if (response.data && response.data.success === false) {
+      }
+      // Handle failure response from API
+      else if (response.data && response.data.success === false) {
         toast({
           title: response.data.message || "Operation failed",
           className: "bg-red-500 border-none text-white",
         });
-      } else {
+      }
+      // Handle unexpected responses
+      else {
         toast({
           title: "Unexpected response. Please try again.",
           className: "bg-red-500 border-none text-white",
         });
       }
-
     } catch (error) {
-      console.error("Error fetching institutions:", error);
+      const errorMessage = error.response?.data?.message || "Something went wrong. Please try again.";
+
+    // Show error toast
+    toast({
+      title: errorMessage,
+      className: "bg-red-500 border-none text-white",
+    });
     } finally {
       setIsSubmitting(false);
     }

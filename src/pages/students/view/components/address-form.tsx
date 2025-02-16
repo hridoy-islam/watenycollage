@@ -50,15 +50,15 @@ export function AddressForm({ student, onSave }) {
             <ErrorMessage message={errors.addressLine1?.message?.toString()} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="addressLine2">Address Line 2*</Label>
+            <Label htmlFor="addressLine2">Address Line 2</Label>
             <Input id="addressLine2"
-              
               {...register("addressLine2")} />
             <ErrorMessage message={errors.addressLine2?.message?.toString()} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="townCity">Town / City</Label>
-            <Input id="townCity"  {...register("townCity")} />
+            <Input id="townCity"  {...register("townCity", { required: "Town / City is required" })} />
+            <ErrorMessage message={errors.townCity?.message?.toString()} />
 
           </div>
           <div className="space-y-2">
@@ -67,29 +67,13 @@ export function AddressForm({ student, onSave }) {
           </div>
           <div className="space-y-2">
             <Label htmlFor="postCode">Post Code</Label>
-            <Input id="postCode" {...register("postCode")} />
+            <Input id="postCode" {...register("postCode", { required: "Post Code is required" })} />
+            <ErrorMessage message={errors.postCode?.message?.toString()} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="country">Country</Label>
-            <Input id="country" {...register("country")} />
-            {/* <Controller
-              name="country"
-              control={control}
-              render={({ field }) => (
-                <Select {...field} value={field.value}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Please select" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {countries.map((title, index) => (
-                      <SelectItem key={index} value={title}>
-                        {title}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            /> */}
+            <Input id="country" {...register("country", { required: "Country is required" })} />
+            <ErrorMessage message={errors.country?.message?.toString()} />
           </div>
 
         </div>

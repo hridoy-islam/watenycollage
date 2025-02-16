@@ -15,16 +15,18 @@ import axiosInstance from '../../../lib/axios';
 import { DocumentsSection } from './components/documents-section';
 import { SendEmailComponent } from './components/send-email-component';
 import { NotesPage } from './components/notes';
-import { AgentPage } from './components/agent';
 import { AssignStaff } from './components/assign-staff';
 import { useToast } from '@/components/ui/use-toast';
 import AccountPage from './components/account';
+import { isStudentDataComplete } from '@/lib/utils';
 
 export default function StudentViewPage() {
   const { id } = useParams();
   const { toast } = useToast();
   const [student, setStudent] = useState<any>();
   const [initialLoading, setInitialLoading] = useState(true); // New state for initial loading
+  const [hasRequiredDocuments, setHasRequiredDocuments] = useState(false);
+  const isComplete = isStudentDataComplete(student, hasRequiredDocuments);
 
   const fetchData = async () => {
     try {
@@ -112,18 +114,16 @@ export default function StudentViewPage() {
           >
             Documents
           </TabsTrigger>
-          <TabsTrigger
-            value="application"
-            className="data-[state=active]:bg-supperagent data-[state=active]:text-white"
-          >
-            Application
-          </TabsTrigger>
-          {/* <TabsTrigger
-            value="agent"
-            className="data-[state=active]:bg-supperagent data-[state=active]:text-white"
-          >
-            Assigned Agent
-          </TabsTrigger> */}
+          {isComplete && (
+            <>
+            <TabsTrigger
+              value="application"
+              className="data-[state=active]:bg-supperagent data-[state=active]:text-white"
+            >
+              Application
+            </TabsTrigger>
+
+           
           <TabsTrigger
             value="staff"
             className="data-[state=active]:bg-supperagent data-[state=active]:text-white"
@@ -148,6 +148,8 @@ export default function StudentViewPage() {
           >
             Account
           </TabsTrigger>
+          </>
+          )}
         </TabsList>
         <TabsContent value="personal">
           <PersonalDetailsForm student={student} onSave={handleSave} />
@@ -166,27 +168,28 @@ export default function StudentViewPage() {
           <WorkExperienceSection student={student} onSave={handleSave} />
         </TabsContent>
         <TabsContent value="documents">
-          <DocumentsSection student={student} />
+          <DocumentsSection student={student} setHasRequiredDocuments={setHasRequiredDocuments}/>
         </TabsContent>
-        <TabsContent value="application">
-          <ApplicationsSection student={student} onSave={handleSave} />
-        </TabsContent>
-        {/* <TabsContent value="agent">
-          <AgentPage student={student} onSave={handleSave} />
-        </TabsContent> */}
-        <TabsContent value="staff">
-          <AssignStaff student={student} onSave={handleSave} />
-        </TabsContent>
-        <TabsContent value="notes">
-          <NotesPage />
-        </TabsContent>
-        <TabsContent value="communications">
-          <SendEmailComponent student={student}/>
-        </TabsContent>
-        <TabsContent value="account">
-          <AccountPage student={student}/>
-        </TabsContent>
+        {isComplete && (
+          <>
+            <TabsContent value="application">
+              <ApplicationsSection student={student} onSave={handleSave} />
+            </TabsContent>
 
+            <TabsContent value="staff">
+              <AssignStaff student={student} onSave={handleSave} />
+            </TabsContent>
+            <TabsContent value="notes">
+              <NotesPage />
+            </TabsContent>
+            <TabsContent value="communications">
+              <SendEmailComponent student={student} />
+            </TabsContent>
+            <TabsContent value="account">
+              <AccountPage student={student} />
+            </TabsContent>
+          </>
+        )}
         {/* Add other tab contents as needed */}
       </Tabs>
     </div>

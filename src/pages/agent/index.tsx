@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Link, Pen, Plus, } from 'lucide-react'
+import { Link2, Pen, Plus, } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import {
@@ -16,6 +16,7 @@ import { BlinkingDots } from "@/components/shared/blinking-dots"
 import { toast } from "@/components/ui/use-toast"
 import { Badge } from "@/components/ui/badge"
 import { DataTablePagination } from "../students/view/components/data-table-pagination"
+import { Link } from "react-router-dom"
 
 
 
@@ -169,14 +170,17 @@ export default function AgentsPage() {
                     />
                   </TableCell>
                   <TableCell className="text-center space-x-1">
+                  <Link to={`${agent.id}`}>
                   <Button
                       variant="outline"
                       className="bg-blue-500 text-white hover:bg-blue-500/90 border-none"
                       size="icon"
                       
                     >
-                      <Link className="w-4 h-4" />
+                      <Link2 className="w-4 h-4" />
                     </Button>
+                    </Link>
+                     
                     <Button
                       variant="outline"
                       className="bg-supperagent text-white hover:bg-supperagent/90 border-none"

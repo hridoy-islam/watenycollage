@@ -23,7 +23,7 @@ import { DocumentDialog } from "./document-dialog"
 import { Link } from "react-router-dom"
 import axios from "axios"
 
-export function DocumentsSection({ student }) {
+export function DocumentsSection({ student, setHasRequiredDocuments }) {
   const [documents, setDocuments] = useState<any>([])
   const [dialogOpen, setDialogOpen] = useState(false)
   const [deleteDialog, setDeleteDialog] = useState<string | null>(null)
@@ -45,6 +45,13 @@ export function DocumentsSection({ student }) {
       console.error("Error fetching documents:", error);
     }
   };
+   // Check if at least one required document exists
+   useEffect(() => {
+    const hasRequiredDocuments = ["work experience", "qualification"].some((type) =>
+      documents.some((doc) => doc.file_type === type)
+    );
+    setHasRequiredDocuments(hasRequiredDocuments);
+  }, [documents, setHasRequiredDocuments]);
 
   // Handle document upload
   const handleUpload = () => {
@@ -157,4 +164,3 @@ export function DocumentsSection({ student }) {
     </div>
   )
 }
-
