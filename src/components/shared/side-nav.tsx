@@ -1,8 +1,10 @@
 import { HomeIcon, UsersIcon, Settings2Icon, FileTextIcon, UserIcon, ClipboardListIcon, ChevronDown, Settings2, CalendarCheck, RefreshCw, BookOpenCheck, Landmark, Users, CircleUser, Link2, AtSign, DraftingCompass } from 'lucide-react'
 import { cn } from "@/lib/utils"
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from '../ui/dropdown-menu'
-
+import { useDispatch, useSelector } from 'react-redux'
+import { useEffect } from 'react'
+import { logout } from '@/redux/features/authSlice';
 const navItems = [
   { icon: HomeIcon, label: "Dashboard", href: "/admin" },
   {
@@ -69,9 +71,28 @@ const NavItem = ({ item, depth = 0 }) => {
 }
 
 export function SideNav() {
+  
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const user = useSelector((state) => state.auth?.user) || null;
+
+  // Auto logout if user is null
+  useEffect(() => {
+    if (!user) {
+      dispatch(logout()); // Dispatch logout action
+      navigate("/"); // Redirect to login page
+    }
+  }, [user, dispatch, navigate]);
+
+  if (!user) return null; // Prevent rendering if user is missing
+
+   // Filter out Management & Settings for agents
+   const filteredNavItems = user.role === "agent" 
+   ? navItems.filter(item => !["Management", "Settings", "Invoices"].includes(item.label))
+   : navItems;
   return (
     <nav className="flex space-x-6 shadow-sm bg-white px-4 py-4">
-      {navItems.map((item) => (
+      {filteredNavItems.map((item) => (
         <div key={item.href}>
           {item.subItems ? (
             <DropdownMenu>

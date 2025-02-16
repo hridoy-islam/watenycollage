@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { ArrowLeft, Printer, Plus } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { ArrowLeft, Printer, Plus, AlertTriangle, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { StudentProfile } from './components/student-profile';
@@ -18,15 +18,28 @@ import { NotesPage } from './components/notes';
 import { AssignStaff } from './components/assign-staff';
 import { useToast } from '@/components/ui/use-toast';
 import AccountPage from './components/account';
-import { isStudentDataComplete } from '@/lib/utils';
+import { isStudentDataComplete, isPersonalInfoComplete, isAcademicInfoComplete, isWorkExperienceComplete } from '@/lib/utils';
+import { useSelector } from 'react-redux';
+import axios from 'axios'
 
 export default function StudentViewPage() {
   const { id } = useParams();
   const { toast } = useToast();
   const [student, setStudent] = useState<any>();
+  const [documents, setDocuments] = useState<any>([]);
   const [initialLoading, setInitialLoading] = useState(true); // New state for initial loading
   const [hasRequiredDocuments, setHasRequiredDocuments] = useState(false);
-  const isComplete = isStudentDataComplete(student, hasRequiredDocuments);
+  // const isComplete = isStudentDataComplete(student, hasRequiredDocuments);
+  // const isPersonalComplete = isPersonalInfoComplete(student); // Check personal info completion
+  // const isAcademicComplete = isAcademicInfoComplete(student); // check education is complete
+
+  const isPersonalComplete = useMemo(() => isPersonalInfoComplete(student), [student]);
+  const isAcademicComplete = useMemo(() => isAcademicInfoComplete(student), [student]);
+  const isWorkExperience = useMemo(() => isWorkExperienceComplete(student), [student]);
+  const isComplete = useMemo(() => isStudentDataComplete(student, hasRequiredDocuments), [student, hasRequiredDocuments]);
+  const { user } = useSelector((state: any) => state.auth);
+  // Check if the user is an agent
+  const isAgent = user?.role === "agent";
 
   const fetchData = async () => {
     try {
@@ -39,6 +52,25 @@ export default function StudentViewPage() {
       setInitialLoading(false); // Disable initial loading after the first fetch
     }
   };
+
+  // Fetch documents data
+  const fetchDocuments = async () => {
+    try {
+      const response = await axios.get(
+        `https://core.qualitees.co.uk/api/documents?where=entity_id,${student.id}&exclude=file_type,profile`,
+        {
+          headers: {
+            "x-company-token": "admissionhubz-0123", // Add the custom header
+          },
+        }
+      );
+
+      setDocuments(response.data.result); // Assuming the API returns an array of documents
+    } catch (error) {
+      console.error("Error fetching documents:", error);
+    }
+  };
+   
 
   const handleSave = async (data) => {
     await axiosInstance.patch(`/students/${id}`, data);
@@ -88,7 +120,9 @@ export default function StudentViewPage() {
             value="personal"
             className="data-[state=active]:bg-supperagent data-[state=active]:text-white"
           >
+            {!isPersonalComplete && <XCircle className="w-4 h-4 mr-2 text-red-600" />}
             Personal Details
+
           </TabsTrigger>
           {/* <TabsTrigger
             value="travel"
@@ -100,55 +134,60 @@ export default function StudentViewPage() {
             value="education"
             className="data-[state=active]:bg-supperagent data-[state=active]:text-white"
           >
+            {!isAcademicComplete && <XCircle className="w-4 h-4 mr-2 text-red-600" />}
             Education
           </TabsTrigger>
           <TabsTrigger
             value="work"
             className="data-[state=active]:bg-supperagent data-[state=active]:text-white"
           >
+
+            {!isWorkExperience && <XCircle className="w-4 h-4 mr-2 text-red-600" />}
             Work Details
           </TabsTrigger>
           <TabsTrigger
             value="documents"
             className="data-[state=active]:bg-supperagent data-[state=active]:text-white"
           >
+            {!hasRequiredDocuments && <XCircle className="w-4 h-4 mr-2 text-red-600" />}
             Documents
           </TabsTrigger>
           {isComplete && (
             <>
-            <TabsTrigger
-              value="application"
-              className="data-[state=active]:bg-supperagent data-[state=active]:text-white"
-            >
-              Application
-            </TabsTrigger>
-
-           
-          <TabsTrigger
-            value="staff"
-            className="data-[state=active]:bg-supperagent data-[state=active]:text-white"
-          >
-            Assigned Staffs
-          </TabsTrigger>
-          <TabsTrigger
-            value="notes"
-            className="data-[state=active]:bg-supperagent data-[state=active]:text-white"
-          >
-            Notes
-          </TabsTrigger>
-          <TabsTrigger
-            value="communications"
-            className="data-[state=active]:bg-supperagent data-[state=active]:text-white"
-          >
-            Communications
-          </TabsTrigger>
-          <TabsTrigger
-            value="account"
-            className="data-[state=active]:bg-supperagent data-[state=active]:text-white"
-          >
-            Account
-          </TabsTrigger>
-          </>
+              <TabsTrigger
+                value="application"
+                className="data-[state=active]:bg-supperagent data-[state=active]:text-white"
+              >
+                Application
+              </TabsTrigger>
+              {!isAgent && (
+                <>
+                  <TabsTrigger
+                    value="staff"
+                    className="data-[state=active]:bg-supperagent data-[state=active]:text-white"
+                  >
+                    Assigned Staffs
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="notes"
+                    className="data-[state=active]:bg-supperagent data-[state=active]:text-white"
+                  >
+                    Notes
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="communications"
+                    className="data-[state=active]:bg-supperagent data-[state=active]:text-white"
+                  >
+                    Communications
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="account"
+                    className="data-[state=active]:bg-supperagent data-[state=active]:text-white"
+                  >
+                    Account
+                  </TabsTrigger>
+                </>)}
+            </>
           )}
         </TabsList>
         <TabsContent value="personal">
@@ -168,7 +207,12 @@ export default function StudentViewPage() {
           <WorkExperienceSection student={student} onSave={handleSave} />
         </TabsContent>
         <TabsContent value="documents">
-          <DocumentsSection student={student} setHasRequiredDocuments={setHasRequiredDocuments}/>
+          <DocumentsSection 
+          student={student} 
+          documents={documents} 
+          setHasRequiredDocuments={setHasRequiredDocuments} 
+          fetchDocuments={fetchDocuments} 
+          />
         </TabsContent>
         {isComplete && (
           <>

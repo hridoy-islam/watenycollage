@@ -23,30 +23,31 @@ import { DocumentDialog } from "./document-dialog"
 import { Link } from "react-router-dom"
 import axios from "axios"
 
-export function DocumentsSection({ student, setHasRequiredDocuments }) {
-  const [documents, setDocuments] = useState<any>([])
+export function DocumentsSection({ student, documents, setHasRequiredDocuments, fetchDocuments }) {
+  // const [documents, setDocuments] = useState<any>([])
   const [dialogOpen, setDialogOpen] = useState(false)
   const [deleteDialog, setDeleteDialog] = useState<string | null>(null)
 
   // Fetch documents data
-  const fetchData = async () => {
-    try {
-      const response = await axios.get(
-        `https://core.qualitees.co.uk/api/documents?where=entity_id,${student.id}&exclude=file_type,profile`,
-        {
-          headers: {
-            "x-company-token": "admissionhubz-0123", // Add the custom header
-          },
-        }
-      );
+  // const fetchData = async () => {
+  //   try {
+  //     const response = await axios.get(
+  //       `https://core.qualitees.co.uk/api/documents?where=entity_id,${student.id}&exclude=file_type,profile`,
+  //       {
+  //         headers: {
+  //           "x-company-token": "admissionhubz-0123", // Add the custom header
+  //         },
+  //       }
+  //     );
 
-      setDocuments(response.data.result); // Assuming the API returns an array of documents
-    } catch (error) {
-      console.error("Error fetching documents:", error);
-    }
-  };
+  //     setDocuments(response.data.result); // Assuming the API returns an array of documents
+  //   } catch (error) {
+  //     console.error("Error fetching documents:", error);
+  //   }
+  // };
    // Check if at least one required document exists
-   useEffect(() => {
+   // Check if at least one required document exists whenever documents change
+  useEffect(() => {
     const hasRequiredDocuments = ["work experience", "qualification"].some((type) =>
       documents.some((doc) => doc.file_type === type)
     );
@@ -56,7 +57,7 @@ export function DocumentsSection({ student, setHasRequiredDocuments }) {
   // Handle document upload
   const handleUpload = () => {
     setDialogOpen(false); // Close the dialog
-    fetchData(); // Refresh the documents list
+    fetchDocuments(); // Refresh the documents list
   };
 
   // Handle document delete
@@ -71,7 +72,7 @@ export function DocumentsSection({ student, setHasRequiredDocuments }) {
         }
       );
       setDeleteDialog(null); // Close the delete confirmation dialog
-      fetchData(); // Refresh the documents list
+      fetchDocuments(); // Refresh the documents list
     } catch (error) {
       console.error("Error deleting the document:", error);
     }
@@ -80,7 +81,7 @@ export function DocumentsSection({ student, setHasRequiredDocuments }) {
 
 
   useEffect(() => {
-    fetchData();
+    fetchDocuments();
   }, [student.id]); // Re-fetch data if student.id changes
 
   return (

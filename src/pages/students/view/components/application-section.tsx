@@ -13,10 +13,12 @@ import {
 import { ApplicationDialog } from './application-dialog';
 import moment from 'moment';
 import { Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 export function ApplicationsSection({ student, onSave }) {
   const [applications, setApplications] = useState<any>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const { user } = useSelector((state: any) => state.auth);
 
   const handleSubmit = (data) => {
     onSave({ applications: [data] });
@@ -63,7 +65,9 @@ export function ApplicationsSection({ student, onSave }) {
             <TableHead>Type</TableHead>
             <TableHead>Amount</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+            {user.role !== "agent" && ( // Hide if user is an agent
+              <TableHead className="text-right">Actions</TableHead>
+            )}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -108,11 +112,13 @@ export function ApplicationsSection({ student, onSave }) {
                   </div>
                 </TableCell>
                 <TableCell className="text-right">
-                  <Link to={`course/${course.id}`}>
-                    <Button variant="ghost" size="icon">
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                  </Link>
+                  {user.role !== "agent" && ( // Hide if user is an agent
+                    <Link to={`course/${course.id}`}>
+                      <Button variant="ghost" size="icon">
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    </Link>
+                  )}
                 </TableCell>
               </TableRow>
             ))
