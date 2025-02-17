@@ -34,7 +34,7 @@ const staffPrivilegeSchema = z.object({
       edit: z.boolean()
     }),
     term: z.object({ list: z.boolean(), add: z.boolean(), edit: z.boolean() }),
-    faculty: z.object({
+    institution: z.object({
       list: z.boolean(),
       add: z.boolean(),
       edit: z.boolean()
@@ -75,8 +75,8 @@ const staffPrivilegeSchema = z.object({
     personalInformation: z.boolean(),
     education: z.boolean(),
     workExperience: z.boolean(),
-    application: z.object({ view: z.boolean() }),
-    search: z.object({ view: z.boolean(), excelExport: z.boolean() }),
+    application: z.boolean(),
+    search: z.object({ view: z.boolean(), print: z.boolean() }),
     uploadDocument: z.object({ view: z.boolean(), add: z.boolean() }),
     communication: z.object({ view: z.boolean(), sendMessage: z.boolean() }),
     notes: z.object({ view: z.boolean(), add: z.boolean() })
@@ -92,7 +92,7 @@ export function StaffSettings() {
       dataManagement: {
         course: { list: false, add: false, edit: false },
         term: { list: false, add: false, edit: false },
-        faculty: { list: false, add: false, edit: false },
+        institution: { list: false, add: false, edit: false },
         academicYear: { list: false, add: false, edit: false },
         courseRelation: { list: false, add: false, edit: false },
         emails: { list: false, add: false, edit: false },
@@ -105,8 +105,8 @@ export function StaffSettings() {
         personalInformation: false,
         education: false,
         workExperience: false,
-        application: { view: false },
-        search: { view: false, excelExport: false },
+        application: false,
+        search: { view: false, print: false },
         uploadDocument: { view: false, add: false },
         communication: { view: false, sendMessage: false },
         notes: { view: false, add: false }

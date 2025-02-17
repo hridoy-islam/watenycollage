@@ -152,7 +152,7 @@ export interface StaffPrivilege {
   management: {
     course: { list: boolean; add: boolean; edit: boolean };
     term: { list: boolean; add: boolean; edit: boolean };
-    faculty: { list: boolean; add: boolean; edit: boolean };
+    institution: { list: boolean; add: boolean; edit: boolean };
     academicYear: {
       list: boolean;
       add: boolean;
@@ -189,8 +189,8 @@ export interface StaffPrivilege {
     personalInformation: boolean;
     education: boolean;
     workExperience: boolean;
-    application: { view: boolean };
-    search: { view: boolean; excelExport: boolean };
+    application: boolean;
+    search: { view: boolean; print: boolean };
     uploadDocument: { view: boolean; add: boolean };
     communication: { view: boolean; sendMessage: boolean };
     notes: { view: boolean; add: boolean };
