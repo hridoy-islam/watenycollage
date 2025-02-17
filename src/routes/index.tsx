@@ -32,6 +32,7 @@ import InvoicesPage from '@/pages/invoice';
 import StudentListPage from '@/pages/invoice/student';
 import GenerateInvoicePage from '@/pages/invoice/generate';
 import { ProfessionalInvoice } from '@/pages/invoice/pdf';
+import { StaffSettings } from '@/pages/staff/settings';
 
 const SignInPage = lazy(() => import('@/pages/auth/signin'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
@@ -131,6 +132,10 @@ export default function AppRouter() {
         {
           path: 'staff',
           element: <StaffPage />
+        },
+        {
+          path: 'staff/:id',
+          element: <StaffSettings />
         },
         {
           path: 'agents',
