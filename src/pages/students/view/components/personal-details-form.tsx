@@ -12,10 +12,11 @@ import {
 } from '@/components/ui/select';
 import { countries, languages, mockData } from '@/types';
 import { useEffect, useState } from 'react';
-import axiosInstance from '@/lib/axios'
+import axiosInstance from '@/lib/axios';
+import { useSelector } from 'react-redux';
 
 export function PersonalDetailsForm({ student, onSave }) {
-
+  const { user } = useSelector((state: any) => state.auth);
   const {
     handleSubmit,
     register,
@@ -44,6 +45,17 @@ export function PersonalDetailsForm({ student, onSave }) {
       passportExpiryDate: '',
       collageRoll: '',
       agentId: '',
+      addressLine1: '',
+      addressLine2: '',
+      townCity: '',
+      state: '',
+      postCode: '',
+      country: '',
+      disabilities: '',
+      ethnicity: '',
+      genderIdentity: '',
+      sexualOrientation: '',
+      religion: ''
     }
   });
   const [staffOptions, setStaffOptions] = useState<any>([]);
@@ -56,12 +68,12 @@ export function PersonalDetailsForm({ student, onSave }) {
       const response = await axiosInstance.get('/agents?limit=all');
       const options = response.data.data.result.map((agent) => ({
         value: agent.id,
-        label: agent.agentName,
+        label: agent.agentName
       }));
       setStaffOptions(options);
       setIsLoading(false); // Set loading to false after fetching
     } catch (error) {
-      console.error("Error fetching agents:", error);
+      console.error('Error fetching agents:', error);
       setIsLoading(false); // Set loading to false even if there's an error
     }
   };
@@ -92,6 +104,17 @@ export function PersonalDetailsForm({ student, onSave }) {
         passportExpiryDate: student.passportExpiryDate || '',
         collageRoll: student.collageRoll || '',
         agentId: student.agent?.id || '',
+        addressLine1: student.addressLine1 || '',
+        addressLine2: student.addressLine2 || '',
+        townCity: student.townCity || '',
+        state: student.state || '',
+        postCode: student.postCode || '',
+        country: student.country || '',
+        disabilities: student.disabilities || '',
+        ethnicity: student.ethnicity || '',
+        genderIdentity: student.genderIdentity || '',
+        sexualOrientation: student.sexualOrientation || '',
+        religion: student.religion || ''
       });
     }
   }, [student, reset]);
@@ -104,7 +127,6 @@ export function PersonalDetailsForm({ student, onSave }) {
   }, [staffOptions, student, setValue]);
 
   // Fetch agents when the component mounts
-
 
   const onSubmit = (data) => {
     onSave(data);
@@ -390,33 +412,202 @@ export function PersonalDetailsForm({ student, onSave }) {
           {/* Collage Roll */}
           <div className="space-y-2">
             <Label htmlFor="collageRoll">Collage Roll</Label>
-            <Input
-              id="collageRoll"
-              {...register('collageRoll')}
-            />
+            <Input id="collageRoll" {...register('collageRoll')} />
           </div>
+          {user.role !== 'agent' && (
+            <div>
+              <Label htmlFor="agentId">Agent</Label>
+              <Controller
+                name="agentId"
+                control={control}
+                render={({ field }) => (
+                  <select {...field} className="w-full rounded border p-2">
+                    <option value="">Select an Agent</option>
+                    {staffOptions.map((agent) => (
+                      <option key={agent.value} value={agent.value}>
+                        {agent.label}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              />
+            </div>
+          )}
+        </div>
+
+        <div className="grid grid-cols-3 gap-6">
+          <div className="space-y-2">
+            <Label htmlFor="addressLine1">Address Line 1*</Label>
+            <Input
+              id="addressLine1"
+              {...register('addressLine1', {
+                required: 'Address Line 1 is required'
+              })}
+            />
+            <ErrorMessage message={errors.addressLine1?.message?.toString()} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="addressLine2">Address Line 2</Label>
+            <Input id="addressLine2" {...register('addressLine2')} />
+            <ErrorMessage message={errors.addressLine2?.message?.toString()} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="townCity">Town / City</Label>
+            <Input
+              id="townCity"
+              {...register('townCity', { required: 'Town / City is required' })}
+            />
+            <ErrorMessage message={errors.townCity?.message?.toString()} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="state">State</Label>
+            <Input id="state" {...register('state')} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="postCode">Post Code</Label>
+            <Input
+              id="postCode"
+              {...register('postCode', { required: 'Post Code is required' })}
+            />
+            <ErrorMessage message={errors.postCode?.message?.toString()} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="country">Country</Label>
+            <Input
+              id="country"
+              {...register('country', { required: 'Country is required' })}
+            />
+            <ErrorMessage message={errors.country?.message?.toString()} />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-6 space-y-2">
           <div>
-            <Label htmlFor="agentId">Agent</Label>
+            <Label htmlFor="disabilities">
+              Do you have any disabilities that require arrangements from the
+              college or special needs that applies to you? *
+            </Label>
             <Controller
-              name="agentId"
+              name="disabilities"
               control={control}
               render={({ field }) => (
-                <select
-                  {...field}
-                  className="border rounded p-2 w-full"
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value || student?.disabilities || ''}
                 >
-                  <option value="">Select an Agent</option>
-                  {staffOptions.map((agent) => (
-                    <option key={agent.value} value={agent.value}>
-                      {agent.label}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Please select" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="no">No</SelectItem>
+                    <SelectItem value="yes">Yes</SelectItem>
+                  </SelectContent>
+                </Select>
               )}
             />
           </div>
 
+          <div className="space-y-4">
+            <Label htmlFor="ethnicity">Ethnicity *</Label>
+            <Controller
+              name="ethnicity"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value || student?.ethnicity || ''}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Please select" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {mockData.ethnicities.map((title, index) => (
+                      <SelectItem key={index} value={title}>
+                        {title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+          </div>
 
+          <div>
+            <Label htmlFor="genderIdentity">
+              Please indicate if your Gender identity is the same as the gender
+              originally assigned to you at birth *
+            </Label>
+            <Controller
+              name="genderIdentity"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value || student?.genderIdentity || ''}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Please select" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="yes">Yes</SelectItem>
+                    <SelectItem value="no">No</SelectItem>
+                    <SelectItem value="prefer-not-to-say">
+                      Prefer not to say
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="sexualOrientation">Sexual Orientation *</Label>
+            <Controller
+              name="sexualOrientation"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value || student?.sexualOrientation || ''}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Please select" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {mockData.sexualOrientation.map((title, index) => (
+                      <SelectItem key={index} value={title}>
+                        {title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+          </div>
+          <div>
+            <Label htmlFor="religion">Religion or Belief *</Label>
+            <Controller
+              name="religion"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value || student?.religion || ''}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Please select" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {mockData.religion.map((title, index) => (
+                      <SelectItem key={index} value={title}>
+                        {title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+          </div>
         </div>
 
         {/* Save Button */}

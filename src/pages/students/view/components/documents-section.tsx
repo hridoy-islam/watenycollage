@@ -1,14 +1,14 @@
-import { useEffect, useState } from "react"
-import { Eye, Plus, Trash2 } from 'lucide-react'
-import { Button } from "@/components/ui/button"
+import { useEffect, useState } from 'react';
+import { Eye, Plus, Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import {
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
-  TableRow,
-} from "@/components/ui/table"
+  TableRow
+} from '@/components/ui/table';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,42 +17,39 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { DocumentDialog } from "./document-dialog"
-import { Link } from "react-router-dom"
-import axios from "axios"
+  AlertDialogTitle
+} from '@/components/ui/alert-dialog';
+import { DocumentDialog } from './document-dialog';
+import { Link } from 'react-router-dom';
+import axios from 'axios';
+import { Checkbox } from '@/components/ui/checkbox';
 
-export function DocumentsSection({ student, documents, setHasRequiredDocuments, fetchDocuments }) {
+export function DocumentsSection({
+  student,
+  documents,
+  setHasRequiredDocuments,
+  fetchDocuments,
+  onSave
+}) {
   // const [documents, setDocuments] = useState<any>([])
-  const [dialogOpen, setDialogOpen] = useState(false)
-  const [deleteDialog, setDeleteDialog] = useState<string | null>(null)
+  const [noDcouments, setNoDcouments] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [deleteDialog, setDeleteDialog] = useState<string | null>(null);
 
-  // Fetch documents data
-  // const fetchData = async () => {
-  //   try {
-  //     const response = await axios.get(
-  //       `https://core.qualitees.co.uk/api/documents?where=entity_id,${student.id}&exclude=file_type,profile`,
-  //       {
-  //         headers: {
-  //           "x-company-token": "admissionhubz-0123", // Add the custom header
-  //         },
-  //       }
-  //     );
+  // useEffect(() => {
+  //   const hasRequiredDocuments = ['work experience', 'qualification'].some(
+  //     (type) => documents.some((doc) => doc.file_type === type)
+  //   );
+  //   setHasRequiredDocuments(hasRequiredDocuments);
+  // }, [documents, setHasRequiredDocuments]);
 
-  //     setDocuments(response.data.result); // Assuming the API returns an array of documents
-  //   } catch (error) {
-  //     console.error("Error fetching documents:", error);
-  //   }
-  // };
-   // Check if at least one required document exists
-   // Check if at least one required document exists whenever documents change
   useEffect(() => {
-    const hasRequiredDocuments = ["work experience", "qualification"].some((type) =>
-      documents.some((doc) => doc.file_type === type)
+    const hasRequiredDocuments = ['work experience', 'qualification'].some(
+      (type) => documents.some((doc) => doc.file_type === type)
     );
-    setHasRequiredDocuments(hasRequiredDocuments);
-  }, [documents, setHasRequiredDocuments]);
+
+    setHasRequiredDocuments(hasRequiredDocuments || student?.noDocuments);
+  }, [documents, student]);
 
   // Handle document upload
   const handleUpload = () => {
@@ -61,37 +58,52 @@ export function DocumentsSection({ student, documents, setHasRequiredDocuments, 
   };
 
   // Handle document delete
-  const handleDelete = async(docid) => {
+  const handleDelete = async (docid) => {
     try {
       await axios.delete(
         `https://core.qualitees.co.uk/api/documents/${docid}`,
         {
           headers: {
-            "x-company-token": "admissionhubz-0123", // Add the custom header
-          },
+            'x-company-token': 'admissionhubz-0123' // Add the custom header
+          }
         }
       );
       setDeleteDialog(null); // Close the delete confirmation dialog
       fetchDocuments(); // Refresh the documents list
     } catch (error) {
-      console.error("Error deleting the document:", error);
+      console.error('Error deleting the document:', error);
     }
   };
-
-
 
   useEffect(() => {
     fetchDocuments();
   }, [student.id]); // Re-fetch data if student.id changes
 
+  const handleNoDocument = (checked) => {
+    setNoDcouments(checked);
+    onSave({ noDcouments: checked });
+  };
+
   return (
-    <div className="space-y-4 rounded-md shadow-md p-4">
+    <div className="space-y-4 rounded-md p-4 shadow-md">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">Documents</h2>
-        <Button className="bg-supperagent text-white hover:bg-supperagent" onClick={() => setDialogOpen(true)}>
-          <Plus className="w-4 h-4 mr-2" />
+        <Button
+          className="bg-supperagent text-white hover:bg-supperagent"
+          onClick={() => setDialogOpen(true)}
+        >
+          <Plus className="mr-2 h-4 w-4" />
           New Document
         </Button>
+      </div>
+
+      <div className="flex items-center space-x-2">
+        <Checkbox
+          id="noDcoument"
+          checked={noDcouments}
+          onCheckedChange={(checked) => handleNoDocument(checked)}
+        />
+        <label htmlFor="noExperience">No Document Required</label>
       </div>
 
       <Table>
@@ -118,8 +130,12 @@ export function DocumentsSection({ student, documents, setHasRequiredDocuments, 
                 <TableCell className="text-right">
                   <div className="flex justify-end space-x-2">
                     <Button variant="ghost" size="icon">
-                      <Link to={doc.file_url} target="_blank" rel="noopener noreferrer">
-                        <Eye className="w-4 h-4" />
+                      <Link
+                        to={doc.file_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Eye className="h-4 w-4" />
                       </Link>
                     </Button>
                     <Button
@@ -127,7 +143,7 @@ export function DocumentsSection({ student, documents, setHasRequiredDocuments, 
                       size="icon"
                       onClick={() => setDeleteDialog(doc.id)}
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 </TableCell>
@@ -137,8 +153,6 @@ export function DocumentsSection({ student, documents, setHasRequiredDocuments, 
         </TableBody>
       </Table>
 
-
-
       <DocumentDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
@@ -146,22 +160,29 @@ export function DocumentsSection({ student, documents, setHasRequiredDocuments, 
         initialData={student.id}
       />
 
-      <AlertDialog open={!!deleteDialog} onOpenChange={() => setDeleteDialog(null)}>
+      <AlertDialog
+        open={!!deleteDialog}
+        onOpenChange={() => setDeleteDialog(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the document.
+              This action cannot be undone. This will permanently delete the
+              document.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction className="bg-supperagent text-white hover:bg-supperagent" onClick={() => deleteDialog && handleDelete(deleteDialog)}>
+            <AlertDialogAction
+              className="bg-supperagent text-white hover:bg-supperagent"
+              onClick={() => deleteDialog && handleDelete(deleteDialog)}
+            >
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  )
+  );
 }

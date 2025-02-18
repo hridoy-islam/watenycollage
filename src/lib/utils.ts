@@ -150,49 +150,25 @@ export const isWorkExperienceComplete = (student) => {
 
 export interface StaffPrivilege {
   management: {
-    course: { list: boolean; add: boolean; edit: boolean };
-    term: { list: boolean; add: boolean; edit: boolean };
-    institution: { list: boolean; add: boolean; edit: boolean };
-    academicYear: {
-      list: boolean;
-      add: boolean;
-      edit: boolean;
-    };
-    courseRelation: {
-      list: boolean;
-      add: boolean;
-      edit: boolean;
-    };
-    emails: {
-      list: boolean;
-      add: boolean;
-      edit: boolean;
-    };
-    drafts: {
-      list: boolean;
-      add: boolean;
-      edit: boolean;
-    };
-    invoices: {
-      list: boolean;
-      add: boolean;
-      edit: boolean;
-    };
-    staffs: {
-      list: boolean;
-      add: boolean;
-      edit: boolean;
-    };
-    agent: { list: boolean; add: boolean; edit: boolean };
+    course: boolean;
+    term: boolean;
+    institution: boolean;
+    academicYear: boolean;
+    courseRelation: boolean;
+    emails: boolean;
+    drafts: boolean;
+    invoices: boolean;
+    staffs: boolean;
+    agent: boolean;
   };
   student: {
     personalInformation: boolean;
     education: boolean;
     workExperience: boolean;
     application: boolean;
-    search: { view: boolean; print: boolean };
-    uploadDocument: { view: boolean; add: boolean };
-    communication: { view: boolean; sendMessage: boolean };
-    notes: { view: boolean; add: boolean };
+    search: { agent: boolean; staff: boolean };
+    uploadDocument: boolean;
+    communication: boolean;
+    notes: boolean;
   };
 }

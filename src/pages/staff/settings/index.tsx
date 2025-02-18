@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -11,190 +11,220 @@ import {
   FormLabel
 } from '@/components/ui/form';
 import { Switch } from '@/components/ui/switch';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger
 } from '@/components/ui/accordion';
-import type { StaffPrivilege } from '@/lib/utils';
+import { useParams } from 'react-router-dom';
+import axiosInstance from '@/lib/axios';
 
 const staffPrivilegeSchema = z.object({
-  dataManagement: z.object({
-    course: z.object({
-      list: z.boolean(),
-      add: z.boolean(),
-      edit: z.boolean()
-    }),
-    term: z.object({ list: z.boolean(), add: z.boolean(), edit: z.boolean() }),
-    institution: z.object({
-      list: z.boolean(),
-      add: z.boolean(),
-      edit: z.boolean()
-    }),
-    academicYear: z.object({
-      list: z.boolean(),
-      add: z.boolean(),
-      edit: z.boolean()
-    }),
-    courseRelation: z.object({
-      list: z.boolean(),
-      add: z.boolean(),
-      edit: z.boolean()
-    }),
-    emails: z.object({
-      list: z.boolean(),
-      add: z.boolean(),
-      edit: z.boolean()
-    }),
-    drafts: z.object({
-      list: z.boolean(),
-      add: z.boolean(),
-      edit: z.boolean()
-    }),
-    invoices: z.object({
-      list: z.boolean(),
-      add: z.boolean(),
-      edit: z.boolean()
-    }),
-    staffs: z.object({
-      list: z.boolean(),
-      add: z.boolean(),
-      edit: z.boolean()
-    }),
-    agent: z.object({ list: z.boolean(), add: z.boolean(), edit: z.boolean() })
+  management: z.object({
+    course: z.boolean(),
+    term: z.boolean(),
+    institution: z.boolean(),
+    academicYear: z.boolean(),
+    courseRelation: z.boolean(),
+    emails: z.boolean(),
+    drafts: z.boolean(),
+    invoices: z.boolean(),
+    staffs: z.boolean(),
+    agent: z.boolean()
   }),
   student: z.object({
     personalInformation: z.boolean(),
     education: z.boolean(),
     workExperience: z.boolean(),
     application: z.boolean(),
-    search: z.object({ view: z.boolean(), print: z.boolean() }),
-    uploadDocument: z.object({ view: z.boolean(), add: z.boolean() }),
-    communication: z.object({ view: z.boolean(), sendMessage: z.boolean() }),
-    notes: z.object({ view: z.boolean(), add: z.boolean() })
+    search: z.object({ agent: z.boolean(), staff: z.boolean() }),
+    uploadDocument: z.boolean(),
+    communication: z.boolean(),
+    notes: z.boolean()
   })
 });
 
 export function StaffSettings() {
+  const { id } = useParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [staffDetails, setStaffDetails] = useState({});
+  const [initialLoading, setInitialLoading] = useState(true);
 
-  const form = useForm<StaffPrivilege>({
+  const form = useForm({
     resolver: zodResolver(staffPrivilegeSchema),
     defaultValues: {
-      dataManagement: {
-        course: { list: false, add: false, edit: false },
-        term: { list: false, add: false, edit: false },
-        institution: { list: false, add: false, edit: false },
-        academicYear: { list: false, add: false, edit: false },
-        courseRelation: { list: false, add: false, edit: false },
-        emails: { list: false, add: false, edit: false },
-        drafts: { list: false, add: false, edit: false },
-        invoices: { list: false, add: false, edit: false },
-        staffs: { list: false, add: false, edit: false },
-        agent: { list: false, add: false, edit: false }
+      management: {
+        course: false,
+        term: false,
+        institution: false,
+        academicYear: false,
+        courseRelation: false,
+        emails: false,
+        drafts: false,
+        invoices: false,
+        staffs: false,
+        agent: false
       },
       student: {
         personalInformation: false,
         education: false,
         workExperience: false,
         application: false,
-        search: { view: false, print: false },
-        uploadDocument: { view: false, add: false },
-        communication: { view: false, sendMessage: false },
-        notes: { view: false, add: false }
+        search: { agent: false, staff: false },
+        uploadDocument: false,
+        communication: false,
+        notes: false
       }
     }
   });
 
-  async function onSubmit(data: StaffPrivilege) {
-    setIsSubmitting(true);
+  // Fetch privileges and staff details
+  const fetchData = async () => {
     try {
-      const response = await fetch('/api/staff-privileges', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-      });
+      setInitialLoading(true);
+      const response = await axiosInstance.get(`/staffs/${id}`);
+      const response2 = await axiosInstance.get(`/privileges/${id}`);
 
-      if (!response.ok) {
-        throw new Error('Failed to submit staff privileges');
-      }
-
-      const result = await response.json();
-      console.log('Staff privileges submitted successfully:', result);
-      // You can add a success message or redirect here
+      const privilegesData = response2.data.data.privileges || {};
+      setStaffDetails(response.data.data || {});
+      form.reset(privilegesData); // Load privileges into the form
     } catch (error) {
-      console.error('Error submitting staff privileges:', error);
-      // You can add an error message here
+      console.error('Error fetching data:', error);
     } finally {
-      setIsSubmitting(false);
+      setInitialLoading(false);
     }
-  }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [id]);
+
+  const {
+    handleSubmit,
+    register,
+    control,
+    reset,
+    setValue,
+    formState: { errors }
+  } = useForm({
+    defaultValues: {
+      privileges: {
+        management: {
+          course: false,
+          term: false,
+          institution: false,
+          academicYear: false,
+          courseRelation: false,
+          emails: false,
+          drafts: false,
+          invoices: false,
+          staffs: false,
+          agent: false
+        },
+        student: {
+          personalInformation: false,
+          education: false,
+          workExperience: false,
+          application: false,
+          search: {
+            agent: false,
+            staff: false
+          },
+          uploadDocument: false,
+          communication: false,
+          notes: false
+        }
+      }
+    }
+  });
+
+  // Function to dynamically update nested privilege fields
+  const handleToggle = async (fieldName: string, value: boolean) => {
+    setValue(fieldName, value); // Update form state
+
+    // Constructing dynamic payload
+    const fieldParts = fieldName.split('.');
+    let payload: Record<string, any> = {};
+
+    if (fieldParts.length === 2) {
+      // Example: "management.course"
+      const [section, key] = fieldParts;
+      payload = { privileges: { [section]: { [key]: value } } };
+    } else if (fieldParts.length === 3) {
+      // Example: "student.search.agent"
+      const [section, subSection, key] = fieldParts;
+      payload = {
+        privileges: { [section]: { [subSection]: { [key]: value } } }
+      };
+    }
+
+    try {
+      await axiosInstance.patch(`/privileges/${id}`, payload);
+      fetchData();
+    } catch (error) {
+      console.error('Error updating privilege:', error);
+    }
+  };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(() => {})} className="space-y-8">
+        {/* Staff Information Card */}
         <Card>
           <CardHeader>
             <CardTitle>Staff Information</CardTitle>
-            <CardDescription>
-              Enter the staff member's basic information.
-            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">Staf detaisl here</CardContent>
+          <CardContent className="space-y-4">
+            <p>
+              {staffDetails?.firstName} {staffDetails?.lastName}
+            </p>
+            <p>{staffDetails?.email}</p>
+            <p>{staffDetails?.phone}</p>
+          </CardContent>
         </Card>
 
+        {/* Data Management Privileges */}
         <Accordion
           type="single"
           collapsible
           className="w-full space-y-2 rounded-xl bg-white p-4 shadow"
         >
-          <AccordionItem value="dataManagement">
-            <AccordionTrigger className="my-2 rounded-lg px-4 data-[state=open]:bg-supperagent data-[state=open]:text-white">
+          <AccordionItem value="management">
+            <AccordionTrigger className="my-2 rounded-lg px-4">
               Data Management Privileges
             </AccordionTrigger>
             <AccordionContent>
               <Card>
                 <CardContent className="space-y-4">
-                  {Object.entries(form.getValues().dataManagement).map(
+                  {Object.entries(form.getValues().management).map(
                     ([key, value]) => (
-                      <div key={key} className="space-y-2">
-                        <h3 className="font-semibold capitalize">{key}</h3>
-                        {Object.entries(value).map(([action, _]) => (
-                          <FormField
-                            key={`${key}.${action}`}
-                            control={form.control}
-                            name={`dataManagement.${key}.${action}`}
-                            render={({ field }) => (
-                              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                                <div className="space-y-0.5">
-                                  <FormLabel className="text-base capitalize">
-                                    {action}
-                                  </FormLabel>
-                                  <FormDescription>
-                                    Allow this staff member to {action} {key}.
-                                  </FormDescription>
-                                </div>
-                                <FormControl>
-                                  <Switch
-                                    checked={field.value}
-                                    onCheckedChange={field.onChange}
-                                  />
-                                </FormControl>
-                              </FormItem>
-                            )}
-                          />
-                        ))}
-                      </div>
+                      <FormField
+                        key={key}
+                        control={form.control}
+                        name={`management.${key}`}
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                            <div className="space-y-0.5">
+                              <FormLabel className="text-base capitalize">
+                                {key}
+                              </FormLabel>
+                              <FormDescription>
+                                Allow this staff member to manage {key}.
+                              </FormDescription>
+                            </div>
+                            <FormControl>
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={(checked) =>
+                                  handleToggle(field.name, checked)
+                                }
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
                     )
                   )}
                 </CardContent>
@@ -202,79 +232,82 @@ export function StaffSettings() {
             </AccordionContent>
           </AccordionItem>
 
+          {/* Student Privileges */}
           <AccordionItem value="student">
-            <AccordionTrigger className="my-2 rounded-lg px-4 data-[state=open]:bg-supperagent data-[state=open]:text-white">
+            <AccordionTrigger className="my-2 rounded-lg px-4">
               Student Privileges
             </AccordionTrigger>
             <AccordionContent>
               <Card>
                 <CardContent className="space-y-4">
                   {Object.entries(form.getValues().student).map(
-                    ([key, value]) => (
-                      <div key={key}>
-                        {typeof value === 'boolean' ? (
-                          <FormField
-                            control={form.control}
-                            name={`student.${key}`}
-                            render={({ field }) => (
-                              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                                <div className="space-y-0.5">
-                                  <FormLabel className="text-base capitalize">
-                                    {key.replace(/([A-Z])/g, ' $1').trim()}
-                                  </FormLabel>
-                                  <FormDescription>
-                                    Allow this staff member to access student{' '}
-                                    {key
-                                      .replace(/([A-Z])/g, ' $1')
-                                      .trim()
-                                      .toLowerCase()}
-                                    .
-                                  </FormDescription>
-                                </div>
-                                <FormControl>
-                                  <Switch
-                                    checked={field.value}
-                                    onCheckedChange={field.onChange}
-                                  />
-                                </FormControl>
-                              </FormItem>
-                            )}
-                          />
-                        ) : (
-                          <div className="space-y-2">
-                            <h3 className="font-semibold capitalize">
-                              {key.replace(/([A-Z])/g, ' $1').trim()}
-                            </h3>
-                            {Object.entries(value).map(([action, _]) => (
-                              <FormField
-                                key={`${key}.${action}`}
-                                control={form.control}
-                                name={`student.${key}.${action}`}
-                                render={({ field }) => (
-                                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                                    <div className="space-y-0.5">
-                                      <FormLabel className="text-base capitalize">
-                                        {action}
-                                      </FormLabel>
-                                      <FormDescription>
-                                        Allow this staff member to {action}{' '}
-                                        student {key}.
-                                      </FormDescription>
-                                    </div>
-                                    <FormControl>
-                                      <Switch
-                                        checked={field.value}
-                                        onCheckedChange={field.onChange}
-                                      />
-                                    </FormControl>
-                                  </FormItem>
-                                )}
-                              />
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    )
+                    ([key, value]) =>
+                      typeof value === 'boolean' ? (
+                        <FormField
+                          key={key}
+                          control={form.control}
+                          name={`student.${key}`}
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                              <div className="space-y-0.5">
+                                <FormLabel className="text-base capitalize">
+                                  {key.replace(/([A-Z])/g, ' $1').trim()}
+                                </FormLabel>
+                                <FormDescription>
+                                  Allow access to{' '}
+                                  {key
+                                    .replace(/([A-Z])/g, ' $1')
+                                    .trim()
+                                    .toLowerCase()}
+                                  .
+                                </FormDescription>
+                              </div>
+                              <FormControl>
+                                <Switch
+                                  checked={field.value}
+                                  onCheckedChange={(checked) =>
+                                    handleToggle(field.name, checked)
+                                  }
+                                />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+                      ) : (
+                        <div key={key} className="space-y-2">
+                          <h3 className="font-semibold capitalize">
+                            {key.replace(/([A-Z])/g, ' $1').trim()}
+                          </h3>
+                          {Object.entries(value).map(([subKey, _]) => (
+                            <FormField
+                              key={`${key}.${subKey}`}
+                              control={form.control}
+                              name={`student.${key}.${subKey}`}
+                              render={({ field }) => (
+                                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                                  <div className="space-y-0.5">
+                                    <FormLabel className="text-base capitalize">
+                                      {subKey}
+                                    </FormLabel>
+                                    <FormDescription>
+                                      Allow {subKey} for{' '}
+                                      {key.replace(/([A-Z])/g, ' $1').trim()}.
+                                    </FormDescription>
+                                  </div>
+                                  <FormControl>
+                                    <Switch
+                                      checked={field.value}
+                                      onCheckedChange={(checked) =>
+                                        handleToggle(field.name, checked)
+                                      }
+                                    />
+                                  </FormControl>
+                                </FormItem>
+                              )}
+                            />
+                          ))}
+                        </div>
+                      )
                   )}
                 </CardContent>
               </Card>
