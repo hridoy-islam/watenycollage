@@ -114,7 +114,6 @@ export default function StudentsPage() {
       // Initialize an array for 'where' conditions
       let whereConditions = [];
 
-      // Dynamically add filters only if they exist
       if (status) whereConditions.push(`with:applications,status,${status}`);
       if (staffId)
         whereConditions.push(`with:assignStaffs,with:staff,id,${staffId}`);
@@ -128,25 +127,36 @@ export default function StudentsPage() {
           `with:applications,with:term,with:academicYear,id,${academic_year_id}`
         );
 
-      // If the user is an agent, restrict to their assigned students
+      // Only include 'agent' filter based on user role
       if (user.role === 'agent') {
-        params['agent.id'] = user.agent_id; // Only fetch students assigned to the agent
+        params['agent.id'] = user.agent_id;
       } else if (agent) {
-        params['agent.id'] = agent; // Admins can search any agent’s students
+        params['agent.id'] = agent;
       }
 
-      // Only include 'where' if conditions exist
-      if (whereConditions.length > 0) {
-        params.where = whereConditions.join(';'); // Join multiple conditions with `;`
+      // Construct query parameters
+      let queryParams = new URLSearchParams();
+
+      if (whereConditions.length === 1) {
+        queryParams.append('where', whereConditions[0]);
+      } else if (whereConditions.length > 1) {
+        whereConditions.forEach((condition) =>
+          queryParams.append('orWhere', condition)
+        );
       }
 
-      const response = await axiosInstance.get(`/students`, { params });
+      // Convert the query params to a string
+      let queryString = queryParams.toString();
+
+      const response = await axiosInstance.get(`/students?${queryString}`, {
+        params
+      });
       setStudents(response.data.data.result);
       setTotalPages(response.data.data.meta.totalPage);
     } catch (error) {
       console.error('Error fetching students:', error);
     } finally {
-      setInitialLoading(false); // Disable initial loading after the first fetch
+      setInitialLoading(false);
     }
   };
 

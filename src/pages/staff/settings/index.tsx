@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/accordion';
 import { useParams } from 'react-router-dom';
 import axiosInstance from '@/lib/axios';
+import { useToast } from '@/components/ui/use-toast';
 
 const staffPrivilegeSchema = z.object({
   management: z.object({
@@ -48,7 +49,7 @@ const staffPrivilegeSchema = z.object({
 
 export function StaffSettings() {
   const { id } = useParams();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
   const [staffDetails, setStaffDetails] = useState({});
   const [initialLoading, setInitialLoading] = useState(true);
 
@@ -102,10 +103,6 @@ export function StaffSettings() {
   }, [id]);
 
   const {
-    handleSubmit,
-    register,
-    control,
-    reset,
     setValue,
     formState: { errors }
   } = useForm({
@@ -161,8 +158,23 @@ export function StaffSettings() {
     }
 
     try {
-      await axiosInstance.patch(`/privileges/${id}`, payload);
-      fetchData();
+      const response = await axiosInstance.patch(`/privileges/${id}`, payload);
+
+      // Handle success response
+      if (response.data && response.data.success === true) {
+        toast({
+          title: response.data.message || 'Staff Access Updated successfully',
+          className: 'bg-supperagent border-none text-white'
+        });
+        await fetchData();
+      }
+      // Handle failure response from API
+      else if (response.data && response.data.success === false) {
+        toast({
+          title: response.data.message || 'Operation failed',
+          className: 'bg-red-500 border-none text-white'
+        });
+      }
     } catch (error) {
       console.error('Error updating privilege:', error);
     }
