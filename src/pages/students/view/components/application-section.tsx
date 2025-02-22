@@ -65,7 +65,7 @@ export function ApplicationsSection({ student, onSave }) {
             <TableHead>Type</TableHead>
             <TableHead>Amount</TableHead>
             <TableHead>Status</TableHead>
-            {user.role !== "agent" && ( // Hide if user is an agent
+            {user.role !== 'agent' && ( // Hide if user is an agent
               <TableHead className="text-right">Actions</TableHead>
             )}
           </TableRow>
@@ -112,7 +112,10 @@ export function ApplicationsSection({ student, onSave }) {
                   </div>
                 </TableCell>
                 <TableCell className="text-right">
-                  {user.role !== "agent" && ( // Hide if user is an agent
+                  {/* Conditionally render Agent dropdown */}
+                  {(user.role === 'admin' ||
+                    (user.role === 'staff' &&
+                      user.privileges?.student?.applicationStatus)) && (
                     <Link to={`course/${course.id}`}>
                       <Button variant="ghost" size="icon">
                         <Eye className="h-4 w-4" />

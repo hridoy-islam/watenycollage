@@ -414,7 +414,10 @@ export function PersonalDetailsForm({ student, onSave }) {
             <Label htmlFor="collageRoll">Collage Roll</Label>
             <Input id="collageRoll" {...register('collageRoll')} />
           </div>
-          {user.role !== 'agent' && (
+
+          {(user.role === 'admin' ||
+            (user.role === 'staff' &&
+              user.privileges?.student?.agentChange)) && (
             <div>
               <Label htmlFor="agentId">Agent</Label>
               <Controller

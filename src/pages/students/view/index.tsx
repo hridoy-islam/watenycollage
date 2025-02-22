@@ -55,36 +55,6 @@ export default function StudentViewPage() {
     [student, hasRequiredDocuments]
   );
 
-  // const fetchData = async () => {
-  //   try {
-  //     if (initialLoading) setInitialLoading(true);
-  //     const response = await axiosInstance.get(`/students/${id}`);
-  //     setStudent(response.data.data);
-  //   } catch (error) {
-  //     console.error('Error fetching institutions:', error);
-  //   } finally {
-  //     setInitialLoading(false); // Disable initial loading after the first fetch
-  //   }
-  // };
-
-  // // Fetch documents data
-  // const fetchDocuments = async () => {
-  //   try {
-  //     const response = await axios.get(
-  //       `https://core.qualitees.co.uk/api/documents?where=entity_id,${student.id}&exclude=file_type,profile`,
-  //       {
-  //         headers: {
-  //           'x-company-token': 'admissionhubz-0123' // Add the custom header
-  //         }
-  //       }
-  //     );
-
-  //     setDocuments(response.data.result); // Assuming the API returns an array of documents
-  //   } catch (error) {
-  //     console.error('Error fetching documents:', error);
-  //   }
-  // };
-
   // Fetch student and documents data
   const fetchAllData = async () => {
     try {
