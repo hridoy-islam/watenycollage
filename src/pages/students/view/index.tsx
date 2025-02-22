@@ -88,8 +88,6 @@ export default function StudentViewPage() {
   // Fetch student and documents data
   const fetchAllData = async () => {
     try {
-      setInitialLoading(true);
-
       // Fetch student data
       const studentResponse = await axiosInstance.get(`/students/${id}`);
       setStudent(studentResponse.data.data);
@@ -112,7 +110,7 @@ export default function StudentViewPage() {
         variant: 'destructive'
       });
     } finally {
-      setInitialLoading(false);
+      setInitialLoading(false); // Disable initial loading after the first fetch
     }
   };
 

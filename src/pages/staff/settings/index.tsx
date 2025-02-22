@@ -38,10 +38,9 @@ const staffPrivilegeSchema = z.object({
   student: z.object({
     assignStaff: z.boolean(),
     account: z.boolean(),
-    workExperience: z.boolean(),
-    application: z.boolean(),
+    agentChange: z.boolean(),
+    applicationStatus: z.boolean(),
     search: z.object({ agent: z.boolean(), staff: z.boolean() }),
-    uploadDocument: z.boolean(),
     communication: z.boolean(),
     notes: z.boolean()
   })
@@ -71,10 +70,9 @@ export function StaffSettings() {
       student: {
         assignStaff: false,
         account: false,
-        workExperience: false,
-        application: false,
+        agentChange: false,
+        applicationStatus: false,
         search: { agent: false, staff: false },
-        uploadDocument: false,
         communication: false,
         notes: false
       }
@@ -124,6 +122,7 @@ export function StaffSettings() {
           assignStaff: false,
           account: false,
           agentChange: false,
+          applicationStatus: false,
           search: {
             agent: false,
             staff: false

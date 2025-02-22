@@ -162,12 +162,11 @@ export interface StaffPrivilege {
     agent: boolean;
   };
   student: {
-    personalInformation: boolean;
-    education: boolean;
-    workExperience: boolean;
-    application: boolean;
+    assignStaff: boolean;
+    account: boolean;
+    agentChange: boolean;
+    applicationStatus: boolean;
     search: { agent: boolean; staff: boolean };
-    uploadDocument: boolean;
     communication: boolean;
     notes: boolean;
   };
