@@ -215,7 +215,19 @@ const authSlice = createSlice({
         state.loading = false;
         state.token = action.payload.data.access_token;
         const decodedUser = jwtDecode(action.payload.data.access_token);
-        state.user = decodedUser;
+
+        // Create a mutable copy of the decoded user
+        const userWithPrivileges = { ...decodedUser };
+
+        // Assign privileges if they exist in the response (only for staff)
+        if (
+          userWithPrivileges.role === 'staff' &&
+          action.payload.data.privileges
+        ) {
+          userWithPrivileges.privileges = action.payload.data.privileges;
+        }
+
+        state.user = userWithPrivileges;
         state.error = null;
       })
       .addCase(loginUser.rejected, (state, action) => {
@@ -234,7 +246,19 @@ const authSlice = createSlice({
         state.loading = false;
         state.token = action.payload.data.access_token;
         const decodedUser = jwtDecode(action.payload.data.access_token);
-        state.user = decodedUser;
+
+        // Create a mutable copy of the decoded user
+        const userWithPrivileges = { ...decodedUser };
+
+        // Assign privileges if they exist in the response (only for staff)
+        if (
+          userWithPrivileges.role === 'staff' &&
+          action.payload.data.privileges
+        ) {
+          userWithPrivileges.privileges = action.payload.data.privileges;
+        }
+
+        state.user = userWithPrivileges;
         state.error = null;
       })
       .addCase(authWithFbORGoogle.rejected, (state, action) => {

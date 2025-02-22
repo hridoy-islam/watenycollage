@@ -69,6 +69,8 @@ export default function StudentFilter({ onSubmit }) {
     onSubmit(filterData);
   };
 
+  console.log('checking', user.privileges?.student?.search?.agent);
+
   return (
     <div>
       <form
@@ -162,7 +164,44 @@ export default function StudentFilter({ onSubmit }) {
             <div></div>
           </>
         )}
-        {user.role !== 'agent' && (
+
+        {/* Agent Dropdown - Always visible for Admin, visible for Staff with Agent Access */}
+        {(user.role === 'admin' || user.privileges?.student?.search?.agent) && (
+          <div>
+            <label className="mb-2 block text-sm font-medium">Agent</label>
+            <select
+              className="w-full rounded-md border border-gray-300 bg-white p-2 text-gray-900 shadow-sm focus:border-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-500"
+              onChange={(e) => setSelectedAgent(e.target.value)}
+            >
+              <option value="">Select Agent</option>
+              {agents.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.agentName}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {/* Staff Dropdown - Always visible for Admin, visible for Staff with Staff Access */}
+        {(user.role === 'admin' || user.privileges?.student?.search?.staff) && (
+          <div>
+            <label className="mb-2 block text-sm font-medium">Staffs</label>
+            <select
+              className="w-full rounded-md border border-gray-300 bg-white p-2 text-gray-900 shadow-sm focus:border-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-500"
+              onChange={(e) => setSelectedStaff(e.target.value)}
+            >
+              <option value="">Select Staff</option>
+              {staffs.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.firstName} {item.lastName}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {/* {user.role !== 'agent' && (
           <>
             <div>
               <label className="mb-2 block text-sm font-medium">Agent</label>
@@ -193,7 +232,7 @@ export default function StudentFilter({ onSubmit }) {
               </select>
             </div>
           </>
-        )}
+        )} */}
         <div></div>
         <div></div>
         <div></div>

@@ -1,5 +1,5 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,9 +7,9 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { LogOut, UserPlus, User, KeyRound } from 'lucide-react'
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import { LogOut, UserPlus, User, KeyRound } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { logout } from '@/redux/features/authSlice';
@@ -32,7 +32,14 @@ export function UserNav() {
           <Button variant="outline" className="relative h-10 w-10 rounded-full">
             <Avatar className="h-10 w-10">
               <AvatarImage src="/placeholder.svg" alt="@shadcn" />
-              <AvatarFallback>SA</AvatarFallback>
+              <AvatarFallback>
+                {user?.name
+                  ?.split(' ') // Split name into an array of words
+                  .slice(0, 2) // Get the first two words (first & last name)
+                  .map((word) => word.charAt(0).toUpperCase()) // Take first letter & capitalize
+                  .join('')}{' '}
+                {/* Join the letters together */}
+              </AvatarFallback>
             </Avatar>
           </Button>
         </DropdownMenuTrigger>
@@ -41,7 +48,7 @@ export function UserNav() {
             <div className="flex flex-col space-y-1">
               <p className="text-sm font-medium leading-none">{user?.name}</p>
               <p className="text-xs leading-none text-muted-foreground">
-              {user?.email}
+                {user?.email}
               </p>
             </div>
           </DropdownMenuLabel>
@@ -68,6 +75,5 @@ export function UserNav() {
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
-  )
+  );
 }
-

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, Printer, Plus, AlertTriangle, XCircle } from 'lucide-react';
+import { ArrowLeft, Printer, Plus, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { StudentProfile } from './components/student-profile';
@@ -8,8 +8,6 @@ import { AcademicRecords } from './components/academic-records';
 import { WorkExperienceSection } from './components/work-experience';
 import { ApplicationsSection } from './components/application-section';
 import { EmergencyContacts } from './components/emergency-contacts';
-import { PersonalInfoForm } from './components/personal-info-form';
-import { AddressForm } from './components/address-form';
 import { Link, useParams } from 'react-router-dom';
 import axiosInstance from '../../../lib/axios';
 import { DocumentsSection } from './components/documents-section';
@@ -30,6 +28,7 @@ import axios from 'axios';
 export default function StudentViewPage() {
   const { id } = useParams();
   const { toast } = useToast();
+  const { user } = useSelector((state: any) => state.auth) || {};
   const [student, setStudent] = useState<any>();
   const [documents, setDocuments] = useState<any>([]);
   const [initialLoading, setInitialLoading] = useState(true); // New state for initial loading
@@ -51,12 +50,9 @@ export default function StudentViewPage() {
     [student]
   );
   const isComplete = useMemo(
-    () => isStudentDataComplete(student, hasRequiredDocuments),
+    () => isStudentDataComplete(student, hasRequiredDocuments), // Include hasRequiredDocuments in the isComplete check
     [student, hasRequiredDocuments]
   );
-  const { user } = useSelector((state: any) => state.auth);
-  // Check if the user is an agent
-  const isAgent = user?.role === 'agent';
 
   const fetchData = async () => {
     try {
@@ -88,6 +84,17 @@ export default function StudentViewPage() {
     }
   };
 
+  useEffect(() => {
+    if (student && documents) {
+      const hasRequiredDocuments =
+        student?.noDocuments ||
+        ['work experience', 'qualification'].some((type) =>
+          documents.some((doc) => doc.file_type === type)
+        );
+      setHasRequiredDocuments(hasRequiredDocuments);
+    }
+  }, [student, documents]);
+
   const handleSave = async (data) => {
     await axiosInstance.patch(`/students/${id}`, data);
     fetchData();
@@ -98,8 +105,71 @@ export default function StudentViewPage() {
   };
 
   useEffect(() => {
-    fetchData();
+    const fetchAllData = async () => {
+      await fetchData();
+      await fetchDocuments();
+    };
+
+    fetchAllData();
   }, [id]);
+
+  useEffect(() => {
+    console.log('Student:', student);
+    console.log('Documents:', documents);
+    console.log('Has Required Documents:', hasRequiredDocuments);
+  }, [student, documents, hasRequiredDocuments]);
+
+  const activeTabClass =
+    'data-[state=active]:bg-supperagent data-[state=active]:text-white';
+
+  // Define tabs dynamically
+  const tabs = [
+    {
+      value: 'personal',
+      label: 'Personal Details',
+      showIcon: !isPersonalComplete
+    },
+    { value: 'education', label: 'Education', showIcon: !isAcademicComplete },
+    { value: 'work', label: 'Work Details', showIcon: !isWorkExperience },
+    { value: 'documents', label: 'Documents', showIcon: !hasRequiredDocuments }
+  ];
+
+  // Check if the user is an agent
+  const isAgent = user?.role === 'agent';
+  const isStaff = user?.role === 'staff';
+  const isAdmin = user?.role === 'admin';
+
+  // Add conditional tabs when `isComplete` is true
+  if (isComplete) {
+    tabs.push({ value: 'application', label: 'Application' });
+
+    if (isAdmin) {
+      // Admin sees all tabs
+      tabs.push(
+        { value: 'notes', label: 'Notes' },
+        { value: 'staff', label: 'Assigned Staffs' },
+        { value: 'communications', label: 'Communications' },
+        { value: 'account', label: 'Account' }
+      );
+    } else if (isStaff) {
+      // Staff sees tabs based on privileges
+      if (user.privileges?.student?.notes) {
+        tabs.push({ value: 'notes', label: 'Notes' });
+      }
+      if (user.privileges?.student?.assignStaff) {
+        tabs.push({ value: 'staff', label: 'Assigned Staffs' });
+      }
+      if (user.privileges?.student?.communication) {
+        tabs.push({ value: 'communications', label: 'Communications' });
+      }
+      if (user.privileges?.student?.account) {
+        tabs.push({ value: 'account', label: 'Account' });
+      }
+    } else if (isAgent) {
+      // Agents see only what’s relevant to them (if anything)
+      tabs.push({ value: 'application', label: 'Application' });
+    }
+  }
 
   return (
     <div className="min-h-screen">
@@ -135,87 +205,12 @@ export default function StudentViewPage() {
 
       <Tabs defaultValue="personal" className="mt-1 px-2">
         <TabsList>
-          <TabsTrigger
-            value="personal"
-            className="data-[state=active]:bg-supperagent data-[state=active]:text-white"
-          >
-            {!isPersonalComplete && (
-              <XCircle className="mr-2 h-4 w-4 text-red-600" />
-            )}
-            Personal Details
-          </TabsTrigger>
-          {/* <TabsTrigger
-            value="travel"
-            className="data-[state=active]:bg-supperagent data-[state=active]:text-white"
-          >
-            Travel & Immigration
-          </TabsTrigger> */}
-          <TabsTrigger
-            value="education"
-            className="data-[state=active]:bg-supperagent data-[state=active]:text-white"
-          >
-            {!isAcademicComplete && (
-              <XCircle className="mr-2 h-4 w-4 text-red-600" />
-            )}
-            Education
-          </TabsTrigger>
-          <TabsTrigger
-            value="work"
-            className="data-[state=active]:bg-supperagent data-[state=active]:text-white"
-          >
-            {!isWorkExperience && (
-              <XCircle className="mr-2 h-4 w-4 text-red-600" />
-            )}
-            Work Details
-          </TabsTrigger>
-          <TabsTrigger
-            value="documents"
-            className="data-[state=active]:bg-supperagent data-[state=active]:text-white"
-          >
-            {!hasRequiredDocuments && (
-              <XCircle className="mr-2 h-4 w-4 text-red-600" />
-            )}
-            Documents
-          </TabsTrigger>
-          {isComplete && (
-            <>
-              <TabsTrigger
-                value="application"
-                className="data-[state=active]:bg-supperagent data-[state=active]:text-white"
-              >
-                Application
-              </TabsTrigger>
-              <TabsTrigger
-                value="notes"
-                className="data-[state=active]:bg-supperagent data-[state=active]:text-white"
-              >
-                Notes
-              </TabsTrigger>
-              {!isAgent && (
-                <>
-                  <TabsTrigger
-                    value="staff"
-                    className="data-[state=active]:bg-supperagent data-[state=active]:text-white"
-                  >
-                    Assigned Staffs
-                  </TabsTrigger>
-
-                  <TabsTrigger
-                    value="communications"
-                    className="data-[state=active]:bg-supperagent data-[state=active]:text-white"
-                  >
-                    Communications
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="account"
-                    className="data-[state=active]:bg-supperagent data-[state=active]:text-white"
-                  >
-                    Account
-                  </TabsTrigger>
-                </>
-              )}
-            </>
-          )}
+          {tabs.map(({ value, label, showIcon }) => (
+            <TabsTrigger key={value} value={value} className={activeTabClass}>
+              {showIcon && <XCircle className="mr-2 h-4 w-4 text-red-600" />}
+              {label}
+            </TabsTrigger>
+          ))}
         </TabsList>
         <TabsContent value="personal">
           <PersonalDetailsForm student={student} onSave={handleSave} />
@@ -223,10 +218,7 @@ export default function StudentViewPage() {
           {/* <PersonalInfoForm student={student} onSave={handleSave} /> */}
           <EmergencyContacts student={student} onSave={handleSave} />
         </TabsContent>
-        {/* <TabsContent value="travel">
-          <TravelImmigrationHistory student={student} onSave={handleSave}/>
-          <RefusalHistory student={student} onSave={handleSave} />
-        </TabsContent> */}
+
         <TabsContent value="education">
           <AcademicRecords student={student} onSave={handleSave} />
         </TabsContent>
@@ -237,7 +229,6 @@ export default function StudentViewPage() {
           <DocumentsSection
             student={student}
             documents={documents}
-            setHasRequiredDocuments={setHasRequiredDocuments}
             fetchDocuments={fetchDocuments}
             onSave={handleSave}
           />
@@ -251,18 +242,20 @@ export default function StudentViewPage() {
             <TabsContent value="staff">
               <AssignStaff student={student} onSave={handleSave} />
             </TabsContent>
+
             <TabsContent value="notes">
               <NotesPage />
             </TabsContent>
+
             <TabsContent value="communications">
               <SendEmailComponent student={student} />
             </TabsContent>
+
             <TabsContent value="account">
               <AccountPage student={student} />
             </TabsContent>
           </>
         )}
-        {/* Add other tab contents as needed */}
       </Tabs>
     </div>
   );
