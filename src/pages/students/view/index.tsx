@@ -24,6 +24,7 @@ import {
 } from '@/lib/utils';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
+import { BlinkingDots } from '@/components/shared/blinking-dots';
 
 export default function StudentViewPage() {
   const { id } = useParams();
@@ -54,33 +55,64 @@ export default function StudentViewPage() {
     [student, hasRequiredDocuments]
   );
 
-  const fetchData = async () => {
-    try {
-      if (initialLoading) setInitialLoading(true);
-      const response = await axiosInstance.get(`/students/${id}`);
-      setStudent(response.data.data);
-    } catch (error) {
-      console.error('Error fetching institutions:', error);
-    } finally {
-      setInitialLoading(false); // Disable initial loading after the first fetch
-    }
-  };
+  // const fetchData = async () => {
+  //   try {
+  //     if (initialLoading) setInitialLoading(true);
+  //     const response = await axiosInstance.get(`/students/${id}`);
+  //     setStudent(response.data.data);
+  //   } catch (error) {
+  //     console.error('Error fetching institutions:', error);
+  //   } finally {
+  //     setInitialLoading(false); // Disable initial loading after the first fetch
+  //   }
+  // };
 
-  // Fetch documents data
-  const fetchDocuments = async () => {
+  // // Fetch documents data
+  // const fetchDocuments = async () => {
+  //   try {
+  //     const response = await axios.get(
+  //       `https://core.qualitees.co.uk/api/documents?where=entity_id,${student.id}&exclude=file_type,profile`,
+  //       {
+  //         headers: {
+  //           'x-company-token': 'admissionhubz-0123' // Add the custom header
+  //         }
+  //       }
+  //     );
+
+  //     setDocuments(response.data.result); // Assuming the API returns an array of documents
+  //   } catch (error) {
+  //     console.error('Error fetching documents:', error);
+  //   }
+  // };
+
+  // Fetch student and documents data
+  const fetchAllData = async () => {
     try {
-      const response = await axios.get(
-        `https://core.qualitees.co.uk/api/documents?where=entity_id,${student.id}&exclude=file_type,profile`,
+      setInitialLoading(true);
+
+      // Fetch student data
+      const studentResponse = await axiosInstance.get(`/students/${id}`);
+      setStudent(studentResponse.data.data);
+
+      // Fetch documents data (only after student data is available)
+      const documentsResponse = await axios.get(
+        `https://core.qualitees.co.uk/api/documents?where=entity_id,${studentResponse.data.data.id}&exclude=file_type,profile`,
         {
           headers: {
-            'x-company-token': 'admissionhubz-0123' // Add the custom header
+            'x-company-token': 'admissionhubz-0123'
           }
         }
       );
-
-      setDocuments(response.data.result); // Assuming the API returns an array of documents
+      setDocuments(documentsResponse.data.result);
     } catch (error) {
-      console.error('Error fetching documents:', error);
+      console.error('Error fetching data:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to fetch student data.',
+        variant: 'destructive'
+      });
+    } finally {
+      setInitialLoading(false);
     }
   };
 
@@ -97,7 +129,7 @@ export default function StudentViewPage() {
 
   const handleSave = async (data) => {
     await axiosInstance.patch(`/students/${id}`, data);
-    fetchData();
+    await fetchAllData(); // Refetch data after saving
     toast({
       title: 'Student updated successfully',
       className: 'bg-supperagent border-none text-white'
@@ -105,19 +137,8 @@ export default function StudentViewPage() {
   };
 
   useEffect(() => {
-    const fetchAllData = async () => {
-      await fetchData();
-      await fetchDocuments();
-    };
-
     fetchAllData();
   }, [id]);
-
-  useEffect(() => {
-    console.log('Student:', student);
-    console.log('Documents:', documents);
-    console.log('Has Required Documents:', hasRequiredDocuments);
-  }, [student, documents, hasRequiredDocuments]);
 
   const activeTabClass =
     'data-[state=active]:bg-supperagent data-[state=active]:text-white';
@@ -169,6 +190,14 @@ export default function StudentViewPage() {
       // Agents see only what’s relevant to them (if anything)
       tabs.push({ value: 'application', label: 'Application' });
     }
+  }
+
+  if (initialLoading) {
+    return (
+      <div className="flex justify-center py-6">
+        <BlinkingDots size="large" color="bg-supperagent" />
+      </div>
+    );
   }
 
   return (
@@ -229,7 +258,7 @@ export default function StudentViewPage() {
           <DocumentsSection
             student={student}
             documents={documents}
-            fetchDocuments={fetchDocuments}
+            fetchDocuments={fetchAllData}
             onSave={handleSave}
           />
         </TabsContent>
