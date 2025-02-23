@@ -156,7 +156,7 @@ export default function StudentViewPage() {
       }
     } else if (isAgent) {
       // Agents see only what’s relevant to them (if anything)
-      tabs.push({ value: 'application', label: 'Application' });
+      // tabs.push({ value: 'application', label: 'Application' });
     }
   }
 

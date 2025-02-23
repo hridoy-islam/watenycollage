@@ -1,41 +1,3 @@
-// import { useEffect, useState } from "react";
-// import { useForm, useFieldArray } from "react-hook-form";
-// import { zodResolver } from "@hookform/resolvers/zod";
-// import * as z from "zod";
-// import { Button } from "@/components/ui/button";
-// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-// import { Input } from "@/components/ui/input";
-// import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-// import { Plus, Trash2 } from "lucide-react";
-// import axiosInstance from '@/lib/axios';
-// import { useParams } from "react-router-dom";
-// import { Label } from "@/components/ui/label";
-// import moment from "moment";
-// import { useToast } from "@/components/ui/use-toast";
-
-// const yearSessionSchema = z.object({
-//     years: z
-//         .array(
-//             z.object({
-//                 id: z.string().optional(),
-//                 year: z.string().min(1, "Year name is required"),
-//                 sessions: z
-//                     .array(
-//                         z.object({
-//                             id: z.string().optional(),
-//                             invoiceDate: z.date(),
-//                             rate: z.number().min(0, "Rate must be positive"),
-//                             type: z.enum(["flat", "percentage"]),
-//                         }),
-//                     )
-//                     .length(3, "Each year must have exactly 3 fees"),
-//             }),
-//         )
-//         .min(1, "At least one year is required")
-//         .max(4, "Maximum 4 years allowed"),
-// });
-
 // export default function CourseRelationDetails() {
 //     const { id } = useParams();
 //     const [course, setCourse] = useState();
@@ -104,8 +66,6 @@
 //             };
 //             return yearData;
 //         });
-
-        
 
 //         const payload = {
 //             years: formattedYears,
@@ -275,139 +235,184 @@
 //     );
 // }
 
-import { useForm, useFieldArray } from "react-hook-form";
-import axiosInstance from "@/lib/axios";
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
+import { Card } from '@/components/ui/card';
 
-export default function DynamicForm() {
-  const [loading, setLoading] = useState(true);
-  const { id } = useParams();
-  const {
-    register,
-    control,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm({
-    defaultValues: {
-      years: [],
-    },
-  });
+export default function CourseRelationDetails() {
+  const [years, setYears] = useState([]);
 
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "years",
-  });
-
-  // Fetch existing data and prefill the form
-  const fetchData = async () => {
-    try {
-      const response = await axiosInstance.get(`/course-relations/${id}`);
-      const yearsData = response.data.map((year, index) => ({
-        id: year.id, // Keep existing ID
-        year: `Year ${index + 1}`, // Automatically set the year
-        sessions: year.sessions.map((session) => ({
-          id: session.id, // Keep session ID
-          session: session.sessionName,
-          invoice_date: session.invoiceDate,
-          rate: session.rate,
-          type: session.type,
-        })),
-      }));
-
-      yearForm.reset({ years: formattedYears });
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    } finally {
-      setLoading(false);
+  const addYear = () => {
+    if (years.length >= 4) {
+      alert('You can add a maximum of 4 years.');
+      return;
     }
+
+    // Automatically name the year (e.g., "Year 1", "Year 2", etc.)
+    const yearName = `Year ${years.length + 1}`;
+    setYears([...years, { year: yearName, sessions: [] }]);
   };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  // Submit Form: Patch if ID exists, otherwise ignore ID
-  const onSubmit = async (data) => {
-    const formattedYears = data.years.map((year, index) => ({
-      ...(year.id ? { id: year.id } : {}), // Include ID only if it exists
-      year: `Year ${index + 1}`, // Ensure year is correctly formatted
-      sessions: year.sessions.map((session) => ({
-        ...(session.id ? { id: session.id } : {}), // Include ID only if it exists
-        session: session.sessionName,
-        invoice_date: session.invoiceDate,
-        rate: session.rate,
-        type: session.type,
-      })),
-    }));
-
-    try {
-      await axiosInstance.patch(`/course-relations/${id}`, { years: formattedYears });
-      alert("Data updated successfully!");
-      fetchData(); // Refetch to update IDs
-    } catch (error) {
-      console.error("Error submitting data:", error);
-    }
+  const deleteYear = (yearIndex) => {
+    const updatedYears = years.filter((_, index) => index !== yearIndex);
+    setYears(updatedYears);
   };
 
-  // Add new year dynamically
-  const handleAddYear = () => {
-    if (fields.length < 4) {
-      append({
-        id: "", // New year (No ID until saved)
-        year: `Year ${fields.length + 1}`, // Auto-generate year name
-        sessions: [
-          { sessionName: "Session 1", invoiceDate: "", rate: "", type: "flat" },
-          { sessionName: "Session 2", invoiceDate: "", rate: "", type: "flat" },
-          { sessionName: "Session 3", invoiceDate: "", rate: "", type: "flat" },
-        ],
+  const addSession = (yearIndex) => {
+    if (years[yearIndex].sessions.length >= 3) {
+      alert('You can add a maximum of 3 sessions per year.');
+      return;
+    }
+
+    // Automatically name the session (e.g., "Session 1", "Session 2", etc.)
+    const sessionName = `Session ${years[yearIndex].sessions.length + 1}`;
+    const updatedYears = [...years];
+    updatedYears[yearIndex].sessions.push({
+      name: sessionName, // Add a name field for the session
+      invoiceDate: '',
+      rate: '',
+      type: 'flat'
+    });
+    setYears(updatedYears);
+  };
+
+  const deleteSession = (yearIndex, sessionIndex) => {
+    const updatedYears = [...years];
+    updatedYears[yearIndex].sessions = updatedYears[yearIndex].sessions.filter(
+      (_, index) => index !== sessionIndex
+    );
+    setYears(updatedYears);
+  };
+
+  const updateSession = (yearIndex, sessionIndex, field, value) => {
+    const updatedYears = [...years];
+    updatedYears[yearIndex].sessions[sessionIndex][field] = value;
+    setYears(updatedYears);
+  };
+
+  const handleSubmit = async () => {
+    try {
+      // Perform a PATCH request to update the data on the server
+      const response = await fetch('https://your-api-endpoint.com/update', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(years)
       });
+
+      if (!response.ok) {
+        throw new Error('Failed to update data');
+      }
+
+      const result = await response.json();
+      console.log('PATCH Response:', result);
+      alert('Data updated successfully!');
+    } catch (error) {
+      console.error('Error updating data:', error);
+      alert('Failed to update data. Please try again.');
     }
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="p-4 space-y-4">
-      {loading ? <p>Loading...</p> : fields.map((year, yearIndex) => (
-        <div key={year.id || yearIndex} className="border p-4 rounded-lg shadow">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-bold">{`Year ${yearIndex + 1}`}</h2>
-            <button type="button" onClick={() => remove(yearIndex)} className="text-red-500">
-              Remove
-            </button>
+    <div className="mx-auto">
+      <div className="flex gap-4">
+        <Button
+          className="bg-supperagent text-white hover:bg-supperagent"
+          onClick={addYear}
+        >
+          Add Year
+        </Button>
+        <Button
+          className="bg-black text-white hover:bg-black"
+          onClick={handleSubmit}
+        >
+          Submit
+        </Button>
+      </div>
+
+      {years.map((yearData, yearIndex) => (
+        <Card key={yearIndex} className="my-6 rounded-lg p-4">
+          <div className="mb-4 flex items-center gap-4">
+            <span className="font-medium">{yearData.year}</span>
+            <Button
+              className="bg-supperagent text-white hover:bg-supperagent"
+              onClick={() => addSession(yearIndex)}
+            >
+              Add Session
+            </Button>
+            <Button
+              className="bg-red-500 text-white hover:bg-red-600"
+              onClick={() => deleteYear(yearIndex)}
+            >
+              Delete Year
+            </Button>
           </div>
 
-          {/* Sessions */}
-          {year.sessions.map((session, sessionIndex) => (
-            <div key={sessionIndex} className="p-2 border rounded my-2">
-              <h3 className="font-semibold">{session.sessionName}</h3>
-              <input
-                {...register(`years.${yearIndex}.sessions.${sessionIndex}.invoiceDate`, { required: "Date is required" })}
-                type="date"
-                className="border p-2 w-full"
-              />
-              <input
-                {...register(`years.${yearIndex}.sessions.${sessionIndex}.rate`, { required: "Rate is required" })}
-                type="number"
-                placeholder="Enter Rate"
-                className="border p-2 w-full my-2"
-              />
-              <select {...register(`years.${yearIndex}.sessions.${sessionIndex}.type`)} className="border p-2 w-full">
-                <option value="flat">Flat</option>
-                <option value="percentage">Percentage</option>
-              </select>
-            </div>
+          {yearData.sessions.map((session, sessionIndex) => (
+            <Card key={sessionIndex} className="mb-4 rounded-lg p-4">
+              <div className="mb-4 flex items-center gap-4">
+                <span className="font-medium">{session.name}</span>
+                <Button
+                  className="bg-red-500 text-white hover:bg-red-600"
+                  onClick={() => deleteSession(yearIndex, sessionIndex)}
+                >
+                  Delete Session
+                </Button>
+              </div>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <Input
+                  type="date"
+                  value={session.invoiceDate}
+                  onChange={(e) =>
+                    updateSession(
+                      yearIndex,
+                      sessionIndex,
+                      'invoiceDate',
+                      e.target.value
+                    )
+                  }
+                />
+                <Input
+                  type="number"
+                  placeholder="Rate"
+                  value={session.rate}
+                  onChange={(e) =>
+                    updateSession(
+                      yearIndex,
+                      sessionIndex,
+                      'rate',
+                      e.target.value
+                    )
+                  }
+                />
+                <Select
+                  value={session.type}
+                  onValueChange={(value) =>
+                    updateSession(yearIndex, sessionIndex, 'type', value)
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="flat">Flat</SelectItem>
+                    <SelectItem value="percentage">Percentage</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </Card>
           ))}
-        </div>
+        </Card>
       ))}
-
-      <button type="button" onClick={handleAddYear} className="bg-blue-500 text-white p-2 rounded">
-        Add Year
-      </button>
-
-      <button type="submit" className="bg-green-500 text-white p-2 rounded">
-        Submit
-      </button>
-    </form>
+    </div>
   );
 }
