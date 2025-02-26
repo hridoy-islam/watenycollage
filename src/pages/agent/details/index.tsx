@@ -1,191 +1,244 @@
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import React, { useState } from 'react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table'; // Import shadcn table components
+import { Button } from '@/components/ui/button'; // Import shadcn button
+import { Input } from '@/components/ui/input'; // Import shadcn input
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue
-} from '@/components/ui/select';
-import { Card } from '@/components/ui/card';
+} from '@/components/ui/select'; // Import shadcn select
 
-// Mock course details (replace with actual data from your API)
-const courses = [
-  {
-    id: 1,
-    name: 'Course 1',
-    sessions: [
-      { id: 1, name: 'Session 1', invoiceDate: '2023-10-01' },
-      { id: 2, name: 'Session 2', invoiceDate: '2023-11-01' }
-    ]
-  },
-  {
-    id: 2,
-    name: 'Course 2',
-    sessions: [
-      { id: 3, name: 'Session 1', invoiceDate: '2024-01-01' },
-      { id: 4, name: 'Session 2', invoiceDate: '2024-02-01' }
-    ]
-  }
-];
-
-export default function AgentDetailsPage() {
-  const [selectedCourse, setSelectedCourse] = useState(null);
-  const [year, setYear] = useState({
-    year: 'Year 1', // Only one year
-    sessions: []
-  });
-  const [assignedCourses, setAssignedCourses] = useState([]); // Track assigned courses
-
-  // Handle course selection
-  const handleCourseSelect = (courseId) => {
-    const course = courses.find((c) => c.id === Number(courseId));
-    if (course) {
-      setSelectedCourse(course);
-      setYear({
-        year: 'Year 1',
-        sessions: course.sessions.map((session) => ({
-          ...session,
-          rate: '',
-          type: 'flat' // Default type
-        }))
-      });
-    }
-  };
-
-  // Update session details
-  const updateSession = (sessionIndex, field, value) => {
-    const updatedSessions = [...year.sessions];
-    updatedSessions[sessionIndex][field] = value;
-    setYear({ ...year, sessions: updatedSessions });
-  };
-
-  // Handle form submission
-  const handleSubmit = async () => {
-    if (!selectedCourse) {
-      alert('Please select a course first.');
-      return;
-    }
-
-    try {
-      // Perform a PATCH request to update the data on the server
-      const response = await fetch(
-        'https://your-api-endpoint.com/assign-course',
+const AgentDetailsPage = () => {
+  // State for managing courses
+  const [courses, setCourses] = useState([
+    {
+      id: 1,
+      institution: 'AUG',
+      course: 'CSE',
+      terms: [
         {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            courseId: selectedCourse.id,
-            ...year
-          })
+          term: 'First Term',
+          invoiceDate: '2023-10-01',
+          rate: 5500.0,
+          type: 'Flat'
+        },
+        {
+          term: 'Second Term',
+          invoiceDate: '2024-02-01',
+          rate: 6000.0,
+          type: 'Percentage'
+        },
+        {
+          term: 'Third Term',
+          invoiceDate: '2024-06-01',
+          rate: 6500.0,
+          type: 'Flat'
         }
-      );
+      ],
+      status: 'Enrolled'
+    }
+  ]);
 
-      if (!response.ok) {
-        throw new Error('Failed to assign course');
-      }
+  // State for managing inline editing
+  const [editingField, setEditingField] = useState<{
+    courseId: number;
+    termIndex: number;
+    field: string;
+  } | null>(null);
 
-      const result = await response.json();
-      console.log('PATCH Response:', result);
+  // Handle inline edit
+  const handleInlineEdit = (
+    courseId: number,
+    termIndex: number,
+    field: string
+  ) => {
+    setEditingField({ courseId, termIndex, field });
+  };
 
-      // Add the assigned course to the list
-      setAssignedCourses([...assignedCourses, selectedCourse]);
-      alert('Course assigned successfully!');
-    } catch (error) {
-      console.error('Error assigning course:', error);
-      alert('Failed to assign course. Please try again.');
+  // Save inline edit
+  const saveInlineEdit = (
+    e:
+      | React.FocusEvent<HTMLInputElement>
+      | React.KeyboardEvent<HTMLInputElement>
+  ) => {
+    if (editingField) {
+      const { courseId, termIndex, field } = editingField;
+      const updatedCourses = courses.map((course) => {
+        if (course.id === courseId) {
+          const updatedTerms = course.terms.map((term, index) => {
+            if (index === termIndex) {
+              return { ...term, [field]: e.currentTarget.value };
+            }
+            return term;
+          });
+          return { ...course, terms: updatedTerms };
+        }
+        return course;
+      });
+      setCourses(updatedCourses);
+      setEditingField(null);
+    }
+  };
+
+  // Handle key press (e.g., Enter to save)
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      saveInlineEdit(e);
     }
   };
 
   return (
-    <div className="mx-auto p-6">
-      <div className="mb-6">
-        <Select onValueChange={handleCourseSelect}>
-          <SelectTrigger className="w-[200px]">
-            <SelectValue placeholder="Select a course" />
-          </SelectTrigger>
-          <SelectContent>
-            {courses.map((course) => (
-              <SelectItem key={course.id} value={String(course.id)}>
-                {course.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+    <div className="rounded-lg bg-white p-6 shadow-md">
+      <div className="mb-6 flex items-center justify-between">
+        <h2 className="text-xl font-semibold">Assigned Courses</h2>
+        <Button>+ Add Course</Button>
       </div>
 
-      {/* Display assigned courses */}
-      {assignedCourses.length > 0 && (
-        <Card className="mb-6 rounded-lg p-4">
-          <h2 className="mb-4 text-lg font-semibold">Assigned Courses</h2>
-          <ul>
-            {assignedCourses.map((course) => (
-              <li key={course.id} className="mb-2">
-                {course.name}
-              </li>
-            ))}
-          </ul>
-        </Card>
-      )}
-
-      {selectedCourse && (
-        <>
-          <div className="flex gap-4">
-            <Button
-              className="bg-black text-white hover:bg-black"
-              onClick={handleSubmit}
-            >
-              Assign Course
-            </Button>
-          </div>
-
-          <Card className="my-6 rounded-lg p-4">
-            <div className="mb-4 flex items-center gap-4">
-              <span className="font-medium">{year.year}</span>
-            </div>
-
-            {year.sessions.map((session, sessionIndex) => (
-              <Card key={session.id} className="mb-4 rounded-lg p-4">
-                <div className="mb-4 flex items-center gap-4">
-                  <span className="font-medium">{session.name}</span>
-                </div>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                  <Input
-                    type="date"
-                    value={session.invoiceDate}
-                    disabled // Invoice date is pulled from course details and cannot be edited
-                  />
-                  <Input
-                    type="number"
-                    placeholder="Rate"
-                    value={session.rate}
-                    onChange={(e) =>
-                      updateSession(sessionIndex, 'rate', e.target.value)
-                    }
-                  />
-                  <Select
-                    value={session.type}
-                    onValueChange={(value) =>
-                      updateSession(sessionIndex, 'type', value)
+      {/* Table to display courses */}
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Institution</TableHead>
+            <TableHead>Course</TableHead>
+            <TableHead>Term</TableHead>
+            <TableHead>Invoice Date</TableHead>
+            <TableHead>Rate</TableHead>
+            <TableHead>Type</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {courses.map((course) => (
+            <React.Fragment key={course.id}>
+              {course.terms.map((term, termIndex) => (
+                <TableRow key={termIndex}>
+                  {termIndex === 0 && (
+                    <>
+                      <TableCell
+                        rowSpan={course.terms.length}
+                        className="border-r"
+                      >
+                        {course.institution}
+                      </TableCell>
+                      <TableCell
+                        rowSpan={course.terms.length}
+                        className="border-r"
+                      >
+                        {course.course}
+                      </TableCell>
+                    </>
+                  )}
+                  <TableCell
+                    onClick={() =>
+                      handleInlineEdit(course.id, termIndex, 'term')
                     }
                   >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="flat">Flat</SelectItem>
-                      <SelectItem value="percentage">Percentage</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </Card>
-            ))}
-          </Card>
-        </>
-      )}
+                    {editingField?.courseId === course.id &&
+                    editingField.termIndex === termIndex &&
+                    editingField.field === 'term' ? (
+                      <Input
+                        autoFocus
+                        defaultValue={term.term}
+                        onBlur={saveInlineEdit}
+                        onKeyPress={handleKeyPress}
+                      />
+                    ) : (
+                      term.term
+                    )}
+                  </TableCell>
+                  <TableCell
+                    onClick={() =>
+                      handleInlineEdit(course.id, termIndex, 'invoiceDate')
+                    }
+                  >
+                    {editingField?.courseId === course.id &&
+                    editingField.termIndex === termIndex &&
+                    editingField.field === 'invoiceDate' ? (
+                      <Input
+                        type="date"
+                        autoFocus
+                        defaultValue={term.invoiceDate}
+                        onBlur={saveInlineEdit}
+                        onKeyPress={handleKeyPress}
+                      />
+                    ) : (
+                      term.invoiceDate
+                    )}
+                  </TableCell>
+                  <TableCell
+                    onClick={() =>
+                      handleInlineEdit(course.id, termIndex, 'rate')
+                    }
+                  >
+                    {editingField?.courseId === course.id &&
+                    editingField.termIndex === termIndex &&
+                    editingField.field === 'rate' ? (
+                      <Input
+                        type="number"
+                        autoFocus
+                        defaultValue={term.rate}
+                        onBlur={saveInlineEdit}
+                        onKeyPress={handleKeyPress}
+                      />
+                    ) : (
+                      `$${term.rate.toFixed(2)}`
+                    )}
+                  </TableCell>
+                  <TableCell
+                    onClick={() =>
+                      handleInlineEdit(course.id, termIndex, 'type')
+                    }
+                  >
+                    {editingField?.courseId === course.id &&
+                    editingField.termIndex === termIndex &&
+                    editingField.field === 'type' ? (
+                      <Select
+                        defaultValue={term.type}
+                        onValueChange={(value) => {
+                          const updatedCourses = courses.map((c) => {
+                            if (c.id === course.id) {
+                              const updatedTerms = c.terms.map((t, idx) => {
+                                if (idx === termIndex) {
+                                  return { ...t, type: value };
+                                }
+                                return t;
+                              });
+                              return { ...c, terms: updatedTerms };
+                            }
+                            return c;
+                          });
+                          setCourses(updatedCourses);
+                          setEditingField(null);
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Flat">Flat</SelectItem>
+                          <SelectItem value="Percentage">Percentage</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      term.type
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </React.Fragment>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   );
-}
+};
+
+export default AgentDetailsPage;

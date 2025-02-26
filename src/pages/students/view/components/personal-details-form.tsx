@@ -280,7 +280,7 @@ export function PersonalDetailsForm({ student, onSave }) {
 
           {/* Country of Residence */}
           <div className="space-y-2">
-            <Label htmlFor="countryResidence">Country of Residence</Label>
+            <Label htmlFor="countryResidence">Country of Residence *</Label>
             <Controller
               name="countryResidence"
               control={control}

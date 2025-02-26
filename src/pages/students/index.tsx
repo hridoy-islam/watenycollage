@@ -145,8 +145,30 @@ export default function StudentsPage() {
         );
       }
 
+      // If user is 'staff', search by email
+      // if (user.role === 'staff') {
+      //   queryParams.append('q', `createdBy.email=${user.email}`);
+      // }
+
+      let qConditions = [];
+
+      // If user is 'staff', search by email
+      if (user.role === 'staff') {
+        qConditions.push(`createdBy.email=${user.email}`);
+      }
+
+      // Add 'assignStaff.staff.email' condition if staffId is provided
+      // if (user.role === 'staff') {
+      //   qConditions.push(`assignStaff.staff.email=${user.email}`);
+      // }
+
+      // Append 'q' only if there are conditions
+      if (qConditions.length > 0) {
+        queryParams.append('q', qConditions.join('|')); // Join conditions using "|"
+      }
+
       // Convert the query params to a string
-      let queryString = queryParams.toString();
+      const queryString = queryParams.toString();
 
       const response = await axiosInstance.get(`/students?${queryString}`, {
         params
