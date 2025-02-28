@@ -88,9 +88,111 @@ export default function StudentsPage() {
   //   }
   // };
 
+  // const fetchData = async (page, entriesPerPage, filters) => {
+  //   try {
+  //     if (initialLoading) setInitialLoading(true);
+
+  //     const {
+  //       searchTerm,
+  //       status,
+  //       dob,
+  //       agent,
+  //       staffId,
+  //       institute,
+  //       term,
+  //       academic_year_id
+  //     } = filters;
+
+  //     // Initialize params object
+  //     const params = {
+  //       page,
+  //       limit: entriesPerPage,
+  //       ...(searchTerm ? { searchTerm } : {})
+  //     };
+
+  //     // // Initialize an array for 'where' conditions
+  //     // let whereConditions = [];
+
+  //     // if (status) whereConditions.push(`with:applications,status,${status}`);
+  //     // if (staffId)
+  //     //   whereConditions.push(`with:assignStaffs,with:staff,id,${staffId}`);
+  //     // if (institute)
+  //     //   whereConditions.push(
+  //     //     `with:applications,with:institute,id,${institute}`
+  //     //   );
+  //     // if (term) whereConditions.push(`with:applications,with:term,id,${term}`);
+  //     // if (academic_year_id)
+  //     //   whereConditions.push(
+  //     //     `with:applications,with:term,with:academicYear,id,${academic_year_id}`
+  //     //   );
+
+  //     // // Only include 'agent' filter based on user role
+  //     // if (user.role === 'agent') {
+  //     //   params['agent.id'] = user.agent_id;
+  //     // } else if (agent) {
+  //     //   params['agent.id'] = agent;
+  //     // }
+
+  //     // // Construct query parameters
+
+  //     // if (whereConditions.length === 1) {
+  //     //   queryParams.append('where', whereConditions[0]);
+  //     // } else if (whereConditions.length > 1) {
+  //     //   whereConditions.forEach((condition) =>
+  //     //     queryParams.append('orWhere', condition)
+  //     //   );
+  //     // }
+
+  //     // If user is 'staff', search by email
+
+  //     // let qConditions = [];
+  //     let queryParams = new URLSearchParams();
+  //     let qConditions = [];
+
+  //     if (status) qConditions.push(`applications.status=${status}`);
+  //     if (staffId) qConditions.push(`assignStaffs.staff.id=${staffId}`);
+  //     if (institute) qConditions.push(`applications.institute.id=${institute}`);
+  //     if (term) qConditions.push(`applications.term.id=${term}`);
+  //     if (dob) qConditions.push(`dob=${dob}`);
+  //     if (agent) qConditions.push(`agent.id=${agent}`);
+  //     if (academic_year_id)
+  //       qConditions.push(
+  //         `applications.term.academic_year_id=${academic_year_id}`
+  //       );
+
+  //     // If user is 'staff', search by email
+  //     if (user.role === 'staff') {
+  //       qConditions.push(`createdBy.email=${user.email}`);
+  //     }
+
+  //     // Add 'assignStaff.staff.email' condition if staffId is provided
+  //     if (user.role === 'staff') {
+  //       qConditions.push(`assignStaffs.staff.user.email=${user.email}`);
+  //     }
+
+  //     // Append 'q' only if there are conditions
+  //     if (qConditions.length > 0) {
+  //       queryParams.append('q', qConditions.join('|')); // Join conditions using "|"
+  //     }
+
+  //     // Convert the query params to a string
+  //     const queryString = queryParams.toString();
+
+  //     const response = await axiosInstance.get(`/students?${queryString}`, {
+  //       params
+  //     });
+  //     setStudents(response.data.data.result);
+  //     setTotalPages(response.data.data.meta.totalPage);
+  //   } catch (error) {
+  //     console.error('Error fetching students:', error);
+  //   } finally {
+  //     setInitialLoading(false);
+  //   }
+  // };
+
   const fetchData = async (page, entriesPerPage, filters) => {
     try {
-      if (initialLoading) setInitialLoading(true);
+      if (!initialLoading) setInitialLoading(true);
 
       const {
         searchTerm,
@@ -103,76 +205,62 @@ export default function StudentsPage() {
         academic_year_id
       } = filters;
 
-      // Initialize params object
       const params = {
         page,
         limit: entriesPerPage,
         ...(searchTerm ? { searchTerm } : {}),
-        ...(dob ? { dob } : {})
+        ...(dob ? { dob } : {}) // Add dob to the params if it exists
       };
 
-      // Initialize an array for 'where' conditions
-      let whereConditions = [];
-
-      if (status) whereConditions.push(`with:applications,status,${status}`);
-      if (staffId)
-        whereConditions.push(`with:assignStaffs,with:staff,id,${staffId}`);
-      if (institute)
-        whereConditions.push(
-          `with:applications,with:institute,id,${institute}`
-        );
-      if (term) whereConditions.push(`with:applications,with:term,id,${term}`);
-      if (academic_year_id)
-        whereConditions.push(
-          `with:applications,with:term,with:academicYear,id,${academic_year_id}`
-        );
-
-      // Only include 'agent' filter based on user role
-      if (user.role === 'agent') {
-        params['agent.id'] = user.agent_id;
-      } else if (agent) {
-        params['agent.id'] = agent;
-      }
-
-      // Construct query parameters
       let queryParams = new URLSearchParams();
-
-      if (whereConditions.length === 1) {
-        queryParams.append('where', whereConditions[0]);
-      } else if (whereConditions.length > 1) {
-        whereConditions.forEach((condition) =>
-          queryParams.append('orWhere', condition)
-        );
-      }
-
-      // If user is 'staff', search by email
-      // if (user.role === 'staff') {
-      //   queryParams.append('q', `createdBy.email=${user.email}`);
-      // }
-
       let qConditions = [];
 
-      // If user is 'staff', search by email
-      if (user.role === 'staff') {
-        qConditions.push(`createdBy.email=${user.email}`);
+      if (status) qConditions.push(`applications.status=${status}`);
+      if (institute) qConditions.push(`applications.institute.id=${institute}`);
+      if (term) qConditions.push(`applications.term.id=${term}`);
+      // if (dob) qConditions.push(`dob=${dob}`);
+      if (staffId) {
+        qConditions.push(`assignStaffs.staff.id=${staffId}`);
+      }
+      if (agent) {
+        qConditions.push(`agent.id=${agent}`);
+      }
+      if (academic_year_id)
+        qConditions.push(
+          `applications.term.academic_year_id=${academic_year_id}`
+        );
+
+      // Role-based filtering
+      if (user.role === 'agent' && !agent) {
+        qConditions.push(`agent.id=${user.agent_id}`);
       }
 
-      // Add 'assignStaff.staff.email' condition if staffId is provided
-      // if (user.role === 'staff') {
-      //   qConditions.push(`assignStaff.staff.email=${user.email}`);
+      // Only use user.staff_id if neither staffId nor agentId is provided
+      if (user.role === 'staff' && user.staff_id && !staffId && !agent) {
+        params.staffId = user.staff_id;
+      }
+
+      // if (user.role === 'staff' && !staffId) {
+      //   qConditions.push(`createdBy.email=${user.email}`);
+      //   qConditions.push(`assignStaffs.staff.user.email=${user.email}`);
       // }
 
-      // Append 'q' only if there are conditions
       if (qConditions.length > 0) {
-        queryParams.append('q', qConditions.join('|')); // Join conditions using "|"
+        queryParams.append('q', qConditions.join('|'));
       }
 
-      // Convert the query params to a string
-      const queryString = queryParams.toString();
+      // // Append `or=true` as an additional param for staff role
+      // if (user.role === 'staff' && !staffId) {
+      //   params.or = true;
+      // }
 
-      const response = await axiosInstance.get(`/students?${queryString}`, {
-        params
-      });
+      const response = await axiosInstance.get(
+        `/students?${queryParams.toString()}`,
+        {
+          params
+        }
+      );
+
       setStudents(response.data.data.result);
       setTotalPages(response.data.data.meta.totalPage);
     } catch (error) {

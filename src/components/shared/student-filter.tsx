@@ -201,38 +201,6 @@ export default function StudentFilter({ onSubmit }) {
           </div>
         )}
 
-        {/* {user.role !== 'agent' && (
-          <>
-            <div>
-              <label className="mb-2 block text-sm font-medium">Agent</label>
-              <select
-                className="w-full rounded-md border border-gray-300 bg-white p-2 text-gray-900 shadow-sm focus:border-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-500"
-                onChange={(e) => setSelectedAgent(e.target.value)}
-              >
-                <option value="">Select Agent</option>
-                {agents.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.agentName}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="mb-2 block text-sm font-medium">Staffs</label>
-              <select
-                className="w-full rounded-md border border-gray-300 bg-white p-2 text-gray-900 shadow-sm focus:border-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-500"
-                onChange={(e) => setSelectedStaff(e.target.value)}
-              >
-                <option value="">Select Staff</option>
-                {staffs.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.firstName} {item.lastName}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </>
-        )} */}
         <div></div>
         <div></div>
         <div></div>

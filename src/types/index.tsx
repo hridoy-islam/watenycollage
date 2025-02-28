@@ -99,7 +99,6 @@ export const mockData = {
     'Information refused'
   ],
   religion: [
-    'No religion',
     'Buddhist',
     'Christian',
     'Hindu',
@@ -111,15 +110,13 @@ export const mockData = {
     'Information refused',
     'Christian - Church of Scotland',
     'Christian - Roman Catholic',
-    'Christian - Other denomination',
-    'Not known'
+    'Christian - Other denomination'
   ],
   sexualOrientation: [
     'Bisexual',
     'Gay man',
     'Gay woman/lesbian',
     'Heterosexual',
-    'Other',
     'Information refused'
   ],
   visaTypes: ['Business Visa', 'Study Visa', 'Work Visa'],
