@@ -1,29 +1,27 @@
-import { useEffect, useState } from "react"
-import { Link2, Pen, Plus, } from 'lucide-react'
-import { Button } from "@/components/ui/button"
-import { Switch } from "@/components/ui/switch"
+import { useEffect, useState } from 'react';
+import { Link2, Pen, Plus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import {
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import { AgentDialog } from "./components/agent-dialog"
+  TableRow
+} from '@/components/ui/table';
+import { AgentDialog } from './components/agent-dialog';
 import axiosInstance from '../../lib/axios';
-import { BlinkingDots } from "@/components/shared/blinking-dots"
-import { toast } from "@/components/ui/use-toast"
-import { Badge } from "@/components/ui/badge"
-import { DataTablePagination } from "../students/view/components/data-table-pagination"
-import { Link } from "react-router-dom"
-
-
+import { BlinkingDots } from '@/components/shared/blinking-dots';
+import { toast } from '@/components/ui/use-toast';
+import { Badge } from '@/components/ui/badge';
+import { DataTablePagination } from '../students/view/components/data-table-pagination';
+import { Link } from 'react-router-dom';
 
 export default function AgentsPage() {
-  const [agents, setAgents] = useState<any>([])
-  const [dialogOpen, setDialogOpen] = useState(false)
-  const [editingAgent, setEditingAgent] = useState<any>(null)
+  const [agents, setAgents] = useState<any>([]);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingAgent, setEditingAgent] = useState<any>(null);
   const [initialLoading, setInitialLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -35,13 +33,13 @@ export default function AgentsPage() {
       const response = await axiosInstance.get(`/agents`, {
         params: {
           page,
-          limit: entriesPerPage,
-        },
+          limit: entriesPerPage
+        }
       });
       setAgents(response.data.data.result);
       setTotalPages(response.data.data.meta.totalPage);
     } catch (error) {
-      console.error("Error fetching institutions:", error);
+      console.error('Error fetching institutions:', error);
     } finally {
       setInitialLoading(false); // Disable initial loading after the first fetch
     }
@@ -52,81 +50,85 @@ export default function AgentsPage() {
       let response;
       if (editingAgent) {
         // Update agent
-        response = await axiosInstance.patch(`/agents/${editingAgent?.id}`, data);
+        response = await axiosInstance.patch(
+          `/agents/${editingAgent?.id}`,
+          data
+        );
       } else {
         // Create new agent
         response = await axiosInstance.post(`/agents`, data);
       }
-  
+
       // Check if the API response indicates success
       if (response.data && response.data.success === true) {
         toast({
-          title: response.data.message || "Operation completed successfully",
-          className: "bg-supperagent border-none text-white",
+          title: response.data.message || 'Operation completed successfully',
+          className: 'bg-supperagent border-none text-white'
         });
       } else if (response.data && response.data.success === false) {
         toast({
-          title: response.data.message || "Operation failed",
-          className: "bg-red-500 border-none text-white",
+          title: response.data.message || 'Operation failed',
+          className: 'bg-red-500 border-none text-white'
         });
       } else {
         toast({
-          title: "Unexpected response. Please try again.",
-          className: "bg-red-500 border-none text-white",
+          title: 'Unexpected response. Please try again.',
+          className: 'bg-red-500 border-none text-white'
         });
       }
-  
+
       // Refresh data
       fetchData(currentPage, entriesPerPage);
       setEditingAgent(null); // Reset editing state
-  
     } catch (error) {
-
       // Display an error toast if the request fails
       toast({
-        title: "An error occurred. Please try again.",
-        className: "bg-red-500 border-none text-white",
+        title: 'An error occurred. Please try again.',
+        className: 'bg-red-500 border-none text-white'
       });
     }
   };
 
-
   const handleStatusChange = async (id, status) => {
     try {
-      const updatedStatus = status ? "1" : "0";
+      const updatedStatus = status ? '1' : '0';
       await axiosInstance.patch(`/agents/${id}`, { status: updatedStatus });
-      toast({ title: "Record updated successfully", className: "bg-supperagent border-none text-white", });
+      toast({
+        title: 'Record updated successfully',
+        className: 'bg-supperagent border-none text-white'
+      });
       fetchData(currentPage, entriesPerPage); // Refresh data
     } catch (error) {
-      console.error("Error updating status:", error);
+      console.error('Error updating status:', error);
     }
   };
 
   const handleEdit = (agent) => {
-    setEditingAgent(agent)
-    setDialogOpen(true)
-  }
-
-
+    setEditingAgent(agent);
+    setDialogOpen(true);
+  };
 
   useEffect(() => {
     fetchData(currentPage, entriesPerPage); // Refresh data
-
   }, [currentPage, entriesPerPage]);
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">All Agents</h1>
-        <Button className="bg-supperagent text-white hover:bg-supperagent/90" size={'sm'} onClick={() => {
-          setEditingAgent(null)  // Clear editing agent when creating a new agent
-          setDialogOpen(true)
-        }}>
-          <Plus className="w-4 h-4 mr-2" />
+        <Button
+          className="bg-supperagent text-white hover:bg-supperagent/90"
+          size={'sm'}
+          onClick={() => {
+            setEditingAgent(null); // Clear editing agent when creating a new agent
+            setDialogOpen(true);
+          }}
+        >
+          <Plus className="mr-2 h-4 w-4" />
           New Agent
         </Button>
       </div>
-      <div className="rounded-md bg-white shadow-2xl p-4">
+      <div className="rounded-md bg-white p-4 shadow-2xl">
         {initialLoading ? (
           <div className="flex justify-center py-6">
             <BlinkingDots size="large" color="bg-supperagent" />
@@ -160,17 +162,26 @@ export default function AgentsPage() {
                   <TableCell>{agent.email}</TableCell>
                   <TableCell>{agent.location}</TableCell>
                   <TableCell>
-                    {agent.nominatedStaffs.map((item, index)=> 
-                    <Badge key={index} className="bg-supperagent text-white hover:bg-supperagent m-1">{item.firstName} {item.lastName}</Badge>)}</TableCell> 
+                    {agent.nominatedStaffs.map((item, index) => (
+                      <Badge
+                        key={index}
+                        className="m-1 bg-supperagent text-white hover:bg-supperagent"
+                      >
+                        {item.firstName} {item.lastName}
+                      </Badge>
+                    ))}
+                  </TableCell>
                   <TableCell className="text-center">
                     <Switch
                       checked={agent.status == 1}
-                      onCheckedChange={(checked) => handleStatusChange(agent.id, checked)}
+                      onCheckedChange={(checked) =>
+                        handleStatusChange(agent.id, checked)
+                      }
                       className="mx-auto"
                     />
                   </TableCell>
-                  <TableCell className="text-center space-x-1">
-                  <Link to={`${agent.id}`}>
+                  <TableCell className="space-x-1 text-center">
+                    {/* <Link to={`${agent.id}`}>
                   <Button
                       variant="outline"
                       className="bg-blue-500 text-white hover:bg-blue-500/90 border-none"
@@ -179,15 +190,15 @@ export default function AgentsPage() {
                     >
                       <Link2 className="w-4 h-4" />
                     </Button>
-                    </Link>
-                     
+                    </Link> */}
+
                     <Button
                       variant="outline"
-                      className="bg-supperagent text-white hover:bg-supperagent/90 border-none"
+                      className="border-none bg-supperagent text-white hover:bg-supperagent/90"
                       size="icon"
                       onClick={() => handleEdit(agent)}
                     >
-                      <Pen className="w-4 h-4" />
+                      <Pen className="h-4 w-4" />
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -207,14 +218,12 @@ export default function AgentsPage() {
       <AgentDialog
         open={dialogOpen}
         onOpenChange={(open) => {
-          setDialogOpen(open)
-          if (!open) setEditingAgent(null)  // Reset editing agent when closing dialog
+          setDialogOpen(open);
+          if (!open) setEditingAgent(null); // Reset editing agent when closing dialog
         }}
         onSubmit={handleSubmit}
         initialData={editingAgent}
       />
-
-
     </div>
-  )
+  );
 }
