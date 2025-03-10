@@ -4,7 +4,6 @@
 // import { ImageIcon, X } from 'lucide-react'
 // import { cn } from "@/lib/utils"
 
-
 // export function ImageUploader({ open, onOpenChange, onUploadComplete, studentId  }) {
 //   const [dragActive, setDragActive] = useState(false)
 //   const [selectedImage, setSelectedImage] = useState<string | null>(null)
@@ -85,7 +84,7 @@
 //               onChange={handleChange}
 //               className="absolute inset-0 cursor-pointer opacity-0"
 //             />
-            
+
 //             {selectedImage ? (
 //               <div className="relative aspect-square w-full max-w-[200px] overflow-hidden rounded-lg">
 //                 <img
@@ -162,19 +161,24 @@
 //   )
 // }
 
-import { useState, useRef } from "react";
+import { useState, useRef } from 'react';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { ImageIcon, X } from "lucide-react";
-import { cn } from "@/lib/utils";
-import axios from 'axios'
+  DialogTitle
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { ImageIcon, X } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import axios from 'axios';
 
-export function ImageUploader({ open, onOpenChange, onUploadComplete, studentId }) {
+export function ImageUploader({
+  open,
+  onOpenChange,
+  onUploadComplete,
+  studentId
+}) {
   const [dragActive, setDragActive] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -184,9 +188,9 @@ export function ImageUploader({ open, onOpenChange, onUploadComplete, studentId 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
+    if (e.type === 'dragenter' || e.type === 'dragover') {
       setDragActive(true);
-    } else if (e.type === "dragleave") {
+    } else if (e.type === 'dragleave') {
       setDragActive(false);
     }
   };
@@ -197,7 +201,7 @@ export function ImageUploader({ open, onOpenChange, onUploadComplete, studentId 
     setDragActive(false);
 
     const file = e.dataTransfer.files?.[0];
-    if (file && file.type.startsWith("image/")) {
+    if (file && file.type.startsWith('image/')) {
       handleFile(file);
     }
   };
@@ -228,28 +232,32 @@ export function ImageUploader({ open, onOpenChange, onUploadComplete, studentId 
       }
 
       const formData = new FormData();
-      formData.append("entity_id", studentId);
-      formData.append("file_type", "profile");
-      formData.append("files[]", file);
+      formData.append('entity_id', studentId);
+      formData.append('file_type', 'profile');
+      formData.append('files[]', file);
 
-      const response = await axios.post("https://core.qualitees.co.uk/api/documents", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          "x-company-token": "admissionhubz-0123"
-        },
-        onUploadProgress: (progressEvent) => {
-          const percentCompleted = Math.round(
-            (progressEvent.loaded * 100) / progressEvent.total
-          );
-          setUploadProgress(percentCompleted);
-        },
-      });
+      const response = await axios.post(
+        'https://core.qualitees.co.uk/api/documents',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'x-company-token': import.meta.env.VITE_COMPANY_TOKEN
+          },
+          onUploadProgress: (progressEvent) => {
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            );
+            setUploadProgress(percentCompleted);
+          }
+        }
+      );
 
       if (response.status === 200) {
         onUploadComplete(response.data);
       }
     } catch (error) {
-      console.error("Error uploading image:", error);
+      console.error('Error uploading image:', error);
     } finally {
       setUploading(false);
       setUploadProgress(0);
@@ -267,9 +275,9 @@ export function ImageUploader({ open, onOpenChange, onUploadComplete, studentId 
         <div className="space-y-4">
           <div
             className={cn(
-              "relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 transition-colors",
-              dragActive ? "border-primary" : "border-muted-foreground/25",
-              selectedImage ? "pb-0" : "min-h-[200px]"
+              'relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 transition-colors',
+              dragActive ? 'border-primary' : 'border-muted-foreground/25',
+              selectedImage ? 'pb-0' : 'min-h-[200px]'
             )}
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}

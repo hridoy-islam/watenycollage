@@ -1,29 +1,34 @@
-import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useState } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Progress } from "@/components/ui/progress";
-import { mockData } from "@/types";
-import axios from "axios";
+  SelectValue
+} from '@/components/ui/select';
+import { Progress } from '@/components/ui/progress';
+import { mockData } from '@/types';
+import axios from 'axios';
 
 export function DocumentDialog({
   open,
   onOpenChange,
   onSubmit,
-  initialData, // This could be student ID or any other initial data passed
+  initialData // This could be student ID or any other initial data passed
 }) {
   const [file, setFile] = useState<File | null>(null);
-  const [type, setType] = useState<string>("");
+  const [type, setType] = useState<string>('');
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [customType, setCustomType] = useState<string>(""); // New state for custom type description
+  const [customType, setCustomType] = useState<string>(''); // New state for custom type description
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
@@ -34,26 +39,31 @@ export function DocumentDialog({
     setUploadProgress(0);
 
     const formData = new FormData();
-    formData.append("entity_id", initialData); // Assuming inititalData is the student ID
-    formData.append("file_type", type === "Other" ? customType : type.toLowerCase());
-    formData.append("files[]", file); // 'files' is expected as an array
+    formData.append('entity_id', initialData); // Assuming inititalData is the student ID
+    formData.append(
+      'file_type',
+      type === 'Other' ? customType : type.toLowerCase()
+    );
+    formData.append('files[]', file); // 'files' is expected as an array
 
     try {
-      await axios.post("https://core.qualitees.co.uk/api/documents", formData, {
+      await axios.post('https://core.qualitees.co.uk/api/documents', formData, {
         headers: {
-          "Content-Type": "multipart/form-data",
-          "x-company-token": "admissionhubz-0123"
+          'Content-Type': 'multipart/form-data',
+          'x-company-token': import.meta.env.VITE_COMPANY_TOKEN
         },
         onUploadProgress: (progressEvent) => {
-          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent?.total);
+          const percentCompleted = Math.round(
+            (progressEvent.loaded * 100) / progressEvent?.total
+          );
           setUploadProgress(percentCompleted);
-        },
+        }
       });
 
       onSubmit(); // Notify parent to refetch data after successful upload
       onOpenChange(false); // Close dialog after submission
     } catch (error) {
-      console.error("Error uploading document:", error);
+      console.error('Error uploading document:', error);
     } finally {
       setIsUploading(false);
       setUploadProgress(0);
@@ -80,7 +90,7 @@ export function DocumentDialog({
                 ))}
               </SelectContent>
             </Select>
-            {type === "Other" && (
+            {type === 'Other' && (
               <Input
                 type="text"
                 placeholder="Describe the document type"
@@ -98,7 +108,7 @@ export function DocumentDialog({
           {isUploading && (
             <div className="space-y-2">
               <Progress value={uploadProgress} />
-              <p className="text-sm text-center text-muted-foreground">
+              <p className="text-center text-sm text-muted-foreground">
                 Uploading... {uploadProgress}%
               </p>
             </div>
@@ -112,8 +122,16 @@ export function DocumentDialog({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={!file || !type || isUploading || (type === "Other" && !customType)}>
-              {isUploading ? "Uploading..." : "Upload"}
+            <Button
+              type="submit"
+              disabled={
+                !file ||
+                !type ||
+                isUploading ||
+                (type === 'Other' && !customType)
+              }
+            >
+              {isUploading ? 'Uploading...' : 'Upload'}
             </Button>
           </div>
         </form>

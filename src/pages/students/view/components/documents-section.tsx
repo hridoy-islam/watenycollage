@@ -229,7 +229,7 @@ export function DocumentsSection({
         `https://core.qualitees.co.uk/api/documents/${docid}`,
         {
           headers: {
-            'x-company-token': 'admissionhubz-0123' // Add the custom header
+            'x-company-token': import.meta.env.VITE_COMPANY_TOKEN // Add the custom header
           }
         }
       );

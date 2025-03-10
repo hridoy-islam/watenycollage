@@ -67,7 +67,7 @@ export default function StudentViewPage() {
         `https://core.qualitees.co.uk/api/documents?where=entity_id,${studentResponse.data.data.id}&exclude=file_type,profile`,
         {
           headers: {
-            'x-company-token': 'admissionhubz-0123'
+            'x-company-token': import.meta.env.VITE_COMPANY_TOKEN
           }
         }
       );
