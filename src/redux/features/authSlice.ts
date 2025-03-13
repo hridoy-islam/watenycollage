@@ -126,7 +126,7 @@ export const authWithFbORGoogle = createAsyncThunk<
     }
   );
   const response = await request.data;
-  localStorage.setItem('uniaid', JSON.stringify(response.data.access_token));
+  localStorage.setItem('uniaid', JSON.stringify(response.data.accessToken));
   return response;
 });
 // forgot password
@@ -213,8 +213,8 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action: any) => {
         state.loading = false;
-        state.token = action.payload.data.access_token;
-        const decodedUser = jwtDecode(action.payload.data.access_token);
+        state.token = action.payload.data.accessToken;
+        const decodedUser = jwtDecode(action.payload.data.accessToken);
 
         // Create a mutable copy of the decoded user
         const userWithPrivileges = { ...decodedUser };
@@ -244,8 +244,8 @@ const authSlice = createSlice({
       })
       .addCase(authWithFbORGoogle.fulfilled, (state, action: any) => {
         state.loading = false;
-        state.token = action.payload.data.access_token;
-        const decodedUser = jwtDecode(action.payload.data.access_token);
+        state.token = action.payload.data.accessToken;
+        const decodedUser = jwtDecode(action.payload.data.accessToken);
 
         // Create a mutable copy of the decoded user
         const userWithPrivileges = { ...decodedUser };

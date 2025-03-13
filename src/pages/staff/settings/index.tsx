@@ -83,7 +83,7 @@ export function StaffSettings() {
   const fetchData = async () => {
     try {
       setInitialLoading(true);
-      const response = await axiosInstance.get(`/staffs/${id}`);
+      const response = await axiosInstance.get(`/users/${id}`);
       const response2 = await axiosInstance.get(`/privileges/${id}`);
 
       const privilegesData = response2.data.data.privileges || {};
@@ -187,7 +187,7 @@ export function StaffSettings() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p>
-              {staffDetails?.firstName} {staffDetails?.lastName}
+              {staffDetails?.name} 
             </p>
             <p>{staffDetails?.email}</p>
             <p>{staffDetails?.phone}</p>

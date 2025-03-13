@@ -235,8 +235,207 @@
 //     );
 // }
 
-import { useState } from 'react';
+// import { useState } from 'react';
+// import { Button } from '@/components/ui/button';
+// import { Input } from '@/components/ui/input';
+// import {
+//   Select,
+//   SelectContent,
+//   SelectItem,
+//   SelectTrigger,
+//   SelectValue
+// } from '@/components/ui/select';
+// import { Card } from '@/components/ui/card';
+
+// export default function CourseRelationDetails() {
+//   const [years, setYears] = useState([]);
+
+//   const addYear = () => {
+//     if (years.length >= 4) {
+//       alert('You can add a maximum of 4 years.');
+//       return;
+//     }
+
+//     // Automatically name the year (e.g., "Year 1", "Year 2", etc.)
+//     const yearName = `Year ${years.length + 1}`;
+//     setYears([...years, { year: yearName, sessions: [] }]);
+//   };
+
+//   const deleteYear = (yearIndex) => {
+//     const updatedYears = years.filter((_, index) => index !== yearIndex);
+//     setYears(updatedYears);
+//   };
+
+//   const addSession = (yearIndex) => {
+//     if (years[yearIndex].sessions.length >= 3) {
+//       alert('You can add a maximum of 3 sessions per year.');
+//       return;
+//     }
+
+//     // Automatically name the session (e.g., "Session 1", "Session 2", etc.)
+//     const sessionName = `Session ${years[yearIndex].sessions.length + 1}`;
+//     const updatedYears = [...years];
+//     updatedYears[yearIndex].sessions.push({
+//       name: sessionName, // Add a name field for the session
+//       invoiceDate: '',
+//       rate: '',
+//       type: 'flat'
+//     });
+//     setYears(updatedYears);
+//   };
+
+//   const deleteSession = (yearIndex, sessionIndex) => {
+//     const updatedYears = [...years];
+//     updatedYears[yearIndex].sessions = updatedYears[yearIndex].sessions.filter(
+//       (_, index) => index !== sessionIndex
+//     );
+//     setYears(updatedYears);
+//   };
+
+//   const updateSession = (yearIndex, sessionIndex, field, value) => {
+//     const updatedYears = [...years];
+//     updatedYears[yearIndex].sessions[sessionIndex][field] = value;
+//     setYears(updatedYears);
+//   };
+
+//   const handleSubmit = async () => {
+//     try {
+//       // Perform a PATCH request to update the data on the server
+//       const response = await fetch('https://your-api-endpoint.com/update', {
+//         method: 'PATCH',
+//         headers: {
+//           'Content-Type': 'application/json'
+//         },
+//         body: JSON.stringify(years)
+//       });
+
+//       if (!response.ok) {
+//         throw new Error('Failed to update data');
+//       }
+
+//       const result = await response.json();
+//       console.log('PATCH Response:', result);
+//       alert('Data updated successfully!');
+//     } catch (error) {
+//       console.error('Error updating data:', error);
+//       alert('Failed to update data. Please try again.');
+//     }
+//   };
+
+//   return (
+//     <div className="mx-auto">
+//       <div className="flex gap-4">
+//         <Button
+//           className="bg-supperagent text-white hover:bg-supperagent"
+//           onClick={addYear}
+//         >
+//           Add Year
+//         </Button>
+//         <Button
+//           className="bg-black text-white hover:bg-black"
+//           onClick={handleSubmit}
+//         >
+//           Submit
+//         </Button>
+//       </div>
+
+//       {years.map((yearData, yearIndex) => (
+//         <Card key={yearIndex} className="my-6 rounded-lg p-4">
+//           <div className="mb-4 flex items-center gap-4">
+//             <span className="font-medium">{yearData.year}</span>
+//             <Button
+//               className="bg-supperagent text-white hover:bg-supperagent"
+//               onClick={() => addSession(yearIndex)}
+//             >
+//               Add Session
+//             </Button>
+//             <Button
+//               className="bg-red-500 text-white hover:bg-red-600"
+//               onClick={() => deleteYear(yearIndex)}
+//             >
+//               Delete Year
+//             </Button>
+//           </div>
+
+//           {yearData.sessions.map((session, sessionIndex) => (
+//             <Card key={sessionIndex} className="mb-4 rounded-lg p-4">
+//               <div className="mb-4 flex items-center gap-4">
+//                 <span className="font-medium">{session.name}</span>
+//                 <Button
+//                   className="bg-red-500 text-white hover:bg-red-600"
+//                   onClick={() => deleteSession(yearIndex, sessionIndex)}
+//                 >
+//                   Delete Session
+//                 </Button>
+//               </div>
+//               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+//                 <Input
+//                   type="date"
+//                   value={session.invoiceDate}
+//                   onChange={(e) =>
+//                     updateSession(
+//                       yearIndex,
+//                       sessionIndex,
+//                       'invoiceDate',
+//                       e.target.value
+//                     )
+//                   }
+//                 />
+//                 <Input
+//                   type="number"
+//                   placeholder="Rate"
+//                   value={session.rate}
+//                   onChange={(e) =>
+//                     updateSession(
+//                       yearIndex,
+//                       sessionIndex,
+//                       'rate',
+//                       e.target.value
+//                     )
+//                   }
+//                 />
+//                 <Select
+//                   value={session.type}
+//                   onValueChange={(value) =>
+//                     updateSession(yearIndex, sessionIndex, 'type', value)
+//                   }
+//                 >
+//                   <SelectTrigger>
+//                     <SelectValue placeholder="Type" />
+//                   </SelectTrigger>
+//                   <SelectContent>
+//                     <SelectItem value="flat">Flat</SelectItem>
+//                     <SelectItem value="percentage">Percentage</SelectItem>
+//                   </SelectContent>
+//                 </Select>
+//               </div>
+//             </Card>
+//           ))}
+//         </Card>
+//       ))}
+//     </div>
+//   );
+// }
+
+import { useEffect, useState } from 'react';
+import {
+  Plus,
+  Calendar,
+  Percent,
+  Euro,
+  Landmark,
+  BookOpenText
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -245,163 +444,516 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import { Card } from '@/components/ui/card';
+import { toast } from '@/components/ui/use-toast';
+import axiosInstance from '@/lib/axios';
+import { useParams } from 'react-router-dom';
+import { format, parseISO } from 'date-fns';
+
+import moment from 'moment';
+
+interface Session {
+  id?: number;
+  session?: string;
+  invoice_date: string;
+  rate: string;
+  type: 'flat' | 'percentage';
+}
+
+interface Year {
+  id?: number;
+  year: string;
+  sessions: Session[];
+}
+
+interface Institute {
+  id: number;
+  name: string;
+  status: number;
+  created_at: string;
+}
+
+interface Course {
+  id: number;
+  name: string;
+  status: number;
+  created_at: string;
+}
+
+interface Term {
+  id: number;
+  term: string;
+  academic_year_id: number;
+  academic_year: string;
+  status: number;
+  created_at: string;
+}
+
+interface CourseRelation {
+  id: number;
+  institute: Institute;
+  course: Course;
+  term: Term;
+  local: boolean;
+  local_amount: string;
+  international: boolean;
+  international_amount: string;
+  years: Year[];
+  status: number;
+}
 
 export default function CourseRelationDetails() {
-  const [years, setYears] = useState([]);
+  const { id } = useParams();
+  const [courseRelation, setCourseRelation] = useState<CourseRelation | null>(
+    null
+  );
+  const [years, setYears] = useState<Year[]>([]);
+  const [isAddingYear, setIsAddingYear] = useState(false);
+  const [selectedYear, setSelectedYear] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [editingSession, setEditingSession] = useState<{
+    yearId: number;
+    sessionId: number;
+    data: Session;
+  } | null>(null);
+  const [isEditingSession, setIsEditingSession] = useState(false);
 
-  const addYear = () => {
-    if (years.length >= 4) {
-      alert('You can add a maximum of 4 years.');
-      return;
-    }
-
-    // Automatically name the year (e.g., "Year 1", "Year 2", etc.)
-    const yearName = `Year ${years.length + 1}`;
-    setYears([...years, { year: yearName, sessions: [] }]);
-  };
-
-  const deleteYear = (yearIndex) => {
-    const updatedYears = years.filter((_, index) => index !== yearIndex);
-    setYears(updatedYears);
-  };
-
-  const addSession = (yearIndex) => {
-    if (years[yearIndex].sessions.length >= 3) {
-      alert('You can add a maximum of 3 sessions per year.');
-      return;
-    }
-
-    // Automatically name the session (e.g., "Session 1", "Session 2", etc.)
-    const sessionName = `Session ${years[yearIndex].sessions.length + 1}`;
-    const updatedYears = [...years];
-    updatedYears[yearIndex].sessions.push({
-      name: sessionName, // Add a name field for the session
-      invoiceDate: '',
-      rate: '',
+  // New state for managing sessions in the add year dialog
+  const [newYearSessions, setNewYearSessions] = useState<Session[]>([
+    {
+      session: 'Session 1',
+      invoice_date: '',
+      rate: '0',
       type: 'flat'
-    });
-    setYears(updatedYears);
-  };
+    },
+    {
+      session: 'Session 2',
+      invoice_date: '',
+      rate: '0',
+      type: 'flat'
+    },
+    {
+      session: 'Session 3',
+      invoice_date: '',
+      rate: '0',
+      type: 'flat'
+    }
+  ]);
 
-  const deleteSession = (yearIndex, sessionIndex) => {
-    const updatedYears = [...years];
-    updatedYears[yearIndex].sessions = updatedYears[yearIndex].sessions.filter(
-      (_, index) => index !== sessionIndex
-    );
-    setYears(updatedYears);
-  };
-
-  const updateSession = (yearIndex, sessionIndex, field, value) => {
-    const updatedYears = [...years];
-    updatedYears[yearIndex].sessions[sessionIndex][field] = value;
-    setYears(updatedYears);
-  };
-
-  const handleSubmit = async () => {
+  const fetchCourseRelations = async () => {
     try {
-      // Perform a PATCH request to update the data on the server
-      const response = await fetch('https://your-api-endpoint.com/update', {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(years)
+      const response = await axiosInstance.get(`/course-relations/${id}`);
+      if (response.data) {
+        setCourseRelation(response.data.data);
+        setYears(response.data.data.years || []);
+      }
+    } catch (error) {
+      console.error('Error fetching course relations:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    console.log(courseRelation);
+    fetchCourseRelations();
+  }, [id]);
+
+  const getAvailableYears = () => {
+    const existingYears = years.map((y) =>
+      Number.parseInt(y.year.split(' ')[1])
+    );
+    const availableYears = [];
+
+    for (let i = 1; i <= 4; i++) {
+      if (!existingYears.includes(i)) {
+        availableYears.push(`Year ${i}`);
+      }
+    }
+
+    return availableYears;
+  };
+
+  const handleUpdateNewSession = (
+    index: number,
+    field: keyof Session,
+    value: string | 'flat' | 'percentage'
+  ) => {
+    setNewYearSessions((prev) =>
+      prev.map((session, i) =>
+        i === index ? { ...session, [field]: value } : session
+      )
+    );
+  };
+
+  const handleEditSession = (year, session) => {
+    console.log('Editing Session Data:', { year, session });
+
+    setEditingSession({
+      yearId: year.id, // Ensure this is the correct database ID
+      sessionId: session.id, // Ensure this is the correct session ID
+      data: { ...session }
+    });
+    setIsEditingSession(true);
+  };
+
+  const handleUpdateSession = async () => {
+    if (!editingSession) return;
+
+    const { yearId, sessionId, data } = editingSession;
+
+    try {
+      await axiosInstance.patch(`/course-relations/${id}`, {
+        years: [
+          {
+            id: yearId,
+            year: years.find((y) => y.id === yearId)?.year,
+            sessions: [
+              {
+                id: sessionId,
+                session: data.session,
+                invoice_date: data.invoice_date,
+                rate: data.rate,
+                type: data.type
+              }
+            ]
+          }
+        ]
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to update data');
-      }
+      // Update local state
+      setYears((prevYears) =>
+        prevYears.map((year) =>
+          year.id === yearId
+            ? {
+                ...year,
+                sessions: year.sessions.map((session) =>
+                  session.id === sessionId ? { ...session, ...data } : session
+                )
+              }
+            : year
+        )
+      );
 
-      const result = await response.json();
-      console.log('PATCH Response:', result);
-      alert('Data updated successfully!');
+      setIsEditingSession(false);
+      setEditingSession(null);
+      toast.success('Session updated successfully');
     } catch (error) {
-      console.error('Error updating data:', error);
-      alert('Failed to update data. Please try again.');
+      console.error('Error updating session:', error);
+      toast.error('Failed to update session');
     }
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const response = await axiosInstance.patch(`/course-relations/${id}`, {
+        years: [
+          {
+            year: selectedYear,
+            sessions: newYearSessions.map((session) => ({
+              session: session.session,
+              invoice_date: session.invoice_date,
+              rate: session.rate,
+              type: session.type
+            }))
+          }
+        ]
+      });
+
+      setIsAddingYear(false);
+      setYears([]);
+      await fetchCourseRelations();
+      setIsLoading(true);
+      setSelectedYear('');
+      setNewYearSessions([
+        { session: 'Session 1', invoice_date: '', rate: '', type: 'flat' },
+        { session: 'Session 2', invoice_date: '', rate: '', type: 'flat' },
+        { session: 'Session 3', invoice_date: '', rate: '', type: 'flat' }
+      ]);
+
+      if (response.data && response.data.success === true) {
+        toast({
+          title: response.data.message || 'Record Updated successfully',
+          className: 'bg-supperagent border-none text-white'
+        });
+      } else if (response.data && response.data.success === false) {
+        toast({
+          title: response.data.message || 'Operation failed',
+          className: 'bg-red-500 border-none text-white'
+        });
+      } else {
+        toast({
+          title: 'Unexpected response. Please try again.',
+          className: 'bg-red-500 border-none text-white'
+        });
+      }
+    } catch (error) {
+      console.error('Error updating course relations:', error);
+      toast({
+        title: 'Unexpected response. Please try again.',
+        className: 'bg-red-500 border-none text-white'
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    try {
+      return format(parseISO(dateString), 'dd MMM yyyy');
+    } catch (error) {
+      return dateString;
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        Loading...
+      </div>
+    );
+  }
+
+  if (!courseRelation) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        Course relation not found
+      </div>
+    );
+  }
+
   return (
-    <div className="mx-auto">
-      <div className="flex gap-4">
-        <Button
-          className="bg-supperagent text-white hover:bg-supperagent"
-          onClick={addYear}
-        >
-          Add Year
-        </Button>
-        <Button
-          className="bg-black text-white hover:bg-black"
-          onClick={handleSubmit}
-        >
-          Submit
-        </Button>
+    <div className="space-y-6 p-6">
+      <div className="flex flex-col space-y-2 pb-3">
+        <h1 className="flex items-center space-x-2 text-lg font-semibold text-gray-900">
+          <Landmark className="h-5 w-5 text-supperagent" />
+          <span>{courseRelation?.institute?.name}</span>
+        </h1>
+        <h2 className="text-md flex items-center space-x-2 font-medium text-gray-700">
+          <BookOpenText className="h-5 w-5 text-supperagent" />
+          <span>{courseRelation?.course?.name}</span>
+        </h2>
       </div>
 
-      {years.map((yearData, yearIndex) => (
-        <Card key={yearIndex} className="my-6 rounded-lg p-4">
-          <div className="mb-4 flex items-center gap-4">
-            <span className="font-medium">{yearData.year}</span>
+      <div className="mb-8 flex items-center justify-between">
+        <h1 className="text-2xl font-semibold">Years & Sessions</h1>
+        <Dialog open={isAddingYear} onOpenChange={setIsAddingYear}>
+          <DialogTrigger asChild>
             <Button
-              className="bg-supperagent text-white hover:bg-supperagent"
-              onClick={() => addSession(yearIndex)}
+              variant="outline"
+              size="sm"
+              className="border-none bg-supperagent hover:bg-supperagent/90"
+              onClick={() => setIsAddingYear(true)}
+              disabled={years.length >= 4}
             >
-              Add Session
+              <Plus className="mr-2 h-4 w-4" />
+              Add Year
             </Button>
-            <Button
-              className="bg-red-500 text-white hover:bg-red-600"
-              onClick={() => deleteYear(yearIndex)}
-            >
-              Delete Year
-            </Button>
-          </div>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[600px]">
+            <DialogHeader>
+              <DialogTitle>Add New Year</DialogTitle>
+            </DialogHeader>
 
-          {yearData.sessions.map((session, sessionIndex) => (
-            <Card key={sessionIndex} className="mb-4 rounded-lg p-4">
-              <div className="mb-4 flex items-center gap-4">
-                <span className="font-medium">{session.name}</span>
-                <Button
-                  className="bg-red-500 text-white hover:bg-red-600"
-                  onClick={() => deleteSession(yearIndex, sessionIndex)}
-                >
-                  Delete Session
-                </Button>
-              </div>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                <Input
-                  type="date"
-                  value={session.invoiceDate}
-                  onChange={(e) =>
-                    updateSession(
-                      yearIndex,
-                      sessionIndex,
-                      'invoiceDate',
-                      e.target.value
-                    )
-                  }
-                />
-                <Input
-                  type="number"
-                  placeholder="Rate"
-                  value={session.rate}
-                  onChange={(e) =>
-                    updateSession(
-                      yearIndex,
-                      sessionIndex,
-                      'rate',
-                      e.target.value
-                    )
-                  }
-                />
+            {/* Wrap Dialog Content with Form */}
+            <form onSubmit={handleSubmit} className="grid gap-6 py-4">
+              <div className="grid gap-2">
+                <label className="text-sm font-medium">Year</label>
                 <Select
-                  value={session.type}
-                  onValueChange={(value) =>
-                    updateSession(yearIndex, sessionIndex, 'type', value)
+                  value={selectedYear}
+                  onValueChange={(value) => setSelectedYear(value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select year" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {getAvailableYears().map((year) => (
+                      <SelectItem key={year} value={year}>
+                        {year}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Show Sessions only when a valid year is selected */}
+              {selectedYear && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-medium">Sessions</h3>
+                  </div>
+
+                  {newYearSessions.map((session, index) => (
+                    <div
+                      key={index}
+                      className="space-y-4 rounded-lg border border-border p-4"
+                    >
+                      {/* Align Invoice Date, Rate, and Type in a single row */}
+                      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                        {/* Invoice Date */}
+                        <div className="gap-2">
+                          <label className="text-xs font-medium">
+                            Invoice Date
+                          </label>
+                          <input
+                            type="date"
+                            value={
+                              session.invoice_date
+                                ? moment(session.invoice_date).format(
+                                    'YYYY-MM-DD'
+                                  )
+                                : ''
+                            }
+                            onChange={(e) => {
+                              const date = moment(e.target.value).toISOString();
+                              handleUpdateNewSession(
+                                index,
+                                'invoice_date',
+                                date
+                              );
+                            }}
+                            className="rounded-md border border-gray-300 bg-transparent p-[5px]"
+                          />
+                        </div>
+
+                        {/* Rate */}
+                        <div className="gap-2">
+                          <label className="text-xs font-medium">Rate</label>
+                          <Input
+                            type="number"
+                            value={session.rate}
+                            onChange={(e) =>
+                              handleUpdateNewSession(
+                                index,
+                                'rate',
+                                e.target.value
+                              )
+                            }
+                            className="rounded-md border border-gray-300 p-2"
+                          />
+                        </div>
+
+                        {/* Type */}
+                        <div className="gap-2">
+                          <label className="text-xs font-medium">Type</label>
+                          <Select
+                            value={session.type}
+                            onValueChange={(value: 'flat' | 'percentage') =>
+                              handleUpdateNewSession(index, 'type', value)
+                            }
+                            className="rounded-md border border-border p-2"
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="flat">Flat</SelectItem>
+                              <SelectItem value="percentage">
+                                Percentage
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <DialogFooter>
+                <Button
+                  className="border-none bg-supperagent text-white hover:bg-supperagent/90"
+                  type="submit"
+                >
+                  Add Year
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      {/* Session Edit Dialog */}
+      <Dialog open={isEditingSession} onOpenChange={setIsEditingSession}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Session</DialogTitle>
+          </DialogHeader>
+          {editingSession && (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault(); // Prevent default form submission behavior
+                handleUpdateSession();
+              }}
+              className="grid gap-4 py-4"
+            >
+              {/* <div className="grid gap-2">
+                <label htmlFor="session-name" className="text-sm font-medium">
+                  Session Name
+                </label>
+                <Input
+                  id="session-name"
+                  value={editingSession.data.session}
+                  onChange={(e) =>
+                    setEditingSession({
+                      ...editingSession,
+                      data: { ...editingSession.data, session: e.target.value }
+                    })
+                  }
+                />
+              </div> */}
+
+              <div className="grid gap-2">
+                <label className="text-sm font-medium">Invoice Date</label>
+                <input
+                  type="date"
+                  value={moment(editingSession.data.invoice_date).format(
+                    'YYYY-MM-DD'
+                  )}
+                  onChange={(e) => {
+                    setEditingSession({
+                      ...editingSession,
+                      data: {
+                        ...editingSession.data,
+                        invoice_date: moment(e.target.value).toISOString()
+                      }
+                    });
+                  }}
+                  className="w-full rounded-md border border-gray-300 bg-transparent p-2"
+                />
+              </div>
+
+              <div className="grid gap-2">
+                <label htmlFor="rate" className="text-sm font-medium">
+                  Rate
+                </label>
+                <Input
+                  id="rate"
+                  type="number"
+                  value={editingSession.data.rate}
+                  onChange={(e) =>
+                    setEditingSession({
+                      ...editingSession,
+                      data: { ...editingSession.data, rate: e.target.value }
+                    })
+                  }
+                />
+              </div>
+
+              <div className="grid gap-2">
+                <label className="text-sm font-medium">Type</label>
+                <Select
+                  value={editingSession.data.type}
+                  onValueChange={(value: 'flat' | 'percentage') =>
+                    setEditingSession({
+                      ...editingSession,
+                      data: { ...editingSession.data, type: value }
+                    })
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Type" />
+                    <SelectValue placeholder="Select type" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="flat">Flat</SelectItem>
@@ -409,10 +961,83 @@ export default function CourseRelationDetails() {
                   </SelectContent>
                 </Select>
               </div>
-            </Card>
-          ))}
-        </Card>
-      ))}
+
+              <Button
+                className="border-none bg-supperagent text-white hover:bg-supperagent/90"
+                type="submit"
+              >
+                Save Changes
+              </Button>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        {years.length > 0 ? (
+          [...years]
+            .sort((a, b) => {
+              const numA = parseInt(a.year.replace('Year ', ''), 10);
+              const numB = parseInt(b.year.replace('Year ', ''), 10);
+              return numA - numB;
+            })
+            .map((year) => (
+              <Card key={year.id}>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle>{year.year}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {year.sessions && year.sessions.length > 0 ? (
+                      year.sessions.map((session) => (
+                        <div
+                          key={session.id}
+                          className="cursor-pointer rounded-lg border border-border p-4 transition-colors hover:bg-muted/5"
+                          onClick={() => handleEditSession(year, session)}
+                        >
+                          <div className="mb-2 flex items-center justify-between">
+                            <h3 className="font-medium">{session.session}</h3>
+                          </div>
+                          <div className="grid grid-cols-1 gap-2 text-sm md:grid-cols-3">
+                            <div className="flex items-center">
+                              <Calendar className="mr-2 h-4 w-4 text-black" />
+                              <span>{formatDate(session.invoice_date)}</span>
+                            </div>
+                            <div className="flex items-center">
+                              {session.type === 'flat' ? (
+                                <Euro className="mr-2 h-4 w-4 text-black" />
+                              ) : (
+                                <Percent className="mr-2 h-4 w-4 text-black" />
+                              )}
+                              <span className="font-semibold">
+                                {session.rate}
+                              </span>
+                            </div>
+                            <div className="flex items-center">
+                              <span className="rounded-sm bg-supperagent px-2 py-1 text-xs text-white hover:bg-supperagent/90">
+                                {session.type === 'flat'
+                                  ? 'Flat Rate'
+                                  : 'Percentage'}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <p>No sessions available</p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+        ) : (
+          <div className="col-span-2 py-8 text-center">
+            <p className="text-muted-foreground">
+              No years added yet. Click "Add Year" to get started.
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

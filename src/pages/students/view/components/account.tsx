@@ -13,7 +13,7 @@ export default function AccountPage({ student }) {
       setEnrolledCourses(student?.accounts?.courses);
     }
   }, [student?.accounts?.courses]);
-
+console.log(enrolledCourses)
   return (
     <div className="mx-auto py-1">
       <h2 className="mb-4 text-xl font-bold">Enrolled Courses</h2>
@@ -21,7 +21,9 @@ export default function AccountPage({ student }) {
       {enrolledCourses.map((course, idx) => (
         <Card key={idx} className="mb-6">
           <CardHeader>
-            <CardTitle>{course.name.name}</CardTitle>
+            <CardTitle><span className='text-3xl'>{course.institute.name}</span></CardTitle>
+            <CardTitle><span className='text-xl'>{course.name.name}</span></CardTitle>
+            <CardTitle>{course.term.term}</CardTitle>
             {/* <div className="text-sm text-gray-500">
               Code: {course.code} | Duration: {course.duration}
             </div> */}

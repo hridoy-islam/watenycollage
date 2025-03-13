@@ -26,7 +26,7 @@ export default function InvoicesPage() {
     <div className="mx-auto py-1">
       <div className="flex justify-between">
       <h1 className="text-2xl font-bold mb-6">Invoices</h1>
-      <Link to='students'><Button className="bg-supperagent text-white hover:bg-supperagent">Students</Button></Link>
+      <Link to='students'><Button className="bg-supperagent text-white hover:bg-supperagent">Show Status</Button></Link>
       </div>
       <Card>
         <CardHeader>

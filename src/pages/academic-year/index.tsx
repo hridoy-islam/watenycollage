@@ -64,7 +64,7 @@ export default function AcademicYearPage() {
       let response;
       if (editingAcademicYear) {
         // Update course relation
-        response = await axiosInstance.patch(`/academic-years/${editingAcademicYear?.id}`, data);
+        response = await axiosInstance.patch(`/academic-years/${editingAcademicYear?._id}`, data);
       } else {
         // Create new course relation
         response = await axiosInstance.post(`/academic-years`, data);
@@ -156,7 +156,7 @@ export default function AcademicYearPage() {
                   <TableCell className="text-center">
                     <Switch
                       checked={year.status == 1}
-                      onCheckedChange={(checked) => handleStatusChange(year.id, checked)}
+                      onCheckedChange={(checked) => handleStatusChange(year._id, checked)}
                       className="mx-auto"
                     />
                   </TableCell>

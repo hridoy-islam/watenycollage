@@ -28,7 +28,7 @@ export default function StaffPage() {
   const fetchData = async (page, entriesPerPage) => {
     try {
       if (initialLoading) setInitialLoading(true);
-      const response = await axiosInstance.get(`/staffs`, {
+      const response = await axiosInstance.get(`/users?role=staff`, {
         params: {
           page,
           limit: entriesPerPage
@@ -46,12 +46,17 @@ export default function StaffPage() {
   const handleSubmit = async (data) => {
     try {
       let response;
+
+      const updateData = {
+        ...data,
+        role: "staff"
+      };
       if (editingStaff) {
         // Update staff
-        response = await axiosInstance.put(`/staffs/${editingStaff?.id}`, data);
+        response = await axiosInstance.patch(`/users/${editingStaff?._id}`, updateData);
       } else {
         // Create new staff
-        response = await axiosInstance.post(`/staffs`, data);
+        response = await axiosInstance.post(`/auth/signup`, updateData);
       }
 
       // Check if the API response indicates success
@@ -89,7 +94,7 @@ export default function StaffPage() {
   const handleStatusChange = async (id, status) => {
     try {
       const updatedStatus = status ? '1' : '0';
-      await axiosInstance.patch(`/staffs/${id}`, { status: updatedStatus });
+      await axiosInstance.patch(`/users/${id}`, { status: updatedStatus });
       toast({
         title: 'Record updated successfully',
         className: 'bg-supperagent border-none text-white'
@@ -141,15 +146,15 @@ export default function StaffPage() {
           </TableHeader>
           <TableBody>
             {staff.map((staffMember) => (
-              <TableRow key={staffMember.id}>
-                <TableCell>{`${staffMember.firstName} ${staffMember.lastName}`}</TableCell>
+              <TableRow key={staffMember._id}>
+                <TableCell>{`${staffMember.name} `}</TableCell>
                 <TableCell>{staffMember.email}</TableCell>
                 <TableCell>{staffMember.phone}</TableCell>
                 <TableCell className="text-center">
                   <Switch
                     checked={staffMember.status == 1}
                     onCheckedChange={(checked) =>
-                      handleStatusChange(staffMember.id, checked)
+                      handleStatusChange(staffMember._id, checked)
                     }
                     className="mx-auto"
                   />
@@ -163,7 +168,7 @@ export default function StaffPage() {
                   >
                     <Pen className="h-4 w-4" />
                   </Button>
-                  <Link to={`${staffMember.id}`}>
+                  <Link to={`${staffMember._id}`}>
                     <Button
                       variant="ghost"
                       size="icon"

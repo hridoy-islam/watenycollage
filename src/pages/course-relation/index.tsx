@@ -193,7 +193,7 @@ export default function CourseRelationPage() {
                   />
                 </TableCell>
                 <TableCell className="space-x-1 text-center">
-                  {/* <Link to={`${relation.id}`}>
+                  <Link to={`${relation.id}`}>
                     <Button
                       variant="ghost"
                       className="bg-blue-500 text-white hover:bg-blue-500 border-none"
@@ -201,7 +201,7 @@ export default function CourseRelationPage() {
                     >
                       <Link2 className="w-4 h-4" />
                     </Button>
-                  </Link> */}
+                  </Link>
                   <Button
                     variant="ghost"
                     className="border-none bg-supperagent text-white hover:bg-supperagent/90"

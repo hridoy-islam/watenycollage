@@ -68,7 +68,7 @@ export default function EmailConfigPage() {
       
       if (editingEmailConfig) {
         // Update email configuration
-        response = await axiosInstance.put(`/email-configs/${editingEmailConfig?.id}`, data);
+        response = await axiosInstance.patch(`/email-configs/${editingEmailConfig?._id}`, data);
       } else {
         // Create new email configuration
         response = await axiosInstance.post(`/email-configs`, data);
@@ -166,7 +166,7 @@ export default function EmailConfigPage() {
             </TableHeader>
             <TableBody>
               {emailConfigs.map((config) => (
-                <TableRow key={config.id}>
+                <TableRow key={config._id}>
                   <TableCell>{config.email}</TableCell>
                   <TableCell>{config.host}</TableCell>
                   <TableCell>{config.port}</TableCell>
