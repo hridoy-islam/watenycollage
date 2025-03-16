@@ -22,6 +22,7 @@ import { useSelector } from 'react-redux';
 
 export default function NewStudentPage() {
   const { user } = useSelector((state: any) => state.auth);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const {
     control,
@@ -41,11 +42,12 @@ export default function NewStudentPage() {
         title: data.title,
         gender: data.gender,
         maritualStatus: data.maritalStatus,
-        country: data.country
+        country: data.country,
+        createdBy:user._id
       };
       // Add agentID only if the user is an agent
       if (user.role === 'agent') {
-        formattedData.agentId = user.agent_id;
+        formattedData.agentId = user._id;
       }
       const response = await axiosInstance.post(`/students`, formattedData);
 

@@ -39,7 +39,7 @@ export default function StaffPage() {
     } catch (error) {
       console.error('Error fetching institutions:', error);
     } finally {
-      setInitialLoading(false); // Disable initial loading after the first fetch
+      setInitialLoading(false); 
     }
   };
 
@@ -54,28 +54,46 @@ export default function StaffPage() {
       if (editingStaff) {
         // Update staff
         response = await axiosInstance.patch(`/users/${editingStaff?._id}`, updateData);
+
+        if (response.data && response.data.success === true) {
+          toast({
+            title: 'Staff Updated successfully',
+            className: 'bg-supperagent border-none text-white'
+          });
+        } else if (response.data && response.data.success === false) {
+          toast({
+            title: 'Operation failed',
+            className: 'bg-red-500 border-none text-white'
+          });
+        } else {
+          toast({
+            title: 'Unexpected response. Please try again.',
+            className: 'bg-red-500 border-none text-white'
+          });
+        }
       } else {
         // Create new staff
         response = await axiosInstance.post(`/auth/signup`, updateData);
+        if (response.data && response.data.success === true) {
+          toast({
+            title: 'Staff Created successfully',
+            className: 'bg-supperagent border-none text-white'
+          });
+        } else if (response.data && response.data.success === false) {
+          toast({
+            title: 'Operation failed',
+            className: 'bg-red-500 border-none text-white'
+          });
+        } else {
+          toast({
+            title: 'Unexpected response. Please try again.',
+            className: 'bg-red-500 border-none text-white'
+          });
+        }
       }
 
       // Check if the API response indicates success
-      if (response.data && response.data.success === true) {
-        toast({
-          title: response.data.message || 'Record Updated successfully',
-          className: 'bg-supperagent border-none text-white'
-        });
-      } else if (response.data && response.data.success === false) {
-        toast({
-          title: response.data.message || 'Operation failed',
-          className: 'bg-red-500 border-none text-white'
-        });
-      } else {
-        toast({
-          title: 'Unexpected response. Please try again.',
-          className: 'bg-red-500 border-none text-white'
-        });
-      }
+      
 
       // Refresh data
       fetchData(currentPage, entriesPerPage);

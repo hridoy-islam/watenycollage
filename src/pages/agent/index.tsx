@@ -54,20 +54,16 @@ export default function AgentsPage() {
           `/users/${editingAgent?._id}`,
           data
         );
-      } else {
-        // Create new agent
-        response = await axiosInstance.post(`/auth/signup`, data);
-      }
 
-      // Check if the API response indicates success
+        // Check if the API response indicates success
       if (response.data && response.data.success === true) {
         toast({
-          title: response.data.message || 'Operation completed successfully',
+          title: 'Agent Updated successfully',
           className: 'bg-supperagent border-none text-white'
         });
       } else if (response.data && response.data.success === false) {
         toast({
-          title: response.data.message || 'Operation failed',
+          title: 'Operation failed',
           className: 'bg-red-500 border-none text-white'
         });
       } else {
@@ -76,6 +72,30 @@ export default function AgentsPage() {
           className: 'bg-red-500 border-none text-white'
         });
       }
+      } else {
+        // Create new agent
+        response = await axiosInstance.post(`/auth/signup`, data);
+
+        // Check if the API response indicates success
+      if (response.data && response.data.success === true) {
+        toast({
+          title: 'Agent created successfully',
+          className: 'bg-supperagent border-none text-white'
+        });
+      } else if (response.data && response.data.success === false) {
+        toast({
+          title: 'Operation failed',
+          className: 'bg-red-500 border-none text-white'
+        });
+      } else {
+        toast({
+          title: 'Unexpected response. Please try again.',
+          className: 'bg-red-500 border-none text-white'
+        });
+      }
+      }
+
+      
 
       // Refresh data
       fetchData(currentPage, entriesPerPage);

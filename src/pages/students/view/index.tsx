@@ -96,7 +96,14 @@ export default function StudentViewPage() {
   }, [student, documents]);
 
   const handleSave = async (data) => {
-    await axiosInstance.patch(`/students/${id}`, data);
+    const updatedData = { ...data };
+
+    // Remove agent field if it's empty or null
+    if (!updatedData.agent) {
+      delete updatedData.agent;
+    }
+
+    await axiosInstance.patch(`/students/${id}`, updatedData);
     await fetchAllData(); // Refetch data after saving
     toast({
       title: 'Student updated successfully',

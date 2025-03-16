@@ -33,7 +33,7 @@ export function StudentProfile({ student }) {
 
   useEffect(() => {
     fetchData();
-  }, [student?.id]); // Re-fetch data if student.id changes
+  }, [student?._id]); // Re-fetch data if student.id changes
 
   useEffect(() => {
     if (!uploadOpen) {
@@ -89,6 +89,7 @@ export function StudentProfile({ student }) {
               <span className="text-sm font-medium">Date of Birth:</span>
               <span className="text-sm text-muted-foreground">
                 {moment(student?.dob).format('DD-MM-YYYY')}
+                {/* {student.dob} */}
               </span>
             </div>
           </div>

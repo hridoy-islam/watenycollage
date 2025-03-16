@@ -448,39 +448,40 @@ import { toast } from '@/components/ui/use-toast';
 import axiosInstance from '@/lib/axios';
 import { useParams } from 'react-router-dom';
 import { format, parseISO } from 'date-fns';
-
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import moment from 'moment';
 
 interface Session {
-  id?: number;
-  session?: string;
-  invoice_date: string;
-  rate: string;
+  _id?: string;
+  sessionName?: string;
+  invoiceDate: string;
+  rate: Number;
   type: 'flat' | 'percentage';
 }
 
 interface Year {
-  id?: number;
+  _id?: string;
   year: string;
   sessions: Session[];
 }
 
 interface Institute {
-  id: number;
+  _id?: string;
   name: string;
   status: number;
   created_at: string;
 }
 
 interface Course {
-  id: number;
+  _id?: string;
   name: string;
   status: number;
   created_at: string;
 }
 
 interface Term {
-  id: number;
+  _id?: string;
   term: string;
   academic_year_id: number;
   academic_year: string;
@@ -489,7 +490,7 @@ interface Term {
 }
 
 interface CourseRelation {
-  id: number;
+  _id?: string;
   institute: Institute;
   course: Course;
   term: Term;
@@ -501,44 +502,46 @@ interface CourseRelation {
   status: number;
 }
 
+const yearSessionSchema = z.object({
+  years: z.array(
+    z.object({
+      id: z.string().optional(),
+      year: z.string(),
+      sessions: z.array(
+        z.object({
+          id: z.string().optional(),
+          sessionName: z.string(),
+          invoiceDate: z.string(),
+          rate: z.number(),
+          type: z.enum(["flat", "percentage"]),
+        })
+      ),
+    })
+  ),
+});
+
 export default function CourseRelationDetails() {
   const { id } = useParams();
-  const [courseRelation, setCourseRelation] = useState<CourseRelation | null>(
-    null
-  );
+  const [courseRelation, setCourseRelation] = useState<CourseRelation | null>(null);
   const [years, setYears] = useState<Year[]>([]);
   const [isAddingYear, setIsAddingYear] = useState(false);
-  const [selectedYear, setSelectedYear] = useState<string>('');
+  const [selectedYear, setSelectedYear] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
   const [editingSession, setEditingSession] = useState<{
-    yearId: number;
-    sessionId: number;
+    yearId: string;
+    sessionId: string;
     data: Session;
   } | null>(null);
   const [isEditingSession, setIsEditingSession] = useState(false);
 
-  // New state for managing sessions in the add year dialog
+  // State for adding new year sessions
   const [newYearSessions, setNewYearSessions] = useState<Session[]>([
-    {
-      session: 'Session 1',
-      invoice_date: '',
-      rate: '0',
-      type: 'flat'
-    },
-    {
-      session: 'Session 2',
-      invoice_date: '',
-      rate: '0',
-      type: 'flat'
-    },
-    {
-      session: 'Session 3',
-      invoice_date: '',
-      rate: '0',
-      type: 'flat'
-    }
+    { sessionName: "Session 1", invoiceDate: "", rate: 0, type: "flat" },
+    { sessionName: "Session 2", invoiceDate: "", rate: 0, type: "flat" },
+    { sessionName: "Session 3", invoiceDate: "", rate: 0, type: "flat" },
   ]);
 
+  // Fetch course relations data
   const fetchCourseRelations = async () => {
     try {
       const response = await axiosInstance.get(`/course-relations/${id}`);
@@ -547,88 +550,70 @@ export default function CourseRelationDetails() {
         setYears(response.data.data.years || []);
       }
     } catch (error) {
-      console.error('Error fetching course relations:', error);
+      console.error("Error fetching course relations:", error);
+      toast.error("Failed to fetch data");
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    console.log(courseRelation);
-    fetchCourseRelations();
+    if (id) fetchCourseRelations();
   }, [id]);
 
+  // Get available years
   const getAvailableYears = () => {
-    const existingYears = years.map((y) =>
-      Number.parseInt(y.year.split(' ')[1])
+    const existingYears = years.map((y) => parseInt(y.year.split(" ")[1]));
+    return Array.from({ length: 4 }, (_, i) => `Year ${i + 1}`).filter(
+      (year) => !existingYears.includes(parseInt(year.split(" ")[1]))
     );
-    const availableYears = [];
-
-    for (let i = 1; i <= 4; i++) {
-      if (!existingYears.includes(i)) {
-        availableYears.push(`Year ${i}`);
-      }
-    }
-
-    return availableYears;
   };
 
-  const handleUpdateNewSession = (
-    index: number,
-    field: keyof Session,
-    value: string | 'flat' | 'percentage'
-  ) => {
+  // Handle updating new session data
+  const handleUpdateNewSession = (index: number, field: keyof Session, value: string | number) => {
     setNewYearSessions((prev) =>
-      prev.map((session, i) =>
-        i === index ? { ...session, [field]: value } : session
-      )
+      prev.map((session, i) => (i === index ? { ...session, [field]: value } : session))
     );
   };
 
-  const handleEditSession = (year, session) => {
-    console.log('Editing Session Data:', { year, session });
-
+  // Edit session handler
+  const handleEditSession = (year: Year, session: Session) => {
     setEditingSession({
-      yearId: year.id, // Ensure this is the correct database ID
-      sessionId: session.id, // Ensure this is the correct session ID
-      data: { ...session }
+      yearId: year._id!,
+      sessionId: session._id!,
+      data: { ...session },
     });
     setIsEditingSession(true);
   };
 
+  // Update existing session
   const handleUpdateSession = async () => {
     if (!editingSession) return;
-
     const { yearId, sessionId, data } = editingSession;
 
     try {
       await axiosInstance.patch(`/course-relations/${id}`, {
-        years: [
-          {
-            id: yearId,
-            year: years.find((y) => y.id === yearId)?.year,
-            sessions: [
-              {
-                id: sessionId,
-                session: data.session,
-                invoice_date: data.invoice_date,
-                rate: data.rate,
-                type: data.type
+        years: years.map((year) =>
+          year._id === yearId
+            ? {
+                ...year,
+                sessions: year.sessions.map((session) =>
+                  session._id === sessionId ? { ...session, ...data } : session
+                ),
               }
-            ]
-          }
-        ]
+            : year
+        ),
       });
 
       // Update local state
       setYears((prevYears) =>
         prevYears.map((year) =>
-          year.id === yearId
+          year._id === yearId
             ? {
                 ...year,
                 sessions: year.sessions.map((session) =>
-                  session.id === sessionId ? { ...session, ...data } : session
-                )
+                  session._id === sessionId ? { ...session, ...data } : session
+                ),
               }
             : year
         )
@@ -636,93 +621,62 @@ export default function CourseRelationDetails() {
 
       setIsEditingSession(false);
       setEditingSession(null);
-      toast.success('Session updated successfully');
+      toast.success("Session updated successfully");
     } catch (error) {
-      console.error('Error updating session:', error);
-      toast.error('Failed to update session');
+      console.error("Error updating session:", error);
+      toast.error("Failed to update session");
     }
   };
 
+  // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     try {
-      const response = await axiosInstance.patch(`/course-relations/${id}`, {
-        years: [
-          {
-            year: selectedYear,
-            sessions: newYearSessions.map((session) => ({
-              session: session.session,
-              invoice_date: session.invoice_date,
-              rate: session.rate,
-              type: session.type
-            }))
-          }
-        ]
+      // Ensure previous years are preserved
+      const updatedYears = [
+        ...years, // Existing years
+        {
+          year: selectedYear,
+          sessions: newYearSessions,
+        },
+      ];
+  
+      await axiosInstance.patch(`/course-relations/${id}`, {
+        years: updatedYears, // Send updated years array
       });
-
+  
       setIsAddingYear(false);
-      setYears([]);
-      await fetchCourseRelations();
-      setIsLoading(true);
-      setSelectedYear('');
+      fetchCourseRelations(); // Refresh data
+      setSelectedYear("");
       setNewYearSessions([
-        { session: 'Session 1', invoice_date: '', rate: '', type: 'flat' },
-        { session: 'Session 2', invoice_date: '', rate: '', type: 'flat' },
-        { session: 'Session 3', invoice_date: '', rate: '', type: 'flat' }
+        { sessionName: "Session 1", invoiceDate: "", rate: 0, type: "flat" },
+        { sessionName: "Session 2", invoiceDate: "", rate: 0, type: "flat" },
+        { sessionName: "Session 3", invoiceDate: "", rate: 0, type: "flat" },
       ]);
-
-      if (response.data && response.data.success === true) {
-        toast({
-          title: response.data.message || 'Record Updated successfully',
-          className: 'bg-supperagent border-none text-white'
-        });
-      } else if (response.data && response.data.success === false) {
-        toast({
-          title: response.data.message || 'Operation failed',
-          className: 'bg-red-500 border-none text-white'
-        });
-      } else {
-        toast({
-          title: 'Unexpected response. Please try again.',
-          className: 'bg-red-500 border-none text-white'
-        });
-      }
+      toast.success("Year added successfully");
     } catch (error) {
-      console.error('Error updating course relations:', error);
-      toast({
-        title: 'Unexpected response. Please try again.',
-        className: 'bg-red-500 border-none text-white'
-      });
-    } finally {
-      setIsLoading(false);
+      console.error("Error updating course relations:", error);
+      toast.error("Failed to add year");
     }
   };
+  
 
+  // Format date safely
   const formatDate = (dateString: string) => {
     try {
-      return format(parseISO(dateString), 'dd MMM yyyy');
+      return format(parseISO(dateString), "dd MMM yyyy");
     } catch (error) {
       return dateString;
     }
   };
 
   if (isLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        Loading...
-      </div>
-    );
+    return <div className="flex h-screen items-center justify-center">Loading...</div>;
   }
 
   if (!courseRelation) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        Course relation not found
-      </div>
-    );
+    return <div className="flex h-screen items-center justify-center">Course relation not found</div>;
   }
-
   return (
     <div className="space-y-6 p-6">
       <div className="flex flex-col space-y-2 pb-3">
@@ -783,13 +737,15 @@ export default function CourseRelationDetails() {
                   <div className="flex items-center justify-between">
                     <h3 className="text-sm font-medium">Sessions</h3>
                   </div>
-
+                
                   {newYearSessions.map((session, index) => (
                     <div
                       key={index}
                       className="space-y-4 rounded-lg border border-border p-4"
                     >
                       {/* Align Invoice Date, Rate, and Type in a single row */}
+
+                     
                       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                         {/* Invoice Date */}
                         <div className="gap-2">
@@ -799,8 +755,8 @@ export default function CourseRelationDetails() {
                           <input
                             type="date"
                             value={
-                              session.invoice_date
-                                ? moment(session.invoice_date).format(
+                              session.invoiceDate
+                                ? moment(session.invoiceDate).format(
                                     'YYYY-MM-DD'
                                   )
                                 : ''
@@ -809,7 +765,7 @@ export default function CourseRelationDetails() {
                               const date = moment(e.target.value).toISOString();
                               handleUpdateNewSession(
                                 index,
-                                'invoice_date',
+                                'invoiceDate',
                                 date
                               );
                             }}
@@ -908,7 +864,7 @@ export default function CourseRelationDetails() {
                 <label className="text-sm font-medium">Invoice Date</label>
                 <input
                   type="date"
-                  value={moment(editingSession.data.invoice_date).format(
+                  value={moment(editingSession.data.invoiceDate).format(
                     'YYYY-MM-DD'
                   )}
                   onChange={(e) => {
@@ -916,7 +872,7 @@ export default function CourseRelationDetails() {
                       ...editingSession,
                       data: {
                         ...editingSession.data,
-                        invoice_date: moment(e.target.value).toISOString()
+                        invoiceDate: moment(e.target.value).toISOString()
                       }
                     });
                   }}
@@ -982,7 +938,7 @@ export default function CourseRelationDetails() {
               return numA - numB;
             })
             .map((year) => (
-              <Card key={year.id}>
+              <Card key={year._id}>
                 <CardHeader className="flex flex-row items-center justify-between">
                   <CardTitle>{year.year}</CardTitle>
                 </CardHeader>
@@ -1001,7 +957,7 @@ export default function CourseRelationDetails() {
                           <div className="grid grid-cols-1 gap-2 text-sm md:grid-cols-3">
                             <div className="flex items-center">
                               <Calendar className="mr-2 h-4 w-4 text-black" />
-                              <span>{formatDate(session.invoice_date)}</span>
+                              <span>{formatDate(session.invoiceDate)}</span>
                             </div>
                             <div className="flex items-center">
                               {session.type === 'flat' ? (

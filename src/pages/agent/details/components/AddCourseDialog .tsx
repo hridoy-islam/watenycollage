@@ -10,7 +10,7 @@ const AddCourseDialog = ({ coursesList = [] ,onAddCourses}) => {
     const [isOpen, setIsOpen] = useState(false);
   //  console.log(coursesList)
   const courseOptions = (coursesList ).map((course) => ({
-    value: course?.id,
+    value: course?._id,
     label: `${course?.institute?.name    } - ${course?.course?.name}`,
   }));
 
@@ -25,8 +25,9 @@ const AddCourseDialog = ({ coursesList = [] ,onAddCourses}) => {
       const selectedCourseIds = selectedCourses.map((course) => course.value);
       
       // Use axiosInstance for the PATCH request
-      await axiosInstance.patch(`/agents/${id}`, {
-        courseRelationIds: selectedCourseIds,
+      await axiosInstance.post(`/agent-courses`, {
+        courseRelationId: selectedCourseIds,
+        agentId:id
       });
   
       // Pass selected course objects to the parent component
@@ -54,7 +55,7 @@ const AddCourseDialog = ({ coursesList = [] ,onAddCourses}) => {
           isMulti
           name="courses"
           options={courseOptions}
-          className="mb-4"
+          className="mb-4 max-w-2xl"
           classNamePrefix="select"
           placeholder="Search and select courses..."
           value={selectedCourses}

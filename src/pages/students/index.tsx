@@ -209,7 +209,9 @@ export default function StudentsPage() {
         page,
         limit: entriesPerPage,
         ...(searchTerm ? { searchTerm } : {}),
-        ...(dob ? { dob } : {}) // Add dob to the params if it exists
+        ...(dob ? { dob } : {}), // Add dob to the params if it exists
+        ...(agent? {agent}:{}),
+        ...(staffId? {staffId}:{})
       };
 
       let queryParams = new URLSearchParams();
@@ -219,12 +221,12 @@ export default function StudentsPage() {
       if (institute) qConditions.push(`applications.institute.id=${institute}`);
       if (term) qConditions.push(`applications.term.id=${term}`);
       // if (dob) qConditions.push(`dob=${dob}`);
-      if (staffId) {
-        qConditions.push(`assignStaffs.staff.id=${staffId}`);
-      }
-      if (agent) {
-        qConditions.push(`agent.id=${agent}`);
-      }
+      // if (staffId) {
+      //   qConditions.push(`assignStaffs.staff._id=${staffId}`);
+      // }
+      // if (agent) {
+      //   qConditions.push(`agent.id=${agent}`);
+      // }
       if (academic_year_id)
         qConditions.push(
           `applications.term.academic_year_id=${academic_year_id}`
@@ -232,7 +234,7 @@ export default function StudentsPage() {
 
       // Role-based filtering
       if (user.role === 'agent' && !agent) {
-        qConditions.push(`agent.id=${user.agent_id}`);
+        qConditions.push(`agent._id=${user.agent_id}`);
       }
 
       // Only use user.staff_id if neither staffId nor agentId is provided
@@ -255,7 +257,7 @@ export default function StudentsPage() {
       // }
 
       const response = await axiosInstance.get(
-        `/students?${queryParams.toString()}`,
+        `/students?sort=-refId&fields=firstName,lastName,email,phone,refId&${queryParams.toString()}`,
         {
           params
         }

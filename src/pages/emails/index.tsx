@@ -77,12 +77,12 @@ export default function EmailConfigPage() {
       // Check if the API response indicates success
       if (response.data && response.data.success === true) {
         toast({
-          title: response.data.message || "Email configuration updated successfully",
+          title:  "Email configuration updated successfully",
           className: "bg-supperagent border-none text-white",
         });
       } else if (response.data && response.data.success === false) {
         toast({
-          title: response.data.message || "Operation failed",
+          title:  "Operation failed",
           className: "bg-red-500 border-none text-white",
         });
       } else {
@@ -96,7 +96,7 @@ export default function EmailConfigPage() {
       fetchData(currentPage, entriesPerPage);
     } catch (error) {
       toast({
-        title: error.response?.data?.message || "An error occurred. Please try again.",
+        title:  "An error occurred. Please try again.",
         className: "bg-red-500 border-none text-white",
       });
     } finally {

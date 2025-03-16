@@ -309,7 +309,7 @@ export function DocumentsSection({
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => setDeleteDialog(doc.id)}
+                        onClick={() => setDeleteDialog(doc._id)}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
