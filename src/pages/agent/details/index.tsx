@@ -241,7 +241,6 @@ const AgentDetailsPage = () => {
 
                       <Button
                         variant="outline"
-                        className="border-none bg-destructive text-white hover:bg-destructive/90"
                         size="icon"
                       >
                         <Eye />

@@ -55,7 +55,7 @@ export default function CommentsPage() {
   useEffect(() => {
     fetchData();
   }, []);
-  console.log(note);
+
 
   const handleStatusChange = async () => {
     const isCreator = user.email === note?.createdBy?.email;

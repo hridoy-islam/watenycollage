@@ -57,38 +57,56 @@ export default function CourseDetails() {
 
   // const handleSave = async () => {
   //   try {
-  //     // Create an array with the updated application
-  //     const updatedApplication = [
-  //       {
-  //         id: courseid,
-  //         status: currentStatus
-  //       }
-  //     ];
+  //     // Ensure application exists before updating
+  //     if (!application) {
+  //       console.error("Application not found.");
+  //       return;
+  //     }
 
-  //     // Send the updated application array to the backend
+  //     // Find the last status log entry to get the previous status
+  //     const previousLog = application.statusLogs?.[application.statusLogs.length - 1];
+
+  //     // Create a new status log entry
+  //     const statusLog = {
+  //       prev_status: previousLog?.changed_to || application.status || 'New',
+  //       changed_to: currentStatus,
+  //       assigned_by: previousLog?.assigned_by || null,
+  //       changed_by: user._id,
+  //       assigned_at: previousLog?.assigned_at || null,
+  //       created_at: moment().toISOString(),
+  //     };
+
+  //     // Preserve all properties of the existing application
+  //     const updatedApplication = {
+  //       ...application, // Spread existing application to keep all properties
+  //       status: currentStatus,
+  //       statusLogs: [...(application.statusLogs || []), statusLog], // Append new log
+  //     };
+
+  //     // Send the updated application data to the backend
   //     await axiosInstance.patch(`/students/${id}`, {
-  //       applications: updatedApplication
+  //       applications: [updatedApplication], // Wrap in an array if required by the backend
   //     });
 
   //     // Refetch data to update the UI
   //     fetchData();
   //   } catch (error) {
-  //     console.error('Error updating application status:', error);
+  //     console.error("Error updating application status:", error);
   //   }
   // };
-
 
   const handleSave = async () => {
     try {
       // Ensure application exists before updating
       if (!application) {
-        console.error("Application not found.");
+        console.error('Application not found.');
         return;
       }
-  
+
       // Find the last status log entry to get the previous status
-      const previousLog = application.statusLogs?.[application.statusLogs.length - 1];
-  
+      const previousLog =
+        application.statusLogs?.[application.statusLogs.length - 1];
+
       // Create a new status log entry
       const statusLog = {
         prev_status: previousLog?.changed_to || application.status || 'New',
@@ -96,29 +114,56 @@ export default function CourseDetails() {
         assigned_by: previousLog?.assigned_by || null,
         changed_by: user._id,
         assigned_at: previousLog?.assigned_at || null,
-        created_at: moment().toISOString(),
+        created_at: moment().toISOString()
       };
-  
+
       // Preserve all properties of the existing application
       const updatedApplication = {
         ...application, // Spread existing application to keep all properties
         status: currentStatus,
-        statusLogs: [...(application.statusLogs || []), statusLog], // Append new log
+        statusLogs: [...(application.statusLogs || []), statusLog] // Append new log
       };
-  
+
       // Send the updated application data to the backend
       await axiosInstance.patch(`/students/${id}`, {
-        applications: [updatedApplication], // Wrap in an array if required by the backend
+        applications: [updatedApplication] // Wrap in an array if required by the backend
       });
-  
+
+      // If the status is "Enrolled", update the accounts field
+      if (currentStatus === 'Enrolled') {
+        const courseRelationId = application.courseRelationId._id;
+
+        const courseRelationResponse = await axiosInstance.get(
+          `/course-relations/${courseRelationId}`
+        );
+        const courseRelation = courseRelationResponse.data.data;
+
+        const accountsData = {
+          courseRelationId: courseRelationId,
+          years: courseRelation.years.map((year) => ({
+            id: year._id,
+            year: year.year,
+            sessions: year.sessions.map((session) => ({
+              id: session._id,
+              sessionName: session.sessionName,
+              invoiceDate: session.invoiceDate,
+              status: 'due' // Set session status to "due" by default
+            }))
+          }))
+        };
+
+        // Send a PATCH request to update the accounts field
+        await axiosInstance.patch(`/students/${id}`, {
+          accounts: [accountsData] // Add the new account data
+        });
+      }
+
       // Refetch data to update the UI
       fetchData();
     } catch (error) {
-      console.error("Error updating application status:", error);
+      console.error('Error updating application status:', error);
     }
   };
-  
-  
 
   useEffect(() => {
     fetchData();
@@ -128,8 +173,6 @@ export default function CourseDetails() {
     setCurrentStatus(status);
   };
 
-
- 
   return (
     <div>
       <header className="flex items-center justify-between px-6 py-3">
