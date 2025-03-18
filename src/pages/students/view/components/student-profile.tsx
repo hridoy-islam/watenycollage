@@ -14,14 +14,14 @@ export function StudentProfile({ student, fetchStudent }) {
 
   useEffect(() => {
     if (!uploadOpen) {
-      fetchStudent(); 
+      fetchStudent; 
     }
   }, [uploadOpen]); 
 
   const handleUploadComplete = (data) => {
     
     setUploadOpen(false); // Close the upload dialog
-    fetchStudent(); // Re-fetch student data after upload completes
+    fetchStudent; // Re-fetch student data after upload completes
   };
   return (
     <Card className="border-0 shadow-none">
@@ -30,7 +30,7 @@ export function StudentProfile({ student, fetchStudent }) {
           <div className="relative h-48 w-48 overflow-hidden rounded-full">
             <img
               src={
-                student.imageUrl ||
+                student?.imageUrl ||
                 'https://kzmjkvje8tr2ra724fhh.lite.vusercontent.net/placeholder.svg'
               }
               alt={`${student?.firstName} ${student?.lastName}`}
