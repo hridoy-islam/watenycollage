@@ -31,7 +31,7 @@ export default function StudentViewPage() {
   const { toast } = useToast();
   const { user } = useSelector((state: any) => state.auth) || {};
   const [student, setStudent] = useState<any>();
-  const [documents, setDocuments] = useState<any>([]);
+  
   const [initialLoading, setInitialLoading] = useState(true); // New state for initial loading
   const [hasRequiredDocuments, setHasRequiredDocuments] = useState(false);
   // const isComplete = isStudentDataComplete(student, hasRequiredDocuments);
@@ -50,6 +50,7 @@ export default function StudentViewPage() {
     () => isWorkExperienceComplete(student),
     [student]
   );
+  
   const isComplete = useMemo(
     () => isStudentDataComplete(student, hasRequiredDocuments), // Include hasRequiredDocuments in the isComplete check
     [student, hasRequiredDocuments]
@@ -62,16 +63,9 @@ export default function StudentViewPage() {
       const studentResponse = await axiosInstance.get(`/students/${id}`);
       setStudent(studentResponse.data.data);
 
-      // Fetch documents data (only after student data is available)
-      const documentsResponse = await axios.get(
-        `https://core.qualitees.co.uk/api/documents?where=entity_id,${studentResponse.data.data.id}&exclude=file_type,profile`,
-        {
-          headers: {
-            'x-company-token': import.meta.env.VITE_COMPANY_TOKEN
-          }
-        }
-      );
-      setDocuments(documentsResponse.data.result);
+    
+     
+      
     } catch (error) {
       console.error('Error fetching data:', error);
       toast({
@@ -84,16 +78,25 @@ export default function StudentViewPage() {
     }
   };
 
+
   useEffect(() => {
-    if (student && documents) {
-      const hasRequiredDocuments =
-        student?.noDocuments ||
-        ['work experience', 'qualification'].some((type) =>
-          documents.some((doc) => doc.file_type === type)
-        );
-      setHasRequiredDocuments(hasRequiredDocuments);
+    if (student ) {
+      // const hasRequiredDocuments =
+      //   student?.noDocuments ||
+      //   ['work experience', 'qualification'].some((type) =>
+      //     documents.some((doc) => doc.file_type === type)
+      //   );
+      // setHasRequiredDocuments(hasRequiredDocuments);
+
+
+      const requiredDocuments = ['work experience', 'qualification'];
+      const hasDocuments = requiredDocuments.some((type) =>
+        student.documents.some((doc) => doc.file_type === type)
+      );
+
+      setHasRequiredDocuments(hasDocuments || student?.noDocuments);
     }
-  }, [student, documents]);
+  }, [student]);
 
   const handleSave = async (data) => {
     const updatedData = { ...data };
@@ -205,7 +208,7 @@ export default function StudentViewPage() {
         </div>
       </header>
 
-      <StudentProfile student={student} />
+      <StudentProfile student={student}  fetchStudent={fetchAllData} />
 
       <Tabs defaultValue="personal" className="mt-1 px-2">
         <TabsList>
@@ -232,7 +235,7 @@ export default function StudentViewPage() {
         <TabsContent value="documents">
           <DocumentsSection
             student={student}
-            documents={documents}
+     
             fetchDocuments={fetchAllData}
             onSave={handleSave}
           />

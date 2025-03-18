@@ -17,7 +17,7 @@ export function SendEmailComponent({ student}) {
 
      
       const logResponse = await axiosInstance.post(`/email-logs`, emailData);
-      const logId = logResponse.data.data?._id; 
+      const logId = logResponse.data?.data?._id; 
 
       
       await axiosInstance.post(`/email-send`, emailData);
@@ -26,7 +26,7 @@ export function SendEmailComponent({ student}) {
         await axiosInstance.patch(`/email-logs/${logId}`, { status: "sent" });
       }
 
-      fetchData(); // Refresh data after success
+      fetchData(); 
     } catch (error) {
       console.error("Error sending email:", error);
     }
@@ -37,10 +37,10 @@ export function SendEmailComponent({ student}) {
       try {
         const response = await axiosInstance.get(
           `/email-logs`,{
-      params: { studentId: id }, // Pass studentId as a query parameter
+      params: { studentId: id }, 
     }
 
-        ); // Update with your API endpoint
+        );
         setEmailLogs(response.data.data.result);
       } catch (error) {
         console.error('Error fetching notes:', error);
@@ -49,8 +49,8 @@ export function SendEmailComponent({ student}) {
   
     useEffect(() => {
       fetchData();
-    }, [student]);
-console.log(emailLogs)
+    }, [student,id,emailLogs]);
+
   return (
     <div className="space-y-4 rounded-md p-4 shadow-md">
       <div className="flex justify-between">
