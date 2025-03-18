@@ -211,15 +211,19 @@ export default function StudentsPage() {
         ...(searchTerm ? { searchTerm } : {}),
         ...(dob ? { dob } : {}), // Add dob to the params if it exists
         ...(agent? {agent}:{}),
-        ...(staffId? {staffId}:{})
+        ...(staffId? {staffId}:{}),
+        ...(status? {status}:{}),
+        ...(institute? {institute}:{}),
+        ...(term? {term}:{}),
+        ...(academic_year_id? {academic_year_id}:{})
       };
 
       let queryParams = new URLSearchParams();
       let qConditions = [];
 
-      if (status) qConditions.push(`applications.status=${status}`);
-      if (institute) qConditions.push(`applications.institute.id=${institute}`);
-      if (term) qConditions.push(`applications.term.id=${term}`);
+      // if (status) qConditions.push(`applications.status=${status}`);
+      // if (institute) qConditions.push(`applications.institute.id=${institute}`);
+      // if (term) qConditions.push(`applications.term.id=${term}`);
       // if (dob) qConditions.push(`dob=${dob}`);
       // if (staffId) {
       //   qConditions.push(`assignStaffs.staff._id=${staffId}`);
@@ -227,10 +231,10 @@ export default function StudentsPage() {
       // if (agent) {
       //   qConditions.push(`agent.id=${agent}`);
       // }
-      if (academic_year_id)
-        qConditions.push(
-          `applications.term.academic_year_id=${academic_year_id}`
-        );
+      // if (academic_year_id)
+      //   qConditions.push(
+      //     `applications.term.academic_year_id=${academic_year_id}`
+      //   );
 
       // Role-based filtering
       if (user.role === 'agent' && !agent) {
