@@ -17,14 +17,7 @@ interface Student {
   selected?: boolean
 }
 
-interface StudentSelectionProps {
-  filteredStudents: Student[]
-  selectedStudents: Student[]
-  loading: boolean
-  handleAddStudent: (student: Student) => void
-  handleStudentSelect: (studentId: string) => void
-  handleRemoveStudent: (studentId: string) => void
-}
+
 
 export function StudentSelection({
   filteredStudents,
@@ -33,10 +26,9 @@ export function StudentSelection({
   handleAddStudent,
   handleStudentSelect,
   handleRemoveStudent,
-}: StudentSelectionProps) {
+}) {
   return (
     <div className="mt-8 grid grid-cols-1 gap-0 lg:grid-cols-2">
-      {/* Available Students */}
       <div>
         <CardHeader>
           <CardTitle>Available Students</CardTitle>

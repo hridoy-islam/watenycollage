@@ -74,6 +74,10 @@ export default function AppRouter() {
           element: <StudentListPage />
         },
         {
+          path: 'invoice/students/:id',
+          element: <StudentListPage />
+        },
+        {
           path: 'invoice/generate',
           element: <GenerateInvoicePage />
         },

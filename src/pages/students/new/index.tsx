@@ -38,7 +38,7 @@ export default function NewStudentPage() {
     try {
       const formattedData = {
         ...data,
-        dob: moment(data.dob).format('DD-MM-YYYY'),
+        dob: data.dob,
         title: data.title,
         gender: data.gender,
         maritualStatus: data.maritalStatus,
@@ -47,8 +47,9 @@ export default function NewStudentPage() {
       };
       // Add agentID only if the user is an agent
       if (user.role === 'agent') {
-        formattedData.agentId = user._id;
+        formattedData.agent = user._id;
       }
+   
       const response = await axiosInstance.post(`/students`, formattedData);
 
       // Handle success response

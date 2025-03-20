@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -22,19 +23,8 @@ import {
   SelectValue
 } from '@/components/ui/select';
 import type { UseFormReturn } from 'react-hook-form';
-
-interface StudentFilterProps {
-  filterForm: UseFormReturn<any>;
-  terms: Array<{ _id: string; name: string }>;
-  courses: Array<{ _id: string; name: string }>;
-  institutes: Array<{ _id: string; name: string }>;
-  years: string[];
-  sessions: string[];
-  paymentStatuses: string[];
-  onFilterSubmit: (data: any) => void;
-  handleYearChange: (value: string) => void;
-  handleSessionChange: (value: string) => void;
-}
+import axiosInstance from '@/lib/axios'; // Adjust the import based on your project structure
+import { useParams } from 'react-router-dom';
 
 export function StudentFilter({
   filterForm,
@@ -44,10 +34,38 @@ export function StudentFilter({
   years,
   sessions,
   paymentStatuses,
+  isEditing,
   onFilterSubmit,
   handleYearChange,
-  handleSessionChange
-}: StudentFilterProps) {
+  handleSessionChange,
+  
+}) {
+
+  const {id} = useParams();
+  useEffect(() => {
+    if (isEditing && id) {
+      // Fetch the invoice data when editing
+      axiosInstance
+        .get(`/invoice/${id}`)
+        .then((response) => {
+  
+          const invoiceData = response.data.data;
+          filterForm.reset({
+            term: invoiceData.courseRelationId.term?._id ,
+            institute: invoiceData.courseRelationId.institute?._id , 
+            course: invoiceData.courseRelationId.course?._id ,
+            year: invoiceData.year,
+            session: invoiceData.session,
+            paymentStatus: invoiceData.paymentStatus,
+          });
+    
+        })
+        .catch((error) => {
+          console.error("Error fetching invoice data:", error);
+        });
+    }
+  }, [isEditing, id, filterForm]);
+  
   return (
     <Card className="rounded-none shadow-md">
       <CardHeader>
@@ -67,15 +85,14 @@ export function StudentFilter({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Term</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value} disabled={isEditing}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select Term" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {terms
-                          .filter(
+                        {terms?.filter(
                             (term, index, self) =>
                               index ===
                               self.findIndex((t) => t._id === term._id)
@@ -102,7 +119,7 @@ export function StudentFilter({
                     <Select
                       onValueChange={field.onChange}
                       value={field.value}
-                      disabled={!filterForm.watch('term')} // Disable until term is selected
+                      disabled={!filterForm.watch('term') || isEditing}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -110,8 +127,7 @@ export function StudentFilter({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {institutes
-                          .filter(
+                        {institutes?.filter(
                             (institute, index, self) =>
                               index ===
                               self.findIndex((i) => i._id === institute._id)
@@ -141,7 +157,7 @@ export function StudentFilter({
                     <Select
                       onValueChange={field.onChange}
                       value={field.value}
-                      disabled={!filterForm.watch('institute')} // Disable until institute is selected
+                      disabled={!filterForm.watch('institute') || isEditing}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -149,13 +165,11 @@ export function StudentFilter({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {courses
-                          .filter(
+                        {courses?.filter(
                             (course, index, self) =>
                               index ===
                               self.findIndex((c) => c._id === course._id)
-                          ) // Removes duplicate courses
-                          .map((course) => (
+                          )?.map((course) => (
                             <SelectItem key={course._id} value={course._id}>
                               {course.name}
                             </SelectItem>
@@ -180,7 +194,7 @@ export function StudentFilter({
                         handleYearChange(value);
                       }}
                       value={field.value}
-                      disabled={!filterForm.watch('course')} // Disable until course is selected
+                      disabled={!filterForm.watch('course') || isEditing}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -188,7 +202,7 @@ export function StudentFilter({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {years.map((year) => (
+                        {years?.map((year) => (
                           <SelectItem key={year} value={year}>
                             {year}
                           </SelectItem>
@@ -213,7 +227,7 @@ export function StudentFilter({
                         handleSessionChange(value);
                       }}
                       value={field.value}
-                      disabled={!filterForm.watch('year')} // Disable until year is selected
+                      disabled={!filterForm.watch('year') || isEditing}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -221,7 +235,7 @@ export function StudentFilter({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {sessions.map((session) => (
+                        {sessions?.map((session) => (
                           <SelectItem key={session} value={session}>
                             {session}
                           </SelectItem>
@@ -242,6 +256,7 @@ export function StudentFilter({
                     <Select
                       onValueChange={field.onChange}
                       value={field.value || 'due'} // Default to "due" if no value is set
+                      disabled={isEditing}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -249,7 +264,7 @@ export function StudentFilter({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {paymentStatuses.map((status) => (
+                        {paymentStatuses?.map((status) => (
                           <SelectItem key={status} value={status}>
                             {status.charAt(0).toUpperCase() + status.slice(1)}
                           </SelectItem>
@@ -264,20 +279,20 @@ export function StudentFilter({
 
             {/* Search Input */}
             <div className="mt-4 flex items-center justify-end">
-            <Button
-  className="bg-supperagent text-white hover:bg-supperagent/90"
-  type="submit"
-  disabled={
-    !filterForm.watch('term') ||
-    !filterForm.watch('institute') ||
-    !filterForm.watch('course') ||
-    !filterForm.watch('year') ||
-    !filterForm.watch('session') 
-  }
->
-  Search
-</Button>
-
+              <Button
+                className="bg-supperagent text-white hover:bg-supperagent/90"
+                type="submit"
+                disabled={
+                  !filterForm.watch('term') ||
+                  !filterForm.watch('institute') ||
+                  !filterForm.watch('course') ||
+                  !filterForm.watch('year') ||
+                  !filterForm.watch('session') ||
+                  isEditing
+                }
+              >
+                Search
+              </Button>
             </div>
           </form>
         </Form>

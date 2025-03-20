@@ -70,8 +70,8 @@ export function StudentProfile({ student, fetchStudent }) {
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium">Date of Birth:</span>
               <span className="text-sm text-muted-foreground">
-                {/* {moment(student?.dob).format('DD-MM-YYYY')} */}
-                {student?.dob}
+                {moment(student?.dob).format('DD-MM-YYYY')}
+                {/* {student?.dob} */}
               </span>
             </div>
           </div>

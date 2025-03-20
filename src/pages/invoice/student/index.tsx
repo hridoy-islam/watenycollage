@@ -1,17 +1,18 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { Button } from "@/components/ui/button"
 import { Card, CardFooter } from "@/components/ui/card"
 import axiosInstance from "@/lib/axios"
-import { toast } from "@/components/ui/use-toast"
+import { toast, useToast } from "@/components/ui/use-toast"
 import { StudentFilter } from "./components/student-filter"
 import { StudentSelection } from "./components/StudentSelection"
 import { InvoiceDetails } from "./components/invoice-details"
+import { useSelector } from "react-redux"
 
 
 // Updated Zod schema to include remitTo, paymentInfo, and course details
@@ -52,15 +53,20 @@ export default function StudentListPage() {
   const [institutes, setInstitutes] = useState([])
   const [terms, setTerms] = useState([])
   const [years, setYears] = useState([])
+  const [ InvoiceData,setInvoiceData] = useState([])
   const [sessions, setSessions] = useState([])
   const [courseRelations, setCourseRelations] = useState([])
   const [selectedCourseRelation, setSelectedCourseRelation] = useState(null)
-
+  const [isEditing,setIsEditing] = useState(false)
   const [students, setStudents] = useState([])
   const [filteredStudents, setFilteredStudents] = useState([])
   const [loading, setLoading] = useState(false)
   const [paymentStatuses, setPaymentStatuses] = useState(["paid", "due"])
+  const { user } = useSelector((state: any) => state.auth);
+  const { id } = useParams() 
+  const { toast } = useToast();
 
+  
   const form = useForm<z.infer<typeof invoiceSchema>>({
     resolver: zodResolver(invoiceSchema),
     defaultValues: {
@@ -96,6 +102,44 @@ export default function StudentListPage() {
     },
   })
 
+  const fetchInvoiceData = async (invoiceId) => {
+    try {
+      setLoading(true);
+      const response = await axiosInstance.get(`/invoice/${invoiceId}`);
+      const invoiceData = response?.data?.data ;
+
+      if (invoiceData) {
+        // Populate the form fields with the stored values
+        form.setValue("remitTo", invoiceData.remitTo);
+        form.setValue("paymentInfo", invoiceData.paymentInfo);
+          
+        setTotalAmount(invoiceData.totalAmount);
+        // setSelectedStudents(invoiceData.students);
+        // setFilteredStudents(invoiceData.students);
+
+        
+        console.log(totalAmount,"total")
+      }
+    } catch (error) {
+      console.error("Error fetching invoice data:", error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch invoice data",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  useEffect(() => {
+    if (id) {
+      setIsEditing(true);
+      fetchInvoiceData(id);
+    }
+  }, [id]);
+
   // Fetch course relations
   const fetchCourseRelations = async () => {
     try {
@@ -104,7 +148,7 @@ export default function StudentListPage() {
       const courseRelationsData = response?.data?.data?.result || []
       setCourseRelations(courseRelationsData)
 
-      // Extract unique terms, courses, institutes, years, and sessions from course relations
+      
       const uniqueTerms = [...new Set(courseRelationsData.map((cr) => cr.term))]
       const uniqueCourses = [...new Set(courseRelationsData.map((cr) => cr.course))]
       const uniqueInstitutes = [...new Set(courseRelationsData.map((cr) => cr.institute))]
@@ -164,7 +208,7 @@ export default function StudentListPage() {
         }
       }
   
-      console.log("Course Relation ID:", courseRelationId); // Log the course relation ID
+      // console.log("Course Relation ID:", courseRelationId); // Log the course relation ID
   
       // Prepare API request parameters
       const params = {
@@ -177,22 +221,22 @@ export default function StudentListPage() {
         params.applicationCourse = courseRelationId;
       }
   
-      console.log("API Request Params:", params); // Log the API request parameters
+      // console.log("API Request Params:", params); // Log the API request parameters
   
       // Fetch students from the API
       const response = await axiosInstance.get("/students", { params });
       const studentsData = response?.data?.data.result || [];
   
-      console.log("Raw Students Data from API:", studentsData); // Log the raw data returned by the API
+      // console.log("Raw Students Data from API:", studentsData); // Log the raw data returned by the API
   
       const filteredStudentsData = studentsData.filter((student) => {
         if (!student.accounts || student.accounts.length === 0) {
           console.warn("Student has no accounts:", student._id);
-          return false; // Exclude the student if no accounts are available
+          return false; 
         }
   
         const matchingAccount = student.accounts.find((account) => {
-          return account.courseRelationId?._id === courseRelationId; // Match courseRelationId safely
+          return account.courseRelationId?._id === courseRelationId; 
         });
   
         if (!matchingAccount) {
@@ -200,21 +244,21 @@ export default function StudentListPage() {
           return false; 
         }
   
-        console.log("Matching Account for Student:", student._id, matchingAccount); 
+        // console.log("Matching Account for Student:", student._id, matchingAccount); 
   
         // If a matching account is found, check if the year matches
         const matchingYear = matchingAccount.years.find((y) => y.year === year);
         if (!matchingYear) {
-          console.warn("No matching year found for student:", student._id);
+          // console.warn("No matching year found for student:", student._id);
           return false; 
         }
   
-        console.log("Matching Year for Student:", student._id, matchingYear); 
+        // console.log("Matching Year for Student:", student._id, matchingYear); 
   
         return true; 
       });
   
-      console.log("Filtered Students Data:", filteredStudentsData); 
+      // console.log("Filtered Students Data:", filteredStudentsData); 
   
       setStudents(filteredStudentsData);
       setFilteredStudents(filteredStudentsData);
@@ -278,54 +322,95 @@ export default function StudentListPage() {
   const handleSessionChange = (value) => {
     filterForm.setValue("session", value)
   }
-
+  const calculateSessionFee = (session, amount) => {
+    console.log("Calculating fee with session:", session, "and amount:", amount);
+  
+    if (!session || session.rate == null) {
+      console.error("Session data is invalid:", session);
+      return 0;
+    }
+  
+    const rate = Number(session.rate) || 0;
+    const validAmount = Number(amount) || 0; // Ensures a valid number
+  
+    if (session.type === "flat") {
+      return rate; 
+    } else if (session.type === "percentage") {
+      return validAmount * (rate / 100);
+    }
+    return 0; 
+  };
   const handleAddStudent = (student) => {
-    // Check if student is already in the selected list
-    const isAlreadySelected = selectedStudents.some((s) => s._id === student._id)
-
+    const isAlreadySelected = selectedStudents.some((s) => s._id === student._id);
+    console.log(student); // Log the student object for debugging
+  
     if (!isAlreadySelected) {
-      // Get the current filter values
-      const filterValues = filterForm.getValues()
-
-      // Add sessionFee property and courseRelationId for grouping
+      const filterValues = filterForm.getValues();
+  
+      // Find the session details from the selected course relation
+      const yearObj = selectedCourseRelation.years.find((y) => y.year === filterValues.year);
+      const sessionObj = yearObj.sessions.find((s) => s.sessionName === filterValues.session);
+  
+      if (!sessionObj) {
+        toast({
+          title: "Error",
+          description: "Session details not found.",
+          variant: "destructive",
+        });
+        return;
+      }
+  
+      // Extract the correct amount based on the student's choice (Local or International)
+      const studentAmount = student.choice === "Local" 
+        ? parseFloat(selectedCourseRelation.local_amount) // Use local_amount for Local choice
+        : parseFloat(selectedCourseRelation.international_amount); // Use international_amount for International choice
+  
+      // Calculate session fee based on type
+      const sessionFee = calculateSessionFee(sessionObj, studentAmount);
+  
       const studentWithFee = {
         ...student,
-        sessionFee: Math.floor(Math.random() * 500) + 500, // Random fee between 500-1000 for demo
+        sessionFee, // Use calculated fee
         selected: true,
         courseRelationId: selectedCourseRelation?._id,
-        year: filterValues.year,
-        session: filterValues.session,
-      }
-
-      setSelectedStudents((prev) => [...prev, studentWithFee])
-
+        Year: filterValues.year,
+        Session: filterValues.session,
+        semester: filterValues.term,
+      };
+  
+      // Update selected students
+      setSelectedStudents((prev) => [...prev, studentWithFee]);
+  
+      // Remove from available students
+      setFilteredStudents((prev) => prev.filter((s) => s._id !== student._id));
+  
       // Update form values based on the selected course relation and filter values
       if (selectedCourseRelation) {
-        updateFormWithCourseDetails(selectedCourseRelation, filterValues.year, filterValues.session)
+        updateFormWithCourseDetails(selectedCourseRelation, filterValues.year, filterValues.session);
       }
     } else {
       toast({
         title: "Student already added",
         description: "This student is already in your selection.",
         variant: "destructive",
-      })
+      });
     }
-  }
+  };
 
   useEffect(() => {
-    // Fetch course relations and other initial data
+  
     fetchCourseRelations()
 
     setPaymentStatuses(["paid", "due"])
   }, [])
 
   useEffect(() => {
-    // Initialize selectedStudents with an empty array
+    
     setSelectedStudents([])
   }, [])
 
   useEffect(() => {
-    // Calculate total amount whenever selected students change
+    
     const total = selectedStudents
       .filter((student) => student.selected)
       .reduce((sum, student) => sum + (student.sessionFee || 0), 0)
@@ -342,31 +427,62 @@ export default function StudentListPage() {
   }
 
   const handleRemoveStudent = (studentId) => {
-    setSelectedStudents((prev) => prev.filter((student) => student._id !== studentId))
-  }
-
-  const onSubmit = (data: z.infer<typeof invoiceSchema>) => {
-    const selectedStudentsWithRelation = selectedStudents.filter((student) => student.selected)
-
-    if (selectedStudentsWithRelation.length === 0) {
-      alert("No students selected.")
-      return
+    setSelectedStudents((prev) => prev.filter((student) => student._id !== studentId));
+  
+    // Find the removed student and add them back to available students
+    const removedStudent = selectedStudents.find((s) => s._id === studentId);
+    if (removedStudent) {
+      setFilteredStudents((prev) => [...prev, removedStudent]);
     }
-
-    const courseRelationId = selectedStudentsWithRelation[0].courseRelationId
-
+  };
+  
+  const onSubmit = async (data: z.infer<typeof invoiceSchema>) => {
+    const selectedStudentsWithRelation = selectedStudents.filter((student) => student.selected);
+  
+    if (selectedStudentsWithRelation.length === 0) {
+      alert("No students selected.");
+      return;
+    }
+  
+    const courseRelationId = selectedStudentsWithRelation[0].courseRelationId;
+  
+    // Get the filter values
+    const filterValues = filterForm.getValues();
+  
+    // Extract courseDetails from the form data
+    const { courseDetails, ...restData } = data;
+  
     const invoiceData = {
-      ...data,
+      ...restData,
       noOfStudents: selectedStudentsWithRelation.length,
       courseRelationId,
       totalAmount,
+      createdBy: user._id,
+      year: courseDetails.year, // Flattened from courseDetails
+      session: courseDetails.session, // Flattened from courseDetails
+      semester: courseDetails.semester, // Flattened from courseDetails
+      course: selectedCourseRelation?.course?.name, // Include course name
+      students: selectedStudentsWithRelation.map((student) => ({
+        ...student,
+        year: filterValues.year,
+        session: filterValues.session,
+        semester: filterValues.term, // Assuming 'term' corresponds to 'semester'
+      })),
+    };
+  
+    try {
+      await axiosInstance.post("/invoice", invoiceData);
+      navigate("/admin/invoice");
+      toast({
+        title: "Invoice Create successfully",
+        className: "bg-supperagent border-none text-white",
+      });
+      // console.log(invoiceData);
+    } catch (error) {
+      console.error("Invoice submission error:", error);
+      alert("Failed to generate invoice. Please try again.");
     }
-
-    console.log("Invoice data:", invoiceData)
-
-    alert("Invoice generated successfully!")
-    navigate("/admin/invoice")
-  }
+  };
 
   return (
     <div className="py-1">
@@ -389,6 +505,8 @@ export default function StudentListPage() {
             onFilterSubmit={onFilterSubmit}
             handleYearChange={handleYearChange}
             handleSessionChange={handleSessionChange}
+            isEditing={isEditing}
+           
           />
 
           {/* Student Selection Component */}
@@ -401,10 +519,13 @@ export default function StudentListPage() {
             handleRemoveStudent={handleRemoveStudent}
           />
 
+
+
           <CardFooter className="flex justify-between p-4">
-            <div className="text-lg font-semibold">
+          <div className="text-lg font-semibold">
               Total Amount: <span className="text-xl">${totalAmount.toFixed(2)}</span>
             </div>
+            
             <Button
               type="submit"
               form="invoice-form"

@@ -211,8 +211,8 @@ export function PersonalDetailsForm({ student, onSave }) {
         id="dob"
         type="date"
         {...field}
-        value={field.value ? moment(field.value, 'DD-MM-YYYY').format('YYYY-MM-DD') : ''}
-        onChange={(e) => field.onChange(moment(e.target.value, 'YYYY-MM-DD').format('DD-MM-YYYY'))}
+        value={field.value ? moment(field.value).format('YYYY-MM-DD') : ''}
+        onChange={(e) => field.onChange(e.target.value)}
       />
     )}
   />

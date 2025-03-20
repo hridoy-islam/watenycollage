@@ -5,14 +5,15 @@ import axiosInstance from "@/lib/axios"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import moment from "moment"
 import { pdf } from "@react-pdf/renderer"
 import InvoicePDF from "./pdf"
 
 export default function InvoicesPage() {
   const [invoices, setInvoices] = useState([])
-
+  const navigate = useNavigate()
+  
   useEffect(() => {
     const fetchInvoices = async () => {
       try {
@@ -27,7 +28,7 @@ export default function InvoicesPage() {
   }, [])
 
   const handleEdit = (invoiceId: string) => {
-    console.log(invoiceId)
+    navigate(`/admin/invoice/students/${invoiceId}`) 
   }
 
   const handleDownload = async (invoiceId: string) => {
