@@ -140,11 +140,11 @@ export default function StudentListPage() {
     }
   }
 
-  const fetchStudents = async (filters: z.infer<typeof filterSchema>, page = 1, entriesPerPage = 10) => {
+  const fetchStudents = async (filters: z.infer<typeof filterSchema>) => {
     try {
       setLoading(true);
   
-      const { term, course, institute, paymentStatus, searchQuery, year, session } = filters;
+      const { term, course, institute, paymentStatus, year, session } = filters;
   
       console.log("Filters:", { term, course, institute }); // Log the filters
   
@@ -168,16 +168,13 @@ export default function StudentListPage() {
   
       // Prepare API request parameters
       const params = {
-        page,
-        limit: entriesPerPage,
-        ...(paymentStatus ? { paymentStatus } : {}),
-        ...(searchQuery ? { searchQuery } : {}),
+        paymentStatus,
         ...(year ? { year } : {}),
         ...(session ? { session } : {}),
       };
   
       if (courseRelationId) {
-        params.courseRelationId = courseRelationId;
+        params.applicationCourse = courseRelationId;
       }
   
       console.log("API Request Params:", params); // Log the API request parameters

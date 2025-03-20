@@ -23,7 +23,6 @@ import {
   isWorkExperienceComplete
 } from '@/lib/utils';
 import { useSelector } from 'react-redux';
-import axios from 'axios';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
 
 export default function StudentViewPage() {
@@ -62,9 +61,6 @@ export default function StudentViewPage() {
       // Fetch student data
       const studentResponse = await axiosInstance.get(`/students/${id}`);
       setStudent(studentResponse.data.data);
-
-    
-     
       
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -81,14 +77,6 @@ export default function StudentViewPage() {
 
   useEffect(() => {
     if (student ) {
-      // const hasRequiredDocuments =
-      //   student?.noDocuments ||
-      //   ['work experience', 'qualification'].some((type) =>
-      //     documents.some((doc) => doc.file_type === type)
-      //   );
-      // setHasRequiredDocuments(hasRequiredDocuments);
-
-
       const requiredDocuments = ['work experience', 'qualification'];
       const hasDocuments = requiredDocuments.some((type) =>
         student.documents.some((doc) => doc.file_type === type)
@@ -100,7 +88,7 @@ export default function StudentViewPage() {
 
   const handleSave = async (data) => {
     const updatedData = { ...data };
-
+    
     // Remove agent field if it's empty or null
     if (!updatedData.agent) {
       delete updatedData.agent;
