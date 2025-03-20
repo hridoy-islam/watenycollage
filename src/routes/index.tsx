@@ -31,7 +31,7 @@ import AgentDetails from '@/pages/agent/details';
 import InvoicesPage from '@/pages/invoice';
 import StudentListPage from '@/pages/invoice/student';
 import GenerateInvoicePage from '@/pages/invoice/generate';
-import { ProfessionalInvoice } from '@/pages/invoice/pdf';
+import  InvoicePDF  from '@/pages/invoice/pdf';
 import { StaffSettings } from '@/pages/staff/settings';
 
 const SignInPage = lazy(() => import('@/pages/auth/signin'));
@@ -77,10 +77,10 @@ export default function AppRouter() {
           path: 'invoice/generate',
           element: <GenerateInvoicePage />
         },
-        {
-          path: 'invoice/pdf',
-          element: <ProfessionalInvoice />
-        },
+        // {
+        //   path: 'invoice/pdf',
+        //   element: <ProfessionalInvoice />
+        // },
         {
           path: 'students',
           element: <StudentsPage />

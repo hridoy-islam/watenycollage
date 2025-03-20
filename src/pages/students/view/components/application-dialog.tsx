@@ -147,95 +147,107 @@ export function ApplicationDialog({ open, onOpenChange, onSubmit }) {
             onSubmit={form.handleSubmit(handleSubmit)}
             className="space-y-4"
           >
-            {/* Term Selection */}
-            <FormField
-              control={form.control}
-              name="termId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Term</FormLabel>
-                  <select
-                    {...field}
-                    onChange={(e) => {
-                      field.onChange(e);
-                      handleTermChange(e.target.value);
-                    }}
-                    className="w-full rounded-md border border-gray-300 bg-white p-2 text-gray-900 shadow-sm focus:border-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-500"
-                  >
-                    <option value="">Select term</option>
-                    {data
-                      .map((item) => ({
-                        value: item.term._id,
-                        label: item.term.term
-                      }))
-                      .filter(
-                        (value, index, self) =>
-                          index ===
-                          self.findIndex((t) => t.value === value.value)
-                      ) // Filter out duplicates based on 'value'
-                      .map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                  </select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          
+         {/* Term Selection */}
+<FormField
+  control={form.control}
+  name="termId"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Term</FormLabel>
+      <select
+        {...field}
+        onChange={(e) => {
+          field.onChange(e);
+          handleTermChange(e.target.value);
+        }}
+        className="w-full rounded-md border border-gray-300 bg-white p-2 text-gray-900 shadow-sm focus:border-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-500"
+      >
+        <option value="">Select term</option>
+        {data
+          .map((item) => ({
+            value: item.term._id,
+            label: item.term.term,
+          }))
+          .filter(
+            (value, index, self) =>
+              index === self.findIndex((t) => t.value === value.value)
+          ) // Filter out duplicates based on 'value'
+          .map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+      </select>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
 
-            {/* Institution Selection */}
-            <FormField
-              control={form.control}
-              name="instituteId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Institution</FormLabel>
-                  <select
-                    {...field}
-                    onChange={(e) => {
-                      field.onChange(e);
-                      handleInstitutionChange(e.target.value);
-                    }}
-                    className="w-full rounded-md border border-gray-300 bg-white p-2 text-gray-900 shadow-sm focus:border-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-500"
-                  >
-                    <option value="">Select institution</option>
-                    {institutions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            {/* Course Selection */}
-            <FormField
-              control={form.control}
-              name="courseId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Course</FormLabel>
-                  <select
-                    {...field}
-                    onChange={(e) => {
-                      field.onChange(e);
-                      handleCourseChange(e.target.value);
-                    }}
-                    className="w-full rounded-md border border-gray-300 bg-white p-2 text-gray-900 shadow-sm focus:border-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-500"
-                  >
-                    <option value="">Select course</option>
-                    {courses.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+{/* Institution Selection */}
+<FormField
+  control={form.control}
+  name="instituteId"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Institution</FormLabel>
+      <select
+        {...field}
+        onChange={(e) => {
+          field.onChange(e);
+          handleInstitutionChange(e.target.value);
+        }}
+        className="w-full rounded-md border border-gray-300 bg-white p-2 text-gray-900 shadow-sm focus:border-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-500"
+      >
+        <option value="">Select institution</option>
+        {institutions
+          .filter(
+            (option, index, self) =>
+              index === self.findIndex((t) => t.value === option.value)
+          ) // Filter duplicates based on 'value'
+          .map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+      </select>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
+
+{/* Course Selection */}
+<FormField
+  control={form.control}
+  name="courseId"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Course</FormLabel>
+      <select
+        {...field}
+        onChange={(e) => {
+          field.onChange(e);
+          handleCourseChange(e.target.value);
+        }}
+        className="w-full rounded-md border border-gray-300 bg-white p-2 text-gray-900 shadow-sm focus:border-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-500"
+      >
+        <option value="">Select course</option>
+        {courses
+          .filter(
+            (option, index, self) =>
+              index === self.findIndex((t) => t.value === option.value)
+          ) // Filter duplicates based on 'value'
+          .map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+      </select>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
+
             {/* Choice (Local/International) Selection */}
             {selectedCourse && (
               <FormField
