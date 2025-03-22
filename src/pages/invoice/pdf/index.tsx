@@ -1,10 +1,8 @@
 
 
-import React, { useEffect, useState } from "react";
 import { Document, Page, Text, View, StyleSheet, Image } from "@react-pdf/renderer";
 import moment from "moment";
-import task from "@/assets/imges/home/tasklist.png"
-import axios from "axios";
+
 
 // Define styles
 const styles = StyleSheet.create({
@@ -17,7 +15,8 @@ const styles = StyleSheet.create({
   logoContainer: {
     flexDirection: "row",
     justifyContent: "flex-start",
-    marginTop:"-30px"
+    marginTop:"-30px",
+    // marginLeft:"-20px"
   },
   
   sectionTitle: {
