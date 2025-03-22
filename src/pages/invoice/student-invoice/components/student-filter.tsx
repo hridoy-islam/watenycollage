@@ -65,19 +65,21 @@ export function StudentFilter({
         });
     }
   }, [isEditing, id, filterForm]);
+
+  console.log(paymentStatuses)
   
   return (
     <Card className="rounded-none shadow-md">
-      <CardHeader>
-        <CardTitle>Filter Students</CardTitle>
-        <CardDescription>
+      <div className='px-6 py-2'>
+        <h1 className='font-semibold'>Filter Students</h1>
+        <h2>
           Search and filter students to add to the invoice
-        </CardDescription>
-      </CardHeader>
+        </h2>
+      </div>
       <CardContent>
         <Form {...filterForm}>
           <form onSubmit={filterForm.handleSubmit(onFilterSubmit)} className="">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
               {/* Term Select */}
               <FormField
                 control={filterForm.control}
@@ -275,12 +277,10 @@ export function StudentFilter({
                   </FormItem>
                 )}
               />
-            </div>
 
-            {/* Search Input */}
-            <div className="mt-4 flex items-center justify-end">
+<div className="mt-8 flex items-center justify-start ">
               <Button
-                className="bg-supperagent text-white hover:bg-supperagent/90"
+                className="bg-supperagent text-white hover:bg-supperagent/90 min-w-[120px]"
                 type="submit"
                 disabled={
                   !filterForm.watch('term') ||
@@ -294,6 +294,11 @@ export function StudentFilter({
                 Search
               </Button>
             </div>
+              
+            </div>
+
+            {/* Search Input */}
+            
           </form>
         </Form>
       </CardContent>

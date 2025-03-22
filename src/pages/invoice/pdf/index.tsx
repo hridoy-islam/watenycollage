@@ -1,8 +1,12 @@
-import React from "react";
+
+
+import React, { useEffect, useState } from "react";
 import { Document, Page, Text, View, StyleSheet, Image } from "@react-pdf/renderer";
 import moment from "moment";
+import task from "@/assets/imges/home/tasklist.png"
+import axios from "axios";
 
-// Define styles to match the image exactly
+// Define styles
 const styles = StyleSheet.create({
   page: {
     flexDirection: "column",
@@ -10,40 +14,32 @@ const styles = StyleSheet.create({
     padding: 40,
     fontFamily: "Helvetica",
   },
-  logo: {
-    width: 150,
-    height: 60,
-    marginBottom: 30,
+  logoContainer: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    marginTop:"-30px"
   },
+  
   sectionTitle: {
     fontSize: 11,
+    fontWeight: "semibold",
     color: "#00a185",
-    fontWeight: "bold",
     marginBottom: 5,
+  },
+  value: {
+    fontSize: 10,
+    fontWeight: "normal",
+    marginBottom: 3,
   },
   twoColumnContainer: {
     flexDirection: "row",
-    marginTop: 20,
+    justifyContent: "space-between",
     marginBottom: 20,
   },
-  leftColumn: {
-    width: "50%",
-  },
-  rightColumn: {
-    width: "50%",
-    alignItems: "flex-end",
-  },
   label: {
-    fontSize: 11,
-    fontWeight: "bold",
-  },
-  value: {
-    fontSize: 11,
-    marginBottom: 3,
-  },
-  addressValue: {
-    fontSize: 11,
-    width: "70%",
+    fontSize: 12,
+    fontWeight: "Bold",
+    paddingBottom: 2,
   },
   table: {
     display: "table",
@@ -57,36 +53,32 @@ const styles = StyleSheet.create({
   tableHeaderCell: {
     padding: 5,
     fontSize: 10,
-    fontWeight: "bold",
     color: "white",
-    textAlign: "left",
+    textAlign: "center",
+    borderRightWidth: 2,
+    borderRightColor: "#fff",
+  },
+  tableHeaderAmountCell: {
+    padding: 5,
+    fontSize: 10,
+    color: "white",
+    textAlign: "center",
   },
   tableRow: {
     flexDirection: "row",
-    borderBottomWidth: 1,
-    borderBottomColor: "#dddddd",
-    borderBottomStyle: "solid",
+    justifyContent: "center", // Center the content horizontally
+    alignItems: "center", // Align content vertically in the center
   },
   tableCell: {
     padding: 5,
-    fontSize: 9,
-  },
-  slColumn: {
-    width: "5%",
-  },
-  referenceColumn: {
-    width: "15%",
-  },
-  nameColumn: {
-    width: "60%",
-  },
-  amountColumn: {
-    width: "20%",
-  },
-  courseDetails: {
-    fontSize: 8,
-    color: "#555555",
-    marginTop: 2,
+    paddingRight:10,
+    fontSize: 10,
+    fontWeight: "normal",
+    textAlign: "center", // Center-align content in table cells
+    // borderRightWidth: 2,
+    borderRightColor: "#fff",
+    flexDirection: "column",
+    justifyContent: "center",
   },
   totalRow: {
     flexDirection: "row",
@@ -95,168 +87,120 @@ const styles = StyleSheet.create({
   totalLabel: {
     width: "80%",
     padding: 5,
-    fontSize: 10,
-    fontWeight: "bold",
+    fontSize: 11,
+    fontWeight: "semibold",
     color: "white",
     textAlign: "right",
   },
   totalValue: {
     width: "20%",
     padding: 5,
-    fontSize: 10,
-    fontWeight: "bold",
+    fontSize: 11,
+    fontWeight: "semibold",
     color: "white",
+    textAlign: "center"
   },
-  infoRow: {
-    flexDirection: "row",
-    marginBottom: 3,
+  grayText: {
+    color: "#888",
   },
-  infoLabel: {
-    width: "30%",
-    fontSize: 11,
-    fontWeight: "bold",
-  },
-  infoValue: {
-    width: "70%",
-    fontSize: 11,
-  },
-  rightInfoRow: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    marginBottom: 3,
-  },
-  rightInfoLabel: {
-    width: "40%",
-    fontSize: 11,
-    fontWeight: "bold",
-    textAlign: "right",
-    paddingRight: 10,
-  },
-  rightInfoValue: {
-    width: "30%",
-    fontSize: 11,
-    textAlign: "right",
+  grayBackground: {
+    backgroundColor: "#f3f3f3", // Light gray color for alternate rows
   },
 });
 
-// InvoicePDF component
 const InvoicePDF = ({ invoice = {} }) => {
-  // Provide default values for invoice and its nested properties
+
+
+  
+
+
+
+
+
+
   const {
-    remitTo = { name: "", email: "", address: "" },
-    paymentInfo = { sortCode: "", accountNo: "", beneficiary: "" },
+    remit = {
+      name: "N/A",
+      email: "N/A",
+      address: "N/A",
+      logo: "",
+      sortCode: "",
+      accountNo: "",
+      beneficiaryL: "",
+    },
     reference = "",
     date = new Date(),
     semester = "",
     noOfStudents = 0,
-    students = [], // Default to an empty array
+    students = [],
     totalAmount = 0,
   } = invoice;
+
 
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {/* College Logo */}
-        <Image 
-          src="https://cdn.logo.com/hotlink-ok/logo-social.png" 
-          style={styles.logo} 
-        />
-
-        {/* Two Column Layout for REMIT TO and REMIT REPORT */}
+      <View style={styles.logoContainer}>
+            <Image src={remit?.logo} style={{ width: "100px", height: "100px",objectFit:"contain" }} />
+             
+              </View>
         <View style={styles.twoColumnContainer}>
-          {/* Left Column - REMIT TO */}
-          <View style={styles.leftColumn}>
+          
+          <View>
             <Text style={styles.sectionTitle}>REMIT TO</Text>
-            <Text style={styles.label}>{remitTo.name}</Text>
-            <Text style={styles.value}>{remitTo.email}</Text>
-            <Text style={styles.addressValue}>Address{remitTo.address}</Text>
+            <Text style={styles.label}>{remit.name}</Text>
+            <Text style={styles.value}>Email: {remit.email}</Text>
+            <Text style={styles.value}>Address: {remit.address}</Text>
           </View>
-
-          {/* Right Column - REMIT REPORT */}
-          <View style={styles.rightColumn}>
+          <View>
             <Text style={styles.sectionTitle}>REMIT REPORT</Text>
-            <View style={styles.rightInfoRow}>
-              <Text style={styles.rightInfoLabel}>Reference</Text>
-              <Text style={styles.rightInfoValue}>#{reference}</Text>
-            </View>
-            <View style={styles.rightInfoRow}>
-              <Text style={styles.rightInfoLabel}>Date</Text>
-              <Text style={styles.rightInfoValue}>{moment(date).format("Do MMM, YYYY")}</Text>
-            </View>
-            <View style={styles.rightInfoRow}>
-              <Text style={styles.rightInfoLabel}>Semester</Text>
-              <Text style={styles.rightInfoValue}>{semester}</Text>
-            </View>
-            <View style={styles.rightInfoRow}>
-              <Text style={styles.rightInfoLabel}>No of Student</Text>
-              <Text style={styles.rightInfoValue}>{noOfStudents}</Text>
-            </View>
+            <Text style={styles.value}>Reference: {reference}</Text>
+            <Text style={styles.value}>Date: {moment(date).format("Do MMM, YYYY")}</Text>
+            <Text style={styles.value}>Semester: {semester}</Text>
+            <Text style={styles.value}>No of Students: {noOfStudents}</Text>
           </View>
         </View>
 
-        {/* Payment Information Section */}
-        <View>
-          <Text style={styles.sectionTitle}>PAYMENT INFORMATION</Text>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Sort Code</Text>
-            <Text style={styles.infoValue}>{paymentInfo.sortCode}</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Account No</Text>
-            <Text style={styles.infoValue}>{paymentInfo.accountNo}</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Beneficiary</Text>
-            <Text style={styles.infoValue}>{paymentInfo.beneficiary}</Text>
-          </View>
-        </View>
+        <Text style={styles.sectionTitle}>PAYMENT INFORMATION</Text>
+        <Text style={styles.value}>Sort Code: {remit.sortCode}</Text>
+        <Text style={styles.value}>Account No: {remit.accountNo}</Text>
+        <Text style={styles.value}>Beneficiary: {remit.beneficiary}</Text>
 
-        {/* Students Table */}
         <View style={styles.table}>
-          {/* Table Header */}
           <View style={styles.tableHeader}>
-            <View style={[styles.tableHeaderCell, styles.slColumn]}>
-              <Text>SL</Text>
-            </View>
-            <View style={[styles.tableHeaderCell, styles.referenceColumn]}>
-              <Text>REFERENCE</Text>
-            </View>
-            <View style={[styles.tableHeaderCell, styles.nameColumn]}>
-              <Text>NAME</Text>
-            </View>
-            <View style={[styles.tableHeaderCell, styles.amountColumn]}>
-              <Text>AMOUNT</Text>
-            </View>
+            <Text style={[styles.tableHeaderCell, { width: "5%" }]}>SL</Text>
+            <Text style={[styles.tableHeaderCell, { width: "25%" }]}>REFERENCE</Text>
+            <Text style={[styles.tableHeaderCell, { width: "50%", textAlign: "left" }]}>NAME</Text>  
+
+            <Text style={[ styles.tableHeaderAmountCell,{ width: "20%" }]}>AMOUNT</Text>
           </View>
 
-          {/* Table Rows */}
-          {students.map((student, index) => (
-            <View style={styles.tableRow} key={student.reference || index}>
-              <View style={[styles.tableCell, styles.slColumn]}>
-                <Text>{index + 1}</Text>
-              </View>
-              <View style={[styles.tableCell, styles.referenceColumn]}>
-                <Text>{student.reference}</Text>
-                <Text>{student.collegeId}</Text>
-              </View>
-              <View style={[styles.tableCell, styles.nameColumn]}>
-                <Text>{student.title} {student.name}</Text>
-                <Text style={styles.courseDetails}>{student.course}</Text>
-              </View>
-              <View style={[styles.tableCell, styles.amountColumn]}>
-                <Text>£{student.amount?.toFixed(2)}</Text>
-              </View>
-            </View>
-          ))}
+          {students.map((student, index) => {
+            // Apply light gray background for every odd row (index % 2 === 0 means even index, which is 1st, 3rd, etc.)
+            const rowStyle = index % 2 !== 0 ? styles.grayBackground : {};
+            return (
+              <View style={[styles.tableRow, rowStyle]} key={index}>
+                <Text style={[styles.tableCell, { width: "5%" }]}>{index + 1}</Text>
+                <View style={{ width: "25%", display: "flex", justifyContent: "flex-start", alignItems: "flex-start" }}>
+                  <Text style={[styles.tableCell, { fontWeight: 'semibold' }]}>{student.refId} </Text>
+                  <Text style={[styles.tableCell, styles.grayText]}>{student.collageroll}</Text>
+                </View>
 
-          {/* Total Row */}
+                <View style={{ width: "50%", display: "flex", justifyContent: "flex-start", alignItems: "flex-start" }}>
+                  <Text style={styles.tableCell}>
+                    {student.firstName} {student.lastName}
+                  </Text>
+                  <Text style={[styles.tableCell, styles.grayText]}>{student.course}</Text>
+                </View>
+
+                <Text style={[styles.tableCell, { width: "20%" }]}>£{student.amount?.toFixed(2)}</Text>
+              </View>
+            );
+          })}
+
           <View style={styles.totalRow}>
-            <View style={styles.totalLabel}>
-              <Text>TOTAL</Text>
-            </View>
-            <View style={styles.totalValue}>
-              <Text>£{totalAmount.toFixed(2)}</Text>
-            </View>
+            <Text style={styles.totalLabel}>TOTAL</Text>
+            <Text style={styles.totalValue}>£{totalAmount.toFixed(2)}</Text>
           </View>
         </View>
       </Page>
