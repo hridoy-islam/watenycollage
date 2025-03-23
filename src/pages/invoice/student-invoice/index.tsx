@@ -106,7 +106,7 @@ export default function StudentListPage() {
       term: "",
       course: "",
       institute: "",
-      paymentStatus: "",
+      paymentStatus: "due",
       year: "",
       session: "",
       searchQuery: "",
@@ -139,7 +139,6 @@ export default function StudentListPage() {
 
       if (invoiceData) {
         setInvoiceData(invoiceData)
-        console.log("Invoice Remit:", invoiceData.remit);
         // // Populate the form fields with the stored values
         // form.setValue("remitTo", invoiceData.remitTo)
         // form.setValue("paymentInfo", invoiceData.paymentInfo)
