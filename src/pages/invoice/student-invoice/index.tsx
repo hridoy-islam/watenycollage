@@ -65,7 +65,15 @@ export default function StudentListPage() {
   const { toast } = useToast()
   const [remits, setRemits] = useState([]);
 
-
+  const invoiceSchema = z.object({
+    Status: z.enum(["due", "paid"]),
+    remit: z.string().min(1, { message: "Remit is required" }), // Add validation for remit
+    courseDetails: z.object({
+      semester: z.string(),
+      year: z.string(),
+      session: z.string(),
+    }),
+  });
   const form = useForm<z.infer<typeof invoiceSchema>>({
     resolver: zodResolver(invoiceSchema),
     defaultValues: {
@@ -89,6 +97,8 @@ export default function StudentListPage() {
       },
     },
   })
+
+
 
   const filterForm = useForm<z.infer<typeof filterSchema>>({
     resolver: zodResolver(filterSchema),
@@ -741,6 +751,9 @@ export default function StudentListPage() {
       </option>
     ))}
   </select>
+  {form.formState.errors.remit && (
+    <p className="text-sm text-red-500 mt-1">{form.formState.errors.remit.message}</p>
+  )}
 </div>
 
 
