@@ -98,7 +98,7 @@ const AgentDetailsPage = () => {
       courseName.includes(searchTerm.toLowerCase())
     );
   });
-
+console.log(filteredCourses)
 
   // Handle row click
   const handleRowClick = (course) => {
@@ -130,6 +130,8 @@ const AgentDetailsPage = () => {
     setSelectedCourse(null);
     setIsEditing(false);
   };
+
+  console.log(filteredCourses)
 
   return (
     <div className="px-6 ">

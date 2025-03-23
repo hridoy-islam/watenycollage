@@ -86,7 +86,7 @@ const RemitDetailsPage = () => {
                   'https://kzmjkvje8tr2ra724fhh.lite.vusercontent.net/placeholder.svg'
                 }
                 alt={`remit Logo`}
-                className="h-full w-full object-cover"
+                className="h-full w-full object-contain"
               />
               <Button
                 size="icon"

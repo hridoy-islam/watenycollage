@@ -21,7 +21,7 @@ export function StudentProfile({ student, fetchStudent }) {
   const handleUploadComplete = (data) => {
     
     setUploadOpen(false); // Close the upload dialog
-    fetchStudent; // Re-fetch student data after upload completes
+    fetchStudent(); // Re-fetch student data after upload completes
   };
   return (
     <Card className="border-0 shadow-none">
