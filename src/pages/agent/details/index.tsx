@@ -17,6 +17,7 @@ import { Card } from '@/components/ui/card';
 import { DataTablePagination } from '@/pages/students/view/components/data-table-pagination';
 import { Input } from '@/components/ui/input'; // Import Input component for search
 import AddCourseDialog from './components/AddCourseDialog ';
+import { BlinkingDots } from '@/components/shared/blinking-dots';
 
 const AgentDetailsPage = () => {
   // State for managing courses
@@ -25,7 +26,7 @@ const AgentDetailsPage = () => {
   const [acourse, setACourse] = useState([]);
   const [institution, setInstitution] = useState([]);
   const [term, setTerm] = useState([]);
-
+  const [loading, setLoading] = useState(false);
   // State for dialog
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -43,6 +44,7 @@ const AgentDetailsPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   const fetchData = async (page, entriesPerPage) => {
+    setLoading(true);
     try {
       // Fetch course relations
       // Fetch institutions
@@ -79,6 +81,8 @@ const AgentDetailsPage = () => {
     } catch (error) {
       console.error('Error fetching courses:', error);
       setAgentCourses([]); // Ensure it's always an array
+    }finally{
+      setLoading(false);
     }
   };
 
@@ -202,23 +206,31 @@ const AgentDetailsPage = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredCourses.length > 0 ? (
+          {loading ? (
+            <TableRow>
+              <TableCell colSpan={4} className="text-center">
+                          <BlinkingDots size="large" color="bg-supperagent" />
+                
+              </TableCell>
+            </TableRow>
+          ) : 
+            filteredCourses.length > 0 ? (
               filteredCourses.map((course) => {
                 // Find institution name
-                const institutionName =
-                  institution.find(
-                    (inst) => inst._id === course.courseRelationId?.institute
-                  )?.name || 'N/A';
+                // const institutionName =
+                //   institution.find(
+                //     (inst) => inst._id === course.courseRelationId?.institute
+                //   )?.name || 'N/A';
 
-                // Find course name
-                const courseName =
-                  acourse.find((c) => c._id === course.courseRelationId?.course)
-                    ?.name || 'N/A';
+                // // Find course name
+                // const courseName =
+                //   acourse.find((c) => c._id === course.courseRelationId?.course)
+                //     ?.name || 'N/A';
 
-                // Find term name
-                const termName =
-                  term.find((t) => t._id === course.courseRelationId?.term)
-                    ?.term || 'N/A';
+                // // Find term name
+                // const termName =
+                //   term.find((t) => t._id === course.courseRelationId?.term)
+                //     ?.term || 'N/A';
 
                 return (
                   <TableRow
@@ -226,9 +238,9 @@ const AgentDetailsPage = () => {
                     className="cursor-pointer hover:bg-gray-50"
                     onClick={() => handleRowClick(course)}
                   >
-                    <TableCell>{institutionName}</TableCell>
-                    <TableCell>{courseName}</TableCell>
-                    <TableCell>{termName}</TableCell>
+                    <TableCell>{course?.courseRelationId?.institute.name}</TableCell>
+                    <TableCell>{course?.courseRelationId?.course.name}</TableCell>
+                    <TableCell>{course?.courseRelationId?.term.term}</TableCell>
                     <TableCell className="flex flex-row items-center justify-end gap-4">
                       <Button
                         variant="outline"

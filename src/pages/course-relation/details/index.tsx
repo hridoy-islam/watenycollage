@@ -952,16 +952,16 @@ export default function CourseRelationDetails() {
                           onClick={() => handleEditSession(year, session)}
                         >
                           <div className="mb-2 flex items-center justify-between">
-                            <h3 className="font-medium">{session.session}</h3>
+                            <h3 className="font-medium">{session.sessionName}</h3>
                           </div>
-                          <div className="grid grid-cols-1 gap-2 text-sm md:grid-cols-3">
+                          <div className="flex items-center justify-between">
                             <div className="flex items-center">
                               <Calendar className="mr-2 h-4 w-4 text-black" />
                               <span>{formatDate(session.invoiceDate)}</span>
                             </div>
                             <div className="flex items-center">
                               {session.type === 'flat' ? (
-                                <Euro className="mr-2 h-4 w-4 text-black" />
+                                <span className='px-2 font-semibold'>£</span>
                               ) : (
                                 <Percent className="mr-2 h-4 w-4 text-black" />
                               )}

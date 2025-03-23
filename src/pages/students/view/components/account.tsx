@@ -1,10 +1,18 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'; // Import dialog components
 import { format } from 'date-fns';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Eye } from 'lucide-react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
 
 export default function AccountPage({ student }) {
   const [enrolledCourses, setEnrolledCourses] = useState<any>(
@@ -30,32 +38,49 @@ export default function AccountPage({ student }) {
     <div className="mx-auto py-1">
       <h2 className="mb-4 text-xl font-bold">Enrolled Courses</h2>
 
-      <table className="w-full mb-6">
-        <thead>
-          <tr className="text-left text-gray-500">
-            <th className="pb-2">Course</th>
-            <th className="pb-2">Institution</th>
-            <th className="pb-2">Term</th>
-            <th className="pb-2">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {enrolledCourses?.map((course) => (
-            <tr
-              key={course._id}
-              className="border-t cursor-pointer"
-              onClick={() => toggleCourseExpansion(course._id)}
-            >
-              <td className="py-2">{course?.courseRelationId?.course?.name}</td>
-              <td className="py-2">{course?.courseRelationId?.institute?.name}</td>
-              <td className="py-2">{course?.courseRelationId?.term?.term}</td>
-              <td className="py-2"><Button variant="outline" size="icon">
-                      <Eye className="h-4 w-4" />
-                    </Button></td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <Table className="w-full mb-6">
+  <TableHeader>
+    <TableRow className="text-left text-gray-500">
+      <TableHead className="pb-2">Course</TableHead>
+      <TableHead className="pb-2">Institution</TableHead>
+      <TableHead className="pb-2">Term</TableHead>
+      <TableHead className="pb-2">Action</TableHead>
+    </TableRow>
+  </TableHeader>
+  <TableBody>
+    {enrolledCourses?.length > 0 ? (
+      enrolledCourses.map((course) => (
+        <TableRow
+          key={course._id}
+          className="border-t cursor-pointer hover:bg-gray-100"
+          onClick={() => toggleCourseExpansion(course._id)}
+        >
+          <TableCell className="py-2">
+            {course?.courseRelationId?.course?.name || 'N/A'}
+          </TableCell>
+          <TableCell className="py-2">
+            {course?.courseRelationId?.institute?.name || 'N/A'}
+          </TableCell>
+          <TableCell className="py-2">
+            {course?.courseRelationId?.term?.term || 'N/A'}
+          </TableCell>
+          <TableCell className="py-2">
+            <Button variant="outline" size="icon">
+              <Eye className="h-4 w-4" />
+            </Button>
+          </TableCell>
+        </TableRow>
+      ))
+    ) : (
+      <TableRow>
+        <TableCell colSpan={4} className="text-center py-4 text-gray-500">
+          No courses available
+        </TableCell>
+      </TableRow>
+    )}
+  </TableBody>
+</Table>
+
 
       {/* Dialog for expanded course details */}
       <Dialog
