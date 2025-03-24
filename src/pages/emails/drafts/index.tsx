@@ -14,6 +14,7 @@ import { EmailDraftDialog } from '../components/email-draft-dialog';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
 import axiosInstance from '@/lib/axios';
 import { DataTablePagination } from '@/pages/students/view/components/data-table-pagination';
+import { Input } from '@/components/ui/input';
 
 
 export function DraftsManager() {
@@ -25,15 +26,18 @@ export function DraftsManager() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(10);
+    const [searchTerm, setSearchTerm] = useState("");
+  
 
-  const fetchData = async (page, entriesPerPage) => {
+  const fetchData = async (page, entriesPerPage,searchTerm="") => {
     try {
       if (initialLoading) setInitialLoading(true);
       const response = await axiosInstance.get(`/email-drafts`, {
         params: {
           page,
-          limit: entriesPerPage
-        }
+          limit: entriesPerPage,
+          ...(searchTerm ? { searchTerm } : {}),
+        },
       });
       setDrafts(response.data.data.result);
       setTotalPages(response.data.data.meta.totalPage);
@@ -72,6 +76,11 @@ export function DraftsManager() {
     }
   };
 
+  const handleSearch = () => {
+    fetchData(currentPage, entriesPerPage, searchTerm); 
+  };
+
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -84,6 +93,22 @@ export function DraftsManager() {
           New Draft
         </Button>
       </div>
+
+      <div className="flex items-center space-x-4">
+              <Input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)} 
+                placeholder="Search by subject"
+                className='max-w-[400px]'
+              />
+              <Button
+                onClick={handleSearch} 
+                className="border-none bg-supperagent text-white hover:bg-supperagent/90"
+              >
+                Search
+              </Button>
+            </div>
       <div className="rounded-md bg-white p-4 shadow-2xl">
         {initialLoading ? (
           <div className="flex justify-center py-6">

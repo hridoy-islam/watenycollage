@@ -17,6 +17,7 @@ import { toast } from '@/components/ui/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { DataTablePagination } from '../students/view/components/data-table-pagination';
 import { Link } from 'react-router-dom';
+import { Input } from '@/components/ui/input';
 
 export default function AgentsPage() {
   const [agents, setAgents] = useState<any>([]);
@@ -26,15 +27,18 @@ export default function AgentsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(10);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const fetchData = async (page, entriesPerPage) => {
+  
+  const fetchData = async (page, entriesPerPage,searchTerm="") => {
     try {
+      const params: any = {};
+
+     
+      if (searchTerm) params.searchTerm = searchTerm;
       if (initialLoading) setInitialLoading(true);
       const response = await axiosInstance.get(`/users?role=agent`, {
-        params: {
-          page,
-          limit: entriesPerPage
-        }
+        params
       });
       setAgents(response.data.data.result);
       setTotalPages(response.data.data.meta.totalPage);
@@ -109,6 +113,10 @@ export default function AgentsPage() {
     }
   };
 
+  const handleSearch = () => {
+    fetchData(currentPage, entriesPerPage, searchTerm); 
+  };
+
   const handleStatusChange = async (id, status) => {
     try {
       const updatedStatus = status ? '1' : '0';
@@ -148,6 +156,24 @@ export default function AgentsPage() {
           New Agent
         </Button>
       </div>
+
+      <div className="flex items-center space-x-4">
+        <Input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)} 
+          placeholder="Search by name, email, phone, or organization"
+          className='max-w-[400px]'
+        />
+        <Button
+          onClick={handleSearch} // Handle search click
+          className="border-none bg-supperagent text-white hover:bg-supperagent/90"
+        >
+          Search
+        </Button>
+      </div>
+
+
       <div className="rounded-md bg-white p-4 shadow-2xl">
         {initialLoading ? (
           <div className="flex justify-center py-6">

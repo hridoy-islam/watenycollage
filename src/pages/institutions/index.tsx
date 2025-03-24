@@ -15,6 +15,7 @@ import axiosInstance from '../../lib/axios';
 import { useToast } from "@/components/ui/use-toast";
 import { BlinkingDots } from "@/components/shared/blinking-dots";
 import { DataTablePagination } from "../students/view/components/data-table-pagination";
+import { Input } from "@/components/ui/input";
 
 export default function InstitutionsPage() {
   const [institutions, setInstitutions] = useState<any>([]);
@@ -25,14 +26,18 @@ export default function InstitutionsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(10);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const fetchData = async (page, entriesPerPage) => {
+
+  const fetchData = async (page, entriesPerPage,searchTerm="") => {
     try {
+     
       if (initialLoading) setInitialLoading(true);
       const response = await axiosInstance.get(`/institutions`, {
         params: {
           page,
           limit: entriesPerPage,
+          ...(searchTerm ? { searchTerm } : {}),
         },
       });
       setInstitutions(response.data.data.result);
@@ -126,6 +131,9 @@ export default function InstitutionsPage() {
     fetchData(currentPage, entriesPerPage);
   }, [currentPage, entriesPerPage]);
 
+  const handleSearch = () => {
+    fetchData(currentPage, entriesPerPage, searchTerm); 
+  };
 
   return (
     <div className="space-y-6">
@@ -136,6 +144,23 @@ export default function InstitutionsPage() {
           New Institution
         </Button>
       </div>
+
+      <div className="flex items-center space-x-4">
+        <Input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)} 
+          placeholder="Search by Institute Name"
+          className='max-w-[400px]'
+        />
+        <Button
+          onClick={handleSearch} 
+          className="border-none bg-supperagent text-white hover:bg-supperagent/90"
+        >
+          Search
+        </Button>
+      </div>
+      
       <div className="rounded-md bg-white shadow-2xl p-4">
         {initialLoading ? (
           <div className="flex justify-center py-6">

@@ -5,14 +5,13 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import moment from "moment";
 import { Send } from "lucide-react";
-import InvoicePDF from "./pdf"
+import InvoicePDF from "./generate"
 import { Link, useNavigate } from "react-router-dom";
 import { DataTablePagination } from "../students/view/components/data-table-pagination";
 import { toast } from "@/components/ui/use-toast";
 import { Input } from "@/components/ui/input";
 import { AlertModal } from "@/components/shared/alert-modal";
-import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
-import logo from "@/assets/imges/home/logos/cyber.jpeg"
+
 import axios from "axios";
 import { pdf } from "@react-pdf/renderer";
 

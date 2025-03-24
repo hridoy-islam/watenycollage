@@ -77,7 +77,7 @@ export default function StudentStatusListPage() {
       term: "",
       course: "",
       institute: "",
-      paymentStatus: "",
+      paymentStatus: "due",
       year: "",
       session: "",
       searchQuery: "",
