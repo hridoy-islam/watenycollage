@@ -1,7 +1,14 @@
 import { useEffect, useState } from 'react';
 import { ArrowLeft, Eye, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table';
 import { RemitDialog } from './components/remit-dialog';
 import axiosInstance from '../../lib/axios';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
@@ -41,34 +48,33 @@ export default function RemitPage() {
       let response;
 
       // Create new Remit (POST request)
-      response = await axiosInstance.post("/remit", data);
+      response = await axiosInstance.post('/remit', data);
 
       // Check if the API response indicates success
       if (response.data && response.data.success === true) {
         toast({
           title: 'Remit Created successfully',
-          className: 'bg-supperagent border-none text-white',
+          className: 'bg-supperagent border-none text-white'
         });
       } else if (response.data && response.data.success === false) {
         toast({
           title: 'Operation failed',
-          className: 'bg-red-500 border-none text-white',
+          className: 'bg-red-500 border-none text-white'
         });
       } else {
         toast({
           title: 'Unexpected response. Please try again.',
-          className: 'bg-red-500 border-none text-white',
+          className: 'bg-red-500 border-none text-white'
         });
       }
 
       // Refresh data
       fetchData(currentPage, entriesPerPage);
-
     } catch (error) {
       // Display an error toast if the request fails
       toast({
         title: 'An error occurred. Please try again.',
-        className: 'bg-red-500 border-none text-white',
+        className: 'bg-red-500 border-none text-white'
       });
     }
   };
@@ -88,7 +94,7 @@ export default function RemitPage() {
             className="bg-supperagent text-white hover:bg-supperagent/90"
             size={'sm'}
             onClick={() => {
-              navigate('/admin/invoice');  // Navigate to the desired route
+              navigate('/admin/invoice'); // Navigate to the desired route
             }}
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -128,28 +134,27 @@ export default function RemitPage() {
             </TableHeader>
             <TableBody>
               {remits.map((remit) => (
-               <TableRow key={remit._id}>
-               <TableCell>
-                 <Link to={`${remit._id}`}>{remit?.name}</Link>
-               </TableCell>
-               <TableCell>
-                 <Link to={`${remit._id}`}>{remit?.email}</Link>
-               </TableCell>
-               <TableCell>
-                 <Link to={`${remit._id}`}>{remit?.address}</Link>
-               </TableCell>
-               <TableCell>
-                 <Link to={`${remit._id}`}>{remit?.accountNo}</Link>
-               </TableCell>
-               <TableCell className="space-x-1 text-center">
-                 <Link to={`${remit._id}`}>
-                   <Button variant="outline" size="icon">
-                     <Eye className="w-4 h-4" />
-                   </Button>
-                 </Link>
-               </TableCell>
-             </TableRow>
-             
+                <TableRow key={remit._id}>
+                  <TableCell>
+                    <Link to={`${remit._id}`}>{remit?.name}</Link>
+                  </TableCell>
+                  <TableCell>
+                    <Link to={`${remit._id}`}>{remit?.email}</Link>
+                  </TableCell>
+                  <TableCell>
+                    <Link to={`${remit._id}`}>{remit?.address}</Link>
+                  </TableCell>
+                  <TableCell>
+                    <Link to={`${remit._id}`}>{remit?.accountNo}</Link>
+                  </TableCell>
+                  <TableCell className="space-x-1 text-center">
+                    <Link to={`${remit._id}`}>
+                      <Button variant="outline" size="icon">
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    </Link>
+                  </TableCell>
+                </TableRow>
               ))}
             </TableBody>
           </Table>

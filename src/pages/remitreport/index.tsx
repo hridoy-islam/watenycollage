@@ -22,9 +22,9 @@ import { AlertModal } from '@/components/shared/alert-modal';
 import axios from 'axios';
 import { pdf } from '@react-pdf/renderer';
 
-export default function InvoicesPage() {
+export default function RemitReportPage() {
   const [invoices, setInvoices] = useState([]);
-  const [remitOptions, setRemitOptions] = useState([]);
+  const [agents, setAgents] = useState([]);
   const [remit, setRemit] = useState('');
   const [status, setStatus] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
@@ -59,17 +59,20 @@ export default function InvoicesPage() {
   };
 
   // Function to fetch remit options
-  const fetchRemits = async () => {
+  const fetchAgents = async () => {
     try {
-      const response = await axiosInstance.get('/remit?limit=all');
-      setRemitOptions(response.data?.data?.result || []); // Extract the 'result' array
+      const response = await axiosInstance.get(
+        '/users?role=agent&limit=all&fields=name'
+      );
+      console.log(response.data.data);
+      setAgents(response.data?.data?.result || []); // Extract the 'result' array
     } catch (error) {
       console.error('Error fetching remit data:', error);
     }
   };
 
   useEffect(() => {
-    fetchRemits();
+    fetchAgents();
     fetchInvoices();
   }, []);
 
@@ -207,21 +210,16 @@ export default function InvoicesPage() {
   return (
     <div className="mx-auto py-1">
       <div className="flex justify-between">
-        <h1 className="mb-6 text-2xl font-bold">Invoices</h1>
+        <h1 className="mb-6 text-2xl font-bold">Remit Reports</h1>
         <div className="space-x-4">
           <Link to="generate">
             <Button className="bg-supperagent text-white hover:bg-supperagent">
-              Create Invoice
+              Create Remit
             </Button>
           </Link>
           <Link to="status">
             <Button className="bg-supperagent text-white hover:bg-supperagent">
               Check Status
-            </Button>
-          </Link>
-          <Link to="remit">
-            <Button className="bg-supperagent text-white hover:bg-supperagent">
-              Remit List
             </Button>
           </Link>
         </div>
@@ -266,16 +264,16 @@ export default function InvoicesPage() {
 
             {/* Remit To Dropdown */}
             <div className="min-w-[200px]">
-              <h1 className="mb-2 block text-sm font-medium">Remit To</h1>
+              <h1 className="mb-2 block text-sm font-medium">Agent</h1>
               <select
                 value={remit}
                 onChange={(e) => setRemit(e.target.value)}
                 className="w-full rounded-md border border-gray-300 bg-white p-2 text-gray-900 shadow-sm focus:border-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-500"
               >
                 <option value="">All</option>
-                {remitOptions.map((remit) => (
-                  <option key={remit._id} value={remit._id}>
-                    {remit.name}
+                {agents.map((agent) => (
+                  <option key={agent._id} value={agent._id}>
+                    {agent.name}
                   </option>
                 ))}
               </select>
@@ -289,6 +287,7 @@ export default function InvoicesPage() {
                 className="w-full rounded-md border border-gray-300 bg-white p-2 text-gray-900 shadow-sm focus:border-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-500"
               >
                 <option value="">All</option>
+                <option value="available">Available</option>
                 <option value="paid">Paid</option>
                 <option value="due">Due</option>
               </select>
@@ -315,7 +314,7 @@ export default function InvoicesPage() {
                 <TableHead>Amount</TableHead>
                 <TableHead>Students</TableHead>
                 {/* <TableHead>Status</TableHead> */}
-                <TableHead>Invoice Status</TableHead>
+                <TableHead>Remit Status</TableHead>
                 <TableHead>Exported</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>

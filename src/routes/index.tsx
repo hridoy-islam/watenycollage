@@ -31,11 +31,13 @@ import AgentDetails from '@/pages/agent/details';
 import InvoicesPage from '@/pages/invoice';
 import StudentListPage from '@/pages/invoice/student-invoice';
 import GenerateInvoicePage from '@/pages/invoice/generate';
-import  InvoicePDF  from '@/pages/invoice/pdf';
 import { StaffSettings } from '@/pages/staff/settings';
 import RemitPage from '@/pages/remit';
 import RemitDetailsPage from '@/pages/remit/details';
 import StudentStatusListPage from '@/pages/invoice/status/student';
+import RemitReportPage from '@/pages/remitreport';
+import RemitCreatePage from '@/pages/remitreport/create';
+import RemitStatusPage from '@/pages/remitreport/status';
 
 const SignInPage = lazy(() => import('@/pages/auth/signin'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
@@ -76,12 +78,12 @@ export default function AppRouter() {
           path: 'invoice/remit',
           element: <RemitPage />
         },
-       
+
         {
           path: 'invoice/remit/:id',
           element: <RemitDetailsPage />
         },
-        
+
         {
           path: 'invoice/generate',
           element: <StudentListPage />
@@ -97,6 +99,18 @@ export default function AppRouter() {
         {
           path: 'invoice/create',
           element: <GenerateInvoicePage />
+        },
+        {
+          path: 'remitreport',
+          element: <RemitReportPage />
+        },
+        {
+          path: 'remitreport/generate',
+          element: <RemitCreatePage />
+        },
+        {
+          path: 'remitreport/status',
+          element: <RemitStatusPage />
         },
         // {
         //   path: 'invoice/pdf',
@@ -158,7 +172,7 @@ export default function AppRouter() {
           path: 'staff/:id',
           element: <StaffSettings />
         },
-       
+
         {
           path: 'agents',
           element: <AgentsPage />
