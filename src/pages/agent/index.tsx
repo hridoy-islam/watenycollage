@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link2, Pen, Plus } from 'lucide-react';
+import { ClipboardPaste, Link2, Pen, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import {
@@ -27,14 +27,12 @@ export default function AgentsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(10);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
 
-  
-  const fetchData = async (page, entriesPerPage,searchTerm="") => {
+  const fetchData = async (page, entriesPerPage, searchTerm = '') => {
     try {
       const params: any = {};
 
-     
       if (searchTerm) params.searchTerm = searchTerm;
       if (initialLoading) setInitialLoading(true);
       const response = await axiosInstance.get(`/users?role=agent`, {
@@ -60,46 +58,44 @@ export default function AgentsPage() {
         );
 
         // Check if the API response indicates success
-      if (response.data && response.data.success === true) {
-        toast({
-          title: 'Agent Updated successfully',
-          className: 'bg-supperagent border-none text-white'
-        });
-      } else if (response.data && response.data.success === false) {
-        toast({
-          title: 'Operation failed',
-          className: 'bg-red-500 border-none text-white'
-        });
-      } else {
-        toast({
-          title: 'Unexpected response. Please try again.',
-          className: 'bg-red-500 border-none text-white'
-        });
-      }
+        if (response.data && response.data.success === true) {
+          toast({
+            title: 'Agent Updated successfully',
+            className: 'bg-supperagent border-none text-white'
+          });
+        } else if (response.data && response.data.success === false) {
+          toast({
+            title: 'Operation failed',
+            className: 'bg-red-500 border-none text-white'
+          });
+        } else {
+          toast({
+            title: 'Unexpected response. Please try again.',
+            className: 'bg-red-500 border-none text-white'
+          });
+        }
       } else {
         // Create new agent
         response = await axiosInstance.post(`/auth/signup`, data);
 
         // Check if the API response indicates success
-      if (response.data && response.data.success === true) {
-        toast({
-          title: 'Agent created successfully',
-          className: 'bg-supperagent border-none text-white'
-        });
-      } else if (response.data && response.data.success === false) {
-        toast({
-          title: 'Operation failed',
-          className: 'bg-red-500 border-none text-white'
-        });
-      } else {
-        toast({
-          title: 'Unexpected response. Please try again.',
-          className: 'bg-red-500 border-none text-white'
-        });
+        if (response.data && response.data.success === true) {
+          toast({
+            title: 'Agent created successfully',
+            className: 'bg-supperagent border-none text-white'
+          });
+        } else if (response.data && response.data.success === false) {
+          toast({
+            title: 'Operation failed',
+            className: 'bg-red-500 border-none text-white'
+          });
+        } else {
+          toast({
+            title: 'Unexpected response. Please try again.',
+            className: 'bg-red-500 border-none text-white'
+          });
+        }
       }
-      }
-
-      
 
       // Refresh data
       fetchData(currentPage, entriesPerPage);
@@ -114,7 +110,7 @@ export default function AgentsPage() {
   };
 
   const handleSearch = () => {
-    fetchData(currentPage, entriesPerPage, searchTerm); 
+    fetchData(currentPage, entriesPerPage, searchTerm);
   };
 
   const handleStatusChange = async (id, status) => {
@@ -161,9 +157,9 @@ export default function AgentsPage() {
         <Input
           type="text"
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)} 
+          onChange={(e) => setSearchTerm(e.target.value)}
           placeholder="Search by name, email, phone, or organization"
-          className='max-w-[400px]'
+          className="max-w-[400px]"
         />
         <Button
           onClick={handleSearch} // Handle search click
@@ -172,7 +168,6 @@ export default function AgentsPage() {
           Search
         </Button>
       </div>
-
 
       <div className="rounded-md bg-white p-4 shadow-2xl">
         {initialLoading ? (
@@ -195,7 +190,7 @@ export default function AgentsPage() {
                 <TableHead>Location</TableHead>
                 <TableHead>Nominated Staff</TableHead>
                 <TableHead className="w-32 text-center">Status</TableHead>
-                <TableHead className="w-32 text-center">Actions</TableHead>
+                <TableHead className="w-48 text-center">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -227,15 +222,24 @@ export default function AgentsPage() {
                     />
                   </TableCell>
                   <TableCell className="space-x-1 text-center">
+                    <Link to={`${agent._id}/remit`}>
+                      <Button
+                        variant="outline"
+                        className="border-none bg-supperagent text-white hover:bg-supperagent/90"
+                        size="icon"
+                        title="Remit Details"
+                      >
+                        <ClipboardPaste className="h-4 w-4" />
+                      </Button>
+                    </Link>
                     <Link to={`${agent._id}`}>
-                  <Button
-                      variant="outline"
-                      className="bg-blue-500 text-white hover:bg-blue-500/90 border-none"
-                      size="icon"
-                      
-                    >
-                      <Link2 className="w-4 h-4" />
-                    </Button>
+                      <Button
+                        variant="outline"
+                        className="border-none bg-blue-500 text-white hover:bg-blue-500/90"
+                        size="icon"
+                      >
+                        <Link2 className="h-4 w-4" />
+                      </Button>
                     </Link>
 
                     <Button

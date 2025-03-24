@@ -5,7 +5,7 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow,
+  TableRow
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Eye, Pen } from 'lucide-react';
@@ -23,7 +23,7 @@ const AgentDetailsPage = () => {
   // State for managing courses
   const [agentCourses, setAgentCourses] = useState([]);
   const [courses, setCourses] = useState([]);
-  
+
   const [loading, setLoading] = useState(false);
   // State for dialog
   const [selectedCourse, setSelectedCourse] = useState(null);
@@ -45,7 +45,7 @@ const AgentDetailsPage = () => {
   const fetchData = async (page, entriesPerPage) => {
     try {
       setLoading(true);
-   
+
       const response = await axiosInstance.get(`/agent-courses?agentId=${id}`);
 
       setAgentCourses(response?.data?.data?.result);
@@ -98,7 +98,7 @@ const AgentDetailsPage = () => {
       courseName.includes(searchTerm.toLowerCase())
     );
   });
-console.log(filteredCourses)
+  console.log(filteredCourses);
 
   // Handle row click
   const handleRowClick = (course) => {
@@ -131,13 +131,13 @@ console.log(filteredCourses)
     setIsEditing(false);
   };
 
-  console.log(filteredCourses)
+  console.log(filteredCourses);
 
   return (
     <div className="px-6 ">
       <div className="w-full rounded-lg bg-white p-6 shadow-sm">
-        <h1 className="mb-4 text-2xl font-semibold text-gray-900">
-          Agent Name: {agent.name}
+        <h1 className="mb-4 text-lg font-semibold text-gray-900">
+          {agent.name}
         </h1>
 
         <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-5">
@@ -170,11 +170,11 @@ console.log(filteredCourses)
 
       {/* Search Input */}
       <div className="my-4 flex w-full flex-row justify-between pb-4">
-      <Input
+        <Input
           type="text"
           placeholder="Search by institution or course name..."
           value={searchTerm}
-          onChange={handleSearch} 
+          onChange={handleSearch}
           className="w-1/3"
         />
         <AddCourseDialog
@@ -206,8 +206,12 @@ console.log(filteredCourses)
                   className="cursor-pointer hover:bg-gray-50"
                   onClick={() => handleRowClick(course)}
                 >
-                  <TableCell>{course?.courseRelationId?.institute?.name}</TableCell>
-                  <TableCell>{course?.courseRelationId?.course?.name}</TableCell>
+                  <TableCell>
+                    {course?.courseRelationId?.institute?.name}
+                  </TableCell>
+                  <TableCell>
+                    {course?.courseRelationId?.course?.name}
+                  </TableCell>
                   <TableCell>{course?.courseRelationId?.term?.term}</TableCell>
                   <TableCell className="flex flex-row items-center justify-end gap-4">
                     <Button
@@ -253,7 +257,6 @@ console.log(filteredCourses)
           courseData={selectedCourse}
           isEditing={isEditing}
           onSave={handleUpdateCourse}
-     
         />
       )}
     </div>

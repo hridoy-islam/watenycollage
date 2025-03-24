@@ -8,18 +8,14 @@ import axios from 'axios';
 
 export function StudentProfile({ student, fetchStudent }) {
   const [uploadOpen, setUploadOpen] = useState(false);
-  
-
-
 
   useEffect(() => {
     if (!uploadOpen) {
-      fetchStudent; 
+      fetchStudent;
     }
-  }, [uploadOpen]); 
+  }, [uploadOpen]);
 
   const handleUploadComplete = (data) => {
-    
     setUploadOpen(false); // Close the upload dialog
     fetchStudent(); // Re-fetch student data after upload completes
   };

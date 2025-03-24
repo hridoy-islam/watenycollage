@@ -38,6 +38,7 @@ import StudentStatusListPage from '@/pages/invoice/status/student';
 import RemitReportPage from '@/pages/remitreport';
 import RemitCreatePage from '@/pages/remitreport/create';
 import RemitStatusPage from '@/pages/remitreport/status';
+import AgentRemit from '@/pages/agent/remit';
 
 const SignInPage = lazy(() => import('@/pages/auth/signin'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
@@ -180,6 +181,10 @@ export default function AppRouter() {
         {
           path: 'agents/:id',
           element: <AgentDetails />
+        },
+        {
+          path: 'agents/:id/remit',
+          element: <AgentRemit />
         },
         {
           path: 'course-fee',
