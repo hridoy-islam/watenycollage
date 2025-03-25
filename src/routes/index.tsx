@@ -29,16 +29,18 @@ import CreatorFollowupsPage from '@/pages/creatorfollowup';
 import CourseRelationDetails from '@/pages/course-relation/details';
 import AgentDetails from '@/pages/agent/details';
 import InvoicesPage from '@/pages/invoice';
-import StudentListPage from '@/pages/invoice/student-invoice';
+import StudentListPage from '@/pages/invoice/createInvoice';
 import GenerateInvoicePage from '@/pages/invoice/generate';
 import { StaffSettings } from '@/pages/staff/settings';
-import RemitPage from '@/pages/remit';
-import RemitDetailsPage from '@/pages/remit/details';
-import StudentStatusListPage from '@/pages/invoice/status/student';
+import StudentStatusListPage from '@/pages/invoice/status';
 import RemitReportPage from '@/pages/remitreport';
 import RemitCreatePage from '@/pages/remitreport/create';
 import RemitStatusPage from '@/pages/remitreport/status';
 import AgentRemit from '@/pages/agent/remit';
+import RemitDetailsPage from '@/pages/invoice/customer/details';
+import RemitPage from '@/pages/invoice/customer';
+import CustomerPage from '@/pages/invoice/customer';
+import CustomerDetailsPage from '@/pages/invoice/customer/details';
 
 const SignInPage = lazy(() => import('@/pages/auth/signin'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
@@ -76,13 +78,13 @@ export default function AppRouter() {
           element: <InvoicesPage />
         },
         {
-          path: 'invoice/remit',
-          element: <RemitPage />
+          path: 'invoice/customer',
+          element: <CustomerPage />
         },
 
         {
-          path: 'invoice/remit/:id',
-          element: <RemitDetailsPage />
+          path: 'invoice/customer/:id',
+          element: <CustomerDetailsPage />
         },
 
         {
@@ -94,7 +96,7 @@ export default function AppRouter() {
           element: <StudentStatusListPage />
         },
         {
-          path: 'invoice/students/:id',
+          path: 'invoice/editGenerate/:id',
           element: <StudentListPage />
         },
         {
@@ -102,15 +104,15 @@ export default function AppRouter() {
           element: <GenerateInvoicePage />
         },
         {
-          path: 'remitreport',
+          path: 'remit',
           element: <RemitReportPage />
         },
         {
-          path: 'remitreport/generate',
+          path: 'remit/generate',
           element: <RemitCreatePage />
         },
         {
-          path: 'remitreport/status',
+          path: 'remit/status',
           element: <RemitStatusPage />
         },
         // {

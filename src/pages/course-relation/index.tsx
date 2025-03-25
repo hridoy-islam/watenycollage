@@ -26,23 +26,22 @@ export default function CourseRelationPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(10);
-  const [searchTerm, setSearchTerm] = useState("");
 
 
-  const fetchData = async (page, entriesPerPage, searchTerm = "") => {
+
+  const fetchData = async (page, entriesPerPage) => {
     try {
       if (initialLoading) setInitialLoading(true);
       const response = await axiosInstance.get(`/course-relations`, {
         params: {
           page,
           limit: entriesPerPage,
-          ...(searchTerm ? { searchTerm } : {}),
         }
       });
       setCourseRelations(response.data.data.result);
       setTotalPages(response.data.data.meta.totalPage);
     } catch (error) {
-      console.error('Error fetching institutions:', error);
+      console.error('Error fetching course relations:', error);
     } finally {
       setInitialLoading(false);
     }
@@ -119,13 +118,10 @@ export default function CourseRelationPage() {
     setDialogOpen(open);
   };
 
-  useEffect(() => {
-    fetchData(currentPage, entriesPerPage);
-  }, [currentPage, entriesPerPage]);
 
-  const handleSearch = () => {
-    fetchData(currentPage, entriesPerPage, searchTerm);
-  };
+  useEffect(() => {
+    fetchData(currentPage, entriesPerPage);  
+  }, [currentPage, entriesPerPage, ]);
 
   return (
     <div className="space-y-3">
@@ -143,22 +139,7 @@ export default function CourseRelationPage() {
           New Course
         </Button>
       </div>
-      <div className="flex items-center space-x-4">
-        <Input
-          type="text"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Search by institute, course"
-          className='max-w-[400px] h-8'
-        />
-        <Button
-          onClick={handleSearch}
-          size="sm"
-          className="border-none min-w-[100px] bg-supperagent text-white hover:bg-supperagent/90"
-        >
-          Search
-        </Button>
-      </div>
+      
       <div className="rounded-md bg-white p-4 shadow-2xl">
         <Table>
           <TableHeader>

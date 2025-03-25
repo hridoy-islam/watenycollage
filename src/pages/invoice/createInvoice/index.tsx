@@ -22,10 +22,10 @@ import {
 import { ArrowLeft } from "lucide-react"
 
 
-// Updated Zod schema to include remitTo, paymentInfo, and course details
+// Updated Zod schema to include customerTo, paymentInfo, and course details
 const invoiceSchema = z.object({
   Status: z.enum(["due", "paid"]),
-  remit: z.string(),
+  customer: z.string(),
   courseDetails: z.object({
     semester: z.string(),
     year: z.string(),
@@ -63,11 +63,11 @@ export default function StudentListPage() {
   const { user } = useSelector((state: any) => state.auth)
   const { id } = useParams()
   const { toast } = useToast()
-  const [remits, setRemits] = useState([]);
+  const [customers, setcustomers] = useState([]);
 
   const invoiceSchema = z.object({
     Status: z.enum(["due", "paid"]),
-    remit: z.string().min(1, { message: "Remit is required" }), // Add validation for remit
+    customer: z.string().min(1, { message: "customer is required" }), // Add validation for customer
     courseDetails: z.object({
       semester: z.string(),
       year: z.string(),
@@ -78,7 +78,7 @@ export default function StudentListPage() {
     resolver: zodResolver(invoiceSchema),
     defaultValues: {
       Status: "due",
-      // remitTo: {
+      // customerTo: {
       //   name: "",
       //   email: "",
       //   address: "",
@@ -88,7 +88,7 @@ export default function StudentListPage() {
       //   accountNo: "",
       //   beneficiary: "",
       // },
-      remit: "",
+      customer: "",
 
       courseDetails: {
         semester: "",
@@ -114,22 +114,22 @@ export default function StudentListPage() {
   })
 
 
-  const fetchRemits = async () => {
+  const fetchcustomers = async () => {
     try {
-      const response = await axiosInstance.get("/remit");
-      setRemits(response?.data?.data?.result); // Assuming the response contains an array of remits
+      const response = await axiosInstance.get("/customer");
+      setcustomers(response?.data?.data?.result); // Assuming the response contains an array of customers
     } catch (error) {
-      console.error("Error fetching remits:", error);
+      console.error("Error fetching customers:", error);
       toast({
         title: "Error",
-        description: "Failed to fetch remits",
+        description: "Failed to fetch customers",
         variant: "destructive",
       });
     }
   };
 
   useEffect(() => {
-    fetchRemits();
+    fetchcustomers();
   }, []);
   const fetchInvoiceData = async (invoiceId) => {
     try {
@@ -140,17 +140,17 @@ export default function StudentListPage() {
       if (invoiceData) {
         setInvoiceData(invoiceData)
         // // Populate the form fields with the stored values
-        // form.setValue("remitTo", invoiceData.remitTo)
+        // form.setValue("customerTo", invoiceData.customerTo)
         // form.setValue("paymentInfo", invoiceData.paymentInfo)
    
 
-        form.setValue("remit", invoiceData.remit._id || "");
+        form.setValue("customer", invoiceData.customer._id || "");
         form.setValue("courseDetails", {
           semester: invoiceData.semester || "",
           year: invoiceData.year || "",
           session: invoiceData.session || "",
         })
-        console.log("Form Remit Value:", form.getValues("remit")); 
+        console.log("Form customer Value:", form.getValues("customer")); 
         setTotalAmount(invoiceData.totalAmount)
 
         if (invoiceData.courseRelationId) {
@@ -169,9 +169,9 @@ export default function StudentListPage() {
     }
   }
 
-  const remitValue = useWatch({
+  const customerValue = useWatch({
     control: form.control,
-    name: "remit",
+    name: "customer",
   });
   const fetchStudentsForInvoice = async (courseRelationId, year, session) => {
     try {
@@ -284,7 +284,20 @@ export default function StudentListPage() {
       const uniqueCourses = [...new Set(courseRelationsData.map((cr) => cr.course))]
       const uniqueInstitutes = [...new Set(courseRelationsData.map((cr) => cr.institute))]
 
-      const uniqueYears = [...new Set(courseRelationsData.flatMap((cr) => cr.years.map((year) => year.year)))]
+      const uniqueYears = [
+        ...new Set(
+          courseRelationsData.flatMap((cr) => {
+            const yearSet = new Set();
+            cr.years.forEach((yearObj) => {
+              yearSet.add(yearObj.year);
+              if (yearObj.year === 'Year 3') {
+                yearSet.add('Year 4');
+              }
+            });
+            return Array.from(yearSet);
+          })
+        ),
+      ];
       const uniqueSessions = [
         ...new Set(
           courseRelationsData.flatMap((cr) =>
@@ -314,6 +327,9 @@ export default function StudentListPage() {
       setLoading(false)
     }
   }
+
+
+
 
   const fetchStudents = async (filters: z.infer<typeof filterSchema>) => {
     try {
@@ -657,12 +673,12 @@ export default function StudentListPage() {
       return
     }
 
-    const remitValue = form.getValues("remit")
+    const customerValue = form.getValues("customer")
 
-    if (!remitValue) {
+    if (!customerValue) {
       toast({
         title: "Error",
-        description: "Please select a remit",
+        description: "Please select a customer",
         variant: "destructive",
       })
       return
@@ -684,7 +700,7 @@ export default function StudentListPage() {
 
       // Prepare the data for the PATCH request
       const updateData = {
-        remit: remitValue,
+        customer: customerValue,
         students: formattedStudents,
         noOfStudents: formattedStudents.length,
         totalAmount: calculatedTotalAmount,
@@ -733,25 +749,25 @@ export default function StudentListPage() {
 
 
         <div className="p-4">
-  <label htmlFor="remit" className="block text-sm font-medium text-gray-700">
-    Select Remit
+  <label htmlFor="customer" className="block text-sm font-medium text-gray-700">
+    Select customer
   </label>
   <select
-    id="remit"
-    name="remit"
-    value={remitValue || ""} // Use the watched value
-    onChange={(e) => form.setValue("remit", e.target.value)} // Update form value on change
+    id="customer"
+    name="customer"
+    value={customerValue || ""} // Use the watched value
+    onChange={(e) => form.setValue("customer", e.target.value)} // Update form value on change
     className="min-w-[250px] p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
   >
-    <option value="">Select a remit</option> {/* Placeholder option */}
-    {remits?.map((remit) => (
-      <option key={remit._id} value={remit._id}>
-        {remit.name}
+    <option value="">Select a customer</option> {/* Placeholder option */}
+    {customers?.map((customer) => (
+      <option key={customer._id} value={customer._id}>
+        {customer.name}
       </option>
     ))}
   </select>
-  {form.formState.errors.remit && (
-    <p className="text-sm text-red-500 mt-1">{form.formState.errors.remit.message}</p>
+  {form.formState.errors.customer && (
+    <p className="text-sm text-red-500 mt-1">{form.formState.errors.customer.message}</p>
   )}
 </div>
 

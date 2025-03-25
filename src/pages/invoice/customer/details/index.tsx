@@ -8,22 +8,21 @@ import { Button } from '@/components/ui/button';
 import { ImageUploader } from '../components/image-uploader';
 import { toast } from '@/components/ui/use-toast';
 
-const RemitDetailsPage = () => {
-  const { id } = useParams(); // Get the remit ID from the URL
-  const [remit, setRemit] = useState(null);
+const CustomerDetailsPage = () => {
+  const { id } = useParams(); // Get the customer ID from the URL
+  const [customer, setCustomer] = useState(null);
   const [uploadOpen, setUploadOpen] = useState(false);
   const [formData, setFormData] = useState({}); // Store the form data
   const [isModified, setIsModified] = useState(false); // Track if any field is modified
   const navigate = useNavigate();
 
-  // Fetch remit data
   const fetchData = async () => {
     try {
-      const response = await axiosInstance.get(`/remit/${id}`);
-      setRemit(response.data.data); // Assuming the response contains the data in `data`
-      setFormData(response.data.data); // Initialize form data with fetched remit data
+      const response = await axiosInstance.get(`/customer/${id}`);
+      setCustomer(response.data.data); // Assuming the response contains the data in `data`
+      setFormData(response.data.data); // Initialize form data with fetched customer data
     } catch (error) {
-      console.error('Error fetching remit details:', error);
+      console.error('Error fetching customer details:', error);
     }
   };
 
@@ -46,18 +45,18 @@ const RemitDetailsPage = () => {
   // Handle form submission
   const handleSubmit = async () => {
     try {
-      const response = await axiosInstance.patch(`/remit/${id}`, formData);
+      const response = await axiosInstance.patch(`/customer/${id}`, formData);
       if (response.data.success) {
         setIsModified(false); // Reset modified state after successful update
         fetchData(); // Refresh data after submit
         
         toast({ title: "Record Updated successfully", className: "bg-supperagent border-none text-white", });
       } else {
-        toast({ title: "Error updating remit ", className: "bg-destructive border-none text-white", });
+        toast({ title: "Error updating Customer ", className: "bg-destructive border-none text-white", });
 
       }
     } catch (error) {
-      toast({ title: "Error updating remit ", className: "bg-destructive border-none text-white", });
+      toast({ title: "Error updating Customer ", className: "bg-destructive border-none text-white", });
     }
   };
 
@@ -66,7 +65,7 @@ const RemitDetailsPage = () => {
     fetchData();
   };
 
-  if (!remit) {
+  if (!customer) {
     return (
       <div className="flex justify-center py-6">
         <BlinkingDots size="large" color="bg-supperagent" />
@@ -82,10 +81,10 @@ const RemitDetailsPage = () => {
             <div className="relative h-48 w-48 overflow-hidden">
               <img
                 src={
-                  remit?.logo ||
+                  customer?.logo ||
                   'https://kzmjkvje8tr2ra724fhh.lite.vusercontent.net/placeholder.svg'
                 }
-                alt={`remit Logo`}
+                alt={`customer Logo`}
                 className="h-full w-full object-contain"
               />
               <Button
@@ -104,10 +103,10 @@ const RemitDetailsPage = () => {
             <Button
               className="bg-supperagent text-white hover:bg-supperagent/90"
               size={'sm'}
-              onClick={() => navigate('/admin/invoice/remit')}
+              onClick={() => navigate('/admin/invoice/customer')}
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Back To Remit List
+              Back To Customer List
             </Button>
           </div>
         </div>
@@ -199,7 +198,7 @@ const RemitDetailsPage = () => {
             </div>
           </div>
 
-          {/* Show Update Remit button only if fields are modified */}
+          {/* Show Update Customer button only if fields are modified */}
           {isModified && (
             <div className="flex justify-end pt-4">
               <Button
@@ -207,7 +206,7 @@ const RemitDetailsPage = () => {
                 className="bg-supperagent text-white hover:bg-supperagent/90"
                 onClick={handleSubmit}
               >
-                Update Remit
+                Update Customer
               </Button>
             </div>
           )}
@@ -219,10 +218,10 @@ const RemitDetailsPage = () => {
         open={uploadOpen}
         onOpenChange={setUploadOpen}
         onUploadComplete={handleUploadComplete}
-        remitId={remit?._id}
+        customerId={customer?._id}
       />
     </div>
   );
 };
 
-export default RemitDetailsPage;
+export default CustomerDetailsPage;

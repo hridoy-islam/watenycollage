@@ -107,18 +107,47 @@ const styles = StyleSheet.create({
   },
 });
 
-const InvoicePDF = ({ invoice = {} }) => {
+interface Customer {
+  name: string;
+  email: string;
+  address: string;
+  logo: string;
+  sortCode: string;
+  accountNo: string;
+  beneficiary: string;
+}
+
+interface Student {
+  refId: string;
+  collageroll: string;
+  firstName: string;
+  lastName: string;
+  course: string;
+  amount: number;
+}
+
+interface Invoice {
+  customer: Customer;
+  reference: string;
+  date: Date;
+  semester: string;
+  noOfStudents: number;
+  students: Student[];
+  totalAmount: number;
+}
+
+const InvoicePDF = ({ invoice = {} as Invoice }) => {
 
 
   
 
 
-
+console.log(invoice)
 
 
 
   const {
-    remit = {
+    customer = {
       name: "N/A",
       email: "N/A",
       address: "N/A",
@@ -140,19 +169,19 @@ const InvoicePDF = ({ invoice = {} }) => {
     <Document>
       <Page size="A4" style={styles.page}>
       <View style={styles.logoContainer}>
-            <Image src={remit?.logo} style={{ width: "100px", height: "100px",objectFit:"contain" }} />
+            <Image src={customer?.logo} style={{ width: "100px", height: "100px",objectFit:"contain" }} />
              
               </View>
         <View style={styles.twoColumnContainer}>
           
           <View>
-            <Text style={styles.sectionTitle}>REMIT TO</Text>
-            <Text style={styles.label}>{remit.name}</Text>
-            <Text style={styles.value}>Email: {remit.email}</Text>
-            <Text style={styles.value}>Address: {remit.address}</Text>
+            <Text style={styles.sectionTitle}>INVOICE TO</Text>
+            <Text style={styles.label}>{customer.name}</Text>
+            <Text style={styles.value}>Email: {customer.email}</Text>
+            <Text style={styles.value}>Address: {customer.address}</Text>
           </View>
           <View>
-            <Text style={styles.sectionTitle}>REMIT REPORT</Text>
+            <Text style={styles.sectionTitle}>INVOICE REPORT</Text>
             <Text style={styles.value}>Reference: {reference}</Text>
             <Text style={styles.value}>Date: {moment(date).format("Do MMM, YYYY")}</Text>
             <Text style={styles.value}>Semester: {semester}</Text>
@@ -161,9 +190,9 @@ const InvoicePDF = ({ invoice = {} }) => {
         </View>
 
         <Text style={styles.sectionTitle}>PAYMENT INFORMATION</Text>
-        <Text style={styles.value}>Sort Code: {remit.sortCode}</Text>
-        <Text style={styles.value}>Account No: {remit.accountNo}</Text>
-        <Text style={styles.value}>Beneficiary: {remit.beneficiary}</Text>
+        <Text style={styles.value}>Sort Code: {customer.sortCode}</Text>
+        <Text style={styles.value}>Account No: {customer.accountNo}</Text>
+        <Text style={styles.value}>Beneficiary: {customer.beneficiary}</Text>
 
         <View style={styles.table}>
           <View style={styles.tableHeader}>

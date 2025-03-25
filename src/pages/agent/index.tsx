@@ -31,12 +31,14 @@ export default function AgentsPage() {
 
   const fetchData = async (page, entriesPerPage, searchTerm = '') => {
     try {
-      const params: any = {};
-
-      if (searchTerm) params.searchTerm = searchTerm;
+     
       if (initialLoading) setInitialLoading(true);
       const response = await axiosInstance.get(`/users?role=agent`, {
-        params
+        params: {
+          page,
+          limit: entriesPerPage,
+          ...(searchTerm ? { searchTerm } : {}),
+        }, 
       });
       setAgents(response.data.data.result);
       setTotalPages(response.data.data.meta.totalPage);
@@ -137,7 +139,7 @@ export default function AgentsPage() {
   }, [currentPage, entriesPerPage]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">All Agents</h1>
         <Button
@@ -159,11 +161,12 @@ export default function AgentsPage() {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           placeholder="Search by name, email, phone, or organization"
-          className="max-w-[400px]"
+          className="max-w-[400px] h-8"
         />
         <Button
+        size='sm'
           onClick={handleSearch} // Handle search click
-          className="border-none bg-supperagent text-white hover:bg-supperagent/90"
+          className="border-none min-w-[100px] bg-supperagent text-white hover:bg-supperagent/90"
         >
           Search
         </Button>

@@ -62,11 +62,39 @@ export function CourseRelationDialog({
     },
   });
 
-  // Reset form when dialog opens/closes or initialData changes
   useEffect(() => {
-    if (!open) {
-      form.reset();
-    } else if (initialData) {
+    const fetchData = async () => {
+      try {
+        const [institutesResponse, termsResponse, coursesResponse] = await Promise.all([
+          axiosInstance.get('/institutions?limit=all&status=1'),
+          axiosInstance.get('/terms?limit=all&status=1'),
+          axiosInstance.get('/courses?limit=all&status=1'),
+        ]);
+
+        setInstitutes(institutesResponse.data.data.result.map((institute: any) => ({
+          value: institute._id,
+          label: institute.name,
+        })));
+        setTerms(termsResponse.data.data.result.map((term: any) => ({
+          value: term._id,
+          label: term.term,
+        })));
+        setCourses(coursesResponse.data.data.result.map((course: any) => ({
+          value: course._id,
+          label: course.name,
+        })));
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    if (open) {
+      fetchData();
+    }
+  }, [open]);
+
+  useEffect(() => {
+    if (initialData) {
       form.reset({
         institute: initialData.institute?._id || "",
         course: initialData.course?._id || "",
@@ -76,26 +104,13 @@ export function CourseRelationDialog({
         international: initialData.international || false,
         international_amount: initialData.international_amount || "",
       });
-    } else {
-      form.reset({
-        institute: "",
-        course: "",
-        term: "",
-        local: false,
-        local_amount: "",
-        international: false,
-        international_amount: "",
-      });
     }
-  }, [open, initialData, form]);
+  }, [initialData, form]);
 
   const onSubmitForm = (data: z.infer<typeof schema>) => {
     onSubmit(data);
-    if (!initialData) {
-      form.reset(); // Only reset if it's a new entry
-    }
+    onOpenChange(false);
   };
-
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

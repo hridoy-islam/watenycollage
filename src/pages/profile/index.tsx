@@ -26,8 +26,13 @@ import { ImageUploader } from '@/components/shared/image-uploader';
 const profileFormSchema = z.object({
   name: z.string().nonempty('Name is required'),
   email: z.string().email({ message: 'Enter a valid email address' }),
-  address: z.string().optional(),
-  phone: z.string().optional()
+  location: z.string().nonempty('Address Line 1 is required'),
+  phone: z.string().optional(),
+  location2: z.string().optional(),
+  city: z.string().optional(),
+  state: z.string().optional(),
+  postCode: z.string().optional(),
+  country: z.string().optional(),
 });
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
@@ -43,8 +48,13 @@ export default function ProfilePage() {
   const defaultValues: Partial<ProfileFormValues> = {
     name: profileData?.name || '',
     email: profileData?.email || '',
-    address: profileData?.address || '',
-    phone: profileData?.phone || ''
+    location: profileData?.location || '',
+    phone: profileData?.phone || '',
+    location2: profileData?.location2 || '',
+    city: profileData?.city || '',
+    state: profileData?.state || '',
+    postCode: profileData?.postCode || '',
+    country: profileData?.country || ''
   };
 
   const form = useForm<ProfileFormValues>({
@@ -53,31 +63,30 @@ export default function ProfilePage() {
     mode: 'onChange'
   });
 
-  const userId = user?._id;
 
+  const fetchProfileData = async () => {
+    try {
+      const response = await axiosInstance.get(`/users/${user?._id}`);
+      const data = response.data.data;
+      setProfileData(data);
+      form.reset(data); // Populate form with fetched data
+    } catch (error) {
+      console.error('Error fetching profile data:', error);
+      toast({
+        title: 'Error',
+        description: 'Unable to fetch profile data',
+        variant: 'destructive'
+      });
+    }
+  };
   useEffect(() => {
-    const fetchProfileData = async () => {
-      try {
-        const response = await axiosInstance.get(`/users/${userId}`);
-        const data = response.data.data;
-        setProfileData(data);
-        form.reset(data); // Populate form with fetched data
-      } catch (error) {
-        console.error('Error fetching profile data:', error);
-        toast({
-          title: 'Error',
-          description: 'Unable to fetch profile data',
-          variant: 'destructive'
-        });
-      }
-    };
 
     fetchProfileData();
-  }, [userId]);
+  }, []);
 
   const onSubmit = async (data: ProfileFormValues) => {
     try {
-      await axiosInstance.patch(`/users/${userId}`, data);
+      await axiosInstance.patch(`/users/${user?._id}`, data);
       toast({
         title: 'Profile Updated',
         description: 'Thank You'
@@ -90,18 +99,21 @@ export default function ProfilePage() {
       });
     }
   };
-  const handleUploadComplete = '';
+  const handleUploadComplete = (data) => {
+    setUploadOpen(false);
+    fetchProfileData();
+  };
 
   return (
     <div className="space-y-2 p-2 md:p-2">
       <div className="relative h-48 w-48 overflow-hidden rounded-full">
         <img
           src={
-            user?.imageUrl ||
+            profileData?.imgUrl ||
             'https://kzmjkvje8tr2ra724fhh.lite.vusercontent.net/placeholder.svg'
           }
           alt={`${user?.name}`}
-          className="h-full w-full object-cover"
+          className="h-full w-full object-contain"
         />
         <Button
           size="icon"
@@ -159,12 +171,78 @@ export default function ProfilePage() {
               />
               <FormField
                 control={form.control}
-                name="address"
+                name="location"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Address</FormLabel>
+                    <FormLabel>Address Line 1 *</FormLabel>
                     <FormControl>
                       <Input placeholder="Enter Your Address" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {/* New fields */}
+              <FormField
+                control={form.control}
+                name="location2"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Address Line 2</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter Address Line 2" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="city"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>City</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter City" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="state"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>State</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter State" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="postCode"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Post Code</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter Post Code" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="country"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Country</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter Country" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -181,11 +259,13 @@ export default function ProfilePage() {
         </form>
       </Form>
 
+
+
       <ImageUploader
         open={uploadOpen}
         onOpenChange={setUploadOpen}
-        onUploadComplete={handleUploadComplete}
-        studentId={user?._id}
+        onUploadComplete={handleUploadComplete} 
+       userId={user?._id}
       />
     </div>
   );

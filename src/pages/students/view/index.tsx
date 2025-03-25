@@ -24,6 +24,7 @@ import {
 } from '@/lib/utils';
 import { useSelector } from 'react-redux';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
+import AgentPaymentPage from './components/agentPayment';
 
 export default function StudentViewPage() {
   const { id } = useParams();
@@ -134,7 +135,8 @@ export default function StudentViewPage() {
         { value: 'notes', label: 'Notes' },
         { value: 'staff', label: 'Assigned Staffs' },
         { value: 'communications', label: 'Communications' },
-        { value: 'account', label: 'Account' }
+        { value: 'account', label: 'Account' },
+        { value: 'agentPayment', label: 'Agent Payment' },
       );
     } else if (isStaff) {
       // Staff sees tabs based on privileges
@@ -247,6 +249,9 @@ export default function StudentViewPage() {
 
             <TabsContent value="account">
               <AccountPage student={student} />
+            </TabsContent>
+            <TabsContent value="agentPayment">
+              <AgentPaymentPage student={student}  />
             </TabsContent>
           </>
         )}

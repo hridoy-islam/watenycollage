@@ -101,9 +101,19 @@ export default function RemitStatusPage() {
 
       const uniqueYears = [
         ...new Set(
-          courseRelationsData.flatMap((cr) => cr.years.map((year) => year.year))
-        )
-      ];
+          courseRelationsData.flatMap((cr) => {
+            const yearSet = new Set();
+            cr.years.forEach((yearObj) => {
+              yearSet.add(yearObj.year);
+              if (yearObj.year === 'Year 3') {
+                yearSet.add('Year 4');
+              }
+            });
+            return Array.from(yearSet);
+          })
+        ),
+      ];   
+      
       const uniqueSessions = [
         ...new Set(
           courseRelationsData.flatMap((cr) =>
@@ -144,7 +154,6 @@ export default function RemitStatusPage() {
 
       const { term, course, institute, paymentStatus, year, session } = filters;
 
-      console.log('Filters:', { term, course, institute });
 
       // Find matching course relation based on filters
       let courseRelationId = null;
@@ -290,7 +299,7 @@ export default function RemitStatusPage() {
         <Button
           className="mb-2 bg-supperagent text-white hover:bg-supperagent/90"
           size={'sm'}
-          onClick={() => navigate('/admin/remitreport')}
+          onClick={() => navigate('/admin/remit')}
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back To Remit List

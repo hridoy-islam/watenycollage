@@ -60,7 +60,7 @@ export default function StudentStatusListPage() {
     resolver: zodResolver(invoiceSchema),
     defaultValues: {
       Status: "due",
-      
+
       remit: "",
 
       courseDetails: {
@@ -96,8 +96,20 @@ export default function StudentStatusListPage() {
       const uniqueCourses = [...new Set(courseRelationsData.map((cr) => cr.course))]
       const uniqueInstitutes = [...new Set(courseRelationsData.map((cr) => cr.institute))]
 
-      const uniqueYears = [...new Set(courseRelationsData.flatMap((cr) => cr.years.map((year) => year.year)))]
-      const uniqueSessions = [
+      const uniqueYears = [
+        ...new Set(
+          courseRelationsData.flatMap((cr) => {
+            const yearSet = new Set();
+            cr.years.forEach((yearObj) => {
+              yearSet.add(yearObj.year);
+              if (yearObj.year === 'Year 3') {
+                yearSet.add('Year 4');
+              }
+            });
+            return Array.from(yearSet);
+          })
+        ),
+      ]; const uniqueSessions = [
         ...new Set(
           courseRelationsData.flatMap((cr) =>
             cr.years.flatMap((year) => year.sessions.map((session) => session.sessionName)),
@@ -260,23 +272,23 @@ export default function StudentStatusListPage() {
   }, [])
 
 
-  
+
 
   return (
     <div className="py-1">
-    <div className="flex flex-row items-center justify-between">
+      <div className="flex flex-row items-center justify-between">
 
         <h1 className="mb-2 text-2xl font-bold">Status</h1>
         <Button
-                      className="bg-supperagent text-white hover:bg-supperagent/90 mb-2"
-                      size={'sm'}
-                      onClick={() => navigate('/admin/invoice')}
-                      >
-                      <ArrowLeft className="mr-2 h-4 w-4" />
-                      Back To Invoice
-                    </Button>
-                      </div>
-      
+          className="bg-supperagent text-white hover:bg-supperagent/90 mb-2"
+          size={'sm'}
+          onClick={() => navigate('/admin/invoice')}
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back To Invoice
+        </Button>
+      </div>
+
 
       <div className="grid gap-2">
         <Card>
@@ -300,15 +312,15 @@ export default function StudentStatusListPage() {
 
           />
 
-     
+
 
           <StudentSelection
             filteredStudents={filteredStudents}
             loading={loading}
-           
+
           />
 
-         
+
         </Card>
       </div>
     </div>

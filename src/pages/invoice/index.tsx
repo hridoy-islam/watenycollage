@@ -24,8 +24,8 @@ import { pdf } from '@react-pdf/renderer';
 
 export default function InvoicesPage() {
   const [invoices, setInvoices] = useState([]);
-  const [remitOptions, setRemitOptions] = useState([]);
-  const [remit, setRemit] = useState('');
+  const [customerOptions, setcustomerOptions] = useState([]);
+  const [customer, setcustomer] = useState('');
   const [status, setStatus] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
@@ -44,7 +44,7 @@ export default function InvoicesPage() {
       const params: any = {};
 
       if (status) params.status = status;
-      if (remit) params.remit = remit;
+      if (customer) params.customer = customer;
       if (searchTerm) params.searchTerm = searchTerm;
       if (fromDate) params.fromDate = fromDate;
       if (toDate) params.toDate = toDate;
@@ -58,21 +58,27 @@ export default function InvoicesPage() {
     }
   };
 
-  // Function to fetch remit options
-  const fetchRemits = async () => {
+
+  console.log(invoices)
+
+  // Function to fetch customer options
+  const fetchcustomers = async () => {
     try {
-      const response = await axiosInstance.get('/remit?limit=all');
-      setRemitOptions(response.data?.data?.result || []); // Extract the 'result' array
+      const response = await axiosInstance.get('/customer?limit=all');
+      setcustomerOptions(response.data?.data?.result || []); // Extract the 'result' array
     } catch (error) {
-      console.error('Error fetching remit data:', error);
+      console.error('Error fetching customer data:', error);
     }
   };
 
   useEffect(() => {
-    fetchRemits();
+    fetchcustomers();
     fetchInvoices();
   }, []);
 
+
+
+  
   const handleSearchClick = () => {
     fetchInvoices();
   };
@@ -86,6 +92,7 @@ export default function InvoicesPage() {
       // Fetch invoice data from backend
       const response = await axiosInstance.get(`/invoice/${invoiceId}`);
       const invoiceData = response.data?.data;
+
 
       // Create a PDF document using InvoicePDF component
       const MyDoc = <InvoicePDF invoice={invoiceData} />;
@@ -219,9 +226,9 @@ export default function InvoicesPage() {
               Check Status
             </Button>
           </Link>
-          <Link to="remit">
+          <Link to="customer">
             <Button className="bg-supperagent text-white hover:bg-supperagent">
-              Remit List
+              Customer List
             </Button>
           </Link>
         </div>
@@ -264,18 +271,18 @@ export default function InvoicesPage() {
               />
             </div>
 
-            {/* Remit To Dropdown */}
+            {/* customer To Dropdown */}
             <div className="min-w-[200px]">
-              <h1 className="mb-2 block text-sm font-medium">Remit To</h1>
+              <h1 className="mb-2 block text-sm font-medium">Customer</h1>
               <select
-                value={remit}
-                onChange={(e) => setRemit(e.target.value)}
+                value={customer}
+                onChange={(e) => setcustomer(e.target.value)}
                 className="w-full rounded-md border border-gray-300 bg-white p-2 text-gray-900 shadow-sm focus:border-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-500"
               >
                 <option value="">All</option>
-                {remitOptions.map((remit) => (
-                  <option key={remit._id} value={remit._id}>
-                    {remit.name}
+                {customerOptions.map((customer) => (
+                  <option key={customer._id} value={customer._id}>
+                    {customer.name}
                   </option>
                 ))}
               </select>
@@ -311,7 +318,7 @@ export default function InvoicesPage() {
               <TableRow>
                 <TableHead>Created At</TableHead>
                 <TableHead>Reference</TableHead>
-                <TableHead>Remit To</TableHead>
+                <TableHead>Customer</TableHead>
                 <TableHead>Amount</TableHead>
                 <TableHead>Students</TableHead>
                 {/* <TableHead>Status</TableHead> */}
@@ -328,7 +335,7 @@ export default function InvoicesPage() {
                       {moment(invoice.date).format('DD MMM YYYY')}
                     </TableCell>
                     <TableCell>{invoice.reference}</TableCell>
-                    <TableCell>{invoice.remit?.name}</TableCell>
+                    <TableCell>{invoice.customer?.name}</TableCell>
                     <TableCell>{invoice.totalAmount}</TableCell>
                     <TableCell>{invoice.noOfStudents}</TableCell>
                     {/* <TableCell>{invoice.status}</TableCell> */}

@@ -14,7 +14,7 @@ export function ImageUploader({
   open,
   onOpenChange,
   onUploadComplete,
-  studentId
+  userId
 }) {
   const [dragActive, setDragActive] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -78,8 +78,8 @@ export function ImageUploader({
       }
 
       const formData = new FormData();
-      formData.append('studentId', studentId);
-      formData.append('file_type', 'profile');
+      formData.append('userId', userId);
+      formData.append('file_type', 'user');
       formData.append('file', file);
 
       const response = await axiosInstance.post(

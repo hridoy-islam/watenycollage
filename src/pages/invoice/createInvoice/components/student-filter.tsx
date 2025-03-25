@@ -66,7 +66,6 @@ export function StudentFilter({
     }
   }, [isEditing, id, filterForm]);
 
-  console.log(paymentStatuses)
   
   return (
     <Card className="rounded-none shadow-md">
