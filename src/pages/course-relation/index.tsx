@@ -16,6 +16,7 @@ import { toast } from '@/components/ui/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { DataTablePagination } from '../students/view/components/data-table-pagination';
 import { Link } from 'react-router-dom';
+import { Input } from '@/components/ui/input';
 
 export default function CourseRelationPage() {
   const [courseRelations, setCourseRelations] = useState<any>([]);
@@ -25,14 +26,17 @@ export default function CourseRelationPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(10);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const fetchData = async (page, entriesPerPage) => {
+
+  const fetchData = async (page, entriesPerPage, searchTerm = "") => {
     try {
       if (initialLoading) setInitialLoading(true);
       const response = await axiosInstance.get(`/course-relations`, {
         params: {
           page,
-          limit: entriesPerPage
+          limit: entriesPerPage,
+          ...(searchTerm ? { searchTerm } : {}),
         }
       });
       setCourseRelations(response.data.data.result);
@@ -40,52 +44,30 @@ export default function CourseRelationPage() {
     } catch (error) {
       console.error('Error fetching institutions:', error);
     } finally {
-      setInitialLoading(false); // Disable initial loading after the first fetch
+      setInitialLoading(false);
     }
   };
-
-  // const handleSubmit = async (data) => {
-
-  //   try {
-  //     if (editingCourseRelation) {
-  //       // Update institution
-  //       await axiosInstance.patch(`/course-relations/${editingCourseRelation?.id}`, data);
-  //       toast({ title: "Record Updated successfully", className: "bg-supperagent border-none text-white", });
-  //       fetchData(currentPage, entriesPerPage);
-  //       setEditingCourseRelation(null);
-  //     } else {
-  //       await axiosInstance.post(`/course-relations`, data);
-  //       toast({ title: "Record Created successfully", className: "bg-supperagent border-none text-white", });
-  //       fetchData(currentPage, entriesPerPage);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error saving Course Relation:", error);
-  //   }
-  // };
 
   const handleSubmit = async (data) => {
     try {
       let response;
       if (editingCourseRelation) {
-        // Update course relation
         response = await axiosInstance.patch(
           `/course-relations/${editingCourseRelation?._id}`,
           data
         );
       } else {
-        // Create new course relation
         response = await axiosInstance.post(`/course-relations`, data);
       }
 
-      // Check if the API response indicates success
       if (response.data && response.data.success === true) {
         toast({
-          title: response.data.message || 'Record Updated successfully',
+          title: editingCourseRelation ? 'Record Updated successfully' : 'Record Created successfully',
           className: 'bg-supperagent border-none text-white'
         });
       } else if (response.data && response.data.success === false) {
         toast({
-          title: response.data.message || 'Operation failed',
+          title: 'Operation failed',
           className: 'bg-red-500 border-none text-white'
         });
       } else {
@@ -94,15 +76,15 @@ export default function CourseRelationPage() {
           className: 'bg-red-500 border-none text-white'
         });
       }
-      // Refresh data
+
+      // Reset form and close dialog
+      setEditingCourseRelation(null);
+      setDialogOpen(false);
       fetchData(currentPage, entriesPerPage);
-      setEditingCourseRelation(null); // Reset editing state
     } catch (error) {
       console.error('Error saving Course Relation:', error);
-      // Display an error toast if the request fails
       toast({
-        title:
-          error.response.data.message || 'An error occurred. Please try again.',
+        title: 'An error occurred. Please try again.',
         className: 'bg-red-500 border-none text-white'
       });
     }
@@ -129,24 +111,52 @@ export default function CourseRelationPage() {
     }
   };
 
+  const handleDialogOpenChange = (open) => {
+    if (!open) {
+      // Reset editing state when dialog closes
+      setEditingCourseRelation(null);
+    }
+    setDialogOpen(open);
+  };
+
   useEffect(() => {
-    fetchData(currentPage, entriesPerPage); // Refresh data
+    fetchData(currentPage, entriesPerPage);
   }, [currentPage, entriesPerPage]);
 
+  const handleSearch = () => {
+    fetchData(currentPage, entriesPerPage, searchTerm);
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Course Relations</h1>
         <Button
           className="bg-supperagent text-white hover:bg-supperagent/90"
           size={'sm'}
           onClick={() => {
-            setEditingCourseRelation(null); // Clear editing course relation when creating a new one
+            setEditingCourseRelation(null);
             setDialogOpen(true);
           }}
         >
           <Plus className="mr-2 h-4 w-4" />
           New Course
+        </Button>
+      </div>
+      <div className="flex items-center space-x-4">
+        <Input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Search by institute, course"
+          className='max-w-[400px] h-8'
+        />
+        <Button
+          onClick={handleSearch}
+          size="sm"
+          className="border-none min-w-[100px] bg-supperagent text-white hover:bg-supperagent/90"
+        >
+          Search
         </Button>
       </div>
       <div className="rounded-md bg-white p-4 shadow-2xl">
@@ -225,7 +235,7 @@ export default function CourseRelationPage() {
       </div>
       <CourseRelationDialog
         open={dialogOpen}
-        onOpenChange={setDialogOpen}
+        onOpenChange={handleDialogOpenChange}
         onSubmit={handleSubmit}
         initialData={editingCourseRelation}
       />

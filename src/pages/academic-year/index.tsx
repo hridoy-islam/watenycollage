@@ -168,7 +168,7 @@ export default function AcademicYearPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-semibold">All Academic Years</h1>
         <Button className="bg-supperagent text-white hover:bg-supperagent/90" size={'sm'} onClick={() => setDialogOpen(true)}>
@@ -177,20 +177,21 @@ export default function AcademicYearPage() {
         </Button>
       </div>
       <div className="flex items-center space-x-4">
-              <Input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)} 
-                placeholder="Search by Academic Year"
-                className='max-w-[400px]'
-              />
-              <Button
-                onClick={handleSearch} 
-                className="border-none bg-supperagent text-white hover:bg-supperagent/90"
-              >
-                Search
-              </Button>
-            </div>
+        <Input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)} 
+          placeholder="Search by Academic Year"
+          className='max-w-[400px] h-8'
+        />
+        <Button
+          onClick={handleSearch} 
+          size="sm"
+          className="border-none bg-supperagent min-w-[100px] text-white hover:bg-supperagent/90"
+        >
+          Search
+        </Button>
+      </div>
 
       <div className="rounded-md bg-white shadow-2xl p-4">
         {initialLoading ? (

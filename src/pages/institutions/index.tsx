@@ -104,7 +104,7 @@ export default function InstitutionsPage() {
   
     } catch (error) {
       toast({
-        title: error.response.data.message || "An error occurred. Please try again.",
+        title:  "An error occurred. Please try again.",
         className: "bg-red-500 border-none text-white",
       });
     }
@@ -136,7 +136,7 @@ export default function InstitutionsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-semibold">All Institutions</h1>
         <Button className="bg-supperagent text-white hover:bg-supperagent/90" size={'sm'} onClick={() => setDialogOpen(true)}>
@@ -151,11 +151,12 @@ export default function InstitutionsPage() {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)} 
           placeholder="Search by Institute Name"
-          className='max-w-[400px]'
+          className='max-w-[400px] h-8'
         />
         <Button
           onClick={handleSearch} 
-          className="border-none bg-supperagent text-white hover:bg-supperagent/90"
+          size="sm"
+          className="border-none bg-supperagent min-w-[100px] text-white hover:bg-supperagent/90"
         >
           Search
         </Button>

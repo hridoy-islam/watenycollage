@@ -96,7 +96,7 @@ export function ApplicationsSection({ student, onSave }) {
                     </Badge>
                   )}
                 </TableCell>
-                <TableCell>{course.amount}</TableCell>
+                <TableCell>{!isNaN(Number(course.amount)) ? Number(course.amount).toFixed(2) : '0.00'}</TableCell>
                 <TableCell>
                   <div className="flex flex-col gap-1">
                     <Badge

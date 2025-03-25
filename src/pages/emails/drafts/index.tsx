@@ -82,7 +82,7 @@ export function DraftsManager() {
 
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold">Email Drafts</h2>
         <Button
@@ -95,20 +95,21 @@ export function DraftsManager() {
       </div>
 
       <div className="flex items-center space-x-4">
-              <Input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)} 
-                placeholder="Search by subject"
-                className='max-w-[400px]'
-              />
-              <Button
-                onClick={handleSearch} 
-                className="border-none bg-supperagent text-white hover:bg-supperagent/90"
-              >
-                Search
-              </Button>
-            </div>
+        <Input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)} 
+          placeholder="Search by Subject"
+          className='max-w-[400px] h-8'
+        />
+        <Button
+          onClick={handleSearch} 
+          size="sm"
+          className="border-none bg-supperagent min-w-[100px] text-white hover:bg-supperagent/90"
+        >
+          Search
+        </Button>
+      </div>
       <div className="rounded-md bg-white p-4 shadow-2xl">
         {initialLoading ? (
           <div className="flex justify-center py-6">
