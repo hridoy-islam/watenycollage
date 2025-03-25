@@ -30,7 +30,7 @@ export default function StudentViewPage() {
   const { toast } = useToast();
   const { user } = useSelector((state: any) => state.auth) || {};
   const [student, setStudent] = useState<any>();
-  
+
   const [initialLoading, setInitialLoading] = useState(true); // New state for initial loading
   const [hasRequiredDocuments, setHasRequiredDocuments] = useState(false);
   // const isComplete = isStudentDataComplete(student, hasRequiredDocuments);
@@ -49,7 +49,7 @@ export default function StudentViewPage() {
     () => isWorkExperienceComplete(student),
     [student]
   );
-  
+
   const isComplete = useMemo(
     () => isStudentDataComplete(student, hasRequiredDocuments), // Include hasRequiredDocuments in the isComplete check
     [student, hasRequiredDocuments]
@@ -61,7 +61,6 @@ export default function StudentViewPage() {
       // Fetch student data
       const studentResponse = await axiosInstance.get(`/students/${id}`);
       setStudent(studentResponse.data.data);
-      
     } catch (error) {
       console.error('Error fetching data:', error);
       toast({
@@ -74,9 +73,8 @@ export default function StudentViewPage() {
     }
   };
 
-
   useEffect(() => {
-    if (student ) {
+    if (student) {
       const requiredDocuments = ['work experience', 'qualification'];
       const hasDocuments = requiredDocuments.some((type) =>
         student.documents.some((doc) => doc.file_type === type)
@@ -88,7 +86,7 @@ export default function StudentViewPage() {
 
   const handleSave = async (data) => {
     const updatedData = { ...data };
-    
+
     // Remove agent field if it's empty or null
     if (!updatedData.agent) {
       delete updatedData.agent;
@@ -185,18 +183,20 @@ export default function StudentViewPage() {
             <Printer className="mr-2 h-4 w-4" />
             Print
           </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            className="border-none bg-supperagent hover:bg-supperagent/90"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Add
-          </Button>
+          <Link to="/admin/students/new">
+            <Button
+              size="sm"
+              variant="outline"
+              className="border-none bg-supperagent hover:bg-supperagent/90"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Add
+            </Button>
+          </Link>
         </div>
       </header>
 
-      <StudentProfile student={student}  fetchStudent={fetchAllData} />
+      <StudentProfile student={student} fetchStudent={fetchAllData} />
 
       <Tabs defaultValue="personal" className="mt-1 px-2">
         <TabsList>
@@ -223,7 +223,6 @@ export default function StudentViewPage() {
         <TabsContent value="documents">
           <DocumentsSection
             student={student}
-     
             fetchDocuments={fetchAllData}
             onSave={handleSave}
           />
