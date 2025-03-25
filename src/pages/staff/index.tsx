@@ -147,7 +147,7 @@ export default function StaffPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">All Staff</h1>
         <Button
@@ -164,12 +164,13 @@ export default function StaffPage() {
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)} 
-          placeholder="Search by name, email, phone"
-          className='max-w-[400px]'
+          placeholder="Search by Name, Email"
+          className='max-w-[400px] h-8'
         />
         <Button
           onClick={handleSearch} 
-          className="border-none bg-supperagent text-white hover:bg-supperagent/90"
+          size="sm"
+          className="border-none bg-supperagent min-w-[100px] text-white hover:bg-supperagent/90"
         >
           Search
         </Button>

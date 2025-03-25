@@ -131,7 +131,7 @@ export default function CoursesPage() {
   }, [currentPage, entriesPerPage]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-semibold">All Courses</h1>
         <Button className="bg-supperagent text-white hover:bg-supperagent/90 border-none" size={'sm'} onClick={() => setDialogOpen(true)}>
@@ -147,11 +147,12 @@ export default function CoursesPage() {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)} 
           placeholder="Search by Course Name"
-          className='max-w-[400px]'
+          className='max-w-[400px] h-8'
         />
         <Button
           onClick={handleSearch} 
-          className="border-none bg-supperagent text-white hover:bg-supperagent/90"
+          size="sm"
+          className="border-none bg-supperagent min-w-[100px] text-white hover:bg-supperagent/90"
         >
           Search
         </Button>

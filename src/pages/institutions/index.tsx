@@ -104,8 +104,7 @@ export default function InstitutionsPage() {
       setEditingInstitution(undefined); // Reset editing state
     } catch (error) {
       toast({
-        title:
-          error.response.data.message || 'An error occurred. Please try again.',
+        title: 'An error occurred. Please try again.',
         className: 'bg-red-500 border-none text-white'
       });
     }
@@ -141,7 +140,7 @@ export default function InstitutionsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">All Institutions</h1>
         <Button
@@ -160,11 +159,12 @@ export default function InstitutionsPage() {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           placeholder="Search by Institute Name"
-          className="max-w-[400px]"
+          className="h-8 max-w-[400px]"
         />
         <Button
           onClick={handleSearch}
-          className="border-none bg-supperagent text-white hover:bg-supperagent/90"
+          size="sm"
+          className="min-w-[100px] border-none bg-supperagent text-white hover:bg-supperagent/90"
         >
           Search
         </Button>
