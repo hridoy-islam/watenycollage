@@ -109,10 +109,9 @@ const AddCourseDialog = ({ onAddCourses }) => {
       });
 
       toast({
-        title: "Success",
-        description: "Course added successfully",
-        variant: "default",
-      });
+        title: "Course Add successfully",
+        className: "bg-supperagent border-none text-white",
+      })
 
       if (onAddCourses) {
         onAddCourses(selectedCourseRelation);
@@ -123,11 +122,11 @@ const AddCourseDialog = ({ onAddCourses }) => {
       setIsOpen(false);
     } catch (error) {
       console.error("Failed to add course:", error);
+
       toast({
-        title: "Error",
-        description: "Failed to add course",
-        variant: "destructive",
-      });
+        title: "Operation Failed",
+        className: "bg-destructive border-none text-white",
+      })
     }
   };
 
@@ -254,4 +253,4 @@ const AddCourseDialog = ({ onAddCourses }) => {
   );
 };
 
-export default  AddCourseDialog
+export default AddCourseDialog

@@ -38,7 +38,7 @@ export function StudentSelection({
             {loading ? (
               <div className="flex justify-center py-8">Loading students...</div>
             ) : (
-              <div className="max-h-[300px] w-auto overflow-y-auto rounded border">
+              <div className="max-h-[300px] w-auto overflow-y-auto border-gray-200 rounded border">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -58,7 +58,7 @@ export function StudentSelection({
                           </TableCell>
                           <TableCell>{student.collageRoll}</TableCell>
                           <TableCell>
-                            <Button variant="outline" size="sm" onClick={() => handleAddStudent(student)}>
+                            <Button  size="sm" className="bg-supperagent text-white hover:bg-supperagent/90" onClick={() => handleAddStudent(student)}>
                               Add
                             </Button>
                           </TableCell>
@@ -85,7 +85,7 @@ export function StudentSelection({
           <CardTitle>Selected Students</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="max-h-[500px] overflow-y-auto rounded border">
+          <div className="max-h-[500px] border-gray-200 overflow-y-auto rounded border">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -109,7 +109,7 @@ export function StudentSelection({
                     <TableCell>{student.collageRoll}</TableCell>
                     <TableCell className="text-right">{student.sessionFee?.toFixed(2)}</TableCell>
                     <TableCell>
-                      <Button variant="ghost" size="icon" onClick={() => handleRemoveStudent(student._id)}>
+                      <Button  className="bg-destructive text-white hover:bg-destructive/90" size="icon" onClick={() => handleRemoveStudent(student._id)}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </TableCell>

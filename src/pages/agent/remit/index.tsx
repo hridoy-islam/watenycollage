@@ -3,32 +3,59 @@ import axiosInstance from '@/lib/axios';
 import { useParams } from 'react-router-dom';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import ErrorMessage from '@/components/shared/error-message';
-import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+
+// Define validation schema
+const agentSchema = z.object({
+ 
+  sortCode: z.string().min(1, "Sort code is required"),
+  accountNo: z.string().min(1, "Account number is required"),
+  beneficiary: z.string().min(1, "Beneficiary is required"),
+});
 
 export default function AgentRemit() {
   const [agent, setAgent] = useState({});
   const { id } = useParams();
-  const { register, handleSubmit, formState: { errors }, setValue, watch, reset } = useForm();
-
-  // Watch for changes in the form values
-  const formValues = watch();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isDirty },
+    setValue,
+    reset,
+  } = useForm({
+    resolver: zodResolver(agentSchema),
+    defaultValues: {
+      
+      sortCode: '',
+      accountNo: '',
+      beneficiary: ''
+    }
+  });
 
   // Fetch agent data
   const fetchAgentData = async () => {
-    const response = await axiosInstance.get(`/users/${id}`);
-    const agentData = response?.data?.data || {};
+    try {
+      const response = await axiosInstance.get(`/users/${id}`);
+      const agentData = response?.data?.data || {};
+      setAgent(agentData);
 
-    setAgent(agentData);
-
-    // Populate form fields with the fetched data
-    setValue('location2', agentData?.location2 || '');
-    setValue('city', agentData?.city || '');
-    setValue('state', agentData?.state || '');
-    setValue('postCode', agentData?.postCode || '');
-    setValue('country', agentData?.country || '');
+      // Populate form fields with the fetched data
+      reset({
+       
+        sortCode: agentData?.sortCode || '',
+        accountNo: agentData?.accountNo || '',
+        beneficiary: agentData?.beneficiary || ''
+      });
+    } catch (error) {
+      toast({
+        title: "Error loading agent data",
+        variant: "destructive",
+      });
+    }
   };
 
   useEffect(() => {
@@ -39,25 +66,20 @@ export default function AgentRemit() {
     try {
       await axiosInstance.patch(`/users/${id}`, data);
       toast({
-        title: "Record Updated successfully",
+        title: "Record updated successfully",
         className: "bg-supperagent border-none text-white",
       });
-
-      // Optionally reset form after successful update
-      reset(data);
+      fetchAgentData(); // Refresh data after update
     } catch (error) {
       toast({
         title: "Error updating agent data",
-        className: "bg-destructive border-none text-white",
+        variant: "destructive",
       });
     }
   };
 
-  // Check if any form values have changed from the initial data
-  const isFormModified = Object.keys(formValues).some(key => formValues[key] !== agent[key]);
-
   return (
-    <div>
+    <div className="space-y-4">
       <div className="w-full rounded-lg bg-white p-6 shadow-sm">
         <h1 className="mb-4 text-lg font-semibold text-gray-900">
           {agent?.name}
@@ -91,52 +113,69 @@ export default function AgentRemit() {
         </div>
       </div>
 
-      <div className="my-1 rounded-lg bg-white p-6 shadow-sm">
-        <h3 className="mb-2 font-semibold">Agent Remit Details</h3>
+      <div className="rounded-lg bg-white p-6 shadow-sm">
+        <h3 className="mb-4 text-lg font-semibold">Agent Remit Details</h3>
 
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="grid grid-cols-3 gap-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+           
+
+            {/* Sort Code */}
             <div className="space-y-2">
-              <Label htmlFor="location2">Address Line 2</Label>
-              <Input id="location2" {...register('location2')} />
-              <ErrorMessage message={errors.location2?.message?.toString()} />
+              <Label htmlFor="sortCode">Sort Code *</Label>
+              <Input 
+                id="sortCode" 
+                {...register('sortCode')} 
+                placeholder="Enter sort code" 
+              />
+              {errors.sortCode && (
+                <p className="text-sm font-medium text-destructive">
+                  {errors.sortCode.message}
+                </p>
+              )}
             </div>
 
+            {/* Account Number */}
             <div className="space-y-2">
-              <Label htmlFor="city">Town / City</Label>
-              <Input id="city" {...register('city')} />
-              <ErrorMessage message={errors.city?.message?.toString()} />
+              <Label htmlFor="accountNo">Account Number *</Label>
+              <Input 
+                id="accountNo" 
+                {...register('accountNo')} 
+                placeholder="Enter account number" 
+              />
+              {errors.accountNo && (
+                <p className="text-sm font-medium text-destructive">
+                  {errors.accountNo.message}
+                </p>
+              )}
             </div>
 
+            {/* Beneficiary */}
             <div className="space-y-2">
-              <Label htmlFor="state">State</Label>
-              <Input id="state" {...register('state')} />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="postCode">Post Code</Label>
-              <Input id="postCode" {...register('postCode')} />
-              <ErrorMessage message={errors.postCode?.message?.toString()} />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="country">Country</Label>
-              <Input id="country" {...register('country')} />
-              <ErrorMessage message={errors.country?.message?.toString()} />
+              <Label htmlFor="beneficiary">Beneficiary *</Label>
+              <Input 
+                id="beneficiary" 
+                {...register('beneficiary')} 
+                placeholder="Enter beneficiary" 
+              />
+              {errors.beneficiary && (
+                <p className="text-sm font-medium text-destructive">
+                  {errors.beneficiary.message}
+                </p>
+              )}
             </div>
           </div>
 
-          <div className="mt-2 flex justify-end">
-            {isFormModified ? (
-              <Button type="submit" className="bg-supperagent text-white hover:bg-supperagent">
-                Update
-              </Button>
-            ) : (
-              <Button type="submit" className="bg-supperagent text-white hover:bg-supperagent">
-                Save
-              </Button>
-            )}
-          </div>
+          {isDirty &&
+          <div className="flex justify-end">
+            <Button 
+              type="submit" 
+              className="bg-supperagent text-white hover:bg-supperagent/90"
+              disabled={!isDirty}
+            >
+              Update Details
+            </Button>
+          </div>}
         </form>
       </div>
     </div>

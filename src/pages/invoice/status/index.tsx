@@ -36,7 +36,7 @@ const filterSchema = z.object({
   session: z.string().optional(),
 })
 
-export default function StudentStatusListPage() {
+export default function InvoiceStatusListPage() {
   const navigate = useNavigate()
   // const [selectedStudents, setSelectedStudents] = useState([])
   // const [totalAmount, setTotalAmount] = useState(0)

@@ -76,29 +76,8 @@ const CustomerDetailsPage = () => {
   return (
     <div>
       <div className="bg-white shadow-lg rounded-lg p-8">
-        <div className="flex flex-row items-start justify-between">
-          <div className="pb-4">
-            <div className="relative h-48 w-48 overflow-hidden">
-              <img
-                src={
-                  customer?.logo ||
-                  'https://kzmjkvje8tr2ra724fhh.lite.vusercontent.net/placeholder.svg'
-                }
-                alt={`customer Logo`}
-                className="h-full w-full object-contain"
-              />
-              <Button
-                size="icon"
-                className="absolute bottom-2 right-7 rounded-full"
-                onClick={() => setUploadOpen(true)}
-              >
-                <Camera className="h-4 w-4" />
-              </Button>
-            </div>
-            <p className="text-sm text-gray-600 ">
-              Image size should be passport-sized (600px X 600px).
-            </p>
-          </div>
+        <div className="flex flex-row items-start justify-end">
+         
           <div>
             <Button
               className="bg-supperagent text-white hover:bg-supperagent/90"
@@ -155,47 +134,11 @@ const CustomerDetailsPage = () => {
               />
             </div>
 
-            {/* Sort Code */}
-            <div className="flex flex-col   p-2 rounded-lg  ">
-              <div className="flex items-center   ">
-                <span className="text-lg font-semibold text-gray-700">Sort Code</span>
-              </div>
-              <input
-                type="text"
-                name="sortCode"
-                value={formData.sortCode || ''}
-                onChange={handleInputChange}
-                className="text-gray-800 p-2 rounded border border-gray-300"
-              />
-            </div>
+            
 
-            {/* Account No */}
-            <div className="flex flex-col   p-2 rounded-lg  ">
-              <div className="flex items-center   ">
-                <span className="text-lg font-semibold text-gray-700">Account No</span>
-              </div>
-              <input
-                type="text"
-                name="accountNo"
-                value={formData.accountNo || ''}
-                onChange={handleInputChange}
-                className="text-gray-800 p-2 rounded border border-gray-300"
-              />
-            </div>
+            
 
-            {/* Beneficiary */}
-            <div className="flex flex-col   p-2 rounded-lg  ">
-              <div className="flex items-center   ">
-                <span className="text-lg font-semibold text-gray-700">Beneficiary</span>
-              </div>
-              <input
-                type="text"
-                name="beneficiary"
-                value={formData.beneficiary || ''}
-                onChange={handleInputChange}
-                className="text-gray-800 p-2 rounded border border-gray-300"
-              />
-            </div>
+           
           </div>
 
           {/* Show Update Customer button only if fields are modified */}
@@ -213,13 +156,8 @@ const CustomerDetailsPage = () => {
         </div>
       </div>
 
-      {/* Image Uploader */}
-      <ImageUploader
-        open={uploadOpen}
-        onOpenChange={setUploadOpen}
-        onUploadComplete={handleUploadComplete}
-        customerId={customer?._id}
-      />
+      
+     
     </div>
   );
 };

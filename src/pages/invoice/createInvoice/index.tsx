@@ -1,4 +1,4 @@
-"use client"
+
 
 import { useState, useEffect } from "react"
 import { useNavigate, useParams } from "react-router-dom"
@@ -43,7 +43,7 @@ const filterSchema = z.object({
   session: z.string().optional(),
 })
 
-export default function StudentListPage() {
+export default function InvoiceGeneratePage() {
   const navigate = useNavigate()
   const [selectedStudents, setSelectedStudents] = useState([])
   const [totalAmount, setTotalAmount] = useState(0)
@@ -66,7 +66,7 @@ export default function StudentListPage() {
   const [customers, setcustomers] = useState([]);
 
   const invoiceSchema = z.object({
-    Status: z.enum(["due", "paid"]),
+    status: z.enum(["due", "paid"]),
     customer: z.string().min(1, { message: "customer is required" }), // Add validation for customer
     courseDetails: z.object({
       semester: z.string(),
@@ -77,7 +77,7 @@ export default function StudentListPage() {
   const form = useForm<z.infer<typeof invoiceSchema>>({
     resolver: zodResolver(invoiceSchema),
     defaultValues: {
-      Status: "due",
+      status: "due",
       // customerTo: {
       //   name: "",
       //   email: "",
@@ -116,7 +116,7 @@ export default function StudentListPage() {
 
   const fetchcustomers = async () => {
     try {
-      const response = await axiosInstance.get("/customer");
+      const response = await axiosInstance.get("/customer?limit=all");
       setcustomers(response?.data?.data?.result); // Assuming the response contains an array of customers
     } catch (error) {
       console.error("Error fetching customers:", error);
@@ -131,49 +131,60 @@ export default function StudentListPage() {
   useEffect(() => {
     fetchcustomers();
   }, []);
+
+
   const fetchInvoiceData = async (invoiceId) => {
     try {
-      setLoading(true)
-      const response = await axiosInstance.get(`/invoice/${invoiceId}`)
-      const invoiceData = response?.data?.data
+      setLoading(true);
+      const response = await axiosInstance.get(`/invoice/${invoiceId}`);
+      const invoiceData = response?.data?.data;
+
+      if (!invoiceData) {
+        throw new Error("No invoice data received");
+      }
+
+      console.log(invoiceData)
 
       if (invoiceData) {
-        setInvoiceData(invoiceData)
-        // // Populate the form fields with the stored values
-        // form.setValue("customerTo", invoiceData.customerTo)
-        // form.setValue("paymentInfo", invoiceData.paymentInfo)
-   
-
-        form.setValue("customer", invoiceData.customer._id || "");
-        form.setValue("courseDetails", {
-          semester: invoiceData.semester || "",
-          year: invoiceData.year || "",
-          session: invoiceData.session || "",
+        form.reset({
+          status: invoiceData.status || "due",
+          customer: invoiceData.customer?._id || "",
+          courseDetails: {
+            semester: invoiceData.semester || "",
+            year: invoiceData.year || "",
+            session: invoiceData.session || "",
+          },
         })
-        console.log("Form customer Value:", form.getValues("customer")); 
-        setTotalAmount(invoiceData.totalAmount)
+      }
 
-        if (invoiceData.courseRelationId) {
-          fetchStudentsForInvoice(invoiceData.courseRelationId, invoiceData.year, invoiceData.session)
-        }
+      console.log("Form customer Value:", form.getValues("customer"));
+      setTotalAmount(invoiceData.totalAmount || 0);
+
+      if (invoiceData.courseRelationId) {
+        // Make sure courseRelationId is properly formatted
+        const relationId = typeof invoiceData.courseRelationId === 'object'
+          ? invoiceData.courseRelationId
+          : { _id: invoiceData.courseRelationId };
+
+        fetchStudentsForInvoice(relationId, invoiceData.year, invoiceData.session, invoiceData.status);
       }
     } catch (error) {
-      console.error("Error fetching invoice data:", error)
+      console.error("Error fetching invoice data:", error);
       toast({
         title: "Error",
-        description: "Failed to fetch invoice data",
+        description:  "Failed to fetch invoice data",
         variant: "destructive",
-      })
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const customerValue = useWatch({
     control: form.control,
     name: "customer",
   });
-  const fetchStudentsForInvoice = async (courseRelationId, year, session) => {
+  const fetchStudentsForInvoice = async (courseRelationId, year, session,paymentStatus) => {
     try {
       setLoading(true);
 
@@ -190,11 +201,15 @@ export default function StudentListPage() {
         filterForm.setValue("year", year || "");
         filterForm.setValue("session", session || "");
 
+      
+
         const studentsResponse = await axiosInstance.get("/students", {
           params: {
             applicationCourse: courseRelationId._id,
             year: year,
             session: session,
+            paymentStatus,
+
           },
         });
 
@@ -616,7 +631,7 @@ export default function StudentListPage() {
 
     // Format students data according to the new model structure
     const formattedStudents = selectedStudentsWithRelation.map((student) => ({
-      collageroll: student.collageRoll ,
+      collageroll: student.collageRoll,
       refId: student.refId,
       firstName: student.firstName,
       lastName: student.lastName,
@@ -691,8 +706,8 @@ export default function StudentListPage() {
         refId: student.refId,
         firstName: student.firstName,
         lastName: student.lastName,
-        course:  selectedCourseRelation?.course?.name || "",
-        amount: student.amount  ,
+        course: selectedCourseRelation?.course?.name || "",
+        amount: student.amount,
       }))
 
       // Calculate total amount
@@ -729,48 +744,50 @@ export default function StudentListPage() {
     <div className="py-1">
       <div className="flex flex-row items-center justify-between">
 
-      {isEditing ? (
-        <h1 className="mb-2 text-2xl font-bold">Regenerate Invoice</h1>
-      ) : (
-        <h1 className="mb-2 text-2xl font-bold">Generate Invoice</h1>
-      )}
-       <Button
-              className="bg-supperagent text-white hover:bg-supperagent/90 mb-2"
-              size={'sm'}
-              onClick={() => navigate('/admin/invoice')}
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back To Invoice List
-            </Button>
+        {isEditing ? (
+          <h1 className="mb-2 text-2xl font-bold">Regenerate Invoice</h1>
+        ) : (
+          <h1 className="mb-2 text-2xl font-bold">Generate Invoice</h1>
+        )}
+        <Button
+          className="bg-supperagent text-white hover:bg-supperagent/90 mb-2"
+          size={'sm'}
+          onClick={() => navigate('/admin/invoice')}
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back To Invoice List
+        </Button>
       </div>
 
       <div className="grid gap-2">
         <Card>
 
 
-        <div className="p-4">
-  <label htmlFor="customer" className="block text-sm font-medium text-gray-700">
-    Select customer
-  </label>
-  <select
-    id="customer"
-    name="customer"
-    value={customerValue || ""} // Use the watched value
-    onChange={(e) => form.setValue("customer", e.target.value)} // Update form value on change
-    className="min-w-[250px] p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-  >
-    <option value="">Select a customer</option> {/* Placeholder option */}
-    {customers?.map((customer) => (
-      <option key={customer._id} value={customer._id}>
-        {customer.name}
-      </option>
-    ))}
-  </select>
-  {form.formState.errors.customer && (
-    <p className="text-sm text-red-500 mt-1">{form.formState.errors.customer.message}</p>
-  )}
-</div>
-
+          <div className="p-4">
+            <label htmlFor="customer" className="block text-sm font-medium text-gray-700">
+              Select customer
+            </label>
+            <Select
+              onValueChange={(value) => form.setValue("customer", value)}
+              value={form.watch("customer") || ""}
+            >
+              <SelectTrigger className="max-w-[250px]">
+                <SelectValue placeholder="Select a customer" />
+              </SelectTrigger>
+              <SelectContent>
+                {customers?.map((customer) => (
+                  <SelectItem key={customer._id} value={customer._id}>
+                    {customer.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {form.formState.errors.customer && (
+              <p className="text-sm text-red-500 mt-1">
+                {form.formState.errors.customer.message}
+              </p>
+            )}
+          </div>
 
 
           {/* Student Filter Component */}
@@ -788,7 +805,7 @@ export default function StudentListPage() {
             isEditing={isEditing}
           />
 
-         
+
 
           {/* Student Selection Component */}
           <StudentSelection
@@ -802,7 +819,7 @@ export default function StudentListPage() {
 
           <CardFooter className="flex justify-between p-4">
             <div className="text-lg font-semibold">
-              Total Amount: <span className="text-xl">${totalAmount.toFixed(2)}</span>
+              Total Amount: <span className="text-xl">{totalAmount.toFixed(2)}</span>
             </div>
 
             {isEditing ? (
@@ -836,4 +853,13 @@ export default function StudentListPage() {
     </div>
   )
 }
+
+
+
+
+
+
+
+
+
 

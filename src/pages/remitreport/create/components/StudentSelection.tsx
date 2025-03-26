@@ -58,7 +58,7 @@ export function StudentSelection({
                           </TableCell>
                           <TableCell>{student.collageRoll}</TableCell>
                           <TableCell>
-                            <Button variant="outline" size="sm" onClick={() => handleAddStudent(student)}>
+                            <Button className="bg-supperagent text-white hover:bg-supperagent/90" size="sm" onClick={() => handleAddStudent(student)}>
                               Add
                             </Button>
                           </TableCell>
@@ -106,10 +106,10 @@ export function StudentSelection({
                     <TableCell>
                       {student.firstName} {student.lastName}
                     </TableCell>
-                    <TableCell>{student.collageRoll}</TableCell>
+                    <TableCell>{student.collageroll}</TableCell>
                     <TableCell className="text-right">{student.sessionFee?.toFixed(2)}</TableCell>
                     <TableCell>
-                      <Button variant="ghost" size="icon" onClick={() => handleRemoveStudent(student._id)}>
+                      <Button className="bg-destructive text-white hover:bg-destructive/90" size="icon" onClick={() => handleRemoveStudent(student._id)}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </TableCell>

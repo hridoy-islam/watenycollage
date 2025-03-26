@@ -36,7 +36,7 @@ export default function AgentPaymentPage({ student }) {
 
   return (
     <div className="mx-auto py-1">
-      <h2 className="mb-4 text-xl font-bold">Agent Courses</h2>
+      <h2 className="mb-4 text-xl font-bold">Agent Payment</h2>
 
       <Table className="w-full mb-6">
         <TableHeader>
@@ -89,7 +89,7 @@ export default function AgentPaymentPage({ student }) {
           if (!isOpen) setExpandedCourseId(null); // Close dialog and reset expandedCourseId
         }}
       >
-       <DialogContent className="sm:max-w-5xl max-w-full h-[80vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-5xl max-w-full h-[60vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Course Details</DialogTitle>
           </DialogHeader>
@@ -106,7 +106,7 @@ export default function AgentPaymentPage({ student }) {
                     {selectedCourse?.courseRelationId?.course?.name} ( {selectedCourse?.courseRelationId?.term?.term})
                   </span>
                 </div>
-                
+
               </div>
               <div>
                 {selectedCourse.years
@@ -129,7 +129,7 @@ export default function AgentPaymentPage({ student }) {
                         <tbody>
                           {year.sessions.map((session) => (
                             <tr key={session?._id} className="border-t">
-                              <td className="py-2">{session.name}</td>
+                              <td className="py-2">{session.sessionName}</td>
                               <td className="py-2">
                                 {format(session?.invoiceDate, 'MMM d, yyyy')}
                               </td>
@@ -140,12 +140,15 @@ export default function AgentPaymentPage({ student }) {
                                       ? 'bg-green-500 text-white'
                                       : session.status === 'due'
                                         ? 'bg-red-500 text-white'
-                                        : 'bg-red-500 text-white'
+                                        : session.status === 'available'
+                                          ? 'bg-blue-500 text-white'
+                                          : 'bg-gray-500 text-white'  
                                   }
                                 >
                                   {session.status}
                                 </Badge>
                               </td>
+
                             </tr>
                           ))}
                         </tbody>

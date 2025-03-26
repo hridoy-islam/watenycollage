@@ -172,7 +172,7 @@ export default function CourseDetails() {
                 year: "Year 1", // Fixed to Year 1
                 sessions: year1.sessions.map(session => ({
                   id: session._id,
-                  name: session.sessionName,
+                  sessionName: session.sessionName,
                   invoiceDate: session.invoiceDate,
                   status: "due",
                   // amount: calculateAgentCommission(session) // Implement this function
@@ -193,7 +193,7 @@ export default function CourseDetails() {
   
       // Show success notification
        toast({
-              title: 'Operation successful',
+              title: 'Application Updated successful',
               className: 'bg-supperagent border-none text-white'
             });
   

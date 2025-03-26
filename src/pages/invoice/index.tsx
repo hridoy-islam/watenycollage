@@ -78,36 +78,34 @@ export default function InvoicesPage() {
 
 
 
-  
+
   const handleSearchClick = () => {
     fetchInvoices();
   };
 
   const handleEdit = (invoiceId: string) => {
-    navigate(`/admin/invoice/students/${invoiceId}`);
+    navigate(`/admin/invoice/editGenerate/${invoiceId}`);
+    // console.log(invoiceId)
   };
 
   const handleDownload = async (invoiceId: string) => {
     try {
-      // Fetch invoice data from backend
+
+
       const response = await axiosInstance.get(`/invoice/${invoiceId}`);
       const invoiceData = response.data?.data;
 
 
-      // Create a PDF document using InvoicePDF component
       const MyDoc = <InvoicePDF invoice={invoiceData} />;
 
-      // Generate PDF and trigger download
       const pdfBlob = await pdf(MyDoc).toBlob();
 
-      // Create a download link and trigger the download
       const url = URL.createObjectURL(pdfBlob);
       const link = document.createElement('a');
       link.href = url;
       link.download = `invoice_${invoiceData.reference}.pdf`;
       link.click();
 
-      // Clean up the object URL
       URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Error generating PDF:', error);
@@ -332,7 +330,7 @@ export default function InvoicesPage() {
                 invoices.map((invoice) => (
                   <TableRow key={invoice._id}>
                     <TableCell>
-                      {moment(invoice.date).format('DD MMM YYYY')}
+                      {moment(invoice.createdAt).format('DD MMM YYYY')}
                     </TableCell>
                     <TableCell>{invoice.reference}</TableCell>
                     <TableCell>{invoice.customer?.name}</TableCell>
@@ -365,7 +363,8 @@ export default function InvoicesPage() {
                     <TableCell>
                       <div className="flex flex-row items-center gap-2">
                         {invoice.exported ? 'Yes' : 'No'}
-                        {!invoice.exported && (
+
+                        {invoice.status === "paid" && !invoice.exported && (
                           <Button
                             size="sm"
                             className="bg-supperagent text-white hover:bg-supperagent"
@@ -374,6 +373,7 @@ export default function InvoicesPage() {
                             <Send className="h-4 w-4" />
                           </Button>
                         )}
+
                       </div>
                     </TableCell>
                     <TableCell>

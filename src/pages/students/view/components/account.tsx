@@ -28,6 +28,8 @@ export default function AccountPage({ student }) {
     (course) => course._id === expandedCourseId
   );
 
+
+
   return (
     <div className="mx-auto py-1">
       <h2 className="mb-4 text-xl font-bold">Enrolled Courses</h2>

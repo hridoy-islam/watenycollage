@@ -1,8 +1,5 @@
-
-
 import { Document, Page, Text, View, StyleSheet, Image } from "@react-pdf/renderer";
 import moment from "moment";
-
 
 // Define styles
 const styles = StyleSheet.create({
@@ -11,19 +8,29 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
     padding: 40,
     fontFamily: "Helvetica",
+    marginTop:-40
   },
+  // header: {
+  //   flexDirection: "row",
+  //   justifyContent: "space-between",
+  //   marginBottom: 20,
+  // },
   logoContainer: {
-    flexDirection: "row",
-    justifyContent: "flex-start",
-    marginTop:"-30px",
-    // marginLeft:"-20px"
+    width: "100%",
+    alignItems: "flex-start",
+    marginTop:-20
+    
   },
-  
+  logo: {
+    width: "150px",
+    height: "150px",
+    objectFit: "contain"
+  },
   sectionTitle: {
     fontSize: 11,
     fontWeight: "semibold",
     color: "#00a185",
-    marginBottom: 5,
+  
   },
   value: {
     fontSize: 10,
@@ -35,6 +42,17 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 20,
   },
+  invoiceFromTo: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 20,
+  },
+  fromSection: {
+    width: "45%",
+  },
+  toSection: {
+    width: "45%",
+  },
   label: {
     fontSize: 12,
     fontWeight: "Bold",
@@ -43,7 +61,7 @@ const styles = StyleSheet.create({
   table: {
     display: "table",
     width: "100%",
-    marginTop: 20,
+    marginTop: 10,
   },
   tableHeader: {
     flexDirection: "row",
@@ -65,16 +83,15 @@ const styles = StyleSheet.create({
   },
   tableRow: {
     flexDirection: "row",
-    justifyContent: "center", // Center the content horizontally
-    alignItems: "center", // Align content vertically in the center
+    justifyContent: "center",
+    alignItems: "center",
   },
   tableCell: {
     padding: 5,
-    paddingRight:10,
+    paddingRight: 10,
     fontSize: 10,
     fontWeight: "normal",
-    textAlign: "center", // Center-align content in table cells
-    // borderRightWidth: 2,
+    textAlign: "center",
     borderRightColor: "#fff",
     flexDirection: "column",
     justifyContent: "center",
@@ -103,18 +120,28 @@ const styles = StyleSheet.create({
     color: "#888",
   },
   grayBackground: {
-    backgroundColor: "#f3f3f3", // Light gray color for alternate rows
+    backgroundColor: "#f3f3f3",
   },
 });
+
+interface CreatedBy {
+  name: string;
+  email: string;
+  location: string;
+  imgUrl: string;
+  accountNo?: string;
+  sortCode?: string;
+  beneficiary?: string;
+}
 
 interface Customer {
   name: string;
   email: string;
   address: string;
-  logo: string;
-  sortCode: string;
-  accountNo: string;
-  beneficiary: string;
+  logo?: string;
+  sortCode?: string;
+  accountNo?: string;
+  beneficiary?: string;
 }
 
 interface Student {
@@ -127,6 +154,7 @@ interface Student {
 }
 
 interface Invoice {
+  createdBy: CreatedBy;
   customer: Customer;
   reference: string;
   date: Date;
@@ -137,25 +165,9 @@ interface Invoice {
 }
 
 const InvoicePDF = ({ invoice = {} as Invoice }) => {
-
-
-  
-
-
-console.log(invoice)
-
-
-
   const {
-    customer = {
-      name: "N/A",
-      email: "N/A",
-      address: "N/A",
-      logo: "",
-      sortCode: "",
-      accountNo: "",
-      beneficiaryL: "",
-    },
+    createdBy = {} as CreatedBy,
+    customer = {} as Customer,
     reference = "",
     date = new Date(),
     semester = "",
@@ -164,47 +176,65 @@ console.log(invoice)
     totalAmount = 0,
   } = invoice;
 
-
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-      <View style={styles.logoContainer}>
-            <Image src={customer?.logo} style={{ width: "100px", height: "100px",objectFit:"contain" }} />
-             
-              </View>
+        <View style={styles.header}>
+
+          <View style={styles.logoContainer}>
+            <Image src={createdBy?.imgUrl} style={styles.logo} />
+          </View>
+        </View>
+
+        <View style={styles.invoiceFromTo}>
+          <View style={styles.fromSection}>
+            <Text style={styles.sectionTitle}>INVOICE FROM</Text>
+            <Text style={styles.label}>{createdBy.name}</Text>
+            <Text style={styles.value}>Email: {createdBy.email}</Text>
+            <Text style={styles.value}>Address: {createdBy.location} {createdBy?.location2} </Text>
+            <Text style={styles.value}>{createdBy?.city}{createdBy?.state} </Text>
+            <Text style={styles.value}>{createdBy?.postCode}{createdBy?.country} </Text>
+          </View>
+
+
+          <View style={{ marginRight: 60 }}>
+            <Text style={styles.sectionTitle}>INVOICE DETAILS</Text>
+            <Text style={styles.value}>Semester: {semester}</Text>
+            <Text style={styles.value}>No of Students: {noOfStudents}</Text>
+            <Text style={styles.value}>Date: {moment(date).format("Do MMM, YYYY")}</Text>
+            <Text style={styles.value}>Reference: {reference}</Text>
+          </View>
+
+        </View>
+
         <View style={styles.twoColumnContainer}>
-          
-          <View>
+
+
+          <View style={styles.toSection}>
             <Text style={styles.sectionTitle}>INVOICE TO</Text>
             <Text style={styles.label}>{customer.name}</Text>
             <Text style={styles.value}>Email: {customer.email}</Text>
             <Text style={styles.value}>Address: {customer.address}</Text>
           </View>
-          <View>
-            <Text style={styles.sectionTitle}>INVOICE REPORT</Text>
-            <Text style={styles.value}>Reference: {reference}</Text>
-            <Text style={styles.value}>Date: {moment(date).format("Do MMM, YYYY")}</Text>
-            <Text style={styles.value}>Semester: {semester}</Text>
-            <Text style={styles.value}>No of Students: {noOfStudents}</Text>
+
+
+          <View style={{ marginRight: 35 }}>
+            <Text style={styles.sectionTitle}>PAYMENT INFORMATION</Text>
+            <Text style={styles.value}>Sort Code: {createdBy.sortCode}</Text>
+            <Text style={styles.value}>Account No: { createdBy.accountNo}</Text>
+            <Text style={styles.value}>Beneficiary: { createdBy.beneficiary}</Text>
           </View>
         </View>
-
-        <Text style={styles.sectionTitle}>PAYMENT INFORMATION</Text>
-        <Text style={styles.value}>Sort Code: {customer.sortCode}</Text>
-        <Text style={styles.value}>Account No: {customer.accountNo}</Text>
-        <Text style={styles.value}>Beneficiary: {customer.beneficiary}</Text>
 
         <View style={styles.table}>
           <View style={styles.tableHeader}>
             <Text style={[styles.tableHeaderCell, { width: "5%" }]}>SL</Text>
             <Text style={[styles.tableHeaderCell, { width: "25%" }]}>REFERENCE</Text>
-            <Text style={[styles.tableHeaderCell, { width: "50%", textAlign: "left" }]}>NAME</Text>  
-
-            <Text style={[ styles.tableHeaderAmountCell,{ width: "20%" }]}>AMOUNT</Text>
+            <Text style={[styles.tableHeaderCell, { width: "50%", textAlign: "left" }]}>NAME</Text>
+            <Text style={[styles.tableHeaderAmountCell, { width: "20%" }]}>AMOUNT</Text>
           </View>
 
           {students.map((student, index) => {
-            // Apply light gray background for every odd row (index % 2 === 0 means even index, which is 1st, 3rd, etc.)
             const rowStyle = index % 2 !== 0 ? styles.grayBackground : {};
             return (
               <View style={[styles.tableRow, rowStyle]} key={index}>
@@ -213,14 +243,12 @@ console.log(invoice)
                   <Text style={[styles.tableCell, { fontWeight: 'semibold' }]}>{student.refId} </Text>
                   <Text style={[styles.tableCell, styles.grayText]}>{student.collageroll}</Text>
                 </View>
-
                 <View style={{ width: "50%", display: "flex", justifyContent: "flex-start", alignItems: "flex-start" }}>
                   <Text style={styles.tableCell}>
                     {student.firstName} {student.lastName}
                   </Text>
                   <Text style={[styles.tableCell, styles.grayText]}>{student.course}</Text>
                 </View>
-
                 <Text style={[styles.tableCell, { width: "20%" }]}>£{student.amount?.toFixed(2)}</Text>
               </View>
             );

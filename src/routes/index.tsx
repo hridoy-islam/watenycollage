@@ -41,6 +41,8 @@ import RemitDetailsPage from '@/pages/invoice/customer/details';
 import RemitPage from '@/pages/invoice/customer';
 import CustomerPage from '@/pages/invoice/customer';
 import CustomerDetailsPage from '@/pages/invoice/customer/details';
+import InvoiceGeneratePage from '@/pages/invoice/createInvoice';
+import InvoiceStatusListPage from '@/pages/invoice/status';
 
 const SignInPage = lazy(() => import('@/pages/auth/signin'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
@@ -89,26 +91,27 @@ export default function AppRouter() {
 
         {
           path: 'invoice/generate',
-          element: <StudentListPage />
+          element: <InvoiceGeneratePage />
         },
         {
           path: 'invoice/status',
-          element: <StudentStatusListPage />
+          element: <InvoiceStatusListPage />
         },
         {
           path: 'invoice/editGenerate/:id',
-          element: <StudentListPage />
+          element: <InvoiceGeneratePage />
         },
-        {
-          path: 'invoice/create',
-          element: <GenerateInvoicePage />
-        },
+     
         {
           path: 'remit',
           element: <RemitReportPage />
         },
         {
           path: 'remit/generate',
+          element: <RemitCreatePage />
+        },
+        {
+          path: 'remit/editGenerate/:id',
           element: <RemitCreatePage />
         },
         {

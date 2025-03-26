@@ -91,7 +91,7 @@ export function StudentProfile({ student, fetchStudent }) {
         open={uploadOpen}
         onOpenChange={setUploadOpen}
         onUploadComplete={handleUploadComplete}
-        studentId={student?._id}
+        entityId={student?._id}
       />
     </Card>
   );

@@ -14,8 +14,7 @@ export function ImageUploader({
   open,
   onOpenChange,
   onUploadComplete,
-  initialData,
-  onSubmit
+  entityId
 }) {
   const [dragActive, setDragActive] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -79,8 +78,8 @@ export function ImageUploader({
       }
 
       const formData = new FormData();
-      formData.append('invoice', initialData);
-      formData.append('file_type', 'logo');
+      formData.append('entityId', entityId);
+      formData.append('file_type', 'userProfile');
       formData.append('file', file);
 
       const response = await axiosInstance.post(
@@ -116,7 +115,7 @@ export function ImageUploader({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Upload Logo</DialogTitle>
+          <DialogTitle>Upload Profile Picture</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import {
   Form,
   FormControl,
@@ -11,17 +11,22 @@ import {
 import { Input } from '@/components/ui/input';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
-import PageHead from '@/components/shared/page-head';
-import { Breadcrumbs } from '@/components/shared/breadcrumbs';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
+
 import { useSelector } from 'react-redux';
 import { useEffect, useState } from 'react';
 import axiosInstance from '../../lib/axios';
 
 import { useToast } from '@/components/ui/use-toast';
 import { Camera } from 'lucide-react';
-import { ImageUploader } from '@/components/shared/image-uploader';
+import { ImageUploader } from './components/userImage-uploader';
+import { countries } from '@/types';
 
 const profileFormSchema = z.object({
   name: z.string().nonempty('Name is required'),
@@ -32,17 +37,20 @@ const profileFormSchema = z.object({
   city: z.string().optional(),
   state: z.string().optional(),
   postCode: z.string().optional(),
-  country: z.string().optional(),
+  country: z.string().nonempty('Country is required'),
+  sortCode: z.string().nonempty('Sort Code is required'),
+  accountNo: z.string().nonempty('Account Number is required'),
+  beneficiary: z.string().nonempty('Beneficiary is required'),
 });
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
+
+
 export default function ProfilePage() {
   const [uploadOpen, setUploadOpen] = useState(false);
   const { user } = useSelector((state: any) => state.auth);
-  const [profileData, setProfileData] = useState<ProfileFormValues | null>(
-    null
-  );
+  const [profileData, setProfileData] = useState<ProfileFormValues | null>(null);
   const { toast } = useToast();
 
   const defaultValues: Partial<ProfileFormValues> = {
@@ -54,7 +62,10 @@ export default function ProfilePage() {
     city: profileData?.city || '',
     state: profileData?.state || '',
     postCode: profileData?.postCode || '',
-    country: profileData?.country || ''
+    country: profileData?.country || '',
+    sortCode: profileData?.sortCode || '',
+    accountNo: profileData?.accountNo || '',
+    beneficiary: profileData?.beneficiary || ''
   };
 
   const form = useForm<ProfileFormValues>({
@@ -63,13 +74,12 @@ export default function ProfilePage() {
     mode: 'onChange'
   });
 
-
   const fetchProfileData = async () => {
     try {
       const response = await axiosInstance.get(`/users/${user?._id}`);
       const data = response.data.data;
       setProfileData(data);
-      form.reset(data); // Populate form with fetched data
+      form.reset(data);
     } catch (error) {
       console.error('Error fetching profile data:', error);
       toast({
@@ -79,8 +89,8 @@ export default function ProfilePage() {
       });
     }
   };
-  useEffect(() => {
 
+  useEffect(() => {
     fetchProfileData();
   }, []);
 
@@ -89,16 +99,16 @@ export default function ProfilePage() {
       await axiosInstance.patch(`/users/${user?._id}`, data);
       toast({
         title: 'Profile Updated',
-        description: 'Thank You'
+        className: 'bg-supperagent border-none text-white'
       });
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to update profile',
-        variant: 'destructive'
+        title: "Operation Failed",
+        className: "bg-destructive border-none text-white",
       });
     }
   };
+
   const handleUploadComplete = (data) => {
     setUploadOpen(false);
     fetchProfileData();
@@ -182,7 +192,6 @@ export default function ProfilePage() {
                   </FormItem>
                 )}
               />
-              {/* New fields */}
               <FormField
                 control={form.control}
                 name="location2"
@@ -240,9 +249,70 @@ export default function ProfilePage() {
                 name="country"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Country</FormLabel>
+                    <FormLabel>Country *</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter Country" {...field} />
+                      <Controller
+                        name="country"
+                        control={form.control}
+                        render={({ field }) => (
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select country" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {countries.map((country) => (
+                                <SelectItem key={country} value={country}>
+                                  {country}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="sortCode"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Sort Code *</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter Sort Code" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="accountNo"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Account Number *</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter Account Number" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="beneficiary"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Beneficiary *</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter Beneficiary" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -259,13 +329,11 @@ export default function ProfilePage() {
         </form>
       </Form>
 
-
-
       <ImageUploader
         open={uploadOpen}
         onOpenChange={setUploadOpen}
-        onUploadComplete={handleUploadComplete} 
-       userId={user?._id}
+        onUploadComplete={handleUploadComplete}
+        entityId={user?._id}
       />
     </div>
   );

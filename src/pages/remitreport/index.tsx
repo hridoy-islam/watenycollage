@@ -44,11 +44,11 @@ export default function RemitReportPage() {
       const params: any = {};
 
       if (status) params.status = status;
-      if (remit) params.remit = remit;
+      if (remit) params.remitTo = remit;
       if (searchTerm) params.searchTerm = searchTerm;
       if (fromDate) params.fromDate = fromDate;
       if (toDate) params.toDate = toDate;
-      const response = await axiosInstance.get('/invoice?limit=all', {
+      const response = await axiosInstance.get('/remit-invoice?limit=all', {
         params
       });
       setInvoices(response.data?.data?.result || []);
@@ -81,14 +81,15 @@ export default function RemitReportPage() {
   };
 
   const handleEdit = (invoiceId: string) => {
-    navigate(`/admin/invoice/students/${invoiceId}`);
+    navigate(`/admin/remit/editGenerate/${invoiceId}`);
   };
 
   const handleDownload = async (invoiceId: string) => {
     try {
       // Fetch invoice data from backend
-      const response = await axiosInstance.get(`/invoice/${invoiceId}`);
+      const response = await axiosInstance.get(`/remit-invoice/${invoiceId}`);
       const invoiceData = response.data?.data;
+      
 
       // Create a PDF document using InvoicePDF component
       const MyDoc = <InvoicePDF invoice={invoiceData} />;
@@ -114,7 +115,7 @@ export default function RemitReportPage() {
     if (!invoiceToMark) return;
 
     try {
-      await axiosInstance.patch(`/invoice/${invoiceToMark}`, {
+      await axiosInstance.patch(`/remit-invoice/${invoiceToMark}`, {
         status: 'paid'
       });
 
@@ -159,7 +160,7 @@ export default function RemitReportPage() {
 
     try {
       const invoiceResponse = await axiosInstance.get(
-        `/invoice/${invoiceToExport}`
+        `/remit-invoice/${invoiceToExport}`
       );
       const invoiceData = invoiceResponse.data?.data;
 
@@ -184,7 +185,7 @@ export default function RemitReportPage() {
         }
       });
 
-      await axiosInstance.patch(`/invoice/${invoiceToExport}`, {
+      await axiosInstance.patch(`/remit-invoice/${invoiceToExport}`, {
         exported: true
       });
 
@@ -287,7 +288,6 @@ export default function RemitReportPage() {
                 className="w-full rounded-md border border-gray-300 bg-white p-2 text-gray-900 shadow-sm focus:border-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-500"
               >
                 <option value="">All</option>
-                <option value="available">Available</option>
                 <option value="paid">Paid</option>
                 <option value="due">Due</option>
               </select>
@@ -327,7 +327,7 @@ export default function RemitReportPage() {
                       {moment(invoice.date).format('DD MMM YYYY')}
                     </TableCell>
                     <TableCell>{invoice.reference}</TableCell>
-                    <TableCell>{invoice.remit?.name}</TableCell>
+                    <TableCell>{invoice.remitTo?.name}</TableCell>
                     <TableCell>{invoice.totalAmount}</TableCell>
                     <TableCell>{invoice.noOfStudents}</TableCell>
                     {/* <TableCell>{invoice.status}</TableCell> */}
@@ -357,7 +357,7 @@ export default function RemitReportPage() {
                     <TableCell>
                       <div className="flex flex-row items-center gap-2">
                         {invoice.exported ? 'Yes' : 'No'}
-                        {!invoice.exported && (
+                        {invoice.status === "paid" && !invoice.exported && (
                           <Button
                             size="sm"
                             className="bg-supperagent text-white hover:bg-supperagent"
