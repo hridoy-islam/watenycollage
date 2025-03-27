@@ -151,9 +151,7 @@ export default function RemitReportPage() {
     setInvoiceToMark(null);
   };
 
-  const transactionCategory = import.meta.env.VITE_TRANSACTION_CATEGORY;
-  const transactionMethod = import.meta.env.VITE_TRANSACTION_METHOD;
-  const storage = import.meta.env.VITE_STORAGE;
+ 
   const companyId = import.meta.env.VITE_COMPANY_ID;
   const account = import.meta.env.VITE_ACCOUNTING;
 
@@ -172,7 +170,7 @@ export default function RemitReportPage() {
       const invoiceData = invoiceResponse.data?.data;
 
       const payload = {
-        transactionType: 'inflow',
+        transactionType: 'outflow',
         transactionDate: new Date().toISOString(),
         invoiceDate: invoiceData.createdAt,
         invoiceNumber: invoiceData.reference,
@@ -180,10 +178,7 @@ export default function RemitReportPage() {
           .map((student: any) => student.refId)
           .join(', '),
         transactionAmount: invoiceData.totalAmount,
-        transactionCategory,
-        transactionMethod,
-        storage,
-        companyId
+     
       };
 
       await axios.post(`${account}`, payload, {

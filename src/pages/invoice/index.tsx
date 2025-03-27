@@ -145,9 +145,9 @@ export default function InvoicesPage() {
     setInvoiceToMark(null);
   };
 
-  const transactionCategory = import.meta.env.VITE_TRANSACTION_CATEGORY;
-  const transactionMethod = import.meta.env.VITE_TRANSACTION_METHOD;
-  const storage = import.meta.env.VITE_STORAGE;
+  
+ 
+
   const companyId = import.meta.env.VITE_COMPANY_ID;
   const account = import.meta.env.VITE_ACCOUNTING;
 
@@ -174,10 +174,8 @@ export default function InvoicesPage() {
           .map((student: any) => student.refId)
           .join(', '),
         transactionAmount: invoiceData.totalAmount,
-        transactionCategory,
-        transactionMethod,
-        storage,
-        companyId
+       
+
       };
 
       await axios.post(`${account}`, payload, {
