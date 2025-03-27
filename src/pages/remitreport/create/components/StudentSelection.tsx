@@ -1,5 +1,6 @@
 "use client"
 
+import { BlinkingDots } from "@/components/shared/blinking-dots"
 import { Button } from "@/components/ui/button"
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -36,7 +37,7 @@ export function StudentSelection({
         <CardContent>
           <div>
             {loading ? (
-              <div className="flex justify-center py-8">Loading students...</div>
+             <BlinkingDots size="large" color="bg-supperagent" />
             ) : (
               <div className="max-h-[300px] w-auto overflow-y-auto rounded border">
                 <Table>
@@ -49,7 +50,7 @@ export function StudentSelection({
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredStudents.length > 0 ? (
+                    {filteredStudents.length > 0 && (
                       filteredStudents.map((student) => (
                         <TableRow key={student._id}>
                           <TableCell>{student.refId}</TableCell>
@@ -64,13 +65,7 @@ export function StudentSelection({
                           </TableCell>
                         </TableRow>
                       ))
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={5} className="py-4 text-center">
-                          No students found
-                        </TableCell>
-                      </TableRow>
-                    )}
+                    ) }
                   </TableBody>
                 </Table>
               </div>
@@ -79,7 +74,6 @@ export function StudentSelection({
         </CardContent>
       </div>
 
-      {/* Selected Students */}
       <div>
         <CardHeader>
           <CardTitle>Selected Students</CardTitle>
@@ -115,13 +109,7 @@ export function StudentSelection({
                     </TableCell>
                   </TableRow>
                 ))}
-                {selectedStudents.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={5} className="py-4 text-center">
-                      No students selected
-                    </TableCell>
-                  </TableRow>
-                )}
+                
               </TableBody>
             </Table>
           </div>

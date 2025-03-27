@@ -145,7 +145,6 @@ export default function InvoiceStatusListPage() {
 
       const { term, course, institute, paymentStatus, year, session } = filters
 
-      console.log("Filters:", { term, course, institute })
 
       // Find matching course relation based on filters
       let courseRelationId = null

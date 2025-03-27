@@ -169,8 +169,7 @@ export default function RemitCreatePage() {
   
         setTotalAmount(invoiceData.totalAmount || 0);
   
-        // Fetch students after form values are set
-        setTimeout(() => {
+       
           if (invoiceData.courseRelationId && invoiceData.year && invoiceData.session) {
             fetchStudentsForInvoice(
               invoiceData.courseRelationId,
@@ -179,7 +178,7 @@ export default function RemitCreatePage() {
               invoiceData.status
             );
           }
-        }, 100);
+
       }
     } catch (error) {
       console.error("Error fetching invoice data:", error);
@@ -200,15 +199,7 @@ export default function RemitCreatePage() {
   
       // Get the agent ID
       const agentId = filterForm.getValues("agent") || InvoiceData.remitTo?._id || InvoiceData.remitTo;
-      
-      if (!agentId) {
-        toast({
-          title: "Error",
-          description: "Agent ID is missing",
-          variant: "destructive",
-        });
-        return;
-      }
+    
   
       // Fetch course relation data
       const relationId = courseRelationId._id || courseRelationId;
@@ -232,7 +223,6 @@ export default function RemitCreatePage() {
       // Determine payment status filter
       const paymentStatus = agentPaymentStatus === "due" ? "available" : agentPaymentStatus;
       
-      // Debug: Log payment status conversion
   
       // Fetch all eligible students
       const studentsResponse = await axiosInstance.get("/students", {
@@ -246,9 +236,7 @@ export default function RemitCreatePage() {
       });
   
       const allStudents = studentsResponse?.data?.data.result || [];
-      
-      // Debug: Log all students from API
-      console.log('All eligible students:', allStudents);
+   
   
       // Fetch invoice students if editing
       let invoiceStudents = [];
@@ -256,8 +244,7 @@ export default function RemitCreatePage() {
         const invoiceResponse = await axiosInstance.get(`/remit-invoice/${id}`);
         invoiceStudents = invoiceResponse?.data?.data.students || [];
         
-        // Debug: Log invoice students
-        console.log('Invoice students:', invoiceStudents);
+     
       }
   
       // Process selected students (from invoice)
@@ -294,19 +281,17 @@ export default function RemitCreatePage() {
         };
       });
   
-      // Debug: Log selected students
-      console.log('Selected students with fees:', selectedStudentsWithFees);
+    
   
       // Determine available students (not in invoice)
       const selectedIds = new Set(selectedStudentsWithFees.map((s) => s.refId));
       const availableStudents = allStudents.filter((student) => !selectedIds.has(student.refId));
       
-      // Debug: Log available students
-      console.log('Available students:', availableStudents);
   
-      // Update state
       setSelectedStudents(selectedStudentsWithFees);
       setFilteredStudents(availableStudents);
+      setLoading(false);
+
   
     } catch (error) {
       console.error("Error fetching students for invoice:", error);
@@ -421,6 +406,7 @@ export default function RemitCreatePage() {
       setLoading(false)
     }
   }
+
   const updateFormWithCourseDetails = (courseRelation, selectedYear = null, selectedSession = null) => {
     if (!courseRelation) return
 
@@ -517,35 +503,21 @@ export default function RemitCreatePage() {
       handleYearChange("Year 1")
     }
   }
+
   const handleAddStudent = (student) => {
     const isAlreadySelected = selectedStudents.some((s) => s._id === student._id)
 
     if (!isAlreadySelected) {
       const filterValues = filterForm.getValues()
-
+      setLoading(true);
       // Find the session details from the selected course relation
       const yearObj = selectedCourseRelation.years.find((y) => y.year === filterValues.year)
       const sessionObj = yearObj.sessions.find((s) => s.sessionName === filterValues.session)
 
-      if (!sessionObj) {
-        toast({
-          title: "Error",
-          description: "Session details not found.",
-          variant: "destructive",
-        })
-        return
-      }
 
       const application = student.applications.find((app) => app.courseRelationId === selectedCourseRelation._id)
 
-      if (!application) {
-        toast({
-          title: "Error",
-          description: "Application not found for this student and course relation.",
-          variant: "destructive",
-        })
-        return
-      }
+     
 
       // Now use the student's choice from the application (either "Local" or "International")
       const studentAmount =
@@ -573,12 +545,13 @@ export default function RemitCreatePage() {
         semester: filterValues.term,
       }
 
-      // Update selected students
+      
       setSelectedStudents((prev) => [...prev, studentWithFee])
 
-      // Remove from available students
+
       setFilteredStudents((prev) => prev.filter((s) => s._id !== student._id))
 
+      setLoading(false); 
       // Update form values based on the selected course relation and filter values
       if (selectedCourseRelation) {
         updateFormWithCourseDetails(selectedCourseRelation, filterValues.year, filterValues.session)
@@ -631,7 +604,8 @@ export default function RemitCreatePage() {
       // Remove the student from the selected list
       setSelectedStudents((prev) => prev.filter((student) => student._id !== studentId))
 
-      // Add the student back to the filtered (available) list
+      setLoading(true);
+
       setFilteredStudents((prev) => {
         const isAlreadyInList = prev.some((s) => s._id === studentToRemove._id)
         if (!isAlreadyInList) {
@@ -643,6 +617,7 @@ export default function RemitCreatePage() {
         }
         return prev
       })
+      setLoading(false);
     }
   }
 

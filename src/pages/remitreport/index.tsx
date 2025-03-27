@@ -39,16 +39,18 @@ export default function RemitReportPage() {
   const [fromDate, setFromDate] = useState<string>('');
   const [toDate, setToDate] = useState<string>('');
 
-  const fetchInvoices = async () => {
+  const fetchInvoices = async (page, entriesPerPage) => {
     try {
-      const params: any = {};
-
+      const params: any = {
+        page,         
+        limit: entriesPerPage  
+      };
       if (status) params.status = status;
       if (remit) params.remitTo = remit;
       if (searchTerm) params.searchTerm = searchTerm;
       if (fromDate) params.fromDate = fromDate;
       if (toDate) params.toDate = toDate;
-      const response = await axiosInstance.get('/remit-invoice?limit=all', {
+      const response = await axiosInstance.get('/remit-invoice', {
         params
       });
       setInvoices(response.data?.data?.result || []);
@@ -64,7 +66,6 @@ export default function RemitReportPage() {
       const response = await axiosInstance.get(
         '/users?role=agent&limit=all&fields=name'
       );
-      console.log(response.data.data);
       setAgents(response.data?.data?.result || []); // Extract the 'result' array
     } catch (error) {
       console.error('Error fetching remit data:', error);
@@ -73,11 +74,11 @@ export default function RemitReportPage() {
 
   useEffect(() => {
     fetchAgents();
-    fetchInvoices();
-  }, []);
+    fetchInvoices(currentPage, entriesPerPage);
+  }, [currentPage, entriesPerPage]);
 
   const handleSearchClick = () => {
-    fetchInvoices();
+    fetchInvoices(currentPage,entriesPerPage );
   };
 
   const handleEdit = (invoiceId: string) => {
@@ -194,7 +195,7 @@ export default function RemitReportPage() {
         className: 'bg-supperagent border-none text-white'
       });
 
-      fetchInvoices();
+      fetchInvoices(currentPage, entriesPerPage);
     } catch (error) {
       console.error('Error exporting invoice:', error);
       toast({

@@ -26,7 +26,6 @@ export function UserNav() {
       null
     );
 
-      const { toast } = useToast();
 
   const fetchProfileData = async () => {
       try {
@@ -36,11 +35,7 @@ export function UserNav() {
       
       } catch (error) {
         console.error('Error fetching profile data:', error);
-        toast({
-          title: 'Error',
-          description: 'Unable to fetch profile data',
-          variant: 'destructive'
-        });
+       
       }
     };
     useEffect(() => {
@@ -50,7 +45,7 @@ export function UserNav() {
 
   const handleLogout = async () => {
     await dispatch(logout());
-    navigate('/'); // Redirect to login after logout
+    navigate('/');
   };
   return (
     <div className="flex items-center gap-4">

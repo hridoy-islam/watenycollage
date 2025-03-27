@@ -143,7 +143,6 @@ export default function InvoiceGeneratePage() {
         throw new Error("No invoice data received");
       }
 
-      console.log(invoiceData)
 
       if (invoiceData) {
         form.reset({
@@ -157,7 +156,6 @@ export default function InvoiceGeneratePage() {
         })
       }
 
-      console.log("Form customer Value:", form.getValues("customer"));
       setTotalAmount(invoiceData.totalAmount || 0);
 
       if (invoiceData.courseRelationId) {
@@ -352,7 +350,6 @@ export default function InvoiceGeneratePage() {
 
       const { term, course, institute, paymentStatus, year, session } = filters
 
-      // console.log("Filters:", { term, course, institute })
 
       // Find matching course relation based on filters
       let courseRelationId = null
@@ -524,7 +521,6 @@ export default function InvoiceGeneratePage() {
           ? Number.parseFloat(selectedCourseRelation.local_amount)
           : Number.parseFloat(selectedCourseRelation.international_amount);
 
-      // console.log('Selected Amount:', studentAmount); // Log the amount for debugging
 
       const sessionFee = calculateSessionFee(sessionObj, studentAmount);
 
@@ -659,7 +655,6 @@ export default function InvoiceGeneratePage() {
         title: "Invoice Create successfully",
         className: "bg-supperagent border-none text-white",
       })
-      // console.log(invoiceData);
     } catch (error) {
       console.error("Invoice submission error:", error)
       alert("Failed to generate invoice. Please try again.")

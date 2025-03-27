@@ -43,7 +43,7 @@ export default function InvoicesPage() {
     try {
       const params: any = {
         page,
-        limit: entriesPerPage // Setting pagination parameters
+        limit: entriesPerPage 
       };
 
       if (status) params.status = status;
@@ -51,7 +51,7 @@ export default function InvoicesPage() {
       if (searchTerm) params.searchTerm = searchTerm;
       if (fromDate) params.fromDate = fromDate;
       if (toDate) params.toDate = toDate;
-      const response = await axiosInstance.get('/invoice?limit=all', {
+      const response = await axiosInstance.get('/invoice', {
         params
       });
       setInvoices(response.data?.data?.result || []);
@@ -82,7 +82,6 @@ export default function InvoicesPage() {
 
   const handleEdit = (invoiceId: string) => {
     navigate(`/admin/invoice/editGenerate/${invoiceId}`);
-    // console.log(invoiceId)
   };
 
   const handleDownload = async (invoiceId: string) => {

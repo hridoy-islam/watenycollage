@@ -1,5 +1,6 @@
 "use client"
 
+import { BlinkingDots } from "@/components/shared/blinking-dots"
 import { Button } from "@/components/ui/button"
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -36,7 +37,7 @@ export function StudentSelection({
         <CardContent>
           <div>
             {loading ? (
-              <div className="flex justify-center py-8">Loading students...</div>
+            <BlinkingDots size="large" color="bg-supperagent" />
             ) : (
               <div className="max-h-[300px] w-auto overflow-y-auto border-gray-200 rounded border">
                 <Table>
