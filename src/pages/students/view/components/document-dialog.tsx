@@ -23,7 +23,7 @@ export function DocumentDialog({
   open,
   onOpenChange,
   onSubmit,
-  initialData // This could be student ID or any other initial data passed
+  entityId // This could be student ID or any other initial data passed
 }) {
   const [file, setFile] = useState<File | null>(null);
   const [type, setType] = useState<string>('');
@@ -42,7 +42,7 @@ export function DocumentDialog({
     setUploadProgress(0);
 
     const formData = new FormData();
-    formData.append('studentId', id); // Assuming inititalData is the student ID
+    formData.append('entityId', entityId); // Assuming inititalData is the student ID
     formData.append(
       'file_type',
       type === 'Other' ? customType : type.toLowerCase()

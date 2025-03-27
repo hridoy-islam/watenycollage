@@ -310,7 +310,7 @@ export function DocumentsSection({
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         onSubmit={handleUpload}
-        initialData={student._id}
+        entityId={student._id}
       />
 
       {/* <AlertDialog

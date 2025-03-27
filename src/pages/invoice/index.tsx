@@ -88,7 +88,7 @@ export default function InvoicesPage() {
   };
 
   const handleEdit = (invoiceId: string) => {
-    navigate(`/admin/invoice/editGenerate/${invoiceId}`);
+    navigate(`/admin/invoice/edit-generate/${invoiceId}`);
   };
 
   const handleDownload = async (invoiceId: string) => {

@@ -88,7 +88,7 @@ export default function RemitReportPage() {
   };
 
   const handleEdit = (invoiceId: string) => {
-    navigate(`/admin/remit/editGenerate/${invoiceId}`);
+    navigate(`/admin/remit/edit-generate/${invoiceId}`);
   };
 
   const handleDownload = async (invoiceId: string) => {

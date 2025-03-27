@@ -20,11 +20,12 @@ import {
   SelectValue
 } from '@/components/ui/select';
 import { ArrowLeft } from "lucide-react"
+import { BlinkingDots } from "@/components/shared/blinking-dots"
 
 
 // Updated Zod schema to include customerTo, paymentInfo, and course details
 const invoiceSchema = z.object({
-  Status: z.enum(["due", "paid"]),
+  status: z.enum(["due", "paid"]),
   customer: z.string(),
   courseDetails: z.object({
     semester: z.string(),
@@ -50,8 +51,8 @@ export default function InvoiceGeneratePage() {
   const [courses, setCourses] = useState([])
   const [institutes, setInstitutes] = useState([])
   const [terms, setTerms] = useState([])
-  const [years, setYears] = useState([])
-  const [InvoiceData, setInvoiceData] = useState([])
+
+
   const [sessions, setSessions] = useState([])
   const [courseRelations, setCourseRelations] = useState([])
   const [selectedCourseRelation, setSelectedCourseRelation] = useState(null)
@@ -61,13 +62,17 @@ export default function InvoiceGeneratePage() {
   const [loading, setLoading] = useState(false)
   const [paymentStatuses, setPaymentStatuses] = useState(["paid", "due"])
   const { user } = useSelector((state: any) => state.auth)
-  const { id } = useParams()
   const { toast } = useToast()
   const [customers, setcustomers] = useState([]);
+  const [hasSearched, setHasSearched] = useState(false);
+  const [filteredInstitutes, setFilteredInstitutes] = useState([])
+  const [filteredCourseRelations, setFilteredCourseRelations] = useState([])
+
+
 
   const invoiceSchema = z.object({
     status: z.enum(["due", "paid"]),
-    customer: z.string().min(1, { message: "customer is required" }), // Add validation for customer
+    customer: z.string().min(1, { message: "customer is required" }),
     courseDetails: z.object({
       semester: z.string(),
       year: z.string(),
@@ -78,16 +83,7 @@ export default function InvoiceGeneratePage() {
     resolver: zodResolver(invoiceSchema),
     defaultValues: {
       status: "due",
-      // customerTo: {
-      //   name: "",
-      //   email: "",
-      //   address: "",
-      // },
-      // paymentInfo: {
-      //   sortCode: "",
-      //   accountNo: "",
-      //   beneficiary: "",
-      // },
+
       customer: "",
 
       courseDetails: {
@@ -133,159 +129,6 @@ export default function InvoiceGeneratePage() {
   }, []);
 
 
-  const fetchInvoiceData = async (invoiceId) => {
-    try {
-      setLoading(true);
-      const response = await axiosInstance.get(`/invoice/${invoiceId}`);
-      const invoiceData = response?.data?.data;
-
-      if (!invoiceData) {
-        throw new Error("No invoice data received");
-      }
-
-
-      if (invoiceData) {
-        form.reset({
-          status: invoiceData.status || "due",
-          customer: invoiceData.customer?._id || "",
-          courseDetails: {
-            semester: invoiceData.semester || "",
-            year: invoiceData.year || "",
-            session: invoiceData.session || "",
-          },
-        })
-      }
-
-      setTotalAmount(invoiceData.totalAmount || 0);
-
-      if (invoiceData.courseRelationId) {
-        // Make sure courseRelationId is properly formatted
-        const relationId = typeof invoiceData.courseRelationId === 'object'
-          ? invoiceData.courseRelationId
-          : { _id: invoiceData.courseRelationId };
-
-        fetchStudentsForInvoice(relationId, invoiceData.year, invoiceData.session, invoiceData.status);
-      }
-    } catch (error) {
-      console.error("Error fetching invoice data:", error);
-      toast({
-        title: "Error",
-        description:  "Failed to fetch invoice data",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const customerValue = useWatch({
-    control: form.control,
-    name: "customer",
-  });
-  const fetchStudentsForInvoice = async (courseRelationId, year, session,paymentStatus) => {
-    try {
-      setLoading(true);
-
-      const relationResponse = await axiosInstance.get(`/course-relations/${courseRelationId._id}`);
-      const relationData = relationResponse?.data?.data;
-
-      if (relationData) {
-        setSelectedCourseRelation(relationData);
-
-        // Update filter form with the course relation values
-        filterForm.setValue("term", relationData.term?._id || "");
-        filterForm.setValue("course", relationData.course?._id || "");
-        filterForm.setValue("institute", relationData.institute?._id || "");
-        filterForm.setValue("year", year || "");
-        filterForm.setValue("session", session || "");
-
-      
-
-        const studentsResponse = await axiosInstance.get("/students", {
-          params: {
-            applicationCourse: courseRelationId._id,
-            year: year,
-            session: session,
-            paymentStatus,
-
-          },
-        });
-
-        const allStudents = studentsResponse?.data?.data.result || [];
-
-        // Get the invoice students
-        const invoiceStudentsResponse = await axiosInstance.get(`/invoice/${id}`);
-        const invoiceStudents = invoiceStudentsResponse?.data?.data.students || [];
-
-
-        // Find the session details from the selected course relation
-        const yearObj = relationData.years.find((y) => y.year === year);
-        const sessionObj = yearObj?.sessions.find((s) => s.sessionName === session);
-
-        if (!sessionObj) {
-          console.error("Session details not found for year:", year, "session:", session);
-        }
-
-        const selectedStudentsWithFees = invoiceStudents.map((student) => {
-          const originalStudent = allStudents.find((s) => s.refId === student.refId);
-          const studentChoice = originalStudent?.choice || "Local";
-
-          const studentAmount =
-            studentChoice === "Local"
-              ? Number.parseFloat(relationData.local_amount || 0)
-              : Number.parseFloat(relationData.international_amount || 0);
-
-          // Calculate session fee if it's not already set
-          let sessionFee = student.amount || 0;
-          if ((!sessionFee || sessionFee === 0) && sessionObj) {
-            sessionFee = calculateSessionFee(sessionObj, studentAmount);
-          }
-
-          return {
-            ...originalStudent,
-            collageroll: student.collageroll,
-            refId: student.refId,
-            firstName: student.firstName,
-            lastName: student.lastName,
-            course: student.course,
-            amount: student.amount,
-            selected: true,
-            sessionFee: sessionFee,
-            courseRelationId: relationData._id,
-            Year: year,
-            Session: session,
-            semester: relationData.term.term,
-          };
-        });
-
-        // Set selected students
-        setSelectedStudents(selectedStudentsWithFees);
-
-        const selectedIds = new Set(selectedStudentsWithFees.map((s) => s.refId));
-        const availableStudents = allStudents.filter((student) => !selectedIds.has(student.refId));
-
-        // Set available students
-        setFilteredStudents(availableStudents);
-      }
-    } catch (error) {
-      console.error("Error fetching students for invoice:", error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch students for this invoice",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-  useEffect(() => {
-    if (id) {
-      setIsEditing(true)
-      fetchInvoiceData(id)
-    }
-  }, [id])
-
-  // Fetch course relations
   const fetchCourseRelations = async () => {
     try {
       setLoading(true)
@@ -297,20 +140,6 @@ export default function InvoiceGeneratePage() {
       const uniqueCourses = [...new Set(courseRelationsData.map((cr) => cr.course))]
       const uniqueInstitutes = [...new Set(courseRelationsData.map((cr) => cr.institute))]
 
-      const uniqueYears = [
-        ...new Set(
-          courseRelationsData.flatMap((cr) => {
-            const yearSet = new Set();
-            cr.years.forEach((yearObj) => {
-              yearSet.add(yearObj.year);
-              if (yearObj.year === 'Year 3') {
-                yearSet.add('Year 4');
-              }
-            });
-            return Array.from(yearSet);
-          })
-        ),
-      ];
       const uniqueSessions = [
         ...new Set(
           courseRelationsData.flatMap((cr) =>
@@ -327,8 +156,8 @@ export default function InvoiceGeneratePage() {
           name: institute.name,
         })),
       )
-      setYears(uniqueYears) // Set the unique years
-      setSessions(uniqueSessions) // Set the unique session names
+      setSessions(uniqueSessions)
+
     } catch (error) {
       console.error("Error fetching course relations:", error)
       toast({
@@ -344,82 +173,88 @@ export default function InvoiceGeneratePage() {
 
 
 
+
+
+
+
+
+
   const fetchStudents = async (filters: z.infer<typeof filterSchema>) => {
     try {
-      setLoading(true)
+      setLoading(true);
 
-      const { term, course, institute, paymentStatus, year, session } = filters
+      const { term, course, institute, paymentStatus, year, session, searchQuery } = filters;
 
-
-      // Find matching course relation based on filters
-      let courseRelationId = null
+      // 1. Find matching course relation (optional)
+      let courseRelationId;
       if (term && course && institute) {
         const matchingRelation = courseRelations.find(
-          (cr) => cr.term._id === term && cr.course._id === course && cr.institute._id === institute,
-        )
+          (cr) => cr.term._id === term && cr.course._id === course && cr.institute._id === institute
+        );
 
-        if (!matchingRelation) {
-          console.warn("No matching course relation found for filters:", { term, course, institute })
-        } else {
-          courseRelationId = matchingRelation._id
-          setSelectedCourseRelation(matchingRelation)
-          updateFormWithCourseDetails(matchingRelation, year, session)
+        if (matchingRelation) {
+          courseRelationId = matchingRelation._id;
+          setSelectedCourseRelation(matchingRelation);
+          updateFormWithCourseDetails(matchingRelation, year, session);
         }
       }
 
-      const params = {
-        paymentStatus,
-        ...(year ? { year } : {}),
-        ...(session ? { session } : {}),
-      }
+      console.log(selectedCourseRelation)
 
-      if (courseRelationId) {
-        params.applicationCourse = courseRelationId
-      }
-
-      const response = await axiosInstance.get("/students", { params })
-      const studentsData = response?.data?.data.result || []
+      // 2. Construct the API params object
+      const params: Record<string, any> = {
+        paymentStatus: paymentStatus || 'due',
+        applicationCourse: selectedCourseRelation?._id,
+        ...(year && { year }),
+        ...(session && { session }),
+        ...(searchQuery && { searchQuery }),
+      };
 
 
+
+
+      const response = await axiosInstance.get("/students", { params });
+      const studentsData = response?.data?.data?.result || [];
+
+      // 4. Client-side filtering
       const filteredStudentsData = studentsData.filter((student) => {
-        if (!student.accounts || student.accounts.length === 0) {
-          console.warn("Student has no accounts:", student._id)
-          return false
+        // Verify course relation match if we filtered by it
+        if (courseRelationId) {
+          const hasMatchingAccount = student.accounts?.some(
+            (account) => account.courseRelationId?._id === courseRelationId
+          );
+          if (!hasMatchingAccount) return false;
         }
 
-        const matchingAccount = student.accounts.find((account) => {
-          return account.courseRelationId?._id === courseRelationId
-        })
-
-        if (!matchingAccount) {
-          console.warn("No matching account found for student:", student._id)
-          return false
+        // Verify year and session matches if we filtered by them
+        if (year || session) {
+          return student.accounts?.some((account) =>
+            account.years?.some((y) =>
+              (!year || y.year === year) &&
+              (!session || y.sessions?.some((s) => s.sessionName === session))
+            )
+          );
         }
 
+        return true;
+      });
 
-        const matchingYear = matchingAccount.years.find((y) => y.year === year)
-        if (!matchingYear) {
-          return false
-        }
+      setStudents(filteredStudentsData);
+      setFilteredStudents(filteredStudentsData);
 
-
-        return true
-      })
-
-
-      setStudents(filteredStudentsData)
-      setFilteredStudents(filteredStudentsData)
     } catch (error) {
-      console.error("Error fetching students:", error)
+      console.error("Error fetching students:", error);
       toast({
         title: "Error",
-        description: "Failed to fetch students",
+        description: error.message || "Failed to fetch students",
         variant: "destructive",
-      })
+      });
+      setStudents([]);
+      setFilteredStudents([]);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const updateFormWithCourseDetails = (courseRelation, selectedYear = null, selectedSession = null) => {
     if (!courseRelation) return
@@ -437,10 +272,11 @@ export default function InvoiceGeneratePage() {
       (yearObj && yearObj.sessions && yearObj.sessions.length > 0 ? yearObj.sessions[0].sessionName : "")
     form.setValue("courseDetails.session", sessionToUse)
 
-    form.setValue("Status", "due")
+    form.setValue("status", "due")
   }
 
   const onFilterSubmit = (data) => {
+    setHasSearched(true)
     fetchStudents(data)
   }
 
@@ -464,11 +300,12 @@ export default function InvoiceGeneratePage() {
     }
   }
 
+
+
   const handleSessionChange = (value) => {
     filterForm.setValue("session", value)
   }
   const calculateSessionFee = (session, amount) => {
-
     if (!session || session.rate == null) {
       console.error("Session data is invalid:", session)
       return 0
@@ -483,6 +320,62 @@ export default function InvoiceGeneratePage() {
     }
     return 0
   }
+
+  const handleInstituteChange = (instituteId) => {
+    filterForm.setValue("course", "");
+    filterForm.setValue("courseRelationId", "");
+    setSelectedCourseRelation(null);
+
+    if (!instituteId) {
+      setFilteredCourseRelations([]);
+      return;
+    }
+
+    const termId = filterForm.getValues("term");
+    const filtered = courseRelations
+      .filter((item) => item.term._id === termId && item.institute._id === instituteId)
+      .map((item) => ({
+        _id: item._id,
+        name: `${item.course.name} `, // More descriptive name
+        courseRelation: item,
+      }));
+
+    setFilteredCourseRelations(filtered);
+  };
+
+  const handleTermChange = (termId) => {
+    filterForm.setValue("institute", "")
+    filterForm.setValue("course", "")
+    filterForm.setValue("courseRelationId", "")
+    setSelectedCourseRelation(null)
+
+    const filteredInsts = courseRelations
+      .filter((item) => item.term._id === termId)
+      .map((item) => ({
+        _id: item.institute._id,
+        name: item.institute.name,
+      }))
+
+    // Remove duplicates
+    const uniqueInstitutes = filteredInsts.filter(
+      (institute, index, self) => index === self.findIndex((i) => i._id === institute._id),
+    )
+
+    setFilteredInstitutes(uniqueInstitutes)
+  }
+
+  const handleCourseRelationChange = (courseRelationId) => {
+    const courseRelation = courseRelations.find((item) => item._id === courseRelationId)
+    setSelectedCourseRelation(courseRelation)
+
+    if (courseRelation && courseRelation.years && courseRelation.years.length > 0) {
+      filterForm.setValue("year", "Year 1")
+
+      handleYearChange("Year 1")
+    }
+  }
+
+
   const handleAddStudent = (student) => {
     const isAlreadySelected = selectedStudents.some((s) => s._id === student._id);
 
@@ -506,14 +399,7 @@ export default function InvoiceGeneratePage() {
 
       const application = student.applications.find((app) => app.courseRelationId === selectedCourseRelation._id);
 
-      if (!application) {
-        toast({
-          title: "Error",
-          description: "Application not found for this student and course relation.",
-          variant: "destructive",
-        });
-        return;
-      }
+
 
       // Now use the student's choice from the application (either "Local" or "International")
       const studentAmount =
@@ -526,7 +412,7 @@ export default function InvoiceGeneratePage() {
 
       const studentWithFee = {
         ...student,
-        collageroll: student.collageRoll,
+        collegeRoll: student.collegeRoll,
         refId: student.refId,
         firstName: student.firstName,
         lastName: student.lastName,
@@ -564,11 +450,10 @@ export default function InvoiceGeneratePage() {
     fetchCourseRelations()
 
     setPaymentStatuses(["paid", "due"])
-  }, [])
-
-  useEffect(() => {
     setSelectedStudents([])
   }, [])
+
+
 
   useEffect(() => {
     const total = selectedStudents
@@ -587,264 +472,189 @@ export default function InvoiceGeneratePage() {
   }
 
   const handleRemoveStudent = (studentId) => {
-    // Find the student to remove from the selected list
-    const studentToRemove = selectedStudents.find((s) => s._id === studentId);
+    const studentToRemove = selectedStudents.find((s) => s._id === studentId)
 
     if (studentToRemove) {
       // Remove the student from the selected list
-      setSelectedStudents((prev) => prev.filter((student) => student._id !== studentId));
+      setSelectedStudents((prev) => prev.filter((student) => student._id !== studentId))
 
-      // Add the student back to the filtered (available) list
+      setLoading(true);
+
       setFilteredStudents((prev) => {
-        const isAlreadyInList = prev.some((s) => s._id === studentToRemove._id);
+        const isAlreadyInList = prev.some((s) => s._id === studentToRemove._id)
         if (!isAlreadyInList) {
           const updatedStudent = {
             ...studentToRemove,
             selected: false,
-          };
-          return [...prev, updatedStudent];
+          }
+          return [...prev, updatedStudent]
         }
-        return prev;
-      });
+        return prev
+      })
+      setLoading(false);
+    }
+  }
+
+
+  const onSubmit = async () => {
+    try {
+      setLoading(true);
+
+      const selectedStudentsWithRelation = selectedStudents.filter(student => student.selected);
+
+      if (selectedStudentsWithRelation.length === 0) {
+        toast({ title: "Error", description: "No students selected", variant: "destructive" });
+        return;
+      }
+
+      if (!selectedCourseRelation) {
+        toast({ title: "Error", description: "No course relation selected", variant: "destructive" });
+        return;
+      }
+
+      const filterValues = filterForm.getValues();
+
+      const payload = {
+        status: filterValues.paymentStatus,
+        customer: form.getValues("customer"),
+        students: selectedStudentsWithRelation.map(student => ({
+          collegeRoll: student.collegeRoll,
+          refId: student.refId,
+          firstName: student.firstName,
+          lastName: student.lastName,
+          course: selectedCourseRelation?.course?.name || "",
+          amount: student.sessionFee || 0,
+        })),
+        noOfStudents: selectedStudentsWithRelation.length,
+        courseRelationId: selectedCourseRelation._id,
+        totalAmount,
+        createdBy: user._id,
+        year: filterValues.year,
+        session: filterValues.session,
+        semester: selectedCourseRelation?.term?.term,
+        institute: filterValues.institute,
+
+      };
+
+
+      await axiosInstance.post("/invoice", payload);
+
+      toast({ description: "Invoice created successfully", className: "bg-supperagent border-none text-white" });
+      navigate("/admin/invoice");
+    } catch (error) {
+      console.error("Invoice submission error:", error);
+      toast({ description: "Failed to generate invoice", className: "bg-destructive border-none text-white" });
+    } finally {
+      setLoading(false);
     }
   };
 
 
-  const onSubmit = async (data: z.infer<typeof invoiceSchema>) => {
-    const selectedStudentsWithRelation = selectedStudents.filter((student) => student.selected)
-
-    if (selectedStudentsWithRelation.length === 0) {
-      alert("No students selected.")
-      return
-    }
-
-    const courseRelationId = selectedStudentsWithRelation[0].courseRelationId
-
-    // Get the filter values
-    const filterValues = filterForm.getValues()
-
-    const { courseDetails, ...restData } = data
-
-    // Format students data according to the new model structure
-    const formattedStudents = selectedStudentsWithRelation.map((student) => ({
-      collageroll: student.collageRoll,
-      refId: student.refId,
-      firstName: student.firstName,
-      lastName: student.lastName,
-      course: student.course || selectedCourseRelation?.course?.name || "",
-      amount: student.amount || student.sessionFee || 0,
-    }))
-
-    const invoiceData = {
-      ...restData,
-      noOfStudents: selectedStudentsWithRelation.length,
-      courseRelationId,
-      totalAmount,
-      createdBy: user._id,
-      year: courseDetails.year,
-      session: courseDetails.session,
-      semester: courseDetails.semester,
-      course: selectedCourseRelation?.course?.name,
-      students: formattedStudents,
-    }
-
-    try {
-      await axiosInstance.post("/invoice", invoiceData)
-      navigate("/admin/invoice")
-      toast({
-        title: "Invoice Create successfully",
-        className: "bg-supperagent border-none text-white",
-      })
-    } catch (error) {
-      console.error("Invoice submission error:", error)
-      alert("Failed to generate invoice. Please try again.")
-    }
-  }
-
-
-  const handleUpdateInvoice = async () => {
-    if (!id) {
-      toast({
-        title: "Error",
-        description: "Invoice ID is missing",
-        variant: "destructive",
-      })
-      return
-    }
-
-    const selectedStudentsWithRelation = selectedStudents.filter((student) => student.selected)
-
-    if (selectedStudentsWithRelation.length === 0) {
-      toast({
-        title: "Error",
-        description: "No students selected.",
-        variant: "destructive",
-      })
-      return
-    }
-
-    const customerValue = form.getValues("customer")
-
-    if (!customerValue) {
-      toast({
-        title: "Error",
-        description: "Please select a customer",
-        variant: "destructive",
-      })
-      return
-    }
-
-    try {
-      // Format students data according to the required structure
-      const formattedStudents = selectedStudentsWithRelation.map((student) => ({
-        collageroll: student.collageRoll,
-        refId: student.refId,
-        firstName: student.firstName,
-        lastName: student.lastName,
-        course: selectedCourseRelation?.course?.name || "",
-        amount: student.amount,
-      }))
-
-      // Calculate total amount
-      const calculatedTotalAmount = formattedStudents.reduce((sum, student) => sum + (student.amount || 0), 0)
-
-      // Prepare the data for the PATCH request
-      const updateData = {
-        customer: customerValue,
-        students: formattedStudents,
-        noOfStudents: formattedStudents.length,
-        totalAmount: calculatedTotalAmount,
-      }
-
-      // Make the PATCH request
-      await axiosInstance.patch(`/invoice/${id}`, updateData)
-
-      toast({
-        title: "Invoice updated successfully",
-        className: "bg-supperagent border-none text-white",
-      })
-
-      navigate("/admin/invoice")
-    } catch (error) {
-      console.error("Error updating invoice:", error)
-      toast({
-        title: "Error",
-        description: "Failed to update invoice",
-        variant: "destructive",
-      })
-    }
-  }
 
   return (
     <div className="py-1">
-      <div className="flex flex-row items-center justify-between">
 
-        {isEditing ? (
-          <h1 className="mb-2 text-2xl font-bold">Regenerate Invoice</h1>
-        ) : (
-          <h1 className="mb-2 text-2xl font-bold">Generate Invoice</h1>
-        )}
-        <Button
-          className="bg-supperagent text-white hover:bg-supperagent/90 mb-2"
-          size={'sm'}
-          onClick={() => navigate('/admin/invoice')}
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back To Invoice List
-        </Button>
-      </div>
-
-      <div className="grid gap-2">
-        <Card>
+      {loading ? <div className="flex justify-center">
+        <BlinkingDots size="large" color="bg-supperagent" />
+      </div> :
+        (<div>
+          <div className="flex flex-row items-center justify-between">
 
 
-          <div className="p-4">
-            <label htmlFor="customer" className="block text-sm font-medium text-gray-700">
-              Select customer
-            </label>
-            <Select
-              onValueChange={(value) => form.setValue("customer", value)}
-              value={form.watch("customer") || ""}
+            <h1 className="mb-2 text-2xl font-bold">Generate Invoice</h1>
+
+            <Button
+              className="bg-supperagent text-white hover:bg-supperagent/90 mb-2"
+              size={'sm'}
+              onClick={() => navigate('/admin/invoice')}
             >
-              <SelectTrigger className="max-w-[250px]">
-                <SelectValue placeholder="Select a customer" />
-              </SelectTrigger>
-              <SelectContent>
-                {customers?.map((customer) => (
-                  <SelectItem key={customer._id} value={customer._id}>
-                    {customer.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {form.formState.errors.customer && (
-              <p className="text-sm text-red-500 mt-1">
-                {form.formState.errors.customer.message}
-              </p>
-            )}
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back To Invoice List
+            </Button>
           </div>
 
 
-          {/* Student Filter Component */}
-          <StudentFilter
-            filterForm={filterForm}
-            terms={terms}
-            courses={courses}
-            institutes={institutes}
-            years={years}
-            sessions={sessions}
-            paymentStatuses={paymentStatuses}
-            onFilterSubmit={onFilterSubmit}
-            handleYearChange={handleYearChange}
-            handleSessionChange={handleSessionChange}
-            isEditing={isEditing}
-          />
+          <div className="grid gap-2">
 
+            <Card>
 
-
-          {/* Student Selection Component */}
-          <StudentSelection
-            filteredStudents={filteredStudents}
-            selectedStudents={selectedStudents}
-            loading={loading}
-            handleAddStudent={handleAddStudent}
-            handleStudentSelect={handleStudentSelect}
-            handleRemoveStudent={handleRemoveStudent}
-          />
-
-          <CardFooter className="flex justify-between p-4">
-            <div className="text-lg font-semibold">
-              Total Amount: <span className="text-xl">{totalAmount.toFixed(2)}</span>
-            </div>
-
-            {isEditing ? (
-              <div className="flex gap-2">
-                <Button type="button" variant="outline" onClick={() => navigate("/admin/invoice")}>
-                  Cancel
-                </Button>
-                <Button
-                  type="button"
-                  className="bg-supperagent text-white hover:bg-supperagent"
-                  disabled={selectedStudents.filter((s) => s.selected).length === 0}
-                  onClick={handleUpdateInvoice}
+              <div className="p-4">
+                <label htmlFor="customer" className="block text-sm font-medium text-gray-700">
+                  Select customer
+                </label>
+                <Select
+                  onValueChange={(value) => form.setValue("customer", value)}
+                  value={form.watch("customer") || ""}
                 >
-                  Update Invoice
-                </Button>
+                  <SelectTrigger className="max-w-[250px]">
+                    <SelectValue placeholder="Select a customer" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {customers?.map((customer) => (
+                      <SelectItem key={customer._id} value={customer._id}>
+                        {customer.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {form.formState.errors.customer && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {form.formState.errors.customer.message}
+                  </p>
+                )}
               </div>
-            ) : (
-              <Button
-                type="submit"
-                form="invoice-form"
-                className="bg-supperagent text-white hover:bg-supperagent"
-                disabled={selectedStudents.filter((s) => s.selected).length === 0}
-                onClick={form.handleSubmit(onSubmit)}
-              >
-                Generate Invoice
-              </Button>
-            )}
-          </CardFooter>
-        </Card>
-      </div>
+
+              <StudentFilter
+                filterForm={filterForm}
+                terms={terms}
+                institutes={institutes}
+                sessions={sessions}
+                paymentStatuses={paymentStatuses}
+                onFilterSubmit={onFilterSubmit}
+                handleYearChange={handleYearChange}
+                handleSessionChange={handleSessionChange}
+                handleTermChange={handleTermChange}
+                handleInstituteChange={handleInstituteChange}
+                handleCourseRelationChange={handleCourseRelationChange}
+                filteredInstitutes={filteredInstitutes}
+                filteredCourseRelations={filteredCourseRelations}
+                selectedCourseRelation={selectedCourseRelation}
+              />
+
+              <StudentSelection
+                filteredStudents={filteredStudents}
+                selectedStudents={selectedStudents}
+                loading={loading}
+                handleAddStudent={handleAddStudent}
+                handleStudentSelect={handleStudentSelect}
+                handleRemoveStudent={handleRemoveStudent}
+              />
+
+              <CardFooter className="flex justify-between p-4">
+                <div className="text-lg font-semibold">
+                  Total Amount: <span className="text-xl">{totalAmount.toFixed(2)}</span>
+                </div>
+                <Button
+                  type="submit"
+                  className="bg-supperagent text-white hover:bg-supperagent"
+                  disabled={
+                    selectedStudents.filter((s) => s.selected).length === 0 ||
+                    loading ||
+                    !form.watch("customer") // Disable if no customer selected
+                  }
+                  onClick={onSubmit}
+                >
+                  {loading ? "Processing..." : "Generate Invoice"}
+                </Button>
+              </CardFooter>
+
+            </Card>
+
+          </div>
+        </div>)
+
+      }
+
     </div>
   )
 }
