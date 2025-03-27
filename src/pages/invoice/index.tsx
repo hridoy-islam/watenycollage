@@ -39,9 +39,12 @@ export default function InvoicesPage() {
   const [fromDate, setFromDate] = useState<string>('');
   const [toDate, setToDate] = useState<string>('');
 
-  const fetchInvoices = async () => {
+  const fetchInvoices = async (page, entriesPerPage) => {
     try {
-      const params: any = {};
+      const params: any = {
+        page,
+        limit: entriesPerPage // Setting pagination parameters
+      };
 
       if (status) params.status = status;
       if (customer) params.customer = customer;
@@ -58,9 +61,6 @@ export default function InvoicesPage() {
     }
   };
 
-
-  console.log(invoices)
-
   // Function to fetch customer options
   const fetchcustomers = async () => {
     try {
@@ -73,14 +73,11 @@ export default function InvoicesPage() {
 
   useEffect(() => {
     fetchcustomers();
-    fetchInvoices();
-  }, []);
-
-
-
+    fetchInvoices(currentPage, entriesPerPage);
+  }, [currentPage, entriesPerPage]);
 
   const handleSearchClick = () => {
-    fetchInvoices();
+    fetchInvoices(currentPage, entriesPerPage);
   };
 
   const handleEdit = (invoiceId: string) => {
@@ -90,11 +87,8 @@ export default function InvoicesPage() {
 
   const handleDownload = async (invoiceId: string) => {
     try {
-
-
       const response = await axiosInstance.get(`/invoice/${invoiceId}`);
       const invoiceData = response.data?.data;
-
 
       const MyDoc = <InvoicePDF invoice={invoiceData} />;
 
@@ -195,7 +189,7 @@ export default function InvoicesPage() {
         className: 'bg-supperagent border-none text-white'
       });
 
-      fetchInvoices();
+      fetchInvoices(currentPage, entriesPerPage);
     } catch (error) {
       console.error('Error exporting invoice:', error);
       toast({
@@ -364,7 +358,7 @@ export default function InvoicesPage() {
                       <div className="flex flex-row items-center gap-2">
                         {invoice.exported ? 'Yes' : 'No'}
 
-                        {invoice.status === "paid" && !invoice.exported && (
+                        {invoice.status === 'paid' && !invoice.exported && (
                           <Button
                             size="sm"
                             className="bg-supperagent text-white hover:bg-supperagent"
@@ -373,7 +367,6 @@ export default function InvoicesPage() {
                             <Send className="h-4 w-4" />
                           </Button>
                         )}
-
                       </div>
                     </TableCell>
                     <TableCell>
