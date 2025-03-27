@@ -33,7 +33,6 @@ export default function CustomerPage() {
           limit: entriesPerPage
         }
       });
-      console.log('API response:', response.data);
       setcustomers(response.data.data.result);
       setTotalPages(response.data.data.meta.totalPage);
     } catch (error) {

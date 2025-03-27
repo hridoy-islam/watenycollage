@@ -109,7 +109,7 @@ const AddCourseDialog = ({ onAddCourses }) => {
       });
 
       toast({
-        title: "Course Add successfully",
+        title: "Course Added successfully",
         className: "bg-supperagent border-none text-white",
       })
 
@@ -124,7 +124,7 @@ const AddCourseDialog = ({ onAddCourses }) => {
       console.error("Failed to add course:", error);
 
       toast({
-        title: "Operation Failed",
+        title: "Select Another Course",
         className: "bg-destructive border-none text-white",
       })
     }

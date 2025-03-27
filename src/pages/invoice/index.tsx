@@ -21,6 +21,7 @@ import { AlertModal } from '@/components/shared/alert-modal';
 
 import axios from 'axios';
 import { pdf } from '@react-pdf/renderer';
+import { BlinkingDots } from '@/components/shared/blinking-dots';
 
 export default function InvoicesPage() {
   const [invoices, setInvoices] = useState([]);
@@ -38,12 +39,15 @@ export default function InvoicesPage() {
   const [invoiceToExport, setInvoiceToExport] = useState<string | null>(null);
   const [fromDate, setFromDate] = useState<string>('');
   const [toDate, setToDate] = useState<string>('');
+  const [loading, setLoading] = useState(true)
 
   const fetchInvoices = async (page, entriesPerPage) => {
     try {
+
+      setLoading(true)
       const params: any = {
         page,
-        limit: entriesPerPage 
+        limit: entriesPerPage
       };
 
       if (status) params.status = status;
@@ -58,7 +62,10 @@ export default function InvoicesPage() {
       setTotalPages(response.data.data.meta.totalPage);
     } catch (error) {
       console.error('Error fetching invoices:', error);
+    } finally {
+      setLoading(false)
     }
+
   };
 
   // Function to fetch customer options
@@ -304,102 +311,107 @@ export default function InvoicesPage() {
         </CardHeader>
 
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Created At</TableHead>
-                <TableHead>Reference</TableHead>
-                <TableHead>Customer</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Students</TableHead>
-                {/* <TableHead>Status</TableHead> */}
-                <TableHead>Invoice Status</TableHead>
-                <TableHead>Exported</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {invoices.length > 0 ? (
-                invoices.map((invoice) => (
-                  <TableRow key={invoice._id}>
-                    <TableCell>
-                      {moment(invoice.createdAt).format('DD MMM YYYY')}
-                    </TableCell>
-                    <TableCell>{invoice.reference}</TableCell>
-                    <TableCell>{invoice.customer?.name}</TableCell>
-                    <TableCell>{invoice.totalAmount}</TableCell>
-                    <TableCell>{invoice.noOfStudents}</TableCell>
-                    {/* <TableCell>{invoice.status}</TableCell> */}
-                    <TableCell>
-                      {invoice.status === 'due' ? (
-                        <div className="flex flex-row items-center justify-start gap-2">
-                          <span className="text-xs font-semibold text-red-500">
-                            Due
+          {loading ? (<div className="flex justify-center py-6">
+            <BlinkingDots size="large" color="bg-supperagent" />
+          </div>) :
+            (<Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Created At</TableHead>
+                  <TableHead>Reference</TableHead>
+                  <TableHead>Customer</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead>Students</TableHead>
+                  {/* <TableHead>Status</TableHead> */}
+                  <TableHead>Invoice Status</TableHead>
+                  <TableHead>Exported</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {invoices.length > 0 ? (
+                  invoices.map((invoice) => (
+                    <TableRow key={invoice._id}>
+                      <TableCell>
+                        {moment(invoice.createdAt).format('DD MMM YYYY')}
+                      </TableCell>
+                      <TableCell>{invoice.reference}</TableCell>
+                      <TableCell>{invoice.customer?.name}</TableCell>
+                      <TableCell>{invoice.totalAmount}</TableCell>
+                      <TableCell>{invoice.noOfStudents}</TableCell>
+                      {/* <TableCell>{invoice.status}</TableCell> */}
+                      <TableCell>
+                        {invoice.status === 'due' ? (
+                          <div className="flex flex-row items-center justify-start gap-2">
+                            <span className="text-xs font-semibold text-red-500">
+                              Due
+                            </span>
+                            <Button
+                              size="sm"
+                              className="max-w-[100px] bg-supperagent text-white hover:bg-supperagent"
+                              onClick={() => {
+                                setInvoiceToMark(invoice._id);
+                                setIsModalOpen(true);
+                              }}
+                            >
+                              Mark as Paid
+                            </Button>
+                          </div>
+                        ) : (
+                          <span className="text-xs font-semibold text-green-500">
+                            Paid
                           </span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-row items-center gap-2">
+                          {invoice.exported ? 'Yes' : 'No'}
+
+                          {invoice.status === 'paid' && !invoice.exported && (
+                            <Button
+                              size="sm"
+                              className="bg-supperagent text-white hover:bg-supperagent"
+                              onClick={() => handleExport(invoice._id)}
+                            >
+                              <Send className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex justify-end space-x-2">
+                          {invoice.status !== 'paid' && (
+                            <Button
+                              className="bg-supperagent text-white hover:bg-supperagent"
+                              size="sm"
+                              onClick={() => handleEdit(invoice._id)}
+                            >
+                              Edit
+                            </Button>
+                          )}
+
                           <Button
                             size="sm"
-                            className="max-w-[100px] bg-supperagent text-white hover:bg-supperagent"
-                            onClick={() => {
-                              setInvoiceToMark(invoice._id);
-                              setIsModalOpen(true);
-                            }}
+                            className="bg-supperagent text-white hover:bg-supperagent"
+                            onClick={() => handleDownload(invoice._id)}
                           >
-                            Mark as Paid
+                            Download
                           </Button>
                         </div>
-                      ) : (
-                        <span className="text-xs font-semibold text-green-500">
-                          Paid
-                        </span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-row items-center gap-2">
-                        {invoice.exported ? 'Yes' : 'No'}
-
-                        {invoice.status === 'paid' && !invoice.exported && (
-                          <Button
-                            size="sm"
-                            className="bg-supperagent text-white hover:bg-supperagent"
-                            onClick={() => handleExport(invoice._id)}
-                          >
-                            <Send className="h-4 w-4" />
-                          </Button>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex justify-end space-x-2">
-                        {invoice.status !== 'paid' && (
-                          <Button
-                            className="bg-supperagent text-white hover:bg-supperagent"
-                            size="sm"
-                            onClick={() => handleEdit(invoice._id)}
-                          >
-                            Edit
-                          </Button>
-                        )}
-
-                        <Button
-                          size="sm"
-                          className="bg-supperagent text-white hover:bg-supperagent"
-                          onClick={() => handleDownload(invoice._id)}
-                        >
-                          Download
-                        </Button>
-                      </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={8} className="text-center">
+                      No invoices found.
                     </TableCell>
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={8} className="text-center">
-                    No invoices found.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+                )}
+              </TableBody>
+            </Table>
+            )}
+
 
           <DataTablePagination
             pageSize={entriesPerPage}

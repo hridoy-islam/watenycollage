@@ -21,6 +21,7 @@ import { AlertModal } from '@/components/shared/alert-modal';
 
 import axios from 'axios';
 import { pdf } from '@react-pdf/renderer';
+import { BlinkingDots } from '@/components/shared/blinking-dots';
 
 export default function RemitReportPage() {
   const [invoices, setInvoices] = useState([]);
@@ -38,12 +39,14 @@ export default function RemitReportPage() {
   const [invoiceToExport, setInvoiceToExport] = useState<string | null>(null);
   const [fromDate, setFromDate] = useState<string>('');
   const [toDate, setToDate] = useState<string>('');
+  const [loading, setLoading] = useState(true)
 
   const fetchInvoices = async (page, entriesPerPage) => {
     try {
+      setLoading(true)
       const params: any = {
-        page,         
-        limit: entriesPerPage  
+        page,
+        limit: entriesPerPage
       };
       if (status) params.status = status;
       if (remit) params.remitTo = remit;
@@ -57,6 +60,9 @@ export default function RemitReportPage() {
       setTotalPages(response.data.data.meta.totalPage);
     } catch (error) {
       console.error('Error fetching invoices:', error);
+    } finally {
+      setLoading(false)
+
     }
   };
 
@@ -78,7 +84,7 @@ export default function RemitReportPage() {
   }, [currentPage, entriesPerPage]);
 
   const handleSearchClick = () => {
-    fetchInvoices(currentPage,entriesPerPage );
+    fetchInvoices(currentPage, entriesPerPage);
   };
 
   const handleEdit = (invoiceId: string) => {
@@ -90,7 +96,7 @@ export default function RemitReportPage() {
       // Fetch invoice data from backend
       const response = await axiosInstance.get(`/remit-invoice/${invoiceId}`);
       const invoiceData = response.data?.data;
-      
+
 
       // Create a PDF document using InvoicePDF component
       const MyDoc = <InvoicePDF invoice={invoiceData} />;
@@ -306,7 +312,10 @@ export default function RemitReportPage() {
         </CardHeader>
 
         <CardContent>
-          <Table>
+          {loading ? (<div className="flex justify-center py-6">
+            <BlinkingDots size="large" color="bg-supperagent" />
+          </div>) : 
+          (<Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Created At</TableHead>
@@ -400,7 +409,7 @@ export default function RemitReportPage() {
                 </TableRow>
               )}
             </TableBody>
-          </Table>
+          </Table>)}
 
           <DataTablePagination
             pageSize={entriesPerPage}

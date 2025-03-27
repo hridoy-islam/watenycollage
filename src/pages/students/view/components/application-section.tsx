@@ -43,7 +43,6 @@ export function ApplicationsSection({ student, onSave }) {
       setApplications(student?.applications || []);
     }
   }, [student?.applications]);
-    console.log(applications)
   return (
     <div className="space-y-4 rounded-md p-4 shadow-md">
       <div className="flex items-center justify-between">

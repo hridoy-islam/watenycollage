@@ -72,7 +72,7 @@ export default function CourseRelationPage() {
       } else {
         toast({
           title: 'Unexpected response. Please try again.',
-          className: 'bg-red-500 border-none text-white'
+          className: 'bg-destructive border-none text-white'
         });
       }
 
@@ -83,8 +83,8 @@ export default function CourseRelationPage() {
     } catch (error) {
       console.error('Error saving Course Relation:', error);
       toast({
-        title: 'An error occurred. Please try again.',
-        className: 'bg-red-500 border-none text-white'
+        title: 'This course is already Exist',
+        className: 'bg-destructive border-none text-white'
       });
     }
   };
