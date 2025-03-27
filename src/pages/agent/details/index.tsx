@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Table,
   TableBody,
@@ -12,110 +12,75 @@ import { Eye, Pen } from 'lucide-react';
 import CourseDetailsDialog from './components/CourseDetailsDialog';
 import axiosInstance from '@/lib/axios';
 import { useParams } from 'react-router-dom';
-
-import { Card } from '@/components/ui/card';
 import { DataTablePagination } from '@/pages/students/view/components/data-table-pagination';
 import { Input } from '@/components/ui/input'; // Import Input component for search
 import AddCourseDialog from './components/AddCourseDialog ';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
 
 const AgentDetailsPage = () => {
-  // State for managing courses
+  const { id } = useParams();
   const [agentCourses, setAgentCourses] = useState([]);
-  const [courses, setCourses] = useState([]);
-
-  const [loading, setLoading] = useState(false);
-  // State for dialog
+  const [agent, setAgent] = useState([]);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const { id } = useParams();
-  const [coursesUpdated, setCoursesUpdated] = useState(false);
-  const [agent, setAgent] = useState([]);
-
-  // State for pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
-
-  // State for search
   const [searchTerm, setSearchTerm] = useState('');
+  const [initialLoading, setInitialLoading] = useState(true);
 
-  // Fetch data with search term
-  const fetchData = async (page, entriesPerPage) => {
+  useEffect(() => {
+    const fetchAgentData = async () => {
+      try {
+        const response = await axiosInstance.get(`/users/${id}`);
+        setAgent(response?.data?.data || {});
+      } catch (error) {
+        console.error('Error fetching agent data:', error);
+      }
+    };
+    fetchAgentData();
+  }, [id]);
+  const fetchData = async (page, entriesPerPage, searchTerm = '') => {
     try {
-      setLoading(true);
-
-      const response = await axiosInstance.get(`/agent-courses?agentId=${id}`);
-
-      setAgentCourses(response?.data?.data?.result);
-      setTotalPages(response.data.data.meta.totalPage);
+      if (initialLoading) setInitialLoading(true);
+      const response = await axiosInstance.get(`/agent-courses?agentId=${id}`, {
+        params: {
+          page,
+          limit: entriesPerPage,
+          ...(searchTerm ? { searchTerm } : {})
+        }
+      });
+      setAgentCourses(response?.data?.data?.result || []);
+      setTotalPages(response?.data?.data?.meta?.totalPage || 1);
     } catch (error) {
       console.error('Error fetching courses:', error);
-      setAgentCourses([]);
     } finally {
-      setLoading(false);
+      setInitialLoading(false);
     }
   };
 
-  const handleSearch = (e) => {
-    const value = e.target.value;
-    setSearchTerm(value); // Update the search term state
-  };
-
-  // Handle courses added
-  const handleCoursesAdded = (newCourses) => {
-    setCoursesUpdated((prev) => !prev);
-  };
-
-  // Fetch data on component mount or when dependencies change
   useEffect(() => {
     fetchData(currentPage, entriesPerPage);
-  }, [id, coursesUpdated, currentPage, entriesPerPage]);
+  }, [id, currentPage, entriesPerPage]);
 
-  // Fetch agent data
-  const fetchAgentData = async () => {
-    const agent = await axiosInstance.get(`/users/${id}`);
-    setAgent(agent?.data?.data || []);
+  const handleSearch = (e) => setSearchTerm(e.target.value);
 
-    const response = await axiosInstance.get('/course-relations');
-    setCourses(response.data?.data?.result || []);
-  };
+  const handleCoursesAdded = () => fetchData(currentPage, entriesPerPage);
 
-  useEffect(() => {
-    fetchAgentData();
-  }, []);
-
-  // Filter courses based on search term
-  const filteredCourses = agentCourses.filter((course) => {
-    const institutionName =
-      course?.courseRelationId?.institute?.name?.toLowerCase() || '';
-    const courseName =
-      course?.courseRelationId?.course?.name?.toLowerCase() || '';
-
-    return (
-      institutionName.includes(searchTerm.toLowerCase()) ||
-      courseName.includes(searchTerm.toLowerCase())
-    );
-  });
-  console.log(filteredCourses);
-
-  // Handle row click
   const handleRowClick = (course) => {
     setSelectedCourse(course);
     setDialogOpen(true);
     setIsEditing(false);
   };
 
-  // Handle edit button click
   const handleEditClick = (e, course) => {
-    e.stopPropagation(); // Prevent row click event
+    e.stopPropagation();
     setSelectedCourse(course);
     setDialogOpen(true);
     setIsEditing(true);
   };
 
-  // Handle course update
   const handleUpdateCourse = (updatedCourse) => {
     setAgentCourses((prevCourses) =>
       prevCourses.map((course) =>
@@ -124,14 +89,22 @@ const AgentDetailsPage = () => {
     );
   };
 
-  // Handle dialog close
   const handleCloseDialog = () => {
     setDialogOpen(false);
     setSelectedCourse(null);
     setIsEditing(false);
   };
 
-  console.log(filteredCourses);
+  const filteredCourses = agentCourses.filter((course) => {
+    const institutionName =
+      course?.courseRelationId?.institute?.name?.toLowerCase() || '';
+    const courseName =
+      course?.courseRelationId?.course?.name?.toLowerCase() || '';
+    return (
+      institutionName.includes(searchTerm.toLowerCase()) ||
+      courseName.includes(searchTerm.toLowerCase())
+    );
+  });
 
   return (
     <div className="px-6 ">
@@ -177,10 +150,7 @@ const AgentDetailsPage = () => {
           onChange={handleSearch}
           className="w-1/3"
         />
-        <AddCourseDialog
-          coursesList={courses}
-          onAddCourses={handleCoursesAdded}
-        />
+        <AddCourseDialog onAddCourses={handleCoursesAdded} />
       </div>
       <div className="rounded-lg bg-white p-2 shadow-sm ">
         <Table>
@@ -193,7 +163,7 @@ const AgentDetailsPage = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {loading ? (
+            {initialLoading ? (
               <TableRow>
                 <TableCell colSpan={4} className="text-center">
                   <BlinkingDots size="large" color="bg-supperagent" />
