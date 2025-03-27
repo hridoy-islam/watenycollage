@@ -8,10 +8,10 @@ import {
   TableRow
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Eye, Pen } from 'lucide-react';
+import { ArrowLeft, Eye, Pen } from 'lucide-react';
 import CourseDetailsDialog from './components/CourseDetailsDialog';
 import axiosInstance from '@/lib/axios';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { DataTablePagination } from '@/pages/students/view/components/data-table-pagination';
 import { Input } from '@/components/ui/input'; // Import Input component for search
 import AddCourseDialog from './components/AddCourseDialog ';
@@ -109,9 +109,19 @@ const AgentDetailsPage = () => {
   return (
     <div className="px-6 ">
       <div className="w-full rounded-lg bg-white p-6 shadow-sm">
-        <h1 className="mb-4 text-lg font-semibold text-gray-900">
-          {agent.name}
-        </h1>
+        <div className="flex justify-between">
+          <h1 className="mb-4 text-lg font-semibold text-gray-900">
+            {agent.name}
+          </h1>
+          <Link to="/admin/agents">
+            <Button
+              className="bg-supperagent text-white hover:bg-supperagent/90"
+              size={'sm'}
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" /> Back To Agents
+            </Button>
+          </Link>
+        </div>
 
         <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-5">
           <div className="flex flex-col text-sm">
