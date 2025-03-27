@@ -1,5 +1,10 @@
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'; // Import dialog components
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog'; // Import dialog components
 import { format } from 'date-fns';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -10,9 +15,8 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-
+  TableRow
+} from '@/components/ui/table';
 
 export default function AgentPaymentPage({ student }) {
   const [enrolledCourses, setEnrolledCourses] = useState<any>(
@@ -38,7 +42,7 @@ export default function AgentPaymentPage({ student }) {
     <div className="mx-auto py-1">
       <h2 className="mb-4 text-xl font-bold">Agent Payment</h2>
 
-      <Table className="w-full mb-6">
+      <Table className="mb-6 w-full">
         <TableHeader>
           <TableRow className="text-left text-gray-500">
             <TableHead className="pb-2">Course</TableHead>
@@ -52,7 +56,7 @@ export default function AgentPaymentPage({ student }) {
             enrolledCourses.map((course) => (
               <TableRow
                 key={course._id}
-                className="border-t cursor-pointer hover:bg-gray-100"
+                className="cursor-pointer border-t hover:bg-gray-100"
                 onClick={() => toggleCourseExpansion(course._id)}
               >
                 <TableCell className="py-2">
@@ -73,14 +77,13 @@ export default function AgentPaymentPage({ student }) {
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={4} className="text-center py-4 text-gray-500">
+              <TableCell colSpan={4} className="py-4 text-center text-gray-500">
                 No courses available
               </TableCell>
             </TableRow>
           )}
         </TableBody>
       </Table>
-
 
       {/* Dialog for expanded course details */}
       <Dialog
@@ -89,13 +92,13 @@ export default function AgentPaymentPage({ student }) {
           if (!isOpen) setExpandedCourseId(null); // Close dialog and reset expandedCourseId
         }}
       >
-        <DialogContent className="sm:max-w-5xl max-w-full h-[60vh] overflow-y-auto">
+        <DialogContent className="h-[40vh] max-w-full overflow-y-auto sm:max-w-5xl">
           <DialogHeader>
-            <DialogTitle>Course Details</DialogTitle>
+            <DialogTitle>Agent Payment Details</DialogTitle>
           </DialogHeader>
           {selectedCourse && (
             <div>
-              <div className='pb-2'>
+              <div className="pb-2">
                 <div>
                   <span className="text-3xl">
                     {selectedCourse?.courseRelationId?.institute?.name}
@@ -103,10 +106,10 @@ export default function AgentPaymentPage({ student }) {
                 </div>
                 <div>
                   <span className="text-xl">
-                    {selectedCourse?.courseRelationId?.course?.name} ( {selectedCourse?.courseRelationId?.term?.term})
+                    {selectedCourse?.courseRelationId?.course?.name} ({' '}
+                    {selectedCourse?.courseRelationId?.term?.term})
                   </span>
                 </div>
-
               </div>
               <div>
                 {selectedCourse.years
@@ -142,13 +145,12 @@ export default function AgentPaymentPage({ student }) {
                                         ? 'bg-red-500 text-white'
                                         : session.status === 'available'
                                           ? 'bg-blue-500 text-white'
-                                          : 'bg-gray-500 text-white'  
+                                          : 'bg-gray-500 text-white'
                                   }
                                 >
                                   {session.status}
                                 </Badge>
                               </td>
-
                             </tr>
                           ))}
                         </tbody>
