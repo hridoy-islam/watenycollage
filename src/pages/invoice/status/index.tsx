@@ -184,7 +184,6 @@
          }
        }
  
-       console.log(selectedCourseRelation)
  
        // 2. Construct the API params object
        const params: Record<string, any> = {

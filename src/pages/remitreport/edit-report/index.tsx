@@ -274,7 +274,6 @@ export default function RemitCreatePage() {
         }
       })
 
-      console.log("Full student:", invoiceStudents)
 
       setSelectedStudents(selectedStudentsWithFees)
 

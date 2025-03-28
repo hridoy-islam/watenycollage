@@ -34,7 +34,6 @@ export function StudentSelection({
   handleAddStudent,
   handleRemoveStudent,
 }: StudentSelectionProps) {
-  console.log(filteredStudents)
 
   return (
     <div className="grid grid-cols-1 gap-0 lg:grid-cols-2">
