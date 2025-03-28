@@ -1,12 +1,5 @@
-import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -22,14 +15,9 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import type { UseFormReturn } from 'react-hook-form';
-import axiosInstance from '@/lib/axios'; // Adjust the import based on your project structure
-import { useParams } from 'react-router-dom';
-
 export function StudentFilter({
   filterForm,
   terms,
-
   institutes,
   hasSearched,
   sessions,
@@ -40,11 +28,8 @@ export function StudentFilter({
   handleTermChange,
   handleInstituteChange,
   handleCourseRelationChange,
-
   filteredInstitutes,
-  filteredCourseRelations,
-
-  selectedCourseRelation
+  filteredCourseRelations
 }) {
   return (
     <Card className="rounded-none shadow-md">

@@ -19,9 +19,7 @@ import {
 export function StudentFilter({
   filterForm,
   terms,
-
   institutes,
-
   sessions,
   paymentStatuses,
   onFilterSubmit,
@@ -33,8 +31,7 @@ export function StudentFilter({
   agents,
   filteredInstitutes,
   filteredCourseRelations,
-  hasSearched,
-  selectedCourseRelation
+  hasSearched
 }) {
   return (
     <Card className="rounded-none shadow-md">
@@ -164,37 +161,33 @@ export function StudentFilter({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Course</FormLabel>
-                    {isEditing ? (
-                      // Display just the course name when editing
-                      <div className="flex h-10 w-full items-center rounded-md border border-gray-200 px-3 py-2 text-sm text-gray-500">
-                        {selectedCourseRelation?.course?.name || "No course selected"}
-                      </div>
-                    ) : (
-                      // Normal select dropdown when not editing
-                      <Select
-                        onValueChange={(value) => {
-                          field.onChange(value);
-                          handleCourseRelationChange(value);
-                        }}
-                        value={field.value || ""}
-                        disabled={!filterForm.watch("institute")}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select Course">
-                              {filteredCourseRelations.find(c => c._id === field.value)?.name || "Select Course"}
-                            </SelectValue>
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {filteredCourseRelations.map((option) => (
-                            <SelectItem key={option._id} value={option._id}>
-                              {option.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                  
+
+                    <Select
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        handleCourseRelationChange(value);
+                      }}
+                      value={field.value || ''}
+                      disabled={!filterForm.watch('institute')}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Course">
+                            {filteredCourseRelations.find(
+                              (c) => c._id === field.value
+                            )?.name || 'Select Course'}
+                          </SelectValue>
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {filteredCourseRelations.map((option) => (
+                          <SelectItem key={option._id} value={option._id}>
+                            {option.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
                     <FormMessage />
                   </FormItem>
                 )}

@@ -1,7 +1,5 @@
-'use client';
-
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -13,7 +11,6 @@ import { StudentFilter } from './components/student-filter';
 import { StudentSelection } from './components/StudentSelection';
 import { useSelector } from 'react-redux';
 import { ArrowLeft } from 'lucide-react';
-import { BlinkingDots } from '@/components/shared/blinking-dots';
 
 // Updated Zod schema to include remitTo, paymentInfo, and course details
 const invoiceSchema = z.object({
@@ -70,9 +67,7 @@ export default function RemitCreatePage() {
     resolver: zodResolver(invoiceSchema),
     defaultValues: {
       status: 'available',
-
       remitTo: '',
-
       courseDetails: {
         semester: '',
         year: 'Year 1',
@@ -579,7 +574,6 @@ export default function RemitCreatePage() {
             filteredInstitutes={filteredInstitutes}
             filteredCourseRelations={filteredCourseRelations}
             hasSearched={hasSearched}
-            selectedCourseRelation={selectedCourseRelation}
           />
 
           {/* Student Selection Component */}
@@ -588,7 +582,6 @@ export default function RemitCreatePage() {
             selectedStudents={selectedStudents}
             loading={loading}
             handleAddStudent={handleAddStudent}
-            handleStudentSelect={handleStudentSelect}
             handleRemoveStudent={handleRemoveStudent}
             hasSearched={hasSearched}
           />
@@ -599,24 +592,18 @@ export default function RemitCreatePage() {
               <span className="text-xl">{totalAmount.toFixed(2)}</span>
             </div>
 
-            {isEditing ? (
-              <div className="flex gap-2">
-                <Button type="button" variant="outline" onClick={() => navigate("/admin/invoice")}>
-                  Cancel
-                </Button>
-                <Button
-                  type="button"
-                  className="bg-supperagent text-white hover:bg-supperagent"
-                  disabled={selectedStudents.filter((s) => s.selected).length === 0}
-                  onClick={handleUpdateInvoice}
-                >
-                  Update Remit Report
-                </Button>
-
-              </CardFooter>
-            </Card>
-          </div>
-       
+            <Button
+              type="submit"
+              form="invoice-form"
+              className="bg-supperagent text-white hover:bg-supperagent"
+              disabled={selectedStudents.filter((s) => s.selected).length === 0}
+              onClick={form.handleSubmit(onSubmit)}
+            >
+              Generate Remit Report
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
     </div>
   );
 }

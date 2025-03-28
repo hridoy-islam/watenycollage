@@ -18,7 +18,6 @@ import {
   SelectValue
 } from '@/components/ui/select';
 import { ArrowLeft } from 'lucide-react';
-import { BlinkingDots } from '@/components/shared/blinking-dots';
 
 // Updated Zod schema to include customerTo, paymentInfo, and course details
 const invoiceSchema = z.object({

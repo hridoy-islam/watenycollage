@@ -1,4 +1,4 @@
-import { Controller, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import {
   Dialog,
   DialogContent,
@@ -23,12 +23,6 @@ export function CustomerDialog({ open, onOpenChange, onSubmit, initialData }) {
       email: '',
       address: ''
     }
-
-      name: "",
-      email: "",
-      address: "",
-
-    },
   });
 
   useEffect(() => {
@@ -110,7 +104,6 @@ export function CustomerDialog({ open, onOpenChange, onSubmit, initialData }) {
               <Input {...register('address')} placeholder="Address" />
               <ErrorMessage message={errors.address?.message?.toString()} />
             </div>
-
           </div>
 
           <DialogFooter>
