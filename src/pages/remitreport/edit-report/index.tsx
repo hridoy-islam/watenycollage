@@ -426,16 +426,16 @@ export default function RemitCreatePage() {
 
       toast({
         
-        description: "Remit invoice updated successfully",
+        description: "Remit Report updated successfully",
         className:"bg-supperagent text-white border-none"
       });
 
       navigate("/admin/remit");
     } catch (error) {
-      console.error("Error updating remit invoice:", error);
+      console.error("Error updating remit Report:", error);
       toast({
       
-        description:  "Failed to update remit invoice",
+        description:  "Failed to update remit Report",
        className:"bg-destructive border-none text-white"
       });
     } finally {

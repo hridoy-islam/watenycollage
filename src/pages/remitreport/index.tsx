@@ -135,14 +135,14 @@ export default function RemitReportPage() {
       );
 
       toast({
-        title: 'Operation successful',
+        title: 'Mark as Paid successfully',
         className: 'bg-supperagent border-none text-white'
       });
     } catch (error) {
-      console.error('Error updating invoice status:', error);
+      console.error('Error updating remit report status:', error);
       toast({
         title: 'Error',
-        description: 'Failed to update the invoice status',
+        description: 'Failed to update the remit report status',
         variant: 'destructive'
       });
     }
@@ -421,7 +421,7 @@ export default function RemitReportPage() {
           onConfirm={handleConfirmMarkAsPaid}
           loading={false}
           title="Confirm Action"
-          description="Are you sure you want to mark this invoice as paid?"
+          description="Are you sure you want to mark this remit report as paid?"
         />
         <AlertModal
           isOpen={isExportModalOpen}
@@ -429,7 +429,7 @@ export default function RemitReportPage() {
           onConfirm={handleConfirmExport}
           loading={false}
           title="Confirm Export"
-          description="Are you sure you want to export this invoice?"
+          description="Are you sure you want to export this remit report?"
         />
       </Card>
     </div>

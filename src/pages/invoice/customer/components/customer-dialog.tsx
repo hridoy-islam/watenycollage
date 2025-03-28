@@ -20,13 +20,11 @@ export function CustomerDialog({ open, onOpenChange, onSubmit, initialData }) {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      logo: "", 
-      name: "", 
-      email: "", 
-      address: "", 
-      sortCode: "", 
-      accountNo: "", 
-      beneficiary: "", 
+
+      name: "",
+      email: "",
+      address: "",
+
     },
   });
 
@@ -107,23 +105,6 @@ export function CustomerDialog({ open, onOpenChange, onSubmit, initialData }) {
               <ErrorMessage message={errors.address?.message?.toString()} />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium">Sort Code</label>
-              <Input {...register("sortCode")} placeholder="Sort Code" />
-              <ErrorMessage message={errors.sortCode?.message?.toString()} />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium">Account No</label>
-              <Input {...register("accountNo")} placeholder="Account No" />
-              <ErrorMessage message={errors.accountNo?.message?.toString()} />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium">Beneficiary</label>
-              <Input {...register("beneficiary")} placeholder="Beneficiary" />
-              <ErrorMessage message={errors.beneficiary?.message?.toString()} />
-            </div>
           </div>
 
           <DialogFooter>

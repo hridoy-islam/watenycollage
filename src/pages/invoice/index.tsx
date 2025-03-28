@@ -129,7 +129,7 @@ export default function InvoicesPage() {
       );
 
       toast({
-        title: 'Operation successful',
+        title: 'Mark as Paid successfully',
         className: 'bg-supperagent border-none text-white'
       });
     } catch (error) {

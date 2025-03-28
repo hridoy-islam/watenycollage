@@ -65,7 +65,7 @@ export default function RemitCreatePage() {
   const form = useForm<z.infer<typeof invoiceSchema>>({
     resolver: zodResolver(invoiceSchema),
     defaultValues: {
-      status: "due",
+      status: "available",
 
       remitTo: "",
 
@@ -370,7 +370,7 @@ export default function RemitCreatePage() {
   useEffect(() => {
     fetchCourseRelations()
 
-    setPaymentStatuses(["paid", "due"])
+    setPaymentStatuses(["paid", "due","available"])
     setSelectedStudents([])
   }, [])
 
