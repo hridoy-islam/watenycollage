@@ -31,7 +31,7 @@ export function StudentFilter({
   terms,
 
   institutes,
-
+  hasSearched,
   sessions,
   paymentStatuses,
   onFilterSubmit,
@@ -40,10 +40,10 @@ export function StudentFilter({
   handleTermChange,
   handleInstituteChange,
   handleCourseRelationChange,
- 
+
   filteredInstitutes,
   filteredCourseRelations,
-  
+
   selectedCourseRelation
 }) {
   return (
@@ -54,13 +54,14 @@ export function StudentFilter({
       </div>
       <CardContent>
         <Form {...filterForm}>
-          <form  onSubmit={(e) => {
-      e.preventDefault(); 
-      filterForm.handleSubmit(onFilterSubmit)(e);
-    }}  className="">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              filterForm.handleSubmit(onFilterSubmit)(e);
+            }}
+            className=""
+          >
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-           
-
               {/* Term Select - Disabled when editing */}
               <FormField
                 control={filterForm.control}
@@ -70,11 +71,10 @@ export function StudentFilter({
                     <FormLabel>Term</FormLabel>
                     <Select
                       onValueChange={(value) => {
-                        field.onChange(value)
-                        handleTermChange(value)
+                        field.onChange(value);
+                        handleTermChange(value);
                       }}
                       value={field.value}
-                     
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -83,7 +83,11 @@ export function StudentFilter({
                       </FormControl>
                       <SelectContent>
                         {terms
-                          ?.filter((term, index, self) => index === self.findIndex((t) => t._id === term._id))
+                          ?.filter(
+                            (term, index, self) =>
+                              index ===
+                              self.findIndex((t) => t._id === term._id)
+                          )
                           .map((term) => (
                             <SelectItem key={term._id} value={term._id}>
                               {term.name}
@@ -105,11 +109,11 @@ export function StudentFilter({
                     <FormLabel>Institute</FormLabel>
                     <Select
                       onValueChange={(value) => {
-                        field.onChange(value)
-                        handleInstituteChange(value)
+                        field.onChange(value);
+                        handleInstituteChange(value);
                       }}
                       value={field.value}
-                      disabled={ !filterForm.watch("term")} // Disable when editing
+                      disabled={!filterForm.watch('term')} // Disable when editing
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -117,10 +121,20 @@ export function StudentFilter({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {(filteredInstitutes.length > 0 ? filteredInstitutes : institutes)
-                          ?.filter((institute, index, self) => index === self.findIndex((i) => i._id === institute._id))
+                        {(filteredInstitutes.length > 0
+                          ? filteredInstitutes
+                          : institutes
+                        )
+                          ?.filter(
+                            (institute, index, self) =>
+                              index ===
+                              self.findIndex((i) => i._id === institute._id)
+                          )
                           .map((institute) => (
-                            <SelectItem key={institute._id} value={institute._id}>
+                            <SelectItem
+                              key={institute._id}
+                              value={institute._id}
+                            >
                               {institute.name}
                             </SelectItem>
                           ))}
@@ -137,37 +151,38 @@ export function StudentFilter({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Course</FormLabel>
-                    
-                      <Select
-                        onValueChange={(value) => {
-                          field.onChange(value);
-                          handleCourseRelationChange(value);
-                        }}
-                        value={field.value || ""}
-                        disabled={!filterForm.watch("institute")}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select Course">
-                              {filteredCourseRelations.find(c => c._id === field.value)?.name || "Select Course"}
-                            </SelectValue>
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {filteredCourseRelations.map((option) => (
-                            <SelectItem key={option._id} value={option._id}>
-                              {option.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                  
+
+                    <Select
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        handleCourseRelationChange(value);
+                      }}
+                      value={field.value || ''}
+                      disabled={!filterForm.watch('institute')}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Course">
+                            {filteredCourseRelations.find(
+                              (c) => c._id === field.value
+                            )?.name || 'Select Course'}
+                          </SelectValue>
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {filteredCourseRelations.map((option) => (
+                          <SelectItem key={option._id} value={option._id}>
+                            {option.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
-             
               <FormField
                 control={filterForm.control}
                 name="year"
@@ -176,11 +191,11 @@ export function StudentFilter({
                     <FormLabel>Year</FormLabel>
                     <Select
                       onValueChange={(value) => {
-                        field.onChange(value)
-                        handleYearChange(value)
+                        field.onChange(value);
+                        handleYearChange(value);
                       }}
-                      value={field.value || "Year 1"}
-                      disabled={!filterForm.watch("courseRelationId")}
+                      value={field.value || 'Year 1'}
+                      disabled={!filterForm.watch('courseRelationId')}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -208,11 +223,11 @@ export function StudentFilter({
                     <FormLabel>Session</FormLabel>
                     <Select
                       onValueChange={(value) => {
-                        field.onChange(value)
-                        handleSessionChange(value)
+                        field.onChange(value);
+                        handleSessionChange(value);
                       }}
                       value={field.value}
-                      disabled={!filterForm.watch("year")} // Disable when editing
+                      disabled={!filterForm.watch('year')} // Disable when editing
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -240,8 +255,8 @@ export function StudentFilter({
                     <FormLabel>Payment Status</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      value={field.value || "due"}
-                      disabled={!filterForm.watch("session")}
+                      value={field.value || 'due'}
+                      disabled={!filterForm.watch('session')}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -263,14 +278,13 @@ export function StudentFilter({
 
               <div className="mt-8 flex items-center justify-start">
                 <Button
-                  className="bg-supperagent text-white hover:bg-supperagent/90 min-w-[120px]"
+                  className="min-w-[120px] bg-supperagent text-white hover:bg-supperagent/90"
                   type="submit"
                   disabled={
-                  
-                  
-                    !filterForm.watch("courseRelationId") ||
-                    !filterForm.watch("year") ||
-                    !filterForm.watch("session")
+                    hasSearched ||
+                    !filterForm.watch('courseRelationId') ||
+                    !filterForm.watch('year') ||
+                    !filterForm.watch('session')
                   }
                 >
                   Search
@@ -281,5 +295,5 @@ export function StudentFilter({
         </Form>
       </CardContent>
     </Card>
-  )
+  );
 }

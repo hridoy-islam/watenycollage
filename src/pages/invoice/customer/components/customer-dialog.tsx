@@ -23,6 +23,12 @@ export function CustomerDialog({ open, onOpenChange, onSubmit, initialData }) {
       email: '',
       address: ''
     }
+
+      name: "",
+      email: "",
+      address: "",
+
+    },
   });
 
   useEffect(() => {
@@ -104,6 +110,7 @@ export function CustomerDialog({ open, onOpenChange, onSubmit, initialData }) {
               <Input {...register('address')} placeholder="Address" />
               <ErrorMessage message={errors.address?.message?.toString()} />
             </div>
+
           </div>
 
           <DialogFooter>
