@@ -21,7 +21,7 @@ export function StudentFilter({
   agents,
   filteredInstitutes,
   filteredCourseRelations,
-  
+  hasSearched,
   selectedCourseRelation
 }) {
   return (
@@ -210,7 +210,7 @@ export function StudentFilter({
                         handleSessionChange(value)
                       }}
                       value={field.value}
-                      disabled={!filterForm.watch("institute")} // Disable when editing
+                      disabled={!filterForm.watch("institute")} 
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -263,7 +263,7 @@ export function StudentFilter({
                   className="bg-supperagent text-white hover:bg-supperagent/90 min-w-[120px]"
                   type="submit"
                   disabled={
-                  
+                    hasSearched||
                     !filterForm.watch("agent") ||
                     !filterForm.watch("courseRelationId") ||
                     !filterForm.watch("year") ||

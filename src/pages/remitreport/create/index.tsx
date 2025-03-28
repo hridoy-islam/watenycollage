@@ -500,14 +500,19 @@ export default function RemitCreatePage() {
     setFilteredInstitutes(uniqueInstitutes)
   }
 
+ useEffect(() => {
+    const subscription = filterForm.watch(() => {
+      setHasSearched(false);
+      setSelectedStudents([]); 
+    });
+    return () => subscription.unsubscribe();
+  }, [filterForm.watch]);
+
 
   return (
     <div className="py-1">
 
-      {loading ? <div className="flex justify-center">
-        <BlinkingDots size="large" color="bg-supperagent" />
-      </div> :
-        (<div>
+     
           <div className="flex flex-row items-center justify-between">
 
             <h1 className="mb-2 text-2xl font-bold">Generate Remit</h1>
@@ -540,7 +545,7 @@ export default function RemitCreatePage() {
                 handleCourseRelationChange={handleCourseRelationChange}
                 filteredInstitutes={filteredInstitutes}
                 filteredCourseRelations={filteredCourseRelations}
-
+                hasSearched={hasSearched}
                 selectedCourseRelation={selectedCourseRelation}
               />
 
@@ -574,7 +579,7 @@ export default function RemitCreatePage() {
               </CardFooter>
             </Card>
           </div>
-        </div>)}
+       
     </div>
   )
 }

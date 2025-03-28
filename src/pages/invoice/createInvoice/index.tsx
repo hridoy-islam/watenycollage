@@ -20,7 +20,6 @@ import {
   SelectValue
 } from '@/components/ui/select';
 import { ArrowLeft } from "lucide-react"
-import { BlinkingDots } from "@/components/shared/blinking-dots"
 
 
 // Updated Zod schema to include customerTo, paymentInfo, and course details
@@ -108,6 +107,15 @@ export default function InvoiceGeneratePage() {
       searchQuery: "",
     },
   })
+
+  useEffect(() => {
+    const subscription = filterForm.watch(() => {
+      setHasSearched(false);
+      setSelectedStudents([]); 
+
+    });
+    return () => subscription.unsubscribe();
+  }, [filterForm.watch]);
 
 
   const fetchcustomers = async () => {
@@ -553,10 +561,7 @@ export default function InvoiceGeneratePage() {
   return (
     <div className="py-1">
 
-      {loading ? <div className="flex justify-center">
-        <BlinkingDots size="large" color="bg-supperagent" />
-      </div> :
-        (<div>
+    
           <div className="flex flex-row items-center justify-between">
 
 
@@ -618,6 +623,7 @@ export default function InvoiceGeneratePage() {
                 filteredInstitutes={filteredInstitutes}
                 filteredCourseRelations={filteredCourseRelations}
                 selectedCourseRelation={selectedCourseRelation}
+                hasSearched={hasSearched}
               />
 
               <StudentSelection
@@ -650,9 +656,7 @@ export default function InvoiceGeneratePage() {
             </Card>
 
           </div>
-        </div>)
-
-      }
+      
 
     </div>
   )

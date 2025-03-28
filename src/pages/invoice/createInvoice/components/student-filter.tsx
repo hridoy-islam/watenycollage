@@ -31,7 +31,7 @@ export function StudentFilter({
   terms,
 
   institutes,
-
+  hasSearched,
   sessions,
   paymentStatuses,
   onFilterSubmit,
@@ -267,7 +267,7 @@ export function StudentFilter({
                   type="submit"
                   disabled={
                   
-                  
+                    hasSearched ||
                     !filterForm.watch("courseRelationId") ||
                     !filterForm.watch("year") ||
                     !filterForm.watch("session")
