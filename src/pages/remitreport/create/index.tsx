@@ -13,6 +13,7 @@ import { StudentFilter } from "./components/student-filter"
 import { StudentSelection } from "./components/StudentSelection"
 import { useSelector } from "react-redux"
 import { ArrowLeft } from "lucide-react"
+import { BlinkingDots } from "@/components/shared/blinking-dots"
 
 // Updated Zod schema to include remitTo, paymentInfo, and course details
 const invoiceSchema = z.object({
@@ -29,12 +30,12 @@ const filterSchema = z.object({
   agent: z.string(),
   term: z.string().optional(),
   course: z.string().optional(),
-  institute: z.string().optional(), // Changed from university to institute
+  institute: z.string().optional(),
   paymentStatus: z.string().optional(),
   searchQuery: z.string().optional(),
   year: z.string().optional(),
   session: z.string().optional(),
-  courseRelationId: z.string().optional(), // Add courseRelationId to schema
+  courseRelationId: z.string().optional(),
 })
 
 export default function RemitCreatePage() {
@@ -45,7 +46,6 @@ export default function RemitCreatePage() {
   const [institutes, setInstitutes] = useState([])
   const [terms, setTerms] = useState([])
   const [years, setYears] = useState([])
-  const [InvoiceData, setInvoiceData] = useState([])
   const [sessions, setSessions] = useState([])
   const [courseRelations, setCourseRelations] = useState([])
   const [selectedCourseRelation, setSelectedCourseRelation] = useState(null)
@@ -56,16 +56,16 @@ export default function RemitCreatePage() {
   const [agent, setAgent] = useState("")
   const [filteredInstitutes, setFilteredInstitutes] = useState([])
   const [filteredCourseRelations, setFilteredCourseRelations] = useState([])
+  const [hasSearched, setHasSearched] = useState(false);
 
   const [paymentStatuses, setPaymentStatuses] = useState(["paid", "due", "available"])
   const { user } = useSelector((state: any) => state.auth)
-  const { id } = useParams()
   const { toast } = useToast()
   const [agents, setAgents] = useState([])
   const form = useForm<z.infer<typeof invoiceSchema>>({
     resolver: zodResolver(invoiceSchema),
     defaultValues: {
-      status: "due",
+      status: "available",
 
       remitTo: "",
 
@@ -111,208 +111,11 @@ export default function RemitCreatePage() {
 
 
 
-  
 
-  
-  const fetchInvoiceData = async (invoiceId) => {
-    try {
-      setLoading(true);
-      const response = await axiosInstance.get(`/remit-invoice/${invoiceId}`);
-      const invoiceData = response?.data?.data;
-  
-      if (invoiceData) {
-        setInvoiceData(invoiceData);
-  
-        // Set agent/remitTo data
-        form.setValue("remitTo", invoiceData.remitTo?._id || invoiceData.remitTo || "");
-        filterForm.setValue("agent", invoiceData.remitTo?._id || invoiceData.remitTo || "");
-  
-        // Set course details
-        form.setValue("courseDetails", {
-          semester: invoiceData.semester || "",
-          year: invoiceData.year || "Year 1",
-          session: invoiceData.session || "",
-        });
-  
-        // Set course relation data
-        if (invoiceData.courseRelationId) {
-          const courseRelationId = invoiceData.courseRelationId._id || invoiceData.courseRelationId;
-          const termId = invoiceData.courseRelationId.term?._id || "";
-          const instituteId = invoiceData.courseRelationId.institute?._id || "";
-          const courseId = invoiceData.courseRelationId.course?._id || "";
-  
-          // First set the term and institute to ensure proper filtering
-          filterForm.setValue("term", termId);
-          filterForm.setValue("institute", instituteId);
-          filterForm.setValue("course", courseId);
-  
-          // Get the full course relation data immediately
-          const relationResponse = await axiosInstance.get(`/course-relations/${courseRelationId}`);
-          const fullCourseRelation = relationResponse?.data?.data;
-          
-          if (fullCourseRelation) {
-            setSelectedCourseRelation(fullCourseRelation);
-            filterForm.setValue("courseRelationId", courseRelationId);
-            
-            // Filter course relations based on term and institute
-            const filtered = courseRelations
-              .filter((item) => item.term._id === termId && item.institute._id === instituteId)
-              .map((item) => ({
-                _id: item._id,
-                name: `${item.course.name} (${item.term.term})`,
-                courseRelation: item,
-              }));
-  
-            setFilteredCourseRelations(filtered);
-          }
-        }
-  
-        setTotalAmount(invoiceData.totalAmount || 0);
-  
-       
-          if (invoiceData.courseRelationId && invoiceData.year && invoiceData.session) {
-            fetchStudentsForInvoice(
-              invoiceData.courseRelationId,
-              invoiceData.year,
-              invoiceData.session,
-              invoiceData.status
-            );
-          }
 
-      }
-    } catch (error) {
-      console.error("Error fetching invoice data:", error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch invoice data",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  const fetchStudentsForInvoice = async (courseRelationId, year, session, agentPaymentStatus) => {
-    try {
-      setLoading(true);
-  
-  
-      // Get the agent ID
-      const agentId = filterForm.getValues("agent") || InvoiceData.remitTo?._id || InvoiceData.remitTo;
-    
-  
-      // Fetch course relation data
-      const relationId = courseRelationId._id || courseRelationId;
-      const relationResponse = await axiosInstance.get(`/course-relations/${relationId}`);
-      const relationData = relationResponse?.data?.data;
-  
-      if (!relationData) {
-        throw new Error("No course relation data found");
-      }
-  
-     
-  
-      // Update form with relation data
-      setSelectedCourseRelation(relationData);
-      filterForm.setValue("term", relationData.term?._id || "");
-      filterForm.setValue("course", relationData.course?._id || "");
-      filterForm.setValue("institute", relationData.institute?._id || "");
-      filterForm.setValue("year", year || "");
-      filterForm.setValue("session", session || "");
-  
-      // Determine payment status filter
-      const paymentStatus = agentPaymentStatus === "due" ? "available" : agentPaymentStatus;
-      
-  
-      // Fetch all eligible students
-      const studentsResponse = await axiosInstance.get("/students", {
-        params: {
-          agentid: agentId,
-          agentCourseRelationId: relationId,
-          agentPaymentStatus: paymentStatus,
-          agentYear: year,
-          agentSession: session,
-        },
-      });
-  
-      const allStudents = studentsResponse?.data?.data.result || [];
-   
-  
-      // Fetch invoice students if editing
-      let invoiceStudents = [];
-      if (id) {
-        const invoiceResponse = await axiosInstance.get(`/remit-invoice/${id}`);
-        invoiceStudents = invoiceResponse?.data?.data.students || [];
-        
-     
-      }
-  
-      // Process selected students (from invoice)
-      const selectedStudentsWithFees = invoiceStudents.map((student) => {
-        const originalStudent = allStudents.find((s) => s.refId === student.refId) || student;
-        const studentChoice = originalStudent?.choice || "Local";
-  
-        const studentAmount = studentChoice === "Local"
-          ? Number.parseFloat(relationData.local_amount || 0)
-          : Number.parseFloat(relationData.international_amount || 0);
-  
-        let sessionFee = student.amount || 0;
-        const yearObj = relationData.years.find((y) => y.year === year);
-        const sessionObj = yearObj?.sessions.find((s) => s.sessionName === session);
-        
-        if ((!sessionFee || sessionFee === 0) && sessionObj) {
-          sessionFee = calculateSessionFee(sessionObj, studentAmount);
-        }
-  
-        return {
-          ...originalStudent,
-          collageroll: student.collageroll || originalStudent.collageroll,
-          refId: student.refId || originalStudent.refId,
-          firstName: student.firstName || originalStudent.firstName,
-          lastName: student.lastName || originalStudent.lastName,
-          course: relationData.course?.name || student.course || "",
-          amount: student.amount || sessionFee,
-          selected: true,
-          sessionFee: sessionFee,
-          courseRelationId: relationData._id,
-          Year: year,
-          Session: session,
-          semester: relationData.term.term,
-        };
-      });
-  
-    
-  
-      // Determine available students (not in invoice)
-      const selectedIds = new Set(selectedStudentsWithFees.map((s) => s.refId));
-      const availableStudents = allStudents.filter((student) => !selectedIds.has(student.refId));
-      
-  
-      setSelectedStudents(selectedStudentsWithFees);
-      setFilteredStudents(availableStudents);
-      setLoading(false);
 
-  
-    } catch (error) {
-      console.error("Error fetching students for invoice:", error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch students for this invoice",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-  
-  useEffect(() => {
-    if (id) {
-      setIsEditing(true)
-      fetchInvoiceData(id)
-    }
-  }, [id])
 
-  // Fetch course relations
   const fetchCourseRelations = async () => {
     try {
       setLoading(true)
@@ -342,9 +145,6 @@ export default function RemitCreatePage() {
       )
       setSessions(uniqueSessions)
 
-      const agentResponse = await axiosInstance.get("/users?role=agent")
-
-      setAgent(agentResponse.data?.data?.result)
     } catch (error) {
       console.error("Error fetching course relations:", error)
       toast({
@@ -427,10 +227,10 @@ export default function RemitCreatePage() {
   }
 
   const onFilterSubmit = (data) => {
+    setHasSearched(true)
     fetchStudents(data)
   }
 
-  // Update filter form when year or session is selected
   const handleYearChange = (value) => {
     filterForm.setValue("year", value)
 
@@ -475,12 +275,12 @@ export default function RemitCreatePage() {
     filterForm.setValue("course", "");
     filterForm.setValue("courseRelationId", "");
     setSelectedCourseRelation(null);
-  
+
     if (!instituteId) {
       setFilteredCourseRelations([]);
       return;
     }
-  
+
     const termId = filterForm.getValues("term");
     const filtered = courseRelations
       .filter((item) => item.term._id === termId && item.institute._id === instituteId)
@@ -489,7 +289,7 @@ export default function RemitCreatePage() {
         name: `${item.course.name} `, // More descriptive name
         courseRelation: item,
       }));
-  
+
     setFilteredCourseRelations(filtered);
   };
 
@@ -504,6 +304,7 @@ export default function RemitCreatePage() {
     }
   }
 
+
   const handleAddStudent = (student) => {
     const isAlreadySelected = selectedStudents.some((s) => s._id === student._id)
 
@@ -517,7 +318,7 @@ export default function RemitCreatePage() {
 
       const application = student.applications.find((app) => app.courseRelationId === selectedCourseRelation._id)
 
-     
+
 
       // Now use the student's choice from the application (either "Local" or "International")
       const studentAmount =
@@ -531,7 +332,7 @@ export default function RemitCreatePage() {
 
       const studentWithFee = {
         ...student,
-        collageroll: student.collageRoll,
+        collegeRoll: student.collegeRoll,
         refId: student.refId,
         firstName: student.firstName,
         lastName: student.lastName,
@@ -545,13 +346,13 @@ export default function RemitCreatePage() {
         semester: filterValues.term,
       }
 
-      
+
       setSelectedStudents((prev) => [...prev, studentWithFee])
 
 
       setFilteredStudents((prev) => prev.filter((s) => s._id !== student._id))
 
-      setLoading(false); 
+      setLoading(false);
       // Update form values based on the selected course relation and filter values
       if (selectedCourseRelation) {
         updateFormWithCourseDetails(selectedCourseRelation, filterValues.year, filterValues.session)
@@ -565,21 +366,14 @@ export default function RemitCreatePage() {
     }
   }
 
+
   useEffect(() => {
     fetchCourseRelations()
 
-    setPaymentStatuses(["paid", "due", "available"])
+    setPaymentStatuses(["paid", "due","available"])
     setSelectedStudents([])
   }, [])
 
-  useEffect(() => {
-    // This will trigger UI updates when form values change
-    const subscription = filterForm.watch(() => {
-      // Force re-render when filter form values change
-    })
-
-    return () => subscription.unsubscribe()
-  }, [filterForm])
 
   useEffect(() => {
     const total = selectedStudents
@@ -640,11 +434,12 @@ export default function RemitCreatePage() {
       return
     }
 
+
     const courseRelationId = selectedStudentsWithRelation[0].courseRelationId
     const { courseDetails, ...restData } = data
 
     const formattedStudents = selectedStudentsWithRelation.map((student) => ({
-      collageroll: student.collageRoll,
+      collegeRoll: student.collegeRoll,
       refId: student.refId,
       firstName: student.firstName,
       lastName: student.lastName,
@@ -705,155 +500,81 @@ export default function RemitCreatePage() {
     setFilteredInstitutes(uniqueInstitutes)
   }
 
-  const handleUpdateInvoice = async () => {
-    if (!id) {
-      toast({
-        title: "Error",
-        description: "Invoice ID is missing",
-        variant: "destructive",
-      })
-      return
-    }
 
-    const selectedStudentsWithRelation = selectedStudents.filter((student) => student.selected)
-
-    if (selectedStudentsWithRelation.length === 0) {
-      toast({
-        title: "Error",
-        description: "No students selected.",
-        variant: "destructive",
-      })
-      return
-    }
-
-    // Get agent ID from filterForm
-    const agentId = filterForm.getValues("agent")
-    if (!agentId) {
-      toast({
-        title: "Error",
-        description: "Please select an agent",
-        variant: "destructive",
-      })
-      return
-    }
-
-    try {
-      const formattedStudents = selectedStudentsWithRelation.map((student) => ({
-        collageroll: student.collageRoll,
-        refId: student.refId,
-        firstName: student.firstName,
-        lastName: student.lastName,
-        course: selectedCourseRelation?.course?.name || "",
-        amount: student.amount,
-      }))
-
-      const calculatedTotalAmount = formattedStudents.reduce((sum, student) => sum + (student.amount || 0), 0)
-
-      const updateData = {
-        remitTo: agentId, // Use the agentId from filterForm
-        students: formattedStudents,
-        noOfStudents: formattedStudents.length,
-        totalAmount: calculatedTotalAmount,
-      }
-
-      await axiosInstance.patch(`/remit-invoice/${id}`, updateData)
-      toast({
-        title: "Remit updated successfully",
-        className: "bg-supperagent border-none text-white",
-      })
-      navigate("/admin/remit")
-    } catch (error) {
-      console.error("Error updating Remit:", error)
-      toast({
-        title: "Error",
-        description: "Failed to update Remit Report",
-        variant: "destructive",
-      })
-    }
-  }
   return (
     <div className="py-1">
-      <div className="flex flex-row items-center justify-between">
-        {isEditing ? (
-          <h1 className="mb-2 text-2xl font-bold">Regenerate Remit</h1>
-        ) : (
-          <h1 className="mb-2 text-2xl font-bold">Generate Remit</h1>
-        )}
-        <Button
-          className="mb-2 bg-supperagent text-white hover:bg-supperagent/90"
-          size={"sm"}
-          onClick={() => navigate("/admin/remit")}
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back To Remit List
-        </Button>
-      </div>
 
-      <div className="grid gap-2">
-        <Card>
-          {/* Student Filter Component */}
-          <StudentFilter
-            filterForm={filterForm}
-            terms={terms}
-            institutes={institutes}
-            sessions={sessions}
-            agents={agents} // Change from agent to agents
-            paymentStatuses={paymentStatuses}
-            onFilterSubmit={onFilterSubmit}
-            handleYearChange={handleYearChange}
-            handleSessionChange={handleSessionChange}
-            handleTermChange={handleTermChange}
-            handleInstituteChange={handleInstituteChange}
-            handleCourseRelationChange={handleCourseRelationChange}
-            filteredInstitutes={filteredInstitutes}
-            filteredCourseRelations={filteredCourseRelations}
-            isEditing={isEditing}
-            selectedCourseRelation={selectedCourseRelation}
-          />
+      {loading ? <div className="flex justify-center">
+        <BlinkingDots size="large" color="bg-supperagent" />
+      </div> :
+        (<div>
+          <div className="flex flex-row items-center justify-between">
 
-          {/* Student Selection Component */}
-          <StudentSelection
-            filteredStudents={filteredStudents}
-            selectedStudents={selectedStudents}
-            loading={loading}
-            handleAddStudent={handleAddStudent}
-            handleStudentSelect={handleStudentSelect}
-            handleRemoveStudent={handleRemoveStudent}
-          />
+            <h1 className="mb-2 text-2xl font-bold">Generate Remit</h1>
 
-          <CardFooter className="flex justify-between p-4">
-            <div className="text-lg font-semibold">
-              Total Amount: <span className="text-xl">{totalAmount.toFixed(2)}</span>
-            </div>
+            <Button
+              className="mb-2 bg-supperagent text-white hover:bg-supperagent/90"
+              size={"sm"}
+              onClick={() => navigate("/admin/remit")}
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back To Remit List
+            </Button>
+          </div>
 
-            {isEditing ? (
-              <div className="flex gap-2">
-                <Button type="button" variant="outline" onClick={() => navigate("/admin/invoice")}>
-                  Cancel
-                </Button>
+          <div className="grid gap-2">
+            <Card>
+              {/* Student Filter Component */}
+              <StudentFilter
+                filterForm={filterForm}
+                terms={terms}
+                institutes={institutes}
+                sessions={sessions}
+                agents={agents}
+                paymentStatuses={paymentStatuses}
+                onFilterSubmit={onFilterSubmit}
+                handleYearChange={handleYearChange}
+                handleSessionChange={handleSessionChange}
+                handleTermChange={handleTermChange}
+                handleInstituteChange={handleInstituteChange}
+                handleCourseRelationChange={handleCourseRelationChange}
+                filteredInstitutes={filteredInstitutes}
+                filteredCourseRelations={filteredCourseRelations}
+
+                selectedCourseRelation={selectedCourseRelation}
+              />
+
+              {/* Student Selection Component */}
+              <StudentSelection
+                filteredStudents={filteredStudents}
+                selectedStudents={selectedStudents}
+                loading={loading}
+                handleAddStudent={handleAddStudent}
+                handleStudentSelect={handleStudentSelect}
+                handleRemoveStudent={handleRemoveStudent}
+                hasSearched={hasSearched}
+              />
+
+              <CardFooter className="flex justify-between p-4">
+                <div className="text-lg font-semibold">
+                  Total Amount: <span className="text-xl">{totalAmount.toFixed(2)}</span>
+                </div>
+
+
                 <Button
-                  type="button"
+                  type="submit"
+                  form="invoice-form"
                   className="bg-supperagent text-white hover:bg-supperagent"
                   disabled={selectedStudents.filter((s) => s.selected).length === 0}
-                  onClick={handleUpdateInvoice}
+                  onClick={form.handleSubmit(onSubmit)}
                 >
-                  Update Remit Report
+                  Generate Remit Report
                 </Button>
-              </div>
-            ) : (
-              <Button
-                type="submit"
-                form="invoice-form"
-                className="bg-supperagent text-white hover:bg-supperagent"
-                disabled={selectedStudents.filter((s) => s.selected).length === 0}
-                onClick={form.handleSubmit(onSubmit)}
-              >
-                Generate Remit Report
-              </Button>
-            )}
-          </CardFooter>
-        </Card>
-      </div>
+
+              </CardFooter>
+            </Card>
+          </div>
+        </div>)}
     </div>
   )
 }

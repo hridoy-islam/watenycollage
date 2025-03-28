@@ -21,7 +21,7 @@ export function StudentFilter({
   agents,
   filteredInstitutes,
   filteredCourseRelations,
-  isEditing,
+  
   selectedCourseRelation
 }) {
   return (
@@ -44,7 +44,6 @@ export function StudentFilter({
                     <Select
                       onValueChange={field.onChange}
                       value={field.value || ""}
-                      disabled={isEditing} // Disable when editing
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -76,7 +75,7 @@ export function StudentFilter({
                         handleTermChange(value)
                       }}
                       value={field.value}
-                      disabled={isEditing || !filterForm.watch("agent")} // Disable when editing
+                      disabled={!filterForm.watch("agent")} // Disable when editing
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -111,7 +110,7 @@ export function StudentFilter({
                         handleInstituteChange(value)
                       }}
                       value={field.value}
-                      disabled={isEditing || !filterForm.watch("term")} // Disable when editing
+                      disabled={ !filterForm.watch("term")} // Disable when editing
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -139,13 +138,7 @@ export function StudentFilter({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Course</FormLabel>
-                    {isEditing ? (
-                      // Display just the course name when editing
-                      <div className="flex h-10 w-full items-center rounded-md border border-gray-200 px-3 py-2 text-sm text-gray-500">
-                        {selectedCourseRelation?.course?.name || "No course selected"}
-                      </div>
-                    ) : (
-                      // Normal select dropdown when not editing
+                    
                       <Select
                         onValueChange={(value) => {
                           field.onChange(value);
@@ -169,7 +162,7 @@ export function StudentFilter({
                           ))}
                         </SelectContent>
                       </Select>
-                    )}
+                  
                     <FormMessage />
                   </FormItem>
                 )}
@@ -217,7 +210,7 @@ export function StudentFilter({
                         handleSessionChange(value)
                       }}
                       value={field.value}
-                      disabled={isEditing || !filterForm.watch("institute")} // Disable when editing
+                      disabled={!filterForm.watch("institute")} // Disable when editing
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -246,7 +239,6 @@ export function StudentFilter({
                     <Select
                       onValueChange={field.onChange}
                       value={field.value || "available"}
-                      disabled={isEditing} // Disable when editing
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -271,7 +263,7 @@ export function StudentFilter({
                   className="bg-supperagent text-white hover:bg-supperagent/90 min-w-[120px]"
                   type="submit"
                   disabled={
-                    isEditing || // Disable search button when editing
+                  
                     !filterForm.watch("agent") ||
                     !filterForm.watch("courseRelationId") ||
                     !filterForm.watch("year") ||
