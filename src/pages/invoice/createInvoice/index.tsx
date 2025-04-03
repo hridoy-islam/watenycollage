@@ -584,7 +584,7 @@ export default function InvoiceGeneratePage() {
     } catch (error) {
       console.error('Invoice submission error:', error);
       toast({
-        description: error.response?.data?.message || 'Failed to generate invoice',
+        description: 'Failed to generate invoice',
         className: 'bg-destructive border-none text-white'
       });
     } finally {
