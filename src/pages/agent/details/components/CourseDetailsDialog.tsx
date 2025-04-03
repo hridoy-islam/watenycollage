@@ -143,7 +143,7 @@ const CourseDetailsDialog = ({
                     <TableRow key={session._id}>
                       <TableCell>{session?.sessionName || 'N/A'}</TableCell>
                       <TableCell>
-                        {session?.invoiceDate ? moment(session.invoiceDate).format('DD-MMM-yyyy') : 'N/A'}
+                        {session?.invoiceDate ? moment(session.invoiceDate).format('DD MMM yyyy') : 'N/A'}
                       </TableCell>
 
 
