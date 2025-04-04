@@ -93,14 +93,14 @@ export function ApplicationDialog({ open, onOpenChange, onSubmit }) {
   const handleCourseChange = (courseId) => {
     const termId = form.getValues('termId');
     const instituteId = form.getValues('instituteId');
-    
+
     const courseRelation = data.find(
-      (item) => 
+      (item) =>
         item.course._id === courseId &&
         item.term._id === termId &&
         item.institute._id === instituteId
     );
-    
+
     setSelectedCourseRelation(courseRelation);
     form.setValue('choice', '');
     form.setValue('amount', '');
@@ -124,9 +124,9 @@ export function ApplicationDialog({ open, onOpenChange, onSubmit }) {
     const statusLog = {
       prev_status: null,
       changed_to: 'New',
-      assigned_by:null ,
+      assigned_by: null,
       changed_by: user._id,
-      assigned_at:null ,
+      assigned_at: null,
       created_at: new Date()
     };
 
@@ -248,11 +248,20 @@ export function ApplicationDialog({ open, onOpenChange, onSubmit }) {
                         (option, index, self) =>
                           index === self.findIndex((t) => t.value === option.value)
                       )
-                      .map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
+                      .map((option) => {
+                        // Find the course relation to get the term
+                        const courseRelation = data.find(item =>
+                          item.course._id === option.value &&
+                          item.institute._id === form.getValues('instituteId')
+                        );
+                        const term = courseRelation?.term?.term || '';
+
+                        return (
+                          <option key={option.value} value={option.value}>
+                            {option.label} ({term})
+                          </option>
+                        );
+                      })}
                   </select>
                   <FormMessage />
                 </FormItem>
