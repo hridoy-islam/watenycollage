@@ -41,6 +41,11 @@ export default function AppRouter() {
         {
           path: 'notifications',
           element: <NotificationsPage />
+        },
+        {
+          path: 'student-form',
+          element: <StudentApplication />,
+          index: true
         }
       ]
     }
