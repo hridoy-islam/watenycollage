@@ -1,6 +1,5 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import {
   Form,
   FormControl,
@@ -11,6 +10,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import {
+  authWithFbORGoogle,
   loginUser,
   resetError
 } from '@/redux/features/authSlice';
@@ -22,15 +22,32 @@ import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import * as z from 'zod';
+import {
+  useSignInWithFacebook,
+  useSignInWithGoogle
+} from 'react-firebase-hooks/auth';
+import { firebaseAuth } from '@/firebaseConfig';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Enter a valid email address' }),
   password: z.string()
 });
 
+type googleUserSchema = {
+  name: string;
+  email: string;
+  googleUid: string;
+  image: string | undefined;
+  phone: string | undefined;
+};
+
 type UserFormValue = z.infer<typeof formSchema>;
 
 export default function UserAuthForm() {
+  const [signInWithGoogle, googleUser, gLoading, gError] =
+    useSignInWithGoogle(firebaseAuth);
+  const [signInWithFacebook, facebookUser, fLoading, fError] =
+    useSignInWithFacebook(firebaseAuth);
   const router = useRouter();
   const { loading, error } = useSelector((state: any) => state.auth);
   const dispatch = useDispatch<AppDispatch>();
@@ -50,6 +67,52 @@ export default function UserAuthForm() {
     }
   };
 
+  const handleGoogleLogin = async () => {
+    await signInWithGoogle();
+  };
+
+  const handleFacebookLogin = async () => {
+    await signInWithFacebook();
+  };
+
+  const loginWithFbOrGoogle = async (data: googleUserSchema) => {
+    const result: any = await dispatch(authWithFbORGoogle(data));
+    if (result?.payload?.success) {
+      router.push('/admin');
+    }
+  };
+
+  useEffect(() => {
+    if (googleUser) {
+      const { email, displayName, uid, photoURL, phoneNumber } =
+        googleUser?.user;
+      const data = {
+        name: displayName,
+        email,
+        password: '123456',
+        googleUid: uid,
+        image: photoURL ? photoURL : undefined,
+        phone: phoneNumber ? phoneNumber : undefined
+      };
+      loginWithFbOrGoogle(data);
+    }
+  }, [googleUser]);
+
+  useEffect(() => {
+    if (facebookUser) {
+      const { email, displayName, uid, photoURL, phoneNumber } =
+        facebookUser?.user;
+      const data = {
+        name: displayName,
+        email,
+        password: '123456',
+        googleUid: uid,
+        image: photoURL ? photoURL : undefined,
+        phone: phoneNumber ? phoneNumber : undefined
+      };
+      loginWithFbOrGoogle(data);
+    }
+  }, [facebookUser]);
   useEffect(() => {
     // Reset the error when the component mounts
     dispatch(resetError());
@@ -58,84 +121,100 @@ export default function UserAuthForm() {
   return (
     <>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <div className="space-y-2">
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="email"
-                      placeholder="Enter your email..."
-                      disabled={loading}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="w-full space-y-2"
+        >
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input
+                    type="email"
+                    placeholder="Enter your email..."
+                    disabled={loading}
+                    {...field}
+                    className='w-full'
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-          <div className="space-y-2">
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="Enter your password..."
-                      disabled={loading}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Password</FormLabel>
+                <FormControl>
+                  <Input
+                    type="password"
+                    placeholder="Enter your password..."
+                    disabled={loading}
+                    {...field}
+                    className='w-full'
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Checkbox id="remember" />
-              <label
-                htmlFor="remember"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                Remember me
-              </label>
-            </div>
-
-            <Link
-              to="/forgot-password"
-              className="text-sm text-teal-600 hover:text-teal-500"
-            >
-              Forgot Password?
-            </Link>
-          </div>
-
-          <Button disabled={loading} type="submit" className="w-full text-white bg-teal-600 hover:bg-teal-600/90">
+          <Button
+            disabled={loading}
+            className="ml-auto w-full bg-background text-white hover:bg-background"
+            type="submit"
+          >
             Login
           </Button>
-          {error && <Badge className="mt-2 text-red-500">{error}</Badge>}
-          <p className="text-center text-sm text-gray-600">
-            By signin up, you agree to our{" "}
-            <Link to="/terms" className="text-teal-600 hover:text-teal-500">
-              Terms and Conditions
-            </Link>{" "}
-            &{" "}
-            <Link to="/privacy" className="text-teal-600 hover:text-teal-500">
-              Privacy Policy
-            </Link>
-          </p>
         </form>
       </Form>
+      {error && <Badge className="mt-2 text-red-500">{error}</Badge>}
+      <p className="text-sm">
+        Don't have account? <Link to="/signup">Signup</Link>{' '}
+      </p>
+      <p className="text-sm">
+        <Link to="/forgot-password">Forgot Password?</Link>
+      </p>
+
+      {/* <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-background px-2 text-muted-foreground">
+            Or continue with
+          </span>
+        </div>
+      </div> */}
+      {/* <Button
+        onClick={handleGoogleLogin}
+        className="border-1 mt-6 flex h-12 items-center justify-center gap-2 border border-gray-400"
+      >
+        <img
+          src={`https://www.material-tailwind.com/logos/logo-google.png`}
+          alt="google"
+          className="h-6 w-6"
+        />{' '}
+        sign in with google
+      </Button>
+
+      <Button
+        onClick={handleFacebookLogin}
+        className="border-1 mt-6 flex h-12 items-center justify-center gap-2 border border-gray-400"
+      >
+        <img
+          src={`https://www.material-tailwind.com/logos/logo-facebook.png`}
+          alt="google"
+          className="h-6 w-6"
+        />{' '}
+        sign in with facebook
+      </Button> */}
     </>
   );
 }

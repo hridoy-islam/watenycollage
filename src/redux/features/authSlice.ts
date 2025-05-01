@@ -126,7 +126,7 @@ export const authWithFbORGoogle = createAsyncThunk<
     }
   );
   const response = await request.data;
-  localStorage.setItem('uniaid', JSON.stringify(response.data.accessToken));
+  localStorage.setItem('watney', JSON.stringify(response.data.accessToken));
   return response;
 });
 // forgot password
@@ -134,7 +134,7 @@ export const authWithFbORGoogle = createAsyncThunk<
 export const requestOtp = createAsyncThunk<ForgetResponse, forgetCredentials>(
   'auth/forget',
   async (userCredentials) => {
-    const request = await axios.post(
+    const request = await axios.patch(
       `${import.meta.env.VITE_API_URL}/auth/forget`,
       userCredentials,
       {
@@ -155,7 +155,7 @@ export const validateRequestOtp = createAsyncThunk<
   ValidateOtpResponse,
   validateOtpCredentials
 >('auth/validate', async (userCredentials) => {
-  const request = await axios.post(
+  const request = await axios.patch(
     `${import.meta.env.VITE_API_URL}/auth/validate`,
     userCredentials,
     {
@@ -170,19 +170,20 @@ export const validateRequestOtp = createAsyncThunk<
   return response;
 });
 
+
 // patch new password
 export const changePassword = createAsyncThunk<
   ChangePasswordResponse,
   ChangePasswordCredentials
->('users/:id', async (userCredentials) => {
+>('auth/reset', async (userCredentials) => {
   const request = await axios.patch(
-    `${import.meta.env.VITE_API_URL}/users/${userCredentials.userId}`,
+    `${import.meta.env.VITE_API_URL}/auth/reset`,
     userCredentials,
     {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json', //this line solved cors
-        Authorization: `Bearer ${userCredentials.token}`
+        // Authorization: `Bearer ${userCredentials.token}`
       }
     }
   );
@@ -192,7 +193,7 @@ export const changePassword = createAsyncThunk<
 });
 
 export const logout = createAsyncThunk<void>('user/logout', async () => {
-  localStorage.removeItem('uniaid');
+  localStorage.removeItem('watney');
 });
 
 const authSlice = createSlice({
@@ -272,7 +273,18 @@ const authSlice = createSlice({
         state.user = null; // Clear user state on logout
         state.error = null;
         state.token = null;
-      });
+      }).addCase(changePassword.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(changePassword.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(changePassword.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload?.message || 'Failed to change password';
+      })
   }
 });
 

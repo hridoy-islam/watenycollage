@@ -1,6 +1,6 @@
 import { HTMLAttributes } from 'react';
 import { useForm } from 'react-hook-form';
-import axiosInstance from '../../../lib/axios';
+import axiosInstance from '@/lib/axios';
 import {
   Form,
   FormControl,
@@ -28,7 +28,7 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
       email: '',
       password: '',
       phone: '',
-      role: 'agent'
+      role: 'user'
     }
   });
 
@@ -40,7 +40,7 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
           title: 'Account Created',
           description: 'You have successfully created an account'
         });
-        router.push('/login');
+        router.push('/');
       } else {
         toast({
           title: 'Error',
@@ -58,6 +58,7 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
     }
   }
 
+  
   return (
     <div className={cn('grid gap-6', className)} {...props}>
       <Form {...form}>
@@ -70,7 +71,11 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
                 <FormItem className="space-y-1">
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter Your Name" {...field} />
+                    <Input
+                      placeholder="Enter Your Name"
+                      {...field}
+                      className="w-full"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -83,7 +88,11 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
                 <FormItem className="space-y-1">
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="name@example.com" {...field} />
+                    <Input
+                      placeholder="name@example.com"
+                      {...field}
+                      className="w-full"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -97,7 +106,11 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
                 <FormItem className="space-y-1">
                   <FormLabel>Phone</FormLabel>
                   <FormControl>
-                    <Input placeholder="Your Phone" {...field} />
+                    <Input
+                      placeholder="Your Phone"
+                      {...field}
+                      className="w-full"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -110,7 +123,12 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
                 <FormItem className="space-y-1">
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="********" {...field} />
+                    <Input
+                      type="password"
+                      placeholder="********"
+                      {...field}
+                      className="w-full"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -122,6 +140,35 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
           </div>
         </form>
       </Form>
+      {/* <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-background px-2 text-muted-foreground">
+            Or continue with
+          </span>
+        </div>
+      </div>
+      <div className='relative flex flex-col items-center justify-center gap-4 w-full'>
+        <Button className="gap-2 h-12 w-full border border-gray-400">
+          <img
+            src={`https://www.material-tailwind.com/logos/logo-google.png`}
+            alt="google"
+            className="h-6 w-6"
+          />{' '}
+          sign in with google
+        </Button>
+
+        <Button className="gap-2 h-12 w-full border border-gray-400">
+          <img
+            src={`https://www.material-tailwind.com/logos/logo-facebook.png`}
+            alt="google"
+            className="h-6 w-6"
+          />{' '}
+          sign in with facebook
+        </Button>
+      </div> */}
     </div>
   );
 }

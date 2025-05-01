@@ -1,8 +1,12 @@
-import { Layers } from 'lucide-react';
+import UserAuthForm from './components/user-auth-form';
+import { buttonVariants } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+
 import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
-import UserAuthForm from './components/user-auth-form';
+import watney from '@/assets/imges/home/watney.jpg';
+import logo from '@/assets/imges/home/logos/tlogo.png';
 
 export default function SignInPage() {
   const { user } = useSelector((state: any) => state.auth);
@@ -15,54 +19,44 @@ export default function SignInPage() {
   }, [user, navigate]);
 
   return (
-    <div className="flex min-h-screen">
-      {/* Left Section */}
-      <div className="relative hidden w-1/2 bg-teal-600 lg:block">
-        <div className="flex h-full flex-col gap-60 p-8">
-          {/* Logo */}
-          <div className="flex items-center gap-2 text-white">
-            <Layers className="h-6 w-6" />
-            <span className="text-lg font-semibold">UniAid</span>
-          </div>
-          
-          {/* Main Content */}
-          <div className="relative z-10 mb-20">
-            <div className="mb-8">
-              <img
-                src="/illustration.svg?height=300&width=400"
-                alt="Desk illustration"
-                width={400}
-                height={300}
-              />
-            </div>
-            <h1 className="mb-4 text-4xl font-bold text-white">
-              A few more clicks to{" "}
-              <br />
-              sign in to your account.
-            </h1>
-            <p className="text-lg text-gray-300">
-              Manage all your admission accounts in one place.
-            </p>
-          </div>
-        </div>
-        
-        {/* Curved Edge */}
-        <div className="absolute right-0 top-0 h-full w-32 bg-teal-600" 
-             style={{
-               clipPath: 'polygon(100% 0, 0% 0, 0 100%, 100% 100%, 100% 0, 100% 0, 0 100%, 0 100%)',
-               background: 'linear-gradient(to right, #0d9488 0%, transparent 100%)'
-             }} 
-        />
+    <div className="relative h-screen flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
+      <div
+        className="relative hidden h-full flex-col border-gray-200 p-8 text-black dark:border-r lg:flex"
+        style={{
+          background: `url(${watney}) center/cover no-repeat, white`
+        }}
+      >
+        <Link to="/">
+            <h1 className='text-black font-bold text-3xl'>Watney College</h1>
+        </Link>
+
       </div>
-
-      {/* Right Section */}
-      <div className="flex w-full items-center justify-center bg-gray-50 px-8 lg:w-1/2">
-        <div className="w-full max-w-md space-y-8">
-          <div className="mb-10">
-            <h2 className="text-3xl font-bold">Sign In</h2>
+      <div className="flex h-full items-center p-4 lg:p-8 bg-white">
+        <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
+          <div className="flex flex-col space-y-2 text-center">
+            <h1 className="text-2xl font-semibold tracking-tight">Login</h1>
+            {/* <p className="text-sm text-muted-foreground">
+              Enter your email below to create your account
+            </p> */}
           </div>
-
           <UserAuthForm />
+          <p className="px-8 text-center text-sm text-muted-foreground">
+            By clicking continue, you agree to our{' '}
+            <Link
+              to="/terms"
+              className="hover:pointer underline underline-offset-4"
+            >
+              Terms of Service
+            </Link>{' '}
+            and{' '}
+            <Link
+              to="/privacy"
+              className="hover:pointer underline underline-offset-4"
+            >
+              Privacy Policy
+            </Link>
+            .
+          </p>
         </div>
       </div>
     </div>

@@ -1,23 +1,31 @@
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { validateRequestOtp } from '@/redux/features/authSlice';
+// import { resendOtp, validateRequestOtp } from '@/redux/features/authSlice';
 import { AppDispatch } from '@/redux/store';
 import { useRouter } from '@/routes/hooks';
 import { jwtDecode } from 'jwt-decode';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
+import watney from '@/assets/imges/home/watney.jpg';
 
 import { Link } from 'react-router-dom';
+import { validateRequestOtp } from '@/redux/features/authSlice';
 
 export default function Otp() {
   const [otp, setOtp] = useState(Array(4).fill(''));
   const [error, setError] = useState('');
+  const [resendCooldown, setResendCooldown] = useState(30);
+  const [isCooldownActive, setIsCooldownActive] = useState(false);
+
   const dispatch = useDispatch<AppDispatch>();
   const inputRefs = useRef([]);
   const router = useRouter();
   const email = localStorage.getItem('tp_otp_email');
 
+  
   const handleKeyDown = (e) => {
+    const index = inputRefs.current.indexOf(e.target);
+
     if (
       !/^[0-9]{1}$/.test(e.key) &&
       e.key !== 'Backspace' &&
@@ -28,14 +36,14 @@ export default function Otp() {
       e.preventDefault();
     }
 
-    if (e.key === 'Delete' || e.key === 'Backspace') {
-      const index = inputRefs.current.indexOf(e.target);
-      if (index > 0) {
-        setOtp((prevOtp) => [
-          ...prevOtp.slice(0, index - 1),
-          '',
-          ...prevOtp.slice(index)
-        ]);
+    if (e.key === 'Backspace' || e.key === 'Delete') {
+      setOtp((prevOtp) => {
+        const updatedOtp = [...prevOtp];
+        updatedOtp[index] = '';
+        return updatedOtp;
+      });
+
+      if (e.key === 'Backspace' && index > 0) {
         inputRefs.current[index - 1].focus();
       }
     }
@@ -78,6 +86,7 @@ export default function Otp() {
       validateRequestOtp({ email, otp: otpCode })
     );
     if (result?.payload?.success) {
+      console.log(result?.payload?.data)
       const decoded = jwtDecode(result?.payload?.data?.resetToken);
       localStorage.setItem(
         'tp_user_data',
@@ -89,70 +98,141 @@ export default function Otp() {
     }
   };
 
+  const handleResendOtp = async () => {
+    try {
+      console.log('Resending OTP to', email);
+      // TODO: Replace this with your actual resend OTP logic
+      await dispatch(resendOtp({ email }));
+      setResendCooldown(30);
+      setIsCooldownActive(true);
+    } catch (err) {
+      console.error(err);
+      setError('Failed to resend OTP. Please try again.');
+    }
+  };
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (isCooldownActive && resendCooldown > 0) {
+      timer = setTimeout(() => {
+        setResendCooldown((prev) => prev - 1);
+      }, 1000);
+    } else if (resendCooldown === 0) {
+      setIsCooldownActive(false);
+    }
+    return () => clearTimeout(timer);
+  }, [isCooldownActive, resendCooldown]);
+
   return (
-    <>
-      <div className="container grid h-svh flex-col items-center justify-center bg-primary lg:max-w-none lg:px-0">
-        <div className="mx-auto flex w-full flex-col justify-center space-y-2 sm:w-[480px] lg:p-8">
-          <div className="mb-4 flex items-center justify-center">
-            <img src="/logo.png" alt="Logo" className="w-1/2" />
-          </div>
-          <Card className="p-6">
-            <div className="mb-2 flex flex-col space-y-2 text-left">
-              <h1 className="text-md font-semibold tracking-tight">
+    <div className="grid h-screen md:grid-cols-2 lg:px-0">
+      {/* Left Image Panel */}
+      <div
+        className="relative hidden h-full flex-col border-gray-200 p-8 text-black dark:border-r lg:flex"
+        style={{
+          background: `url(${watney}) center/cover no-repeat, white`
+        }}
+      >
+         <Link to="/">
+            <h1 className='text-black font-bold text-3xl'>Watney College</h1>
+        </Link>
+      </div>
+
+      {/* Right Form Panel */}
+      <div className="flex h-full items-center bg-white justify-center p-4 lg:p-8">
+        <div className="w-full max-w-md space-y-6">
+          <Card className="p-6 shadow-md">
+            <div className="flex flex-col space-y-2 text-left">
+              <h1 className="text-lg font-semibold tracking-tight">
                 Verification Code
               </h1>
-              <p className="text-sm text-muted">
-                Enter the verification code sent to your email
+              <p className="text-sm text-muted-foreground">
+                Enter the verification code sent to your email.
               </p>
               {error && <p className="text-sm text-red-500">{error}</p>}
-              <section className="bg-white py-5">
-                <div className="container">
-                  <div>
-                    <p className="text-dark mb-1.5 text-sm font-medium dark:text-white">
-                      Secure code
-                    </p>
-                    <form id="otp-form" className="flex gap-2">
-                      {otp.map((digit, index) => (
-                        <input
-                          key={index}
-                          type="text"
-                          maxLength={1}
-                          value={digit}
-                          onChange={handleInput}
-                          onKeyDown={handleKeyDown}
-                          onFocus={handleFocus}
-                          onPaste={handlePaste}
-                          ref={(el) => (inputRefs.current[index] = el)}
-                          className="shadow-xs border-stroke text-gray-5 dark:border-dark-3 flex w-[64px] items-center justify-center rounded-lg border bg-white p-2 text-center text-2xl font-medium outline-none dark:bg-white/5 sm:text-4xl"
-                        />
-                      ))}
-                    </form>
-                    <Button
-                      disabled={otp.some((digit) => digit === '')}
-                      onClick={handleOtpSubmit}
-                      className="ml-auto mt-5 w-full bg-background text-white hover:bg-background"
-                      variant="outline"
-                    >
-                      Verify OTP
-                    </Button>
-                  </div>
-                </div>
-              </section>
-            </div>
-            {/* <ForgotForm /> */}
-            <p className="mt-4 px-8 text-center text-sm text-muted">
-              Don't have an account?{' '}
-              <Link
-                to="/sign-up"
-                className="text-muted underline underline-offset-4"
+
+              <form
+                id="otp-form"
+                className="mt-4 flex justify-between gap-2"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleOtpSubmit(e);
+                }}
               >
-                Sign up
-              </Link>
-              .
-            </p>
+                {otp.map((digit, index) => (
+                  <input
+                    key={index}
+                    type="text"
+                    maxLength={1}
+                    value={digit}
+                    onChange={handleInput}
+                    onKeyDown={handleKeyDown}
+                    onFocus={handleFocus}
+                    onPaste={handlePaste}
+                    ref={(el) => (inputRefs.current[index] = el)}
+                    className="flex h-12 w-12 items-center justify-center rounded-lg border border-gray-300 bg-white text-center text-xl font-medium shadow-sm outline-none focus:ring-2 focus:ring-primary sm:h-16 sm:w-16 sm:text-3xl"
+                  />
+                ))}
+              </form>
+
+              <Button
+                disabled={otp.some((digit) => digit === '')}
+                onClick={handleOtpSubmit}
+                className="mt-5 w-full text-white"
+              >
+                Verify OTP
+              </Button>
+
+              <div className="mt-4 flex items-center justify-center space-x-1 text-sm">
+                <span className="text-muted-foreground">
+                  Didn't receive the code?
+                </span>
+                <button
+                  className={`font-medium text-black ${isCooldownActive ? 'cursor-not-allowed opacity-70' : 'hover:text-black/90'}`}
+                  onClick={handleResendOtp}
+                  disabled={isCooldownActive}
+                  type="button"
+                >
+                  {isCooldownActive ? (
+                    <span className="flex items-center ">
+                      <svg
+                        className="mr-1 h-3 w-3 animate-spin"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        />
+                      </svg>
+                      Resend in {resendCooldown}s
+                    </span>
+                  ) : (
+                    <span className='text-muted-foreground'>Resend code</span> 
+                  )}
+                </button>
+              </div>
+
+              {/* <p className="mt-4 text-center text-sm text-muted-foreground">
+                Don't have an account?{' '}
+                <Link
+                  to="/signup"
+                  className="hover:pointer underline underline-offset-4"
+                >
+                  Sign up
+                </Link>
+              </p> */}
+            </div>
           </Card>
         </div>
       </div>
-    </>
+    </div>
   );
 }

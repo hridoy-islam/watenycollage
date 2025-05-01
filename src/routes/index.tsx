@@ -47,13 +47,13 @@ export default function AppRouter() {
   ];
 
   const publicRoutes = [
+    // {
+    //   path: '/',
+    //   element: <StudentApplication />,
+    //   index: true
+    // },
     {
       path: '/',
-      element: <StudentApplication />,
-      index: true
-    },
-    {
-      path: '/login',
       element: <SignInPage />,
       index: true
     },
