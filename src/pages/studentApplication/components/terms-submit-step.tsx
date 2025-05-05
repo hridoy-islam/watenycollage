@@ -180,11 +180,11 @@ export function TermsSubmitStep({
           </CardContent>
         </div>
         <div className="px-6 flex justify-between">
-          <Button type="button" variant="outline" onClick={handleBack}>
+          <Button type="button" variant="outline" onClick={handleBack}  className='bg-watney text-white hover:bg-watney/90'>
             Back
           </Button>
           <div className="space-x-3">
-            <Button type="button" variant="outline" onClick={onReview}>
+            <Button type="button" variant="outline" onClick={onReview}  className='bg-watney text-white hover:bg-watney/90'>
               Review Application
             </Button>
             <Button

@@ -398,7 +398,7 @@ export function DocumentsStep({
             </Button>
       
             {certificatesList.map((certificate, index) => (
-              <div key={`certificate-${index}`} className="flex flex-col gap-4">
+              <div key={`certificate-${index}`} className="flex flex-row w-full gap-4">
                 {/* Certificates Details Field */}
                 <FormField
                   control={form.control}
@@ -423,6 +423,7 @@ export function DocumentsStep({
                             const updatedDetailsArray = updatedCertificates.map((item) => item.details);
                             form.setValue('certificatesDetails', updatedDetailsArray);
                           }}
+                          className='min-w-[500px]'
                           
                         />
                       </FormControl>
@@ -669,7 +670,7 @@ export function DocumentsStep({
             {/* <h3 className="text-lg font-medium">{sections[4].title}</h3> */}
             <p className="text-sm text-gray-600">{sections[4].description}</p>
 
-            <FormField
+            {/* <FormField
               control={form.control}
               name="otherDocumentsDescription"
               render={({ field }) => (
@@ -684,7 +685,7 @@ export function DocumentsStep({
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> */}
 
             <FormField
               control={form.control}
@@ -812,7 +813,7 @@ export function DocumentsStep({
         </div>
 
         <div className="flex justify-between px-6 py-4">
-          <Button type="button" variant="outline" onClick={handleBack}>
+          <Button type="button" variant="outline" onClick={handleBack}  className='bg-watney text-white hover:bg-watney/90'>
             Back
           </Button>
 
@@ -827,6 +828,7 @@ export function DocumentsStep({
               type="button"
               onClick={handleSaveSection}
               disabled={isNextButtonDisabled()}
+              className='bg-watney text-white hover:bg-watney/90'
             >
               {currentSection < sections.length - 1 ? 'Next' : 'Next'}
             </Button>

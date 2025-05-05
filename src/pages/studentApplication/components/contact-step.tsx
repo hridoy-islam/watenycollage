@@ -166,10 +166,10 @@ export function ContactStep({
         </div>
 
         <div className="px-6 flex justify-between">
-          <Button type="button" variant="outline" onClick={handleBack}>
+          <Button type="button" variant="outline"  className='bg-watney text-white hover:bg-watney/90' onClick={handleBack}>
             Back
           </Button>
-          <Button type="submit">Next</Button>
+          <Button type="submit" className='bg-watney text-white hover:bg-watney/90'>Next</Button>
         </div>
       </form>
     </Form>

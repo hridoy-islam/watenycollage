@@ -359,7 +359,7 @@ export function PersonalDetailsStep({
           {/* <Button type="button" variant="outline" onClick={handleSave}>
             Save
           </Button> */}
-          <Button type="submit">Next</Button>
+          <Button type="submit"  className='bg-watney text-white hover:bg-watney/90'>Next</Button>
         </div>
       </form>
     </Form>
