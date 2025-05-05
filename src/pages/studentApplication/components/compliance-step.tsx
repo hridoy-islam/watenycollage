@@ -20,15 +20,6 @@ import {
   SelectValue
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { CalendarIcon } from 'lucide-react';
-import { format } from 'date-fns';
-import { cn } from '@/lib/utils';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger
-} from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
 
 const complianceSchema = z.object({
   startDateInUK: z.date().optional(),
@@ -45,17 +36,12 @@ const complianceSchema = z.object({
 
 type ComplianceData = z.infer<typeof complianceSchema>;
 
-interface ComplianceStepProps {
-  defaultValues?: Partial<ComplianceData>;
-  onSaveAndContinue: (data: ComplianceData) => void;
-  onSave: (data: ComplianceData) => void;
-}
-
 export function ComplianceStep({
   defaultValues,
   onSaveAndContinue,
-  onSave
-}: ComplianceStepProps) {
+  onSave,
+  setCurrentStep
+}) {
   const form = useForm<ComplianceData>({
     resolver: zodResolver(complianceSchema),
     defaultValues: {
@@ -79,52 +65,46 @@ export function ComplianceStep({
     onSaveAndContinue(data);
   }
 
-  function handleSave() {
-    const data = form.getValues();
-    onSave(data);
+  // function handleSave() {
+  //   const data = form.getValues();
+  //   onSave(data);
+  // }
+
+  function handleBack() {
+    setCurrentStep(7);
   }
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        <Card>
-          <CardContent className="pt-6">
-            <h2 className="mb-6 text-2xl font-semibold">Compliance</h2>
+        <div>
+          <CardContent>
+            <h2 className="mb-6 text-2xl font-semibold">Miscellienious</h2>
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <FormField
                 control={form.control}
                 name="startDateInUK"
                 render={({ field }) => (
-                  <FormItem className="flex flex-col">
+                  <FormItem className="flex w-full flex-col">
                     <FormLabel>Start date of stay in the UK</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant={'outline'}
-                            className={cn(
-                              'w-full pl-3 text-left font-normal',
-                              !field.value && 'text-muted-foreground'
-                            )}
-                          >
-                            {field.value
-                              ? format(field.value, 'MM/dd/yyyy')
-                              : 'mm/dd/yyyy'}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          disabled={(date) => date > new Date()}
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
+                    <FormControl>
+                      <Input
+                        type="date"
+                        value={
+                          field.value
+                            ? new Date(field.value).toISOString().split('T')[0]
+                            : ''
+                        }
+                        onChange={(e) =>
+                          field.onChange(new Date(e.target.value))
+                        }
+                        onBlur={field.onBlur}
+                        name={field.name}
+                        ref={field.ref}
+                        className="w-full rounded-md border px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground"
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -134,7 +114,7 @@ export function ComplianceStep({
                 control={form.control}
                 name="niNumber"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="flex w-full flex-col">
                     <FormLabel>NI Number</FormLabel>
                     <FormControl>
                       <Input {...field} />
@@ -148,12 +128,9 @@ export function ComplianceStep({
                 control={form.control}
                 name="status"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="flex w-full flex-col">
                     <FormLabel>Status</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
+                    <Select onValueChange={field.onChange} {...field}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select status" />
@@ -183,7 +160,7 @@ export function ComplianceStep({
                 control={form.control}
                 name="ltrCode"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="flex w-full flex-col">
                     <FormLabel>
                       Please give LTR Code (In case of EU Settled status)
                     </FormLabel>
@@ -199,12 +176,9 @@ export function ComplianceStep({
                 control={form.control}
                 name="disability"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="flex w-full flex-col">
                     <FormLabel>Do you have disability?</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
+                    <Select onValueChange={field.onChange} {...field}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select" />
@@ -228,7 +202,7 @@ export function ComplianceStep({
                   control={form.control}
                   name="disabilityDetails"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex w-full flex-col">
                       <FormLabel>Details</FormLabel>
                       <FormControl>
                         <Textarea {...field} />
@@ -243,12 +217,9 @@ export function ComplianceStep({
                 control={form.control}
                 name="benefits"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="flex w-full flex-col">
                     <FormLabel>Are you in receipt of any benefits</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
+                    <Select onValueChange={field.onChange} {...field}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select Title" />
@@ -263,17 +234,36 @@ export function ComplianceStep({
                   </FormItem>
                 )}
               />
-
+              <FormField
+                control={form.control}
+                name="studentFinance"
+                render={({ field }) => (
+                  <FormItem className="flex w-full flex-col">
+                    <FormLabel>
+                      Have you applied for Student Finance before?
+                    </FormLabel>
+                    <Select onValueChange={field.onChange} {...field}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="yes">Yes</SelectItem>
+                        <SelectItem value="no">No</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="criminalConviction"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="flex w-full flex-col">
                     <FormLabel>Criminal Conviction</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
+                    <Select onValueChange={field.onChange} {...field}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select" />
@@ -294,8 +284,8 @@ export function ComplianceStep({
                   control={form.control}
                   name="convictionDetails"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>If yes Details</FormLabel>
+                    <FormItem className="flex w-full flex-col">
+                      <FormLabel>If yes, details</FormLabel>
                       <FormControl>
                         <Textarea {...field} />
                       </FormControl>
@@ -304,42 +294,15 @@ export function ComplianceStep({
                   )}
                 />
               )}
-
-              <FormField
-                control={form.control}
-                name="studentFinance"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Have you applied for Student Finance before?
-                    </FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="yes">Yes</SelectItem>
-                        <SelectItem value="no">No</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
             </div>
           </CardContent>
-        </Card>
+        </div>
 
-        <div className="mt-6 flex justify-between">
-          <Button type="button" variant="outline" onClick={handleSave}>
-            Save
+        <div className="flex justify-between px-6">
+          <Button type="button" variant="outline" onClick={handleBack}>
+            Back
           </Button>
-          <Button type="submit">Save & Continue</Button>
+          <Button type="submit">Next</Button>
         </div>
       </form>
     </Form>

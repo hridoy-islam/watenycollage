@@ -133,15 +133,16 @@ export function ReviewModal({ open, onClose, formData }: ReviewModalProps) {
           style={{ maxHeight: 'calc(80vh - 120px)' }}
         >
           <div className="space-y-6">
-            {renderSection('Personal Details', formData.personalDetails)}
-            {renderSection('Address', formData.address)}
-            {renderSection('Course Details', formData.courseDetails)}
-            {renderSection('Contact', formData.contact)}
-            {renderSection('Education', formData.education)}
-            {renderSection('Employment', formData.employment)}
-            {renderSection('Compliance', formData.compliance)}
-            {renderSection('Documents', formData.documents)}
-            {renderSection('Terms and Conditions', formData.termsAndSubmit)}
+            {renderSection('Personal Details', formData.personalDetailsData)}
+            {renderSection('Address', formData.addressData)}
+            {renderSection('Course Details', formData.courseDetailsData)}
+            {renderSection('Contact', formData.contactData)}
+            {renderSection('Emergency', formData.emergencyContactData)}
+            {renderSection('Education', formData.educationData)}
+            {renderSection('Employment', formData.employmentData)}
+            {renderSection('Miscellaneous', formData.complianceData)}
+            {renderSection('Documents', formData.documentsData)}
+            {renderSection('Terms and Conditions', formData.termsData)}
           </div>
         </div>
 

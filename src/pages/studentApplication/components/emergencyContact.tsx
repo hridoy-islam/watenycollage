@@ -12,6 +12,8 @@ import {
   FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+
+import { useEffect } from 'react';
 import {
   Select,
   SelectContent,
@@ -19,45 +21,36 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import { useEffect } from 'react';
+import { emergencyContactRelationships } from '@/types';
 
-const contactSchema = z
-  .object({
-    // Contact details
-    contactNumber: z.string().min(1, { message: 'Contact number is required' }),
-    email: z.string().email({ message: 'Please enter a valid email address' }),
-    confirmEmail: z
-      .string()
-      .email({ message: 'Please enter a valid email address' }),
-    preferredContactMethod: z
-      .string()
-      .min(1, { message: 'Please select a preferred contact method' }),
-
-    
-  })
-  .refine((data) => data.email === data.confirmEmail, {
-    message: 'Emails do not match',
-    path: ['confirmEmail']
-  });
+const contactSchema = z.object({
+  emergencyContactNumber: z
+    .string()
+    .min(1, { message: 'Emergency contact number is required' }),
+  emergencyEmail: z
+    .string()
+    .email({ message: 'Please enter a valid email address' }),
+  emergencyFullName: z.string().min(1, { message: 'Full name is required' }),
+  emergencyRelationship: z
+    .string()
+    .min(1, { message: 'Relationship is required' })
+});
 
 type ContactData = z.infer<typeof contactSchema>;
 
-
-
-export function ContactStep({
+export function EmergencyContact({
   defaultValues,
   onSaveAndContinue,
-  onSave,
+
   setCurrentStep
 }) {
   const form = useForm<ContactData>({
     resolver: zodResolver(contactSchema),
     defaultValues: {
-      contactNumber: defaultValues?.contactNumber || '',
-      email: defaultValues?.email || '',
-      confirmEmail: defaultValues?.confirmEmail || '',
-      preferredContactMethod: defaultValues?.preferredContactMethod || '',
-      
+      emergencyContactNumber: defaultValues?.emergencyContactNumber || '',
+      emergencyEmail: defaultValues?.emergencyEmail || '',
+      emergencyFullName: defaultValues?.emergencyFullName || '',
+      emergencyRelationship: defaultValues?.emergencyRelationship || ''
     }
   });
 
@@ -66,38 +59,52 @@ export function ContactStep({
   }
 
   function handleBack() {
-    setCurrentStep(3);
+    setCurrentStep(4);
   }
 
+  useEffect(() => {
+    if (defaultValues) {
+      form.reset({
+        ...defaultValues
+      });
+    }
+  }, [defaultValues, form]);
 
-   useEffect(() => {
-        if (defaultValues) {
-          form.reset({
-            ...defaultValues,
-            
-          });
-        }
-      }, [defaultValues, form]);
-      
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <div>
-          <CardContent >
-            <div className="grid grid-cols-1 gap-8 ">
-              {/* Contact Details Section */}
-              <div className="space-y-4 ">
-                <h2 className="text-xl font-semibold">Contact Details</h2>
+          <CardContent>
+            <div className="grid grid-cols-1">
+              {/* Emergency Contact Section */}
+              <div className="space-y-4">
+                <h2 className="text-xl font-semibold">
+                  Emergency Contact / Next of Kin
+                </h2>
 
                 <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
-                    name="contactNumber"
+                    name="emergencyFullName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Full Name</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="emergencyContactNumber"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Contact Number</FormLabel>
                         <FormControl>
-                          <Input   {...field} />
+                          <Input {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -106,12 +113,12 @@ export function ContactStep({
 
                   <FormField
                     control={form.control}
-                    name="email"
+                    name="emergencyEmail"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Email (Will be used for Login)</FormLabel>
+                        <FormLabel>Email</FormLabel>
                         <FormControl>
-                          <Input type="email"   {...field} />
+                          <Input type="email" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -120,37 +127,24 @@ export function ContactStep({
 
                   <FormField
                     control={form.control}
-                    name="confirmEmail"
+                    name="emergencyRelationship"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Confirm Email</FormLabel>
-                        <FormControl>
-                          <Input type="email"    {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="preferredContactMethod"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Preferred Contact Method</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                           {...field}
-                        >
+                        <FormLabel>Relationship</FormLabel>
+                        <Select onValueChange={field.onChange} {...field}>
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select" />
+                              <SelectValue placeholder="Select Relation" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="telephone">Telephone</SelectItem>
-                            <SelectItem value="email">Email</SelectItem>
-                            <SelectItem value="sms">SMS</SelectItem>
+                            {emergencyContactRelationships.map(
+                              (relation, index) => (
+                                <SelectItem key={index} value={relation}>
+                                  {relation}
+                                </SelectItem>
+                              )
+                            )}
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -159,13 +153,11 @@ export function ContactStep({
                   />
                 </div>
               </div>
-
-          
             </div>
           </CardContent>
         </div>
 
-        <div className="px-6 flex justify-between">
+        <div className="flex justify-between px-6">
           <Button type="button" variant="outline" onClick={handleBack}>
             Back
           </Button>

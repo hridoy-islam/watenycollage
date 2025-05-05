@@ -11,7 +11,8 @@ import {
   Shield,
   FileText,
   CheckSquare,
-  Check
+  Check,
+  PhoneCall
 } from 'lucide-react';
 
 interface StepsIndicatorProps {
@@ -37,6 +38,8 @@ export function StepsIndicator({
         return <BookOpen className={className} />;
       case 'phone':
         return <Phone className={className} />;
+      case 'emergency':
+        return <PhoneCall className={className} />;
       case 'graduation-cap':
         return <GraduationCap className={className} />;
       case 'briefcase':
@@ -53,7 +56,7 @@ export function StepsIndicator({
   };
 
   return (
-    <div className="mb-10 w-full">
+    <div className="mb-10 w-full px-5">
       <div className="flex justify-between">
         {steps.map((step) => {
           const isActive = currentStep === step.id;

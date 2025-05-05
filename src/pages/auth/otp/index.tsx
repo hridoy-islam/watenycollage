@@ -7,9 +7,10 @@ import { jwtDecode } from 'jwt-decode';
 import { useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import watney from '@/assets/imges/home/watney.jpg';
+import logo from '@/assets/imges/home/logo.png';
 
 import { Link } from 'react-router-dom';
-import { validateRequestOtp } from '@/redux/features/authSlice';
+import { resendOtp, validateRequestOtp } from '@/redux/features/authSlice';
 
 export default function Otp() {
   const [otp, setOtp] = useState(Array(4).fill(''));
@@ -22,7 +23,6 @@ export default function Otp() {
   const router = useRouter();
   const email = localStorage.getItem('tp_otp_email');
 
-  
   const handleKeyDown = (e) => {
     const index = inputRefs.current.indexOf(e.target);
 
@@ -86,7 +86,7 @@ export default function Otp() {
       validateRequestOtp({ email, otp: otpCode })
     );
     if (result?.payload?.success) {
-      console.log(result?.payload?.data)
+      console.log(result?.payload?.data);
       const decoded = jwtDecode(result?.payload?.data?.resetToken);
       localStorage.setItem(
         'tp_user_data',
@@ -124,27 +124,22 @@ export default function Otp() {
   }, [isCooldownActive, resendCooldown]);
 
   return (
-    <div className="grid h-screen md:grid-cols-2 lg:px-0">
-      {/* Left Image Panel */}
-      <div
-        className="relative hidden h-full flex-col border-gray-200 p-8 text-black dark:border-r lg:flex"
-        style={{
-          background: `url(${watney}) center/cover no-repeat, white`
-        }}
-      >
-         <Link to="/">
-            <h1 className='text-black font-bold text-3xl'>Watney College</h1>
-        </Link>
-      </div>
-
+    <div className="grid h-screen lg:px-0">
       {/* Right Form Panel */}
-      <div className="flex h-full items-center bg-white justify-center p-4 lg:p-8">
+      <div className="flex h-full items-center justify-center bg-gray-100 p-4 lg:p-8">
         <div className="w-full max-w-md space-y-6">
-          <Card className="p-6 shadow-md">
+          <Card className="flex w-full flex-col rounded-sm justify-center space-y-4 border border-gray-200 p-6 ">
             <div className="flex flex-col space-y-2 text-left">
-              <h1 className="text-lg font-semibold tracking-tight">
+              <div className="flex flex-row items-center gap-4 space-y-2 text-center">
+                <Link to="/">
+                  <img src={logo} alt="logo" className="w-12 " />
+                </Link>
+                <div className="h-12 border"></div>
+                <h1 className="text-2xl font-semibold tracking-tight">
                 Verification Code
-              </h1>
+                </h1>
+              </div>
+              
               <p className="text-sm text-muted-foreground">
                 Enter the verification code sent to your email.
               </p>
@@ -215,7 +210,7 @@ export default function Otp() {
                       Resend in {resendCooldown}s
                     </span>
                   ) : (
-                    <span className='text-muted-foreground'>Resend code</span> 
+                    <span className="text-muted-foreground">Resend code</span>
                   )}
                 </button>
               </div>

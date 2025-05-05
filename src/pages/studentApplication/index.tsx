@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StepsIndicator } from './components/steps-indicator';
 import { formSteps } from './components/form-steps';
 import { PersonalDetailsStep } from './components/personal-details-step';
@@ -12,31 +12,137 @@ import { DocumentsStep } from './components/documents-step';
 import { TermsSubmitStep } from './components/terms-submit-step';
 import { ReviewModal } from './components/review-modal';
 import { Button } from '@/components/ui/button';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Check } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/components/ui/use-toast';
-
-interface FormData {
-  personalDetails?: any;
-  address?: any;
-  courseDetails?: any;
-  contact?: any;
-  education?: any;
-  employment?: any;
-  compliance?: any;
-  documents?: any;
-  termsAndSubmit?: any;
-}
+import { Card, CardDescription, CardTitle } from '@/components/ui/card';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { EmergencyContact } from './components/emergencyContact';
+import axiosInstance from '@/lib/axios';
+import { useSelector } from 'react-redux';
 
 export default function StudentApplication() {
   const [currentStep, setCurrentStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
-  const [formData, setFormData] = useState<FormData>({});
+  const [formData, setFormData] = useState<any>({});
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const { toast } = useToast();
+  const [parsedResume, setParsedResume] = useState<string | null>(null);
+  const location = useLocation();
 
-  // Allow navigation to any step regardless of completion status
+  useEffect(() => {
+    if (location.state?.parsedResume) {
+      setParsedResume(location.state.parsedResume);
+      // Optionally clear the state after reading it
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
+
+  const nameMatch = parsedResume?.match(
+    /\b([A-Z][a-z]+(?:\s[A-Z][a-z]+)*)\s([A-Z][a-z]+)\b/
+  );
+  const emailMatch = parsedResume?.match(
+    /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/
+  );
+
+  const phoneMatch = parsedResume?.match(
+    /\+?\d{1,4}[\s\-]?\(?\d{1,4}\)?[\s\-]?\d{6,10}/
+  );
+
+  const dobMatch = parsedResume?.match(
+    /(?:\b(?:[A-Za-z]+\s)?\d{1,2}[,\s]?\s?\d{4}\b|\b\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}\b)/
+  );
+  const passportIdMatch = parsedResume?.match(/\b([A-Za-z0-9]{6,10})\b/);
+  const expiryDateMatch = parsedResume?.match(
+    /\b(?:[A-Za-z]+\s)?\d{1,2}[,\s]?\s?\d{4}\b|\b\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}\b/
+  );
+  const maritalStatusMatch = parsedResume?.match(
+    /\b(Single|Married|Divorced|Widowed|Separated)\b/
+  );
+  const ethnicityMatch = parsedResume?.match(
+    /\b(Caucasian|Asian|Hispanic|Black|Latino|Middle Eastern|Native American|Pacific Islander|African|European|South Asian|...)\b/
+  );
+  const nationalityMatch = parsedResume?.match(
+    /\b(American|Bangladeshi|Canadian|British|Australian|Indian|Pakistani|Chinese|Japanese|French|German|Spanish|Russian|Brazilian|Mexican|Italian|...)\b/
+  );
+  const countryOfBirthMatch = parsedResume?.match(/\bBorn\s([A-Za-z\s]+)\b/);
+  const addressLine1Match = parsedResume?.match(/^(.*\d{1,5}.*)$/);
+  const addressLine2Match = parsedResume?.match(
+    /^(.*[A-Za-z0-9\s]*[A-Za-z]{2,})$/
+  );
+  const cityMatch = parsedResume?.match(
+    /\b([A-Za-z\s]+(?:[A-Za-z]+))\b(?:,\s?)/
+  );
+  const postCodeMatch = parsedResume?.match(/\b\d{5}(?:[-\s]?\d{4})?\b/);
+  const countryMatch = parsedResume?.match(/\b([A-Za-z\s]+)\b$/);
+  const institutionMatch = parsedResume?.match(
+    /(?:University|College|Institute|Academy|School|Campus)[A-Za-z\s]+/i
+  );
+
+  const phoneNumber = phoneMatch ? phoneMatch[0] : '';
+  const passportId = passportIdMatch ? passportIdMatch[0] : '';
+  const email = emailMatch ? emailMatch[0] : null;
+  const addressLine1 = addressLine1Match ? addressLine1Match[0] : '';
+  const addressLine2 = addressLine2Match ? addressLine2Match[0] : '';
+  const city = cityMatch ? cityMatch[1] : '';
+  const postCode = postCodeMatch ? postCodeMatch[0] : '';
+  const country = countryMatch ? countryMatch[1] : '';
+  const academicInstitution = institutionMatch ? institutionMatch[0] : '';
+  const { user } = useSelector((state: any) => state.auth);
+
+  const personalDetailsData = {
+    firstName: nameMatch ? nameMatch[1] : '',
+    lastName: nameMatch ? nameMatch[2] : '',
+    dateOfBirth: dobMatch ? dobMatch[0] : '',
+    passportNumber: passportIdMatch ? passportIdMatch[0] : '',
+    expiryDate: expiryDateMatch ? expiryDateMatch[0] : '',
+    maritalStatus: maritalStatusMatch ? maritalStatusMatch[0] : '',
+    nationality: nationalityMatch ? nationalityMatch[0] : '',
+    ethnicity: ethnicityMatch ? ethnicityMatch[0] : '',
+    countryOfBirth: countryOfBirthMatch ? countryOfBirthMatch[1] : ''
+  };
+
+  const addressData = {
+    residentialAddressLine1: addressLine1,
+    residentialAddressLine2: addressLine2,
+    residentialCity: city,
+    residentialPostCode: postCode,
+    residentialCountry: country
+  };
+
+  const contactData = {
+    email: email,
+    contactNumber: phoneNumber
+  };
+
+  // const fetchedData = async ()=>{
+  //   try {
+  //     const response = await axiosInstance.get(`/applications/${user._id}`);
+  //     const userData = response.data.data;
+  //     setFormData((prev) => ({
+  //       ...prev,
+  //       personalDetails: userData.personalDetails,
+  //       addressData: userData.addressData,
+  //       courseDetailsData: userData.courseDetailsData,
+  //       contactData: userData.contactData,
+  //       emergencyContactData: userData.emergencyContactData,
+  //       educationData: userData.educationData,
+  //       employmentData: userData.employmentData,
+  //       complianceData: userData.complianceData,
+  //       documentsData: userData.documentsData,
+  //       termsData: userData.termsData
+  //     }));
+
+  //   } catch (error) {
+  //     console.error('Error fetching data:', error);
+  //   }
+  // }
+  // console.log('Fetched data:', formData.employmentData);
+  //   useEffect(() => {
+  //     fetchedData()
+  //   }, [currentStep]);
+
   const handleStepClick = (stepId: number) => {
     setCurrentStep(stepId);
   };
@@ -49,46 +155,124 @@ export default function StudentApplication() {
 
   const handlePersonalDetailsSave = (data: any) => {
     setFormData((prev) => ({ ...prev, personalDetails: data }));
-    console.log('Saving personal details:', data);
   };
 
-  const handlePersonalDetailsSaveAndContinue = (data: any) => {
-    setFormData((prev) => ({ ...prev, personalDetails: data }));
+  //   const handlePersonalDetailsSaveAndContinue = async (data: any) => {
+  //   try {
+  //     setFormData((prev) => ({ ...prev, personalDetails: data }));
+  //     await axiosInstance.patch(`/users/${user._id}`, {
+  //       personalDetails: data,
+  //     });
+  //     toast({
+  //       description: "Personal details saved successfully.",
+  //     });
+  //     markStepAsCompleted(1);
+  //     setCurrentStep(2);
+  //   } catch (error: any) {
+  //     toast({
+  //       title: error?.response?.data?.message || "Something went wrong.",
+  //       className: "destructive border-none text-white",
+  //     });
+  //   }
+  // };
+  const handlePersonalDetailsSaveAndContinue = async (data: any) => {
+    setFormData((prev) => ({ ...prev, personalDetailsData: data }));
+
     markStepAsCompleted(1);
     setCurrentStep(2);
   };
 
-  const handleAddressSave = (data: any) => {
-    setFormData((prev) => ({ ...prev, address: data }));
-    console.log('Saving address:', data);
-  };
+  const handleAddressSaveAndContinue = async (data: any) => {
+    setFormData((prev) => ({ ...prev, addressData: data }));
 
-  const handleAddressSaveAndContinue = (data: any) => {
-    setFormData((prev) => ({ ...prev, address: data }));
     markStepAsCompleted(2);
     setCurrentStep(3);
   };
+  // const handleAddressSaveAndContinue = async (data: any) => {
+  //   try {
+  //     setFormData((prev) => ({ ...prev, addressData: data }));
+  //     await axiosInstance.patch(`/users/${user._id}`, {
+  //       addressData: data,
+  //     });
+  //     toast({
+  //       description: "Address details saved successfully.",
+  //     });
+  //     markStepAsCompleted(2);
+  //     setCurrentStep(3);
+  //   } catch (error: any) {
+  //     toast({
+  //       title: error?.response?.data?.message || "Something went wrong.",
+  //       className: "destructive border-none text-white",
+  //     });
+  //   }
+  // };
 
   const handleCourseDetailsSave = (data: any) => {
-    setFormData((prev) => ({ ...prev, courseDetails: data }));
+    setFormData((prev) => ({ ...prev, courseDetailsData: data }));
     console.log('Saving course details:', data);
   };
 
-  const handleCourseDetailsSaveAndContinue = (data: any) => {
-    setFormData((prev) => ({ ...prev, courseDetails: data }));
+  const handleCourseDetailsSaveAndContinue = async (data: any) => {
+    setFormData((prev) => ({ ...prev, courseDetailsData: data }));
+
     markStepAsCompleted(3);
     setCurrentStep(4);
   };
 
+  // const handleCourseDetailsSaveAndContinue = async (data: any) => {
+  //   try {
+  //     setFormData((prev) => ({ ...prev, courseDetailsData: data }));
+  //     await axiosInstance.patch(`/users/${user._id}`, {
+  //       courseDetailsData: data,
+  //     });
+  //     toast({
+  //       description: "Course details saved successfully.",
+  //     });
+  //     markStepAsCompleted(3);
+  //     setCurrentStep(4);
+  //   } catch (error: any) {
+  //     toast({
+  //       title: error?.response?.data?.message || "Something went wrong.",
+  //       className: "destructive border-none text-white",
+  //     });
+  //   }
+  // };
+
   const handleContactSave = (data: any) => {
-    setFormData((prev) => ({ ...prev, contact: data }));
+    setFormData((prev) => ({ ...prev, contactData: data }));
     console.log('Saving contact details:', data);
   };
 
-  const handleContactSaveAndContinue = (data: any) => {
-    setFormData((prev) => ({ ...prev, contact: data }));
+  const handleContactSaveAndContinue = async (data: any) => {
+    setFormData((prev) => ({ ...prev, contactData: data }));
+
     markStepAsCompleted(4);
     setCurrentStep(5);
+  };
+
+  // const handleContactSaveAndContinue = async (data: any) => {
+  //   try {
+  //     setFormData((prev) => ({ ...prev, contact: data }));
+  //     await axiosInstance.patch(`/users/${user._id}`, {
+  //       contactData: data,
+  //     });
+  //     toast({
+  //       description: "Contact details saved successfully.",
+  //     });
+  //     markStepAsCompleted(4);
+  //     setCurrentStep(5);
+  //   } catch (error: any) {
+  //     toast({
+  //       title: error?.response?.data?.message || "Something went wrong.",
+  //       className: "destructive border-none text-white",
+  //     });
+  //   }
+  // };
+
+  const handleEmergencySaveAndContinue = async (data: any) => {
+    setFormData((prev) => ({ ...prev, emergencyContactData: data }));
+    markStepAsCompleted(5);
+    setCurrentStep(6);
   };
 
   const handleEducationSave = (data: any) => {
@@ -96,10 +280,32 @@ export default function StudentApplication() {
     console.log('Saving education details:', data);
   };
 
-  const handleEducationSaveAndContinue = (data: any) => {
-    setFormData((prev) => ({ ...prev, education: data }));
-    markStepAsCompleted(5);
-    setCurrentStep(6);
+  // const handleEducationSaveAndContinue = async (data: any) => {
+
+  //   try {
+  //     console.log('Saving education details:', data);
+  //     setFormData((prev) => ({ ...prev,  data }));
+  //     await axiosInstance.patch(`/users/${user._id}`, {
+  //       educationData: data,
+  //     });
+  //     toast({
+  //       description: "Education details saved successfully.",
+  //     });
+  //     markStepAsCompleted(6);
+  //     setCurrentStep(7);
+  //   } catch (error: any) {
+  //     toast({
+  //       title: error?.response?.data?.message || "Something went wrong.",
+  //       className: "destructive border-none text-white",
+  //     });
+  //   }
+  // };
+
+  const handleEducationSaveAndContinue = async (data: any) => {
+    setFormData((prev) => ({ ...prev, educationData: data }));
+
+    markStepAsCompleted(6);
+    setCurrentStep(7);
   };
 
   const handleEmploymentSave = (data: any) => {
@@ -107,21 +313,40 @@ export default function StudentApplication() {
     console.log('Saving employment details:', data);
   };
 
-  const handleEmploymentSaveAndContinue = (data: any) => {
-    setFormData((prev) => ({ ...prev, employment: data }));
-    markStepAsCompleted(6);
-    setCurrentStep(7);
+  const handleEmploymentSaveAndContinue = async (data: any) => {
+    setFormData((prev) => ({ ...prev, employmentData: data }));
+    markStepAsCompleted(7);
+    setCurrentStep(8);
   };
 
+  // const handleEmploymentSaveAndContinue = async (data: any) => {
+  //   try {
+  //     setFormData((prev) => ({ ...prev,  data }));
+  //     await axiosInstance.patch(`/users/${user._id}`, {
+  //       employmentData:data,
+  //     });
+  //     toast({
+  //       description: "Employment details saved successfully.",
+  //     });
+  //     markStepAsCompleted(7);
+  //     setCurrentStep(8);
+  //   } catch (error: any) {
+  //     toast({
+  //       title: error?.response?.data?.message || "Something went wrong.",
+  //       className: "destructive border-none text-white",
+  //     });
+  //   }
+  // };
+
   const handleComplianceSave = (data: any) => {
-    setFormData((prev) => ({ ...prev, compliance: data }));
+    setFormData((prev) => ({ ...prev, complianceData: data }));
     console.log('Saving compliance details:', data);
   };
 
-  const handleComplianceSaveAndContinue = (data: any) => {
-    setFormData((prev) => ({ ...prev, compliance: data }));
-    markStepAsCompleted(7);
-    setCurrentStep(8);
+  const handleComplianceSaveAndContinue = async (data: any) => {
+    setFormData((prev) => ({ ...prev, complianceData: data }));
+    markStepAsCompleted(8);
+    setCurrentStep(9);
   };
 
   const handleDocumentsSave = (data: any) => {
@@ -129,20 +354,42 @@ export default function StudentApplication() {
     console.log('Saving documents:', data);
   };
 
-  const handleDocumentsSaveAndContinue = (data: any) => {
-    setFormData((prev) => ({ ...prev, documents: data }));
-    markStepAsCompleted(8);
-    setCurrentStep(9);
+  const handleDocumentsSaveAndContinue = async (data: any) => {
+    setFormData((prev) => ({ ...prev, documentsData: data }));
+    markStepAsCompleted(9);
+    setCurrentStep(10);
   };
 
-  const handleTermsSave = (data: any) => {
-    setFormData((prev) => ({ ...prev, termsAndSubmit: data }));
-    console.log('Saving terms acceptance:', data);
+  const handleTermsSave = async (data: any) => {
+    try {
+      setFormData((prev) => ({ ...prev, termsData: data }));
+      await axiosInstance.patch(`/users/${user._id}`, {
+        termsAndSubmit: data
+      });
+      toast({
+        description: 'Terms acceptance saved successfully.'
+      });
+    } catch (error: any) {
+      toast({
+        title: error?.response?.data?.message || 'Something went wrong.',
+        className: 'destructive border-none text-white'
+      });
+    }
+  };
+
+  const navigate = useNavigate();
+
+  const handleDashboardRedirect = () => {
+    if (user?.role === 'admin') {
+      navigate('/dashboard');
+    } else if (user?.role === 'student') {
+      navigate('/dashboard');
+    }
   };
 
   const handleReviewClick = () => {
     // Check if all required steps are completed before showing the review
-    const requiredSteps = [1, 2, 3, 4, 5, 6, 7, 8]; // All steps except the final Terms & Submit
+    const requiredSteps = [1, 2, 3, 4, 5, 6, 7, 8, 9]; // All steps except the final Terms & Submit
     const missingSteps = requiredSteps.filter(
       (step) => !completedSteps.includes(step)
     );
@@ -169,9 +416,8 @@ export default function StudentApplication() {
     setReviewModalOpen(true);
   };
 
-  const handleSubmit = () => {
-    // Check if all required steps are completed before final submission
-    const requiredSteps = [1, 2, 3, 4, 5, 6, 7, 8]; // All steps except the final Terms & Submit
+  const handleSubmit = async () => {
+    const requiredSteps = [1, 2, 3, 4, 5, 6, 7, 8, 9]; // All steps except the final Terms & Submit
     const missingSteps = requiredSteps.filter(
       (step) => !completedSteps.includes(step)
     );
@@ -195,8 +441,21 @@ export default function StudentApplication() {
       return;
     }
 
-    // All steps are complete, proceed with submission
-    console.log('Submitting form data:', formData);
+    try {
+      await axiosInstance.post(`/applications`, {
+        ...formData,
+        studentId: user._id
+      });
+      toast({
+        description: 'Applicaiton saved successfully.'
+      });
+    } catch (error: any) {
+      toast({
+        title: error?.response?.data?.message || 'Something went wrong.',
+        className: 'destructive border-none text-white'
+      });
+    }
+
     setFormSubmitted(true);
   };
 
@@ -206,7 +465,15 @@ export default function StudentApplication() {
       case 1:
         return (
           <PersonalDetailsStep
-            defaultValues={formData.personalDetails}
+            defaultValues={{
+              ...formData.personalDetailsData,
+              ...Object.fromEntries(
+                Object.entries(personalDetailsData || {}).filter(
+                  ([_, value]) =>
+                    value !== '' && value !== undefined && value !== null
+                )
+              )
+            }}
             onSaveAndContinue={handlePersonalDetailsSaveAndContinue}
             onSave={handlePersonalDetailsSave}
           />
@@ -214,66 +481,97 @@ export default function StudentApplication() {
       case 2:
         return (
           <AddressStep
-            defaultValues={formData.address}
+            defaultValues={{
+              ...formData.addressData,
+              ...Object.fromEntries(
+                Object.entries(addressData || {}).filter(
+                  ([_, value]) =>
+                    value !== '' && value !== undefined && value !== null
+                )
+              )
+            }}
             onSaveAndContinue={handleAddressSaveAndContinue}
-            onSave={handleAddressSave}
+            setCurrentStep={setCurrentStep}
           />
         );
       case 3:
         return (
           <CourseDetailsStep
-            defaultValues={formData.courseDetails}
+            defaultValues={formData.courseDetailsData}
             onSaveAndContinue={handleCourseDetailsSaveAndContinue}
             onSave={handleCourseDetailsSave}
+            setCurrentStep={setCurrentStep}
           />
         );
       case 4:
         return (
           <ContactStep
-            defaultValues={formData.contact}
+            defaultValues={{
+              ...formData.contactData,
+              ...Object.fromEntries(
+                Object.entries(contactData || {}).filter(
+                  ([_, value]) =>
+                    value !== '' && value !== undefined && value !== null
+                )
+              )
+            }}
             onSaveAndContinue={handleContactSaveAndContinue}
             onSave={handleContactSave}
+            setCurrentStep={setCurrentStep}
           />
         );
       case 5:
         return (
-          <EducationStep
-            defaultValues={formData.education}
-            onSaveAndContinue={handleEducationSaveAndContinue}
-            onSave={handleEducationSave}
+          <EmergencyContact
+            defaultValues={formData.emergencyContactData}
+            onSaveAndContinue={handleEmergencySaveAndContinue}
+            setCurrentStep={setCurrentStep}
           />
         );
       case 6:
         return (
-          <EmploymentStep
-            defaultValues={formData.employment}
-            onSaveAndContinue={handleEmploymentSaveAndContinue}
-            onSave={handleEmploymentSave}
+          <EducationStep
+            defaultValues={formData.educationData}
+            onSaveAndContinue={handleEducationSaveAndContinue}
+            onSave={handleEducationSave}
+            setCurrentStep={setCurrentStep}
           />
         );
       case 7:
         return (
-          <ComplianceStep
-            defaultValues={formData.compliance}
-            onSaveAndContinue={handleComplianceSaveAndContinue}
-            onSave={handleComplianceSave}
+          <EmploymentStep
+            defaultValues={formData.employmentData}
+            onSaveAndContinue={handleEmploymentSaveAndContinue}
+            onSave={handleEmploymentSave}
+            setCurrentStep={setCurrentStep}
           />
         );
       case 8:
         return (
-          <DocumentsStep
-            defaultValues={formData.documents}
-            onSaveAndContinue={handleDocumentsSaveAndContinue}
-            onSave={handleDocumentsSave}
+          <ComplianceStep
+            defaultValues={formData.complianceData}
+            onSaveAndContinue={handleComplianceSaveAndContinue}
+            onSave={handleComplianceSave}
+            setCurrentStep={setCurrentStep}
           />
         );
       case 9:
         return (
+          <DocumentsStep
+            defaultValues={formData.documentsData}
+            onSaveAndContinue={handleDocumentsSaveAndContinue}
+            onSave={handleDocumentsSave}
+            setCurrentStep={setCurrentStep}
+          />
+        );
+      case 10:
+        return (
           <TermsSubmitStep
-            defaultValues={formData.termsAndSubmit}
+            defaultValues={formData.termsData}
             onSave={handleTermsSave}
             onReview={handleReviewClick}
             onSubmit={handleSubmit}
+            setCurrentStep={setCurrentStep}
           />
         );
       default:
@@ -308,37 +606,59 @@ export default function StudentApplication() {
 
   if (formSubmitted) {
     return (
-      <Alert className="border-green-200 bg-green-50">
-        <AlertCircle className="h-4 w-4 text-green-600" />
-        <AlertTitle className="text-green-800">Success!</AlertTitle>
-        <AlertDescription className="text-green-700">
-          Your application has been submitted successfully. We will contact you
-          shortly.
-        </AlertDescription>
-      </Alert>
+      <div className="flex min-h-[calc(100vh-150px)] items-center justify-center px-4">
+  <Card className=" rounded-lg border border-gray-100 bg-watney/90 p-24 shadow-lg ">
+    <div className="flex flex-col items-center gap-6 text-center">
+      <div className='bg-white p-8 rounded-full'>
+        <Check  size={84} className='text-watney'/>
+      </div>
+      <div className="flex items-center gap-4 text-center">
+        <div>
+          <CardTitle className="text-2xl font-semibold text-white">
+            Application Submitted Sucessfull
+          </CardTitle>
+          <CardDescription className="mt-2 text-base text-white leading-relaxed">
+            Thank you for your submission. Our team has received your application and will get back to you shortly. Stay tuned!
+          </CardDescription>
+        </div>
+      </div>
+
+      <Button
+        onClick={handleDashboardRedirect}
+        className="mt-4 w-full rounded-sm bg-white *: px-6 py-3 text-base font-semibold text-watney transition hover:bg-white sm:w-auto"
+      >
+       Done
+      </Button>
+    </div>
+  </Card>
+</div>
+
+
     );
   }
 
   return (
-    <div className="mx-auto w-full max-w-6xl">
-      <h1 className="mb-8 text-center text-3xl font-bold">
-        Student Application Form
-      </h1>
+    <div className=" w-full ">
+      <Card className="p-4">
+        {/* <h1 className="mb-8 text-center text-3xl font-semibold">
+          Student Application Form
+        </h1> */}
 
-      <StepsIndicator
-        currentStep={currentStep}
-        completedSteps={completedSteps}
-        steps={formSteps}
-        onStepClick={handleStepClick}
-      />
+        <StepsIndicator
+          currentStep={currentStep}
+          completedSteps={completedSteps}
+          steps={formSteps}
+          onStepClick={handleStepClick}
+        />
 
-      {renderStep()}
+        {renderStep()}
 
-      <ReviewModal
-        open={reviewModalOpen}
-        onClose={() => setReviewModalOpen(false)}
-        formData={formData}
-      />
+        <ReviewModal
+          open={reviewModalOpen}
+          onClose={() => setReviewModalOpen(false)}
+          formData={formData}
+        />
+      </Card>
     </div>
   );
 }

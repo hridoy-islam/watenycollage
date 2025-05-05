@@ -10,6 +10,10 @@ import Otp from '@/pages/auth/otp';
 import NewPassword from '@/pages/new-password';
 import AdminLayout from '@/components/layout/admin-layout';
 import StudentApplication from '@/pages/studentApplication';
+import ResumeUpload from '@/pages/uploadResume';
+import ApplicationListPage from '@/pages/application/applications-list';
+import NewApplicationListPage from '@/pages/application/newApplications-list';
+import ViewApplicationPage from '@/pages/application/view-application';
 
 const SignInPage = lazy(() => import('@/pages/auth/signin'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
@@ -19,7 +23,7 @@ const DashboardPage = lazy(() => import('@/pages/dashboard'));
 export default function AppRouter() {
   const adminRoutes = [
     {
-      path: '/admin',
+      path: '/dashboard',
       element: (
         <AdminLayout>
           <ProtectedRoute>
@@ -46,7 +50,27 @@ export default function AppRouter() {
           path: 'student-form',
           element: <StudentApplication />,
           index: true
-        }
+        },
+        {
+          path: 'resume-upload',
+          element: <ResumeUpload />,
+          index: true
+        },
+        {
+          path: 'applications',
+          element: <ApplicationListPage />,
+          index: true
+        },
+        {
+          path: 'new-applications',
+          element: <NewApplicationListPage />,
+          index: true
+        },
+        {
+          path: 'applications/:id',
+          element: <ViewApplicationPage />,
+          index: true
+        },
       ]
     }
   ];

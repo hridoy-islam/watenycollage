@@ -6,7 +6,8 @@ import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import watney from '@/assets/imges/home/watney.jpg';
-import logo from '@/assets/imges/home/logos/tlogo.png';
+import logo from '@/assets/imges/home/logo.png';
+import { Card } from '@/components/ui/card';
 
 export default function SignInPage() {
   const { user } = useSelector((state: any) => state.auth);
@@ -14,50 +15,24 @@ export default function SignInPage() {
 
   useEffect(() => {
     if (user) {
-      navigate('/admin'); // Adjust the path as needed
+      navigate('/dashboard'); // Adjust the path as needed
     }
   }, [user, navigate]);
 
   return (
-    <div className="relative h-screen flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
-      <div
-        className="relative hidden h-full flex-col border-gray-200 p-8 text-black dark:border-r lg:flex"
-        style={{
-          background: `url(${watney}) center/cover no-repeat, white`
-        }}
-      >
-        <Link to="/">
-            <h1 className='text-black font-bold text-3xl'>Watney College</h1>
-        </Link>
+    <div className="relative h-screen flex-col items-center justify-center w-full lg:px-0">
 
-      </div>
-      <div className="flex h-full items-center p-4 lg:p-8 bg-white">
-        <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
-          <div className="flex flex-col space-y-2 text-center">
-            <h1 className="text-2xl font-semibold tracking-tight">Login</h1>
-            {/* <p className="text-sm text-muted-foreground">
-              Enter your email below to create your account
-            </p> */}
+      <div className="flex h-full items-center p-4 lg:p-8 bg-gray-100 shadow-md">
+        <Card className="mx-auto rounded-sm p-4 border border-gray-200 flex w-full flex-col justify-center space-y-4 sm:w-[350px]">
+          <div className="flex flex-row space-y-2 text-center items-center gap-4">
+            <img src={logo} alt="logo" className='w-12 ' />
+            <div className='border h-12'></div>
+            <h1 className="text-2xl font-semibold tracking-tight">Watney College</h1>
           </div>
+          <h1 className='font-semibold text-2xl'>Login</h1>
           <UserAuthForm />
-          <p className="px-8 text-center text-sm text-muted-foreground">
-            By clicking continue, you agree to our{' '}
-            <Link
-              to="/terms"
-              className="hover:pointer underline underline-offset-4"
-            >
-              Terms of Service
-            </Link>{' '}
-            and{' '}
-            <Link
-              to="/privacy"
-              className="hover:pointer underline underline-offset-4"
-            >
-              Privacy Policy
-            </Link>
-            .
-          </p>
-        </div>
+          
+        </Card>
       </div>
     </div>
   );

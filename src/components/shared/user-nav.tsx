@@ -52,9 +52,9 @@ export function UserNav() {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline" className="relative h-10 w-10 rounded-full">
-            <Avatar className="h-10 w-10">
+            <Avatar className="h-10 w-10 ">
               <AvatarImage src={profileData?.imgUrl} alt="@shadcn"  />
-              <AvatarFallback>
+              <AvatarFallback className='bg-white text-black font-semibold text-xl'>
                 {user?.name
                   ?.split(' ') // Split name into an array of words
                   .slice(0, 2) // Get the first two words (first & last name)

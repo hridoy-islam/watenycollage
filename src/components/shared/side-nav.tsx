@@ -33,7 +33,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { logout } from '@/redux/features/authSlice';
 const navItems = [
-  { icon: HomeIcon, label: 'Dashboard', href: '/admin' },
+  { icon: HomeIcon, label: 'Dashboard', href: '/dashboard' },
   {
     icon: ClipboardListIcon,
     label: 'Management',

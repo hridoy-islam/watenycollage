@@ -21,26 +21,31 @@ export const formSteps = [
   },
   {
     id: 5,
+    label: 'Emergency',
+    icon: 'phone-call'
+  },
+  {
+    id: 6,
     label: 'Education',
     icon: 'graduation-cap'
   },
   {
-    id: 6,
+    id: 7,
     label: 'Employment',
     icon: 'briefcase'
   },
   {
-    id: 7,
+    id: 8,
     label: 'Compliance',
     icon: 'shield'
   },
   {
-    id: 8,
+    id: 9,
     label: 'Documents',
     icon: 'file-text'
   },
   {
-    id: 9,
+    id: 10,
     label: 'Terms and Submit',
     icon: 'check-square'
   }

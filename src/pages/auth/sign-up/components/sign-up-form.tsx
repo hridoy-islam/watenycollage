@@ -28,7 +28,7 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
       email: '',
       password: '',
       phone: '',
-      role: 'user'
+      role: 'student'
     }
   });
 
@@ -134,7 +134,7 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
                 </FormItem>
               )}
             />
-            <Button className="mt-2" type="submit" variant={'outline'}>
+            <Button className="mt-2 bg-watney hover:bg-watney/90" type="submit" variant={'outline'}>
               Create Account
             </Button>
           </div>

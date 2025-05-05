@@ -16,7 +16,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import taskplan from '@/assets/imges/home/forget.png';
-import logo from '@/assets/imges/home/logos/tlogo.png';
+import logo from '@/assets/imges/home/logo.png';
 import { Link } from 'react-router-dom';
 import { z } from 'zod';
 
@@ -50,27 +50,19 @@ export default function ForgotPassword() {
 
   return (
     <>
-      <div className="grid h-screen md:grid-cols-2 lg:px-0">
-        <div
-          className="relative hidden h-full flex-col border-gray-200 p-8 text-black dark:border-r lg:flex"
-          style={{
-            background: `url(${taskplan}) center/contain no-repeat, white`
-          }}
-        >
-           <Link to="/">
-            <h1 className='text-black font-bold text-3xl'>Watney College</h1>
-        </Link>
-        </div>
-
-        {/* Right Form Panel */}
+      <div className="grid h-screen bg-gray-100 lg:px-0">
         <div className="flex h-full items-center justify-center p-4 lg:p-8">
           <div className="mx-auto flex w-full flex-col justify-center space-y-2 sm:w-[480px] lg:p-8">
-           
-            <Card className="p-6">
+            <Card className="flex w-full flex-col justify-center space-y-4 border border-gray-200 p-4 ">
               <div className="mb-2 flex flex-col space-y-2 text-left">
-                <h1 className="text-md font-semibold tracking-tight">
-                  Forgot Password
-                </h1>
+                <div className="flex flex-row items-center gap-4 space-y-2 text-center">
+                  
+                  <Link to="/"><img src={logo} alt="logo" className="w-12 " /></Link>
+                  <div className="h-12 border"></div>
+                  <h1 className="text-2xl font-semibold tracking-tight">
+                    Forget Password
+                  </h1>
+                </div>
                 <p className="text-sm text-muted">
                   Enter your registered email and <br /> we will send you a link
                   to reset your password.
@@ -112,7 +104,7 @@ export default function ForgotPassword() {
               </div>
               {/* <ForgotForm /> */}
               <p className="mt-4 px-8 text-center text-sm text-muted">
-                Back to {' '}
+                Back to{'  '}
                 <Link to="/login" className="underline underline-offset-4">
                   Sign In
                 </Link>

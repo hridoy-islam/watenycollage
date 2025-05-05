@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -20,23 +20,15 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import { FileUpload } from './file-upload';
-import { CalendarIcon } from 'lucide-react';
-import { format } from 'date-fns';
-import { cn } from '@/lib/utils';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger
-} from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
+import { Textarea } from '@/components/ui/textarea';
+import { countries, nationalities } from '@/types';
+import moment from 'moment';
 
 const personalDetailsSchema = z.object({
-  photo: z.any().optional(),
+  
   title: z.string().min(1, { message: 'Please select a title' }),
   firstName: z.string().min(1, { message: 'First name is required' }),
   lastName: z.string().min(1, { message: 'Last name is required' }),
-  studentId: z.string().min(1, { message: 'Student ID is required' }),
   otherName: z.string().optional(),
   gender: z.string().min(1, { message: 'Please select a gender' }),
   dateOfBirth: z.date({
@@ -44,15 +36,11 @@ const personalDetailsSchema = z.object({
   }),
   nationality: z.string().min(1, { message: 'Please select a nationality' }),
   ethnicity: z.string().min(1, { message: 'Please select an ethnicity' }),
+  customEthnicity: z.string().optional(),
   countryOfBirth: z
     .string()
     .min(1, { message: 'Please select country of birth' }),
-  passportNumber: z
-    .string()
-    .min(1, { message: 'Passport/ID number is required' }),
-  passportExpiry: z.date({
-    required_error: 'Passport/ID expiry date is required'
-  }),
+
   maritalStatus: z.string().min(1, { message: 'Please select marital status' })
 });
 
@@ -69,7 +57,17 @@ export function PersonalDetailsStep({
   onSaveAndContinue,
   onSave
 }: PersonalDetailsStepProps) {
-  const [photoFile, setPhotoFile] = useState<File | null>(null);
+
+
+  const parseDate = (
+    date: string | Date | null | undefined
+  ): Date | undefined => {
+    if (!date) return undefined;
+  
+    const parsed = moment(date);
+    return parsed.isValid() ? parsed.toDate() : undefined;
+  };
+
 
   const form = useForm<PersonalDetailsData>({
     resolver: zodResolver(personalDetailsSchema),
@@ -77,35 +75,41 @@ export function PersonalDetailsStep({
       title: defaultValues?.title || '',
       firstName: defaultValues?.firstName || '',
       lastName: defaultValues?.lastName || '',
-      studentId: defaultValues?.studentId || '',
       otherName: defaultValues?.otherName || '',
       gender: defaultValues?.gender || '',
-      dateOfBirth: defaultValues?.dateOfBirth,
+      dateOfBirth: parseDate(defaultValues?.dateOfBirth) || undefined,
       nationality: defaultValues?.nationality || '',
       ethnicity: defaultValues?.ethnicity || '',
       countryOfBirth: defaultValues?.countryOfBirth || '',
-      passportNumber: defaultValues?.passportNumber || '',
-      passportExpiry: defaultValues?.passportExpiry,
       maritalStatus: defaultValues?.maritalStatus || ''
     }
   });
 
+  useEffect(() => {
+    if (defaultValues) {
+      form.reset({
+        ...defaultValues,
+        
+      });
+    }
+  }, [defaultValues, form]);
+
+
   function onSubmit(data: PersonalDetailsData) {
-    data.photo = photoFile;
     onSaveAndContinue(data);
   }
 
-  function handleSave() {
-    const data = form.getValues() as PersonalDetailsData;
-    data.photo = photoFile;
-    onSave(data);
-  }
+
+  const ethnicity = useWatch({
+    control: form.control,
+    name: 'ethnicity'
+  });
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        <Card>
-          <CardContent className="space-y-6 pt-6">
+        <div>
+          <CardContent className="space-y-6 ">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
               <FormField
                 control={form.control}
@@ -113,10 +117,7 @@ export function PersonalDetailsStep({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Title</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
+                    <Select onValueChange={field.onChange} {...field}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select Title" />
@@ -141,7 +142,7 @@ export function PersonalDetailsStep({
                   <FormItem>
                     <FormLabel>First Name</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input {...field}  />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -154,30 +155,18 @@ export function PersonalDetailsStep({
                   <FormItem>
                     <FormLabel>Last Name</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                    <Input {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="studentId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Student ID</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+
               <FormField
                 control={form.control}
                 name="otherName"
                 render={({ field }) => (
-                  <FormItem className="col-span-full">
+                  <FormItem>
                     <FormLabel>Other name if you have been known by</FormLabel>
                     <FormControl>
                       <Input {...field} />
@@ -194,7 +183,7 @@ export function PersonalDetailsStep({
                     <FormLabel>Gender</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      {...field}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -218,37 +207,15 @@ export function PersonalDetailsStep({
                 control={form.control}
                 name="dateOfBirth"
                 render={({ field }) => (
-                  <FormItem className="flex flex-col">
+                  <FormItem>
                     <FormLabel>Date of Birth</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant={'outline'}
-                            className={cn(
-                              'border-gray-50 bg-white pl-3 text-left font-normal text-black dark:bg-white dark:text-black',
-                              !field.value && 'text-muted-foreground'
-                            )}
-                          >
-                            {field.value
-                              ? format(field.value, 'PPP')
-                              : 'mm/dd/yyyy'}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          disabled={(date) =>
-                            date > new Date() || date < new Date('1900-01-01')
-                          }
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
+                    <FormControl>
+                      <Input
+                        type="date"
+                        value={field.value ? moment(field.value).format("YYYY-MM-DD") : ""}
+                        onChange={(e) => field.onChange(e.target.valueAsDate)}
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -262,7 +229,7 @@ export function PersonalDetailsStep({
                     <FormLabel>Nationality</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      {...field}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -270,11 +237,11 @@ export function PersonalDetailsStep({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="british">British</SelectItem>
-                        <SelectItem value="american">American</SelectItem>
-                        <SelectItem value="canadian">Canadian</SelectItem>
-                        <SelectItem value="australian">Australian</SelectItem>
-                        {/* Add more nationalities */}
+                        {nationalities.map((nation, index) => (
+                          <SelectItem key={index} value={nation}>
+                            {nation}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -289,11 +256,11 @@ export function PersonalDetailsStep({
                     <FormLabel>Ethnicity</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      {...field}
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select" />
+                          <SelectValue placeholder="Select Ethnicity" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -308,6 +275,26 @@ export function PersonalDetailsStep({
                   </FormItem>
                 )}
               />
+
+              {ethnicity === 'other' && (
+                <FormField
+                  control={form.control}
+                  name="customEthnicity"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Specify Ethnicity</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Enter your ethnicity"
+                          {...field}
+                          className="p-1 text-sm"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
               <FormField
                 control={form.control}
                 name="countryOfBirth"
@@ -316,7 +303,7 @@ export function PersonalDetailsStep({
                     <FormLabel>Country of birth</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      {...field}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -324,67 +311,18 @@ export function PersonalDetailsStep({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="uk">United Kingdom</SelectItem>
-                        <SelectItem value="us">United States</SelectItem>
-                        <SelectItem value="canada">Canada</SelectItem>
-                        <SelectItem value="australia">Australia</SelectItem>
-                        {/* Add more countries */}
+                        {countries.map((country, index) => (
+                          <SelectItem key={index} value={country}>
+                            {country}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="passportNumber"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Passport/National ID Number</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="passportExpiry"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>Passport/ID Expiry Date</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant={'outline'}
-                            className={cn(
-                              'pl-3 text-left font-normal',
-                              !field.value && 'text-muted-foreground'
-                            )}
-                          >
-                            {field.value
-                              ? format(field.value, 'PPP')
-                              : 'mm/dd/yyyy'}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          disabled={(date) => date < new Date()}
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+
               <FormField
                 control={form.control}
                 name="maritalStatus"
@@ -393,7 +331,7 @@ export function PersonalDetailsStep({
                     <FormLabel>Marital status</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      {...field}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -415,13 +353,13 @@ export function PersonalDetailsStep({
               />
             </div>
           </CardContent>
-        </Card>
+        </div>
 
-        <div className="mt-6 flex justify-between">
-          <Button type="button" variant="outline" onClick={handleSave}>
+        <div className="flex justify-end px-5">
+          {/* <Button type="button" variant="outline" onClick={handleSave}>
             Save
-          </Button>
-          <Button type="submit">Save & Continue</Button>
+          </Button> */}
+          <Button type="submit">Next</Button>
         </div>
       </form>
     </Form>

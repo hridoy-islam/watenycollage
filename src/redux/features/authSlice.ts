@@ -192,6 +192,20 @@ export const changePassword = createAsyncThunk<
   return response;
 });
 
+
+export const resendOtp = createAsyncThunk(
+  'auth/resendOtp',
+  async ({ email}: { email: string}, { rejectWithValue }) => {
+    try {
+      const response = await axios.patch(
+    `${import.meta.env.VITE_API_URL}/auth/resend-otp`, { email });
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
+
 export const logout = createAsyncThunk<void>('user/logout', async () => {
   localStorage.removeItem('watney');
 });

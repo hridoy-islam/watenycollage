@@ -24,7 +24,7 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import watney from '@/assets/imges/home/watney.jpg';
-
+import logo from '@/assets/imges/home/logo.png';
 
 import { Link } from 'react-router-dom';
 import { z } from 'zod';
@@ -83,21 +83,10 @@ export default function NewPassword() {
   // }, []);
 
   return (
-    <div className="relative h-screen flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
-      <div
-        className="relative hidden h-full flex-col border-gray-200 p-8 text-black dark:border-r lg:flex"
-        style={{
-          background: `url(${watney}) center/cover no-repeat, white`
-        }}
-      >
-       <Link to="/">
-            <h1 className='text-black font-bold text-3xl'>Watney College</h1>
-        </Link>
-      </div>
-
+    <div className="relative h-screen flex-col items-center justify-center">
       {/* Right Side (Form) */}
-      <div className="flex bg-white h-full items-center bg-primary p-4 lg:p-8">
-        <div className="mx-auto flex w-full flex-col justify-center space-y-8 sm:w-[450px]">
+      <div className="flex h-full items-center bg-gray-100  p-4 lg:p-8">
+        <div className="mx-auto flex w-full flex-col justify-center space-y-8 sm:w-[350px]">
           {dialogOpen ? (
             <Card className="space-y-6 p-6 text-center">
               <h1 className="text-2xl font-semibold tracking-tight">
@@ -115,8 +104,16 @@ export default function NewPassword() {
               </Button>
             </Card>
           ) : (
-            <>
+            <Card className="flex w-full flex-col justify-center space-y-4 border border-gray-200 p-4 ">
               <div className="flex  flex-col space-y-2 text-center">
+                {/* <div className="flex flex-row items-center gap-4  text-center">
+                  <Link to="/">
+                    <img src={logo} alt="logo" className="w-12 " />
+                  </Link>
+
+                  <div className="h-12 border"></div>
+                  <h1 className='font-semibold text-2xl'>Watney College</h1>
+                </div> */}
                 <h1 className="text-2xl font-semibold tracking-tight">
                   Enter New Password
                 </h1>
@@ -129,7 +126,7 @@ export default function NewPassword() {
                 <p className="mt-2 text-center text-sm text-red-500">{error}</p>
               )}
 
-              <Card className="space-y-6 p-6">
+              <div className="space-y-6 p-2">
                 <Form {...form}>
                   <form
                     onSubmit={form.handleSubmit(onSubmit)}
@@ -177,15 +174,15 @@ export default function NewPassword() {
 
                     <Button
                       disabled={loading || fieldsDisabled}
-                      className="w-full bg-background text-white hover:bg-background"
+                      className="w-full bg-watney text-white hover:bg-watney/90"
                       type="submit"
                     >
                       Submit
                     </Button>
                   </form>
                 </Form>
-              </Card>
-            </>
+              </div>
+            </Card>
           )}
         </div>
       </div>

@@ -35,8 +35,9 @@ export function TermsSubmitStep({
   defaultValues,
   onSave,
   onReview,
-  onSubmit
-}: TermsSubmitStepProps) {
+  onSubmit,
+  setCurrentStep
+}: any) {
   const form = useForm<TermsData>({
     resolver: zodResolver(termsSchema),
     defaultValues: {
@@ -45,25 +46,30 @@ export function TermsSubmitStep({
     }
   });
 
-  function handleSave() {
-    const data = form.getValues();
-    onSave(data);
+  // function handleSave() {
+  //   const data = form.getValues();
+  //   onSave(data);
+  // }
+
+  function handleBack() {
+    setCurrentStep(9);
   }
+
 
   const isValid = form.formState.isValid;
 
   return (
     <Form {...form}>
       <form>
-        <Card>
-          <CardContent className="space-y-6 pt-6">
+        <div>
+          <CardContent className="space-y-2">
             <div>
-              <h2 className="mb-4 text-xl font-semibold">
+              <h2 className="mb-2 text-xl font-semibold">
                 Terms and Conditions
               </h2>
-              <div className="mb-4 max-h-60 overflow-y-auto rounded-md bg-gray-50 p-4">
+              <div className="mb-2 max-h-60 overflow-y-auto rounded-md bg-gray-50 p-4">
                 <h3 className="mb-2 font-medium">What happens next</h3>
-                <p className="mb-4 text-sm">
+                <p className="mb-2 text-sm">
                   Thank you for taking the time to provide all of the
                   information required. Once you have clicked 'Submit' below the
                   application will be sent to our Centre Support Team. Once it
@@ -71,13 +77,13 @@ export function TermsSubmitStep({
                   recognition will be issued, this is usually within five
                   working days.
                 </p>
-                <p className="mb-4 text-sm">
+                <p className="mb-2 text-sm">
                   Once the initial centre recognition invoice has been paid you
                   will be contacted within five working days by one of our
                   External Quality Assurers to take you through the centre
                   recognition process.
                 </p>
-                <p className="mb-4 text-sm">
+                <p className="mb-2 text-sm">
                   If you have any queries please contact us on
                   support@example.co.uk or telephone +44(0)1234567890.
                 </p>
@@ -124,7 +130,7 @@ export function TermsSubmitStep({
                 control={form.control}
                 name="acceptTerms"
                 render={({ field }) => (
-                  <FormItem className="mb-4 flex flex-row items-start space-x-3 space-y-0">
+                  <FormItem className="mb-2 flex flex-row items-start space-x-3 space-y-0">
                     <FormControl>
                       <Checkbox
                         checked={field.value}
@@ -172,11 +178,10 @@ export function TermsSubmitStep({
               />
             </div>
           </CardContent>
-        </Card>
-
-        <div className="mt-6 flex justify-between">
-          <Button type="button" variant="outline" onClick={handleSave}>
-            Save
+        </div>
+        <div className="px-6 flex justify-between">
+          <Button type="button" variant="outline" onClick={handleBack}>
+            Back
           </Button>
           <div className="space-x-3">
             <Button type="button" variant="outline" onClick={onReview}>
@@ -186,7 +191,7 @@ export function TermsSubmitStep({
               type="button"
               onClick={onSubmit}
               disabled={!isValid}
-              className="bg-green-600 hover:bg-green-700"
+              className="bg-green-600 hover:bg-green-700 text-white"
             >
               Submit
             </Button>

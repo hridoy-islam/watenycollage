@@ -1,124 +1,39 @@
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
 import { StatCard } from '@/components/shared/stat-card';
-import { RefreshCw } from 'lucide-react';
+import { Plus, RefreshCw } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import axiosInstance from '@/lib/axios'
+import axiosInstance from '@/lib/axios';
 import { useSelector } from 'react-redux';
-// const stats = [
-//   // {
-//   //   title: 'Applications',
-//   //   value: 1426
-//   // },
-//   // {
-//   //   title: 'Students',
-//   //   value: 1070
-//   // },
-//   // {
-//   //   title: 'Waiting LLC Approval',
-//   //   value: 0
-//   // },
-//   // {
-//   //   title: 'New',
-//   //   value: 125
-//   // },
-//   // {
-//   //   title: 'Processing',
-//   //   value: 29
-//   // },
-//   // {
-//   //   title: 'Application Made',
-//   //   value: 4
-//   // },
-//   // {
-//   //   title: 'Offer Made',
-//   //   value: 0
-//   // },
-//   // {
-//   //   title: 'Enrolled',
-//   //   value: 594
-//   // },
-//   // {
-//   //   title: 'Rejected',
-//   //   value: 367
-//   // },
-//   // {
-//   //   title: 'Hold',
-//   //   value: 1
-//   // },
-//   // {
-//   //   title: 'App made to LCC',
-//   //   value: 113
-//   // },
-//   // {
-//   //   title: 'Deregister',
-//   //   value: 60
-//   // },
-//   // {
-//   //   title: 'SLC Course Completed',
-//   //   value: 133
-//   // },
-//   {
-//     title: 'Follow Ups Pending',
-//     value: '0',
-//     href: 'followup'
-//   },
-//   {
-//     title: 'Created Follow Ups',
-//     value: '0',
-//     href: 'followup/created'
-//   },
-// ];
-
+import { useNavigate } from 'react-router-dom';
 
 export default function DashboardPage() {
-  
   const { user } = useSelector((state: any) => state.auth);
 
-  const [followUpsPending, setFollowUpsPending] = useState(0);
-  const [createdFollowUps, setCreatedFollowUps] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [applicationCount, setApplicationCount] = useState(0);
+  const [newApplicationCount, setNewApplicationCount] = useState(0);
+  const navigate = useNavigate();
 
-  const stats = [
-    {
-      title: 'Follow Ups Pending',
-      value: followUpsPending.toString(),
-      href: 'followup',
-    },
-    {
-      title: 'Created Follow Ups',
-      value: createdFollowUps.toString(),
-      href: 'followup/created',
-    },
-  ];
-
+  const handleRoute = () => {
+    navigate('/dashboard/resume-upload');
+  };
   const fetchData = async () => {
-    setIsLoading(true);
-    setError(null);
+    if (!user) return;
+
     try {
-      // Fetch follow-ups pending
-      const response1 = await axiosInstance.get(
-        `/notes?where=with:createdBy,email,${user.email}&status=done`
-      );
-      setCreatedFollowUps(response1.data.data.meta.total);
-      
-      // Fetch created follow-ups
-      const response2 = await axiosInstance.get(
-        `/notes?where=with:followUpStaffs,with:user,email,${user.email}&status=pending`
-      );
-      setFollowUpsPending(response2.data.data.meta.total);
+      if (user.role === 'admin') {
+        const res1 = await axiosInstance.get('/applications');
+        const res2 = await axiosInstance.get('/applications?seen=false');
+
+        setApplicationCount(res1.data.data.meta.total || 0);
+        setNewApplicationCount(res2.data.data.meta.total || 0);
+      } else if (user.role === 'student') {
+        // Student sees only their applications
+        const res = await axiosInstance.get(
+          `/applications?studentId=${user._id}`
+        );
+        setApplicationCount(res.data.data.meta.total || 0);
+      }
     } catch (error) {
-      setError('Failed to fetch data. Please try again later.');
-      console.error('Error fetching notes:', error);
-    } finally {
-      setIsLoading(false);
+      console.error('Error fetching dashboard data:', error);
     }
   };
 
@@ -128,48 +43,67 @@ export default function DashboardPage() {
     }
   }, [user]);
 
+  const stats =
+    user?.role === 'admin'
+      ? [
+          {
+            title: 'Total Applications',
+            value: applicationCount.toString(),
+            href: 'applications'
+          },
+          {
+            title: 'New Applications',
+            value: newApplicationCount.toString(),
+            href: 'new-applications'
+          }
+        ]
+      : [
+          {
+            title: 'Applications',
+            value: applicationCount.toString(),
+            href: 'applications'
+          }
+        ];
+
   return (
     <div className="flex-1 space-y-4 p-4 pt-6 md:p-8">
       <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-2xl font-bold">General Report</h2>
-        <div className="flex items-center space-x-2">
+        <h2 className="text-2xl font-bold">Applications</h2>
+        {/* Reload Button (optional) */}
+        {/* <div className="flex items-center space-x-2">
           <Button
             className="bg-supperagent text-white hover:bg-supperagent/90"
             size="sm"
+            onClick={fetchData}
+            disabled={isLoading}
           >
-            <RefreshCw className="mr-2 h-4 w-4" />
+            <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
             Reload Data
           </Button>
-        </div>
+        </div> */}
       </div>
 
       <div className="space-y-4">
-        <div className="rounded-lg bg-supperagent p-4">
-          <div className="flex items-center space-x-4">
-            <div className="flex-1">
-              <label className="text-sm font-medium text-white">
-                Applications by academic year:
-              </label>
-              <Select defaultValue="2024-2025">
-                <SelectTrigger className="mt-2 border-white bg-white">
-                  <SelectValue placeholder="Select year" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="2024-2025">2024-2025</SelectItem>
-                  <SelectItem value="2023-2024">2023-2024</SelectItem>
-                  <SelectItem value="2022-2023">2022-2023</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </div>
-
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {stats.map((stat) => (
-            
-              <StatCard key={stat.title} href={stat.href} title={stat.title} value={stat.value} />
-            
+            <StatCard
+              key={stat.title}
+              href={stat.href}
+              title={stat.title}
+              value={stat.value}
+            />
           ))}
+          <div
+            className="group flex cursor-pointer flex-col items-center justify-center rounded-lg bg-white p-2 text-center shadow-sm hover:bg-watney hover:text-white"
+            onClick={handleRoute}
+          >
+            <div className="mb-1 flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-600 transition-colors group-hover:bg-white group-hover:text-watney">
+              <Plus className="h-8 w-8" />
+            </div>
+            <h3 className="text-sm font-medium text-gray-600 transition-colors group-hover:text-white">
+              New Application
+            </h3>
+          </div>
         </div>
       </div>
     </div>

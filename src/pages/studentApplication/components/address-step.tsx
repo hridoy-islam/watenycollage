@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import {  CardContent } from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -20,6 +20,8 @@ import {
   SelectValue
 } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import { useEffect } from 'react';
+import { countries } from '@/types';
 
 const addressSchema = z
   .object({
@@ -79,34 +81,11 @@ const addressSchema = z
 
 type AddressData = z.infer<typeof addressSchema>;
 
-interface AddressStepProps {
-  defaultValues?: Partial<AddressData>;
-  onSaveAndContinue: (data: AddressData) => void;
-  onSave: (data: AddressData) => void;
-}
-
-// List of countries for the dropdown
-const countries = [
-  { value: 'uk', label: 'United Kingdom' },
-  { value: 'us', label: 'United States' },
-  { value: 'ca', label: 'Canada' },
-  { value: 'au', label: 'Australia' },
-  { value: 'nz', label: 'New Zealand' },
-  { value: 'in', label: 'India' },
-  { value: 'fr', label: 'France' },
-  { value: 'de', label: 'Germany' },
-  { value: 'it', label: 'Italy' },
-  { value: 'es', label: 'Spain' },
-  { value: 'cn', label: 'China' },
-  { value: 'jp', label: 'Japan' }
-  // Add more countries as needed
-];
-
 export function AddressStep({
   defaultValues,
   onSaveAndContinue,
-  onSave
-}: AddressStepProps) {
+  setCurrentStep
+}) {
   const form = useForm<AddressData>({
     resolver: zodResolver(addressSchema),
     defaultValues: {
@@ -150,16 +129,23 @@ export function AddressStep({
     onSaveAndContinue(data);
   }
 
-  function handleSave() {
-    const data = form.getValues();
-    onSave(data);
+  function handleBack() {
+    setCurrentStep(1);
   }
+
+  useEffect(() => {
+    if (defaultValues) {
+      form.reset({
+        ...defaultValues
+      });
+    }
+  }, [defaultValues, form]);
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        <Card>
-          <CardContent className="pt-6">
+        <div>
+          <CardContent className="">
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
               {/* Residential Address Section */}
               <div className="space-y-4">
@@ -229,22 +215,16 @@ export function AddressStep({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Country</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
+                      <Select onValueChange={field.onChange} {...field}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select Country" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {countries.map((country) => (
-                            <SelectItem
-                              key={country.value}
-                              value={country.value}
-                            >
-                              {country.label}
+                          {countries.map((country, index) => (
+                            <SelectItem key={index} value={country}>
+                              {country}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -361,7 +341,7 @@ export function AddressStep({
                       <FormLabel>Country</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        {...field}
                         disabled={sameAsResidential}
                       >
                         <FormControl>
@@ -372,12 +352,9 @@ export function AddressStep({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {countries.map((country) => (
-                            <SelectItem
-                              key={country.value}
-                              value={country.value}
-                            >
-                              {country.label}
+                          {countries.map((country, index) => (
+                            <SelectItem key={index} value={country}>
+                              {country}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -389,13 +366,13 @@ export function AddressStep({
               </div>
             </div>
           </CardContent>
-        </Card>
+        </div>
 
-        <div className="mt-6 flex justify-between">
-          <Button type="button" variant="outline" onClick={handleSave}>
-            Save
+        <div className=" flex justify-between px-6">
+          <Button type="button" variant="outline" onClick={handleBack}>
+            Back
           </Button>
-          <Button type="submit">Save & Continue</Button>
+          <Button type="submit">Next</Button>
         </div>
       </form>
     </Form>

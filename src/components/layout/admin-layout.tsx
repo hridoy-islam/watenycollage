@@ -9,10 +9,10 @@ export default function AdminLayout({
     children: React.ReactNode;
   })  {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-100">
       <AutoLogout inactivityLimit={30 * 60 * 1000} />
       <TopNav />
-      <SideNav />
+      {/* <SideNav /> */}
 
       <main className="px-4 mx-auto py-6">
       {children}

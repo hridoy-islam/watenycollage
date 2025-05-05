@@ -11,7 +11,7 @@ const AutoLogout = ({ inactivityLimit = 10 * 60 * 1000 }) => {
 
   const handleLogout = async () => {
     await dispatch(logout());
-    navigate('/login'); // Redirect to login after logout
+    navigate('/'); // Redirect to login after logout
   };
 
   const resetTimer = () => {

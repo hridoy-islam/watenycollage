@@ -19,15 +19,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import { CalendarIcon, Upload } from 'lucide-react';
-import { format } from 'date-fns';
-import { cn } from '@/lib/utils';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger
-} from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
+
 import {
   Table,
   TableBody,
@@ -37,6 +29,7 @@ import {
   TableRow
 } from '@/components/ui/table';
 import { FileUpload } from './file-upload';
+import moment from 'moment';
 
 // Define a schema for a single education entry
 const educationEntrySchema = z.object({
@@ -45,16 +38,18 @@ const educationEntrySchema = z.object({
   qualification: z
     .string()
     .min(1, { message: 'Qualification details are required' }),
-  awardDate: z.date({
-    required_error: 'Date of award is required'
-  }),
+  awardDate: z
+    .date({
+      required_error: 'Date of award is required'
+    })
+    .nullable(),
   certificate: z.any().optional(),
   transcript: z.any().optional()
 });
 
 // Define the schema for the entire form
 const educationSchema = z.object({
-  educationEntries: z
+  educationData: z
     .array(educationEntrySchema)
     .min(1, 'At least one education entry is required')
 });
@@ -62,26 +57,21 @@ const educationSchema = z.object({
 type EducationEntry = z.infer<typeof educationEntrySchema>;
 type EducationData = z.infer<typeof educationSchema>;
 
-interface EducationStepProps {
-  defaultValues?: Partial<EducationData>;
-  onSaveAndContinue: (data: EducationData) => void;
-  onSave: (data: EducationData) => void;
-}
-
 export function EducationStep({
   defaultValues,
   onSaveAndContinue,
-  onSave
-}: EducationStepProps) {
-  const [educationEntries, setEducationEntries] = useState<EducationEntry[]>(
-    defaultValues?.educationEntries || [
+  onSave,
+  setCurrentStep
+}) {
+  const [educationData, seteducationData] = useState<EducationEntry[]>(
+    defaultValues|| [
       {
         institution: '',
         studyType: '',
         qualification: '',
-        awardDate: new Date(),
-        certificate: null,
-        transcript: null
+        awardDate: null, // Nullable date
+        certificate: '',
+        transcript: ''
       }
     ]
   );
@@ -92,74 +82,88 @@ export function EducationStep({
   const form = useForm<EducationData>({
     resolver: zodResolver(educationSchema),
     defaultValues: {
-      educationEntries: educationEntries
+      educationData: educationData
     }
   });
 
+  // function onSubmit(data: EducationData) {
+  //   // Add the file uploads to the data
+  //   const entriesWithFiles = data.educationData.map((entry, index) => ({
+  //     ...entry,
+  //     certificate: certificates[index] ? certificates[index][0] : null,
+  //     transcript: transcripts[index] ? transcripts[index][0] : null
+  //   }));
+
+  //   onSaveAndContinue({
+  //     ...data,
+  //     educationData: entriesWithFiles
+  //   });
+  // }
+
   function onSubmit(data: EducationData) {
-    // Add the file uploads to the data
-    const entriesWithFiles = data.educationEntries.map((entry, index) => ({
+    const educationData = data.educationData.map((entry, index) => ({
       ...entry,
       certificate: certificates[index] ? certificates[index][0] : null,
       transcript: transcripts[index] ? transcripts[index][0] : null
     }));
 
-    onSaveAndContinue({
-      ...data,
-      educationEntries: entriesWithFiles
-    });
+    onSaveAndContinue(educationData);
   }
 
-  function handleSave() {
-    const formData = form.getValues();
+  // function handleSave() {
+  //   const formData = form.getValues();
 
-    // Add the file uploads to the data
-    const entriesWithFiles = formData.educationEntries.map((entry, index) => ({
-      ...entry,
-      certificate: certificates[index] ? certificates[index][0] : null,
-      transcript: transcripts[index] ? transcripts[index][0] : null
-    }));
+  //   // Add the file uploads to the data
+  //   const entriesWithFiles = formData.educationData.map((entry, index) => ({
+  //     ...entry,
+  //     certificate: certificates[index] ? certificates[index][0] : null,
+  //     transcript: transcripts[index] ? transcripts[index][0] : null
+  //   }));
 
-    onSave({
-      ...formData,
-      educationEntries: entriesWithFiles
-    });
+  //   onSave({
+  //     ...formData,
+  //     educationData: entriesWithFiles
+  //   });
+  // }
+
+  function handleBack() {
+    setCurrentStep(5);
   }
 
   const addEducationEntry = () => {
-    setEducationEntries([
-      ...educationEntries,
+    seteducationData([
+      ...educationData,
       {
         institution: '',
         studyType: '',
         qualification: '',
-        awardDate: new Date(),
-        certificate: null,
-        transcript: null
+        awardDate: null,
+        certificate: '',
+        transcript: ''
       }
     ]);
 
-    form.setValue('educationEntries', [
-      ...form.getValues().educationEntries,
+    form.setValue('educationData', [
+      ...form.getValues().educationData,
       {
         institution: '',
         studyType: '',
         qualification: '',
-        awardDate: new Date(),
-        certificate: null,
-        transcript: null
+        awardDate: null,
+        certificate: '',
+        transcript: ''
       }
     ]);
   };
 
   const removeEducationEntry = (index: number) => {
-    const updatedEntries = [...educationEntries];
+    const updatedEntries = [...educationData];
     updatedEntries.splice(index, 1);
-    setEducationEntries(updatedEntries);
+    seteducationData(updatedEntries);
 
-    const formEntries = [...form.getValues().educationEntries];
+    const formEntries = [...form.getValues().educationData];
     formEntries.splice(index, 1);
-    form.setValue('educationEntries', formEntries);
+    form.setValue('educationData', formEntries);
   };
 
   const handleCertificateUpload = (index: number, files: File[]) => {
@@ -179,9 +183,9 @@ export function EducationStep({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        <Card>
-          <CardContent className="pt-6">
-            <h2 className="mb-6 text-2xl font-semibold">Previous Education</h2>
+        <div>
+          <CardContent>
+            <h2 className="mb-6 text-2xl font-semibold">Education</h2>
 
             <Table>
               <TableHeader>
@@ -203,12 +207,12 @@ export function EducationStep({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {educationEntries.map((entry, index) => (
+                {educationData.map((entry, index) => (
                   <TableRow key={index}>
                     <TableCell>
                       <FormField
                         control={form.control}
-                        name={`educationEntries.${index}.institution`}
+                        name={`educationData.${index}.institution`}
                         render={({ field }) => (
                           <FormItem>
                             <FormControl>
@@ -222,7 +226,7 @@ export function EducationStep({
                     <TableCell>
                       <FormField
                         control={form.control}
-                        name={`educationEntries.${index}.studyType`}
+                        name={`educationData.${index}.studyType`}
                         render={({ field }) => (
                           <FormItem>
                             <Select
@@ -254,7 +258,7 @@ export function EducationStep({
                     <TableCell>
                       <FormField
                         control={form.control}
-                        name={`educationEntries.${index}.qualification`}
+                        name={`educationData.${index}.qualification`}
                         render={({ field }) => (
                           <FormItem>
                             <FormControl>
@@ -268,39 +272,25 @@ export function EducationStep({
                     <TableCell>
                       <FormField
                         control={form.control}
-                        name={`educationEntries.${index}.awardDate`}
+                        name={`educationData.${index}.awardDate`}
                         render={({ field }) => (
                           <FormItem className="flex flex-col">
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <FormControl>
-                                  <Button
-                                    variant={'outline'}
-                                    className={cn(
-                                      'w-full pl-3 text-left font-normal',
-                                      !field.value && 'text-muted-foreground'
-                                    )}
-                                  >
-                                    {field.value
-                                      ? format(field.value, 'MM/dd/yyyy')
-                                      : 'mm/dd/yyyy'}
-                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                  </Button>
-                                </FormControl>
-                              </PopoverTrigger>
-                              <PopoverContent
-                                className="w-auto p-0"
-                                align="start"
-                              >
-                                <Calendar
-                                  mode="single"
-                                  selected={field.value}
-                                  onSelect={field.onChange}
-                                  disabled={(date) => date > new Date()}
-                                  initialFocus
-                                />
-                              </PopoverContent>
-                            </Popover>
+                            <FormControl>
+                              <Input
+                                type="date"
+                                value={
+                                  field.value ? moment(field.value).format('YYYY-MM-DD') : ''
+                                }
+                                onChange={(e) => {
+                                  const selectedDate = e.target.value
+                                    ? new Date(e.target.value)
+                                    : null;
+                                  field.onChange(selectedDate);
+                                }}
+                                onBlur={field.onBlur}
+                                ref={field.ref}
+                              />
+                            </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
@@ -313,8 +303,8 @@ export function EducationStep({
                           handleCertificateUpload(index, files)
                         }
                         accept=".pdf,.jpg,.jpeg,.png"
-                        buttonLabel={<Upload className="h-4 w-4" />}
-                        buttonVariant="primary"
+                        // buttonLabel={<Upload className="h-4 w-4" />}
+                        buttonVariant="outline"
                       />
                     </TableCell>
                     <TableCell>
@@ -324,12 +314,12 @@ export function EducationStep({
                           handleTranscriptUpload(index, files)
                         }
                         accept=".pdf,.jpg,.jpeg,.png"
-                        buttonLabel={<Upload className="h-4 w-4" />}
-                        buttonVariant="primary"
+                        // buttonLabel={<Upload className="h-4 w-4" />}
+                        buttonVariant="outline"
                       />
                     </TableCell>
                     <TableCell>
-                      {educationEntries.length > 1 && (
+                      {educationData.length > 1 && (
                         <Button
                           type="button"
                           variant="ghost"
@@ -355,13 +345,13 @@ export function EducationStep({
               Add Another Education
             </Button>
           </CardContent>
-        </Card>
+        </div>
 
-        <div className="mt-6 flex justify-between">
-          <Button type="button" variant="outline" onClick={handleSave}>
-            Save
+        <div className="flex justify-between px-6">
+          <Button type="button" variant="outline" onClick={handleBack}>
+            Back
           </Button>
-          <Button type="submit">Save & Continue</Button>
+          <Button type="submit">Next</Button>
         </div>
       </form>
     </Form>

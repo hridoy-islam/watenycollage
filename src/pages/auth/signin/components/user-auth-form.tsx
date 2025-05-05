@@ -63,7 +63,7 @@ export default function UserAuthForm() {
   const onSubmit = async (data: UserFormValue) => {
     const result: any = await dispatch(loginUser(data));
     if (result?.payload?.success) {
-      router.push('/admin/student-form');
+      router.push('/dashboard');
     }
   };
 
@@ -78,7 +78,7 @@ export default function UserAuthForm() {
   const loginWithFbOrGoogle = async (data: googleUserSchema) => {
     const result: any = await dispatch(authWithFbORGoogle(data));
     if (result?.payload?.success) {
-      router.push('/admin/student-form');
+      router.push('/dashboard');
     }
   };
 
@@ -167,16 +167,16 @@ export default function UserAuthForm() {
 
           <Button
             disabled={loading}
-            className="ml-auto w-full bg-background text-white hover:bg-background"
+            className="ml-auto w-full bg-watney text-white hover:bg-watney/90"
             type="submit"
           >
             Login
           </Button>
         </form>
       </Form>
-      {error && <Badge className="mt-2 text-red-500">{error}</Badge>}
+      {error && <Badge className="mt-2 bg-white text-red-500">{error}</Badge>}
       <p className="text-sm">
-        Don't have account? <Link to="/signup">Signup</Link>{' '}
+        Don't have account? <span className='hover:underline'> <Link to="/signup">Signup</Link></span>{' '}
       </p>
       <p className="text-sm">
         <Link to="/forgot-password">Forgot Password?</Link>
