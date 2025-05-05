@@ -643,13 +643,13 @@ export default function StudentApplication() {
         {/* <h1 className="mb-8 text-center text-3xl font-semibold">
           Student Application Form
         </h1> */}
-
+{/* 
         <StepsIndicator
           currentStep={currentStep}
           completedSteps={completedSteps}
           steps={formSteps}
           onStepClick={handleStepClick}
-        />
+        /> */}
 
         {renderStep()}
 
