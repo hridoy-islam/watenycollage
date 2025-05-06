@@ -45,8 +45,8 @@ export function EmploymentDetailsStep({ value, onNext, onBack }: EmploymentDetai
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Employment Details</CardTitle>
-        <CardDescription>Please provide details about your employment preferences.</CardDescription>
+        {/* <CardTitle>Employment Details</CardTitle>
+        <CardDescription>Please provide details about your employment preferences.</CardDescription> */}
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -99,7 +99,7 @@ export function EmploymentDetailsStep({ value, onNext, onBack }: EmploymentDetai
             />
 
             <div className="flex justify-between pt-4">
-              <Button type="button" variant="outline" onClick={onBack}>
+              <Button type="button" variant="outline" onClick={onBack} className="bg-watney text-white hover:bg-watney/90">
                 Back
               </Button>
               <Button type="submit" className="bg-watney text-white hover:bg-watney/90">Next</Button>

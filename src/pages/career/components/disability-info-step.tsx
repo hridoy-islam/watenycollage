@@ -43,11 +43,11 @@ export function DisabilityInfoStep({ value, onNext, onBack }: DisabilityInfoStep
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Disability Information</CardTitle>
+        {/* <CardTitle>Disability Information</CardTitle>
         <CardDescription>
           Please provide information about any disabilities or adjustments needed. This information helps us ensure we
           can provide appropriate support.
-        </CardDescription>
+        </CardDescription> */}
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -131,7 +131,7 @@ export function DisabilityInfoStep({ value, onNext, onBack }: DisabilityInfoStep
             )}
 
             <div className="flex justify-between pt-4">
-              <Button type="button" variant="outline" onClick={onBack}>
+              <Button type="button" variant="outline" onClick={onBack} className="bg-watney text-white hover:bg-watney/90">
                 Back
               </Button>
               <Button type="submit" className="bg-watney text-white hover:bg-watney/90">Next</Button>

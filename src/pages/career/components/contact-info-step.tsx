@@ -1,5 +1,4 @@
 'use client';
-
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -7,15 +6,11 @@ import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle
+  CardHeader
 } from '@/components/ui/card';
 import {
   Form,
-
   FormControl,
-
   FormField,
   FormItem,
   FormLabel,
@@ -26,9 +21,7 @@ import type { TCareer } from '@/types/career';
 import { useState } from 'react';
 import {
   Select,
-
   SelectContent,
-
   SelectItem,
   SelectTrigger,
   SelectValue
@@ -39,7 +32,6 @@ const contactInfoSchema = z.object({
   mobilePhone: z.string().min(1, { message: 'Mobile phone is required' }),
   homePhone: z.string().optional(),
   otherPhone: z.string().optional(),
-  email: z.string().email({ message: 'Please enter a valid email address' }),
   address: z.string().min(1, { message: 'Address is required' }),
   cityOrTown: z.string().min(1, { message: 'City/Town is required' }),
   stateOrProvince: z.string().min(1, { message: 'State/Province is required' }),
@@ -72,7 +64,6 @@ export function ContactInfoStep({
       homePhone: value.homePhone || '',
       mobilePhone: value.mobilePhone || '',
       otherPhone: value.otherPhone || '',
-      email: value.email || '',
       address: value.address || '',
       cityOrTown: value.cityOrTown || '',
       stateOrProvince: value.stateOrProvince || '',
@@ -81,34 +72,29 @@ export function ContactInfoStep({
     }
   });
 
-  function onSubmit(data: ContactInfoFormValues) {
+  const onSubmit = (data: ContactInfoFormValues) => {
     onNext(data);
-  }
+  };
 
-  const handleNext = () => {
-    // Validate current step before proceeding
+  const handleNext = async () => {
     if (currentStep === 1) {
-      const { mobilePhone } = form.getValues();
-      if (!mobilePhone) {
-        form.trigger('mobilePhone');
-        return;
-      }
+      const isValid = await form.trigger(['mobilePhone']);
+      if (!isValid) return;
     } else if (currentStep === 2) {
-      const { email } = form.getValues();
-      if (!email) {
-        form.trigger('email');
-        return;
-      }
-    } else if (currentStep === 3) {
-      const { address } = form.getValues();
-      if (!address) {
-        form.trigger('address');
-        return;
-      }
+      const isValid = await form.trigger([
+        'country',
+        'postCode',
+        'address',
+        'cityOrTown',
+        'stateOrProvince'
+      ]);
+      if (!isValid) return;
     }
 
-    if (currentStep < 4) {
-      setCurrentStep(currentStep + 1);
+    if (currentStep < 2) {
+      const newStep = currentStep + 1;
+      setCurrentStep(newStep);
+      onStepChange?.(newStep);
     } else {
       form.handleSubmit(onSubmit)();
     }
@@ -118,17 +104,16 @@ export function ContactInfoStep({
     if (currentStep > 1) {
       const newStep = currentStep - 1;
       setCurrentStep(newStep);
-      if (onStepChange) {
-        onStepChange(newStep); // Call the renamed prop
-      }
+      onStepChange?.(newStep);
     } else {
       onBack();
     }
   };
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Contact Information</CardTitle>
+        {/* Keep header unchanged */}
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -136,7 +121,7 @@ export function ContactInfoStep({
             {/* Step 1: Phone Numbers */}
             {currentStep === 1 && (
               <div className="space-y-4">
-                <h3 className="font-medium">Phone Numbers</h3>
+                {/* <h3 className="font-medium">Phone Numbers</h3> */}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <FormField
                     control={form.control}
@@ -170,7 +155,6 @@ export function ContactInfoStep({
                       </FormItem>
                     )}
                   />
-
                   <FormField
                     control={form.control}
                     name="otherPhone"
@@ -188,50 +172,67 @@ export function ContactInfoStep({
               </div>
             )}
 
-            {/* Step 2: Email */}
+            {/* Step 2: Address Information */}
             {currentStep === 2 && (
               <div className="space-y-4">
-                <h3 className="font-medium">Email Address</h3>
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem className="w-[350px]">
-                      <FormControl>
-                        <Input
-                          {...field}
-                          type="email"
-                          placeholder="Enter your email address"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            )}
-
-            {/* Step 3: Address */}
-            {currentStep === 3 && (
-              <div className="space-y-4">
-                <h3 className="font-medium">Address Information</h3>
-                <FormField
-                  control={form.control}
-                  name="address"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Street Address*</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          placeholder="Enter your street address"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                {/* <h3 className="font-medium">Address Information</h3> */}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <FormField
+                    control={form.control}
+                    name="country"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Country</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select Country" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {countries.map((country, index) => (
+                              <SelectItem key={index} value={country}>
+                                {country}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="postCode"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Post Code*</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder="Enter your post code"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="address"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Street Address*</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder="Enter your street address"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                   <FormField
                     control={form.control}
                     name="cityOrTown"
@@ -268,76 +269,20 @@ export function ContactInfoStep({
               </div>
             )}
 
-            {/* Step 4: Postal and Country */}
-            {currentStep === 4 && (
-              <div className="space-y-4">
-                <h3 className="font-medium">Postal and Country Information</h3>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <FormField
-                    control={form.control}
-                    name="country"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Country</FormLabel>
-                        <Select onValueChange={field.onChange} {...field}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select Country" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {countries.map((country, index) => (
-                              <SelectItem key={index} value={country}>
-                                {country}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="postCode"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Post Code*</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            placeholder="Enter your post code"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-            )}
-
+            {/* Navigation Buttons */}
             <div className="flex justify-between pt-4">
-              <Button type="button" variant="outline" onClick={handleBack}>
+              <Button type="button" variant="outline" onClick={handleBack}  
+                              className="bg-watney text-white hover:bg-watney/90"
+              >
                 Back
               </Button>
-              {currentStep < 4 ? (
-                <Button
-                  type="button"
-                  onClick={handleNext}
-                  className="bg-watney text-white hover:bg-watney/90"
-                >
-                  Next
-                </Button>
-              ) : (
-                <Button
-                  type="button"
-                  onClick={handleNext}
-                  className="bg-watney text-white hover:bg-watney/90"
-                >
-                  Next
-                </Button>
-              )}
+              <Button
+                type="button"
+                onClick={handleNext}
+                className="bg-watney text-white hover:bg-watney/90"
+              >
+                {currentStep === 2 ? 'Next' : 'Next'}
+              </Button>
             </div>
           </form>
         </Form>

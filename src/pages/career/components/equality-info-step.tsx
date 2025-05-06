@@ -9,6 +9,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { nationalities } from "@/types"
 
 const equalityInfoSchema = z.object({
   nationality: z.string().min(1, { message: "Nationality is required" }),
@@ -58,11 +60,11 @@ export function EqualityInfoStep({ value, onNext, onBack }: EqualityInfoStepProp
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Equality Information</CardTitle>
+        {/* <CardTitle>Equality Information</CardTitle>
         <CardDescription>
           Please provide information for equality monitoring purposes. This information is used to ensure equal
           opportunities.
-        </CardDescription>
+        </CardDescription> */}
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -70,17 +72,31 @@ export function EqualityInfoStep({ value, onNext, onBack }: EqualityInfoStepProp
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
 
             <FormField
-              control={form.control}
-              name="nationality"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nationality</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="Enter your nationality" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+                control={form.control}
+                name="nationality"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nationality</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      {...field}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {nationalities.map((nation, index) => (
+                          <SelectItem key={index} value={nation}>
+                            {nation}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
 
             <FormField
@@ -133,7 +149,7 @@ export function EqualityInfoStep({ value, onNext, onBack }: EqualityInfoStepProp
             )}
 
             <div className="flex justify-between pt-4">
-              <Button type="button" variant="outline" onClick={onBack}>
+              <Button type="button" variant="outline" className="bg-watney text-white hover:bg-watney/90" onClick={onBack} >
                 Back
               </Button>
               <Button type="submit" className="bg-watney text-white hover:bg-watney/90">Next</Button>

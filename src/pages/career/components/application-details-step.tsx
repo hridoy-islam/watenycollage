@@ -32,17 +32,19 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useState } from 'react';
 
 const applicationDetailsSchema = z.object({
-  applicationDate: z.date({
-    required_error: 'Application date is required'
-  }),
-  availableFromDate: z.date({
-    required_error: 'Available from date is required'
-  }),
+  applicationDate: z.date({ required_error: 'Application date is required' }),
+  availableFromDate: z.date({ required_error: 'Available from date is required' }),
   position: z.string().min(1, { message: 'Position is required' }),
   source: z.string().min(1, { message: 'Source is required' }),
   branch: z.string().min(1, { message: 'Branch is required' }),
   area: z.string().min(1, { message: 'Area is required' }),
-  carTravelAllowance: z.boolean()
+  carTravelAllowance: z.boolean(),
+  wtrDocumentUrl: z
+    .any()
+    .refine((file) => !file || (file instanceof File && file.size > 0), {
+      message: 'Please upload a valid file'
+    })
+    .optional()
 });
 
 type ApplicationDetailsFormValues = z.infer<typeof applicationDetailsSchema>;
@@ -58,6 +60,8 @@ export function ApplicationDetailsStep({
   onNext,
   onBack
 }: ApplicationDetailsStepProps) {
+  const [fileName, setFileName] = useState<string>('');
+  
   const form = useForm<ApplicationDetailsFormValues>({
     resolver: zodResolver(applicationDetailsSchema),
     defaultValues: {
@@ -71,30 +75,38 @@ export function ApplicationDetailsStep({
       source: value.source || '',
       branch: value.branch || '',
       area: value.area || '',
-      carTravelAllowance: value.carTravelAllowance || false
+      carTravelAllowance: value.carTravelAllowance || false,
+      wtrDocumentUrl: value.wtrDocumentUrl || undefined
     }
   });
-  const [currentStep, setCurrentStep] = useState<number>(1);
 
-  function onSubmit(data: ApplicationDetailsFormValues) {
-    onNext(data);
-  }
-
-  const handleBack = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-    } else {
-      onBack();
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files.length > 0) {
+      const file = event.target.files[0];
+      setFileName(file.name);
+      form.setValue('wtrDocumentUrl', file);
     }
   };
+
+  function onSubmit(data: ApplicationDetailsFormValues) {
+    const result: Partial<TCareer> = {
+      ...data,
+      applicationDate: data.applicationDate.toISOString(),
+      availableFromDate: data.availableFromDate.toISOString(),
+      wtrDocumentUrl: data.wtrDocumentUrl instanceof File 
+        ? data.wtrDocumentUrl.name 
+        : data.wtrDocumentUrl || ''
+    };
+    onNext(result);
+  }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Application Details</CardTitle>
+        {/* <CardTitle>Application Details</CardTitle>
         <CardDescription>
           Please provide details about the position you're applying for.
-        </CardDescription>
+        </CardDescription> */}
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -241,8 +253,29 @@ export function ApplicationDetailsStep({
               )}
             />
 
-            <div className="flex justify-between pt-4">
-              <Button type="button" variant="outline" onClick={handleBack}>
+            <FormField
+              control={form.control}
+              name="wtrDocumentUrl"
+              render={() => (
+                <FormItem className='w-1/2'>
+                  <FormLabel>Upload Working Time Regulation (WTR) Document</FormLabel>
+                  <FormControl>
+                    <div className="flex flex-col items-start space-x-2 gap-2">
+                      <Input
+                        type="file"
+                        onChange={handleFileChange}
+                      
+                      />
+                      {fileName && <span className="text-sm text-gray-500">{fileName}</span>}
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="flex justify-between ">
+              <Button type="button" variant="outline" onClick={onBack} className="bg-watney text-white hover:bg-watney/90">
                 Back
               </Button>
               <Button

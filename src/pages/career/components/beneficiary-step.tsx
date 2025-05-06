@@ -29,6 +29,16 @@ import {
   SelectValue
 } from '@/components/ui/select';
 import { countries, emergencyContactRelationships } from '@/types';
+import { useEffect } from 'react';
+
+interface ApplicantAddress {
+  line1: string;
+  line2?: string;
+  city: string;
+  state?: string;
+  postCode: string;
+  country: string;
+}
 
 const beneficiarySchema = z.object({
   fullName: z.string().min(1, { message: 'Full name is required' }),
@@ -56,34 +66,22 @@ interface BeneficiaryStepProps {
     mobile: string;
     sameAddress: boolean;
     address: {
-      line1: string;
+      line1?: string;
       line2?: string;
-      city: string;
+      city?: string;
       state?: string;
-      postCode: string;
-      country: string;
+      postCode?: string;
+      country?: string;
     };
   };
-  onNext: (data: {
-    fullName: string;
-    relationship: string;
-    email: string;
-    mobile: string;
-    sameAddress: boolean;
-    address: {
-      line1: string;
-      line2?: string;
-      city: string;
-      state?: string;
-      postCode: string;
-      country: string;
-    };
-  }) => void;
+  applicantAddress?: ApplicantAddress;
+  onNext: (data: BeneficiaryFormValues) => void;
   onBack: () => void;
 }
 
 export function BeneficiaryStep({
   value,
+  applicantAddress,
   onNext,
   onBack
 }: BeneficiaryStepProps) {
@@ -106,6 +104,31 @@ export function BeneficiaryStep({
     }
   });
 
+  const sameAddress = form.watch('sameAddress');
+
+  useEffect(() => {
+    if (sameAddress && applicantAddress) {
+      form.setValue('address', {
+        line1: applicantAddress.line1,
+        line2: applicantAddress.line2 || '',
+        city: applicantAddress.city,
+        state: applicantAddress.state || '',
+        postCode: applicantAddress.postCode,
+        country: applicantAddress.country
+      });
+    } else if (!sameAddress) {
+      // Clear the address fields when unchecked
+      form.setValue('address', {
+        line1: '',
+        line2: '',
+        city: '',
+        state: '',
+        postCode: '',
+        country: ''
+      });
+    }
+  }, [sameAddress, applicantAddress, form]);
+
   function onSubmit(data: BeneficiaryFormValues) {
     onNext(data);
   }
@@ -113,17 +136,17 @@ export function BeneficiaryStep({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Beneficiary Information</CardTitle>
+        {/* <CardTitle>Beneficiary Information</CardTitle>
         <CardDescription>
           Please provide information about your beneficiary or emergency
           contact.
-        </CardDescription>
+        </CardDescription> */}
       </CardHeader>
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="space-y-4">
-              <h3 className="text-lg font-medium">Contact Details</h3>
+              <h3 className="text-lg font-medium">Beneficiary Information</h3>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <FormField
                   control={form.control}
@@ -224,7 +247,7 @@ export function BeneficiaryStep({
               )}
             />
 
-            {!form.watch('sameAddress') && (
+            {!sameAddress && (
               <div className="space-y-4">
                 <h3 className="text-lg font-medium">Address</h3>
                 <FormField
@@ -332,7 +355,7 @@ export function BeneficiaryStep({
             )}
 
             <div className="flex justify-between pt-4">
-              <Button type="button" variant="outline" onClick={onBack}>
+              <Button type="button" variant="outline" onClick={onBack} className="bg-watney text-white hover:bg-watney/90">
                 Back
               </Button>
               <Button

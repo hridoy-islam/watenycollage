@@ -55,12 +55,12 @@ export default function CareerApplicationForm() {
 
   const handleBackFromContact = () => {
     setCurrentStep(2); // Go back to personal details
-    setPersonalDetailsStep(4); // Set personal details to step 4
+    setPersonalDetailsStep(2); // Set personal details to step 4
     window.scrollTo(0, 0);
   };
   const handleBackFromApplication = () => {
     setCurrentStep(3); 
-    setContactDetailsStep(4); 
+    setContactDetailsStep(2); 
     window.scrollTo(0, 0);
   };
 
@@ -71,6 +71,7 @@ export default function CareerApplicationForm() {
       <SuccessMessage />
       </div>)
   }
+  console.log(formData)
 
   const renderStep = () => {
     switch (currentStep) {
@@ -194,9 +195,17 @@ export default function CareerApplicationForm() {
               updateFormData({ beneficiary })
               handleNext()
             }}
+            applicantAddress={{
+              line1: formData?.address,
+              city: formData?.cityOrTown,
+              state: formData?.stateOrProvince,
+              postCode: formData?.postCode,
+              country: formData?.address,
+            }}
             onBack={handleBack}
           />
         )
+        
       case 12:
         return <ReviewStep formData={formData} onSubmit={handleSubmit} onBack={handleBack} />
       default:
@@ -206,7 +215,7 @@ export default function CareerApplicationForm() {
 
   return (
     <div className=" mx-auto p-6">
-      <h1 className="text-2xl font-bold text-center mb-8">Career Application</h1>
+      {/* <h1 className="text-2xl font-bold text-center mb-8">Career Application</h1> */}
       {/* <StepIndicator currentStep={currentStep} totalSteps={totalSteps} /> */}
       <div className="">{renderStep()}</div>
     </div>

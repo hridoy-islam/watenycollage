@@ -38,6 +38,8 @@ const personalDetailsSchema = z.object({
   dateOfBirth: z.date({
     required_error: 'Date of birth is required'
   }),
+  email: z.string().email({ message: 'Please enter a valid email address' }),
+
   hasNationalInsuranceNumber: z.boolean().optional(),
   nationalInsuranceNumber: z.string().optional(),
   hasNhsNumber: z.boolean().optional(),
@@ -50,7 +52,7 @@ interface PersonalDetailsStepProps {
   value: Partial<TCareer>;
   onNext: (data: Partial<TCareer>) => void;
   onBack: (currentStep?: number) => void;
-  initialStep?: number; 
+  initialStep?: number;
   onStepChange?: (step: number) => void;
 }
 
@@ -58,7 +60,7 @@ export function PersonalDetailsStep({
   value,
   onNext,
   onBack,
-  initialStep = 1 ,
+  initialStep = 1,
   onStepChange
 }: PersonalDetailsStepProps) {
   const [currentStep, setCurrentStep] = useState<number>(initialStep);
@@ -70,6 +72,7 @@ export function PersonalDetailsStep({
       firstName: value.firstName || '',
       initial: value.initial || '',
       lastName: value.lastName || '',
+      email: value.email || '',
       dateOfBirth: value.dateOfBirth ? new Date(value.dateOfBirth) : undefined,
       nationalInsuranceNumber: value.nationalInsuranceNumber || '',
       nhsNumber: value.nhsNumber || '',
@@ -78,40 +81,36 @@ export function PersonalDetailsStep({
     }
   });
 
-  function onSubmit(data: PersonalDetailsFormValues) {
+  const onSubmit = (data: PersonalDetailsFormValues) => {
     onNext(data);
-  }
+  };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     // Validate current step before proceeding
     if (currentStep === 1) {
-      const { title, firstName, lastName } = form.getValues();
-      if (!title || !firstName || !lastName) {
-        form.trigger(['title', 'firstName', 'lastName']);
-        return;
-      }
+      const isValid = await form.trigger([
+        'title',
+        'firstName',
+        'lastName',
+        'dateOfBirth'
+      ]);
+      if (!isValid) return;
     } else if (currentStep === 2) {
-      const { dateOfBirth } = form.getValues();
-      if (!dateOfBirth) {
-        form.trigger('dateOfBirth');
-        return;
-      }
-    } else if (currentStep === 3 && form.watch('hasNationalInsuranceNumber')) {
-      const { nationalInsuranceNumber } = form.getValues();
-      if (!nationalInsuranceNumber) {
-        form.trigger('nationalInsuranceNumber');
-        return;
-      }
-    } else if (currentStep === 4 && form.watch('hasNhsNumber')) {
-      const { nhsNumber } = form.getValues();
-      if (!nhsNumber) {
-        form.trigger('nhsNumber');
-        return;
-      }
+      const niRequired = form.watch('hasNationalInsuranceNumber');
+      const nhsRequired = form.watch('hasNhsNumber');
+
+      const fieldsToValidate = [];
+      if (niRequired) fieldsToValidate.push('nationalInsuranceNumber');
+      if (nhsRequired) fieldsToValidate.push('nhsNumber');
+
+      const isValid = await form.trigger(fieldsToValidate);
+      if (!isValid) return;
     }
 
-    if (currentStep < 4) {
-      setCurrentStep(currentStep + 1);
+    if (currentStep < 2) {
+      const newStep = currentStep + 1;
+      setCurrentStep(newStep);
+      onStepChange?.(newStep);
     } else {
       form.handleSubmit(onSubmit)();
     }
@@ -121,22 +120,22 @@ export function PersonalDetailsStep({
     if (currentStep > 1) {
       const newStep = currentStep - 1;
       setCurrentStep(newStep);
-      if (onStepChange) {
-        onStepChange(newStep); // Call the renamed prop
-      }
+      onStepChange?.(newStep);
     } else {
       onBack();
     }
   };
-  
 
   const handleSkip = () => {
-    if (currentStep === 3) {
-      form.setValue('hasNationalInsuranceNumber', false);
-      form.setValue('nationalInsuranceNumber', '');
-    } else if (currentStep === 4) {
-      form.setValue('hasNhsNumber', false);
-      form.setValue('nhsNumber', '');
+    if (currentStep === 2) {
+      if (form.watch('hasNationalInsuranceNumber')) {
+        form.setValue('hasNationalInsuranceNumber', false);
+        form.setValue('nationalInsuranceNumber', '');
+      }
+      if (form.watch('hasNhsNumber')) {
+        form.setValue('hasNhsNumber', false);
+        form.setValue('nhsNumber', '');
+      }
     }
     handleNext();
   };
@@ -144,16 +143,15 @@ export function PersonalDetailsStep({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Personal Details</CardTitle>
-        {/* <CardDescription>Step {currentStep} of 4</CardDescription> */}
+        {/* <CardTitle>Personal Details</CardTitle>
+        <CardDescription>Step {currentStep} of 2</CardDescription> */}
       </CardHeader>
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* Step 1: Name Information */}
+            {/* Step 1: Name and DOB */}
             {currentStep === 1 && (
               <div className="space-y-4">
-                {/* <h3 className="font-medium">Submit Your Name</h3> */}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
                   <FormField
                     control={form.control}
@@ -183,7 +181,6 @@ export function PersonalDetailsStep({
                       </FormItem>
                     )}
                   />
-
                   <FormField
                     control={form.control}
                     name="firstName"
@@ -197,7 +194,6 @@ export function PersonalDetailsStep({
                       </FormItem>
                     )}
                   />
-
                   <FormField
                     control={form.control}
                     name="initial"
@@ -211,7 +207,6 @@ export function PersonalDetailsStep({
                       </FormItem>
                     )}
                   />
-
                   <FormField
                     control={form.control}
                     name="lastName"
@@ -225,165 +220,190 @@ export function PersonalDetailsStep({
                       </FormItem>
                     )}
                   />
+                  <FormField
+                    control={form.control}
+                    name="dateOfBirth"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Date of Birth</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="date"
+                            value={
+                              field.value
+                                ? field.value.toISOString().split('T')[0]
+                                : ''
+                            }
+                            onChange={(e) =>
+                              field.onChange(e.target.valueAsDate)
+                            }
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+
+                        <FormControl>
+                          <Input
+                            {...field}
+                            type="email"
+                            placeholder="Enter your email address"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
               </div>
             )}
 
-            {/* Step 2: Date of Birth */}
+            {/* Step 2: Optional NI and NHS Numbers */}
             {currentStep === 2 && (
-              <div className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="dateOfBirth"
-                  render={({ field }) => (
-                    <FormItem className="max-w-[300px]">
-                      <FormLabel>Date of Birth</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="date"
-                          value={
-                            field.value
-                              ? field.value.toISOString().split('T')[0]
-                              : ''
-                          }
-                          onChange={(e) => field.onChange(e.target.valueAsDate)}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            )}
-
-            {/* Step 3: National Insurance Number */}
-            {currentStep === 3 && (
-              <div className="space-y-4">
-                {/* <h3 className="font-medium">National Insurance Number</h3> */}
-                <div className="space-y-2">
-                  <p className="text-sm">
-                    Do you have a National Insurance Number?
-                  </p>
-
-                  <FormField
-                    control={form.control}
-                    name="hasNationalInsuranceNumber"
-                    render={({ field }) => (
-                      <FormItem className="max-w-[300px]">
-                        <Select
-                          value={field.value?.toString() ?? ''}
-                          onValueChange={(val) => {
-                            const hasNI = val === 'true';
-                            form.setValue('hasNationalInsuranceNumber', hasNI);
-                            if (!hasNI) {
-                              form.setValue('nationalInsuranceNumber', '');
-                            }
-                          }}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select an option" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="true">Yes</SelectItem>
-                            <SelectItem value="false">No</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
+              <div className="space-y-8 rounded-lg bg-white">
+                <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+                  {/* National Insurance Number Section */}
+                  <div className="space-y-5">
+                    <p className="text-sm font-medium text-gray-600">
+                      Do you have a National Insurance Number?
+                    </p>
+                    <FormField
+                      control={form.control}
+                      name="hasNationalInsuranceNumber"
+                      render={({ field }) => (
+                        <FormItem>
+                          <Select
+                            value={field.value?.toString() ?? ''}
+                            onValueChange={(val) => {
+                              const hasNI = val === 'true';
+                              form.setValue(
+                                'hasNationalInsuranceNumber',
+                                hasNI
+                              );
+                              if (!hasNI)
+                                form.setValue('nationalInsuranceNumber', '');
+                            }}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select an option" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="true">Yes</SelectItem>
+                              <SelectItem value="false">No</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    {form.watch('hasNationalInsuranceNumber') && (
+                      <FormField
+                        control={form.control}
+                        name="nationalInsuranceNumber"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>National Insurance Number</FormLabel>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                placeholder="Enter NI number..."
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                     )}
-                  />
+                  </div>
+
+                  {/* NHS Number Section */}
+                  <div className="space-y-5">
+                    <p className="text-sm font-medium text-gray-600">
+                      Do you have an NHS Number?
+                    </p>
+                    <FormField
+                      control={form.control}
+                      name="hasNhsNumber"
+                      render={({ field }) => (
+                        <FormItem>
+                          <Select
+                            value={field.value?.toString() ?? ''}
+                            onValueChange={(val) => {
+                              const hasNHS = val === 'true';
+                              form.setValue('hasNhsNumber', hasNHS);
+                              if (!hasNHS) form.setValue('nhsNumber', '');
+                            }}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select an option" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="true">Yes</SelectItem>
+                              <SelectItem value="false">No</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    {form.watch('hasNhsNumber') && (
+                      <FormField
+                        control={form.control}
+                        name="nhsNumber"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>NHS Number</FormLabel>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                placeholder="Enter NHS number..."
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
+                  </div>
                 </div>
-
-                {form.watch('hasNationalInsuranceNumber') && (
-                  <FormField
-                    control={form.control}
-                    name="nationalInsuranceNumber"
-                    render={({ field }) => (
-                      <FormItem className="max-w-[300px]">
-                        <FormLabel>National Insurance Number</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                )}
-              </div>
-            )}
-
-            {/* Step 4: NHS Number */}
-            {currentStep === 4 && (
-              <div className="space-y-4">
-                <h3 className="font-medium">NHS Number</h3>
-                <div className="space-y-2">
-                  <p className="text-sm">Do you have an NHS Number?</p>
-
-                  <FormField
-                    control={form.control}
-                    name="hasNhsNumber"
-                    render={({ field }) => (
-                      <FormItem className="max-w-[300px]">
-                        <Select
-                          value={field.value?.toString() ?? ''}
-                          onValueChange={(val) => {
-                            const hasNHS = val === 'true';
-                            form.setValue('hasNhsNumber', hasNHS);
-                            if (!hasNHS) {
-                              form.setValue('nhsNumber', '');
-                            }
-                          }}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select an option" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="true">Yes</SelectItem>
-                            <SelectItem value="false">No</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                {form.watch('hasNhsNumber') && (
-                  <FormField
-                    control={form.control}
-                    name="nhsNumber"
-                    render={({ field }) => (
-                      <FormItem className="max-w-[300px]">
-                        <FormLabel>NHS Number</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                )}
               </div>
             )}
 
             <div className="flex justify-between pt-4">
-              <Button type="button" variant="outline" onClick={handleBack}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleBack}
+                className="bg-watney text-white hover:bg-watney/90"
+              >
                 Back
               </Button>
-
-              {currentStep < 4 ? (
-                <Button type="button" onClick={handleNext} className="bg-watney text-white hover:bg-watney/90">
-                  Next
+              <div className="space-x-2">
+                {currentStep === 2 && (
+                  <Button type="button" variant="outline" onClick={handleSkip}>
+                    Skip
+                  </Button>
+                )}
+                <Button
+                  type="button"
+                  onClick={handleNext}
+                  className="bg-watney text-white hover:bg-watney/90"
+                >
+                  {currentStep < 2 ? 'Next' : 'Next'}
                 </Button>
-              ) : (
-                <Button type="button" onClick={handleNext} className="bg-watney text-white hover:bg-watney/90">
-                  Next
-                </Button>
-              )}
+              </div>
             </div>
           </form>
         </Form>

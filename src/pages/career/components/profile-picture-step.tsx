@@ -22,8 +22,8 @@ export function ProfilePictureStep({ value, onNext }: ProfilePictureStepProps) {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Profile Picture</CardTitle>
+      <CardHeader className="flex flex-col items-center justify-center space-y-2">
+        <CardTitle className="text-3xl">Profile Picture</CardTitle>
         <CardDescription>
           Upload a professional photo for your profile. This is optional and you can skip this step.
         </CardDescription>
@@ -33,8 +33,8 @@ export function ProfilePictureStep({ value, onNext }: ProfilePictureStepProps) {
           <FileUpload onFileSelected={setProfilePicture} value={value} />
         </div>
 
-        <div className="flex justify-end gap-2 pt-4">
-          <Button variant="default" onClick={handleNext} className="bg-black text-white hover:bg-black/90">
+        <div className="flex justify-between gap-2 pt-4">
+          <Button variant="default" onClick={handleNext} className="bg-watney text-white hover:bg-watney/90">
             Skip
           </Button>
           <Button onClick={handleNext} className="bg-watney text-white hover:bg-watney/90">Next</Button>

@@ -47,8 +47,8 @@ export function RightToWorkStep({ value, onNext, onBack }: RightToWorkStepProps)
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Right to Work</CardTitle>
-        <CardDescription>Please provide information about your right to work in the country.</CardDescription>
+        {/* <CardTitle>Right to Work</CardTitle>
+        <CardDescription>Please provide information about your right to work in the country.</CardDescription> */}
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -92,7 +92,7 @@ export function RightToWorkStep({ value, onNext, onBack }: RightToWorkStepProps)
             )}
 
             <div className="flex justify-between pt-4">
-              <Button type="button" variant="outline" onClick={onBack}>
+              <Button type="button" variant="outline" onClick={onBack} className="bg-watney text-white hover:bg-watney/90">
                 Back
               </Button>
               <Button type="submit" className="bg-watney text-white hover:bg-watney/90">Next</Button>

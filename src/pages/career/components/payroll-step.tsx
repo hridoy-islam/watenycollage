@@ -65,10 +65,10 @@ export function PayrollStep({ value, onNext, onBack }: PayrollStepProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Payroll Information</CardTitle>
+        {/* <CardTitle>Payroll Information</CardTitle>
         <CardDescription>
           Please provide your payroll information for payment processing.
-        </CardDescription>
+        </CardDescription> */}
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -121,7 +121,7 @@ export function PayrollStep({ value, onNext, onBack }: PayrollStepProps) {
             </div>
 
             <div className="flex justify-between pt-4">
-              <Button type="button" variant="outline" onClick={onBack}>
+              <Button type="button" variant="outline" onClick={onBack} className="bg-watney text-white hover:bg-watney/90">
                 Back
               </Button>
               <Button type="submit" className="bg-watney text-white hover:bg-watney/90">Next</Button>
