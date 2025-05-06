@@ -14,6 +14,7 @@ import ResumeUpload from '@/pages/uploadResume';
 import ApplicationListPage from '@/pages/application/applications-list';
 import NewApplicationListPage from '@/pages/application/newApplications-list';
 import ViewApplicationPage from '@/pages/application/view-application';
+import CareerPage from '@/pages/career';
 
 const SignInPage = lazy(() => import('@/pages/auth/signin'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
@@ -113,7 +114,12 @@ export default function AppRouter() {
     {
       path: '*',
       element: <Navigate to="/404" replace />
-    }
+    },
+    {
+      path: '/career',
+      element: <CareerPage />,
+      index: true
+    },
   ];
 
   const routes = useRoutes([...publicRoutes, ...adminRoutes]);
