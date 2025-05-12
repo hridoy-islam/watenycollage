@@ -1,5 +1,5 @@
 import type React from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -81,6 +81,17 @@ export function DocumentsStep({
 
     onSaveAndContinue(data);
   }
+  const studentType = defaultValues?PersonalDetailsData?.studentType;
+
+
+   useEffect(() => {
+      if (defaultValues) {
+        form.reset(defaultValues);
+      }
+    }, [defaultValues, form]);
+  
+
+
 
   // function handleSave() {
   //   const data = form.getValues() as DocumentsData;
@@ -94,8 +105,11 @@ export function DocumentsStep({
   // }
 
 
+
+
+    
   function handleBack() {
-    setCurrentStep(8);
+    setCurrentStep(7);
   }
 
 

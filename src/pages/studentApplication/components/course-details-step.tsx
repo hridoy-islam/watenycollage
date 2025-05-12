@@ -76,7 +76,7 @@ export function CourseDetailsStep({
   }
 
   function handleBack() {
-    setCurrentStep(2);
+    setCurrentStep(3);
   }
 
 

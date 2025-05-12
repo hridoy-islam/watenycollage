@@ -20,11 +20,13 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { EmergencyContact } from './components/emergencyContact';
 import axiosInstance from '@/lib/axios';
 import { useSelector } from 'react-redux';
+import {  FormType } from './components/formType';
 
 export default function StudentApplication() {
   const [currentStep, setCurrentStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [formData, setFormData] = useState<any>({});
+  const [fetchData, setFetchData] = useState<any>({});
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const { toast } = useToast();
@@ -92,9 +94,6 @@ export default function StudentApplication() {
   const { user } = useSelector((state: any) => state.auth);
 
   const personalDetailsData = {
-    firstName: nameMatch ? nameMatch[1] : '',
-    lastName: nameMatch ? nameMatch[2] : '',
-    dateOfBirth: dobMatch ? dobMatch[0] : '',
     passportNumber: passportIdMatch ? passportIdMatch[0] : '',
     expiryDate: expiryDateMatch ? expiryDateMatch[0] : '',
     maritalStatus: maritalStatusMatch ? maritalStatusMatch[0] : '',
@@ -116,32 +115,31 @@ export default function StudentApplication() {
     contactNumber: phoneNumber
   };
 
-  // const fetchedData = async ()=>{
-  //   try {
-  //     const response = await axiosInstance.get(`/applications/${user._id}`);
-  //     const userData = response.data.data;
-  //     setFormData((prev) => ({
-  //       ...prev,
-  //       personalDetails: userData.personalDetails,
-  //       addressData: userData.addressData,
-  //       courseDetailsData: userData.courseDetailsData,
-  //       contactData: userData.contactData,
-  //       emergencyContactData: userData.emergencyContactData,
-  //       educationData: userData.educationData,
-  //       employmentData: userData.employmentData,
-  //       complianceData: userData.complianceData,
-  //       documentsData: userData.documentsData,
-  //       termsData: userData.termsData
-  //     }));
+  const fetchedData = async () => {
+    try {
+      const response = await axiosInstance.get(`/users/${user._id}`);
+      const userData = response.data.data;
+      setFetchData((prev) => ({
+        ...prev,
+        personalDetails: userData?.personalDetails,
+        addressData: userData?.addressData,
+        courseDetailsData: userData?.courseDetailsData,
+        contactData: userData?.contactData,
+        emergencyContactData: userData?.emergencyContactData,
+        educationData: userData?.educationData,
+        employmentData: userData?.employmentData,
+        complianceData: userData?.complianceData,
+        documentsData: userData?.documentsData,
+        termsData: userData?.termsData
+      }));
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
 
-  //   } catch (error) {
-  //     console.error('Error fetching data:', error);
-  //   }
-  // }
-  // console.log('Fetched data:', formData.employmentData);
-  //   useEffect(() => {
-  //     fetchedData()
-  //   }, [currentStep]);
+  useEffect(() => {
+    fetchedData();
+  }, [currentStep]);
 
   const handleStepClick = (stepId: number) => {
     setCurrentStep(stepId);
@@ -175,18 +173,25 @@ export default function StudentApplication() {
   //     });
   //   }
   // };
+
+  const handleFormTypeSaveAndContinue = (data: any) => {
+    setFormData((prev) => ({ ...prev, personalDetailsData: data }));
+    markStepAsCompleted(1);
+    setCurrentStep(2);
+  };
+
   const handlePersonalDetailsSaveAndContinue = async (data: any) => {
     setFormData((prev) => ({ ...prev, personalDetailsData: data }));
 
-    markStepAsCompleted(1);
-    setCurrentStep(2);
+    markStepAsCompleted(2);
+    setCurrentStep(3);
   };
 
   const handleAddressSaveAndContinue = async (data: any) => {
     setFormData((prev) => ({ ...prev, addressData: data }));
 
-    markStepAsCompleted(2);
-    setCurrentStep(3);
+    markStepAsCompleted(3);
+    setCurrentStep(4);
   };
   // const handleAddressSaveAndContinue = async (data: any) => {
   //   try {
@@ -215,8 +220,8 @@ export default function StudentApplication() {
   const handleCourseDetailsSaveAndContinue = async (data: any) => {
     setFormData((prev) => ({ ...prev, courseDetailsData: data }));
 
-    markStepAsCompleted(3);
-    setCurrentStep(4);
+    markStepAsCompleted(4);
+    setCurrentStep(5);
   };
 
   // const handleCourseDetailsSaveAndContinue = async (data: any) => {
@@ -238,15 +243,10 @@ export default function StudentApplication() {
   //   }
   // };
 
-  const handleContactSave = (data: any) => {
-    setFormData((prev) => ({ ...prev, contactData: data }));
-    console.log('Saving contact details:', data);
-  };
-
   const handleContactSaveAndContinue = async (data: any) => {
     setFormData((prev) => ({ ...prev, contactData: data }));
 
-    markStepAsCompleted(4);
+    markStepAsCompleted(5);
     setCurrentStep(5);
   };
 
@@ -464,8 +464,25 @@ export default function StudentApplication() {
     switch (currentStep) {
       case 1:
         return (
+          <FormType
+            defaultValues={{
+              ...formData.personalDetailsData,
+              ...Object.fromEntries(
+                Object.entries(personalDetailsData || {}).filter(
+                  ([_, value]) =>
+                    value !== '' && value !== undefined && value !== null
+                )
+              )
+            }}
+            onSaveAndContinue={handleFormTypeSaveAndContinue}
+            onSave={handlePersonalDetailsSave}
+          />
+        );
+      case 2:
+        return (
           <PersonalDetailsStep
             defaultValues={{
+              ...fetchData.personalDetails,
               ...formData.personalDetailsData,
               ...Object.fromEntries(
                 Object.entries(personalDetailsData || {}).filter(
@@ -476,9 +493,10 @@ export default function StudentApplication() {
             }}
             onSaveAndContinue={handlePersonalDetailsSaveAndContinue}
             onSave={handlePersonalDetailsSave}
+            setCurrentStep={setCurrentStep}
           />
         );
-      case 2:
+      case 3:
         return (
           <AddressStep
             defaultValues={{
@@ -490,11 +508,12 @@ export default function StudentApplication() {
                 )
               )
             }}
+            // studentType={formData.personalDetailsData.studentType}
             onSaveAndContinue={handleAddressSaveAndContinue}
             setCurrentStep={setCurrentStep}
           />
         );
-      case 3:
+      case 4:
         return (
           <CourseDetailsStep
             defaultValues={formData.courseDetailsData}
@@ -503,23 +522,23 @@ export default function StudentApplication() {
             setCurrentStep={setCurrentStep}
           />
         );
-      case 4:
-        return (
-          <ContactStep
-            defaultValues={{
-              ...formData.contactData,
-              ...Object.fromEntries(
-                Object.entries(contactData || {}).filter(
-                  ([_, value]) =>
-                    value !== '' && value !== undefined && value !== null
-                )
-              )
-            }}
-            onSaveAndContinue={handleContactSaveAndContinue}
-            onSave={handleContactSave}
-            setCurrentStep={setCurrentStep}
-          />
-        );
+      // case 4:
+      //   return (
+      //     <ContactStep
+      //       defaultValues={{
+      //         ...formData.contactData,
+      //         ...Object.fromEntries(
+      //           Object.entries(contactData || {}).filter(
+      //             ([_, value]) =>
+      //               value !== '' && value !== undefined && value !== null
+      //           )
+      //         )
+      //       }}
+      //       onSaveAndContinue={handleContactSaveAndContinue}
+      //       onSave={handleContactSave}
+      //       setCurrentStep={setCurrentStep}
+      //     />
+      //   );
       case 5:
         return (
           <EmergencyContact
@@ -535,6 +554,7 @@ export default function StudentApplication() {
             onSaveAndContinue={handleEducationSaveAndContinue}
             onSave={handleEducationSave}
             setCurrentStep={setCurrentStep}
+            studentType={formData.personalDetailsData.studentType}
           />
         );
       case 7:
@@ -607,33 +627,32 @@ export default function StudentApplication() {
   if (formSubmitted) {
     return (
       <div className="flex min-h-[calc(100vh-150px)] items-center justify-center px-4">
-  <Card className=" rounded-lg border border-gray-100 bg-watney/90 p-24 shadow-lg ">
-    <div className="flex flex-col items-center gap-6 text-center">
-      <div className='bg-white p-8 rounded-full'>
-        <Check  size={84} className='text-watney'/>
+        <Card className=" rounded-lg border border-gray-100 bg-watney/90 p-24 shadow-lg ">
+          <div className="flex flex-col items-center gap-6 text-center">
+            <div className="rounded-full bg-white p-8">
+              <Check size={84} className="text-watney" />
+            </div>
+            <div className="flex items-center gap-4 text-center">
+              <div>
+                <CardTitle className="text-2xl font-semibold text-white">
+                  Application Submitted Sucessfull
+                </CardTitle>
+                <CardDescription className="mt-2 text-base leading-relaxed text-white">
+                  Thank you for your submission. Our team has received your
+                  application and will get back to you shortly. Stay tuned!
+                </CardDescription>
+              </div>
+            </div>
+
+            <Button
+              onClick={handleDashboardRedirect}
+              className="*: mt-4 w-full rounded-sm bg-white px-6 py-3 text-base font-semibold text-watney transition hover:bg-white sm:w-auto"
+            >
+              Done
+            </Button>
+          </div>
+        </Card>
       </div>
-      <div className="flex items-center gap-4 text-center">
-        <div>
-          <CardTitle className="text-2xl font-semibold text-white">
-            Application Submitted Sucessfull
-          </CardTitle>
-          <CardDescription className="mt-2 text-base text-white leading-relaxed">
-            Thank you for your submission. Our team has received your application and will get back to you shortly. Stay tuned!
-          </CardDescription>
-        </div>
-      </div>
-
-      <Button
-        onClick={handleDashboardRedirect}
-        className="mt-4 w-full rounded-sm bg-white *: px-6 py-3 text-base font-semibold text-watney transition hover:bg-white sm:w-auto"
-      >
-       Done
-      </Button>
-    </div>
-  </Card>
-</div>
-
-
     );
   }
 
@@ -643,7 +662,7 @@ export default function StudentApplication() {
         {/* <h1 className="mb-8 text-center text-3xl font-semibold">
           Student Application Form
         </h1> */}
-{/* 
+        {/* 
         <StepsIndicator
           currentStep={currentStep}
           completedSteps={completedSteps}

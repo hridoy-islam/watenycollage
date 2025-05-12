@@ -13,7 +13,12 @@ interface ReviewModalProps {
   formData: any;
 }
 
+
+
+
 export function ReviewModal({ open, onClose, formData }: ReviewModalProps) {
+
+  console.log(formData)
   // Helper function to render form data sections
   const renderSection = (title: string, data: any) => {
     if (!data) return null;

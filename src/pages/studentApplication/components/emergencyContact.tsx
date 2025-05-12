@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import { emergencyContactRelationships } from '@/types';
+import { countries, emergencyContactRelationships } from '@/types';
 
 const contactSchema = z.object({
   emergencyContactNumber: z
@@ -33,7 +33,8 @@ const contactSchema = z.object({
   emergencyFullName: z.string().min(1, { message: 'Full name is required' }),
   emergencyRelationship: z
     .string()
-    .min(1, { message: 'Relationship is required' })
+    .min(1, { message: 'Relationship is required' }),
+  emergencyAddress: z.string().min(1, { message: 'Address is required' })
 });
 
 type ContactData = z.infer<typeof contactSchema>;
@@ -50,7 +51,8 @@ export function EmergencyContact({
       emergencyContactNumber: defaultValues?.emergencyContactNumber || '',
       emergencyEmail: defaultValues?.emergencyEmail || '',
       emergencyFullName: defaultValues?.emergencyFullName || '',
-      emergencyRelationship: defaultValues?.emergencyRelationship || ''
+      emergencyRelationship: defaultValues?.emergencyRelationship || '',
+      emergencyAddress: defaultValues?.emergencyAddress || ''
     }
   });
 
@@ -151,6 +153,30 @@ export function EmergencyContact({
                       </FormItem>
                     )}
                   />
+                  <FormField
+                    control={form.control}
+                    name="emergencyAddress"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Country</FormLabel>
+                        <Select onValueChange={field.onChange} {...field}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select Country" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {countries.map((country, index) => (
+                              <SelectItem key={index} value={country}>
+                                {country}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
               </div>
             </div>
@@ -158,10 +184,20 @@ export function EmergencyContact({
         </div>
 
         <div className="flex justify-between px-6">
-          <Button type="button" variant="outline" className='bg-watney text-white hover:bg-watney/90' onClick={handleBack}>
+          <Button
+            type="button"
+            variant="outline"
+            className="bg-watney text-white hover:bg-watney/90"
+            onClick={handleBack}
+          >
             Back
           </Button>
-          <Button type="submit" className='bg-watney text-white hover:bg-watney/90'>Next</Button>
+          <Button
+            type="submit"
+            className="bg-watney text-white hover:bg-watney/90"
+          >
+            Next
+          </Button>
         </div>
       </form>
     </Form>

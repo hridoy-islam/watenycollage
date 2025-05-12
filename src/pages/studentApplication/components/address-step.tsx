@@ -130,7 +130,7 @@ export function AddressStep({
   }
 
   function handleBack() {
-    setCurrentStep(1);
+    setCurrentStep(2);
   }
 
   useEffect(() => {
@@ -238,7 +238,7 @@ export function AddressStep({
               {/* Postal Address Section */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-semibold">Postal Address</h2>
+                  <h2 className="text-xl font-semibold">Correspondence Address</h2>
 
                   <FormField
                     control={form.control}

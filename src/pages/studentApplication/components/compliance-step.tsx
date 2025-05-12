@@ -87,7 +87,7 @@ export function ComplianceStep({
                 name="startDateInUK"
                 render={({ field }) => (
                   <FormItem className="flex w-full flex-col">
-                    <FormLabel>Start date of stay in the UK</FormLabel>
+                    <FormLabel>When did you first enter into UK</FormLabel>
                     <FormControl>
                       <Input
                         type="date"
