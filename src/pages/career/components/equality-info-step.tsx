@@ -13,8 +13,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { nationalities } from "@/types"
 
 const equalityInfoSchema = z.object({
-  nationality: z.string().min(1, { message: "Nationality is required" }),
-  religion: z.string().optional(),
   hasDisability: z.boolean(),
   disabilityDetails: z.string().optional(),
 })
@@ -23,14 +21,10 @@ type EqualityInfoFormValues = z.infer<typeof equalityInfoSchema>
 
 interface EqualityInfoStepProps {
   value?: {
-    nationality: string
-    religion: string
     hasDisability: boolean
     disabilityDetails?: string
   }
   onNext: (data: {
-    nationality: string
-    religion: string
     hasDisability: boolean
     disabilityDetails?: string
   }) => void
@@ -41,8 +35,6 @@ export function EqualityInfoStep({ value, onNext, onBack }: EqualityInfoStepProp
   const form = useForm<EqualityInfoFormValues>({
     resolver: zodResolver(equalityInfoSchema),
     defaultValues: {
-      nationality: value?.nationality || "",
-      religion: value?.religion || "",
       hasDisability: value?.hasDisability || false,
       disabilityDetails: value?.disabilityDetails || "",
     },
@@ -50,8 +42,6 @@ export function EqualityInfoStep({ value, onNext, onBack }: EqualityInfoStepProp
 
   function onSubmit(data: EqualityInfoFormValues) {
     onNext({
-      nationality: data.nationality,
-      religion: data.religion || "",
       hasDisability: data.hasDisability,
       disabilityDetails: data.hasDisability ? data.disabilityDetails : undefined,
     })
@@ -69,50 +59,7 @@ export function EqualityInfoStep({ value, onNext, onBack }: EqualityInfoStepProp
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-
-            <FormField
-                control={form.control}
-                name="nationality"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nationality</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      {...field}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {nationalities.map((nation, index) => (
-                          <SelectItem key={index} value={nation}>
-                            {nation}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-            <FormField
-              control={form.control}
-              name="religion"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Religion (Optional)</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="Enter your religion" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-              />
-              </div>
+          
 
             <FormField
               control={form.control}

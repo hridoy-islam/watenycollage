@@ -14,13 +14,8 @@ import {
 import { Input } from '@/components/ui/input';
 
 import { useEffect } from 'react';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
+import Select from 'react-select';
+
 import { countries, emergencyContactRelationships } from '@/types';
 
 const contactSchema = z.object({
@@ -71,6 +66,16 @@ export function EmergencyContact({
       });
     }
   }, [defaultValues, form]);
+
+  const relationshipOptions = emergencyContactRelationships.map((relation) => ({
+    value: relation,
+    label: relation
+  }));
+
+  const countryOptions = countries.map((country) => ({
+    value: country,
+    label: country
+  }));
 
   return (
     <Form {...form}>
@@ -133,22 +138,23 @@ export function EmergencyContact({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Relationship</FormLabel>
-                        <Select onValueChange={field.onChange} {...field}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select Relation" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {emergencyContactRelationships.map(
-                              (relation, index) => (
-                                <SelectItem key={index} value={relation}>
-                                  {relation}
-                                </SelectItem>
-                              )
-                            )}
-                          </SelectContent>
-                        </Select>
+                        <FormControl>
+                          <Select
+                            options={relationshipOptions}
+                            value={
+                              field.value
+                                ? relationshipOptions.find(
+                                    (option) => option.value === field.value
+                                  )
+                                : null
+                            }
+                            onChange={(selected) =>
+                              field.onChange(selected?.value)
+                            }
+                            placeholder="Select Relation"
+                            isClearable
+                          />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -158,21 +164,12 @@ export function EmergencyContact({
                     name="emergencyAddress"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Country</FormLabel>
-                        <Select onValueChange={field.onChange} {...field}>
+                        <FormLabel>Address</FormLabel>
+                        
                           <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select Country" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {countries.map((country, index) => (
-                              <SelectItem key={index} value={country}>
-                                {country}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                          <Input type="text" {...field} />
+                     
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}

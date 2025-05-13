@@ -13,15 +13,10 @@ import {
   FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
+
 import { Textarea } from '@/components/ui/textarea';
 import { countries, nationalities } from '@/types';
+import Select from 'react-select';
 
 // Schema
 const personalDetailsSchema = z.object({
@@ -29,7 +24,9 @@ const personalDetailsSchema = z.object({
   nationality: z.string().min(1, { message: 'Please select a nationality' }),
   ethnicity: z.string().min(1, { message: 'Please select an ethnicity' }),
   customEthnicity: z.string().optional(),
-  countryOfBirth: z.string().min(1, { message: 'Please select country of birth' }),
+  countryOfBirth: z
+    .string()
+    .min(1, { message: 'Please select country of birth' }),
   maritalStatus: z.string().min(1, { message: 'Please select marital status' }),
   studentType: z.string().optional(),
   requireVisa: z.string().optional(),
@@ -82,12 +79,43 @@ export function PersonalDetailsStep({
     onSaveAndContinue(data);
   }
 
+  const genderOptions = [
+    { value: 'male', label: 'Male' },
+    { value: 'female', label: 'Female' },
+    { value: 'other', label: 'Other' },
+    { value: 'prefer-not-to-say', label: 'Prefer not to say' }
+  ];
+
+  const ethnicityOptions = [
+    { value: 'white', label: 'White' },
+    { value: 'asian', label: 'Asian' },
+    { value: 'black', label: 'Black' },
+    { value: 'mixed', label: 'Mixed' },
+    { value: 'other', label: 'Other' }
+  ];
+
+  const countryOptions = countries.map((country) => ({
+    value: country,
+    label: country
+  }));
+
+  const maritalStatusOptions = [
+    { value: 'single', label: 'Single' },
+    { value: 'married', label: 'Married or in civil partnership' },
+    { value: 'divorced', label: 'Divorced' },
+    { value: 'widowed', label: 'Widowed' }
+  ];
+
+  const visaOptions = [
+    { value: 'yes', label: 'Yes' },
+    { value: 'no', label: 'No' }
+  ];
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-
             {/* Gender */}
             <FormField
               control={form.control}
@@ -95,19 +123,21 @@ export function PersonalDetailsStep({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Gender</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select Gender" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="male">Male</SelectItem>
-                      <SelectItem value="female">Female</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                      <SelectItem value="prefer-not-to-say">Prefer not to say</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <Select
+                      options={genderOptions}
+                      value={
+                        field.value
+                          ? genderOptions.find(
+                              (option) => option.value === field.value
+                            )
+                          : null
+                      }
+                      onChange={(selected) => field.onChange(selected?.value)}
+                      placeholder="Select Gender"
+                      isClearable
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -120,20 +150,24 @@ export function PersonalDetailsStep({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Country Of Domicile</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {nationalities.map((nation, index) => (
-                        <SelectItem key={index} value={nation}>
-                          {nation}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <Select
+                      options={nationalities.map((nation) => ({
+                        value: nation,
+                        label: nation
+                      }))}
+                      value={
+                        field.value
+                          ? { value: field.value, label: field.value }
+                          : null
+                      }
+                      onChange={(selectedOption) =>
+                        field.onChange(selectedOption?.value)
+                      }
+                      placeholder="Select"
+                      isClearable
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -146,20 +180,21 @@ export function PersonalDetailsStep({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Ethnicity</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select Ethnicity" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="white">White</SelectItem>
-                      <SelectItem value="asian">Asian</SelectItem>
-                      <SelectItem value="black">Black</SelectItem>
-                      <SelectItem value="mixed">Mixed</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <Select
+                      options={ethnicityOptions}
+                      value={
+                        field.value
+                          ? ethnicityOptions.find(
+                              (option) => option.value === field.value
+                            )
+                          : null
+                      }
+                      onChange={(selected) => field.onChange(selected?.value)}
+                      placeholder="Select Ethnicity"
+                      isClearable
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -193,20 +228,21 @@ export function PersonalDetailsStep({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Country of Birth</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select Country" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {countries.map((country, index) => (
-                        <SelectItem key={index} value={country}>
-                          {country}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <Select
+                      options={countryOptions}
+                      value={
+                        field.value
+                          ? countryOptions.find(
+                              (option) => option.value === field.value
+                            )
+                          : null
+                      }
+                      onChange={(selected) => field.onChange(selected?.value)}
+                      placeholder="Select Country"
+                      isClearable
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -219,19 +255,21 @@ export function PersonalDetailsStep({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Marital Status</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="single">Single</SelectItem>
-                      <SelectItem value="married">Married or in civil partnership</SelectItem>
-                      <SelectItem value="divorced">Divorced</SelectItem>
-                      <SelectItem value="widowed">Widowed</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <Select
+                      options={maritalStatusOptions}
+                      value={
+                        field.value
+                          ? maritalStatusOptions.find(
+                              (option) => option.value === field.value
+                            )
+                          : null
+                      }
+                      onChange={(selected) => field.onChange(selected?.value)}
+                      placeholder="Select"
+                      isClearable
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -245,18 +283,26 @@ export function PersonalDetailsStep({
                   name="requireVisa"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Do you require a visa to come to the UK?</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="yes">Yes</SelectItem>
-                          <SelectItem value="no">No</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <FormLabel>
+                        Do you require a visa to come to the UK?
+                      </FormLabel>
+                      <FormControl>
+                        <Select
+                          options={visaOptions}
+                          value={
+                            field.value
+                              ? visaOptions.find(
+                                  (option) => option.value === field.value
+                                )
+                              : null
+                          }
+                          onChange={(selected) =>
+                            field.onChange(selected?.value)
+                          }
+                          placeholder="Select"
+                          isClearable
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -266,9 +312,23 @@ export function PersonalDetailsStep({
                   name="applicationLocation"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>From where are you making your application?</FormLabel>
+                      <FormLabel>
+                        From where are you making your application?
+                      </FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter location" {...field} />
+                        <Select
+                      options={countryOptions}
+                      value={
+                        field.value
+                          ? countryOptions.find(
+                              (option) => option.value === field.value
+                            )
+                          : null
+                      }
+                      onChange={(selected) => field.onChange(selected?.value)}
+                      placeholder="Select Country"
+                      isClearable
+                    />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -280,10 +340,18 @@ export function PersonalDetailsStep({
         </CardContent>
 
         <div className="flex justify-between px-5">
-          <Button type="button" variant="outline" className="bg-watney text-white hover:bg-watney/90" onClick={handleBack}>
+          <Button
+            type="button"
+            variant="outline"
+            className="bg-watney text-white hover:bg-watney/90"
+            onClick={handleBack}
+          >
             Back
           </Button>
-          <Button type="submit" className="bg-watney text-white hover:bg-watney/90">
+          <Button
+            type="submit"
+            className="bg-watney text-white hover:bg-watney/90"
+          >
             Next
           </Button>
         </div>

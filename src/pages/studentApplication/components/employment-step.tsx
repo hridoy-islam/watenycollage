@@ -540,7 +540,7 @@ export function EmploymentStep({
 
               {/* Navigation Buttons */}
               <div className="flex justify-between pt-4">
-                <Button type="button" variant="outline" onClick={handleBack}>
+                <Button type="button" variant="outline" className='bg-watney text-white hover:bg-watney/90' onClick={handleBack}>
                   Back
                 </Button>
                 <Button

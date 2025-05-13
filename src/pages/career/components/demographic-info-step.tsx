@@ -56,7 +56,7 @@ export function DemographicInfoStep({ value, onNext, onBack }: DemographicInfoSt
                 name="gender"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Gender</FormLabel>
+                    <FormLabel>What is your sexual orientation</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>

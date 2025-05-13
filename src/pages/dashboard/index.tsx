@@ -1,5 +1,5 @@
 import { StatCard } from '@/components/shared/stat-card';
-import { Plus, RefreshCw } from 'lucide-react';
+import { Book, Calendar, Plus, RefreshCw } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import axiosInstance from '@/lib/axios';
 import { useSelector } from 'react-redux';
@@ -13,7 +13,7 @@ export default function DashboardPage() {
   const navigate = useNavigate();
 
   const handleRoute = () => {
-    navigate('/dashboard/resume-upload');
+    navigate('/dashboard/student-form');
   };
   const fetchData = async () => {
     if (!user) return;
@@ -102,6 +102,28 @@ export default function DashboardPage() {
             </div>
             <h3 className="text-sm font-medium text-gray-600 transition-colors group-hover:text-white">
               New Application
+            </h3>
+          </div>
+          <div
+            className="group flex cursor-pointer flex-col items-center justify-center rounded-lg bg-white p-2 text-center shadow-sm hover:bg-watney hover:text-white"
+            onClick={()=>navigate('/dashboard/courses')}
+          >
+            <div className="mb-1 flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-600 transition-colors group-hover:bg-white group-hover:text-watney">
+              <Book className="h-8 w-8" />
+            </div>
+            <h3 className="text-sm font-medium text-gray-600 transition-colors group-hover:text-white">
+              Courses
+            </h3>
+          </div>
+          <div
+            className="group flex cursor-pointer flex-col items-center justify-center rounded-lg bg-white p-2 text-center shadow-sm hover:bg-watney hover:text-white"
+            onClick={()=>navigate('/dashboard/terms')}
+          >
+            <div className="mb-1 flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-600 transition-colors group-hover:bg-white group-hover:text-watney">
+              <Calendar className="h-8 w-8" />
+            </div>
+            <h3 className="text-sm font-medium text-gray-600 transition-colors group-hover:text-white">
+              Terms
             </h3>
           </div>
         </div>

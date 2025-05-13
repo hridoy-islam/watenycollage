@@ -15,7 +15,9 @@ import ApplicationListPage from '@/pages/application/applications-list';
 import NewApplicationListPage from '@/pages/application/newApplications-list';
 import ViewApplicationPage from '@/pages/application/view-application';
 import CareerPage from '@/pages/career';
-
+import CareerResumeUpload from "@/pages/career/uploadResume/index"
+import CoursesPage from '@/pages/course';
+import TermPage from '@/pages/term';
 const SignInPage = lazy(() => import('@/pages/auth/signin'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
 
@@ -72,6 +74,16 @@ export default function AppRouter() {
           element: <ViewApplicationPage />,
           index: true
         },
+        {
+          path: 'courses',
+          element: <CoursesPage />,
+          index: true
+        },
+        {
+          path: 'terms',
+          element: <TermPage />,
+          index: true
+        },
       ]
     }
   ];
@@ -116,8 +128,13 @@ export default function AppRouter() {
       element: <Navigate to="/404" replace />
     },
     {
-      path: '/career',
+      path: '/career-application',
       element: <CareerPage />,
+      index: true
+    },
+    {
+      path: '/career',
+      element: <CareerResumeUpload />,
       index: true
     },
   ];

@@ -1,34 +1,34 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle
-} from '@/components/ui/card';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage
-} from '@/components/ui/form';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
 import { useState } from 'react';
 import type { TCareer } from '@/types/career';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import Select from 'react-select';
+import { countries } from '@/types';
+
+// Define title options for react-select
+const titleOptions = [
+  { value: 'Mr', label: 'Mr' },
+  { value: 'Mrs', label: 'Mrs' },
+  { value: 'Miss', label: 'Miss' },
+  { value: 'Ms', label: 'Ms' },
+  { value: 'Dr', label: 'Dr' },
+  { value: 'Prof', label: 'Prof' },
+];
+
+// Define yes/no options for react-select
+const yesNoOptions = [
+  { value: true, label: 'Yes' },
+  { value: false, label: 'No' }
+];
 
 const personalDetailsSchema = z.object({
   title: z.string().min(1, { message: 'Title is required' }),
@@ -39,11 +39,19 @@ const personalDetailsSchema = z.object({
     required_error: 'Date of birth is required'
   }),
   email: z.string().email({ message: 'Please enter a valid email address' }),
-
+  phone: z.string().min(1, { message: 'Phone number is required' }),
+  nationality: z.string().min(1, { message: 'Nationality is required' }),
+  countryOfResidence: z.string().min(1, { message: 'Country of residence is required' }),
   hasNationalInsuranceNumber: z.boolean().optional(),
   nationalInsuranceNumber: z.string().optional(),
-  hasNhsNumber: z.boolean().optional(),
-  nhsNumber: z.string().optional()
+  shareCode: z.string().optional(),
+  postalAddress: z.object({
+    line1: z.string().min(1, { message: 'Address line 1 is required' }),
+    line2: z.string().optional(),
+    city: z.string().min(1, { message: 'City is required' }),
+    postCode: z.string().min(1, { message: 'Postal code is required' }),
+    country: z.string().min(1, { message: 'Country is required' })
+  })
 });
 
 type PersonalDetailsFormValues = z.infer<typeof personalDetailsSchema>;
@@ -73,11 +81,19 @@ export function PersonalDetailsStep({
       initial: value.initial || '',
       lastName: value.lastName || '',
       email: value.email || '',
+      phone: value.phone || '',
+      nationality: value.nationality || '',
+      countryOfResidence: value.countryOfResidence || '',
       dateOfBirth: value.dateOfBirth ? new Date(value.dateOfBirth) : undefined,
       nationalInsuranceNumber: value.nationalInsuranceNumber || '',
-      nhsNumber: value.nhsNumber || '',
-      hasNationalInsuranceNumber: !!value.nationalInsuranceNumber,
-      hasNhsNumber: !!value.nhsNumber
+      shareCode: value.shareCode || '',
+      postalAddress: {
+        line1: value.postalAddress?.line1 || '',
+        line2: value.postalAddress?.line2 || '',
+        city: value.postalAddress?.city || '',
+        postCode: value.postalAddress?.postCode || '',
+        country: value.postalAddress?.country || ''
+      }
     }
   });
 
@@ -92,15 +108,25 @@ export function PersonalDetailsStep({
         'title',
         'firstName',
         'lastName',
-        'dateOfBirth'
+        'dateOfBirth',
+        'email',
+        'phone',
+        'nationality',
+        'countryOfResidence'
       ]);
       if (!isValid) return;
     } else if (currentStep === 2) {
-      const niRequired = form.watch('hasNationalInsuranceNumber');
+      const isValid = await form.trigger([
+        'postalAddress.line1',
+        'postalAddress.city',
+        'postalAddress.postCode',
+        'postalAddress.country'
+      ]);
+      if (!isValid) return;
+    } else if (currentStep === 3) {
       const nhsRequired = form.watch('hasNhsNumber');
 
       const fieldsToValidate = [];
-      if (niRequired) fieldsToValidate.push('nationalInsuranceNumber');
       if (nhsRequired) fieldsToValidate.push('nhsNumber');
 
       const isValid = await form.trigger(fieldsToValidate);
@@ -126,61 +152,60 @@ export function PersonalDetailsStep({
     }
   };
 
-  const handleSkip = () => {
-    if (currentStep === 2) {
-      if (form.watch('hasNationalInsuranceNumber')) {
-        form.setValue('hasNationalInsuranceNumber', false);
-        form.setValue('nationalInsuranceNumber', '');
-      }
-      if (form.watch('hasNhsNumber')) {
-        form.setValue('hasNhsNumber', false);
-        form.setValue('nhsNumber', '');
-      }
-    }
-    handleNext();
-  };
+  // const handleSkip = () => {
+  //   if (currentStep === 3) {
+  //     if (form.watch('hasNationalInsuranceNumber')) {
+  //       form.setValue('hasNationalInsuranceNumber', false);
+  //       form.setValue('nationalInsuranceNumber', '');
+  //     }
+  //     if (form.watch('hasNhsNumber')) {
+  //       form.setValue('hasNhsNumber', false);
+  //       form.setValue('nhsNumber', '');
+  //     }
+  //   }
+  //   handleNext();
+  // };
+const countryOptions = countries.map(country => ({
+  label: country,
+  value: country.toLowerCase().replace(/\s/g, '-'),
+}));
 
   return (
     <Card>
       <CardHeader>
-        {/* <CardTitle>Personal Details</CardTitle>
-        <CardDescription>Step {currentStep} of 2</CardDescription> */}
       </CardHeader>
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* Step 1: Name and DOB */}
+            {/* Step 1: Basic Information */}
             {currentStep === 1 && (
               <div className="space-y-4">
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 md:grid-cols-4">
                   <FormField
                     control={form.control}
                     name="title"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Title</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select title" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="Mr">Mr</SelectItem>
-                            <SelectItem value="Mrs">Mrs</SelectItem>
-                            <SelectItem value="Miss">Miss</SelectItem>
-                            <SelectItem value="Ms">Ms</SelectItem>
-                            <SelectItem value="Dr">Dr</SelectItem>
-                            <SelectItem value="Prof">Prof</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <Controller
+                          name="title"
+                          control={form.control}
+                          render={({ field: { onChange, value } }) => (
+                            <Select
+                              options={titleOptions}
+                              value={titleOptions.find(opt => opt.value === value)}
+                              onChange={(option) => onChange(option?.value)}
+                              className="react-select-container"
+                              classNamePrefix="react-select"
+                              placeholder="Select title"
+                            />
+                          )}
+                        />
                         <FormMessage />
                       </FormItem>
                     )}
                   />
+
                   <FormField
                     control={form.control}
                     name="firstName"
@@ -194,6 +219,7 @@ export function PersonalDetailsStep({
                       </FormItem>
                     )}
                   />
+
                   <FormField
                     control={form.control}
                     name="initial"
@@ -201,12 +227,13 @@ export function PersonalDetailsStep({
                       <FormItem>
                         <FormLabel>Middle Initial (Optional)</FormLabel>
                         <FormControl>
-                          <Input {...field} />
+                          <Input {...field}  />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
+
                   <FormField
                     control={form.control}
                     name="lastName"
@@ -220,25 +247,25 @@ export function PersonalDetailsStep({
                       </FormItem>
                     )}
                   />
+
                   <FormField
                     control={form.control}
                     name="dateOfBirth"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="flex flex-col mt-2 ">
                         <FormLabel>Date of Birth</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="date"
-                            value={
-                              field.value
-                                ? field.value.toISOString().split('T')[0]
-                                : ''
-                            }
-                            onChange={(e) =>
-                              field.onChange(e.target.valueAsDate)
-                            }
-                          />
-                        </FormControl>
+                        <DatePicker
+                          selected={field.value}
+                          onChange={field.onChange}
+                          dateFormat="yyyy-MM-dd"
+                          placeholderText="Select date of birth"
+                          className="w-full rounded-md border border-gray-300  mt-0.5 px-3 py-2 text-sm"
+                          showYearDropdown
+                          scrollableYearDropdown
+                          yearDropdownItemNumber={100}
+                          dropdownMode="select"
+                          maxDate={new Date()}
+                        />
                         <FormMessage />
                       </FormItem>
                     )}
@@ -250,132 +277,209 @@ export function PersonalDetailsStep({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Email</FormLabel>
-
                         <FormControl>
-                          <Input
-                            {...field}
-                            type="email"
-                            placeholder="Enter your email address"
-                          />
+                          <Input type="email" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
+
+                  <FormField
+                    control={form.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Phone Number</FormLabel>
+                        <FormControl>
+                          <Input type="tel" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="nationality"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Nationality</FormLabel>
+                        <Controller
+                          name="nationality"
+                          control={form.control}
+                          render={({ field: { onChange, value } }) => (
+                            <Select
+                              options={countryOptions}
+                              value={countryOptions.find(opt => opt.value === value)}
+                              onChange={(option) => onChange(option?.value)}
+                              className="react-select-container"
+                              classNamePrefix="react-select"
+                              placeholder="Select nationality"
+                            />
+                          )}
+                        />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="countryOfResidence"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Country of Residence</FormLabel>
+                        <Controller
+                          name="countryOfResidence"
+                          control={form.control}
+                          render={({ field: { onChange, value } }) => (
+                            <Select
+                              options={countryOptions}
+                              value={countryOptions.find(opt => opt.value === value)}
+                              onChange={(option) => onChange(option?.value)}
+                              className="react-select-container"
+                              classNamePrefix="react-select"
+                              placeholder="Select country"
+                            />
+                          )}
+                        />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
+                <div className="space-y-4">
+                  <h1 className='font-semibold text-2xl'>Postal Address</h1>
+                                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+
+                <FormField
+                  control={form.control}
+                  name="postalAddress.line1"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Address Line 1</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="postalAddress.line2"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Address Line 2 (Optional)</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                  <FormField
+                    control={form.control}
+                    name="postalAddress.city"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>City</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="postalAddress.postCode"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Postal Code</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                <FormField
+                  control={form.control}
+                  name="postalAddress.country"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Country</FormLabel>
+                      <Controller
+                        name="postalAddress.country"
+                        control={form.control}
+                        render={({ field: { onChange, value } }) => (
+                          <Select
+                          options={countryOptions}
+                          value={countryOptions.find(opt => opt.value === value)}
+                          onChange={(option) => onChange(option?.value)}
+                            className="react-select-container"
+                            classNamePrefix="react-select"
+                            placeholder="Select country"
+                            />
+                          )}
+                      />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                  />
+                  </div>
+              </div>
               </div>
             )}
 
-            {/* Step 2: Optional NI and NHS Numbers */}
+           
+            
+              
+       
+
+            {/* Step 3: Optional Numbers */}
             {currentStep === 2 && (
-              <div className="space-y-8 rounded-lg bg-white">
+              <div className="space-y-8">
                 <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-                  {/* National Insurance Number Section */}
-                  <div className="space-y-5">
-                    <p className="text-sm font-medium text-gray-600">
-                      Do you have a National Insurance Number?
-                    </p>
-                    <FormField
-                      control={form.control}
-                      name="hasNationalInsuranceNumber"
-                      render={({ field }) => (
-                        <FormItem>
-                          <Select
-                            value={field.value?.toString() ?? ''}
-                            onValueChange={(val) => {
-                              const hasNI = val === 'true';
-                              form.setValue(
-                                'hasNationalInsuranceNumber',
-                                hasNI
-                              );
-                              if (!hasNI)
-                                form.setValue('nationalInsuranceNumber', '');
-                            }}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select an option" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="true">Yes</SelectItem>
-                              <SelectItem value="false">No</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    {form.watch('hasNationalInsuranceNumber') && (
+                  <div className="space-y-4">
+                    <FormLabel>National Insurance Number</FormLabel>
                       <FormField
                         control={form.control}
                         name="nationalInsuranceNumber"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>National Insurance Number</FormLabel>
                             <FormControl>
-                              <Input
-                                {...field}
-                                placeholder="Enter NI number..."
-                              />
+                              <Input {...field} placeholder="Enter NI number" />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
-                    )}
+                    
                   </div>
 
-                  {/* NHS Number Section */}
-                  <div className="space-y-5">
-                    <p className="text-sm font-medium text-gray-600">
-                      Do you have an NHS Number?
-                    </p>
-                    <FormField
-                      control={form.control}
-                      name="hasNhsNumber"
-                      render={({ field }) => (
-                        <FormItem>
-                          <Select
-                            value={field.value?.toString() ?? ''}
-                            onValueChange={(val) => {
-                              const hasNHS = val === 'true';
-                              form.setValue('hasNhsNumber', hasNHS);
-                              if (!hasNHS) form.setValue('nhsNumber', '');
-                            }}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select an option" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="true">Yes</SelectItem>
-                              <SelectItem value="false">No</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    {form.watch('hasNhsNumber') && (
+                  <div className="space-y-4">
+                   
+                          <FormLabel>Add Share Code:</FormLabel>
                       <FormField
                         control={form.control}
-                        name="nhsNumber"
+                        name="shareCode"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>NHS Number</FormLabel>
                             <FormControl>
-                              <Input
-                                {...field}
-                                placeholder="Enter NHS number..."
-                              />
+                              <Input {...field} placeholder="Enter Share Code" />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
-                    )}
+                    
                   </div>
                 </div>
               </div>
@@ -391,17 +495,17 @@ export function PersonalDetailsStep({
                 Back
               </Button>
               <div className="space-x-2">
-                {currentStep === 2 && (
+                {/* {currentStep === 2 && (
                   <Button type="button" variant="outline" onClick={handleSkip}>
                     Skip
                   </Button>
-                )}
+                )} */}
                 <Button
                   type="button"
                   onClick={handleNext}
                   className="bg-watney text-white hover:bg-watney/90"
                 >
-                  {currentStep < 2 ? 'Next' : 'Next'}
+                  {currentStep < 1 ? 'Next' : 'Next'}
                 </Button>
               </div>
             </div>

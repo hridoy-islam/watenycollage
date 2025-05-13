@@ -17,6 +17,10 @@ import { SuccessMessage } from "./components/success-message"
 import type { TCareer } from "@/types/career"
 import { useState } from "react"
 import { set } from "date-fns"
+import { RefereeDetailsStep } from "./components/referee-details-step"
+import { DeclarationStep } from "./components/DeclarationStep"
+import { EducationStep } from "./components/education-step"
+import { EmploymentStep } from "./components/employment-step"
 
 export default function CareerApplicationForm() {
   const [currentStep, setCurrentStep] = useState(1)
@@ -25,8 +29,8 @@ export default function CareerApplicationForm() {
   })
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [personalDetailsStep, setPersonalDetailsStep] = useState(1);
-  const [contactDetailsStep, setContactDetailsStep] = useState(1);
-  const totalSteps = 12
+  const [contactDetailsStep, setContactDetailsStep] = useState(2);
+  const totalSteps = 13
 
   const updateFormData = (data: Partial<TCareer>) => {
     setFormData((prev) => ({ ...prev, ...data }))
@@ -59,8 +63,8 @@ export default function CareerApplicationForm() {
     window.scrollTo(0, 0);
   };
   const handleBackFromApplication = () => {
-    setCurrentStep(3); 
-    setContactDetailsStep(2); 
+    setCurrentStep(2); 
+    setPersonalDetailsStep(2); 
     window.scrollTo(0, 0);
   };
 
@@ -99,18 +103,27 @@ export default function CareerApplicationForm() {
         )
       case 3:
         return (
-          <ContactInfoStep
+          <EducationStep
             value={formData}
             onNext={(data) => {
               updateFormData(data)
               handleNext()
             }}
-            onBack={handleBackFromContact}
-            initialStep={contactDetailsStep}
-            onStepChange={setContactDetailsStep}        
+            onBack={handleBack}
           />
         )
       case 4:
+        return (
+          <EmploymentStep
+            value={formData}
+            onNext={(data) => {
+              updateFormData(data)
+              handleNext()
+            }}
+            onBack={handleBack}
+          />
+        )
+      case 5:
         return (
           <ApplicationDetailsStep
             value={formData}
@@ -118,32 +131,11 @@ export default function CareerApplicationForm() {
               updateFormData(data)
               handleNext()
             }}
-            onBack={handleBackFromApplication}
-          />
-        )
-      case 5:
-        return (
-          <EmploymentDetailsStep
-            value={formData}
-            onNext={(data) => {
-              updateFormData(data)
-              handleNext()
-            }}
             onBack={handleBack}
           />
         )
+     
       case 6:
-        return (
-          <DemographicInfoStep
-            value={formData}
-            onNext={(data) => {
-              updateFormData(data)
-              handleNext()
-            }}
-            onBack={handleBack}
-          />
-        )
-      case 7:
         return (
           <DisabilityInfoStep
             value={formData}
@@ -154,29 +146,19 @@ export default function CareerApplicationForm() {
             onBack={handleBack}
           />
         )
-      case 8:
-        return (
-          <RightToWorkStep
-            value={formData.rightToWork}
-            onNext={(rightToWork) => {
-              updateFormData({ rightToWork })
-              handleNext()
-            }}
-            onBack={handleBack}
-          />
-        )
-      case 9:
-        return (
-          <PayrollStep
-            value={formData.payroll}
-            onNext={(payroll) => {
-              updateFormData({ payroll })
-              handleNext()
-            }}
-            onBack={handleBack}
-          />
-        )
-      case 10:
+      // case 7:
+      //   return (
+      //     <RightToWorkStep
+      //       value={formData.rightToWork}
+      //       onNext={(rightToWork) => {
+      //         updateFormData({ rightToWork })
+      //         handleNext()
+      //       }}
+      //       onBack={handleBack}
+      //     />
+      //   )
+      
+      case 7:
         return (
           <EqualityInfoStep
             value={formData.equalityInformation}
@@ -187,26 +169,30 @@ export default function CareerApplicationForm() {
             onBack={handleBack}
           />
         )
-      case 11:
+      case 8:
         return (
-          <BeneficiaryStep
-            value={formData.beneficiary}
-            onNext={(beneficiary) => {
-              updateFormData({ beneficiary })
+          <RefereeDetailsStep
+            value={formData}
+            onNext={(data) => {
+              updateFormData(data)
               handleNext()
-            }}
-            applicantAddress={{
-              line1: formData?.address,
-              city: formData?.cityOrTown,
-              state: formData?.stateOrProvince,
-              postCode: formData?.postCode,
-              country: formData?.address,
             }}
             onBack={handleBack}
           />
         )
-        
-      case 12:
+      case 9:
+        return (
+          <DeclarationStep
+            value={formData}
+            onNext={(data) => {
+              updateFormData(data)
+              handleNext()
+            }}
+            onBack={handleBack}
+          />
+        )
+  
+      case 10:
         return <ReviewStep formData={formData} onSubmit={handleSubmit} onBack={handleBack} />
       default:
         return null

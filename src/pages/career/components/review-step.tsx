@@ -6,11 +6,8 @@ import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
   Dialog,
@@ -35,7 +32,7 @@ export function ReviewStep({ formData, onSubmit, onBack }: ReviewStepProps) {
   
   const formatDate = (date: Date | string | undefined) => {
     if (!date) return "Not provided"
-    return moment(date).format("MM-DD-YYYY")
+    return moment(date).format("DD/MM/YYYY")
   }
 
   const renderSection = (title: string, data: any, showTitle = true) => {
@@ -43,9 +40,9 @@ export function ReviewStep({ formData, onSubmit, onBack }: ReviewStepProps) {
   
     return (
       <div>
-      
-          <h3 className="text-lg font-medium text-black ">{title}</h3>
-        
+        {showTitle && (
+          <h3 className="text-lg font-medium text-black mb-2">{title}</h3>
+        )}
         <div className="rounded-md border border-gray-200 bg-gray-50 p-4">
           {Object.entries(data).map(([key, value]) => {
             if (typeof value === "object" && value !== null && !(value instanceof Date)) {
@@ -77,9 +74,11 @@ export function ReviewStep({ formData, onSubmit, onBack }: ReviewStepProps) {
       </div>
     );
   };
-  
-  
-  
+
+  const renderAddress = (address: any) => {
+    if (!address) return "Not provided";
+    return `${address.line1}${address.line2 ? `, ${address.line2}` : ''}, ${address.city}, ${address.postCode}, ${address.country}`;
+  };
 
   const sections = (
     <div className="space-y-6">
@@ -88,99 +87,102 @@ export function ReviewStep({ formData, onSubmit, onBack }: ReviewStepProps) {
         firstName: formData.firstName,
         initial: formData.initial,
         lastName: formData.lastName,
-        email: formData.email,
         dateOfBirth: formData.dateOfBirth,
-        nationalInsuranceNumber: formData.nationalInsuranceNumber,
-        nhsNumber: formData.nhsNumber,
+        gender: formData.gender,
+        maritalStatus: formData.maritalStatus,
+        nationality: formData.nationality,
+        isBritishCitizen: formData.isBritishCitizen,
       })}
-  
+
       {renderSection("Contact Information", {
         email: formData.email,
-        mobilePhone: formData.mobilePhone,
-        homePhone: formData.homePhone,
-        otherPhone: formData.otherPhone,
-        address: formData.address,
-        cityOrTown: formData.cityOrTown,
-        stateOrProvince: formData.stateOrProvince,
-        postCode: formData.postCode,
-        country: formData.country,
+        phone: formData.phone,
+        postalAddress: formData.postalAddress ? renderAddress(formData.postalAddress) : null,
+        countryOfResidence: formData.countryOfResidence,
       })}
-  
+
+      {renderSection("Official Numbers", {
+        nationalInsuranceNumber: formData.nationalInsuranceNumber,
+        nhsNumber: formData.nhsNumber,
+        shareCode: formData.shareCode,
+      })}
+
       {renderSection("Application Details", {
+        position: formData.position,
         applicationDate: formData.applicationDate,
         availableFromDate: formData.availableFromDate,
-        position: formData.position,
+        employmentType: formData.employmentType,
         source: formData.source,
         branch: formData.branch,
         area: formData.area,
-        wtrDocumentUrl: formData.wtrDocumentUrl,
-      })}
-  
-      {renderSection("Employment Details", {
-        employmentType: formData.employmentType,
-        isFullTime: formData.isFullTime,
+        noticePeriod: formData.noticePeriod,
+        salaryExpectation: formData.salaryExpectation,
+        maxHoursPerWeek: formData.maxHoursPerWeek,
         carTravelAllowance: formData.carTravelAllowance,
+        isFullTime: formData.isFullTime,
       })}
-  
-      {renderSection("Demographic Information", {
-        gender: formData.gender,
-        maritalStatus: formData.maritalStatus,
+
+      {renderSection("Demographics", {
         ethnicOrigin: formData.ethnicOrigin,
-        ethnicOriginDetails: formData.ethnicOriginDetails,
+        religion: formData.religion,
+        isStudent: formData.isStudent,
+        isUnderStatePensionAge: formData.isUnderStatePensionAge,
       })}
-  
+
       {renderSection("Disability Information", {
         hasDisability: formData.hasDisability,
         disabilityDetails: formData.disabilityDetails,
         needsReasonableAdjustment: formData.needsReasonableAdjustment,
         reasonableAdjustmentDetails: formData.reasonableAdjustmentDetails,
       })}
-  
-      {formData.rightToWork &&
-        renderSection("Right to Work", {
-          hasExpiry: formData.rightToWork.hasExpiry,
-          expiryDate: formData.rightToWork.expiryDate,
-        })}
-  
-      {formData.payroll &&
-        renderSection("Payroll Information", {
-          payrollNumber: formData.payroll.payrollNumber,
-          paymentMethod: formData.payroll.paymentMethod,
-        })}
-  
-      {formData.equalityInformation &&
-        renderSection("Equality Information", {
-          nationality: formData.equalityInformation.nationality,
-          religion: formData.equalityInformation.religion,
-          hasDisability: formData.equalityInformation.hasDisability,
-          disabilityDetails: formData.equalityInformation.disabilityDetails,
-        })}
-  
-      {formData.beneficiary &&
-        renderSection("Beneficiary Information", {
-          fullName: formData.beneficiary.fullName,
-          relationship: formData.beneficiary.relationship,
-          email: formData.beneficiary.email,
-          mobile: formData.beneficiary.mobile,
-          sameAddress: formData.beneficiary.sameAddress,
-          line1: formData.beneficiary.address?.line1,
-          line2: formData.beneficiary.address?.line2,
-          city: formData.beneficiary.address?.city,
-          state: formData.beneficiary.address?.state,
-          postCode: formData.beneficiary.address?.postCode,
-          country: formData.beneficiary.address?.country,
-        })}
+
+      {renderSection("Current Employment", formData.currentEmployment)}
+
+      {formData.previousEmployments && formData.previousEmployments.length > 0 && (
+        <div>
+          <h3 className="text-lg font-medium text-black mb-2">Previous Employment</h3>
+          {formData.previousEmployments.map((employment, index) => (
+            <div key={index} className="mb-4 rounded-md border border-gray-200 bg-gray-50 p-4">
+              {renderSection("", employment, false)}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {renderSection("Employment Gaps", {
+        hasEmploymentGaps: formData.hasEmploymentGaps,
+        employmentGapsExplanation: formData.employmentGapsExplanation,
+      })}
+
+      {renderSection("Right to Work", {
+        hasExpiry: formData.rightToWork?.hasExpiry,
+        expiryDate: formData.rightToWork?.expiryDate,
+      })}
+
+      {formData.referees && formData.referees.length > 0 && (
+        <div>
+          <h3 className="text-lg font-medium text-black mb-2">Referees</h3>
+          {formData.referees.map((referee, index) => (
+            <div key={index} className="mb-4 rounded-md border border-gray-200 bg-gray-50 p-4">
+              {renderSection("", referee, false)}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {renderSection("Declaration", {
+        declarationCorrectUpload: formData.declarationCorrectUpload,
+        declarationContactReferee: formData.declarationContactReferee,
+        criminalConviction: formData.criminalConviction,
+        criminalConvictionDetails: formData.criminalConvictionDetails,
+        appliedBefore: formData.appliedBefore,
+      })}
     </div>
   )
 
   return (
     <Card>
-      <CardHeader>
-        {/* <CardTitle>Review Your Application</CardTitle>
-        <CardDescription>
-          Please review your information before submitting. You can go back to make changes if needed.
-        </CardDescription> */}
-      </CardHeader>
+      <CardHeader />
       <CardContent className="space-y-6">
         <div className="space-y-4">
           <h3 className="text-lg font-medium">Terms and Conditions</h3>
@@ -245,7 +247,11 @@ export function ReviewStep({ formData, onSubmit, onBack }: ReviewStepProps) {
               </DialogContent>
             </Dialog>
 
-            <Button onClick={onSubmit} disabled={!termsAccepted || !dataProcessingAccepted} className="bg-watney text-white hover:bg-watney/90">
+            <Button 
+              onClick={onSubmit} 
+              disabled={!termsAccepted || !dataProcessingAccepted} 
+              className="bg-watney text-white hover:bg-watney/90"
+            >
               Submit
             </Button>
           </div>

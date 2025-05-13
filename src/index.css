@@ -83,3 +83,19 @@
     font-family: 'Montserrat', sans-serif;
   }
 }
+
+.react-select-container {
+  width: 100%;
+}
+.react-select__control {
+  min-height: 40px;
+  border-radius: 6px;
+  border: 1px solid hsl(240 5.9% 90%);
+}
+.react-select__control--is-focused {
+  border-color: hsl(240 5.9% 10%);
+  box-shadow: 0 0 0 1px hsl(240 5.9% 10%);
+}
+.react-select__menu {
+  z-index: 50;
+}

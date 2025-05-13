@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
-import {  CardContent } from '@/components/ui/card';
+import { CardContent } from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -12,13 +12,8 @@ import {
   FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
+import Select from 'react-select';
+
 import { Checkbox } from '@/components/ui/checkbox';
 import { useEffect } from 'react';
 import { countries } from '@/types';
@@ -141,14 +136,19 @@ export function AddressStep({
     }
   }, [defaultValues, form]);
 
+  const countryOptions = countries.map((country) => ({
+    value: country,
+    label: country
+  }));
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <div>
           <CardContent className="">
-            <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 ">
               {/* Residential Address Section */}
-              <div className="space-y-4">
+              <div className="mt-9 space-y-4">
                 <h2 className="text-xl font-semibold">Residential Address</h2>
 
                 <FormField
@@ -215,20 +215,23 @@ export function AddressStep({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Country</FormLabel>
-                      <Select onValueChange={field.onChange} {...field}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select Country" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {countries.map((country, index) => (
-                            <SelectItem key={index} value={country}>
-                              {country}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <FormControl>
+                        <Select
+                          options={countryOptions}
+                          value={
+                            field.value
+                              ? countryOptions.find(
+                                  (option) => option.value === field.value
+                                )
+                              : null
+                          }
+                          onChange={(selected) =>
+                            field.onChange(selected?.value)
+                          }
+                          placeholder="Select Country"
+                          isClearable
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -238,26 +241,27 @@ export function AddressStep({
               {/* Postal Address Section */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-semibold">Correspondence Address</h2>
-
-                  <FormField
-                    control={form.control}
-                    name="sameAsResidential"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center space-x-2 space-y-0">
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={handleSameAddressChange}
-                          />
-                        </FormControl>
-                        <FormLabel className="cursor-pointer text-sm font-normal">
-                          Same as residential address
-                        </FormLabel>
-                      </FormItem>
-                    )}
-                  />
+                  <h2 className="text-xl font-semibold">
+                    Correspondence Address
+                  </h2>
                 </div>
+                <FormField
+                  control={form.control}
+                  name="sameAsResidential"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={handleSameAddressChange}
+                        />
+                      </FormControl>
+                      <FormLabel className="cursor-pointer text-sm font-normal">
+                        Same as residential address
+                      </FormLabel>
+                    </FormItem>
+                  )}
+                />
 
                 <FormField
                   control={form.control}
@@ -339,26 +343,29 @@ export function AddressStep({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Country</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        {...field}
-                        disabled={sameAsResidential}
-                      >
-                        <FormControl>
-                          <SelectTrigger
-                            className={sameAsResidential ? 'bg-gray-100' : ''}
-                          >
-                            <SelectValue placeholder="Select Country" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {countries.map((country, index) => (
-                            <SelectItem key={index} value={country}>
-                              {country}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <FormControl>
+                        <Select
+                          options={countryOptions}
+                          value={
+                            field.value
+                              ? countryOptions.find(
+                                  (option) => option.value === field.value
+                                )
+                              : null
+                          }
+                          onChange={(selected) =>
+                            field.onChange(selected?.value)
+                          }
+                          placeholder="Select Country"
+                          isDisabled={sameAsResidential}
+                          classNames={{
+                            control: () =>
+                              sameAsResidential
+                                ? 'bg-gray-100 cursor-not-allowed'
+                                : ''
+                          }}
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -369,10 +376,20 @@ export function AddressStep({
         </div>
 
         <div className=" flex justify-between px-6">
-          <Button type="button" variant="outline" className='bg-watney text-white hover:bg-watney/90' onClick={handleBack}>
+          <Button
+            type="button"
+            variant="outline"
+            className="bg-watney text-white hover:bg-watney/90"
+            onClick={handleBack}
+          >
             Back
           </Button>
-          <Button type="submit" className='bg-watney text-white hover:bg-watney/90'>Next</Button>
+          <Button
+            type="submit"
+            className="bg-watney text-white hover:bg-watney/90"
+          >
+            Next
+          </Button>
         </div>
       </form>
     </Form>

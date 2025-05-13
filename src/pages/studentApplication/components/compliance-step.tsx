@@ -31,7 +31,11 @@ const complianceSchema = z.object({
   benefits: z.string().min(1, { message: 'Please select an option' }),
   criminalConviction: z.string().min(1, { message: 'Please select an option' }),
   convictionDetails: z.string().optional(),
-  studentFinance: z.string().min(1, { message: 'Please select an option' })
+  studentFinance: z.string().min(1, { message: 'Please select an option' }),
+  visaRequired: z.string().min(1, { message: 'Please select an option' }),
+  enteredUKBefore: z.string().min(1, { message: 'Please select an option' }),
+  completedUKCourse: z.string().min(1, { message: 'Please select an option' }),
+  visaRefusal: z.string().min(1, { message: 'Please select an option' })
 });
 
 type ComplianceData = z.infer<typeof complianceSchema>;
@@ -54,7 +58,11 @@ export function ComplianceStep({
       benefits: defaultValues?.benefits || '',
       criminalConviction: defaultValues?.criminalConviction || '',
       convictionDetails: defaultValues?.convictionDetails || '',
-      studentFinance: defaultValues?.studentFinance || ''
+      studentFinance: defaultValues?.studentFinance || '',
+      visaRequired: defaultValues?.visaRequired || '',
+      enteredUKBefore: defaultValues?.enteredUKBefore || '',
+      completedUKCourse: defaultValues?.completedUKCourse || '',
+      visaRefusal: defaultValues?.visaRefusal || ''
     }
   });
 
@@ -105,6 +113,95 @@ export function ComplianceStep({
                         className="w-full rounded-md border px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground"
                       />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="visaRequired"
+                render={({ field }) => (
+                  <FormItem className="flex w-full flex-col">
+                    <FormLabel>Do you require visa to come to UK?</FormLabel>
+                    <Select onValueChange={field.onChange} {...field}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="yes">Yes</SelectItem>
+                        <SelectItem value="no">No</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="enteredUKBefore"
+                render={({ field }) => (
+                  <FormItem className="flex w-full flex-col">
+                    <FormLabel>Have you entered into UK before?</FormLabel>
+                    <Select onValueChange={field.onChange} {...field}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="yes">Yes</SelectItem>
+                        <SelectItem value="no">No</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="completedUKCourse"
+                render={({ field }) => (
+                  <FormItem className="flex w-full flex-col">
+                    <FormLabel>
+                      Have you completed any course from UK before?
+                    </FormLabel>
+                    <Select onValueChange={field.onChange} {...field}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="yes">Yes</SelectItem>
+                        <SelectItem value="no">No</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="visaRefusal"
+                render={({ field }) => (
+                  <FormItem className="flex w-full flex-col">
+                    <FormLabel>Do you have any visa refusal?</FormLabel>
+                    <Select onValueChange={field.onChange} {...field}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="yes">Yes</SelectItem>
+                        <SelectItem value="no">No</SelectItem>
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -262,7 +359,7 @@ export function ComplianceStep({
                 name="criminalConviction"
                 render={({ field }) => (
                   <FormItem className="flex w-full flex-col">
-                    <FormLabel>Criminal Conviction</FormLabel>
+                    <FormLabel>Do you have any criminal conviction</FormLabel>
                     <Select onValueChange={field.onChange} {...field}>
                       <FormControl>
                         <SelectTrigger>
@@ -299,10 +396,20 @@ export function ComplianceStep({
         </div>
 
         <div className="flex justify-between px-6">
-          <Button type="button" variant="outline" onClick={handleBack}  className='bg-watney text-white hover:bg-watney/90'>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleBack}
+            className="bg-watney text-white hover:bg-watney/90"
+          >
             Back
           </Button>
-          <Button type="submit" className='bg-watney text-white hover:bg-watney/90'>Next</Button>
+          <Button
+            type="submit"
+            className="bg-watney text-white hover:bg-watney/90"
+          >
+            Next
+          </Button>
         </div>
       </form>
     </Form>

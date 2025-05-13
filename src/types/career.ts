@@ -1,81 +1,135 @@
 export interface TCareer {
-  profilePictureUrl?: string // Uploaded profile photo URL (optional)
-  title: string
-  firstName: string
-  initial?: string // Middle initial (optional)
-  lastName: string
-  dateOfBirth: Date
+  // Profile
+  profilePictureUrl?: string;
+  title: string;
+  firstName: string;
+  initial?: string;
+  lastName: string;
+  dateOfBirth: Date;
+
+  // Contact Info
+  email: string;
+  phone?: string;
+  nationality?: string;
+  countryOfResidence?: string;
+  postalAddress: {
+    line1: string;
+    line2?: string;
+    city: string;
+    postCode: string;
+    country: string;
+  };
 
   // Official Numbers
-  nationalInsuranceNumber?: string
-  nhsNumber?: string
+  nationalInsuranceNumber?: string;
+  nhsNumber?: string;
+  shareCode?: string;
 
   // Application Details
-  applicationDate: Date
-  availableFromDate: Date
-  employmentType: string // Full-time, Part-time, Temp, etc.
-  position: string // Desired job position
-  source: string // Where the candidate came from (e.g., Referral, Indeed)
-  branch: string // Office location
+  applicationDate: Date;
+  availableFromDate: Date;
+  employmentType?: "full-time" | "part-time" | "contractor" | "temporary" | "intern";
+  position: string;
+  source: string;
+  branch: string;
+  area: string;
+  noticePeriod: string;
+  salaryExpectation: string;
+  maxHoursPerWeek: string;
+  carTravelAllowance: boolean;
+  isFullTime?: boolean;
+  availability: Record<string, boolean>; // e.g., { monday: true, tuesday: false, ... }
 
-  // Contact Information
-  homePhone?: string
-  mobilePhone?: string
-  otherPhone?: string
-  email: string
-  address: string
-  cityOrTown: string
-  stateOrProvince: string
-  postCode: string
-  country: string
+  // Demographics
+  gender?: string;
+  maritalStatus?: string;
+  ethnicOrigin?: string;
+  religion?: string;
+  isBritishCitizen: boolean;
+  isStudent: boolean;
+  isUnderStatePensionAge: boolean;
 
-  // Demographic Information
-  gender: string // Male, Female, Other
-  maritalStatus: string // Single, Married, etc.
-  ethnicOrigin?: string // Ethnic background
+  // Disability
+  hasDisability: boolean;
+  disabilityDetails?: string;
+  needsReasonableAdjustment: boolean;
+  reasonableAdjustmentDetails?: string;
 
-  // Disability Information
-  hasDisability: boolean
-  disabilityDetails?: string
-  needsReasonableAdjustment: boolean
-  reasonableAdjustmentDetails?: string
+  // Employment
+  isEmployed: string;
+  currentEmployment?: {
+    employer?: string;
+    jobTitle?: string;
+    startDate?: string;
+    endDate?: string;
+    currentlyEmployed?: boolean;
+    employmentType?: string;
+    responsibilities?: string;
+    supervisor?: string;
+    contactPermission?: string;
+  };
+  previousEmployments?: {
+    employer: string;
+    jobTitle: string;
+    startDate: string;
+    endDate: string;
+    reasonForLeaving: string;
+    responsibilities: string;
+    contactPermission: string;
+  }[];
+  hasEmploymentGaps: string;
+  employmentGapsExplanation?: string;
 
-  status: "applied" | "shortlisted" | "interviewing" | "offered" | "hired" | "rejected" // default: applied
-  notes?: string // for recruiter to add comments during stages
-  availableFrom: Date
-  startDate: Date
-  wtrDocumentUrl?: string // WTR = Working Time Regulation Document
-  area: string
-  isFullTime: boolean
-  carTravelAllowance: boolean
-  employmentType: "full-time" | "part-time" | "contractor" | "temporary" | "intern" // Enum
-  rightToWork: {
-    hasExpiry: boolean
-    expiryDate?: Date
-  }
-  payroll: {
-    payrollNumber: string
-    paymentMethod: "bank-transfer" | "cheque" | "cash"
-  }
-  equalityInformation: {
-    nationality: string
-    religion: string
-    hasDisability: boolean
-    disabilityDetails?: string
-  }
-  beneficiary: {
-    fullName: string
-    relationship: string
-    email: string
-    mobile: string
-    sameAddress: boolean
-    address: {
-      line1: string
-      line2?: string
-      city: string
-      state?: string
-      postCode: string
-      country: string
-    }
-  }
+  // Right to Work
+  rightToWork?: {
+    hasExpiry: boolean;
+    expiryDate?: Date;
+  };
+
+  // Referees
+  referees: {
+    name: string;
+    organisation: string;
+    address: string;
+    designation: string;
+    email: string;
+    phone: string;
+  }[];
+
+  // Equality Info (repeat for redundancy in some schemas)
+  equalityInformation?: {
+    nationality: string;
+    religion?: string;
+    hasDisability: boolean;
+    disabilityDetails?: string;
+  };
+
+  // Declaration
+  declarationCorrectUpload: boolean;
+  declarationContactReferee: boolean;
+  criminalConviction: boolean;
+  criminalConvictionDetails?: string;
+  appliedBefore: boolean;
+
+  // Documents
+  documents: {
+    passport?: File | string;
+    cv?: File | string;
+    proofOfAddress?: File | string;
+    qualification?: File | string;
+    reference?: File | string;
+    shareCode?: File | string;
+    eVisa?: File | string;
+    nationalInsurance?: File | string;
+  };
+
+  // Extra
+  wtrDocumentUrl?: File | string;
+  referralEmployee?: string;
+  notes?: string;
+  status: "applied" | "shortlisted" | "interviewing" | "offered" | "hired" | "rejected";
+
+  // Dates
+  availableFrom: Date;
+  startDate: Date;
 }
