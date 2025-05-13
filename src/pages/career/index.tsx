@@ -30,7 +30,7 @@ export default function CareerApplicationForm() {
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [personalDetailsStep, setPersonalDetailsStep] = useState(1);
   const [contactDetailsStep, setContactDetailsStep] = useState(2);
-  const totalSteps = 13
+  const totalSteps = 9
 
   const updateFormData = (data: Partial<TCareer>) => {
     setFormData((prev) => ({ ...prev, ...data }))
@@ -63,8 +63,8 @@ export default function CareerApplicationForm() {
     window.scrollTo(0, 0);
   };
   const handleBackFromApplication = () => {
-    setCurrentStep(2); 
-    setPersonalDetailsStep(2); 
+    setCurrentStep(1); 
+    setPersonalDetailsStep(1); 
     window.scrollTo(0, 0);
   };
 
@@ -98,8 +98,7 @@ export default function CareerApplicationForm() {
               handleNext()
             }}
             onBack={handleBack}
-            initialStep={personalDetailsStep}
-            onStepChange={setPersonalDetailsStep}          />
+             />
         )
       case 3:
         return (
@@ -158,18 +157,8 @@ export default function CareerApplicationForm() {
       //     />
       //   )
       
+      
       case 7:
-        return (
-          <EqualityInfoStep
-            value={formData.equalityInformation}
-            onNext={(equalityInformation) => {
-              updateFormData({ equalityInformation })
-              handleNext()
-            }}
-            onBack={handleBack}
-          />
-        )
-      case 8:
         return (
           <RefereeDetailsStep
             value={formData}
@@ -180,7 +169,7 @@ export default function CareerApplicationForm() {
             onBack={handleBack}
           />
         )
-      case 9:
+      case 8:
         return (
           <DeclarationStep
             value={formData}
@@ -192,7 +181,7 @@ export default function CareerApplicationForm() {
           />
         )
   
-      case 10:
+      case 9:
         return <ReviewStep formData={formData} onSubmit={handleSubmit} onBack={handleBack} />
       default:
         return null

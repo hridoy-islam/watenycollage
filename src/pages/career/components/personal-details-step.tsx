@@ -5,7 +5,14 @@ import { Controller, useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
 import type { TCareer } from '@/types/career';
@@ -21,7 +28,7 @@ const titleOptions = [
   { value: 'Miss', label: 'Miss' },
   { value: 'Ms', label: 'Ms' },
   { value: 'Dr', label: 'Dr' },
-  { value: 'Prof', label: 'Prof' },
+  { value: 'Prof', label: 'Prof' }
 ];
 
 // Define yes/no options for react-select
@@ -41,7 +48,9 @@ const personalDetailsSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address' }),
   phone: z.string().min(1, { message: 'Phone number is required' }),
   nationality: z.string().min(1, { message: 'Nationality is required' }),
-  countryOfResidence: z.string().min(1, { message: 'Country of residence is required' }),
+  countryOfResidence: z
+    .string()
+    .min(1, { message: 'Country of residence is required' }),
   hasNationalInsuranceNumber: z.boolean().optional(),
   nationalInsuranceNumber: z.string().optional(),
   shareCode: z.string().optional(),
@@ -84,7 +93,7 @@ export function PersonalDetailsStep({
       phone: value.phone || '',
       nationality: value.nationality || '',
       countryOfResidence: value.countryOfResidence || '',
-      dateOfBirth: value.dateOfBirth ? new Date(value.dateOfBirth) : undefined,
+dateOfBirth: value.dateOfBirth ? new Date(value.dateOfBirth) : undefined,
       nationalInsuranceNumber: value.nationalInsuranceNumber || '',
       shareCode: value.shareCode || '',
       postalAddress: {
@@ -115,7 +124,7 @@ export function PersonalDetailsStep({
         'countryOfResidence'
       ]);
       if (!isValid) return;
-    } else if (currentStep === 2) {
+    } else if (currentStep === 1) {
       const isValid = await form.trigger([
         'postalAddress.line1',
         'postalAddress.city',
@@ -123,7 +132,7 @@ export function PersonalDetailsStep({
         'postalAddress.country'
       ]);
       if (!isValid) return;
-    } else if (currentStep === 3) {
+    } else if (currentStep === 1) {
       const nhsRequired = form.watch('hasNhsNumber');
 
       const fieldsToValidate = [];
@@ -133,7 +142,7 @@ export function PersonalDetailsStep({
       if (!isValid) return;
     }
 
-    if (currentStep < 2) {
+    if (currentStep < 1) {
       const newStep = currentStep + 1;
       setCurrentStep(newStep);
       onStepChange?.(newStep);
@@ -165,15 +174,14 @@ export function PersonalDetailsStep({
   //   }
   //   handleNext();
   // };
-const countryOptions = countries.map(country => ({
-  label: country,
-  value: country.toLowerCase().replace(/\s/g, '-'),
-}));
+  const countryOptions = countries.map((country) => ({
+    label: country,
+    value: country.toLowerCase().replace(/\s/g, '-')
+  }));
 
   return (
     <Card>
-      <CardHeader>
-      </CardHeader>
+      <CardHeader></CardHeader>
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -193,7 +201,9 @@ const countryOptions = countries.map(country => ({
                           render={({ field: { onChange, value } }) => (
                             <Select
                               options={titleOptions}
-                              value={titleOptions.find(opt => opt.value === value)}
+                              value={titleOptions.find(
+                                (opt) => opt.value === value
+                              )}
                               onChange={(option) => onChange(option?.value)}
                               className="react-select-container"
                               classNamePrefix="react-select"
@@ -227,7 +237,7 @@ const countryOptions = countries.map(country => ({
                       <FormItem>
                         <FormLabel>Middle Initial (Optional)</FormLabel>
                         <FormControl>
-                          <Input {...field}  />
+                          <Input {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -248,28 +258,23 @@ const countryOptions = countries.map(country => ({
                     )}
                   />
 
-                  <FormField
-                    control={form.control}
-                    name="dateOfBirth"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col mt-2 ">
-                        <FormLabel>Date of Birth</FormLabel>
-                        <DatePicker
-                          selected={field.value}
-                          onChange={field.onChange}
-                          dateFormat="yyyy-MM-dd"
-                          placeholderText="Select date of birth"
-                          className="w-full rounded-md border border-gray-300  mt-0.5 px-3 py-2 text-sm"
-                          showYearDropdown
-                          scrollableYearDropdown
-                          yearDropdownItemNumber={100}
-                          dropdownMode="select"
-                          maxDate={new Date()}
-                        />
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                 <FormField
+  control={form.control}
+  name="dateOfBirth"
+  render={({ field }) => (
+    <FormItem className="mt-2 flex flex-col">
+      <FormLabel>Date of Birth</FormLabel>
+      <Input
+        type="date"
+        value={field.value ? new Date(field.value).toISOString().split('T')[0] : ''}
+        onChange={(e) => field.onChange(new Date(e.target.value))}
+        className="mt-0.5 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+      />
+      <FormMessage />
+    </FormItem>
+  )}
+/>
+
 
                   <FormField
                     control={form.control}
@@ -311,7 +316,9 @@ const countryOptions = countries.map(country => ({
                           render={({ field: { onChange, value } }) => (
                             <Select
                               options={countryOptions}
-                              value={countryOptions.find(opt => opt.value === value)}
+                              value={countryOptions.find(
+                                (opt) => opt.value === value
+                              )}
                               onChange={(option) => onChange(option?.value)}
                               className="react-select-container"
                               classNamePrefix="react-select"
@@ -336,7 +343,9 @@ const countryOptions = countries.map(country => ({
                           render={({ field: { onChange, value } }) => (
                             <Select
                               options={countryOptions}
-                              value={countryOptions.find(opt => opt.value === value)}
+                              value={countryOptions.find(
+                                (opt) => opt.value === value
+                              )}
                               onChange={(option) => onChange(option?.value)}
                               className="react-select-container"
                               classNamePrefix="react-select"
@@ -348,138 +357,124 @@ const countryOptions = countries.map(country => ({
                       </FormItem>
                     )}
                   />
+
+                  <div className="space-y-2">
+                    <FormLabel>National Insurance Number</FormLabel>
+                    <FormField
+                      control={form.control}
+                      name="nationalInsuranceNumber"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input {...field} placeholder="Enter NI number" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <FormLabel>Add Share Code:</FormLabel>
+                    <FormField
+                      control={form.control}
+                      name="shareCode"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input {...field} placeholder="Enter Share Code" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </div>
                 <div className="space-y-4">
-                  <h1 className='font-semibold text-2xl'>Postal Address</h1>
-                                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <h1 className="text-xl font-semibold">Postal Address</h1>
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <FormField
+                      control={form.control}
+                      name="postalAddress.line1"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Address Line 1</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                <FormField
-                  control={form.control}
-                  name="postalAddress.line1"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Address Line 1</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                    <FormField
+                      control={form.control}
+                      name="postalAddress.line2"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Address Line 2 (Optional)</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                <FormField
-                  control={form.control}
-                  name="postalAddress.line2"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Address Line 2 (Optional)</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                    <FormField
+                      control={form.control}
+                      name="postalAddress.city"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>City</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                  <FormField
-                    control={form.control}
-                    name="postalAddress.city"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>City</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                    <FormField
+                      control={form.control}
+                      name="postalAddress.postCode"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Postal Code</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                  <FormField
-                    control={form.control}
-                    name="postalAddress.postCode"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Postal Code</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                <FormField
-                  control={form.control}
-                  name="postalAddress.country"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Country</FormLabel>
-                      <Controller
-                        name="postalAddress.country"
-                        control={form.control}
-                        render={({ field: { onChange, value } }) => (
-                          <Select
-                          options={countryOptions}
-                          value={countryOptions.find(opt => opt.value === value)}
-                          onChange={(option) => onChange(option?.value)}
-                            className="react-select-container"
-                            classNamePrefix="react-select"
-                            placeholder="Select country"
-                            />
-                          )}
-                      />
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                  />
-                  </div>
-              </div>
-              </div>
-            )}
-
-           
-            
-              
-       
-
-            {/* Step 3: Optional Numbers */}
-            {currentStep === 2 && (
-              <div className="space-y-8">
-                <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-                  <div className="space-y-4">
-                    <FormLabel>National Insurance Number</FormLabel>
-                      <FormField
-                        control={form.control}
-                        name="nationalInsuranceNumber"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Input {...field} placeholder="Enter NI number" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    
-                  </div>
-
-                  <div className="space-y-4">
-                   
-                          <FormLabel>Add Share Code:</FormLabel>
-                      <FormField
-                        control={form.control}
-                        name="shareCode"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Input {...field} placeholder="Enter Share Code" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    
+                    <FormField
+                      control={form.control}
+                      name="postalAddress.country"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Country</FormLabel>
+                          <Controller
+                            name="postalAddress.country"
+                            control={form.control}
+                            render={({ field: { onChange, value } }) => (
+                              <Select
+                                options={countryOptions}
+                                value={countryOptions.find(
+                                  (opt) => opt.value === value
+                                )}
+                                onChange={(option) => onChange(option?.value)}
+                                className="react-select-container"
+                                classNamePrefix="react-select"
+                                placeholder="Select country"
+                              />
+                            )}
+                          />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
                 </div>
               </div>
@@ -505,7 +500,7 @@ const countryOptions = countries.map(country => ({
                   onClick={handleNext}
                   className="bg-watney text-white hover:bg-watney/90"
                 >
-                  {currentStep < 1 ? 'Next' : 'Next'}
+                  Next
                 </Button>
               </div>
             </div>

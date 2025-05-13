@@ -207,28 +207,22 @@ export function PersonalDetailsStep({
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="dateOfBirth"
-              render={({ field }) => (
-                <FormItem className="mt-2 flex flex-col ">
-                  <FormLabel>Date of Birth</FormLabel>
-                  <DatePicker
-                    selected={field.value}
-                    onChange={field.onChange}
-                    dateFormat="yyyy-MM-dd"
-                    placeholderText="Select date of birth"
-                    className="mt-0.5 w-full rounded-md border  border-gray-300 px-3 py-2 text-sm"
-                    showYearDropdown
-                    scrollableYearDropdown
-                    yearDropdownItemNumber={100}
-                    dropdownMode="select"
-                    maxDate={new Date()}
-                  />
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                             <FormField
+  control={form.control}
+  name="dateOfBirth"
+  render={({ field }) => (
+    <FormItem className="mt-2 flex flex-col">
+      <FormLabel>Date of Birth</FormLabel>
+      <Input
+        type="date"
+        value={field.value ? new Date(field.value).toISOString().split('T')[0] : ''}
+        onChange={(e) => field.onChange(new Date(e.target.value))}
+        className="mt-0.5 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+      />
+      <FormMessage />
+    </FormItem>
+  )}
+/>
 
             <FormField
               control={form.control}

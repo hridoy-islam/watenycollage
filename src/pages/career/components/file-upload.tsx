@@ -66,11 +66,12 @@ export function FileUpload({ onFileSelected, value, className }: FileUploadProps
       ) : (
         <div className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-full w-32 h-32 mx-auto">
           <Upload className="h-8 w-8 text-gray-400" />
-          <span className="text-xs text-gray-500 mt-1">Upload Photo</span>
+          <span className="text-xs text-gray-500 mt-1 ">Upload Photo</span>
         </div>
       )}
 
-      <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()} className="w-full">
+      <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()}               className="bg-watney text-white hover:bg-watney/90"
+>
         {preview ? "Change Photo" : "Upload Photo"}
       </Button>
     </div>

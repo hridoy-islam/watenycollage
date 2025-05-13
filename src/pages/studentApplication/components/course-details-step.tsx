@@ -10,9 +10,10 @@ import { Button } from '@/components/ui/button';
 import { CardContent } from '@/components/ui/card';
 
 const courseDetailsSchema = z.object({
-  course: z.string().min(1, { message: 'Please select a course' }),
-  intake: z.string().min(1, { message: 'Please select an intake' })
+  course: z.string().optional(),
+  intake: z.string().optional(),
 });
+
 
 type CourseDetailsData = z.infer<typeof courseDetailsSchema>;
 

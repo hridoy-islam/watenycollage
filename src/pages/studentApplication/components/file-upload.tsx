@@ -43,7 +43,7 @@ export function FileUpload({
       case 'primary':
         return 'bg-teal-500 hover:bg-teal-600 text-white';
       case 'outline':
-        return 'border border-gray-300 hover:border-gray-400 bg-white text-gray-700';
+        return 'border border-gray-300 hover:border-gray-400 bg-white text-gray-700 hover:bg-watney';
       default:
         return '';
     }

@@ -21,10 +21,14 @@ const declarationSchema = z
   .object({
     declarationCorrectUpload: z
       .boolean()
-      .refine((val) => val, { message: 'Required' }),
+      .optional()
+      .refine((val) => val !== undefined, { message: 'Required' }),
+
     declarationContactReferee: z
       .boolean()
-      .refine((val) => val, { message: 'Required' }),
+      .optional()
+
+      .refine((val) => val !== undefined, { message: 'Required' }),
     criminalConviction: z.boolean(),
     criminalConvictionDetails: z.string().optional(), // <-- add this
     appliedBefore: z.boolean(),
@@ -134,66 +138,111 @@ export function DeclarationStep({
               control={form.control}
               name="declarationCorrectUpload"
               render={({ field }) => (
-                <FormItem className="flex items-center gap-2">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <FormLabel>
+                <FormItem className="flex items-center gap-4">
+                  <FormLabel className="mr-2">
                     Are you giving this declaration that what you have uploaded
                     is correct?
                   </FormLabel>
+                  <FormControl>
+                    <div className="flex items-center">
+                      <Checkbox
+                        checked={field.value === true}
+                        onCheckedChange={() => field.onChange(true)}
+                      />
+                      <FormLabel className="ml-2">Yes</FormLabel>
+                    </div>
+                  </FormControl>
+                  <FormControl>
+                    <div className="flex items-center">
+                      <Checkbox
+                        checked={field.value === false}
+                        onCheckedChange={() => field.onChange(false)}
+                      />
+                      <FormLabel className="ml-2">No</FormLabel>
+                    </div>
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="declarationContactReferee"
               render={({ field }) => (
-                <FormItem className="flex items-center gap-2">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <FormLabel>
+                <FormItem className="flex items-center gap-4">
+                  <FormLabel className="mr-2">
                     Do you give us permission to contact the referee on your
                     behalf?
                   </FormLabel>
+                  <FormControl>
+                    <div className="flex items-center">
+                      <Checkbox
+                        checked={field.value === true}
+                        onCheckedChange={() => field.onChange(true)}
+                      />
+                      <FormLabel className="ml-2">Yes</FormLabel>
+                    </div>
+                  </FormControl>
+                  <FormControl>
+                    <div className="flex items-center">
+                      <Checkbox
+                        checked={field.value === false}
+                        onCheckedChange={() => field.onChange(false)}
+                      />
+                      <FormLabel className="ml-2">No</FormLabel>
+                    </div>
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="criminalConviction"
               render={({ field }) => (
-                <FormItem className="flex items-center gap-2 ">
+                <FormItem className="flex items-center gap-4">
+                  <FormLabel className="mr-2">
+                    Do you have any criminal conviction?
+                  </FormLabel>
                   <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
+                    <div className="flex items-center">
+                      <Checkbox
+                        checked={field.value === true}
+                        onCheckedChange={() => field.onChange(true)}
+                      />
+                      <FormLabel className="ml-2">Yes</FormLabel>
+                    </div>
                   </FormControl>
-                  <FormLabel >Do you have any criminal conviction?</FormLabel>
+                  <FormControl>
+                    <div className="flex items-center">
+                      <Checkbox
+                        checked={field.value === false}
+                        onCheckedChange={() => field.onChange(false)}
+                      />
+                      <FormLabel className="ml-2">No</FormLabel>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
+
             {watchConviction && (
               <FormField
                 control={form.control}
                 name="criminalConvictionDetails"
                 render={({ field }) => (
-                  <FormItem className='w-[500px]'>
+                  <FormItem className="w-[500px]">
                     <FormLabel>
                       Please provide details of the conviction
                     </FormLabel>
                     <FormControl>
-                      <Textarea placeholder="Enter details here..." {...field} />
+                      <Textarea
+                        placeholder="Enter details here..."
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -205,14 +254,29 @@ export function DeclarationStep({
               control={form.control}
               name="appliedBefore"
               render={({ field }) => (
-                <FormItem className="flex items-center gap-2">
+                <FormItem className="flex items-center gap-4">
+                  <FormLabel className="mr-2">
+                    Have you applied here before?
+                  </FormLabel>
                   <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
+                    <div className="flex items-center">
+                      <Checkbox
+                        checked={field.value === true}
+                        onCheckedChange={() => field.onChange(true)}
+                      />
+                      <FormLabel className="ml-2">Yes</FormLabel>
+                    </div>
                   </FormControl>
-                  <FormLabel>Have you applied here before?</FormLabel>
+                  <FormControl>
+                    <div className="flex items-center">
+                      <Checkbox
+                        checked={field.value === false}
+                        onCheckedChange={() => field.onChange(false)}
+                      />
+                      <FormLabel className="ml-2">No</FormLabel>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />

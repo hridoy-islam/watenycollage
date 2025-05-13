@@ -60,15 +60,15 @@ type EmploymentData = z.infer<typeof employmentSchema>;
 
 export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
   const form = useForm<EmploymentData>({
-  resolver: zodResolver(employmentSchema),
-  defaultValues: defaultValues || value || {
-    isEmployed: '',
-    previousEmployments: [],
-    hasEmploymentGaps: '',
-    declaration: false
-  }
-});
-
+    resolver: zodResolver(employmentSchema),
+    defaultValues: defaultValues ||
+      value || {
+        isEmployed: '',
+        previousEmployments: [],
+        hasEmploymentGaps: '',
+        declaration: false
+      }
+  });
 
   const { fields, append } = useFieldArray({
     control: form.control,
@@ -460,7 +460,7 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
                         contactPermission: ''
                       })
                     }
-                    className="mt-4"
+                    className="bg-watney text-white hover:bg-watney/90"
                   >
                     Add Another Employment
                   </Button>
@@ -528,7 +528,6 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
                           </span>
                         </label>
                       </FormLabel>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
