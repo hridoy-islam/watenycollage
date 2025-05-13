@@ -169,9 +169,11 @@ export function DocumentsStep({
                             size="sm"
                             onClick={() =>
                               removeFile(idDocuments, setIdDocuments, index)
+                              
                             }
+                            
                           >
-                            <Trash2 className="h-4 w-4 text-red-500" />
+                            <Trash2 className="h-4 w-4 text-red-500 hover:bg-red-500 hover:text-white" />
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -275,7 +277,7 @@ export function DocumentsStep({
           <Button type="button" variant="outline" onClick={handleBack}>
             Back
           </Button>
-          <Button type="submit">Save & Continue</Button>
+          <Button type="submit">Next</Button>
         </div>
       </form>
     </Form>

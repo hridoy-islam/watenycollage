@@ -465,7 +465,8 @@ export function EmploymentStep({
                       contactPermission: ''
                     })
                   }
-                  className="mt-4"
+                              className="bg-watney text-white hover:bg-watney/90"
+
                 >
                   Add Another Employment
                 </Button>

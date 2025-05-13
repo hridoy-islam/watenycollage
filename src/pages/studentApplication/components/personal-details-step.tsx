@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, useWatch } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { CardContent } from '@/components/ui/card';
@@ -17,9 +17,17 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { countries, nationalities } from '@/types';
 import Select from 'react-select';
-
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 // Schema
 const personalDetailsSchema = z.object({
+  title: z.string().optional(),
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+  initial: z.string().optional(),
+  dateOfBirth: z.any().optional(), // use `z.string()` if date is string
+  email: z.string().email().optional(),
+  phone: z.string().optional(),
   gender: z.string().min(1, { message: 'Please select a gender' }),
   nationality: z.string().min(1, { message: 'Please select a nationality' }),
   ethnicity: z.string().min(1, { message: 'Please select an ethnicity' }),
@@ -51,7 +59,14 @@ export function PersonalDetailsStep({
   const form = useForm<PersonalDetailsData>({
     resolver: zodResolver(personalDetailsSchema),
     defaultValues: {
+      title: '',
+      firstName: '',
+      lastName: '',
+      initial: '',
       gender: '',
+      phone: '',
+      dateOfBirth: '',
+      email: '',
       nationality: '',
       ethnicity: '',
       countryOfBirth: '',
@@ -68,6 +83,7 @@ export function PersonalDetailsStep({
     }
   }, [defaultValues, form]);
 
+  console.log(defaultValues)
   const studentType = defaultValues?.studentType;
   const ethnicity = useWatch({ control: form.control, name: 'ethnicity' });
 
@@ -110,12 +126,139 @@ export function PersonalDetailsStep({
     { value: 'yes', label: 'Yes' },
     { value: 'no', label: 'No' }
   ];
+  const titleOptions = [
+    { value: 'Mr', label: 'Mr' },
+    { value: 'Mrs', label: 'Mrs' },
+    { value: 'Miss', label: 'Miss' },
+    { value: 'Ms', label: 'Ms' },
+    { value: 'Dr', label: 'Dr' },
+    { value: 'Prof', label: 'Prof' }
+  ];
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Title</FormLabel>
+                  <Controller
+                    name="title"
+                    control={form.control}
+                    render={({ field: { onChange, value } }) => (
+                      <Select
+                        options={titleOptions}
+                        value={titleOptions.find((opt) => opt.value === value)}
+                        onChange={(option) => onChange(option?.value)}
+                        className="react-select-container"
+                        classNamePrefix="react-select"
+                        placeholder="Select title"
+                      />
+                    )}
+                  />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="firstName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>First Name</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="initial"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Middle Initial (Optional)</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="lastName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Last Name</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="dateOfBirth"
+              render={({ field }) => (
+                <FormItem className="mt-2 flex flex-col ">
+                  <FormLabel>Date of Birth</FormLabel>
+                  <DatePicker
+                    selected={field.value}
+                    onChange={field.onChange}
+                    dateFormat="yyyy-MM-dd"
+                    placeholderText="Select date of birth"
+                    className="mt-0.5 w-full rounded-md border  border-gray-300 px-3 py-2 text-sm"
+                    showYearDropdown
+                    scrollableYearDropdown
+                    yearDropdownItemNumber={100}
+                    dropdownMode="select"
+                    maxDate={new Date()}
+                  />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input type="email" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Phone Number</FormLabel>
+                  <FormControl>
+                    <Input type="tel" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            
             {/* Gender */}
             <FormField
               control={form.control}
@@ -317,18 +460,20 @@ export function PersonalDetailsStep({
                       </FormLabel>
                       <FormControl>
                         <Select
-                      options={countryOptions}
-                      value={
-                        field.value
-                          ? countryOptions.find(
-                              (option) => option.value === field.value
-                            )
-                          : null
-                      }
-                      onChange={(selected) => field.onChange(selected?.value)}
-                      placeholder="Select Country"
-                      isClearable
-                    />
+                          options={countryOptions}
+                          value={
+                            field.value
+                              ? countryOptions.find(
+                                  (option) => option.value === field.value
+                                )
+                              : null
+                          }
+                          onChange={(selected) =>
+                            field.onChange(selected?.value)
+                          }
+                          placeholder="Select Country"
+                          isClearable
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

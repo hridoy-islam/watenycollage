@@ -13,12 +13,8 @@ interface ReviewModalProps {
   formData: any;
 }
 
-
-
-
 export function ReviewModal({ open, onClose, formData }: ReviewModalProps) {
-
-  console.log(formData)
+  console.log(formData);
   // Helper function to render form data sections
   const renderSection = (title: string, data: any) => {
     if (!data) return null;
@@ -37,7 +33,11 @@ export function ReviewModal({ open, onClose, formData }: ReviewModalProps) {
         return value ? 'Yes' : 'No';
       }
 
-      if (typeof value === 'string' || typeof value === 'number') {
+      if (typeof value === 'string') {
+        return value.charAt(0).toUpperCase() + value.slice(1);
+      }
+
+      if (typeof value === 'number') {
         return String(value);
       }
 
@@ -88,8 +88,8 @@ export function ReviewModal({ open, onClose, formData }: ReviewModalProps) {
 
     return (
       <div className="mb-6">
-        <h3 className="mb-2 text-lg font-semibold text-blue-700">{title}</h3>
-        <div className="rounded-md border border-gray-200 bg-gray-50 p-4">
+        <h3 className="mb-2 text-lg font-semibold text-watney">{title}</h3>
+        <div className="rounded-md  border-gray-200 bg-gray-50 p-4">
           {Object.entries(data).map(([key, value]) => {
             // Skip rendering file objects directly
             if (
@@ -127,7 +127,7 @@ export function ReviewModal({ open, onClose, formData }: ReviewModalProps) {
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="flex h-[80vh] max-w-4xl flex-col gap-0 overflow-hidden p-0">
-        <DialogHeader className="border-b p-6 pb-2">
+        <DialogHeader className=" p-6 pb-2">
           <DialogTitle className="text-xl font-bold">
             Application Summary
           </DialogTitle>
@@ -151,8 +151,8 @@ export function ReviewModal({ open, onClose, formData }: ReviewModalProps) {
           </div>
         </div>
 
-        <div className="flex justify-end border-t p-4">
-          <Button onClick={onClose}>Close</Button>
+        <div className="flex justify-end  p-4">
+          <Button onClick={onClose} className='bg-watney text-white hover:bg-watney/90'>Close</Button>
         </div>
       </DialogContent>
     </Dialog>

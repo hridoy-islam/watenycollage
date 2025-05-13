@@ -20,7 +20,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { EmergencyContact } from './components/emergencyContact';
 import axiosInstance from '@/lib/axios';
 import { useSelector } from 'react-redux';
-import {  FormType } from './components/formType';
+import { FormType } from './components/formType';
 
 export default function StudentApplication() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -121,6 +121,8 @@ export default function StudentApplication() {
       const userData = response.data.data;
       setFetchData((prev) => ({
         ...prev,
+        email:userData?.email,
+        phone:userData?.phone,
         personalDetails: userData?.personalDetails,
         addressData: userData?.addressData,
         courseDetailsData: userData?.courseDetailsData,
@@ -459,6 +461,9 @@ export default function StudentApplication() {
     setFormSubmitted(true);
   };
 
+
+  console.log(fetchData,'dd')
+
   // Render the current step
   const renderStep = () => {
     switch (currentStep) {
@@ -482,6 +487,8 @@ export default function StudentApplication() {
         return (
           <PersonalDetailsStep
             defaultValues={{
+              email: fetchData.email,
+              phone: fetchData.phone,
               ...fetchData.personalDetails,
               ...formData.personalDetailsData,
               ...Object.fromEntries(

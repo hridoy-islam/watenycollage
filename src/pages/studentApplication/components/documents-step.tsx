@@ -393,6 +393,9 @@ export function DocumentsStep({
               onClick={() => {
                 setCertificatesList((prev) => [...prev, { details: '', file: [] }]);
               }}
+
+                          className="bg-watney text-white hover:bg-watney/90"
+
             >
               Add New Certificate
             </Button>

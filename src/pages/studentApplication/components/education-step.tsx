@@ -177,7 +177,8 @@ export function EducationStep({
           <h2 className="mb-6 text-2xl font-semibold">
             Academic Qualification
           </h2>
-          <Button type="button" variant="outline" onClick={addEducationEntry}>
+          <Button type="button" variant="outline" onClick={addEducationEntry}             className="bg-watney text-white hover:bg-watney/90"
+>
             Add Education
           </Button>
 
