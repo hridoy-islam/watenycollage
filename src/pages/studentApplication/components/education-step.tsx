@@ -167,7 +167,7 @@ export function EducationStep({
     // Get current form values before navigating back
     const currentValues = form.getValues();
     onSave(currentValues);
-    setCurrentStep(5);
+    setCurrentStep(4);
   }
 
   return (

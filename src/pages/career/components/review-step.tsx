@@ -92,6 +92,7 @@ export function ReviewStep({ formData, onSubmit, onBack }: ReviewStepProps) {
         maritalStatus: formData.maritalStatus,
         nationality: formData.nationality,
         isBritishCitizen: formData.isBritishCitizen,
+        shareCode:formData.shareCode
       })}
 
       {renderSection("Contact Information", {
@@ -113,18 +114,12 @@ export function ReviewStep({ formData, onSubmit, onBack }: ReviewStepProps) {
         availableFromDate: formData.availableFromDate,
         employmentType: formData.employmentType,
         source: formData.source,
-        branch: formData.branch,
-        area: formData.area,
-        noticePeriod: formData.noticePeriod,
-        salaryExpectation: formData.salaryExpectation,
-        maxHoursPerWeek: formData.maxHoursPerWeek,
         carTravelAllowance: formData.carTravelAllowance,
         isFullTime: formData.isFullTime,
       })}
 
       {renderSection("Demographics", {
         ethnicOrigin: formData.ethnicOrigin,
-        religion: formData.religion,
         isStudent: formData.isStudent,
         isUnderStatePensionAge: formData.isUnderStatePensionAge,
       })}

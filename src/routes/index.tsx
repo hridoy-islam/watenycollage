@@ -18,6 +18,7 @@ import CareerPage from '@/pages/career';
 import CareerResumeUpload from "@/pages/career/uploadResume/index"
 import CoursesPage from '@/pages/course';
 import TermPage from '@/pages/term';
+import CourseRegistration from '@/pages/course-register';
 const SignInPage = lazy(() => import('@/pages/auth/signin'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
 
@@ -84,6 +85,7 @@ export default function AppRouter() {
           element: <TermPage />,
           index: true
         },
+        
       ]
     }
   ];
@@ -94,6 +96,11 @@ export default function AppRouter() {
     //   element: <StudentApplication />,
     //   index: true
     // },
+    {
+          path: 'courses/course-registration/:id',
+          element: <CourseRegistration />,
+          index: true
+        },
     {
       path: '/',
       element: <SignInPage />,

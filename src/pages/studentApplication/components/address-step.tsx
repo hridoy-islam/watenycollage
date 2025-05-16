@@ -125,7 +125,7 @@ export function AddressStep({
   }
 
   function handleBack() {
-    setCurrentStep(2);
+    setCurrentStep(1);
   }
 
   useEffect(() => {

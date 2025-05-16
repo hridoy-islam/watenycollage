@@ -53,6 +53,7 @@ const personalDetailsSchema = z.object({
     .min(1, { message: 'Country of residence is required' }),
   hasNationalInsuranceNumber: z.boolean().optional(),
   nationalInsuranceNumber: z.string().optional(),
+  isBritishCitizen: z.boolean(),
   shareCode: z.string().optional(),
   postalAddress: z.object({
     line1: z.string().min(1, { message: 'Address line 1 is required' }),
@@ -93,8 +94,9 @@ export function PersonalDetailsStep({
       phone: value.phone || '',
       nationality: value.nationality || '',
       countryOfResidence: value.countryOfResidence || '',
-dateOfBirth: value.dateOfBirth ? new Date(value.dateOfBirth) : undefined,
+      dateOfBirth: value.dateOfBirth ? new Date(value.dateOfBirth) : undefined,
       nationalInsuranceNumber: value.nationalInsuranceNumber || '',
+      isBritishCitizen: value.isBritishCitizen !== undefined ? value.isBritishCitizen : undefined,
       shareCode: value.shareCode || '',
       postalAddress: {
         line1: value.postalAddress?.line1 || '',
@@ -161,6 +163,8 @@ dateOfBirth: value.dateOfBirth ? new Date(value.dateOfBirth) : undefined,
     }
   };
 
+  const watchIsBritish = form.watch('isBritishCitizen');
+
   // const handleSkip = () => {
   //   if (currentStep === 3) {
   //     if (form.watch('hasNationalInsuranceNumber')) {
@@ -178,6 +182,10 @@ dateOfBirth: value.dateOfBirth ? new Date(value.dateOfBirth) : undefined,
     label: country,
     value: country.toLowerCase().replace(/\s/g, '-')
   }));
+  const yesNoOptions = [
+  { value: true, label: 'Yes' },
+  { value: false, label: 'No' }
+];
 
   return (
     <Card>
@@ -258,23 +266,30 @@ dateOfBirth: value.dateOfBirth ? new Date(value.dateOfBirth) : undefined,
                     )}
                   />
 
-                 <FormField
-  control={form.control}
-  name="dateOfBirth"
-  render={({ field }) => (
-    <FormItem className="mt-2 flex flex-col">
-      <FormLabel>Date of Birth</FormLabel>
-      <Input
-        type="date"
-        value={field.value ? new Date(field.value).toISOString().split('T')[0] : ''}
-        onChange={(e) => field.onChange(new Date(e.target.value))}
-        className="mt-0.5 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-      />
-      <FormMessage />
-    </FormItem>
-  )}
-/>
-
+                  <FormField
+                    control={form.control}
+                    name="dateOfBirth"
+                    render={({ field }) => (
+                      <FormItem className="mt-2 flex flex-col">
+                        <FormLabel>Date of Birth</FormLabel>
+                        <Input
+                          type="date"
+                          value={
+                            field.value
+                              ? new Date(field.value)
+                                  .toISOString()
+                                  .split('T')[0]
+                              : ''
+                          }
+                          onChange={(e) =>
+                            field.onChange(new Date(e.target.value))
+                          }
+                          className="mt-0.5 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+                        />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
                   <FormField
                     control={form.control}
@@ -373,22 +388,51 @@ dateOfBirth: value.dateOfBirth ? new Date(value.dateOfBirth) : undefined,
                       )}
                     />
                   </div>
+                  <FormField
+  control={form.control}
+  name="isBritishCitizen"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Are you a British citizen?</FormLabel>
+      <Controller
+        name="isBritishCitizen"
+        control={form.control}
+        render={({ field }) => (
+          <Select
+            options={yesNoOptions}
+            value={yesNoOptions.find((opt) => opt.value === field.value)}
+            onChange={(selected) => field.onChange(selected?.value)}
+            className="react-select-container"
+            classNamePrefix="react-select"
+            placeholder="Select..."
+          />
+        )}
+      />
+      <FormMessage />
+    </FormItem>
+  )}
+/>
 
-                  <div className="space-y-2">
-                    <FormLabel>Add Share Code:</FormLabel>
-                    <FormField
-                      control={form.control}
-                      name="shareCode"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input {...field} placeholder="Enter Share Code" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                  {watchIsBritish === false && (
+                    <div className="space-y-2">
+                      <FormLabel>Share Code:</FormLabel>
+                      <FormField
+                        control={form.control}
+                        name="shareCode"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                placeholder="Enter Share Code"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  )}
                 </div>
                 <div className="space-y-4">
                   <h1 className="text-xl font-semibold">Postal Address</h1>

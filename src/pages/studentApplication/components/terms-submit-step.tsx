@@ -52,7 +52,7 @@ export function TermsSubmitStep({
   // }
 
   function handleBack() {
-    setCurrentStep(9);
+    setCurrentStep(8);
   }
 
 

@@ -79,7 +79,7 @@ export function ComplianceStep({
   // }
 
   function handleBack() {
-    setCurrentStep(7);
+    setCurrentStep(6);
   }
 
   return (

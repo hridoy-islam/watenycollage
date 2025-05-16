@@ -50,10 +50,10 @@ const applicationDetailsSchema = z.object({
   position: z.string().min(1, { message: 'Position is required' }),
   source: z.string().min(1, { message: 'Source is required' }),
   carTravelAllowance: z.boolean(),
-  salaryExpectation: z
-    .string()
-    .min(1, { message: 'Salary expectation is required' }),
-  maxHoursPerWeek: z.string().min(1, { message: 'Maximum hours is required' }),
+  // salaryExpectation: z
+  //   .string()
+  //   .min(1, { message: 'Salary expectation is required' }),
+  // maxHoursPerWeek: z.string().min(1, { message: 'Maximum hours is required' }),
   availability: z
     .object(
       Object.fromEntries(daysOfWeek.map((day) => [day, z.boolean().optional()]))
@@ -62,7 +62,7 @@ const applicationDetailsSchema = z.object({
       message: 'Please select at least one day of availability'
     }),
   isStudent: z.boolean(),
-  isBritishCitizen: z.boolean(),
+  // isBritishCitizen: z.boolean(),
   referralEmployee: z.string().optional(),
   isUnderStatePensionAge: z.boolean(),
   wtrDocumentUrl: z
@@ -100,8 +100,8 @@ export function ApplicationDetailsStep({
       position: value.position || '',
       source: value.source || '',
       carTravelAllowance: value.carTravelAllowance || false,
-      salaryExpectation: value.salaryExpectation || '',
-      maxHoursPerWeek: value.maxHoursPerWeek || '',
+      // salaryExpectation: value.salaryExpectation || '',
+      // maxHoursPerWeek: value.maxHoursPerWeek || '',
       availability: value.availability || {
         monday: false,
         tuesday: false,
@@ -112,7 +112,7 @@ export function ApplicationDetailsStep({
         sunday: false
       },
       isStudent: value.isStudent || false,
-      isBritishCitizen: value.isBritishCitizen || false,
+      // isBritishCitizen: value.isBritishCitizen || false,
       referralEmployee: value.referralEmployee || '',
       isUnderStatePensionAge: value.isUnderStatePensionAge || false,
       wtrDocumentUrl: value.wtrDocumentUrl || undefined
@@ -264,7 +264,7 @@ export function ApplicationDetailsStep({
               />
             )}
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {/* <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <FormField
                 control={form.control}
                 name="salaryExpectation"
@@ -295,7 +295,7 @@ export function ApplicationDetailsStep({
                   </FormItem>
                 )}
               />
-            </div>
+            </div> */}
 
             <FormField
               control={form.control}
@@ -400,7 +400,7 @@ export function ApplicationDetailsStep({
                 )}
               />
             </div>
-
+{/* 
             <FormField
               control={form.control}
               name="isBritishCitizen"
@@ -430,7 +430,7 @@ export function ApplicationDetailsStep({
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> */}
 
             <FormField
               control={form.control}

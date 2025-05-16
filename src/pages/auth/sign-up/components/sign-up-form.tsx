@@ -74,7 +74,6 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
     try {
       const response = await axiosInstance.post('/auth/signup', {
         ...data,
-        name: `${data.firstName} ${data.lastName}`,
         personalDetails: {
           title: data.title,
           firstName: data.firstName,

@@ -14,120 +14,530 @@ interface ReviewModalProps {
 }
 
 export function ReviewModal({ open, onClose, formData }: ReviewModalProps) {
-  console.log(formData);
-  // Helper function to render form data sections
-  const renderSection = (title: string, data: any) => {
-    if (!data) return null;
+  // Helper function to format field names
+  const formatFieldName = (name: string) => {
+    return name
+      .replace(/([A-Z])/g, ' $1')
+      .replace(/^./, (str) => str.toUpperCase())
+      .trim();
+  };
 
-    // Function to recursively render nested objects
-    const renderValue = (value: any, depth = 0): React.ReactNode => {
-      if (value === null || value === undefined) {
-        return 'Not provided';
-      }
+  // Helper function to format values
+  const formatValue = (value: any): string => {
+  if (value === null || value === undefined || value === '') {
+    return 'Not provided';
+  }
+  if (typeof value === 'boolean') {
+    return value ? 'Yes' : 'No';
+  }
+  if (value instanceof Date) {
+    return value.toLocaleDateString();
+  }
+  if (Array.isArray(value)) {
+    if (value.length === 0) return 'None';
+    if (value[0] instanceof File) return `${value.length} file(s) uploaded`;
+    return value.join(', ');
+  }
+  if (value instanceof File) {
+    return 'File uploaded';
+  }
+  if (typeof value === 'object') {
+    return JSON.stringify(value, null, 2);
+  }
 
-      if (value instanceof Date) {
-        return value.toLocaleDateString();
-      }
-
-      if (typeof value === 'boolean') {
-        return value ? 'Yes' : 'No';
-      }
-
-      if (typeof value === 'string') {
-        return value.charAt(0).toUpperCase() + value.slice(1);
-      }
-
-      if (typeof value === 'number') {
-        return String(value);
-      }
-
-      if (Array.isArray(value)) {
-        if (value.length === 0) return 'None';
-
-        return (
-          <div className="mt-2 border-l-2 border-gray-200 pl-4">
-            {value.map((item, idx) => (
-              <div key={idx} className="mb-2">
-                {typeof item === 'object' && item !== null
-                  ? Object.entries(item).map(([k, v]) => (
-                      <div key={k} className="mb-1 grid grid-cols-2 gap-2">
-                        <div className="text-sm font-medium capitalize">
-                          {k.replace(/([A-Z])/g, ' $1').trim()}
-                        </div>
-                        <div className="text-sm">
-                          {renderValue(v, depth + 1)}
-                        </div>
-                      </div>
-                    ))
-                  : renderValue(item, depth + 1)}
-              </div>
-            ))}
-          </div>
-        );
-      }
-
-      if (typeof value === 'object') {
-        return (
-          <div
-            className={depth > 0 ? 'mt-2 border-l-2 border-gray-200 pl-4' : ''}
-          >
-            {Object.entries(value).map(([k, v]) => (
-              <div key={k} className="mb-1 grid grid-cols-2 gap-2">
-                <div className="text-sm font-medium capitalize">
-                  {k.replace(/([A-Z])/g, ' $1').trim()}
-                </div>
-                <div className="text-sm">{renderValue(v, depth + 1)}</div>
-              </div>
-            ))}
-          </div>
-        );
-      }
-
-      return String(value);
-    };
+  // Convert to string and capitalize the first letter
+  const str = String(value);
+  return str.charAt(0).toUpperCase() + str.slice(1);
+};
+  // Manual rendering for each section
+  const renderPersonalDetails = () => {
+    if (!formData.personalDetailsData) return null;
+    const data = formData.personalDetailsData;
 
     return (
       <div className="mb-6">
-        <h3 className="mb-2 text-lg font-semibold text-watney">{title}</h3>
-        <div className="rounded-md  border-gray-200 bg-gray-50 p-4">
-          {Object.entries(data).map(([key, value]) => {
-            // Skip rendering file objects directly
-            if (
-              value instanceof File ||
-              (Array.isArray(value) && value[0] instanceof File)
-            ) {
-              return (
-                <div key={key} className="mb-2 grid grid-cols-2 gap-2">
-                  <div className="text-sm font-medium capitalize">
-                    {key.replace(/([A-Z])/g, ' $1').trim()}
-                  </div>
-                  <div className="text-sm">
-                    {Array.isArray(value)
-                      ? `${value.length} file(s) uploaded`
-                      : 'File uploaded'}
-                  </div>
-                </div>
-              );
-            }
-
-            return (
-              <div key={key} className="mb-2 grid grid-cols-2 gap-2">
-                <div className="text-sm font-medium capitalize">
-                  {key.replace(/([A-Z])/g, ' $1').trim()}
-                </div>
-                <div className="text-sm">{renderValue(value)}</div>
-              </div>
-            );
-          })}
+        <h3 className="mb-2 text-lg font-semibold">Personal Details</h3>
+        <div className="rounded-md border border-gray-200 bg-gray-50 p-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <FieldDisplay label="Title" value={data.title} />
+              <FieldDisplay label="First Name" value={data.firstName} />
+              <FieldDisplay label="Last Name" value={data.lastName} />
+              <FieldDisplay label="Initial" value={data.initial} />
+            </div>
+            <div className="space-y-2">
+              <FieldDisplay label="Gender" value={data.gender} />
+              <FieldDisplay label="Date of Birth" value={data.dateOfBirth} />
+              <FieldDisplay label="Email" value={data.email} />
+              <FieldDisplay label="Phone" value={data.phone} />
+            </div>
+          </div>
+          <div className="mt-4 grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <FieldDisplay label="Nationality" value={data.nationality} />
+              <FieldDisplay label="Ethnicity" value={data.ethnicity} />
+              <FieldDisplay label="Student Type" value={data.studentType} />
+            </div>
+            <div className="space-y-2">
+              <FieldDisplay
+                label="Country of Birth"
+                value={data.countryOfBirth}
+              />
+              <FieldDisplay label="Marital Status" value={data.maritalStatus} />
+            </div>
+          </div>
         </div>
       </div>
     );
   };
 
+  const renderAddress = () => {
+    if (!formData.addressData) return null;
+    const data = formData.addressData;
+
+    return (
+      <div className="mb-6">
+        <h3 className="mb-2 text-lg font-semibold">Address</h3>
+        <div className="rounded-md border border-gray-200 bg-gray-50 p-4">
+          <h4 className="mb-2 font-medium">Residential Address</h4>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <FieldDisplay
+                label="Address Line 1"
+                value={data.residentialAddressLine1}
+              />
+              <FieldDisplay
+                label="Address Line 2"
+                value={data.residentialAddressLine2}
+              />
+              <FieldDisplay label="City" value={data.residentialCity} />
+            </div>
+            <div className="space-y-2">
+              <FieldDisplay
+                label="Postal Code"
+                value={data.residentialPostCode}
+              />
+              <FieldDisplay label="Country" value={data.residentialCountry} />
+          <FieldDisplay
+            label="Same as residential"
+            value={data.sameAsResidential}
+            className="mt-4"
+          />
+            </div>
+          </div>
+
+
+          {!data.sameAsResidential && (
+            <>
+              <h4 className="mb-2 mt-4 font-medium">Postal Address</h4>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <FieldDisplay
+                    label="Address Line 1"
+                    value={data.postalAddressLine1}
+                  />
+                  <FieldDisplay
+                    label="Address Line 2"
+                    value={data.postalAddressLine2}
+                  />
+                  <FieldDisplay label="City" value={data.postalCity} />
+                </div>
+                <div className="space-y-2">
+                  <FieldDisplay
+                    label="Postal Code"
+                    value={data.postalPostCode}
+                  />
+                  <FieldDisplay label="Country" value={data.postalCountry} />
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  // Add similar render functions for other sections...
+  const renderCourseDetails = () => {
+    if (!formData.courseDetailsData) return null;
+    const data = formData.courseDetailsData;
+
+    return (
+      <div className="mb-6">
+        <h3 className="mb-2 text-lg font-semibold">Course Details</h3>
+        <div className="rounded-md border border-gray-200 bg-gray-50 p-4">
+          <div className="grid grid-cols-2 gap-4">
+            <FieldDisplay label="Course" value={data.course} />
+            <FieldDisplay label="Intake" value={data.intake} />
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderContact = () => {
+    if (!formData.contactData) return null;
+    const data = formData.contactData;
+
+    return (
+      <div className="mb-6">
+        <h3 className="mb-2 text-lg font-semibold">Contact Information</h3>
+        <div className="rounded-md border border-gray-200 bg-gray-50 p-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <FieldDisplay
+                label="Emergency Contact Name"
+                value={data.emergencyFullName}
+              />
+              <FieldDisplay
+                label="Emergency Contact Number"
+                value={data.emergencyContactNumber}
+              />
+            </div>
+            <div className="space-y-2">
+              <FieldDisplay
+                label="Emergency Email"
+                value={data.emergencyEmail}
+              />
+              <FieldDisplay
+                label="Relationship"
+                value={data.emergencyRelationship}
+              />
+            </div>
+          </div>
+          <FieldDisplay
+            label="Emergency Address"
+            value={data.emergencyAddress}
+            className="mt-4"
+          />
+        </div>
+      </div>
+    );
+  };
+
+  const renderEducation = () => {
+    if (!formData.educationData) return null;
+    const data = formData.educationData;
+
+    return (
+      <div className="mb-6">
+        <h3 className="mb-2 text-lg font-semibold">Education</h3>
+        <div className="rounded-md border border-gray-200 bg-gray-50 p-4">
+          {Array.isArray(data.educationData) &&
+            data.educationData.map((edu: any, index: number) => (
+              <div
+                key={index}
+                className="mb-4 border-b border-gray-200 pb-4 last:border-0 last:pb-0"
+              >
+                <h4 className="mb-2 font-medium">Education #{index + 1}</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <FieldDisplay label="Institution" value={edu.institution} />
+                    <FieldDisplay label="Study Type" value={edu.studyType} />
+                    <FieldDisplay
+                      label="Qualification"
+                      value={edu.qualification}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <FieldDisplay label="Award Date" value={edu.awardDate} />
+                    <FieldDisplay label="Certificate" value={edu.certificate} />
+                    <FieldDisplay label="Transcript" value={edu.transcript} />
+                  </div>
+                </div>
+              </div>
+            ))}
+
+          {data.englishQualification && (
+            <div className="mt-4">
+              <h4 className="mb-2 font-medium">English Qualification</h4>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <FieldDisplay
+                    label="Test Type"
+                    value={data.englishQualification.englishTestType}
+                  />
+                  <FieldDisplay
+                    label="Test Score"
+                    value={data.englishQualification.englishTestScore}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <FieldDisplay
+                    label="Test Date"
+                    value={data.englishQualification.englishTestDate}
+                  />
+                  <FieldDisplay
+                    label="Certificate"
+                    value={data.englishQualification.englishCertificate}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const renderEmployment = () => {
+    if (!formData.employmentData) return null;
+    const data = formData.employmentData;
+
+    return (
+      <div className="mb-6">
+        <h3 className="mb-2 text-lg font-semibold">Employment</h3>
+        <div className="rounded-md border border-gray-200 bg-gray-50 p-4">
+          <FieldDisplay label="Currently Employed" value={data.isEmployed} />
+
+          {data.currentEmployment && (
+            <div className="mt-4">
+              <h4 className="mb-2 font-medium">Current Employment</h4>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <FieldDisplay
+                    label="Employer"
+                    value={data.currentEmployment.employer}
+                  />
+                  <FieldDisplay
+                    label="Job Title"
+                    value={data.currentEmployment.jobTitle}
+                  />
+                  <FieldDisplay
+                    label="Start Date"
+                    value={data.currentEmployment.startDate}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <FieldDisplay
+                    label="Employment Type"
+                    value={data.currentEmployment.employmentType}
+                  />
+                  <FieldDisplay
+                    label="Currently Employed"
+                    value={data.currentEmployment.currentlyEmployed}
+                  />
+                  {!data.currentEmployment.currentlyEmployed && (
+                    <FieldDisplay
+                      label="End Date"
+                      value={data.currentEmployment.endDate}
+                    />
+                  )}
+                </div>
+              </div>
+              <FieldDisplay
+                label="Responsibilities"
+                value={data.currentEmployment.responsibilities}
+                className="mt-2"
+              />
+            </div>
+          )}
+
+          {Array.isArray(data.previousEmployments) &&
+            data.previousEmployments.length > 0 && (
+              <div className="mt-4">
+                <h4 className="mb-2 font-medium">Previous Employment</h4>
+                {data.previousEmployments.map((emp: any, index: number) => (
+                  <div
+                    key={index}
+                    className="mb-4 border-b border-gray-200 pb-4 last:border-0 last:pb-0"
+                  >
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <FieldDisplay label="Employer" value={emp.employer} />
+                        <FieldDisplay label="Job Title" value={emp.jobTitle} />
+                        <FieldDisplay
+                          label="Start Date"
+                          value={emp.startDate}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <FieldDisplay label="End Date" value={emp.endDate} />
+                        <FieldDisplay
+                          label="Reason for Leaving"
+                          value={emp.reasonForLeaving}
+                        />
+                      </div>
+                    </div>
+                    <FieldDisplay
+                      label="Responsibilities"
+                      value={emp.responsibilities}
+                      className="mt-2"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+
+          <FieldDisplay
+            label="Employment Gaps"
+            value={data.hasEmploymentGaps}
+            className="mt-4"
+          />
+          {data.hasEmploymentGaps === 'Yes' && (
+            <FieldDisplay
+              label="Gaps Explanation"
+              value={data.employmentGapsExplanation}
+              className="mt-2"
+            />
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const renderCompliance = () => {
+    if (!formData.complianceData) return null;
+    const data = formData.complianceData;
+
+    return (
+      <div className="mb-6">
+        <h3 className="mb-2 text-lg font-semibold">Compliance</h3>
+        <div className="rounded-md border border-gray-200 bg-gray-50 p-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <FieldDisplay label="NI Number" value={data.niNumber} />
+              <FieldDisplay label="Status" value={data.status} />
+              <FieldDisplay label="LTR Code" value={data.ltrCode} />
+              <FieldDisplay label="Disability" value={data.disability} />
+              {data.disability === 'Yes' && (
+                <FieldDisplay
+                  label="Disability Details"
+                  value={data.disabilityDetails}
+                />
+              )}
+            </div>
+            <div className="space-y-2">
+              <FieldDisplay label="Benefits" value={data.benefits} />
+              <FieldDisplay
+                label="Criminal Conviction"
+                value={data.criminalConviction}
+              />
+              {data.criminalConviction === 'Yes' && (
+                <FieldDisplay
+                  label="Conviction Details"
+                  value={data.convictionDetails}
+                />
+              )}
+              <FieldDisplay
+                label="Student Finance"
+                value={data.studentFinance}
+              />
+              <FieldDisplay label="Visa Required" value={data.visaRequired} />
+            </div>
+          </div>
+          <div className="mt-4 grid grid-cols-2 gap-4">
+            <FieldDisplay
+              label="Entered UK Before"
+              value={data.enteredUKBefore}
+            />
+            <FieldDisplay
+              label="Completed UK Course"
+              value={data.completedUKCourse}
+            />
+            <FieldDisplay label="Visa Refusal" value={data.visaRefusal} />
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderDocuments = () => {
+    if (!formData.documentsData) return null;
+    const data = formData.documentsData;
+
+    return (
+      <div className="mb-6">
+        <h3 className="mb-2 text-lg font-semibold">Documents</h3>
+        <div className="rounded-md border border-gray-200 bg-gray-50 p-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <FieldDisplay label="Document Type" value={data.documentType} />
+              <FieldDisplay label="National ID" value={data.nationalID} />
+              <FieldDisplay label="Has Document" value={data.hasDocument} />
+              <FieldDisplay
+                label="Passport Number"
+                value={data.passportNumber}
+              />
+              <FieldDisplay
+                label="Passport Expiry"
+                value={data.passportExpiry}
+              />
+              <FieldDisplay label="ID Document" value={data.idDocument} />
+            </div>
+            <div className="space-y-2">
+              <FieldDisplay
+                label="Has Certificates"
+                value={data.hasCertificates}
+              />
+              {data.hasCertificates && (
+                <>
+                  <FieldDisplay
+                    label="Certificates Details"
+                    value={data.certificatesDetails}
+                  />
+                  <FieldDisplay
+                    label="Qualification Certificates"
+                    value={data.qualificationCertificates}
+                  />
+                </>
+              )}
+              <FieldDisplay label="CV/Resume" value={data.cvResume} />
+              <FieldDisplay
+                label="Has Proof of Address"
+                value={data.hasProofOfAddress}
+              />
+              {data.hasProofOfAddress && (
+                <>
+                  <FieldDisplay
+                    label="Proof of Address Type"
+                    value={data.proofOfAddressType}
+                  />
+                  <FieldDisplay
+                    label="Proof of Address Date"
+                    value={data.proofOfAddressDate}
+                  />
+                  <FieldDisplay
+                    label="Proof of Address"
+                    value={data.proofOfAddress}
+                  />
+                </>
+              )}
+            </div>
+          </div>
+          <div className="mt-4 grid grid-cols-2 gap-4">
+            <FieldDisplay label="Other Documents" value={data.otherDocuments} />
+            {data.otherDocuments && (
+              <FieldDisplay
+                label="Other Documents Description"
+                value={data.otherDocumentsDescription}
+              />
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const FieldDisplay = ({
+    label,
+    value,
+    className = ''
+  }: {
+    label: string;
+    value: any;
+    className?: string;
+  }) => (
+    <div className={`grid grid-cols-2 gap-2 ${className}`}>
+      <div className="text-sm font-medium">{label}</div>
+      <div className="text-sm">{formatValue(value)}</div>
+    </div>
+  );
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="flex h-[80vh] max-w-4xl flex-col gap-0 overflow-hidden p-0">
-        <DialogHeader className=" p-6 pb-2">
+        <DialogHeader className="p-6 pb-2">
           <DialogTitle className="text-xl font-bold">
             Application Summary
           </DialogTitle>
@@ -138,21 +548,24 @@ export function ReviewModal({ open, onClose, formData }: ReviewModalProps) {
           style={{ maxHeight: 'calc(80vh - 120px)' }}
         >
           <div className="space-y-6">
-            {renderSection('Personal Details', formData.personalDetailsData)}
-            {renderSection('Address', formData.addressData)}
-            {renderSection('Course Details', formData.courseDetailsData)}
-            {renderSection('Contact', formData.contactData)}
-            {renderSection('Emergency', formData.emergencyContactData)}
-            {renderSection('Education', formData.educationData)}
-            {renderSection('Employment', formData.employmentData)}
-            {renderSection('Miscellaneous', formData.complianceData)}
-            {renderSection('Documents', formData.documentsData)}
-            {renderSection('Terms and Conditions', formData.termsData)}
+            {renderPersonalDetails()}
+            {renderAddress()}
+            {renderCourseDetails()}
+            {renderContact()}
+            {renderEducation()}
+            {renderEmployment()}
+            {renderCompliance()}
+            {renderDocuments()}
           </div>
         </div>
 
-        <div className="flex justify-end  p-4">
-          <Button onClick={onClose} className='bg-watney text-white hover:bg-watney/90'>Close</Button>
+        <div className="flex justify-end p-4">
+          <Button
+            onClick={onClose}
+            className="bg-watney text-white hover:bg-watney/90"
+          >
+            Close
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

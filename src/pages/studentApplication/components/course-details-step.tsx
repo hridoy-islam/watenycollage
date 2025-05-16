@@ -11,9 +11,8 @@ import { CardContent } from '@/components/ui/card';
 
 const courseDetailsSchema = z.object({
   course: z.string().optional(),
-  intake: z.string().optional(),
+  intake: z.string().optional()
 });
-
 
 type CourseDetailsData = z.infer<typeof courseDetailsSchema>;
 
@@ -35,8 +34,16 @@ export function CourseDetailsStep({
   onSave,
   setCurrentStep
 }) {
-  const [courses, setCourses] = useState<{ value: string; label: string }[]>([]);
-  const [intakes, setIntakes] = useState<{ value: string; label: string }[]>([]);
+  const [courses, setCourses] = useState<{ value: string; label: string }[]>(
+    []
+  );
+  const [intakes, setIntakes] = useState<{ value: string; label: string }[]>(
+    []
+  );
+
+  const [courseId, setCourseId] = useState<string | null>(null);
+    const [termId, setTermId] = useState<string | null>(null);
+  
 
   const form = useForm<CourseDetailsData>({
     resolver: zodResolver(courseDetailsSchema),
@@ -47,53 +54,86 @@ export function CourseDetailsStep({
   });
 
   useEffect(() => {
+    const cId = localStorage.getItem('courseId');
+    const tId = localStorage.getItem('termId');
+
+    setCourseId(cId);
+      setTermId(tId);
+
     const fetchData = async () => {
       try {
-        const [courseRes, termRes] = await Promise.all([
-          axiosInstance.get<TCourse[]>('/courses'),
-          axiosInstance.get<TTerm[]>('/terms')
-        ]);
+      
+        if (cId) {
+          const courseRes = await axiosInstance.get<TCourse>(
+            `/courses/${cId}`
+          );
+          const course = courseRes.data.data;
+          if (course.status === 1) {
+            const courseOption = { value: course._id, label: course.name };
+            setCourses([courseOption]);
+            form.setValue('course', course._id);
+          }
+        }
 
-        const activeCourses = courseRes.data.data.result
-          .filter(course => course.status === 1)
-          .map(course => ({
-            value: course._id,
-            label: course.name
-          }));
+        // Fetch term if termId exists
+        if (tId) {
+          const termRes = await axiosInstance.get<TTerm>(`/terms/${tId}`);
+          const term = termRes.data.data;
+          if (term.status === 1) {
+            const termOption = { value: term._id, label: term.termName };
+            setIntakes([termOption]);
+            form.setValue('intake', term._id);
+          }
+        }
 
-        const activeTerms = termRes.data.data.result
-          .filter(term => term.status === 1)
-          .map(term => ({
-            value: term._id,
-            label: term.termName
-          }));
+        // If no IDs found in localStorage, fallback to fetching all active courses/terms
+        if (!tId && !cId) {
+          const [courseRes, termRes] = await Promise.all([
+            axiosInstance.get<TCourse[]>('/courses'),
+            axiosInstance.get<TTerm[]>('/terms')
+          ]);
 
-        setCourses(activeCourses);
-        setIntakes(activeTerms);
+          const activeCourses = courseRes.data.data.result
+            .filter((course) => course.status === 1)
+            .map((course) => ({
+              value: course._id,
+              label: course.name
+            }));
+
+          const activeTerms = termRes.data.data.result
+            .filter((term) => term.status === 1)
+            .map((term) => ({
+              value: term._id,
+              label: term.termName
+            }));
+
+          setCourses(activeCourses);
+          setIntakes(activeTerms);
+        }
       } catch (err) {
-        console.error('Failed to fetch courses or terms:', err);
+        console.error('Failed to fetch course or term details:', err);
       }
     };
 
     fetchData();
-  }, []);
+  }, [defaultValues]);
 
   function onSubmit(data: CourseDetailsData) {
     onSaveAndContinue(data);
   }
 
   function handleBack() {
-    setCurrentStep(3);
+    setCurrentStep(2);
   }
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)}>
       <CardContent>
         <h2 className="mb-6 text-2xl font-semibold">Course Details</h2>
-        <div className="grid gap-6 grid-cols-2">
+        <div className="grid grid-cols-2 gap-6">
           {/* Course select */}
           <div>
-            <label className="block mb-2 font-medium">Select Course *</label>
+            <label className="mb-2 block font-medium">Select Course *</label>
             <Controller
               name="course"
               control={form.control}
@@ -103,18 +143,19 @@ export function CourseDetailsStep({
                   options={courses}
                   placeholder="Select course"
                   onChange={(option) => field.onChange(option?.value)}
-                  value={courses.find(c => c.value === field.value) || null}
+                  value={courses.find((c) => c.value === field.value) || null}
+                  isDisabled={!!courseId}
                 />
               )}
             />
-            <p className="text-sm text-red-500 mt-1">
+            <p className="mt-1 text-sm text-red-500">
               {form.formState.errors.course?.message}
             </p>
           </div>
 
           {/* Intake select */}
           <div>
-            <label className="block mb-2 font-medium">Intake *</label>
+            <label className="mb-2 block font-medium">Intake *</label>
             <Controller
               name="intake"
               control={form.control}
@@ -124,18 +165,19 @@ export function CourseDetailsStep({
                   options={intakes}
                   placeholder="Select intake"
                   onChange={(option) => field.onChange(option?.value)}
-                  value={intakes.find(i => i.value === field.value) || null}
+                  value={intakes.find((i) => i.value === field.value) || null}
+                  isDisabled={!!termId}
                 />
               )}
             />
-            <p className="text-sm text-red-500 mt-1">
+            <p className="mt-1 text-sm text-red-500">
               {form.formState.errors.intake?.message}
             </p>
           </div>
         </div>
       </CardContent>
 
-      <div className="px-6 flex justify-between mt-6">
+      <div className="mt-6 flex justify-between px-6">
         <Button
           type="button"
           variant="outline"

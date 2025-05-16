@@ -83,7 +83,7 @@ export function PersonalDetailsStep({
     }
   }, [defaultValues, form]);
 
-  console.log(defaultValues)
+  console.log(defaultValues);
   const studentType = defaultValues?.studentType;
   const ethnicity = useWatch({ control: form.control, name: 'ethnicity' });
 
@@ -207,22 +207,26 @@ export function PersonalDetailsStep({
               )}
             />
 
-                             <FormField
-  control={form.control}
-  name="dateOfBirth"
-  render={({ field }) => (
-    <FormItem className="mt-2 flex flex-col">
-      <FormLabel>Date of Birth</FormLabel>
-      <Input
-        type="date"
-        value={field.value ? new Date(field.value).toISOString().split('T')[0] : ''}
-        onChange={(e) => field.onChange(new Date(e.target.value))}
-        className="mt-0.5 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-      />
-      <FormMessage />
-    </FormItem>
-  )}
-/>
+            <FormField
+              control={form.control}
+              name="dateOfBirth"
+              render={({ field }) => (
+                <FormItem className="mt-2 flex flex-col">
+                  <FormLabel>Date of Birth</FormLabel>
+                  <Input
+                    type="date"
+                    value={
+                      field.value
+                        ? new Date(field.value).toISOString().split('T')[0]
+                        : ''
+                    }
+                    onChange={(e) => field.onChange(new Date(e.target.value))}
+                    className="mt-0.5 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+                  />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}
@@ -252,7 +256,6 @@ export function PersonalDetailsStep({
               )}
             />
 
-            
             {/* Gender */}
             <FormField
               control={form.control}
@@ -478,15 +481,15 @@ export function PersonalDetailsStep({
           </div>
         </CardContent>
 
-        <div className="flex justify-between px-5">
-          <Button
+        <div className="flex justify-end px-5">
+          {/* <Button
             type="button"
             variant="outline"
             className="bg-watney text-white hover:bg-watney/90"
             onClick={handleBack}
           >
             Back
-          </Button>
+          </Button> */}
           <Button
             type="submit"
             className="bg-watney text-white hover:bg-watney/90"

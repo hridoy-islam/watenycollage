@@ -121,8 +121,8 @@ export default function StudentApplication() {
       const userData = response.data.data;
       setFetchData((prev) => ({
         ...prev,
-        email:userData?.email,
-        phone:userData?.phone,
+        email: userData?.email,
+        phone: userData?.phone,
         personalDetails: userData?.personalDetails,
         addressData: userData?.addressData,
         courseDetailsData: userData?.courseDetailsData,
@@ -143,6 +143,19 @@ export default function StudentApplication() {
     fetchedData();
   }, [currentStep]);
 
+  useEffect(() => {
+    const savedStudentType = localStorage.getItem('studentType');
+    if (savedStudentType) {
+      setFormData((prev) => ({
+        ...prev,
+        personalDetailsData: {
+          ...(prev.personalDetailsData || {}),
+          studentType: savedStudentType
+        }
+      }));
+    }
+  }, []);
+
   const handleStepClick = (stepId: number) => {
     setCurrentStep(stepId);
   };
@@ -157,62 +170,19 @@ export default function StudentApplication() {
     setFormData((prev) => ({ ...prev, personalDetails: data }));
   };
 
-  //   const handlePersonalDetailsSaveAndContinue = async (data: any) => {
-  //   try {
-  //     setFormData((prev) => ({ ...prev, personalDetails: data }));
-  //     await axiosInstance.patch(`/users/${user._id}`, {
-  //       personalDetails: data,
-  //     });
-  //     toast({
-  //       description: "Personal details saved successfully.",
-  //     });
-  //     markStepAsCompleted(1);
-  //     setCurrentStep(2);
-  //   } catch (error: any) {
-  //     toast({
-  //       title: error?.response?.data?.message || "Something went wrong.",
-  //       className: "destructive border-none text-white",
-  //     });
-  //   }
-  // };
-
-  const handleFormTypeSaveAndContinue = (data: any) => {
-    setFormData((prev) => ({ ...prev, personalDetailsData: data }));
-    markStepAsCompleted(1);
-    setCurrentStep(2);
-  };
-
   const handlePersonalDetailsSaveAndContinue = async (data: any) => {
     setFormData((prev) => ({ ...prev, personalDetailsData: data }));
 
-    markStepAsCompleted(2);
-    setCurrentStep(3);
+    markStepAsCompleted(1);
+    setCurrentStep(2);
   };
 
   const handleAddressSaveAndContinue = async (data: any) => {
     setFormData((prev) => ({ ...prev, addressData: data }));
 
-    markStepAsCompleted(3);
-    setCurrentStep(4);
+    markStepAsCompleted(2);
+    setCurrentStep(3);
   };
-  // const handleAddressSaveAndContinue = async (data: any) => {
-  //   try {
-  //     setFormData((prev) => ({ ...prev, addressData: data }));
-  //     await axiosInstance.patch(`/users/${user._id}`, {
-  //       addressData: data,
-  //     });
-  //     toast({
-  //       description: "Address details saved successfully.",
-  //     });
-  //     markStepAsCompleted(2);
-  //     setCurrentStep(3);
-  //   } catch (error: any) {
-  //     toast({
-  //       title: error?.response?.data?.message || "Something went wrong.",
-  //       className: "destructive border-none text-white",
-  //     });
-  //   }
-  // };
 
   const handleCourseDetailsSave = (data: any) => {
     setFormData((prev) => ({ ...prev, courseDetailsData: data }));
@@ -222,59 +192,14 @@ export default function StudentApplication() {
   const handleCourseDetailsSaveAndContinue = async (data: any) => {
     setFormData((prev) => ({ ...prev, courseDetailsData: data }));
 
-    markStepAsCompleted(4);
-    setCurrentStep(5);
+    markStepAsCompleted(3);
+    setCurrentStep(4);
   };
-
-  // const handleCourseDetailsSaveAndContinue = async (data: any) => {
-  //   try {
-  //     setFormData((prev) => ({ ...prev, courseDetailsData: data }));
-  //     await axiosInstance.patch(`/users/${user._id}`, {
-  //       courseDetailsData: data,
-  //     });
-  //     toast({
-  //       description: "Course details saved successfully.",
-  //     });
-  //     markStepAsCompleted(3);
-  //     setCurrentStep(4);
-  //   } catch (error: any) {
-  //     toast({
-  //       title: error?.response?.data?.message || "Something went wrong.",
-  //       className: "destructive border-none text-white",
-  //     });
-  //   }
-  // };
-
-  const handleContactSaveAndContinue = async (data: any) => {
-    setFormData((prev) => ({ ...prev, contactData: data }));
-
-    markStepAsCompleted(5);
-    setCurrentStep(5);
-  };
-
-  // const handleContactSaveAndContinue = async (data: any) => {
-  //   try {
-  //     setFormData((prev) => ({ ...prev, contact: data }));
-  //     await axiosInstance.patch(`/users/${user._id}`, {
-  //       contactData: data,
-  //     });
-  //     toast({
-  //       description: "Contact details saved successfully.",
-  //     });
-  //     markStepAsCompleted(4);
-  //     setCurrentStep(5);
-  //   } catch (error: any) {
-  //     toast({
-  //       title: error?.response?.data?.message || "Something went wrong.",
-  //       className: "destructive border-none text-white",
-  //     });
-  //   }
-  // };
 
   const handleEmergencySaveAndContinue = async (data: any) => {
     setFormData((prev) => ({ ...prev, emergencyContactData: data }));
-    markStepAsCompleted(5);
-    setCurrentStep(6);
+    markStepAsCompleted(4);
+    setCurrentStep(5);
   };
 
   const handleEducationSave = (data: any) => {
@@ -282,32 +207,11 @@ export default function StudentApplication() {
     console.log('Saving education details:', data);
   };
 
-  // const handleEducationSaveAndContinue = async (data: any) => {
-
-  //   try {
-  //     console.log('Saving education details:', data);
-  //     setFormData((prev) => ({ ...prev,  data }));
-  //     await axiosInstance.patch(`/users/${user._id}`, {
-  //       educationData: data,
-  //     });
-  //     toast({
-  //       description: "Education details saved successfully.",
-  //     });
-  //     markStepAsCompleted(6);
-  //     setCurrentStep(7);
-  //   } catch (error: any) {
-  //     toast({
-  //       title: error?.response?.data?.message || "Something went wrong.",
-  //       className: "destructive border-none text-white",
-  //     });
-  //   }
-  // };
-
   const handleEducationSaveAndContinue = async (data: any) => {
     setFormData((prev) => ({ ...prev, educationData: data }));
 
-    markStepAsCompleted(6);
-    setCurrentStep(7);
+    markStepAsCompleted(5);
+    setCurrentStep(6);
   };
 
   const handleEmploymentSave = (data: any) => {
@@ -317,28 +221,9 @@ export default function StudentApplication() {
 
   const handleEmploymentSaveAndContinue = async (data: any) => {
     setFormData((prev) => ({ ...prev, employmentData: data }));
-    markStepAsCompleted(7);
-    setCurrentStep(8);
+    markStepAsCompleted(6);
+    setCurrentStep(7);
   };
-
-  // const handleEmploymentSaveAndContinue = async (data: any) => {
-  //   try {
-  //     setFormData((prev) => ({ ...prev,  data }));
-  //     await axiosInstance.patch(`/users/${user._id}`, {
-  //       employmentData:data,
-  //     });
-  //     toast({
-  //       description: "Employment details saved successfully.",
-  //     });
-  //     markStepAsCompleted(7);
-  //     setCurrentStep(8);
-  //   } catch (error: any) {
-  //     toast({
-  //       title: error?.response?.data?.message || "Something went wrong.",
-  //       className: "destructive border-none text-white",
-  //     });
-  //   }
-  // };
 
   const handleComplianceSave = (data: any) => {
     setFormData((prev) => ({ ...prev, complianceData: data }));
@@ -347,8 +232,8 @@ export default function StudentApplication() {
 
   const handleComplianceSaveAndContinue = async (data: any) => {
     setFormData((prev) => ({ ...prev, complianceData: data }));
-    markStepAsCompleted(8);
-    setCurrentStep(9);
+    markStepAsCompleted(7);
+    setCurrentStep(8);
   };
 
   const handleDocumentsSave = (data: any) => {
@@ -358,8 +243,8 @@ export default function StudentApplication() {
 
   const handleDocumentsSaveAndContinue = async (data: any) => {
     setFormData((prev) => ({ ...prev, documentsData: data }));
-    markStepAsCompleted(9);
-    setCurrentStep(10);
+    markStepAsCompleted(8);
+    setCurrentStep(9);
   };
 
   const handleTermsSave = async (data: any) => {
@@ -391,7 +276,7 @@ export default function StudentApplication() {
 
   const handleReviewClick = () => {
     // Check if all required steps are completed before showing the review
-    const requiredSteps = [1, 2, 3, 4, 5, 6, 7, 8, 9]; // All steps except the final Terms & Submit
+    const requiredSteps = [1, 2, 3, 4, 5, 6, 7, 8]; // All steps except the final Terms & Submit
     const missingSteps = requiredSteps.filter(
       (step) => !completedSteps.includes(step)
     );
@@ -419,7 +304,7 @@ export default function StudentApplication() {
   };
 
   const handleSubmit = async () => {
-    const requiredSteps = [1, 2, 3, 4, 5, 6, 7, 8, 9]; // All steps except the final Terms & Submit
+    const requiredSteps = [1, 2, 3, 4, 5, 6, 7, 8]; // All steps except the final Terms & Submit
     const missingSteps = requiredSteps.filter(
       (step) => !completedSteps.includes(step)
     );
@@ -448,6 +333,10 @@ export default function StudentApplication() {
         ...formData,
         studentId: user._id
       });
+
+      localStorage.removeItem('studentType');
+      localStorage.removeItem('termId');
+      localStorage.removeItem('courseId');
       toast({
         description: 'Applicaiton saved successfully.'
       });
@@ -461,29 +350,10 @@ export default function StudentApplication() {
     setFormSubmitted(true);
   };
 
-
-  console.log(fetchData,'dd')
-
-  // Render the current step
   const renderStep = () => {
     switch (currentStep) {
+
       case 1:
-        return (
-          <FormType
-            defaultValues={{
-              ...formData.personalDetailsData,
-              ...Object.fromEntries(
-                Object.entries(personalDetailsData || {}).filter(
-                  ([_, value]) =>
-                    value !== '' && value !== undefined && value !== null
-                )
-              )
-            }}
-            onSaveAndContinue={handleFormTypeSaveAndContinue}
-            onSave={handlePersonalDetailsSave}
-          />
-        );
-      case 2:
         return (
           <PersonalDetailsStep
             defaultValues={{
@@ -503,7 +373,7 @@ export default function StudentApplication() {
             setCurrentStep={setCurrentStep}
           />
         );
-      case 3:
+      case 2:
         return (
           <AddressStep
             defaultValues={{
@@ -520,7 +390,7 @@ export default function StudentApplication() {
             setCurrentStep={setCurrentStep}
           />
         );
-      case 4:
+      case 3:
         return (
           <CourseDetailsStep
             defaultValues={formData.courseDetailsData}
@@ -546,7 +416,7 @@ export default function StudentApplication() {
       //       setCurrentStep={setCurrentStep}
       //     />
       //   );
-      case 5:
+      case 4:
         return (
           <EmergencyContact
             defaultValues={formData.emergencyContactData}
@@ -554,7 +424,7 @@ export default function StudentApplication() {
             setCurrentStep={setCurrentStep}
           />
         );
-      case 6:
+      case 5:
         return (
           <EducationStep
             defaultValues={formData.educationData}
@@ -564,7 +434,7 @@ export default function StudentApplication() {
             studentType={formData.personalDetailsData.studentType}
           />
         );
-      case 7:
+      case 6:
         return (
           <EmploymentStep
             defaultValues={formData.employmentData}
@@ -573,7 +443,7 @@ export default function StudentApplication() {
             setCurrentStep={setCurrentStep}
           />
         );
-      case 8:
+      case 7:
         return (
           <ComplianceStep
             defaultValues={formData.complianceData}
@@ -582,7 +452,7 @@ export default function StudentApplication() {
             setCurrentStep={setCurrentStep}
           />
         );
-      case 9:
+      case 8:
         return (
           <DocumentsStep
             defaultValues={formData.documentsData}
@@ -591,7 +461,7 @@ export default function StudentApplication() {
             setCurrentStep={setCurrentStep}
           />
         );
-      case 10:
+      case 9:
         return (
           <TermsSubmitStep
             defaultValues={formData.termsData}
@@ -601,6 +471,7 @@ export default function StudentApplication() {
             setCurrentStep={setCurrentStep}
           />
         );
+
       default:
         return (
           <div className="rounded-lg bg-gray-50 p-8 text-center">
