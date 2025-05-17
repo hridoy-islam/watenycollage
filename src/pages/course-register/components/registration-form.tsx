@@ -64,6 +64,7 @@ export default function RegistrationForm({
     try {
       const response = await axiosInstance.post("/auth/signup", {
         ...values,
+          name: `${values.title} ${values.firstName} ${values.initial} ${values.lastName}`,
         personalDetails: {
           title: values.title,
           firstName: values.firstName,

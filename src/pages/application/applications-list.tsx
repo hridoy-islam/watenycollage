@@ -138,25 +138,25 @@ export default function ApplicationListPage() {
                     <TableCell onClick={() =>
                       navigate(`/dashboard/applications/${application._id}`)
                     }>
-                      {capitalize(application.contactData.email)}{' '}
+                      {capitalize(application?.personalDetailsData?.email)}{' '}
                     </TableCell>
                   )}
                   {user.role === 'admin' && (
                     <TableCell onClick={() =>
                       navigate(`/dashboard/applications/${application._id}`)
                     }>
-                      {capitalize(application.contactData.contactNumber)}{' '}
+                      {capitalize(application.contactData?.contactNumber)}{' '}
                     </TableCell>
                   )}
                   <TableCell onClick={() =>
                           navigate(`/dashboard/applications/${application._id}`)
                         }>
-                    {capitalize(application.courseDetailsData.course)}{' '}
+                    {capitalize(application.courseDetailsData?.course)}{' '}
                   </TableCell>
                   <TableCell onClick={() =>
                           navigate(`/dashboard/applications/${application._id}`)
                         }>
-                    {capitalize(application.courseDetailsData.intake)}{' '}
+                    {capitalize(application.courseDetailsData?.intake)}{' '}
                   </TableCell>
 
                   {user.role === 'admin' && (

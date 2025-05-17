@@ -33,14 +33,12 @@ const declarationSchema = z
     criminalConvictionDetails: z.string().optional(), // <-- add this
     appliedBefore: z.boolean(),
     documents: z.object({
-      passport: z.instanceof(File).optional(),
+      ID: z.instanceof(File).optional(),
       cv: z.instanceof(File).optional(),
       proofOfAddress: z.instanceof(File).optional(),
       qualification: z.instanceof(File).optional(),
       reference: z.instanceof(File).optional(),
       shareCode: z.instanceof(File).optional(),
-      eVisa: z.instanceof(File).optional(),
-      nationalInsurance: z.instanceof(File).optional()
     })
   })
   .refine(
@@ -78,14 +76,12 @@ export function DeclarationStep({
       criminalConvictionDetails: value.criminalConvictionDetails || '',
       appliedBefore: value.appliedBefore || false,
       documents: {
-        passport: undefined,
+        ID: undefined,
         cv: undefined,
         proofOfAddress: undefined,
         qualification: undefined,
         reference: undefined,
         shareCode: undefined,
-        eVisa: undefined,
-        nationalInsurance: undefined
       }
     }
   });
@@ -282,17 +278,13 @@ export function DeclarationStep({
             />
 
             <div className="grid grid-cols-1 gap-4 pt-4 sm:grid-cols-2">
-              {renderFileInput('passport', 'Passport')}
+              {renderFileInput('ID', 'ID (Passport / UK Driving Licence )')}
               {renderFileInput('cv', 'CV')}
               {renderFileInput('proofOfAddress', 'Proof of Address')}
               {renderFileInput('qualification', 'Qualification')}
               {renderFileInput('reference', 'Reference')}
               {renderFileInput('shareCode', 'Share Code')}
-              {renderFileInput('eVisa', 'E-Visa')}
-              {renderFileInput(
-                'nationalInsurance',
-                'National Insurance Document'
-              )}
+             
             </div>
 
             <div className="flex justify-between pt-6">

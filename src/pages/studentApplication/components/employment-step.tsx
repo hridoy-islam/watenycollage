@@ -87,7 +87,7 @@ export function EmploymentStep({
   };
 
   const handleBack = () => {
-    setCurrentStep(5);
+    setCurrentStep(4);
   };
 
   return (

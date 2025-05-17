@@ -9,6 +9,7 @@ import RegistrationForm from "./registration-form"
 import LoginForm from "./login-form"
 import StudentApplication from "@/pages/studentApplication"
 import { MoveLeft } from "lucide-react"
+import { useParams } from "react-router-dom"
 
 interface ApplicationFormProps {
   formData: {
@@ -24,6 +25,7 @@ export default function ApplicationForm({ formData, onBack }: ApplicationFormPro
   const [showStudentApplication, setShowStudentApplication] = useState(false)
   const [showRegisterDialog, setShowRegisterDialog] = useState(false)
   const [formSubmitted, setFormSubmitted] = useState(false)
+
 
   // Format student type for display
   const getFormattedStudentType = (type: string) => {

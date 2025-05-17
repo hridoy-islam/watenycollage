@@ -56,7 +56,7 @@ export function EmergencyContact({
   }
 
   function handleBack() {
-    setCurrentStep(3);
+    setCurrentStep(2);
   }
 
   useEffect(() => {

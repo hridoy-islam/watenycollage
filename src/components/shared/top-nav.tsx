@@ -28,24 +28,24 @@ export function TopNav() {
           <span className="text-lg font-semibold text-black"></span>
         </Link>
       </div>
-<div className="flex items-center space-x-4">
-
-
-      <div className='flex flex-col items-start '>
-      <span className="text-sm font-semibold text-black">{user?.name}</span>
-      <span className="text-[12px] font-medium text-black">{user?.email}</span>
-      </div>
-      <Button
-        onClick={handleLogout}
-        className="flex cursor-pointer items-center space-x-6 rounded-md p-2 bg-watney text-white  hover:bg-watney/90 "
-      >
-        {/* <UserNav /> */}
-        
-        <div className='flex flex-row items-center justify-center gap-1  p-2 rounded-md'>
-          <LogOut className=" h-4 w-4" />
-          <span className="font-semibold">Log out</span>
+      <div className="flex items-center space-x-4">
+        <div className="flex flex-col items-start cursor-pointer" onClick={()=> navigate('/dashboard/profile')} >
+          <span className="text-sm font-semibold text-black">{user?.name}</span>
+          <span className="text-[12px] font-medium text-black">
+            {user?.email}
+          </span>
         </div>
-      </Button>
+        <Button
+          onClick={handleLogout}
+          className="flex cursor-pointer items-center space-x-6 rounded-md bg-watney p-2 text-white  hover:bg-watney/90 "
+        >
+          {/* <UserNav /> */}
+
+          <div className="flex flex-row items-center justify-center gap-1  rounded-md p-2">
+            <LogOut className=" h-4 w-4" />
+            <span className="font-semibold">Log out</span>
+          </div>
+        </Button>
       </div>
     </div>
   );

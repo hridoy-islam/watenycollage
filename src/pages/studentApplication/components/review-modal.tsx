@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+import axiosInstance from '@/lib/axios'; // Make sure to import your axiosInstance
 import type React from 'react';
 import {
   Dialog,
@@ -14,6 +16,48 @@ interface ReviewModalProps {
 }
 
 export function ReviewModal({ open, onClose, formData }: ReviewModalProps) {
+  const [courseName, setCourseName] = useState<string>('');
+  const [termName, setTermName] = useState<string>('');
+
+  // Fetch course and term names when the modal opens
+  useEffect(() => {
+    if (open && formData?.courseDetailsData) {
+      const fetchNames = async () => {
+        try {
+          // Fetch course name
+          if (formData.courseDetailsData.course) {
+            const courseResponse = await axiosInstance.get(
+              `/courses/${formData.courseDetailsData.course}`
+            );
+            setCourseName(courseResponse.data.data.name || '');
+          }
+
+          // Fetch term name
+          if (formData.courseDetailsData.intake) {
+            const termResponse = await axiosInstance.get(
+              `/terms/${formData.courseDetailsData.intake}`
+            );
+            setTermName(termResponse.data.data.termName || '');
+          }
+        } catch (error) {
+          console.error('Error fetching course or term details:', error);
+          setCourseName('Error loading course name');
+          setTermName('Error loading term name');
+        }
+      };
+
+      fetchNames();
+    }
+  }, [open, formData?.courseDetailsData]);
+
+  // Reset names when modal closes
+  useEffect(() => {
+    if (!open) {
+      setCourseName('');
+      setTermName('');
+    }
+  }, [open]);
+
   // Helper function to format field names
   const formatFieldName = (name: string) => {
     return name
@@ -24,31 +68,32 @@ export function ReviewModal({ open, onClose, formData }: ReviewModalProps) {
 
   // Helper function to format values
   const formatValue = (value: any): string => {
-  if (value === null || value === undefined || value === '') {
-    return 'Not provided';
-  }
-  if (typeof value === 'boolean') {
-    return value ? 'Yes' : 'No';
-  }
-  if (value instanceof Date) {
-    return value.toLocaleDateString();
-  }
-  if (Array.isArray(value)) {
-    if (value.length === 0) return 'None';
-    if (value[0] instanceof File) return `${value.length} file(s) uploaded`;
-    return value.join(', ');
-  }
-  if (value instanceof File) {
-    return 'File uploaded';
-  }
-  if (typeof value === 'object') {
-    return JSON.stringify(value, null, 2);
-  }
+    if (value === null || value === undefined || value === '') {
+      return 'Not provided';
+    }
+    if (typeof value === 'boolean') {
+      return value ? 'Yes' : 'No';
+    }
+    if (value instanceof Date) {
+      return value.toLocaleDateString();
+    }
+    if (Array.isArray(value)) {
+      if (value.length === 0) return 'None';
+      if (value[0] instanceof File) return `${value.length} file(s) uploaded`;
+      return value.join(', ');
+    }
+    if (value instanceof File) {
+      return 'File uploaded';
+    }
+    if (typeof value === 'object') {
+      return JSON.stringify(value, null, 2);
+    }
 
-  // Convert to string and capitalize the first letter
-  const str = String(value);
-  return str.charAt(0).toUpperCase() + str.slice(1);
-};
+    // Convert to string and capitalize the first letter
+    const str = String(value);
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
+
   // Manual rendering for each section
   const renderPersonalDetails = () => {
     if (!formData.personalDetailsData) return null;
@@ -118,14 +163,13 @@ export function ReviewModal({ open, onClose, formData }: ReviewModalProps) {
                 value={data.residentialPostCode}
               />
               <FieldDisplay label="Country" value={data.residentialCountry} />
-          <FieldDisplay
-            label="Same as residential"
-            value={data.sameAsResidential}
-            className="mt-4"
-          />
+              <FieldDisplay
+                label="Same as residential"
+                value={data.sameAsResidential}
+                className="mt-4"
+              />
             </div>
           </div>
-
 
           {!data.sameAsResidential && (
             <>
@@ -157,7 +201,6 @@ export function ReviewModal({ open, onClose, formData }: ReviewModalProps) {
     );
   };
 
-  // Add similar render functions for other sections...
   const renderCourseDetails = () => {
     if (!formData.courseDetailsData) return null;
     const data = formData.courseDetailsData;
@@ -167,8 +210,8 @@ export function ReviewModal({ open, onClose, formData }: ReviewModalProps) {
         <h3 className="mb-2 text-lg font-semibold">Course Details</h3>
         <div className="rounded-md border border-gray-200 bg-gray-50 p-4">
           <div className="grid grid-cols-2 gap-4">
-            <FieldDisplay label="Course" value={data.course} />
-            <FieldDisplay label="Intake" value={data.intake} />
+            <FieldDisplay label="Course" value={courseName || 'Loading...'} />
+            <FieldDisplay label="Intake" value={termName || 'Loading...'} />
           </div>
         </div>
       </div>

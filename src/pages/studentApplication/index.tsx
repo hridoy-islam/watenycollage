@@ -144,17 +144,24 @@ export default function StudentApplication() {
   }, [currentStep]);
 
   useEffect(() => {
-    const savedStudentType = localStorage.getItem('studentType');
-    if (savedStudentType) {
-      setFormData((prev) => ({
-        ...prev,
-        personalDetailsData: {
-          ...(prev.personalDetailsData || {}),
-          studentType: savedStudentType
-        }
-      }));
+  const savedStudentType = localStorage.getItem('studentType');
+  const savedCourseId = localStorage.getItem('courseId');
+  const savedTermId = localStorage.getItem('termId');
+
+  setFormData((prev) => ({
+    ...prev,
+    personalDetailsData: {
+      ...(prev.personalDetailsData || {}),
+      studentType: savedStudentType || ''
+    },
+    courseDetailsData: {
+      ...(prev.courseDetailsData || {}),
+      course: savedCourseId || '',
+      intake: savedTermId || ''
     }
-  }, []);
+  }));
+}, []);
+
 
   const handleStepClick = (stepId: number) => {
     setCurrentStep(stepId);
@@ -198,8 +205,8 @@ export default function StudentApplication() {
 
   const handleEmergencySaveAndContinue = async (data: any) => {
     setFormData((prev) => ({ ...prev, emergencyContactData: data }));
-    markStepAsCompleted(4);
-    setCurrentStep(5);
+    markStepAsCompleted(3);
+    setCurrentStep(4);
   };
 
   const handleEducationSave = (data: any) => {
@@ -210,8 +217,8 @@ export default function StudentApplication() {
   const handleEducationSaveAndContinue = async (data: any) => {
     setFormData((prev) => ({ ...prev, educationData: data }));
 
-    markStepAsCompleted(5);
-    setCurrentStep(6);
+    markStepAsCompleted(4);
+    setCurrentStep(5);
   };
 
   const handleEmploymentSave = (data: any) => {
@@ -221,8 +228,8 @@ export default function StudentApplication() {
 
   const handleEmploymentSaveAndContinue = async (data: any) => {
     setFormData((prev) => ({ ...prev, employmentData: data }));
-    markStepAsCompleted(6);
-    setCurrentStep(7);
+    markStepAsCompleted(5);
+    setCurrentStep(6);
   };
 
   const handleComplianceSave = (data: any) => {
@@ -232,8 +239,8 @@ export default function StudentApplication() {
 
   const handleComplianceSaveAndContinue = async (data: any) => {
     setFormData((prev) => ({ ...prev, complianceData: data }));
-    markStepAsCompleted(7);
-    setCurrentStep(8);
+    markStepAsCompleted(6);
+    setCurrentStep(7);
   };
 
   const handleDocumentsSave = (data: any) => {
@@ -243,8 +250,8 @@ export default function StudentApplication() {
 
   const handleDocumentsSaveAndContinue = async (data: any) => {
     setFormData((prev) => ({ ...prev, documentsData: data }));
-    markStepAsCompleted(8);
-    setCurrentStep(9);
+    markStepAsCompleted(7);
+    setCurrentStep(8);
   };
 
   const handleTermsSave = async (data: any) => {
@@ -276,7 +283,7 @@ export default function StudentApplication() {
 
   const handleReviewClick = () => {
     // Check if all required steps are completed before showing the review
-    const requiredSteps = [1, 2, 3, 4, 5, 6, 7, 8]; // All steps except the final Terms & Submit
+    const requiredSteps = [1, 2, 3, 4, 5, 6, 7]; // All steps except the final Terms & Submit
     const missingSteps = requiredSteps.filter(
       (step) => !completedSteps.includes(step)
     );
@@ -304,7 +311,7 @@ export default function StudentApplication() {
   };
 
   const handleSubmit = async () => {
-    const requiredSteps = [1, 2, 3, 4, 5, 6, 7, 8]; // All steps except the final Terms & Submit
+    const requiredSteps = [1, 2, 3, 4, 5, 6, 7]; 
     const missingSteps = requiredSteps.filter(
       (step) => !completedSteps.includes(step)
     );
@@ -350,6 +357,9 @@ export default function StudentApplication() {
     setFormSubmitted(true);
   };
 
+
+  console.log(formData)
+
   const renderStep = () => {
     switch (currentStep) {
 
@@ -390,15 +400,15 @@ export default function StudentApplication() {
             setCurrentStep={setCurrentStep}
           />
         );
-      case 3:
-        return (
-          <CourseDetailsStep
-            defaultValues={formData.courseDetailsData}
-            onSaveAndContinue={handleCourseDetailsSaveAndContinue}
-            onSave={handleCourseDetailsSave}
-            setCurrentStep={setCurrentStep}
-          />
-        );
+      // case 3:
+      //   return (
+      //     <CourseDetailsStep
+      //       defaultValues={formData.courseDetailsData}
+      //       onSaveAndContinue={handleCourseDetailsSaveAndContinue}
+      //       onSave={handleCourseDetailsSave}
+      //       setCurrentStep={setCurrentStep}
+      //     />
+      //   );
       // case 4:
       //   return (
       //     <ContactStep
@@ -416,7 +426,7 @@ export default function StudentApplication() {
       //       setCurrentStep={setCurrentStep}
       //     />
       //   );
-      case 4:
+      case 3:
         return (
           <EmergencyContact
             defaultValues={formData.emergencyContactData}
@@ -424,7 +434,7 @@ export default function StudentApplication() {
             setCurrentStep={setCurrentStep}
           />
         );
-      case 5:
+      case 4:
         return (
           <EducationStep
             defaultValues={formData.educationData}
@@ -434,7 +444,7 @@ export default function StudentApplication() {
             studentType={formData.personalDetailsData.studentType}
           />
         );
-      case 6:
+      case 5:
         return (
           <EmploymentStep
             defaultValues={formData.employmentData}
@@ -443,7 +453,7 @@ export default function StudentApplication() {
             setCurrentStep={setCurrentStep}
           />
         );
-      case 7:
+      case 6:
         return (
           <ComplianceStep
             defaultValues={formData.complianceData}
@@ -452,7 +462,7 @@ export default function StudentApplication() {
             setCurrentStep={setCurrentStep}
           />
         );
-      case 8:
+      case 7:
         return (
           <DocumentsStep
             defaultValues={formData.documentsData}
@@ -461,7 +471,7 @@ export default function StudentApplication() {
             setCurrentStep={setCurrentStep}
           />
         );
-      case 9:
+      case 8:
         return (
           <TermsSubmitStep
             defaultValues={formData.termsData}

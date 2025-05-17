@@ -96,7 +96,7 @@ export default function CourseSelectionForm({
           {/* Course Name */}
           <motion.div className="group" whileHover={{ scale: 1.01 }}>
             <label htmlFor="courseName" className="flex flex-row mb-1 text-sm font-semibold text-gray-700">
-              Course
+              I would like to study for
             </label>
             <Select value={formData.courseName} onValueChange={handleCourseChange}>
               <SelectTrigger className="relative flex w-full items-center rounded-lg border border-gray-300 bg-white py-4 pl-10 pr-3 text-gray-800 text-sm focus:ring-2 focus:ring-watney">
@@ -113,33 +113,12 @@ export default function CourseSelectionForm({
             </Select>
           </motion.div>
 
-          {/* Student Type */}
-          <motion.div className="group" whileHover={{ scale: 1.01 }}>
-            <label htmlFor="studentType" className="mb-1 flex flex-row text-sm font-semibold text-gray-700">
-              Student Type
-            </label>
-            <Select
-              value={formData.studentType}
-              onValueChange={(value) => setFormData({ ...formData, studentType: value })}
-            >
-              <SelectTrigger className="relative flex w-full items-center rounded-lg border border-gray-300 bg-white py-4 pl-10 pr-3 text-gray-800 text-sm focus:ring-2 focus:ring-watney">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-watney" size={16} />
-                <SelectValue placeholder="Select your student type" />
-              </SelectTrigger>
-              <SelectContent>
-                {studentTypes.map(({ label, value }) => (
-                  <SelectItem key={value} value={value}>
-                    {label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </motion.div>
+         
 
           {/* Term Name */}
           <motion.div className="group" whileHover={{ scale: 1.01 }}>
             <label htmlFor="termName" className=" flex flex-row mb-1 text-sm font-semibold text-gray-700">
-              Term
+              I am interested to start in
             </label>
             <Select
               value={formData.termName}
@@ -147,12 +126,35 @@ export default function CourseSelectionForm({
             >
               <SelectTrigger className="relative flex w-full items-center rounded-lg border border-gray-300 bg-white py-4 pl-10 pr-3 text-gray-800 text-sm focus:ring-2 focus:ring-watney">
                 <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-watney" size={16} />
-                <SelectValue placeholder="I am interested to start in" />
+                <SelectValue placeholder="Select Your Intake" />
               </SelectTrigger>
               <SelectContent>
                 {startDates?.map((term) => (
                   <SelectItem key={term._id} value={term.termName}>
                     {term.termName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </motion.div>
+
+           {/* Student Type */}
+          <motion.div className="group" whileHover={{ scale: 1.01 }}>
+            <label htmlFor="studentType" className="mb-1 flex flex-row text-sm font-semibold text-gray-700">
+             My location
+            </label>
+            <Select
+              value={formData.studentType}
+              onValueChange={(value) => setFormData({ ...formData, studentType: value })}
+            >
+              <SelectTrigger className="relative flex w-full items-center rounded-lg border border-gray-300 bg-white py-4 pl-10 pr-3 text-gray-800 text-sm focus:ring-2 focus:ring-watney">
+                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-watney" size={16} />
+                <SelectValue placeholder="Select your Location" />
+              </SelectTrigger>
+              <SelectContent>
+                {studentTypes.map(({ label, value }) => (
+                  <SelectItem key={value} value={value}>
+                    {label}
                   </SelectItem>
                 ))}
               </SelectContent>

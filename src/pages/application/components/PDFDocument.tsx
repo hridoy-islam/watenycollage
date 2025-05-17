@@ -313,25 +313,26 @@ const ApplicationFormPDF = ({ formData }) => {
             </View>
           </View>
           
-          {formData?.educationData?.map((edu, index) => (
-            <View key={index} style={styles.tableRow}>
-              <View style={[styles.tableCol, { width: '20%' }]}>
-                <Text>{edu?.studyType || ''}</Text>
-              </View>
-              <View style={[styles.tableCol, { width: '25%' }]}>
-                <Text>{edu?.qualification || ''}</Text>
-              </View>
-              <View style={[styles.tableCol, { width: '25%' }]}>
-                <Text>{edu?.startDate ? formatDate(edu.startDate) : ''} - {edu?.endDate ? formatDate(edu.endDate) : ''}</Text>
-              </View>
-              <View style={[styles.tableCol, { width: '15%' }]}>
-                <Text>{edu?.institution || ''}</Text>
-              </View>
-              <View style={[styles.tableCol, { width: '15%' }]}>
-                <Text></Text>
-              </View>
-            </View>
-          ))}
+          {Array.isArray(formData?.educationData) && formData?.educationData.map((edu, index) => (
+  <View key={index} style={styles.tableRow}>
+    <View style={[styles.tableCol, { width: '20%' }]}>
+      <Text>{edu?.studyType || ''}</Text>
+    </View>
+    <View style={[styles.tableCol, { width: '25%' }]}>
+      <Text>{edu?.qualification || ''}</Text>
+    </View>
+    <View style={[styles.tableCol, { width: '25%' }]}>
+      <Text>{edu?.startDate ? formatDate(edu.startDate) : ''} - {edu?.endDate ? formatDate(edu.endDate) : ''}</Text>
+    </View>
+    <View style={[styles.tableCol, { width: '15%' }]}>
+      <Text>{edu?.institution || ''}</Text>
+    </View>
+    <View style={[styles.tableCol, { width: '15%' }]}>
+      <Text></Text>
+    </View>
+  </View>
+))}
+
           
           {/* Empty rows for remaining space */}
           {[...Array(4 - (formData?.educationData?.length || 0))].map((_, i) => (
