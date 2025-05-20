@@ -33,10 +33,10 @@ export function ProfilePictureStep({ value, onNext }: ProfilePictureStepProps) {
           <FileUpload onFileSelected={setProfilePicture} value={value} />
         </div>
 
-        <div className="flex justify-between gap-2 pt-4">
-          <Button variant="default" onClick={handleNext} className="bg-watney text-white hover:bg-watney/90">
+        <div className="flex justify-end gap-2 pt-4">
+          {/* <Button variant="default" onClick={handleNext} className="bg-watney text-white hover:bg-watney/90">
             Skip
-          </Button>
+          </Button> */}
           <Button onClick={handleNext} className="bg-watney text-white hover:bg-watney/90">Next</Button>
         </div>
       </CardContent>

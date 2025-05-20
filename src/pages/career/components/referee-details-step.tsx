@@ -36,7 +36,7 @@ const refereeSchema = z
     name: z.string().min(1, 'Name is required'),
     organisation: z.string().min(1, 'Organisation is required'),
     address: z.string().min(1, 'Address is required'),
-    relationship: z.enum(relationshipOptions, {
+    relationship: z.string( {
       required_error: 'Relationship is required'
     }),
     otherRelationship: z.string().optional(),
@@ -157,21 +157,7 @@ export function RefereeDetailsStep({
             <FormItem>
               <FormLabel>Relationship</FormLabel>
               <FormControl>
-                <Select
-                  onValueChange={field.onChange}
-                  value={field.value || undefined}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a relationship" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {relationshipOptions.map((option) => (
-                      <SelectItem key={option} value={option}>
-                        {option}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Input {...field} placeholder="Kindly indicate your relationship with the person mentioned." />
               </FormControl>
               <FormMessage />
             </FormItem>

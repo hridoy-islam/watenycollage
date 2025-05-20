@@ -15,7 +15,7 @@ import ApplicationListPage from '@/pages/application/applications-list';
 import NewApplicationListPage from '@/pages/application/newApplications-list';
 import ViewApplicationPage from '@/pages/application/view-application';
 import CareerPage from '@/pages/career';
-import CareerResumeUpload from "@/pages/career/uploadResume/index"
+import CareerResumeUpload from '@/pages/career/uploadResume/index';
 import CoursesPage from '@/pages/course';
 import TermPage from '@/pages/term';
 import CourseRegistration from '@/pages/course-register';
@@ -84,8 +84,7 @@ export default function AppRouter() {
           path: 'terms',
           element: <TermPage />,
           index: true
-        },
-        
+        }
       ]
     }
   ];
@@ -97,10 +96,10 @@ export default function AppRouter() {
     //   index: true
     // },
     {
-          path: 'courses/course-registration/:id',
-          element: <CourseRegistration />,
-          index: true
-        },
+      path: 'courses/course-registration/:id',
+      element: <CourseRegistration />,
+      index: true
+    },
     {
       path: '/',
       element: <SignInPage />,
@@ -143,7 +142,7 @@ export default function AppRouter() {
       path: '/career',
       element: <CareerResumeUpload />,
       index: true
-    },
+    }
   ];
 
   const routes = useRoutes([...publicRoutes, ...adminRoutes]);

@@ -33,6 +33,7 @@ import { useState } from 'react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { CustomDatePicker } from '@/components/shared/CustomDatePicker';
 
 const daysOfWeek = [
   'monday',
@@ -129,8 +130,6 @@ export function ApplicationDetailsStep({
 
   // Watch source field to show referral input conditionally
   const sourceValue = form.watch('source');
-  // Watch isBritishCitizen field to conditionally show share code
-  const isBritishCitizen = form.watch('isBritishCitizen');
 
   function onSubmit(data: ApplicationDetailsFormValues) {
     const result: Partial<TCareer> = {
@@ -146,10 +145,10 @@ export function ApplicationDetailsStep({
   return (
     <Card>
       <CardHeader>
-        {/* <CardTitle>Application Details</CardTitle>
+        <CardTitle>Application Details</CardTitle>
         <CardDescription>
           Please provide details about the position you're applying for.
-        </CardDescription> */}
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -172,58 +171,54 @@ export function ApplicationDetailsStep({
               <FormField
                 control={form.control}
                 name="applicationDate"
-                render={({ field }) => (
-                  <FormItem className="mt-2 flex flex-col border-gray-200 focus:border-gray-200">
-                    <FormLabel>Application Date:</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="date"
-                        value={
-                          field.value
-                            ? new Date(field.value).toISOString().split('T')[0]
-                            : ''
-                        }
-                        onChange={(e) =>
-                          field.onChange(new Date(e.target.value))
-                        }
-                        className="mt-0.5 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                render={({ field }) => {
+                  const selectedDate = field.value
+                    ? new Date(field.value)
+                    : null;
+
+                  return (
+                    <FormItem className="mt-2 flex flex-col">
+                      <FormLabel>Application Date:</FormLabel>
+                      <FormControl>
+                        <CustomDatePicker
+                          selected={selectedDate}
+                          onChange={(date) => field.onChange(date)}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
               />
 
               <FormField
                 control={form.control}
                 name="availableFromDate"
-                render={({ field }) => (
-                  <FormItem className="border-gary-200 flex flex-col focus:border-gray-200 active:border-gray-200">
-                    <FormLabel>Available From Date</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="date"
-                        value={
-                          field.value
-                            ? new Date(field.value).toISOString().split('T')[0]
-                            : ''
-                        }
-                        onChange={(e) =>
-                          field.onChange(new Date(e.target.value))
-                        }
-                        className="mt-0.5 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                render={({ field }) => {
+                  const selectedDate = field.value
+                    ? new Date(field.value)
+                    : null;
+
+                  return (
+                    <FormItem className="mt-2 flex flex-col w-full">
+                      <FormLabel>Available From Date</FormLabel>
+                      <FormControl>
+                        <CustomDatePicker
+                          selected={selectedDate}
+                          onChange={(date) => field.onChange(date)}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
               />
 
               <FormField
                 control={form.control}
                 name="source"
                 render={({ field }) => (
-                  <FormItem className="-mt-2">
+                  <FormItem >
                     <FormLabel>How did you hear about us?</FormLabel>
                     <Select
                       onValueChange={field.onChange}
@@ -301,8 +296,37 @@ export function ApplicationDetailsStep({
               control={form.control}
               name="availability"
               render={() => (
-                <FormItem>
-                  <FormLabel>Availability (Select all that apply)</FormLabel>
+                <FormItem className="">
+                  <div className="flex items-center justify-start gap-2">
+                    <FormLabel>Availability (Select all that apply)</FormLabel>
+
+                    {/* Select All Button */}
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      className="bg-watney hover:bg-watney/90"
+                      onClick={() => {
+                        const days = [
+                          'monday',
+                          'tuesday',
+                          'wednesday',
+                          'thursday',
+                          'friday',
+                          'saturday',
+                          'sunday'
+                        ];
+
+                        days.forEach((day) => {
+                          form.setValue(`availability.${day}`, true);
+                        });
+                      }}
+                    >
+                      Select All
+                    </Button>
+                  </div>
+
+                  {/* Days Checkboxes */}
                   <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
                     {[
                       'Monday',
@@ -400,7 +424,7 @@ export function ApplicationDetailsStep({
                 )}
               />
             </div>
-{/* 
+            {/* 
             <FormField
               control={form.control}
               name="isBritishCitizen"

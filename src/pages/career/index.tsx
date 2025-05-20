@@ -11,12 +11,10 @@ import { ApplicationDetailsStep } from "./components/application-details-step"
 import { BeneficiaryStep } from "./components/beneficiary-step"
 import { PayrollStep } from "./components/payroll-step"
 import { RightToWorkStep } from "./components/right-to-work-step"
-import { EqualityInfoStep } from "./components/equality-info-step"
 import { ReviewStep } from "./components/review-step"
 import { SuccessMessage } from "./components/success-message"
 import type { TCareer } from "@/types/career"
 import { useState } from "react"
-import { set } from "date-fns"
 import { RefereeDetailsStep } from "./components/referee-details-step"
 import { DeclarationStep } from "./components/DeclarationStep"
 import { EducationStep } from "./components/education-step"
@@ -100,29 +98,8 @@ export default function CareerApplicationForm() {
             onBack={handleBack}
              />
         )
-      case 3:
-        return (
-          <EducationStep
-            value={formData}
-            onNext={(data) => {
-              updateFormData(data)
-              handleNext()
-            }}
-            onBack={handleBack}
-          />
-        )
-      case 4:
-        return (
-          <EmploymentStep
-            value={formData}
-            onNext={(data) => {
-              updateFormData(data)
-              handleNext()
-            }}
-            onBack={handleBack}
-          />
-        )
-      case 5:
+
+        case 3:
         return (
           <ApplicationDetailsStep
             value={formData}
@@ -134,6 +111,29 @@ export default function CareerApplicationForm() {
           />
         )
      
+      case 4:
+        return (
+          <EducationStep
+            value={formData}
+            onNext={(data) => {
+              updateFormData(data)
+              handleNext()
+            }}
+            onBack={handleBack}
+          />
+        )
+      case 5:
+        return (
+          <EmploymentStep
+            value={formData}
+            onNext={(data) => {
+              updateFormData(data)
+              handleNext()
+            }}
+            onBack={handleBack}
+          />
+        )
+      
       case 6:
         return (
           <DisabilityInfoStep

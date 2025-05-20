@@ -46,11 +46,16 @@ export function DisabilityInfoStep({
   const form = useForm<DisabilityInfoFormValues>({
     resolver: zodResolver(disabilityInfoSchema),
     defaultValues: {
-      hasDisability: value.hasDisability || undefined,
-      disabilityDetails: value.disabilityDetails || '',
-      needsReasonableAdjustment: value.needsReasonableAdjustment || undefined,
-      reasonableAdjustmentDetails: value.reasonableAdjustmentDetails || ''
-    }
+  hasDisability:
+    typeof value.hasDisability === 'boolean' ? value.hasDisability : undefined,
+  disabilityDetails: value.disabilityDetails || '',
+  needsReasonableAdjustment:
+    typeof value.needsReasonableAdjustment === 'boolean'
+      ? value.needsReasonableAdjustment
+      : undefined,
+  reasonableAdjustmentDetails: value.reasonableAdjustmentDetails || ''
+}
+
   });
 
   function onSubmit(data: DisabilityInfoFormValues) {
@@ -60,11 +65,12 @@ export function DisabilityInfoStep({
   return (
     <Card>
       <CardHeader>
-        {/* <CardTitle>Disability Information</CardTitle>
+        <CardTitle>Disability Information</CardTitle>
         <CardDescription>
-          Please provide information about any disabilities or adjustments needed. This information helps us ensure we
-          can provide appropriate support.
-        </CardDescription> */}
+          Please provide information about any disabilities or adjustments
+          needed. This information helps us ensure we can provide appropriate
+          support.
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -76,27 +82,22 @@ export function DisabilityInfoStep({
                 <FormItem className="flex flex-row  items-center space-x-3 space-y-0  py-2">
                   <FormLabel>Do you have a disability?</FormLabel>
 
-                  <div className="flex space-x-2">
-                    <label className="flex items-center space-x-1">
-                      <input
-                        type="radio"
-                        name="hasDisability"
-                        value="yes"
+                  <div className="flex space-x-6">
+                    <div className="flex items-center">
+                      <Checkbox
                         checked={field.value === true}
-                        onChange={() => field.onChange(true)}
+                        onCheckedChange={() => field.onChange(true)}
                       />
-                      <span>Yes</span>
-                    </label>
-                    <label className="flex items-center space-x-1">
-                      <input
-                        type="radio"
-                        name="hasDisability"
-                        value="no"
+                      <FormLabel className="ml-2">Yes</FormLabel>
+                    </div>
+
+                    <div className="flex items-center">
+                      <Checkbox
                         checked={field.value === false}
-                        onChange={() => field.onChange(false)}
+                        onCheckedChange={() => field.onChange(false)}
                       />
-                      <span>No</span>
-                    </label>
+                      <FormLabel className="ml-2">No</FormLabel>
+                    </div>
                   </div>
                 </FormItem>
               )}
@@ -134,27 +135,22 @@ export function DisabilityInfoStep({
                       Do you require any reasonable adjustments?
                     </FormLabel>
                   </div>
-                  <div className="flex space-x-2">
-                    <label className="flex items-center space-x-1">
-                      <input
-                        type="radio"
-                        name="needsReasonableAdjustment"
-                        value="yes"
+                  <div className="flex space-x-6">
+                    <div className="flex items-center">
+                      <Checkbox
                         checked={field.value === true}
-                        onChange={() => field.onChange(true)}
+                        onCheckedChange={() => field.onChange(true)}
                       />
-                      <span>Yes</span>
-                    </label>
-                    <label className="flex items-center space-x-1">
-                      <input
-                        type="radio"
-                        name="needsReasonableAdjustment"
-                        value="no"
+                      <FormLabel className="ml-2">Yes</FormLabel>
+                    </div>
+
+                    <div className="flex items-center">
+                      <Checkbox
                         checked={field.value === false}
-                        onChange={() => field.onChange(false)}
+                        onCheckedChange={() => field.onChange(false)}
                       />
-                      <span>No</span>
-                    </label>
+                      <FormLabel className="ml-2">No</FormLabel>
+                    </div>
                   </div>
                 </FormItem>
               )}

@@ -24,7 +24,6 @@ useEffect(() => {
     fetchData();
   }
 }, [user]);
- console.log(userData)
 
 
   // // Mock user data - in a real app, this would come from an API

@@ -4,7 +4,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -19,7 +25,10 @@ import type { TCareer } from '@/types/career';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import Select from 'react-select';
-import { countries } from '@/types';
+import { countries, nationalities } from '@/types';
+import 'react-datepicker/dist/react-datepicker.css';
+import { format, getMonth, getYear, parse } from 'date-fns';
+import { CustomDatePicker } from '@/components/shared/CustomDatePicker';
 
 // Define title options for react-select
 const titleOptions = [
@@ -37,32 +46,48 @@ const yesNoOptions = [
   { value: false, label: 'No' }
 ];
 
-const personalDetailsSchema = z.object({
-  title: z.string().min(1, { message: 'Title is required' }),
-  firstName: z.string().min(1, { message: 'First name is required' }),
-  initial: z.string().optional(),
-  lastName: z.string().min(1, { message: 'Last name is required' }),
-  dateOfBirth: z.date({
-    required_error: 'Date of birth is required'
-  }),
-  email: z.string().email({ message: 'Please enter a valid email address' }),
-  phone: z.string().min(1, { message: 'Phone number is required' }),
-  nationality: z.string().min(1, { message: 'Nationality is required' }),
-  countryOfResidence: z
-    .string()
-    .min(1, { message: 'Country of residence is required' }),
-  hasNationalInsuranceNumber: z.boolean().optional(),
-  nationalInsuranceNumber: z.string().optional(),
-  isBritishCitizen: z.boolean(),
-  shareCode: z.string().optional(),
-  postalAddress: z.object({
-    line1: z.string().min(1, { message: 'Address line 1 is required' }),
-    line2: z.string().optional(),
-    city: z.string().min(1, { message: 'City is required' }),
-    postCode: z.string().min(1, { message: 'Postal code is required' }),
-    country: z.string().min(1, { message: 'Country is required' })
+const personalDetailsSchema = z
+  .object({
+    title: z.string().min(1, { message: 'Title is required' }),
+    firstName: z.string().min(1, { message: 'First name is required' }),
+    initial: z.string().optional(),
+    lastName: z.string().min(1, { message: 'Last name is required' }),
+    dateOfBirth: z.date({
+      required_error: 'Date of birth is required'
+    }),
+    email: z.string().email({ message: 'Please enter a valid email address' }),
+    phone: z.string().min(1, { message: 'Phone number is required' }),
+    nationality: z.string().min(1, { message: 'Nationality is required' }),
+    countryOfResidence: z
+      .string()
+      .min(1, { message: 'Country of residence is required' }),
+    hasNationalInsuranceNumber: z.boolean().optional(),
+    nationalInsuranceNumber: z.string().optional(),
+    isBritishCitizen: z.boolean(),
+    shareCode: z.string().optional(),
+    postalAddress: z.object({
+      line1: z.string().min(1, { message: 'Address line 1 is required' }),
+      line2: z.string().optional(),
+      city: z.string().min(1, { message: 'City is required' }),
+      postCode: z.string().min(1, { message: 'Postal code is required' }),
+      country: z.string().min(1, { message: 'Country is required' })
+    })
   })
-});
+  .refine(
+    (data) => {
+      // Only validate shareCode if isBritishCitizen is false
+      if (data.isBritishCitizen === false) {
+        return (
+          typeof data.shareCode === 'string' && data.shareCode.trim() !== ''
+        );
+      }
+      return true;
+    },
+    {
+      message: 'Share Code is required when not a British Citizen',
+      path: ['shareCode'] // This makes the error appear under the shareCode field
+    }
+  );
 
 type PersonalDetailsFormValues = z.infer<typeof personalDetailsSchema>;
 
@@ -96,7 +121,10 @@ export function PersonalDetailsStep({
       countryOfResidence: value.countryOfResidence || '',
       dateOfBirth: value.dateOfBirth ? new Date(value.dateOfBirth) : undefined,
       nationalInsuranceNumber: value.nationalInsuranceNumber || '',
-      isBritishCitizen: value.isBritishCitizen !== undefined ? value.isBritishCitizen : undefined,
+      isBritishCitizen:
+        value.isBritishCitizen !== undefined
+          ? value.isBritishCitizen
+          : undefined,
       shareCode: value.shareCode || '',
       postalAddress: {
         line1: value.postalAddress?.line1 || '',
@@ -183,20 +211,33 @@ export function PersonalDetailsStep({
     value: country.toLowerCase().replace(/\s/g, '-')
   }));
   const yesNoOptions = [
-  { value: true, label: 'Yes' },
-  { value: false, label: 'No' }
-];
+    { value: true, label: 'Yes' },
+    { value: false, label: 'No' }
+  ];
+
+  const nationalityOptions = nationalities.map((nationality) => ({
+    label: nationality,
+    value: nationality.toLowerCase().replace(/\s/g, '-')
+  }));
 
   return (
     <Card>
-      <CardHeader></CardHeader>
+      <CardHeader>
+        <CardTitle>Personal Information</CardTitle>
+
+        <CardDescription>
+          Please provide your basic details. This information will be used to
+          personalize your experience.
+        </CardDescription>
+      </CardHeader>
+
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             {/* Step 1: Basic Information */}
             {currentStep === 1 && (
               <div className="space-y-4">
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 md:grid-cols-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 md:grid-cols-4 ">
                   <FormField
                     control={form.control}
                     name="title"
@@ -267,29 +308,26 @@ export function PersonalDetailsStep({
                   />
 
                   <FormField
-                    control={form.control}
-                    name="dateOfBirth"
-                    render={({ field }) => (
-                      <FormItem className="mt-2 flex flex-col">
-                        <FormLabel>Date of Birth</FormLabel>
-                        <Input
-                          type="date"
-                          value={
-                            field.value
-                              ? new Date(field.value)
-                                  .toISOString()
-                                  .split('T')[0]
-                              : ''
-                          }
-                          onChange={(e) =>
-                            field.onChange(new Date(e.target.value))
-                          }
-                          className="mt-0.5 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-                        />
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+  control={form.control}
+  name="dateOfBirth"
+  render={({ field }) => {
+    const selectedDate = field.value ? new Date(field.value) : null;
+
+    return (
+      <FormItem className="mt-2 flex flex-col w-full">
+        <FormLabel>Date of Birth</FormLabel>
+        <FormControl className="w-full">
+          <CustomDatePicker
+            selected={selectedDate}
+            onChange={(date) => field.onChange(date)}
+          />
+        </FormControl>
+        <FormMessage />
+      </FormItem>
+    );
+  }}
+/>
+
 
                   <FormField
                     control={form.control}
@@ -330,8 +368,8 @@ export function PersonalDetailsStep({
                           control={form.control}
                           render={({ field: { onChange, value } }) => (
                             <Select
-                              options={countryOptions}
-                              value={countryOptions.find(
+                              options={nationalityOptions}
+                              value={nationalityOptions.find(
                                 (opt) => opt.value === value
                               )}
                               onChange={(option) => onChange(option?.value)}
@@ -388,34 +426,49 @@ export function PersonalDetailsStep({
                       )}
                     />
                   </div>
-                  <FormField
-  control={form.control}
-  name="isBritishCitizen"
-  render={({ field }) => (
-    <FormItem>
-      <FormLabel>Are you a British citizen?</FormLabel>
-      <Controller
-        name="isBritishCitizen"
-        control={form.control}
-        render={({ field }) => (
-          <Select
-            options={yesNoOptions}
-            value={yesNoOptions.find((opt) => opt.value === field.value)}
-            onChange={(selected) => field.onChange(selected?.value)}
-            className="react-select-container"
-            classNamePrefix="react-select"
-            placeholder="Select..."
-          />
-        )}
-      />
-      <FormMessage />
-    </FormItem>
-  )}
-/>
+                  <div className="col-span-full">
+                    <FormField
+                      control={form.control}
+                      name="isBritishCitizen"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>
+                            Do you currently hold, or have you ever held,
+                            British citizenship or any form of British
+                            nationality, such as British Overseas Citizen,
+                            British Dependent or Overseas Territories Citizen,
+                            British National (Overseas), British Protected
+                            Person, or British Subject?
+                          </FormLabel>
+                          <Controller
+                            name="isBritishCitizen"
+                            control={form.control}
+                            render={({ field }) => (
+                              <div className="w-[22vw]">
+                                <Select
+                                  options={yesNoOptions}
+                                  value={yesNoOptions.find(
+                                    (opt) => opt.value === field.value
+                                  )}
+                                  onChange={(selected) =>
+                                    field.onChange(selected?.value)
+                                  }
+                                  className="react-select-container "
+                                  classNamePrefix="react-select"
+                                  placeholder="Select..."
+                                />
+                              </div>
+                            )}
+                          />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
                   {watchIsBritish === false && (
                     <div className="space-y-2">
-                      <FormLabel>Share Code:</FormLabel>
+                      <FormLabel> Please give your Share Code:</FormLabel>
                       <FormField
                         control={form.control}
                         name="shareCode"

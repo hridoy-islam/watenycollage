@@ -19,19 +19,19 @@ import { Textarea } from '@/components/ui/textarea';
 
 const declarationSchema = z
   .object({
-    declarationCorrectUpload: z
-      .boolean()
-      .optional()
-      .refine((val) => val !== undefined, { message: 'Required' }),
+    // declarationCorrectUpload: z
+    //   .boolean()
+    //   .optional()
+    //   .refine((val) => val !== undefined, { message: 'Required' }),
 
-    declarationContactReferee: z
-      .boolean()
-      .optional()
+    // declarationContactReferee: z
+    //   .boolean()
+    //   .optional()
 
-      .refine((val) => val !== undefined, { message: 'Required' }),
-    criminalConviction: z.boolean(),
-    criminalConvictionDetails: z.string().optional(), // <-- add this
-    appliedBefore: z.boolean(),
+    //   .refine((val) => val !== undefined, { message: 'Required' }),
+    // criminalConviction: z.boolean(),
+    // criminalConvictionDetails: z.string().optional(), // <-- add this
+    // appliedBefore: z.boolean(),
     documents: z.object({
       ID: z.instanceof(File).optional(),
       cv: z.instanceof(File).optional(),
@@ -41,18 +41,18 @@ const declarationSchema = z
       shareCode: z.instanceof(File).optional(),
     })
   })
-  .refine(
-    (data) => {
-      if (data.criminalConviction && !data.criminalConvictionDetails) {
-        return false;
-      }
-      return true;
-    },
-    {
-      message: 'Please provide details of the conviction',
-      path: ['criminalConvictionDetails']
-    }
-  );
+  // .refine(
+  //   (data) => {
+  //     if (data.criminalConviction && !data.criminalConvictionDetails) {
+  //       return false;
+  //     }
+  //     return true;
+  //   },
+  //   {
+  //     message: 'Please provide details of the conviction',
+  //     path: ['criminalConvictionDetails']
+  //   }
+  // );
 
 type DeclarationFormValues = z.infer<typeof declarationSchema>;
 
@@ -70,11 +70,11 @@ export function DeclarationStep({
   const form = useForm<DeclarationFormValues>({
     resolver: zodResolver(declarationSchema),
     defaultValues: {
-      declarationCorrectUpload: value.declarationCorrectUpload || false,
-      declarationContactReferee: value.declarationContactReferee || false,
-      criminalConviction: value.criminalConviction || false,
-      criminalConvictionDetails: value.criminalConvictionDetails || '',
-      appliedBefore: value.appliedBefore || false,
+      // declarationCorrectUpload: value.declarationCorrectUpload || false,
+      // declarationContactReferee: value.declarationContactReferee || false,
+      // criminalConviction: value.criminalConviction || false,
+      // criminalConvictionDetails: value.criminalConvictionDetails || '',
+      // appliedBefore: value.appliedBefore || false,
       documents: {
         ID: undefined,
         cv: undefined,
@@ -90,7 +90,7 @@ export function DeclarationStep({
     onNext(data);
   };
 
-  const watchConviction = form.watch('criminalConviction');
+  // const watchConviction = form.watch('criminalConviction');
 
   const renderFileInput = (
     name: keyof DeclarationFormValues['documents'],
@@ -130,7 +130,7 @@ export function DeclarationStep({
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
+            {/* <FormField
               control={form.control}
               name="declarationCorrectUpload"
               render={({ field }) => (
@@ -275,7 +275,7 @@ export function DeclarationStep({
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> */}
 
             <div className="grid grid-cols-1 gap-4 pt-4 sm:grid-cols-2">
               {renderFileInput('ID', 'ID (Passport / UK Driving Licence )')}
