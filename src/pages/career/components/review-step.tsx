@@ -184,6 +184,7 @@ export function ReviewStep({ formData, onSubmit, onBack }: ReviewStepProps) {
             <h3 className="mb-2 text-lg font-medium text-black">
               Previous Employment
             </h3>
+           
             {formData.previousEmployments.map((employment, index) => (
               <div
                 key={index}
@@ -220,7 +221,7 @@ export function ReviewStep({ formData, onSubmit, onBack }: ReviewStepProps) {
         reasonableAdjustmentDetails: formData.reasonableAdjustmentDetails
       })}
 
-      {renderSection('Right to Work', {
+      {/* {renderSection('Right to Work', {
         hasExpiry: formData.rightToWork?.hasExpiry,
         expiryDate: formData.rightToWork?.expiryDate
       })}
@@ -236,7 +237,7 @@ export function ReviewStep({ formData, onSubmit, onBack }: ReviewStepProps) {
             </div>
           ))}
         </div>
-      )}
+      )} */}
       {/* {renderSection('Declaration', {
         declarationCorrectUpload: formData.declarationCorrectUpload,
         declarationContactReferee: formData.declarationContactReferee,

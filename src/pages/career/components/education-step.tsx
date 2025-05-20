@@ -248,7 +248,7 @@ export function EducationStep({
                 onClick={addEducationEntry}
                 className="mb-6  bg-watney text-white hover:bg-watney/90"
               >
-                Add Education
+                Add Qualification
               </Button>
             ) : (
               <Button
@@ -257,7 +257,7 @@ export function EducationStep({
                 onClick={addEducationEntry}
                 className="mb-6 bg-watney text-white hover:bg-watney/90"
               >
-                Add More Education
+                Add More Qualification
               </Button>
             )}
 

@@ -21,16 +21,18 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { CustomDatePicker } from '@/components/shared/CustomDatePicker';
 
 // Zod Schema for Employment Form
 const employmentSchema = z.object({
   isEmployed: z.string(),
+  hasPreviousEmployment: z.string(),
   currentEmployment: z
     .object({
       employer: z.string().optional(),
       jobTitle: z.string().optional(),
-      startDate: z.string().optional(),
-      endDate: z.string().optional(),
+      startDate: z.date().optional(),
+      endDate: z.date().optional(),
       currentlyEmployed: z.boolean().default(true),
       employmentType: z.string().optional(),
       responsibilities: z.string().optional(),
@@ -43,8 +45,8 @@ const employmentSchema = z.object({
       z.object({
         employer: z.string(),
         jobTitle: z.string(),
-        startDate: z.string(),
-        endDate: z.string(),
+        startDate: z.date(),
+        endDate: z.date(),
         reasonForLeaving: z.string(),
         responsibilities: z.string(),
         contactPermission: z.string()
@@ -64,6 +66,7 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
     defaultValues: defaultValues ||
       value || {
         isEmployed: '',
+        hasPreviousEmployment: '',
         previousEmployments: [],
         hasEmploymentGaps: '',
         declaration: false
@@ -171,14 +174,24 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
                         <FormField
                           name="currentEmployment.startDate"
                           control={form.control}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Start Date</FormLabel>
-                              <FormControl>
-                                <Input type="date" {...field} />
-                              </FormControl>
-                            </FormItem>
-                          )}
+                          render={({ field }) => {
+                            const selectedDate = field.value
+                              ? new Date(field.value)
+                              : null;
+
+                            return (
+                              <FormItem>
+                                <FormLabel>Start Date</FormLabel>
+                                <FormControl>
+                                  <CustomDatePicker
+                                    selected={selectedDate}
+                                    onChange={(date) => field.onChange(date)}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            );
+                          }}
                         />
 
                         {/* End Date + Currently Employed Checkbox */}
@@ -212,23 +225,27 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
                         <FormField
                           name="currentEmployment.endDate"
                           control={form.control}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>End Date</FormLabel>
-                              <FormControl>
-                                <Input
-                                  type="date"
-                                  {...field}
-                                  disabled={
-                                    form.watch(
-                                      'currentEmployment.currentlyEmployed'
-                                    ) || false
-                                  }
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
+                          render={({ field }) => {
+                            const selectedDate = field.value
+                              ? new Date(field.value)
+                              : null;
+                            const isCurrentlyEmployed = form.watch(
+                              'currentEmployment.currentlyEmployed'
+                            );
+                            return (
+                              <FormItem>
+                                <FormLabel>End Date</FormLabel>
+                                <FormControl>
+                                  <CustomDatePicker
+                                    selected={selectedDate}
+                                    onChange={(date) => field.onChange(date)}
+                                    disabled={isCurrentlyEmployed}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            );
+                          }}
                         />
                         {/* Employment Type */}
                         <FormField
@@ -331,7 +348,36 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
                     </div>
                   )}
 
-                  {currentlyEmployed && (
+                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    <FormField
+                      control={form.control}
+                      name="hasPreviousEmployment"
+                      render={({ field }) => (
+                        <FormItem className="mt-4 ">
+                          <FormLabel>
+                            Do you have previous employment history?
+                          </FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select an option" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="yes">Yes</SelectItem>
+                              <SelectItem value="no">No</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  {form.watch('hasPreviousEmployment') === 'yes' && (
                     <div>
                       <h3 className="mb-4 text-xl font-medium">
                         Previous Employment
@@ -375,28 +421,50 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
                             <FormField
                               name={`previousEmployments.${index}.startDate`}
                               control={form.control}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Start Date</FormLabel>
-                                  <FormControl>
-                                    <Input type="date" {...field} />
-                                  </FormControl>
-                                </FormItem>
-                              )}
+                              render={({ field }) => {
+                                const selectedDate = field.value
+                                  ? new Date(field.value)
+                                  : null;
+
+                                return (
+                                  <FormItem>
+                                    <FormLabel>Start Date</FormLabel>
+                                    <FormControl>
+                                      <CustomDatePicker
+                                        selected={selectedDate}
+                                        onChange={(date) =>
+                                          field.onChange(date)
+                                        }
+                                      />
+                                    </FormControl>
+                                  </FormItem>
+                                );
+                              }}
                             />
 
                             {/* End Date */}
                             <FormField
                               name={`previousEmployments.${index}.endDate`}
                               control={form.control}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>End Date</FormLabel>
-                                  <FormControl>
-                                    <Input type="date" {...field} />
-                                  </FormControl>
-                                </FormItem>
-                              )}
+                              render={({ field }) => {
+                                const selectedDate = field.value
+                                  ? new Date(field.value)
+                                  : null;
+
+                                return (
+                                  <FormItem>
+                                    <FormLabel>End Date</FormLabel>
+                                    <FormControl>
+                                      <CustomDatePicker
+                                        selected={selectedDate}
+                                        onChange={(date) =>
+                                          field.onChange(date)
+                                        }
+                                      />
+                                    </FormControl>
+                                  </FormItem>
+                                );
+                              }}
                             />
 
                             {/* Reason for Leaving */}
@@ -476,11 +544,10 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
                         }
                         className="bg-watney text-white hover:bg-watney/90"
                       >
-                        Add Another Employment
+                        Add Employment
                       </Button>
                     </div>
                   )}
-              
 
                   {(fields.length > 0 || watchIsEmployed === 'yes') && (
                     <>
@@ -529,33 +596,29 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
                           )}
                         />
                       )}
-
                     </>
+                  )}
+                  <FormField
+                    name="declaration"
+                    control={form.control}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          <label className="flex items-center space-x-2">
+                            <input
+                              type="checkbox"
+                              checked={field.value}
+                              onChange={(e) => field.onChange(e.target.checked)}
+                            />
+                            <span>
+                              I confirm that the information provided is
+                              accurate.
+                            </span>
+                          </label>
+                        </FormLabel>
+                      </FormItem>
                     )}
-                      <FormField
-                        name="declaration"
-                        control={form.control}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>
-                              <label className="flex items-center space-x-2">
-                                <input
-                                  type="checkbox"
-                                  checked={field.value}
-                                  onChange={(e) =>
-                                    field.onChange(e.target.checked)
-                                  }
-                                />
-                                <span>
-                                  I confirm that the information provided is
-                                  accurate.
-                                </span>
-                              </label>
-                            </FormLabel>
-                          </FormItem>
-                        )}
-                      />
-                  
+                  />
 
                   {/* Navigation Buttons */}
                   <div className="flex justify-between pt-4">

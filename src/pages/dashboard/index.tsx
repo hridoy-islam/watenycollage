@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import axiosInstance from '@/lib/axios';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import Guideline from '@/components/shared/Guideline';
 
 export default function DashboardPage() {
   const { user } = useSelector((state: any) => state.auth);
@@ -11,6 +12,7 @@ export default function DashboardPage() {
   const [applicationCount, setApplicationCount] = useState(0);
   const [newApplicationCount, setNewApplicationCount] = useState(0);
   const navigate = useNavigate();
+  const [showGuidelines, setShowGuidelines] = useState(false);
 
   const handleRoute = () => {
     navigate('/dashboard/student-form');
@@ -38,8 +40,14 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
-    if (user) {
-      fetchData();
+    if (!user) return;
+
+    fetchData();
+
+    const hasVisited = localStorage.getItem(`hasVisitedBefore`);
+    if (hasVisited === 'false') {
+      setShowGuidelines(true);
+      localStorage.setItem(`hasVisitedBefore`, 'true');
     }
   }, [user]);
 
@@ -67,6 +75,13 @@ export default function DashboardPage() {
 
   return (
     <div className="flex-1 space-y-4 p-4 pt-6 md:p-8">
+      {showGuidelines && (
+        <Guideline
+          open={showGuidelines}
+          onClose={() => setShowGuidelines(false)}
+        />
+      )}
+
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-2xl font-bold">Applications</h2>
         {/* Reload Button (optional) */}
@@ -106,7 +121,7 @@ export default function DashboardPage() {
           </div>
           <div
             className="group flex cursor-pointer flex-col items-center justify-center rounded-lg bg-white p-2 text-center shadow-sm hover:bg-watney hover:text-white"
-            onClick={()=>navigate('/dashboard/courses')}
+            onClick={() => navigate('/dashboard/courses')}
           >
             <div className="mb-1 flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-600 transition-colors group-hover:bg-white group-hover:text-watney">
               <Book className="h-8 w-8" />
@@ -117,7 +132,7 @@ export default function DashboardPage() {
           </div>
           <div
             className="group flex cursor-pointer flex-col items-center justify-center rounded-lg bg-white p-2 text-center shadow-sm hover:bg-watney hover:text-white"
-            onClick={()=>navigate('/dashboard/terms')}
+            onClick={() => navigate('/dashboard/terms')}
           >
             <div className="mb-1 flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-600 transition-colors group-hover:bg-white group-hover:text-watney">
               <Calendar className="h-8 w-8" />

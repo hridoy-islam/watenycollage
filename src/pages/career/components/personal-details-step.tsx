@@ -242,7 +242,7 @@ export function PersonalDetailsStep({
                     control={form.control}
                     name="title"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="z-[1002]">
                         <FormLabel>Title</FormLabel>
                         <Controller
                           name="title"
@@ -308,26 +308,27 @@ export function PersonalDetailsStep({
                   />
 
                   <FormField
-  control={form.control}
-  name="dateOfBirth"
-  render={({ field }) => {
-    const selectedDate = field.value ? new Date(field.value) : null;
+                    control={form.control}
+                    name="dateOfBirth"
+                    render={({ field }) => {
+                      const selectedDate = field.value
+                        ? new Date(field.value)
+                        : null;
 
-    return (
-      <FormItem className="mt-2 flex flex-col w-full">
-        <FormLabel>Date of Birth</FormLabel>
-        <FormControl className="w-full">
-          <CustomDatePicker
-            selected={selectedDate}
-            onChange={(date) => field.onChange(date)}
-          />
-        </FormControl>
-        <FormMessage />
-      </FormItem>
-    );
-  }}
-/>
-
+                      return (
+                        <FormItem className="mt-2 flex w-full flex-col">
+                          <FormLabel>Date of Birth</FormLabel>
+                          <FormControl className="w-full">
+                            <CustomDatePicker
+                              selected={selectedDate}
+                              onChange={(date) => field.onChange(date)}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      );
+                    }}
+                  />
 
                   <FormField
                     control={form.control}
