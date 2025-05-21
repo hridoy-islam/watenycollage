@@ -82,7 +82,7 @@ export function DisabilityInfoStep({
               render={({ field }) => (
                 <FormItem className="py-2">
                   <div className="flex flex-row items-center space-x-3 space-y-0">
-                    <FormLabel>Do you have a disability?</FormLabel>
+                    <FormLabel>Do you have a disability?*</FormLabel>
 
                     <div className="flex space-x-6">
                       <div className="flex items-center">
@@ -145,7 +145,7 @@ export function DisabilityInfoStep({
                   <div className="flex flex-row items-center space-x-3">
                     <div className="space-y-1 leading-none">
                       <FormLabel>
-                        Do you require any reasonable adjustments?
+                        Do you require any reasonable adjustments?*
                       </FormLabel>
                     </div>
                     <div className="flex space-x-6">

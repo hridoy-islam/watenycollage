@@ -170,7 +170,7 @@ export function ApplicationDetailsStep({
                 name="position"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Position you applied for</FormLabel>
+                    <FormLabel>Position you applied for*</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
@@ -198,7 +198,7 @@ export function ApplicationDetailsStep({
 
                   return (
                     <FormItem className="mt-2 flex flex-col">
-                      <FormLabel>Application Date (MM/DD/YYYY)</FormLabel>
+                      <FormLabel>Application Date (MM/DD/YYYY)*</FormLabel>
                       <FormControl>
                         <CustomDatePicker
                           selected={selectedDate}
@@ -226,7 +226,7 @@ export function ApplicationDetailsStep({
 
                   return (
                     <FormItem className="mt-2 flex w-full flex-col">
-                      <FormLabel>Available From Date (MM/DD/YYYY)</FormLabel>
+                      <FormLabel>Available From Date (MM/DD/YYYY)*</FormLabel>
                       <FormControl>
                         <CustomDatePicker
                           selected={selectedDate}
@@ -249,7 +249,7 @@ export function ApplicationDetailsStep({
                 name="source"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>How did you hear about us?</FormLabel>
+                    <FormLabel>How did you hear about us?*</FormLabel>
 
                     <Controller
                       control={form.control}
@@ -288,7 +288,7 @@ export function ApplicationDetailsStep({
                 name="referralEmployee"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Referred by (Employee Name)</FormLabel>
+                    <FormLabel>Referred by (Employee Name)*</FormLabel>
                     <FormControl>
                       <Input {...field} placeholder="Enter the employee name" />
                     </FormControl>
@@ -341,7 +341,7 @@ export function ApplicationDetailsStep({
               render={() => (
                 <FormItem className="">
                   <div className="flex items-center justify-start gap-2">
-                    <FormLabel>Availability (Select all that apply)</FormLabel>
+                    <FormLabel>Availability (Select all that apply)*</FormLabel>
 
                     {/* Select All Button */}
                     <Button
@@ -408,7 +408,7 @@ export function ApplicationDetailsStep({
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {/* Student Status */}
               <FormItem>
-                <FormLabel>Are you currently a student?</FormLabel>
+                <FormLabel>Are you currently a student?*</FormLabel>
 
                 <Controller
                   name="isStudent"

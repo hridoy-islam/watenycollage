@@ -44,7 +44,7 @@ const signUpSchema = z.object({
   phone: z.string().min(7, 'Phone number is required'),
   nationality: z.string().min(1, 'Nationality is required'),
   dateOfBirth: z.string().min(1, 'Date of birth is required'),
-  role: z.enum(['student']).default('student')
+  role: z.string().min(1, 'Purpose of your visit is required'),
 });
 
 type SignUpFormValues = z.infer<typeof signUpSchema>;
@@ -66,7 +66,7 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
       phone: '',
       nationality: '',
       dateOfBirth: '',
-      role: 'student'
+      role: ''
     }
   });
 
@@ -87,7 +87,7 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
       });
 
       if (response?.data?.success) {
-        localStorage.setItem("hasVisitedBefore", "false");
+        localStorage.setItem('hasVisitedBefore', 'false');
         toast({
           title: 'Account Created',
           description: 'Your account was successfully created.'
@@ -255,6 +255,36 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
                   <FormControl>
                     <Input type="date" {...field} />
                   </FormControl>
+                  <FormMessage className="text-xs text-red-600" />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="role"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="block text-sm font-medium text-gray-700">
+                    Please select the purpose of your visit{' '}
+                    <span className="text-red-500">*</span>
+                  </FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select an option" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="student">
+                        Course Registration
+                      </SelectItem>
+                      <SelectItem value="applicant">Job Application</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage className="text-xs text-red-600" />
                 </FormItem>
               )}

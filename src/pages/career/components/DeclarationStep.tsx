@@ -284,10 +284,10 @@ export function DeclarationStep({
             /> */}
 
             <div className="grid grid-cols-1 gap-4 pt-4 sm:grid-cols-2">
-              {renderFileInput('ID', 'Upload a Valid ID (Passport or UK Driving Licence)','Upload a scanned copy or a clear photo of a valid government-issued ID.','Accepted Formats: PDF, JPG, PNG')}
-              {renderFileInput('cv', 'CV','Attach your most recent CV detailing your experience and qualifications','Accepted Formats: PDF, DOC, DOCX')}
-              {renderFileInput('proofOfAddress', 'Upload Proof of Address','This can include a recent utility bill, bank statement, or government correspondence (within the last 3 months).','Accepted Formats: PDF, JPG')}
-              {renderFileInput('qualification', 'Upload Academic Qualification','Provide your most relevant academic certificate for this role.','Accepted Formats: PDF, JPG')}
+              {renderFileInput('ID', 'Upload a Valid ID (Passport or UK Driving Licence)*','Upload a scanned copy or a clear photo of a valid government-issued ID.','Accepted Formats: PDF, JPG, PNG')}
+              {renderFileInput('cv', 'CV*','Attach your most recent CV detailing your experience and qualifications','Accepted Formats: PDF, DOC, DOCX')}
+              {renderFileInput('proofOfAddress', 'Upload Proof of Address*','This can include a recent utility bill, bank statement, or government correspondence (within the last 3 months).','Accepted Formats: PDF, JPG')}
+              {renderFileInput('qualification', 'Upload Academic Qualification*','Provide your most relevant academic certificate for this role.','Accepted Formats: PDF, JPG')}
               {renderFileInput('reference', 'Upload Reference Letters (if available)','Optional but encouraged. Upload reference letters from your listed referees.','Accepted Formats: PDF, DOC')}
               {renderFileInput('shareCode', 'Provide Your UK Right to Work Share Code','If you are not a British citizen, enter your Home Office-issued share code for employment verification.', 'Example: J9E-4K2-17A')}
             </div>

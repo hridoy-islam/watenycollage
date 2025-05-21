@@ -243,7 +243,7 @@ export function PersonalDetailsStep({
                     name="title"
                     render={({ field }) => (
                       <FormItem className="z-[1002]">
-                        <FormLabel>Title</FormLabel>
+                        <FormLabel>Title*</FormLabel>
                         <Controller
                           name="title"
                           control={form.control}
@@ -280,7 +280,7 @@ export function PersonalDetailsStep({
                     name="firstName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>First Name</FormLabel>
+                        <FormLabel>First Name*</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
@@ -320,7 +320,7 @@ export function PersonalDetailsStep({
                     name="lastName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Last Name</FormLabel>
+                        <FormLabel>Last Name*</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
@@ -347,7 +347,7 @@ export function PersonalDetailsStep({
 
                       return (
                         <FormItem className="mt-2 flex w-full flex-col">
-                          <FormLabel>Date of Birth (MM/DD/YYYY)</FormLabel>
+                          <FormLabel>Date of Birth (MM/DD/YYYY)*</FormLabel>
                           <FormControl className="w-full">
                             <CustomDatePicker
                               selected={selectedDate}
@@ -370,7 +370,7 @@ export function PersonalDetailsStep({
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Email</FormLabel>
+                        <FormLabel>Email*</FormLabel>
                         <FormControl>
                           <Input
                             type="email"
@@ -393,7 +393,7 @@ export function PersonalDetailsStep({
                     name="phone"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Phone Number</FormLabel>
+                        <FormLabel>Phone Number*</FormLabel>
                         <FormControl>
                           <Input
                             type="tel"
@@ -422,7 +422,7 @@ export function PersonalDetailsStep({
                             <Input
                               {...field}
                               placeholder="UK applicants only. Format: Two letters, six numbers, and a final letter"
-                              className="!placeholder:text-black  placeholder:text-[12px] placeholder:text-black"
+                              className="!placeholder:text-gray-400  placeholder:text-[12px] placeholder:text-gray-400"
                             />
                           </FormControl>
                           <p className="text-xs  text-gray-400">
@@ -441,7 +441,7 @@ export function PersonalDetailsStep({
                         name="nationality"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Nationality</FormLabel>
+                            <FormLabel>Nationality*</FormLabel>
                             <Controller
                               name="nationality"
                               control={form.control}
@@ -489,7 +489,7 @@ export function PersonalDetailsStep({
                         name="countryOfResidence"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Country of Residence</FormLabel>
+                            <FormLabel>Country of Residence*</FormLabel>
                             <Controller
                               name="countryOfResidence"
                               control={form.control}
@@ -614,7 +614,7 @@ export function PersonalDetailsStep({
                       name="postalAddress.line1"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Address Line 1</FormLabel>
+                          <FormLabel>Address Line 1*</FormLabel>
                           <FormControl>
                             <Input
                               {...field}
@@ -658,7 +658,7 @@ export function PersonalDetailsStep({
                       name="postalAddress.city"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>City</FormLabel>
+                          <FormLabel>City*</FormLabel>
                           <FormControl>
                             <Input
                               {...field}
@@ -680,7 +680,7 @@ export function PersonalDetailsStep({
                       name="postalAddress.postCode"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Postal Code</FormLabel>
+                          <FormLabel>Postal Code*</FormLabel>
                           <FormControl>
                             <Input
                               {...field}
@@ -702,7 +702,7 @@ export function PersonalDetailsStep({
                       name="postalAddress.country"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Country</FormLabel>
+                          <FormLabel>Country*</FormLabel>
                           <Controller
                             name="postalAddress.country"
                             control={form.control}

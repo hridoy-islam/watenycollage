@@ -277,10 +277,10 @@ export function EducationStep({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Qualifications</TableHead>
-                    <TableHead>Full/Part-Time</TableHead>
+                    <TableHead>Qualifications*</TableHead>
+                    <TableHead>Full/Part-Time*</TableHead>
                     <TableHead className="min-w-[300px]">
-                      Name of the Institution
+                      Name of the Institution*
                     </TableHead>
                     <TableHead>Date of Award</TableHead>
                     <TableHead className="w-[80px]">Actions</TableHead>

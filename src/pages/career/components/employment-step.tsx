@@ -26,39 +26,109 @@ import 'react-datepicker/dist/react-datepicker.css';
 import Select from 'react-select';
 
 // Zod Schema for Employment Form
-const employmentSchema = z.object({
-  isEmployed: z.string(),
-  hasPreviousEmployment: z.string(),
-  currentEmployment: z
-    .object({
-      employer: z.string().optional(),
-      jobTitle: z.string().optional(),
-      startDate: z.date().optional(),
-      // endDate: z.date().optional(),
-      // currentlyEmployed: z.boolean().default(true),
-      employmentType: z.string().optional(),
-      responsibilities: z.string().optional(),
-      supervisor: z.string().optional(),
-      contactPermission: z.string().optional()
-    })
-    .optional(),
-  previousEmployments: z
-    .array(
-      z.object({
-        employer: z.string(),
-        jobTitle: z.string(),
-        startDate: z.date(),
-        endDate: z.date(),
-        reasonForLeaving: z.string(),
-        responsibilities: z.string(),
-        contactPermission: z.string()
+const employmentSchema = z
+  .object({
+    isEmployed: z.string(),
+    hasPreviousEmployment: z.string(),
+    currentEmployment: z
+      .object({
+        employer: z.string().optional(),
+        jobTitle: z.string().optional(),
+        startDate: z.date().nullable().optional(),
+        employmentType: z.string().optional(),
+        responsibilities: z.string().optional(),
+        supervisor: z.string().optional(),
+        contactPermission: z.string().optional()
       })
-    )
-    .optional(),
-  hasEmploymentGaps: z.string().optional(),
-  employmentGapsExplanation: z.string().optional(),
-  declaration: z.literal(true)
-});
+      .optional(),
+    previousEmployments: z
+      .array(
+        z.object({
+          employer: z.string({ message: 'Employer is required.' }),
+          jobTitle: z.string({ message: 'Job title is required.' }),
+          startDate: z.date().nullable().optional(),
+          endDate: z.date().nullable().optional(),
+          reasonForLeaving: z.string(),
+          responsibilities: z.string(),
+          contactPermission: z.string()
+        })
+      )
+      .optional(),
+    hasEmploymentGaps: z.string().optional(),
+    employmentGapsExplanation: z.string().optional(),
+    declaration: z.literal(true)
+  })
+ .superRefine((data, ctx) => {
+    // Validate current employment if employed
+    if (data.isEmployed === 'yes') {
+      const current = data.currentEmployment;
+
+      if (!current) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Current employment details are required.',
+          path: ['currentEmployment']
+        });
+        return;
+      }
+
+      const requiredFields: Array<keyof typeof current> = [
+        'employer',
+        'jobTitle',
+        'startDate',
+        'employmentType',
+        'supervisor',
+        'contactPermission'
+      ];
+
+      requiredFields.forEach((field) => {
+        if (!current[field]) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `${field.charAt(0).toUpperCase() + field.slice(1)} is required.`,
+            path: ['currentEmployment', field]
+          });
+        }
+      });
+    }
+
+    // Validate previous employment if applicable
+    if (data.hasPreviousEmployment === 'yes') {
+      if (!data.previousEmployments?.length) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'At least one previous employment entry is required.',
+          path: ['previousEmployments']
+        });
+        return;
+      }
+
+      data.previousEmployments.forEach((job, index) => {
+        const requiredFields: Array<keyof typeof job> = [
+          'employer',
+          'jobTitle',
+          'startDate',
+          'endDate',
+          'reasonForLeaving',
+          'contactPermission'
+        ];
+
+        requiredFields.forEach((field) => {
+          if (
+            (typeof job[field] === 'string' && !job[field]?.trim()) ||
+            (field === 'startDate' || field === 'endDate') &&
+              !(job[field] instanceof Date)
+          ) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: `${field.charAt(0).toUpperCase() + field.slice(1)} is required.`,
+              path: ['previousEmployments', index, field]
+            });
+          }
+        });
+      });
+    }
+  });
 
 type EmploymentData = z.infer<typeof employmentSchema>;
 
@@ -160,7 +230,7 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
               </CardHeader>
               <CardContent className="space-y-6">
                 <FormItem className="max-w-md">
-                  <FormLabel>Are you currently employed?</FormLabel>
+                  <FormLabel>Are you currently employed?*</FormLabel>
 
                   <Controller
                     control={form.control}
@@ -205,7 +275,7 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
                           control={form.control}
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Employer Name</FormLabel>
+                              <FormLabel>Employer Name*</FormLabel>
                               <FormControl>
                                 <Input
                                   {...field}
@@ -227,7 +297,7 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
                           control={form.control}
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Job Position</FormLabel>
+                              <FormLabel>Job Position*</FormLabel>
                               <FormControl>
                                 <Input
                                   {...field}
@@ -336,7 +406,7 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
                         /> */}
                         {/* Employment Type */}
                         <FormItem>
-                          <FormLabel>Employment Type</FormLabel>
+                          <FormLabel>Employment Type*</FormLabel>
 
                           <Controller
                             name="currentEmployment.employmentType"
@@ -394,12 +464,12 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
                           control={form.control}
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Supervisor Name & Contact</FormLabel>
+                              <FormLabel>Supervisor Name & Contact*</FormLabel>
                               <FormControl>
                                 <Textarea
                                   {...field}
                                   placeholder="Supervisor Details"
-                                  className="!placeholder:text-gray-400   placeholder:text-xs  placeholder:text-gray-400 border-gray-300"
+                                  className="!placeholder:text-gray-400   border-gray-300  placeholder:text-xs placeholder:text-gray-400"
                                 />
                               </FormControl>
                               <p className="mt-1 text-xs text-gray-400">
@@ -411,7 +481,7 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
 
                         {/* May we contact this employer? */}
                         <FormItem>
-                          <FormLabel>Permission to Contact</FormLabel>
+                          <FormLabel>Permission to Contact*</FormLabel>
 
                           <Controller
                             name="currentEmployment.contactPermission"
@@ -446,7 +516,7 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                     <FormItem className="mt-4">
                       <FormLabel>
-                        Do you have previous employment history?
+                        Do you have previous employment history?*
                       </FormLabel>
 
                       <Controller
@@ -497,7 +567,7 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
                               control={form.control}
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>Employer Name</FormLabel>
+                                  <FormLabel>Employer Name*</FormLabel>
                                   <FormControl>
                                     <Input
                                       {...field}
@@ -518,7 +588,7 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
                               control={form.control}
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>Job position</FormLabel>
+                                  <FormLabel>Job position*</FormLabel>
                                   <FormControl>
                                     <Input {...field} placeholder="Position" />
                                   </FormControl>
@@ -542,7 +612,7 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
                                 return (
                                   <FormItem>
                                     <FormLabel>
-                                      Start Date (MM/DD/YYYY)
+                                      Start Date (MM/DD/YYYY)*
                                     </FormLabel>
                                     <FormControl>
                                       <CustomDatePicker
@@ -573,7 +643,7 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
 
                                 return (
                                   <FormItem>
-                                    <FormLabel>End Date (MM/DD/YYYY)</FormLabel>
+                                    <FormLabel>End Date (MM/DD/YYYY)*</FormLabel>
                                     <FormControl>
                                       <CustomDatePicker
                                         selected={selectedDate}
@@ -597,7 +667,7 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
                               control={form.control}
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>Reason for Leaving</FormLabel>
+                                  <FormLabel>Reason for Leaving*</FormLabel>
                                   <FormControl>
                                     <Input
                                       {...field}
@@ -614,7 +684,7 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
                             {/* Can We Contact? */}
                             <FormItem>
                               <FormLabel>
-                                Can we contact this employer?
+                                Can we contact this employer?*
                               </FormLabel>
 
                               <Controller
@@ -689,11 +759,11 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
                     </div>
                   )}
 
-                  {(fields.length > 0 || watchIsEmployed === 'yes') && (
+                  {form.watch('hasPreviousEmployment') === 'yes' && (
                     <>
                       <FormItem className="max-w-md">
                         <FormLabel>
-                          Any gaps of more than 1 month in the last 5 years?
+                          Any gaps of more than 1 month in the last 5 years?*
                         </FormLabel>
 
                         <Controller

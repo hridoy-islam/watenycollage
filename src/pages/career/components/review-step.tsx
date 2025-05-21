@@ -289,7 +289,7 @@ export function ReviewStep({ formData, onSubmit, onBack }: ReviewStepProps) {
                 <FormItem className="flex items-center gap-4">
                   <FormLabel className="mr-2">
                     Do you declare that all uploaded documents and information
-                    are correct and authentic?
+                    are correct and authentic?*
                   </FormLabel>
                   <FormControl>
                     <div className="flex items-center">
@@ -321,7 +321,7 @@ export function ReviewStep({ formData, onSubmit, onBack }: ReviewStepProps) {
                 <FormItem className="flex items-center gap-4">
                   <FormLabel className="mr-2">
                     Do you give permission for us to contact your referees on
-                    your behalf?
+                    your behalf?*
                   </FormLabel>
                   <FormControl>
                     <div className="flex items-center">
@@ -353,7 +353,7 @@ export function ReviewStep({ formData, onSubmit, onBack }: ReviewStepProps) {
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
                     <FormLabel className="mr-2">
                       Do you have any unspent criminal convictions? (as defined
-                      under the Rehabilitation of Offenders Act 1974)
+                      under the Rehabilitation of Offenders Act 1974)*
                     </FormLabel>
 
                     <FormControl>
@@ -415,7 +415,7 @@ export function ReviewStep({ formData, onSubmit, onBack }: ReviewStepProps) {
                 <FormItem className="flex items-center gap-4">
                   <FormLabel className="mr-2">
                     Have you previously applied for a role with this
-                    organisation?
+                    organisation?*
                   </FormLabel>
                   <FormControl>
                     <div className="flex items-center">
