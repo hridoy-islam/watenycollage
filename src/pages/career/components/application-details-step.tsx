@@ -1,7 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import {
@@ -20,13 +20,7 @@ import {
   FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
+
 import type { TCareer } from '@/types/career';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useState } from 'react';
@@ -34,6 +28,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { CustomDatePicker } from '@/components/shared/CustomDatePicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import Select from 'react-select';
 
 const daysOfWeek = [
   'monday',
@@ -120,6 +116,19 @@ export function ApplicationDetailsStep({
     }
   });
 
+  const options = [
+    { value: 'website', label: 'Company Website' },
+    { value: 'referral', label: 'Referral' },
+    { value: 'linkedin', label: 'LinkedIn' },
+    { value: 'indeed', label: 'Indeed' },
+    { value: 'other', label: 'Other' }
+  ];
+
+  const yesNoOptions = [
+    { value: true, label: 'Yes' },
+    { value: false, label: 'No' }
+  ];
+
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
       const file = event.target.files[0];
@@ -143,7 +152,7 @@ export function ApplicationDetailsStep({
   }
 
   return (
-    <Card className="border-0 shadow-none">
+    <Card className="border-0 shadow-none ">
       <CardHeader>
         <CardTitle>Application Details</CardTitle>
         <CardDescription>
@@ -165,11 +174,11 @@ export function ApplicationDetailsStep({
                     <FormControl>
                       <Input
                         {...field}
-                        className="!placeholder:text-black   placeholder:text-xs  placeholder:text-black "
+                        className="!placeholder:text-gray-400 placeholder:text-xs placeholder:text-gray-400 "
                         placeholder="Enter the job title or role you're applying for"
                       />
                     </FormControl>
-                    {/* <p className="text-xs  text-gray-800">
+                    {/* <p className="text-xs  text-gray-400">
                       Example: Support Worker, Front-End Developer, Care
                       Assistant
                     </p> */}
@@ -197,7 +206,7 @@ export function ApplicationDetailsStep({
                           placeholder="The date you’re submitting this application."
                         />
                       </FormControl>
-                      {/* <p className="text-xs  text-gray-800">
+                      {/* <p className="text-xs  text-gray-400">
                         Example: 01/15/2025
                       </p> */}
 
@@ -225,7 +234,7 @@ export function ApplicationDetailsStep({
                           placeholder="When would you be available to start this role?"
                         />
                       </FormControl>
-                      <p className="text-xs  text-gray-800">
+                      <p className="text-xs  text-gray-400">
                         Example: 01/06/2025
                       </p>
 
@@ -241,25 +250,28 @@ export function ApplicationDetailsStep({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>How did you hear about us?</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Let us know how you found out about this opportunity." />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="website">Company Website</SelectItem>
-                        <SelectItem value="referral">Referral</SelectItem>
-                        <SelectItem value="linkedin">LinkedIn</SelectItem>
-                        <SelectItem value="indeed">Indeed</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
 
-                    <p className="text-xs  text-gray-800">
+                    <Controller
+                      control={form.control}
+                      name="source"
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          options={options}
+                          placeholder="Let us know how you found out about this opportunity."
+                          onChange={(selected) =>
+                            field.onChange(selected?.value)
+                          }
+                          value={options.find(
+                            (option) => option.value === field.value
+                          )}
+                          isClearable
+                          className="text-sm"
+                        />
+                      )}
+                    />
+
+                    <p className="text-xs text-gray-400">
                       Example: Job board, referral, social media, company
                       website, other
                     </p>
@@ -280,7 +292,7 @@ export function ApplicationDetailsStep({
                     <FormControl>
                       <Input {...field} placeholder="Enter the employee name" />
                     </FormControl>
-                    <p className="text-xs  text-gray-800">
+                    <p className="text-xs  text-gray-400">
                       Example: Emma Watson
                     </p>
 
@@ -356,7 +368,7 @@ export function ApplicationDetailsStep({
                       Select All
                     </Button>
                   </div>
-                  <p className="pb-2 text-xs text-gray-800">
+                  <p className="pb-2 text-xs text-gray-400">
                     Select all the days you are available to work.
                   </p>
 
@@ -395,72 +407,63 @@ export function ApplicationDetailsStep({
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {/* Student Status */}
-              <FormField
-                control={form.control}
-                name="isStudent"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Are you currently a student?</FormLabel>
-                    <Select
-                      onValueChange={(value) => field.onChange(value === 'yes')}
-                      value={
-                        field.value === true
-                          ? 'yes'
-                          : field.value === false
-                            ? 'no'
-                            : ''
-                      }
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder=" Select Yes if you are currently enrolled in any educational institution." />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="yes">Yes</SelectItem>
-                        <SelectItem value="no">No</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <p className="text-xs  text-gray-800">Example: Yes / No</p>
+              <FormItem>
+                <FormLabel>Are you currently a student?</FormLabel>
 
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <Controller
+                  name="isStudent"
+                  control={form.control}
+                  render={({ field }) => (
+                    <Select
+                      options={yesNoOptions}
+                      placeholder="Select Yes if you are currently enrolled in any educational institution."
+                      isClearable
+                      value={
+                        yesNoOptions.find((opt) => opt.value === field.value) ||
+                        null
+                      }
+                      onChange={(option) =>
+                        field.onChange(option ? option.value : null)
+                      }
+                      className="text-sm"
+                    />
+                  )}
+                />
+
+                <p className="text-xs text-gray-400">Example: Yes / No</p>
+
+                <FormMessage />
+              </FormItem>
 
               {/* Under State Pension Age */}
-              <FormField
-                control={form.control}
-                name="isUnderStatePensionAge"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Are you under state pension age?</FormLabel>
-                    <Select
-                      onValueChange={(value) => field.onChange(value === 'yes')}
-                      value={
-                        field.value === true
-                          ? 'yes'
-                          : field.value === false
-                            ? 'no'
-                            : ''
-                      }
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Indicate whether you are below the UK state pension age." />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="yes">Yes</SelectItem>
-                        <SelectItem value="no">No</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <p className="text-xs  text-gray-800">Example: Yes / No</p>
+              <FormItem>
+                <FormLabel>Are you under state pension age?</FormLabel>
 
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <Controller
+                  name="isUnderStatePensionAge"
+                  control={form.control}
+                  render={({ field }) => (
+                    <Select
+                      options={yesNoOptions}
+                      placeholder="Indicate whether you are below the UK state pension age."
+                      isClearable
+                      value={
+                        yesNoOptions.find(
+                          (option) => option.value === field.value
+                        ) || null
+                      }
+                      onChange={(option) =>
+                        field.onChange(option ? option.value : null)
+                      }
+                      className="text-sm"
+                    />
+                  )}
+                />
+
+                <p className="text-xs text-gray-400">Example: Yes / No</p>
+
+                <FormMessage />
+              </FormItem>
             </div>
             {/* 
             <FormField
@@ -524,7 +527,10 @@ export function ApplicationDetailsStep({
                   <FormLabel>
                     Upload Working Time Regulation (WTR) Document
                   </FormLabel>
-                <p className='text-xs text-gray-800'>If you have a WTR agreement or related document, upload it here.</p>
+                  <p className="text-xs text-gray-400">
+                    If you have a WTR agreement or related document, upload it
+                    here.
+                  </p>
                   <FormControl>
                     <div className="flex flex-col items-start space-y-2">
                       <Input type="file" onChange={handleFileChange} />
@@ -535,7 +541,9 @@ export function ApplicationDetailsStep({
                       )}
                     </div>
                   </FormControl>
-                  <p className="text-xs  text-gray-800">Accepted Formats: PDF, DOC, DOCX (Max size: 5MB)</p>
+                  <p className="text-xs  text-gray-400">
+                    Accepted Formats: PDF, DOC, DOCX (Max size: 5MB)
+                  </p>
 
                   <FormMessage />
                 </FormItem>

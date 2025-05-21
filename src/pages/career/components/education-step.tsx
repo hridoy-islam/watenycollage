@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, useFieldArray, useWatch } from 'react-hook-form';
+import { useForm, useFieldArray, useWatch, Controller } from 'react-hook-form';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import {
@@ -19,13 +19,7 @@ import {
   FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
+
 import {
   Table,
   TableBody,
@@ -38,6 +32,8 @@ import moment from 'moment';
 import { FileUpload } from './file-upload';
 import 'react-datepicker/dist/react-datepicker.css';
 import { CustomDatePicker } from '@/components/shared/CustomDatePicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import Select from 'react-select';
 
 const educationEntrySchema = z.object({
   institution: z.string().min(1, { message: 'Institution name is required' }),
@@ -228,8 +224,22 @@ export function EducationStep({
     control: form.control,
     name: 'educationData'
   });
+
+  const studyTypeOptions = [
+    { value: 'full-time', label: 'Full-time' },
+    { value: 'part-time', label: 'Part-time' },
+    { value: 'distance', label: 'Distance' }
+  ];
+
+  const englishTestTypeOptions = [
+    { value: 'ielts', label: 'IELTS' },
+    { value: 'toefl', label: 'TOEFL' },
+    { value: 'pte', label: 'PTE Academic' },
+    { value: 'other', label: 'Other' }
+  ];
+
   return (
-    <Card className="py-5 border-none shadow-none">
+    <Card className="border-none py-5 shadow-none ">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <CardHeader>
@@ -268,9 +278,11 @@ export function EducationStep({
                 <TableHeader>
                   <TableRow>
                     <TableHead>Qualifications</TableHead>
-                    <TableHead className="w-[250px]">Full/Part-Time</TableHead>
-                    <TableHead>Name of the Institution</TableHead>
-                    <TableHead className="w-[150px]">Date of Award</TableHead>
+                    <TableHead>Full/Part-Time</TableHead>
+                    <TableHead className="min-w-[300px]">
+                      Name of the Institution
+                    </TableHead>
+                    <TableHead>Date of Award</TableHead>
                     <TableHead className="w-[80px]">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -287,12 +299,12 @@ export function EducationStep({
                                 <Input
                                   {...field}
                                   value={field.value || ''}
-                                  className="!placeholder:text-black   placeholder:text-xs  placeholder:text-black "
+                                  className="!placeholder:text-gray-400   placeholder:text-xs  placeholder:text-gray-400"
                                   placeholder="Enter the name of the qualification"
                                 />
                               </FormControl>
-                              <p className="text-xs  text-gray-800">
-                                Master of Business Administration (MBA)
+                              <p className="text-xs  text-gray-400">
+                                Example: Master of Business Administration (MBA)
                               </p>
                               <FormMessage />
                             </FormItem>
@@ -300,43 +312,46 @@ export function EducationStep({
                         />
                       </TableCell>
                       <TableCell>
-                        <FormField
-                          control={form.control}
-                          name={`educationData.${index}.studyType`}
-                          render={({ field }) => (
-                            <FormItem>
+                        <FormItem className="z-[1000]">
+                          <Controller
+                            control={form.control}
+                            name={`educationData.${index}.studyType`}
+                            render={({ field }) => (
                               <Select
-                                onValueChange={field.onChange}
-                                value={field.value || ''}
-                              >
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue
-                                      placeholder="Specify if it was full-time or part-time study."
-                                      className="!placeholder:text-black   placeholder:text-[12px]  placeholder:text-black "
-                                    />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="full-time">
-                                    Full-time
-                                  </SelectItem>
-                                  <SelectItem value="part-time">
-                                    Part-time
-                                  </SelectItem>
-                                  <SelectItem value="distance">
-                                    Distance
-                                  </SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <p className="text-xs  text-gray-800">
-                                Options: Full-Time / Part-Time
-                              </p>
+                                options={studyTypeOptions}
+                                placeholder="Specify if it was full-time or part-time study."
+                                isClearable
+                                value={
+                                  studyTypeOptions.find(
+                                    (option) => option.value === field.value
+                                  ) || null
+                                }
+                                onChange={(option) =>
+                                  field.onChange(option ? option.value : '')
+                                }
+                                className="z-[1000] text-sm"
+                                styles={{
+                                  menuPortal: (base) => ({
+                                    ...base,
+                                    zIndex: 9999
+                                  }),
+                                  control: (base) => ({
+                                    ...base,
+                                    minHeight: 30,
+                                    fontSize: '14px'
+                                  })
+                                }}
+                                menuPortalTarget={document.body}
+                              />
+                            )}
+                          />
 
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                          <p className="text-xs text-gray-400">
+                            Options: Full-Time / Part-Time / Distance
+                          </p>
+
+                          <FormMessage />
+                        </FormItem>
                       </TableCell>
                       <TableCell>
                         <FormField
@@ -348,12 +363,12 @@ export function EducationStep({
                                 <Input
                                   {...field}
                                   value={field.value || ''}
-                                  className="!placeholder:text-black   placeholder:text-xs  placeholder:text-black "
+                                  className="!placeholder:text-gray-400   placeholder:text-xs  placeholder:text-gray-400"
                                   placeholder="Provide the full name of the university, college"
                                 />
                               </FormControl>
-                              <p className="text-xs  text-gray-800">
-                                University of Manchester
+                              <p className="text-xs  text-gray-400">
+                                Example: University of Manchester
                               </p>
                               <FormMessage />
                             </FormItem>
@@ -377,8 +392,8 @@ export function EducationStep({
                                     onChange={(date) => field.onChange(date)}
                                   />
                                 </FormControl>
-                                <p className="text-xs  text-gray-800">
-                                  01/16/2022{' '}
+                                <p className="text-xs  text-gray-400">
+                                  Example: 01/16/2022{' '}
                                 </p>
                                 <FormMessage />
                               </FormItem>
@@ -409,32 +424,41 @@ export function EducationStep({
                   English Language Qualification
                 </h3>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-                  <FormField
-                    control={form.control}
-                    name="englishQualification.englishTestType"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>English Test Type</FormLabel>
+                  <FormItem>
+                    <FormLabel>English Test Type</FormLabel>
+
+                    <Controller
+                      control={form.control}
+                      name="englishQualification.englishTestType"
+                      render={({ field }) => (
                         <Select
-                          onValueChange={field.onChange}
-                          value={field.value || ''}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select test type" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="ielts">IELTS</SelectItem>
-                            <SelectItem value="toefl">TOEFL</SelectItem>
-                            <SelectItem value="pte">PTE Academic</SelectItem>
-                            <SelectItem value="other">Other</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                          options={englishTestTypeOptions}
+                          placeholder="Select test type"
+                          isClearable
+                          value={
+                            englishTestTypeOptions.find(
+                              (option) => option.value === field.value
+                            ) || null
+                          }
+                          onChange={(option) =>
+                            field.onChange(option ? option.value : '')
+                          }
+                          className="text-sm"
+                          styles={{
+                            menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+                            control: (base) => ({
+                              ...base,
+                              minHeight: 30,
+                              fontSize: '14px'
+                            })
+                          }}
+                          menuPortalTarget={document.body}
+                        />
+                      )}
+                    />
+
+                    <FormMessage />
+                  </FormItem>
                   <FormField
                     control={form.control}
                     name="englishQualification.englishTestScore"

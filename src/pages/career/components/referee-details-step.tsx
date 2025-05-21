@@ -39,7 +39,7 @@ const refereeSchema = z
     relationship: z.string({
       required_error: 'Relationship is required'
     }),
-    otherRelationship: z.string().optional(),
+    // otherRelationship: z.string().optional(),
     email: z.string().email('Invalid email address'),
     phone: z.string().min(1, 'Phone number is required')
   })
@@ -82,7 +82,7 @@ export function RefereeDetailsStep({
         organisation: value.referees?.[0]?.organisation || '',
         address: value.referees?.[0]?.address || '',
         relationship: (value.referees?.[0]?.relationship as any) || '',
-        otherRelationship: value.referees?.[0]?.otherRelationship || '',
+        // otherRelationship: value.referees?.[0]?.otherRelationship || '',
         email: value.referees?.[0]?.email || '',
         phone: value.referees?.[0]?.phone || ''
       },
@@ -91,7 +91,7 @@ export function RefereeDetailsStep({
         organisation: value.referees?.[1]?.organisation || '',
         address: value.referees?.[1]?.address || '',
         relationship: (value.referees?.[1]?.relationship as any) || '',
-        otherRelationship: value.referees?.[1]?.otherRelationship || '',
+        // otherRelationship: value.referees?.[1]?.otherRelationship || '',
         email: value.referees?.[1]?.email || '',
         phone: value.referees?.[1]?.phone || ''
       }
@@ -121,10 +121,10 @@ export function RefereeDetailsStep({
                 <Input
                   {...field}
                   placeholder="Enter the full name of the referee."
-                  className='!placeholder:text-black   placeholder:text-xs  placeholder:text-black'
+                  className="!placeholder:text-gray-400   placeholder:text-xs  placeholder:text-gray-400"
                 />
               </FormControl>
-              <p className="mt-2 text-xs text-gray-800">
+              <p className="mt-2 text-xs text-gray-400">
                 Example: Sarah Johnson
               </p>
               <FormMessage />
@@ -141,11 +141,10 @@ export function RefereeDetailsStep({
                 <Input
                   {...field}
                   placeholder=" Enter the name of the organization your referee is associated with."
-                                    className='!placeholder:text-black   placeholder:text-xs  placeholder:text-black'
-
+                  className="!placeholder:text-gray-400   placeholder:text-xs  placeholder:text-gray-400"
                 />
               </FormControl>
-              <p className="mt-2 text-xs text-gray-800">
+              <p className="mt-2 text-xs text-gray-400">
                 ABC Health Services Ltd.
               </p>
               <FormMessage />
@@ -162,11 +161,10 @@ export function RefereeDetailsStep({
                 <Input
                   {...field}
                   placeholder="Provide the company or business address."
-                                    className='!placeholder:text-black   placeholder:text-xs  placeholder:text-black'
-
+                  className="!placeholder:text-gray-400   placeholder:text-xs  placeholder:text-gray-400"
                 />
               </FormControl>
-              <p className="mt-2 text-xs text-gray-800">
+              <p className="mt-2 text-xs text-gray-400">
                 Example: 123 High Street, London, W1A 1AA
               </p>
               <FormMessage />
@@ -183,16 +181,18 @@ export function RefereeDetailsStep({
                 <Input
                   {...field}
                   placeholder="Kindly indicate your relationship with the person mentioned."
-                                    className='!placeholder:text-black   placeholder:text-xs  placeholder:text-black'
-
+                  className="!placeholder:text-gray-400   placeholder:text-xs  placeholder:text-gray-400"
                 />
               </FormControl>
+              <p className="mt-2 text-xs text-gray-400">
+                  Example: Line Manager at XYZ Ltd.
+                </p>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        {form.watch(`${refKey}.relationship`) === 'Other' && (
+        {/* {form.watch(`${refKey}.relationship`) === 'Other' && (
           <FormField
             control={form.control}
             name={`${refKey}.otherRelationship`}
@@ -203,18 +203,17 @@ export function RefereeDetailsStep({
                   <Textarea
                     {...field}
                     placeholder="Describe your professional relationship with the referee"
-                                      className='!placeholder:text-black   placeholder:text-xs  placeholder:text-black'
-
+                    className="!placeholder:text-gray-400   placeholder:text-xs  placeholder:text-gray-400"
                   />
                 </FormControl>
-                <p className="mt-2 text-xs text-gray-800">
+                <p className="mt-2 text-xs text-gray-400">
                   Example: Line Manager at XYZ Ltd.
                 </p>
                 <FormMessage />
               </FormItem>
             )}
           />
-        )}
+        )} */}
 
         <FormField
           control={form.control}
@@ -227,11 +226,10 @@ export function RefereeDetailsStep({
                   {...field}
                   type="email"
                   placeholder="Provide a valid work or professional email."
-                                    className='!placeholder:text-black   placeholder:text-xs  placeholder:text-black'
-
+                  className="!placeholder:text-gray-400   placeholder:text-xs  placeholder:text-gray-400"
                 />
               </FormControl>
-              <p className="mt-2 text-xs text-gray-800">
+              <p className="mt-2 text-xs text-gray-400">
                 Example: s.johnson@abcservices.com
               </p>
               <FormMessage />
@@ -245,10 +243,13 @@ export function RefereeDetailsStep({
             <FormItem>
               <FormLabel>Referee Phone Number</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="+Include the country code."                   className='!placeholder:text-black   placeholder:text-xs  placeholder:text-black'
- />
+                <Input
+                  {...field}
+                  placeholder="+Include the country code."
+                  className="!placeholder:text-gray-400   placeholder:text-xs  placeholder:text-gray-400"
+                />
               </FormControl>
-              <p className="mt-2 text-xs text-gray-800">
+              <p className="mt-2 text-xs text-gray-400">
                 Example: +44 7911 123456
               </p>
               <FormMessage />
@@ -260,7 +261,7 @@ export function RefereeDetailsStep({
   );
 
   return (
-    <Card className='border-none shadow-none'>
+    <Card className="border-none  shadow-none">
       <CardHeader>
         <h2 className="text-xl font-semibold">Referee Details</h2>
         <p className="text-sm text-muted-foreground">

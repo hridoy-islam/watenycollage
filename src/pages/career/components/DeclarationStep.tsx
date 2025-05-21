@@ -114,8 +114,8 @@ export function DeclarationStep({
               disabled={rest.disabled}
             />
           </FormControl>
-          <p className="mt-2 text-xs text-gray-800">{helperText}</p>
-          <p className="mt-2 text-xs text-gray-800">{helperText2}</p>
+          <p className="mt-2 text-xs text-gray-400">{helperText}{'   '} {helperText2}</p>
+          {/* <p className="mt-2 text-xs text-gray-400">{helperText2}</p> */}
 
           <FormMessage />
         </FormItem>
@@ -124,7 +124,7 @@ export function DeclarationStep({
   );
 
   return (
-    <Card className='border-none shadow-none'>
+    <Card className='border-none shadow-none '>
       <CardHeader>
         <h2 className="text-xl font-semibold">Documents</h2>
         <p className="text-sm text-muted-foreground">

@@ -211,8 +211,8 @@ export function PersonalDetailsStep({
     value: country.toLowerCase().replace(/\s/g, '-')
   }));
   const yesNoOptions = [
-    { value: true, label: 'Yes' },
-    { value: false, label: 'No' }
+    { value: true, label: 'British citizen' },
+    { value: false, label: 'Hold settled or pre-settled status, have indefinite leave to remain, or are you on a visa' }
   ];
 
   const nationalityOptions = nationalities.map((nationality) => ({
@@ -221,7 +221,7 @@ export function PersonalDetailsStep({
   }));
 
   return (
-    <Card className="border-none shadow-none">
+    <Card className="border-none shadow-none ">
       <CardHeader>
         <CardTitle>Personal Information</CardTitle>
 
@@ -261,13 +261,13 @@ export function PersonalDetailsStep({
                                 placeholder: (provided) => ({
                                   ...provided,
                                   fontSize: '0.75rem',
-                                  color: '#00000'
+                                  color: '#9CA3AF'
                                 })
                               }}
                             />
                           )}
                         />
-                        <p className="text-xs  text-gray-800">
+                        <p className="text-xs  text-gray-400">
                           Example: Mr., Ms., Mrs., Dr., etc
                         </p>
                         <FormMessage />
@@ -285,10 +285,10 @@ export function PersonalDetailsStep({
                           <Input
                             {...field}
                             placeholder="Enter your first name"
-                            className="!placeholder:text-black  placeholder:text-xs placeholder:text-black"
+                            className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
                           />
                         </FormControl>
-                        <p className="text-xs  text-gray-800">Example: Emma</p>
+                        <p className="text-xs  text-gray-500">Example: Emma</p>
 
                         <FormMessage />
                       </FormItem>
@@ -304,11 +304,11 @@ export function PersonalDetailsStep({
                         <FormControl>
                           <Input
                             {...field}
-                            placeholder="Enter the first letter of your middle name, if applicable."
-                            className="!placeholder:text-black  placeholder:text-xs placeholder:text-black"
+                            placeholder="Enter the  your middle name, if applicable."
+                            className="!placeholder:text-gray-400 placeholder:text-xs placeholder:text-gray-400"
                           />
                         </FormControl>
-                        <p className="text-xs  text-gray-800">Example: J</p>
+                        <p className="text-xs  text-gray-400">Example: J</p>
 
                         <FormMessage />
                       </FormItem>
@@ -325,10 +325,10 @@ export function PersonalDetailsStep({
                           <Input
                             {...field}
                             placeholder="Enter your family name/surname"
-                            className="!placeholder:text-black  placeholder:text-xs placeholder:text-black"
+                            className="!placeholder:text-gray-400 placeholder:text-xs placeholder:text-gray-400"
                           />
                         </FormControl>
-                        <p className="text-xs  text-gray-800">
+                        <p className="text-xs  text-gray-400">
                           Example: Williams
                         </p>
 
@@ -355,7 +355,7 @@ export function PersonalDetailsStep({
                               placeholder="Use your official birth date"
                             />
                           </FormControl>
-                          <p className="text-xs  text-gray-800">
+                          <p className="text-xs  text-gray-400">
                             Example: MM/DD/YYYY or 01/24/1995
                           </p>
 
@@ -376,10 +376,10 @@ export function PersonalDetailsStep({
                             type="email"
                             {...field}
                             placeholder="Enter a valid email address you check regularly"
-                            className="!placeholder:text-black   placeholder:text-xs  placeholder:text-black "
+                            className="!placeholder:text-gray-400   placeholder:text-xs  placeholder:text-gray-400 "
                           />
                         </FormControl>
-                        <p className="text-xs  text-gray-800">
+                        <p className="text-xs  text-gray-400">
                           Example: emma.williams@email.com
                         </p>
 
@@ -399,10 +399,10 @@ export function PersonalDetailsStep({
                             type="tel"
                             {...field}
                             placeholder="Include country code if applying from outside the UK"
-                            className="!placeholder:text-black  placeholder:text-xs placeholder:text-black"
+                            className="!placeholder:text-gray-400 placeholder:text-xs placeholder:text-gray-400"
                           />
                         </FormControl>
-                        <p className="text-xs  text-gray-800">
+                        <p className="text-xs  text-gray-400">
                           Example: +44 7123 456789*
                         </p>
 
@@ -425,7 +425,7 @@ export function PersonalDetailsStep({
                               className="!placeholder:text-black  placeholder:text-[12px] placeholder:text-black"
                             />
                           </FormControl>
-                          <p className="text-xs  text-gray-800">
+                          <p className="text-xs  text-gray-400">
                             Example: QQ 12 34 56 C
                           </p>
 
@@ -471,13 +471,13 @@ export function PersonalDetailsStep({
                                     placeholder: (base) => ({
                                       ...base,
                                       fontSize: '0.75rem',
-                                      color: '#000000'
+                                      color: '#9CA3AF'
                                     })
                                   }}
                                 />
                               )}
                             />
-                            <p className="text-xs text-gray-800">
+                            <p className="text-xs text-gray-400">
                               Choose a nationality (e.g., American)
                             </p>
                             <FormMessage />
@@ -519,13 +519,13 @@ export function PersonalDetailsStep({
                                     placeholder: (base) => ({
                                       ...base,
                                       fontSize: '0.75rem',
-                                      color: '#000000'
+                                      color: '#9CA3AF'
                                     })
                                   }}
                                 />
                               )}
                             />
-                            <p className="text-xs text-gray-800">
+                            <p className="text-xs text-gray-400">
                               Example: Select country (e.g., America)
                             </p>
                             <FormMessage />
@@ -541,12 +541,7 @@ export function PersonalDetailsStep({
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>
-                            Do you currently hold, or have you ever held,
-                            British citizenship or any form of British
-                            nationality, such as British Overseas Citizen,
-                            British Dependent or Overseas Territories Citizen,
-                            British National (Overseas), British Protected
-                            Person, or British Subject?
+                            What is your current immigration status in the UK? For example, are you a British citizen, hold settled or pre-settled status, have indefinite leave to remain, or are you on a visa?
                           </FormLabel>
                           <Controller
                             name="isBritishCitizen"
@@ -563,20 +558,20 @@ export function PersonalDetailsStep({
                                   }
                                   className="react-select-container "
                                   classNamePrefix="react-select"
-                                  placeholder="This includes types such as British Overseas Citizen, British National (Overseas), British Subject, etc."
+                                  placeholder="Select your immigration status"
                                   styles={{
                                     placeholder: (provided) => ({
                                       ...provided,
                                       fontSize: '0.75rem',
-                                      color: '#00000'
+                                      color: '#9CA3AF'
                                     })
                                   }}
                                 />
                               </div>
                             )}
                           />
-                          <p className="text-xs  text-gray-800">
-                            Example: Select Yes / No
+                          <p className="text-xs  text-gray-400">
+                            Example: British citizen
                           </p>
 
                           <FormMessage />
@@ -597,10 +592,10 @@ export function PersonalDetailsStep({
                               <Input
                                 {...field}
                                 placeholder="Enter the 6-character code shared with you"
-                                className="!placeholder:text-black  placeholder:text-xs placeholder:text-black"
+                                className="!placeholder:text-gray-400 placeholder:text-xs placeholder:text-gray-400"
                               />
                             </FormControl>
-                            <p className="text-xs  text-gray-800">
+                            <p className="text-xs  text-gray-400">
                               Example: 5J7K9Q
                             </p>
 
@@ -624,10 +619,10 @@ export function PersonalDetailsStep({
                             <Input
                               {...field}
                               placeholder="Enter the primary address (e.g., house number, street name)"
-                              className="!placeholder:text-black  placeholder:text-xs placeholder:text-black"
+                              className="!placeholder:text-gray-400 placeholder:text-xs placeholder:text-gray-400"
                             />
                           </FormControl>
-                          <p className="text-xs  text-gray-800">
+                          <p className="text-xs  text-gray-400">
                             Example: 12B Parkview Road
                           </p>
 
@@ -646,10 +641,10 @@ export function PersonalDetailsStep({
                             <Input
                               {...field}
                               placeholder="Optional additional address info (e.g., apartment, unit)."
-                              className="!placeholder:text-black  placeholder:text-xs placeholder:text-black"
+                              className="!placeholder:text-gray-400 placeholder:text-xs placeholder:text-gray-400"
                             />
                           </FormControl>
-                          <p className="text-xs  text-gray-800">
+                          <p className="text-xs  text-gray-400">
                             Example: Flat 3A
                           </p>
 
@@ -668,10 +663,10 @@ export function PersonalDetailsStep({
                             <Input
                               {...field}
                               placeholder=" Enter the name of your town or city"
-                              className="!placeholder:text-black  placeholder:text-xs placeholder:text-black"
+                              className="!placeholder:text-gray-400 placeholder:text-xs placeholder:text-gray-400"
                             />
                           </FormControl>
-                          <p className="text-xs  text-gray-800">
+                          <p className="text-xs  text-gray-400">
                             Example: London
                           </p>
 
@@ -690,10 +685,10 @@ export function PersonalDetailsStep({
                             <Input
                               {...field}
                               placeholder="Enter your area’s postal/ZIP code."
-                              className="!placeholder:text-black  placeholder:text-xs placeholder:text-black"
+                              className="!placeholder:text-gray-400 placeholder:text-xs placeholder:text-gray-400"
                             />
                           </FormControl>
-                          <p className="text-xs  text-gray-800">
+                          <p className="text-xs  text-gray-400">
                             Example: SW1A 1AA
                           </p>
 
@@ -725,13 +720,13 @@ export function PersonalDetailsStep({
                                   placeholder: (provided) => ({
                                     ...provided,
                                     fontSize: '0.75rem',
-                                    color: '#00000'
+                                    color: '#9CA3AF'
                                   })
                                 }}
                               />
                             )}
                           />
-                          <p className="text-xs  text-gray-800">
+                          <p className="text-xs  text-gray-400">
                             Example: London
                           </p>
 
