@@ -48,8 +48,7 @@ const CareerResumeUpload: React.FC = () => {
     <div className="flex min-h-[calc(100vh-150px)] items-center justify-center">
       <div className="w-[500px] space-y-6 rounded-2xl bg-white p-6 shadow-md">
         <h2 className="text-md text-start font-medium text-gray-800">
-          Upload your resume to help us autofill your application details
-          quickly and accurately.
+         Upload your resume to fill in your application details quickly and accurately automatically.
         </h2>
 
         {!resume ? (

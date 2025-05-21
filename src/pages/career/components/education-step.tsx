@@ -236,30 +236,32 @@ export function EducationStep({
             <CardTitle>Academic Qualification</CardTitle>
             <CardDescription>
               Please provide your highest level of academic qualification. This
-              information is mandatory and will be used to assess your
-              educational background.
+              information is mandatory and will help us assess your educational
+              background. You may add more than one qualification if applicable.
             </CardDescription>
           </CardHeader>
           <CardContent className="scroll mt-2 p-0 px-6">
-            {fields.length === 0 ? (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={addEducationEntry}
-                className="mb-6  bg-watney text-white hover:bg-watney/90"
-              >
-                Add Qualification
-              </Button>
-            ) : (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={addEducationEntry}
-                className="mb-6 bg-watney text-white hover:bg-watney/90"
-              >
-                Add More Qualification
-              </Button>
-            )}
+            <div className=" -mt-8">
+              {fields.length === 0 ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={addEducationEntry}
+                  className="mb-4  bg-watney text-white hover:bg-watney/90"
+                >
+                  Add Qualification
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={addEducationEntry}
+                  className="mb-4 bg-watney text-white hover:bg-watney/90"
+                >
+                  Add More Qualification
+                </Button>
+              )}
+            </div>
 
             {fields.length > 0 && (
               <Table>
@@ -285,9 +287,12 @@ export function EducationStep({
                                 <Input
                                   {...field}
                                   value={field.value || ''}
-                                  placeholder="Enter your qualification"
+                                  placeholder="Enter the name of the qualification"
                                 />
                               </FormControl>
+                              <p className="text-xs  text-gray-400">
+                                Master of Business Administration (MBA)
+                              </p>
                               <FormMessage />
                             </FormItem>
                           )}
@@ -305,7 +310,7 @@ export function EducationStep({
                               >
                                 <FormControl>
                                   <SelectTrigger>
-                                    <SelectValue placeholder="Select type" />
+                                    <SelectValue placeholder="Specify if it was full-time or part-time study." />
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
@@ -320,6 +325,10 @@ export function EducationStep({
                                   </SelectItem>
                                 </SelectContent>
                               </Select>
+                              <p className="text-xs  text-gray-400">
+                                Options: Full-Time / Part-Time
+                              </p>
+
                               <FormMessage />
                             </FormItem>
                           )}
@@ -332,8 +341,15 @@ export function EducationStep({
                           render={({ field }) => (
                             <FormItem>
                               <FormControl>
-                                <Input {...field} value={field.value || ''} />
+                                <Input
+                                  {...field}
+                                  value={field.value || ''}
+                                  placeholder="Provide the full name of the university, college, or school"
+                                />
                               </FormControl>
+                              <p className="text-xs  text-gray-400">
+                                University of Manchester
+                              </p>
                               <FormMessage />
                             </FormItem>
                           )}
@@ -354,9 +370,11 @@ export function EducationStep({
                                   <CustomDatePicker
                                     selected={selectedDate}
                                     onChange={(date) => field.onChange(date)}
-                                     className="w-full" 
                                   />
                                 </FormControl>
+                                <p className="text-xs  text-gray-400">
+                                  06/2022{' '}
+                                </p>
                                 <FormMessage />
                               </FormItem>
                             );

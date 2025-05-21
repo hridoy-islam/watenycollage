@@ -36,7 +36,7 @@ const refereeSchema = z
     name: z.string().min(1, 'Name is required'),
     organisation: z.string().min(1, 'Organisation is required'),
     address: z.string().min(1, 'Address is required'),
-    relationship: z.string( {
+    relationship: z.string({
       required_error: 'Relationship is required'
     }),
     otherRelationship: z.string().optional(),
@@ -109,7 +109,7 @@ export function RefereeDetailsStep({
     title: string
   ) => (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold">{title}</h3>
+      <h3 className="text-lg font-semibold">{title}*</h3>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <FormField
           control={form.control}
@@ -118,8 +118,14 @@ export function RefereeDetailsStep({
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="Full name" />
+                <Input
+                  {...field}
+                  placeholder="Enter the full name of the referee."
+                />
               </FormControl>
+              <p className="mt-2 text-xs text-gray-400">
+                Example: Sarah Johnson
+              </p>
               <FormMessage />
             </FormItem>
           )}
@@ -129,10 +135,16 @@ export function RefereeDetailsStep({
           name={`${refKey}.organisation`}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Organisation</FormLabel>
+              <FormLabel>Company Name</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="Company name" />
+                <Input
+                  {...field}
+                  placeholder=" Enter the name of the organization your referee is associated with."
+                />
               </FormControl>
+              <p className="mt-2 text-xs text-gray-400">
+                ABC Health Services Ltd.
+              </p>
               <FormMessage />
             </FormItem>
           )}
@@ -142,10 +154,16 @@ export function RefereeDetailsStep({
           name={`${refKey}.address`}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Address</FormLabel>
+              <FormLabel>Street Address</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="Street address" />
+                <Input
+                  {...field}
+                  placeholder="Provide the company or business address."
+                />
               </FormControl>
+              <p className="mt-2 text-xs text-gray-400">
+                Example: 123 High Street, London, W1A 1AA
+              </p>
               <FormMessage />
             </FormItem>
           )}
@@ -155,9 +173,12 @@ export function RefereeDetailsStep({
           name={`${refKey}.relationship`}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Relationship</FormLabel>
+              <FormLabel>Relationship to Referee</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="Kindly indicate your relationship with the person mentioned." />
+                <Input
+                  {...field}
+                  placeholder="Kindly indicate your relationship with the person mentioned."
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -172,8 +193,14 @@ export function RefereeDetailsStep({
               <FormItem>
                 <FormLabel>Specify Relationship</FormLabel>
                 <FormControl>
-                  <Textarea {...field} placeholder="e.g. Team Lead" />
+                  <Textarea
+                    {...field}
+                    placeholder="Describe your professional relationship with the referee"
+                  />
                 </FormControl>
+                <p className="mt-2 text-xs text-gray-400">
+                  Example: Line Manager at XYZ Ltd.
+                </p>
                 <FormMessage />
               </FormItem>
             )}
@@ -185,14 +212,17 @@ export function RefereeDetailsStep({
           name={`${refKey}.email`}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>Referee Email Address</FormLabel>
               <FormControl>
                 <Input
                   {...field}
                   type="email"
-                  placeholder="example@domain.com"
+                  placeholder="Provide a valid work or professional email."
                 />
               </FormControl>
+              <p className="mt-2 text-xs text-gray-400">
+                Example: s.johnson@abcservices.com
+              </p>
               <FormMessage />
             </FormItem>
           )}
@@ -202,10 +232,13 @@ export function RefereeDetailsStep({
           name={`${refKey}.phone`}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Phone</FormLabel>
+              <FormLabel>Referee Phone Number</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="+1234567890" />
+                <Input {...field} placeholder="+Include the country code." />
               </FormControl>
+              <p className="mt-2 text-xs text-gray-400">
+                Example: +44 7911 123456
+              </p>
               <FormMessage />
             </FormItem>
           )}
@@ -219,7 +252,10 @@ export function RefereeDetailsStep({
       <CardHeader>
         <h2 className="text-xl font-semibold">Referee Details</h2>
         <p className="text-sm text-muted-foreground">
-          Please provide two referees from your previous employment.
+          Please provide details for two referees from your previous employment.
+          Referees should be individuals who can speak to your professional
+          experience, such as former supervisors or managers. We may contact
+          them as part of the recruitment process.
         </p>
       </CardHeader>
       <CardContent>

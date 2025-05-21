@@ -112,10 +112,10 @@ export function ApplicationDetailsStep({
         saturday: false,
         sunday: false
       },
-      isStudent: value.isStudent || false,
+      isStudent: value.isStudent || '',
       // isBritishCitizen: value.isBritishCitizen || false,
       referralEmployee: value.referralEmployee || '',
-      isUnderStatePensionAge: value.isUnderStatePensionAge || false,
+      isUnderStatePensionAge: value.isUnderStatePensionAge || '',
       wtrDocumentUrl: value.wtrDocumentUrl || undefined
     }
   });
@@ -143,11 +143,13 @@ export function ApplicationDetailsStep({
   }
 
   return (
-    <Card>
+    <Card className="border-0 shadow-none">
       <CardHeader>
         <CardTitle>Application Details</CardTitle>
         <CardDescription>
-          Please provide details about the position you're applying for.
+          Please provide specific details about the position you're applying
+          for. This information helps us better understand your suitability and
+          availability.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -161,8 +163,17 @@ export function ApplicationDetailsStep({
                   <FormItem>
                     <FormLabel>Position you applied for</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="Job position" />
+                      <Input
+                        {...field}
+                        className="placeholder:text-xs"
+                        placeholder="Enter the job title or role you're applying for"
+                      />
                     </FormControl>
+                    <p className="text-xs  text-gray-400">
+                      Example: Support Worker, Front-End Developer, Care
+                      Assistant
+                    </p>
+
                     <FormMessage />
                   </FormItem>
                 )}
@@ -183,8 +194,13 @@ export function ApplicationDetailsStep({
                         <CustomDatePicker
                           selected={selectedDate}
                           onChange={(date) => field.onChange(date)}
+                          placeholder="The date you’re submitting this application."
                         />
                       </FormControl>
+                      <p className="text-xs  text-gray-400">
+                        Example: 21/05/2025
+                      </p>
+
                       <FormMessage />
                     </FormItem>
                   );
@@ -200,14 +216,19 @@ export function ApplicationDetailsStep({
                     : null;
 
                   return (
-                    <FormItem className="mt-2 flex flex-col w-full">
+                    <FormItem className="mt-2 flex w-full flex-col">
                       <FormLabel>Available From Date</FormLabel>
                       <FormControl>
                         <CustomDatePicker
                           selected={selectedDate}
                           onChange={(date) => field.onChange(date)}
+                          placeholder="When would you be available to start this role?"
                         />
                       </FormControl>
+                      <p className="text-xs  text-gray-400">
+                        Example: 01/06/2025
+                      </p>
+
                       <FormMessage />
                     </FormItem>
                   );
@@ -218,7 +239,7 @@ export function ApplicationDetailsStep({
                 control={form.control}
                 name="source"
                 render={({ field }) => (
-                  <FormItem >
+                  <FormItem>
                     <FormLabel>How did you hear about us?</FormLabel>
                     <Select
                       onValueChange={field.onChange}
@@ -226,7 +247,7 @@ export function ApplicationDetailsStep({
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="How did you hear about us?" />
+                          <SelectValue placeholder="Let us know how you found out about this opportunity." />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -237,6 +258,12 @@ export function ApplicationDetailsStep({
                         <SelectItem value="other">Other</SelectItem>
                       </SelectContent>
                     </Select>
+
+                    <p className="text-xs  text-gray-400">
+                      Example: Job board, referral, social media, company
+                      website, other
+                    </p>
+
                     <FormMessage />
                   </FormItem>
                 )}
@@ -251,8 +278,12 @@ export function ApplicationDetailsStep({
                   <FormItem>
                     <FormLabel>Referred by (Employee Name)</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="Employee name" />
+                      <Input {...field} placeholder="Enter the employee name" />
                     </FormControl>
+                    <p className="text-xs  text-gray-400">
+                      Example: Emma Watson
+                    </p>
+
                     <FormMessage />
                   </FormItem>
                 )}
@@ -325,6 +356,9 @@ export function ApplicationDetailsStep({
                       Select All
                     </Button>
                   </div>
+                  <p className="pb-2 text-xs text-gray-400">
+                    Select all the days you are available to work.
+                  </p>
 
                   {/* Days Checkboxes */}
                   <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -379,7 +413,7 @@ export function ApplicationDetailsStep({
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select an option" />
+                          <SelectValue placeholder=" Select Yes if you are currently enrolled in any educational institution." />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -387,6 +421,8 @@ export function ApplicationDetailsStep({
                         <SelectItem value="no">No</SelectItem>
                       </SelectContent>
                     </Select>
+                    <p className="text-xs  text-gray-400">Example: Yes / No</p>
+
                     <FormMessage />
                   </FormItem>
                 )}
@@ -411,7 +447,7 @@ export function ApplicationDetailsStep({
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select an option" />
+                          <SelectValue placeholder="Indicate whether you are below the UK state pension age." />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -419,6 +455,8 @@ export function ApplicationDetailsStep({
                         <SelectItem value="no">No</SelectItem>
                       </SelectContent>
                     </Select>
+                    <p className="text-xs  text-gray-400">Example: Yes / No</p>
+
                     <FormMessage />
                   </FormItem>
                 )}
@@ -470,7 +508,8 @@ export function ApplicationDetailsStep({
                   <div className="space-y-1 leading-none">
                     <FormLabel>Car Travel Allowance</FormLabel>
                     <p className="text-sm text-muted-foreground">
-                      Check this if you require car travel allowance
+                      Tick this box if you require a car travel allowance for
+                      the role{' '}
                     </p>
                   </div>
                 </FormItem>
@@ -485,6 +524,7 @@ export function ApplicationDetailsStep({
                   <FormLabel>
                     Upload Working Time Regulation (WTR) Document
                   </FormLabel>
+                <p className='text-xs text-gray-400'>If you have a WTR agreement or related document, upload it here.</p>
                   <FormControl>
                     <div className="flex flex-col items-start space-y-2">
                       <Input type="file" onChange={handleFileChange} />
@@ -495,6 +535,8 @@ export function ApplicationDetailsStep({
                       )}
                     </div>
                   </FormControl>
+                  <p className="text-xs  text-gray-400">Accepted Formats: PDF, DOC, DOCX (Max size: 5MB)</p>
+
                   <FormMessage />
                 </FormItem>
               )}

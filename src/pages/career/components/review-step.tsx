@@ -184,7 +184,7 @@ export function ReviewStep({ formData, onSubmit, onBack }: ReviewStepProps) {
             <h3 className="mb-2 text-lg font-medium text-black">
               Previous Employment
             </h3>
-           
+
             {formData.previousEmployments.map((employment, index) => (
               <div
                 key={index}
@@ -258,32 +258,38 @@ export function ReviewStep({ formData, onSubmit, onBack }: ReviewStepProps) {
               <h3 className="text-lg font-medium">Terms and Conditions</h3>
               <div className="max-h-40 overflow-y-auto rounded-md bg-gray-50 p-4 text-sm">
                 <p className="mb-2">
-                  I confirm that the information given on this form is true,
-                  complete and accurate and that none of the information
-                  requested or other material information has been omitted. I
-                  accept that if it is discovered that I have supplied false,
-                  inaccurate or misleading information, the company reserves the
-                  right to cancel my application, withdraw its offer of a
-                  position or terminate my employment and I shall have no claim
-                  against the company in relation thereto.
+                  I confirm that the information provided throughout this
+                  application is true, complete, and accurate to the best of my
+                  knowledge. I understand that withholding material information
+                  or providing false or misleading statements may lead to the
+                  withdrawal of any job offer or termination of employment,
+                  without liability to the organisation.
                 </p>
                 <p className="mb-2">
-                  I understand that the information provided will be used for
-                  recruitment and employment purposes and may be shared with
-                  relevant departments within the organization.
+                  I acknowledge that the information and documents submitted may
+                  be used for recruitment, employment checks, and compliance
+                  purposes, and may be shared with relevant internal departments
+                  in line with the company's privacy policy and UK GDPR
+                  requirements.
                 </p>
               </div>
             </div>
-
-            {/* Declaration Fields */}
+            <div>
+              <h1 className="text-2xl font-semibold">Consent & Permissions</h1>
+              <p className="text-gray-400 ">
+                Please confirm the following by selecting the appropriate
+                responses:
+              </p>
+              {/* Declaration Fields */}
+            </div>
             <FormField
               control={form.control}
               name="declarationCorrectUpload"
               render={({ field }) => (
                 <FormItem className="flex items-center gap-4">
                   <FormLabel className="mr-2">
-                    Are you giving this declaration that what you have uploaded
-                    is correct?
+                    Do you declare that all uploaded documents and information
+                    are correct and authentic?
                   </FormLabel>
                   <FormControl>
                     <div className="flex items-center">
@@ -314,8 +320,8 @@ export function ReviewStep({ formData, onSubmit, onBack }: ReviewStepProps) {
               render={({ field }) => (
                 <FormItem className="flex items-center gap-4">
                   <FormLabel className="mr-2">
-                    Do you give us permission to contact the referee on your
-                    behalf?
+                    Do you give permission for us to contact your referees on
+                    your behalf?
                   </FormLabel>
                   <FormControl>
                     <div className="flex items-center">
@@ -339,33 +345,43 @@ export function ReviewStep({ formData, onSubmit, onBack }: ReviewStepProps) {
                 </FormItem>
               )}
             />
-
             <FormField
               control={form.control}
               name="criminalConviction"
               render={({ field }) => (
-                <FormItem className="flex items-center gap-4">
-                  <FormLabel className="mr-2">
-                    Do you have any criminal conviction?
-                  </FormLabel>
-                  <FormControl>
-                    <div className="flex items-center">
-                      <Checkbox
-                        checked={field.value === true}
-                        onCheckedChange={() => field.onChange(true)}
-                      />
-                      <FormLabel className="ml-2">Yes</FormLabel>
-                    </div>
-                  </FormControl>
-                  <FormControl>
-                    <div className="flex items-center">
-                      <Checkbox
-                        checked={field.value === false}
-                        onCheckedChange={() => field.onChange(false)}
-                      />
-                      <FormLabel className="ml-2">No</FormLabel>
-                    </div>
-                  </FormControl>
+                <FormItem className="py-2">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
+                    <FormLabel className="mr-2">
+                      Do you have any unspent criminal convictions? (as defined
+                      under the Rehabilitation of Offenders Act 1974)
+                    </FormLabel>
+
+                    <FormControl>
+                      <div className="flex items-center">
+                        <Checkbox
+                          checked={field.value === true}
+                          onCheckedChange={() => field.onChange(true)}
+                        />
+                        <FormLabel className="ml-2">Yes</FormLabel>
+                      </div>
+                    </FormControl>
+
+                    <FormControl>
+                      <div className="flex items-center">
+                        <Checkbox
+                          checked={field.value === false}
+                          onCheckedChange={() => field.onChange(false)}
+                        />
+                        <FormLabel className="ml-2">No</FormLabel>
+                      </div>
+                    </FormControl>
+                  </div>
+
+                  <p className="mt-2 text-xs text-gray-400">
+                    If yes, you may be asked to provide further information
+                    later in the process.
+                  </p>
+
                   <FormMessage />
                 </FormItem>
               )}
@@ -398,7 +414,8 @@ export function ReviewStep({ formData, onSubmit, onBack }: ReviewStepProps) {
               render={({ field }) => (
                 <FormItem className="flex items-center gap-4">
                   <FormLabel className="mr-2">
-                    Have you applied here before?
+                    Have you previously applied for a role with this
+                    organisation?
                   </FormLabel>
                   <FormControl>
                     <div className="flex items-center">
@@ -423,6 +440,10 @@ export function ReviewStep({ formData, onSubmit, onBack }: ReviewStepProps) {
               )}
             />
 
+            <div>
+              <h1 className='font-semibold text-2xl mb-2'> Terms and Conditions Agreement</h1>
+              <p className='text-gray-400'>Please tick the boxes to confirm:</p>
+            </div>
             <div className="space-y-4">
               <div className="flex items-center space-x-3 rounded-lg border border-gray-300 p-4 transition-all duration-200 ease-in-out hover:shadow-md">
                 <Checkbox
@@ -434,7 +455,7 @@ export function ReviewStep({ formData, onSubmit, onBack }: ReviewStepProps) {
                   htmlFor="terms"
                   className="text-sm font-medium text-gray-700"
                 >
-                  I accept the terms and conditions of this application process.
+                 I accept the terms and conditions of this application process.
                 </label>
               </div>
 
@@ -450,8 +471,7 @@ export function ReviewStep({ formData, onSubmit, onBack }: ReviewStepProps) {
                   htmlFor="data-processing"
                   className="text-sm font-medium text-gray-700"
                 >
-                  I consent to the processing of my personal data as outlined
-                  above.
+                  I consent to the processing of my personal data in accordance with the UK General Data Protection Regulation (UK GDPR) and the Data Protection Act 2018.
                 </label>
               </div>
             </div>

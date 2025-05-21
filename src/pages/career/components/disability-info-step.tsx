@@ -46,16 +46,17 @@ export function DisabilityInfoStep({
   const form = useForm<DisabilityInfoFormValues>({
     resolver: zodResolver(disabilityInfoSchema),
     defaultValues: {
-  hasDisability:
-    typeof value.hasDisability === 'boolean' ? value.hasDisability : undefined,
-  disabilityDetails: value.disabilityDetails || '',
-  needsReasonableAdjustment:
-    typeof value.needsReasonableAdjustment === 'boolean'
-      ? value.needsReasonableAdjustment
-      : undefined,
-  reasonableAdjustmentDetails: value.reasonableAdjustmentDetails || ''
-}
-
+      hasDisability:
+        typeof value.hasDisability === 'boolean'
+          ? value.hasDisability
+          : undefined,
+      disabilityDetails: value.disabilityDetails || '',
+      needsReasonableAdjustment:
+        typeof value.needsReasonableAdjustment === 'boolean'
+          ? value.needsReasonableAdjustment
+          : undefined,
+      reasonableAdjustmentDetails: value.reasonableAdjustmentDetails || ''
+    }
   });
 
   function onSubmit(data: DisabilityInfoFormValues) {
@@ -67,9 +68,9 @@ export function DisabilityInfoStep({
       <CardHeader>
         <CardTitle>Disability Information</CardTitle>
         <CardDescription>
-          Please provide information about any disabilities or adjustments
-          needed. This information helps us ensure we can provide appropriate
-          support.
+          We are committed to creating an inclusive and supportive environment.
+          The information you provide below helps us offer the appropriate
+          support and make reasonable adjustments where necessary.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -79,26 +80,33 @@ export function DisabilityInfoStep({
               control={form.control}
               name="hasDisability"
               render={({ field }) => (
-                <FormItem className="flex flex-row  items-center space-x-3 space-y-0  py-2">
-                  <FormLabel>Do you have a disability?</FormLabel>
+                <FormItem className="py-2">
+                  <div className="flex flex-row items-center space-x-3 space-y-0">
+                    <FormLabel>Do you have a disability?</FormLabel>
 
-                  <div className="flex space-x-6">
-                    <div className="flex items-center">
-                      <Checkbox
-                        checked={field.value === true}
-                        onCheckedChange={() => field.onChange(true)}
-                      />
-                      <FormLabel className="ml-2">Yes</FormLabel>
-                    </div>
+                    <div className="flex space-x-6">
+                      <div className="flex items-center">
+                        <Checkbox
+                          checked={field.value === true}
+                          onCheckedChange={() => field.onChange(true)}
+                        />
+                        <FormLabel className="ml-2">Yes</FormLabel>
+                      </div>
 
-                    <div className="flex items-center">
-                      <Checkbox
-                        checked={field.value === false}
-                        onCheckedChange={() => field.onChange(false)}
-                      />
-                      <FormLabel className="ml-2">No</FormLabel>
+                      <div className="flex items-center">
+                        <Checkbox
+                          checked={field.value === false}
+                          onCheckedChange={() => field.onChange(false)}
+                        />
+                        <FormLabel className="ml-2">No</FormLabel>
+                      </div>
                     </div>
                   </div>
+
+                  <p className="mt-2 text-xs text-gray-400">
+                    Let us know if you consider yourself to have a disability
+                    under the Equality Act 2010.{' '}
+                  </p>
                 </FormItem>
               )}
             />
@@ -115,10 +123,14 @@ export function DisabilityInfoStep({
                     <FormControl>
                       <Textarea
                         {...field}
-                        placeholder="Please describe your disability and how it affects you"
+                        placeholder="Briefly describe your disability and how it may affect your ability to work or participate."
                         className="min-h-[100px]"
                       />
                     </FormControl>
+                    <p className="mt-2 text-xs text-gray-400">
+                      Example: I have dyslexia, which affects my reading speed
+                      and short-term memory.
+                    </p>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -129,29 +141,36 @@ export function DisabilityInfoStep({
               control={form.control}
               name="needsReasonableAdjustment"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center space-x-3  py-2">
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>
-                      Do you require any reasonable adjustments?
-                    </FormLabel>
-                  </div>
-                  <div className="flex space-x-6">
-                    <div className="flex items-center">
-                      <Checkbox
-                        checked={field.value === true}
-                        onCheckedChange={() => field.onChange(true)}
-                      />
-                      <FormLabel className="ml-2">Yes</FormLabel>
+                <FormItem className="py-2">
+                  <div className="flex flex-row items-center space-x-3">
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>
+                        Do you require any reasonable adjustments?
+                      </FormLabel>
                     </div>
+                    <div className="flex space-x-6">
+                      <div className="flex items-center">
+                        <Checkbox
+                          checked={field.value === true}
+                          onCheckedChange={() => field.onChange(true)}
+                        />
+                        <FormLabel className="ml-2">Yes</FormLabel>
+                      </div>
 
-                    <div className="flex items-center">
-                      <Checkbox
-                        checked={field.value === false}
-                        onCheckedChange={() => field.onChange(false)}
-                      />
-                      <FormLabel className="ml-2">No</FormLabel>
+                      <div className="flex items-center">
+                        <Checkbox
+                          checked={field.value === false}
+                          onCheckedChange={() => field.onChange(false)}
+                        />
+                        <FormLabel className="ml-2">No</FormLabel>
+                      </div>
                     </div>
                   </div>
+
+                  <p className="mt-2 text-xs text-gray-400">
+                    Indicate whether you need any changes or accommodations
+                    during the application or employment process.
+                  </p>
                 </FormItem>
               )}
             />
@@ -168,10 +187,13 @@ export function DisabilityInfoStep({
                     <FormControl>
                       <Textarea
                         {...field}
-                        placeholder="Please describe the adjustments you require"
+                        placeholder="Specify what support or adjustments would help you perform at your best"
                         className="min-h-[100px]"
                       />
                     </FormControl>
+                    <p className="mt-2 text-xs text-gray-400">
+                    Example: I require additional time during written assessments and access to screen-reading software.
+                  </p>
                     <FormMessage />
                   </FormItem>
                 )}

@@ -221,13 +221,13 @@ export function PersonalDetailsStep({
   }));
 
   return (
-    <Card>
+    <Card className="border-none shadow-none">
       <CardHeader>
         <CardTitle>Personal Information</CardTitle>
 
         <CardDescription>
-          Please provide your basic details. This information will be used to
-          personalize your experience.
+          Please provide your basic details. This information helps us tailor
+          your application experience and ensure accurate communication.
         </CardDescription>
       </CardHeader>
 
@@ -237,7 +237,7 @@ export function PersonalDetailsStep({
             {/* Step 1: Basic Information */}
             {currentStep === 1 && (
               <div className="space-y-4">
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 md:grid-cols-4 ">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 md:grid-cols-3 ">
                   <FormField
                     control={form.control}
                     name="title"
@@ -256,10 +256,20 @@ export function PersonalDetailsStep({
                               onChange={(option) => onChange(option?.value)}
                               className="react-select-container"
                               classNamePrefix="react-select"
-                              placeholder="Select title"
+                              placeholder="Select your preferred title"
+                              styles={{
+                                placeholder: (provided) => ({
+                                  ...provided,
+                                  fontSize: '0.75rem',
+                                  color: '#9CA3AF'
+                                })
+                              }}
                             />
                           )}
                         />
+                        <p className="text-xs  text-gray-400">
+                          Example: Mr., Ms., Mrs., Dr., etc
+                        </p>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -272,8 +282,14 @@ export function PersonalDetailsStep({
                       <FormItem>
                         <FormLabel>First Name</FormLabel>
                         <FormControl>
-                          <Input {...field} />
+                          <Input
+                            {...field}
+                            placeholder="Enter your first name"
+                            className="placeholder:text-xs"
+                          />
                         </FormControl>
+                        <p className="text-xs  text-gray-400">Example: Emma</p>
+
                         <FormMessage />
                       </FormItem>
                     )}
@@ -286,8 +302,14 @@ export function PersonalDetailsStep({
                       <FormItem>
                         <FormLabel>Middle Initial (Optional)</FormLabel>
                         <FormControl>
-                          <Input {...field} />
+                          <Input
+                            {...field}
+                            placeholder="Enter the first letter of your middle name, if applicable."
+                            className="placeholder:text-xs"
+                          />
                         </FormControl>
+                        <p className="text-xs  text-gray-400">Example: J</p>
+
                         <FormMessage />
                       </FormItem>
                     )}
@@ -300,8 +322,16 @@ export function PersonalDetailsStep({
                       <FormItem>
                         <FormLabel>Last Name</FormLabel>
                         <FormControl>
-                          <Input {...field} />
+                          <Input
+                            {...field}
+                            placeholder="Enter your family name/surname"
+                            className="placeholder:text-xs"
+                          />
                         </FormControl>
+                        <p className="text-xs  text-gray-400">
+                          Example: Williams
+                        </p>
+
                         <FormMessage />
                       </FormItem>
                     )}
@@ -322,8 +352,13 @@ export function PersonalDetailsStep({
                             <CustomDatePicker
                               selected={selectedDate}
                               onChange={(date) => field.onChange(date)}
+                              placeholder="Use your official birth date"
                             />
                           </FormControl>
+                          <p className="text-xs  text-gray-400">
+                            Example: DD/MM/YYYY or 01/04/1995
+                          </p>
+
                           <FormMessage />
                         </FormItem>
                       );
@@ -337,8 +372,17 @@ export function PersonalDetailsStep({
                       <FormItem>
                         <FormLabel>Email</FormLabel>
                         <FormControl>
-                          <Input type="email" {...field} />
+                          <Input
+                            type="email"
+                            {...field}
+                            placeholder="Enter a valid email address you check regularly"
+                            className="placeholder:text-xs"
+                          />
                         </FormControl>
+                        <p className="text-xs  text-gray-400">
+                          Example: emma.williams@email.com
+                        </p>
+
                         <FormMessage />
                       </FormItem>
                     )}
@@ -351,8 +395,17 @@ export function PersonalDetailsStep({
                       <FormItem>
                         <FormLabel>Phone Number</FormLabel>
                         <FormControl>
-                          <Input type="tel" {...field} />
+                          <Input
+                            type="tel"
+                            {...field}
+                            placeholder="Include country code if applying from outside the UK"
+                            className="placeholder:text-xs"
+                          />
                         </FormControl>
+                        <p className="text-xs  text-gray-400">
+                          Example: +44 7123 456789*
+                        </p>
+
                         <FormMessage />
                       </FormItem>
                     )}
@@ -376,10 +429,21 @@ export function PersonalDetailsStep({
                               onChange={(option) => onChange(option?.value)}
                               className="react-select-container"
                               classNamePrefix="react-select"
-                              placeholder="Select nationality"
+                              placeholder="Select your nationality as stated on your passport or legal documents."
+                              styles={{
+                                placeholder: (provided) => ({
+                                  ...provided,
+                                  fontSize: '0.55rem',
+                                  color: '#9CA3AF'
+                                })
+                              }}
                             />
                           )}
                         />
+                        <p className="text-xs  text-gray-400">
+                          Choose a nationality (e.g., American){' '}
+                        </p>
+
                         <FormMessage />
                       </FormItem>
                     )}
@@ -403,10 +467,21 @@ export function PersonalDetailsStep({
                               onChange={(option) => onChange(option?.value)}
                               className="react-select-container"
                               classNamePrefix="react-select"
-                              placeholder="Select country"
+                              placeholder="Choose the country where you currently reside"
+                              styles={{
+                                placeholder: (provided) => ({
+                                  ...provided,
+                                  fontSize: '0.75rem',
+                                  color: '#9CA3AF'
+                                })
+                              }}
                             />
                           )}
                         />
+                        <p className="text-xs  text-gray-400">
+                          Example: Select country (e.g., America)
+                        </p>
+
                         <FormMessage />
                       </FormItem>
                     )}
@@ -420,8 +495,16 @@ export function PersonalDetailsStep({
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>
-                            <Input {...field} placeholder="Enter NI number" />
+                            <Input
+                              {...field}
+                              placeholder="UK applicants only. Format: Two letters, six numbers, and a final letter"
+                              className="placeholder:text-[9px]"
+                            />
                           </FormControl>
+                          <p className="text-xs  text-gray-400">
+                            Example: QQ 12 34 56 C
+                          </p>
+
                           <FormMessage />
                         </FormItem>
                       )}
@@ -445,7 +528,7 @@ export function PersonalDetailsStep({
                             name="isBritishCitizen"
                             control={form.control}
                             render={({ field }) => (
-                              <div className="w-[22vw]">
+                              <div className="w-[60vw]">
                                 <Select
                                   options={yesNoOptions}
                                   value={yesNoOptions.find(
@@ -456,11 +539,22 @@ export function PersonalDetailsStep({
                                   }
                                   className="react-select-container "
                                   classNamePrefix="react-select"
-                                  placeholder="Select..."
+                                  placeholder="This includes types such as British Overseas Citizen, British National (Overseas), British Subject, etc."
+                                  styles={{
+                                    placeholder: (provided) => ({
+                                      ...provided,
+                                      fontSize: '0.75rem',
+                                      color: '#9CA3AF'
+                                    })
+                                  }}
                                 />
                               </div>
                             )}
                           />
+                          <p className="text-xs  text-gray-400">
+                            Example: Select Yes / No
+                          </p>
+
                           <FormMessage />
                         </FormItem>
                       )}
@@ -478,9 +572,14 @@ export function PersonalDetailsStep({
                             <FormControl>
                               <Input
                                 {...field}
-                                placeholder="Enter Share Code"
+                                placeholder="Enter the 6-character code shared with you"
+                                className="placeholder:text-xs"
                               />
                             </FormControl>
+                            <p className="text-xs  text-gray-400">
+                              Example: 5J7K9Q
+                            </p>
+
                             <FormMessage />
                           </FormItem>
                         )}
@@ -498,8 +597,16 @@ export function PersonalDetailsStep({
                         <FormItem>
                           <FormLabel>Address Line 1</FormLabel>
                           <FormControl>
-                            <Input {...field} />
+                            <Input
+                              {...field}
+                              placeholder="Enter the primary address (e.g., house number, street name)"
+                              className="placeholder:text-xs"
+                            />
                           </FormControl>
+                          <p className="text-xs  text-gray-400">
+                            Example: 12B Parkview Road
+                          </p>
+
                           <FormMessage />
                         </FormItem>
                       )}
@@ -512,8 +619,16 @@ export function PersonalDetailsStep({
                         <FormItem>
                           <FormLabel>Address Line 2 (Optional)</FormLabel>
                           <FormControl>
-                            <Input {...field} />
+                            <Input
+                              {...field}
+                              placeholder="Optional additional address info (e.g., apartment, unit)."
+                              className="placeholder:text-xs"
+                            />
                           </FormControl>
+                          <p className="text-xs  text-gray-400">
+                            Example: Flat 3A
+                          </p>
+
                           <FormMessage />
                         </FormItem>
                       )}
@@ -526,8 +641,16 @@ export function PersonalDetailsStep({
                         <FormItem>
                           <FormLabel>City</FormLabel>
                           <FormControl>
-                            <Input {...field} />
+                            <Input
+                              {...field}
+                              placeholder=" Enter the name of your town or city"
+                              className="placeholder:text-xs"
+                            />
                           </FormControl>
+                          <p className="text-xs  text-gray-400">
+                            Example: London
+                          </p>
+
                           <FormMessage />
                         </FormItem>
                       )}
@@ -540,8 +663,16 @@ export function PersonalDetailsStep({
                         <FormItem>
                           <FormLabel>Postal Code</FormLabel>
                           <FormControl>
-                            <Input {...field} />
+                            <Input
+                              {...field}
+                              placeholder="Enter your area’s postal/ZIP code."
+                              className="placeholder:text-xs"
+                            />
                           </FormControl>
+                          <p className="text-xs  text-gray-400">
+                            Example: SW1A 1AA
+                          </p>
+
                           <FormMessage />
                         </FormItem>
                       )}
@@ -565,10 +696,21 @@ export function PersonalDetailsStep({
                                 onChange={(option) => onChange(option?.value)}
                                 className="react-select-container"
                                 classNamePrefix="react-select"
-                                placeholder="Select country"
+                                placeholder="Select the country corresponding to the above address"
+                                styles={{
+                                  placeholder: (provided) => ({
+                                    ...provided,
+                                    fontSize: '0.75rem',
+                                    color: '#9CA3AF'
+                                  })
+                                }}
                               />
                             )}
                           />
+                          <p className="text-xs  text-gray-400">
+                            Example: Select country
+                          </p>
+
                           <FormMessage />
                         </FormItem>
                       )}
