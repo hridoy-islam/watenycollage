@@ -5,15 +5,15 @@ import 'react-datepicker/dist/react-datepicker.css';
 interface CustomDatePickerProps {
   selected: Date | null;
   onChange: (date: Date | null) => void;
-   disabled?: boolean;
-   placeholder?: string;
+  disabled?: boolean;
+  placeholder?: string;
 }
 
 export function CustomDatePicker({
   selected,
   onChange,
-   disabled = false,
-     placeholder = 'Select date',
+  disabled = false,
+  placeholder = 'Select date'
 }: CustomDatePickerProps) {
   const years = Array.from(
     { length: 100 },
@@ -40,7 +40,7 @@ export function CustomDatePicker({
         selected={selected}
         onChange={onChange}
         dateFormat="MM/dd/yyyy"
-         disabled={disabled}
+        disabled={disabled}
         popperClassName="z-[1001]"
         portalId="root-portal"
         className="w-full"
@@ -52,6 +52,10 @@ export function CustomDatePicker({
             placeholder={placeholder}
             value={selected ? format(selected, 'yyyy-MM-dd') : 'Select date'}
             className="w-full cursor-pointer rounded-md border border-gray-300 bg-white px-3 py-2 text-sm"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
           />
         }
         renderCustomHeader={({

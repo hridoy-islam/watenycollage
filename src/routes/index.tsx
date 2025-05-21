@@ -19,6 +19,7 @@ import CareerResumeUpload from '@/pages/career/uploadResume/index';
 import CoursesPage from '@/pages/course';
 import TermPage from '@/pages/term';
 import CourseRegistration from '@/pages/course-register';
+import JobPage from '@/pages/jobs';
 const SignInPage = lazy(() => import('@/pages/auth/signin'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
 
@@ -83,6 +84,11 @@ export default function AppRouter() {
         {
           path: 'terms',
           element: <TermPage />,
+          index: true
+        },
+        {
+          path: 'jobs',
+          element: <JobPage />,
           index: true
         }
       ]
