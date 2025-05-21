@@ -64,7 +64,7 @@ export function DisabilityInfoStep({
   }
 
   return (
-    <Card>
+    <Card className='border-none shadow-none'>
       <CardHeader>
         <CardTitle>Disability Information</CardTitle>
         <CardDescription>

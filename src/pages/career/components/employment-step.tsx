@@ -118,7 +118,7 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
   }, [form.watch('hasPreviousEmployment')]);
 
   return (
-    <Card>
+    <Card className='border-none shadow-none'>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <div className="space-y-8 ">
@@ -514,7 +514,7 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
 
                                 return (
                                   <FormItem>
-                                    <FormLabel>Start Date</FormLabel>
+                                    <FormLabel>Start Date (MM/DD/YYYY)</FormLabel>
                                     <FormControl>
                                       <CustomDatePicker
                                         selected={selectedDate}
@@ -525,7 +525,7 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
                                       />
                                     </FormControl>
                                     <p className="text-xs  text-gray-800">
-                                      Select the date you started this position{' '}
+                                      Select the date you started this position (e.g. 11/01/2000)
                                     </p>
                                   </FormItem>
                                 );
@@ -543,7 +543,7 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
 
                                 return (
                                   <FormItem>
-                                    <FormLabel>End Date</FormLabel>
+                                    <FormLabel>End Date (MM/DD/YYYY)</FormLabel>
                                     <FormControl>
                                       <CustomDatePicker
                                         selected={selectedDate}
@@ -554,7 +554,7 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
                                       />
                                     </FormControl>
                                     <p className="mt-1 text-xs text-gray-800">
-                                      Select the end date{' '}
+                                      Select the end date (e.g. 11/01/2000)
                                     </p>
                                   </FormItem>
                                 );

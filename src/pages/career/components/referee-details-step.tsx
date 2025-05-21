@@ -260,7 +260,7 @@ export function RefereeDetailsStep({
   );
 
   return (
-    <Card>
+    <Card className='border-none shadow-none'>
       <CardHeader>
         <h2 className="text-xl font-semibold">Referee Details</h2>
         <p className="text-sm text-muted-foreground">

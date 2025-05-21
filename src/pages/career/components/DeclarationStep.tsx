@@ -124,7 +124,7 @@ export function DeclarationStep({
   );
 
   return (
-    <Card>
+    <Card className='border-none shadow-none'>
       <CardHeader>
         <h2 className="text-xl font-semibold">Documents</h2>
         <p className="text-sm text-muted-foreground">

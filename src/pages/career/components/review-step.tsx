@@ -251,7 +251,7 @@ export function ReviewStep({ formData, onSubmit, onBack }: ReviewStepProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        <Card>
+        <Card className='border-none shadow-none'>
           <CardHeader />
           <CardContent className="space-y-6">
             <div className="space-y-4">

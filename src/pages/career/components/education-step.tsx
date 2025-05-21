@@ -229,7 +229,7 @@ export function EducationStep({
     name: 'educationData'
   });
   return (
-    <Card className="py-5">
+    <Card className="py-5 border-none shadow-none">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <CardHeader>
