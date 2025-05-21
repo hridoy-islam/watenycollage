@@ -103,7 +103,7 @@ export function DisabilityInfoStep({
                     </div>
                   </div>
 
-                  <p className="mt-2 text-xs text-gray-400">
+                  <p className="mt-2 text-xs text-gray-800">
                     Let us know if you consider yourself to have a disability
                     under the Equality Act 2010.{' '}
                   </p>
@@ -124,10 +124,10 @@ export function DisabilityInfoStep({
                       <Textarea
                         {...field}
                         placeholder="Briefly describe your disability and how it may affect your ability to work or participate."
-                        className="min-h-[100px]"
+                        className="min-h-[100px] !placeholder:text-black   placeholder:text-xs  placeholder:text-black "
                       />
                     </FormControl>
-                    <p className="mt-2 text-xs text-gray-400">
+                    <p className="mt-2 text-xs text-gray-800">
                       Example: I have dyslexia, which affects my reading speed
                       and short-term memory.
                     </p>
@@ -167,7 +167,7 @@ export function DisabilityInfoStep({
                     </div>
                   </div>
 
-                  <p className="mt-2 text-xs text-gray-400">
+                  <p className="mt-2 text-xs text-gray-800">
                     Indicate whether you need any changes or accommodations
                     during the application or employment process.
                   </p>
@@ -188,10 +188,10 @@ export function DisabilityInfoStep({
                       <Textarea
                         {...field}
                         placeholder="Specify what support or adjustments would help you perform at your best"
-                        className="min-h-[100px]"
+                        className="min-h-[100px] !placeholder:text-black   placeholder:text-xs  placeholder:text-black"
                       />
                     </FormControl>
-                    <p className="mt-2 text-xs text-gray-400">
+                    <p className="mt-2 text-xs text-gray-800">
                     Example: I require additional time during written assessments and access to screen-reading software.
                   </p>
                     <FormMessage />

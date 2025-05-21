@@ -38,7 +38,7 @@ const employmentSchema = z.object({
       employer: z.string().optional(),
       jobTitle: z.string().optional(),
       startDate: z.date().optional(),
-      endDate: z.date().optional(),
+      // endDate: z.date().optional(),
       currentlyEmployed: z.boolean().default(true),
       employmentType: z.string().optional(),
       responsibilities: z.string().optional(),
@@ -154,7 +154,7 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
                           <SelectItem value="no">No</SelectItem>
                         </SelectContent>
                       </Select>
-                      <p className="text-xs  text-gray-400">
+                      <p className="text-xs  text-gray-800">
                         Select "Yes" if you are employed at the moment.
                       </p>
                       <FormMessage />
@@ -178,9 +178,10 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
                             <FormItem>
                               <FormLabel>Employer Name</FormLabel>
                               <FormControl>
-                                <Input {...field} placeholder="Company Name" />
+                                <Input {...field} placeholder="Company Name"                             className="!placeholder:text-black   placeholder:text-xs  placeholder:text-black "
+/>
                               </FormControl>
-                              <p className="text-xs  text-gray-400">
+                              <p className="text-xs  text-gray-800">
                                 Enter the name of your current employer (e.g.,
                                 NHS Trust){' '}
                               </p>
@@ -196,9 +197,10 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
                             <FormItem>
                               <FormLabel>Job Position</FormLabel>
                               <FormControl>
-                                <Input {...field} placeholder="Position" />
+                                <Input {...field} placeholder="Position"                             className="!placeholder:text-black   placeholder:text-xs  placeholder:text-black "
+ />
                               </FormControl>
-                              <p className="text-xs  text-gray-400">
+                              <p className="text-xs  text-gray-800">
                                 State your current job title (e.g., Support
                                 Worker)
                               </p>
@@ -217,7 +219,7 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
 
                             return (
                               <FormItem>
-                                <FormLabel>Start Date</FormLabel>
+                                <FormLabel>Start Date (MM/DD/YYYY)</FormLabel>
                                 <FormControl>
                                   <CustomDatePicker
                                     selected={selectedDate}
@@ -225,8 +227,8 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
                                     placeholder="Employment Start Date"
                                   />
                                 </FormControl>
-                                <p className="text-xs  text-gray-400">
-                                  Select the date you started this position{' '}
+                                <p className="text-xs  text-gray-800">
+                                  Select the date you started this position(e.g. 11/01/2000)
                                 </p>
                                 <FormMessage />
                               </FormItem>
@@ -247,18 +249,18 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
                                     onChange={(e) => {
                                       const isChecked = e.target.checked;
                                       field.onChange(isChecked);
-                                      if (isChecked) {
-                                        form.setValue(
-                                          'currentEmployment.endDate',
-                                          undefined
-                                        );
-                                      }
+                                      // if (isChecked) {
+                                      //   form.setValue(
+                                      //     'currentEmployment.endDate',
+                                      //     undefined
+                                      //   );
+                                      // }
                                     }}
                                   />
                                 </FormControl>
                                 <FormLabel>Currently Employed</FormLabel>
                               </div>
-                              <p className="mt-1 text-xs text-gray-400">
+                              <p className="mt-1 text-xs text-gray-800">
                                 Check this box if you're still working here
                               </p>
                             </FormItem>
@@ -266,7 +268,7 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
                         />
 
                         {/* End Date */}
-                        <FormField
+                        {/* <FormField
                           name="currentEmployment.endDate"
                           control={form.control}
                           render={({ field }) => {
@@ -287,7 +289,7 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
                                     placeholder="Employment End Date"
                                   />
                                 </FormControl>
-                                <p className="mt-1 text-xs text-gray-400">
+                                <p className="mt-1 text-xs text-gray-800">
                                   Leave blank if still employed; otherwise,
                                   select the end date{' '}
                                 </p>
@@ -295,7 +297,7 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
                               </FormItem>
                             );
                           }}
-                        />
+                        /> */}
                         {/* Employment Type */}
                         <FormField
                           name="currentEmployment.employmentType"
@@ -332,7 +334,7 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
                                 </SelectContent>
                               </Select>
 
-                              <p className="mt-1 text-xs text-gray-400">
+                              <p className="mt-1 text-xs text-gray-800">
                                 Select from options: Full-Time, Part-Time,
                                 Contract, Freelance
                               </p>
@@ -351,11 +353,11 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
                               <FormControl>
                                 <Textarea
                                   {...field}
-                                  className="min-h-[80px] border border-gray-200"
+                                  className="min-h-[80px] border border-gray-200 !placeholder:text-black   placeholder:text-xs  placeholder:text-black"
                                   placeholder="Job Duties"
                                 />
                               </FormControl>
-                              <p className="mt-1 text-xs text-gray-400">
+                              <p className="mt-1 text-xs text-gray-800">
                                 Briefly describe your key responsibilities{' '}
                               </p>
                             </FormItem>
@@ -373,9 +375,10 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
                                 <Textarea
                                   {...field}
                                   placeholder="Supervisor Details"
+                                  className='!placeholder:text-black   placeholder:text-xs  placeholder:text-black'
                                 />
                               </FormControl>
-                              <p className="mt-1 text-xs text-gray-400">
+                              <p className="mt-1 text-xs text-gray-800">
                                 Provide your supervisor’s name and phone/email{' '}
                               </p>
                             </FormItem>
@@ -404,7 +407,7 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
                                 </SelectContent>
                               </Select>
 
-                              <p className="mt-1 text-xs text-gray-400">
+                              <p className="mt-1 text-xs text-gray-800">
                                 Select whether we may contact this employer for
                                 reference. Options: Yes, No, Contact Me First{' '}
                               </p>
@@ -439,7 +442,7 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
                             </SelectContent>
                           </Select>
 
-                          <p className="mt-1 text-xs text-gray-400">
+                          <p className="mt-1 text-xs text-gray-800">
                             List any previous jobs you've held. Include job
                             title, employer, dates, and responsibilities.
                           </p>
@@ -474,7 +477,7 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
                                       placeholder="Company Name"
                                     />
                                   </FormControl>
-                                  <p className="text-xs  text-gray-400">
+                                  <p className="text-xs  text-gray-800">
                                     Enter the name of your current employer
                                     (e.g., NHS Trust){' '}
                                   </p>
@@ -492,7 +495,7 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
                                   <FormControl>
                                     <Input {...field} placeholder="Position" />
                                   </FormControl>
-                                  <p className="text-xs  text-gray-400">
+                                  <p className="text-xs  text-gray-800">
                                     State your current job title (e.g., Support
                                     Worker)
                                   </p>
@@ -521,7 +524,7 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
                                         placeholder="Employment Start Date"
                                       />
                                     </FormControl>
-                                    <p className="text-xs  text-gray-400">
+                                    <p className="text-xs  text-gray-800">
                                       Select the date you started this position{' '}
                                     </p>
                                   </FormItem>
@@ -550,7 +553,7 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
                                         placeholder="Employment End Date"
                                       />
                                     </FormControl>
-                                    <p className="mt-1 text-xs text-gray-400">
+                                    <p className="mt-1 text-xs text-gray-800">
                                       Select the end date{' '}
                                     </p>
                                   </FormItem>
@@ -568,7 +571,7 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
                                   <FormControl>
                                     <Input {...field}  placeholder="Enter the reason"/>
                                   </FormControl>
-                                   <p className="mt-1 text-xs text-gray-400">
+                                   <p className="mt-1 text-xs text-gray-800">
                                Reason for Leaving the Position
                               </p>
                                 </FormItem>
@@ -598,7 +601,7 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
                                       <SelectItem value="no">No</SelectItem>
                                     </SelectContent>
                                   </Select>
-                                  <p className="mt-1 text-xs text-gray-400">
+                                  <p className="mt-1 text-xs text-gray-800">
                                 Select whether we may contact this employer for
                                 reference. Options: Yes, No, Contact Me First{' '}
                               </p>
@@ -620,7 +623,7 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
                                       placeholder='Job Duties'
                                     />
                                   </FormControl>
-                                  <p className="mt-1 text-xs text-gray-400">
+                                  <p className="mt-1 text-xs text-gray-800">
                                 Briefly describe your key responsibilities{' '}
                               </p>
                                 </FormItem>
@@ -675,7 +678,7 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
                                 <SelectItem value="no">No</SelectItem>
                               </SelectContent>
                             </Select>
-                            <p className="mt-1 text-xs text-gray-400">
+                            <p className="mt-1 text-xs text-gray-800">
                                Have you had any periods of 1 month or more without employment in the past 5 years?
                               </p>
                             <FormMessage />
@@ -698,7 +701,7 @@ export function EmploymentStep({ defaultValues, onBack, onNext, value }: any) {
 '
                                 />
                               </FormControl>
-                              <p className="mt-1 text-xs text-gray-400">
+                              <p className="mt-1 text-xs text-gray-800">
                                Briefly explain the reason for any gaps (e.g., study break, health reasons, relocation)
                               </p>
                               <FormMessage />

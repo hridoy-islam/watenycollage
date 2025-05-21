@@ -60,12 +60,12 @@ export function ProfilePictureStep({ value, onNext }: ProfilePictureStepProps) {
               <img
                 src={male}
                 alt="Example Profile 1"
-                className="h-28 w-28 border-2 border-gray-300 object-cover"
+                className="h-48 w-48 border-2 border-gray-300 object-cover"
               />
               <img
                 src={female}
                 alt="Example Profile 2"
-                className="h-28 w-28 border-2 border-gray-300 object-cover"
+                className="h-48 w-48 border-2 border-gray-300 object-cover"
               />
             </div>
             <p className="max-w-xs text-center text-sm text-muted-foreground">

@@ -255,7 +255,7 @@ export function ReviewStep({ formData, onSubmit, onBack }: ReviewStepProps) {
           <CardHeader />
           <CardContent className="space-y-6">
             <div className="space-y-4">
-              <h3 className="text-lg font-medium">Terms and Conditions</h3>
+              <h3 className="text-2xl font-semibold">Applicant Declaration</h3>
               <div className="max-h-40 overflow-y-auto rounded-md bg-gray-50 p-4 text-sm">
                 <p className="mb-2">
                   I confirm that the information provided throughout this
@@ -276,7 +276,7 @@ export function ReviewStep({ formData, onSubmit, onBack }: ReviewStepProps) {
             </div>
             <div>
               <h1 className="text-2xl font-semibold">Consent & Permissions</h1>
-              <p className="text-gray-400 ">
+              <p className="text-gray-800 ">
                 Please confirm the following by selecting the appropriate
                 responses:
               </p>
@@ -377,7 +377,7 @@ export function ReviewStep({ formData, onSubmit, onBack }: ReviewStepProps) {
                     </FormControl>
                   </div>
 
-                  <p className="mt-2 text-xs text-gray-400">
+                  <p className="mt-2 text-xs text-gray-800">
                     If yes, you may be asked to provide further information
                     later in the process.
                   </p>
@@ -442,7 +442,7 @@ export function ReviewStep({ formData, onSubmit, onBack }: ReviewStepProps) {
 
             <div>
               <h1 className='font-semibold text-2xl mb-2'> Terms and Conditions Agreement</h1>
-              <p className='text-gray-400'>Please tick the boxes to confirm:</p>
+              <p className='text-gray-800'>Please tick the boxes to confirm:</p>
             </div>
             <div className="space-y-4">
               <div className="flex items-center space-x-3 rounded-lg border border-gray-300 p-4 transition-all duration-200 ease-in-out hover:shadow-md">

@@ -114,8 +114,8 @@ export function DeclarationStep({
               disabled={rest.disabled}
             />
           </FormControl>
-          <p className="mt-2 text-xs text-gray-400">{helperText}</p>
-          <p className="mt-2 text-xs text-gray-400">{helperText2}</p>
+          <p className="mt-2 text-xs text-gray-800">{helperText}</p>
+          <p className="mt-2 text-xs text-gray-800">{helperText2}</p>
 
           <FormMessage />
         </FormItem>

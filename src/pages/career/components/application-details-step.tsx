@@ -165,14 +165,14 @@ export function ApplicationDetailsStep({
                     <FormControl>
                       <Input
                         {...field}
-                        className="placeholder:text-xs"
+                        className="!placeholder:text-black   placeholder:text-xs  placeholder:text-black "
                         placeholder="Enter the job title or role you're applying for"
                       />
                     </FormControl>
-                    <p className="text-xs  text-gray-400">
+                    {/* <p className="text-xs  text-gray-800">
                       Example: Support Worker, Front-End Developer, Care
                       Assistant
-                    </p>
+                    </p> */}
 
                     <FormMessage />
                   </FormItem>
@@ -189,7 +189,7 @@ export function ApplicationDetailsStep({
 
                   return (
                     <FormItem className="mt-2 flex flex-col">
-                      <FormLabel>Application Date:</FormLabel>
+                      <FormLabel>Application Date (MM/DD/YYYY)</FormLabel>
                       <FormControl>
                         <CustomDatePicker
                           selected={selectedDate}
@@ -197,9 +197,9 @@ export function ApplicationDetailsStep({
                           placeholder="The date you’re submitting this application."
                         />
                       </FormControl>
-                      <p className="text-xs  text-gray-400">
-                        Example: 21/05/2025
-                      </p>
+                      {/* <p className="text-xs  text-gray-800">
+                        Example: 01/15/2025
+                      </p> */}
 
                       <FormMessage />
                     </FormItem>
@@ -217,7 +217,7 @@ export function ApplicationDetailsStep({
 
                   return (
                     <FormItem className="mt-2 flex w-full flex-col">
-                      <FormLabel>Available From Date</FormLabel>
+                      <FormLabel>Available From Date (MM/DD/YYYY)</FormLabel>
                       <FormControl>
                         <CustomDatePicker
                           selected={selectedDate}
@@ -225,7 +225,7 @@ export function ApplicationDetailsStep({
                           placeholder="When would you be available to start this role?"
                         />
                       </FormControl>
-                      <p className="text-xs  text-gray-400">
+                      <p className="text-xs  text-gray-800">
                         Example: 01/06/2025
                       </p>
 
@@ -259,7 +259,7 @@ export function ApplicationDetailsStep({
                       </SelectContent>
                     </Select>
 
-                    <p className="text-xs  text-gray-400">
+                    <p className="text-xs  text-gray-800">
                       Example: Job board, referral, social media, company
                       website, other
                     </p>
@@ -280,7 +280,7 @@ export function ApplicationDetailsStep({
                     <FormControl>
                       <Input {...field} placeholder="Enter the employee name" />
                     </FormControl>
-                    <p className="text-xs  text-gray-400">
+                    <p className="text-xs  text-gray-800">
                       Example: Emma Watson
                     </p>
 
@@ -356,7 +356,7 @@ export function ApplicationDetailsStep({
                       Select All
                     </Button>
                   </div>
-                  <p className="pb-2 text-xs text-gray-400">
+                  <p className="pb-2 text-xs text-gray-800">
                     Select all the days you are available to work.
                   </p>
 
@@ -421,7 +421,7 @@ export function ApplicationDetailsStep({
                         <SelectItem value="no">No</SelectItem>
                       </SelectContent>
                     </Select>
-                    <p className="text-xs  text-gray-400">Example: Yes / No</p>
+                    <p className="text-xs  text-gray-800">Example: Yes / No</p>
 
                     <FormMessage />
                   </FormItem>
@@ -455,7 +455,7 @@ export function ApplicationDetailsStep({
                         <SelectItem value="no">No</SelectItem>
                       </SelectContent>
                     </Select>
-                    <p className="text-xs  text-gray-400">Example: Yes / No</p>
+                    <p className="text-xs  text-gray-800">Example: Yes / No</p>
 
                     <FormMessage />
                   </FormItem>
@@ -524,7 +524,7 @@ export function ApplicationDetailsStep({
                   <FormLabel>
                     Upload Working Time Regulation (WTR) Document
                   </FormLabel>
-                <p className='text-xs text-gray-400'>If you have a WTR agreement or related document, upload it here.</p>
+                <p className='text-xs text-gray-800'>If you have a WTR agreement or related document, upload it here.</p>
                   <FormControl>
                     <div className="flex flex-col items-start space-y-2">
                       <Input type="file" onChange={handleFileChange} />
@@ -535,7 +535,7 @@ export function ApplicationDetailsStep({
                       )}
                     </div>
                   </FormControl>
-                  <p className="text-xs  text-gray-400">Accepted Formats: PDF, DOC, DOCX (Max size: 5MB)</p>
+                  <p className="text-xs  text-gray-800">Accepted Formats: PDF, DOC, DOCX (Max size: 5MB)</p>
 
                   <FormMessage />
                 </FormItem>

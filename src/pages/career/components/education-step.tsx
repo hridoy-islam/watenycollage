@@ -287,10 +287,11 @@ export function EducationStep({
                                 <Input
                                   {...field}
                                   value={field.value || ''}
+                                  className="!placeholder:text-black   placeholder:text-xs  placeholder:text-black "
                                   placeholder="Enter the name of the qualification"
                                 />
                               </FormControl>
-                              <p className="text-xs  text-gray-400">
+                              <p className="text-xs  text-gray-800">
                                 Master of Business Administration (MBA)
                               </p>
                               <FormMessage />
@@ -310,7 +311,10 @@ export function EducationStep({
                               >
                                 <FormControl>
                                   <SelectTrigger>
-                                    <SelectValue placeholder="Specify if it was full-time or part-time study." />
+                                    <SelectValue
+                                      placeholder="Specify if it was full-time or part-time study."
+                                      className="!placeholder:text-black   placeholder:text-[12px]  placeholder:text-black "
+                                    />
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
@@ -325,7 +329,7 @@ export function EducationStep({
                                   </SelectItem>
                                 </SelectContent>
                               </Select>
-                              <p className="text-xs  text-gray-400">
+                              <p className="text-xs  text-gray-800">
                                 Options: Full-Time / Part-Time
                               </p>
 
@@ -344,10 +348,11 @@ export function EducationStep({
                                 <Input
                                   {...field}
                                   value={field.value || ''}
-                                  placeholder="Provide the full name of the university, college, or school"
+                                  className="!placeholder:text-black   placeholder:text-xs  placeholder:text-black "
+                                  placeholder="Provide the full name of the university, college"
                                 />
                               </FormControl>
-                              <p className="text-xs  text-gray-400">
+                              <p className="text-xs  text-gray-800">
                                 University of Manchester
                               </p>
                               <FormMessage />
@@ -372,8 +377,8 @@ export function EducationStep({
                                     onChange={(date) => field.onChange(date)}
                                   />
                                 </FormControl>
-                                <p className="text-xs  text-gray-400">
-                                  06/2022{' '}
+                                <p className="text-xs  text-gray-800">
+                                  01/16/2022{' '}
                                 </p>
                                 <FormMessage />
                               </FormItem>
