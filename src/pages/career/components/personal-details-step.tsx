@@ -304,7 +304,7 @@ export function PersonalDetailsStep({
                         <FormControl>
                           <Input
                             {...field}
-                            placeholder="Enter the  your middle name, if applicable."
+                            placeholder="Enter your middle name, if applicable."
                             className="!placeholder:text-gray-400 placeholder:text-xs placeholder:text-gray-400"
                           />
                         </FormControl>
