@@ -1,5 +1,12 @@
 import { StatCard } from '@/components/shared/stat-card';
-import { BaggageClaim, Book, Briefcase, Calendar, Plus, RefreshCw } from 'lucide-react';
+import {
+  BaggageClaim,
+  Book,
+  Briefcase,
+  Calendar,
+  Plus,
+  RefreshCw
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 import axiosInstance from '@/lib/axios';
 import { useSelector } from 'react-redux';
@@ -15,8 +22,22 @@ export default function DashboardPage() {
   const [showGuidelines, setShowGuidelines] = useState(false);
 
   const handleRoute = () => {
-    navigate('/dashboard/student-form');
-  };
+  if (user.role === 'student') {
+    navigate('/dashboard/course-application');
+  } else if(user.role === 'applicant'){
+    navigate('/dashboard/job-application');
+  }
+};
+  useEffect(() => {
+    if (user && user.isCompleted === false) {
+      if (user.role === 'student') {
+        navigate('/dashboard/student-form');
+      } else if (user.role === 'applicant') {
+        navigate('/dashboard/career-application');
+      }
+    }
+  }, [user, navigate]);
+
   const fetchData = async () => {
     if (!user) return;
 
@@ -30,7 +51,13 @@ export default function DashboardPage() {
       } else if (user.role === 'student') {
         // Student sees only their applications
         const res = await axiosInstance.get(
-          `/applications?studentId=${user._id}`
+          `/application-course?studentId=${user._id}`
+        );
+        setApplicationCount(res.data.data.meta.total || 0);
+      }else if (user.role === 'applicant') {
+        // Student sees only their applications
+        const res = await axiosInstance.get(
+          `/application-job?applicantId=${user._id}`
         );
         setApplicationCount(res.data.data.meta.total || 0);
       }
@@ -98,73 +125,72 @@ export default function DashboardPage() {
         </div> */}
       </div>
 
-    <div className="space-y-4">
-  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-    {stats.map((stat) => (
-      <div className="h-full w-full">
-        <StatCard
-          key={stat.title}
-          href={stat.href}
-          title={stat.title}
-          value={stat.value}
-        />
-      </div>
-    ))}
+      <div className="space-y-4">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {stats.map((stat) => (
+            <div className="h-full w-full">
+              <StatCard
+                key={stat.title}
+                href={stat.href}
+                title={stat.title}
+                value={stat.value}
+              />
+            </div>
+          ))}
 
-    {/* New Application */}
-    <div
-      className="h-full w-full group flex flex-col items-center justify-center rounded-lg bg-white p-4 text-center shadow-sm hover:bg-watney hover:text-white cursor-pointer"
-      onClick={handleRoute}
-    >
-      <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-600 transition-colors group-hover:bg-white group-hover:text-watney">
-        <Plus className="h-8 w-8" />
-      </div>
-      <h3 className="text-sm font-medium text-gray-600 transition-colors group-hover:text-white">
-        New Application
-      </h3>
-    </div>
+          {/* New Application */}
+          <div
+            className="group flex h-full w-full cursor-pointer flex-col items-center justify-center rounded-lg bg-white p-4 text-center shadow-sm hover:bg-watney hover:text-white"
+            onClick={handleRoute}
+          >
+            <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-600 transition-colors group-hover:bg-white group-hover:text-watney">
+              <Plus className="h-8 w-8" />
+            </div>
+            <h3 className="text-sm font-medium text-gray-600 transition-colors group-hover:text-white">
+              New Application
+            </h3>
+          </div>
 
-    {/* Courses */}
-    <div
-      className="h-full w-full group flex flex-col items-center justify-center rounded-lg bg-white p-4 text-center shadow-sm hover:bg-watney hover:text-white  cursor-pointer"
-      onClick={() => navigate('/dashboard/courses')}
-    >
-      <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-600 transition-colors group-hover:bg-white group-hover:text-watney cursor-pointer">
-        <Book className="h-8 w-8" />
-      </div>
-      <h3 className="text-sm font-medium text-gray-600 transition-colors group-hover:text-white">
-        Courses
-      </h3>
-    </div>
+          {/* Courses */}
+          <div
+            className="group flex h-full w-full cursor-pointer flex-col items-center justify-center rounded-lg bg-white p-4 text-center shadow-sm hover:bg-watney  hover:text-white"
+            onClick={() => navigate('/dashboard/courses')}
+          >
+            <div className="mb-2 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-blue-100 text-blue-600 transition-colors group-hover:bg-white group-hover:text-watney">
+              <Book className="h-8 w-8" />
+            </div>
+            <h3 className="text-sm font-medium text-gray-600 transition-colors group-hover:text-white">
+              Courses
+            </h3>
+          </div>
 
-    {/* Terms */}
-    <div
-      className="h-full w-full group flex flex-col items-center justify-center rounded-lg bg-white p-4 text-center shadow-sm hover:bg-watney hover:text-white cursor-pointer"
-      onClick={() => navigate('/dashboard/terms')}
-    >
-      <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-600 transition-colors group-hover:bg-white group-hover:text-watney ">
-        <Calendar className="h-8 w-8" />
-      </div>
-      <h3 className="text-sm font-medium text-gray-600 transition-colors group-hover:text-white">
-        Terms
-      </h3>
-    </div>
+          {/* Terms */}
+          <div
+            className="group flex h-full w-full cursor-pointer flex-col items-center justify-center rounded-lg bg-white p-4 text-center shadow-sm hover:bg-watney hover:text-white"
+            onClick={() => navigate('/dashboard/terms')}
+          >
+            <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-600 transition-colors group-hover:bg-white group-hover:text-watney ">
+              <Calendar className="h-8 w-8" />
+            </div>
+            <h3 className="text-sm font-medium text-gray-600 transition-colors group-hover:text-white">
+              Terms
+            </h3>
+          </div>
 
-    {/* Jobs */}
-    <div
-      className="cursor-pointer h-full w-full group flex flex-col items-center justify-center rounded-lg bg-white p-4 text-center shadow-sm hover:bg-watney hover:text-white"
-      onClick={() => navigate('/dashboard/jobs')}
-    >
-      <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-600 transition-colors group-hover:bg-white group-hover:text-watney cursor-pointer">
-        <Briefcase className="h-8 w-8" />
+          {/* Jobs */}
+          <div
+            className="group flex h-full w-full cursor-pointer flex-col items-center justify-center rounded-lg bg-white p-4 text-center shadow-sm hover:bg-watney hover:text-white"
+            onClick={() => navigate('/dashboard/jobs')}
+          >
+            <div className="mb-2 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-blue-100 text-blue-600 transition-colors group-hover:bg-white group-hover:text-watney">
+              <Briefcase className="h-8 w-8" />
+            </div>
+            <h3 className="text-sm font-medium text-gray-600 transition-colors group-hover:text-white">
+              Jobs
+            </h3>
+          </div>
+        </div>
       </div>
-      <h3 className="text-sm font-medium text-gray-600 transition-colors group-hover:text-white">
-        Jobs
-      </h3>
-    </div>
-  </div>
-</div>
-
     </div>
   );
 }

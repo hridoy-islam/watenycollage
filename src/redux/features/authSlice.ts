@@ -40,13 +40,15 @@ interface AuthState {
   token: any | null;
   loading: boolean;
   error: any | null;
+  isCompleted?: boolean;
 }
 
 const initialState: AuthState = {
   user: null,
   token: null,
   loading: false,
-  error: null
+  error: null,
+  isCompleted: false
 };
 
 interface RegisterCredentials {
@@ -216,6 +218,9 @@ const authSlice = createSlice({
   reducers: {
     resetError(state) {
       state.error = null; // Reset the error state
+    },
+    updateAuthIsCompleted: (state, action) => {
+      state.user.isCompleted = action.payload;
     }
   },
   extraReducers: (builder) => {
@@ -302,5 +307,5 @@ const authSlice = createSlice({
   }
 });
 
-export const { resetError } = authSlice.actions;
+export const { resetError ,updateAuthIsCompleted} = authSlice.actions;
 export default authSlice.reducer;

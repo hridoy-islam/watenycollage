@@ -35,42 +35,54 @@ import { CustomDatePicker } from '@/components/shared/CustomDatePicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import Select from 'react-select';
 
-const educationEntrySchema = z.object({
-  institution: z.string().min(1, { message: 'Institution name is required' }),
-  studyType: z.string().min(1, { message: 'Please select study type' }),
-  qualification: z
-    .string()
-    .min(1, { message: 'Qualification details are required' }),
-  awardDate: z.date({ required_error: 'Date of award is required' }).nullable(),
-  certificate: z.any().optional(),
-  transcript: z.any().optional()
-});
-
-const englishQualificationSchema = z.object({
-  englishTestType: z.string().optional(),
-  englishTestScore: z.string().optional(),
-  englishTestDate: z.date().nullable().optional(),
-  englishCertificate: z.any().optional()
-});
-
-const createEducationSchema = (studentType) =>
-  z.object({
-    educationData: z
-      .array(educationEntrySchema)
-      .min(1, { message: 'At least one education entry is required' }),
-    ...(studentType === 'international' && {
-      englishQualification: englishQualificationSchema.optional()
-    })
-  });
-
 export function EducationStep({
   defaultValues,
-  value,
-  studentType,
-  onBack,
-  onNext
+  onSaveAndContinue,
+  setCurrentStep
 }) {
-  const educationSchema = createEducationSchema(studentType);
+  const educationEntrySchema = z.object({
+    institution: z.string().min(1, { message: 'Institution name is required' }),
+    grade: z.preprocess(
+      (val) => {
+        // Prevent empty string from being coerced to NaN
+        if (val === '' || val === null || val === undefined) return undefined;
+        return Number(val);
+      },
+      z
+        .number({
+          required_error: 'Grade is required',
+          invalid_type_error: 'Grade must be a valid number'
+        })
+        .min(1, { message: 'Grade must be at least 1' })
+    ),
+
+    qualification: z
+      .string()
+      .min(1, { message: 'Qualification details are required' }),
+    awardDate: z.date({ required_error: 'Date of award is required' }),
+    certificate: z.any().optional(),
+    transcript: z.any().optional()
+  });
+
+  const englishQualificationSchema = z.object({
+    englishTestType: z.string().optional(),
+    englishTestScore: z.string().optional(),
+    englishTestDate: z.date().nullable().optional(),
+    englishCertificate: z.any().optional()
+  });
+
+  const createEducationSchema = (studentType) =>
+    z.object({
+      educationData: z
+        .array(educationEntrySchema)
+        .min(1, { message: 'At least one education entry is required' }),
+      ...(studentType === 'international' && {
+        englishQualification: englishQualificationSchema.optional()
+      })
+    });
+
+  // Transform default values to ensure proper format
+  const educationSchema = createEducationSchema(defaultValues?.studentType);
 
   // Transform default values to ensure proper format
   const transformDefaultValues = (values) => {
@@ -79,19 +91,19 @@ export function EducationStep({
         educationData: [
           {
             institution: '',
-            studyType: '',
+            grade: '',
             qualification: '',
-            awardDate: null,
-            certificate: null,
+            awardDate: undefined,
+            certificate: undefined,
             transcript: null
           }
         ],
-        ...(studentType === 'international'
+        ...(defaultValues?.studentType === 'international'
           ? {
               englishQualification: {
                 englishTestType: '',
                 englishTestScore: '',
-                englishTestDate: null,
+                englishTestDate: undefined,
                 englishCertificate: null
               }
             }
@@ -99,61 +111,39 @@ export function EducationStep({
       };
     }
 
-    // Handle nested structure if present
-    if (values?.educationData) {
-      values = {
-        educationData: values.educationData.educationData,
-        englishQualification: values.educationData.englishQualification
-      };
-    }
-
     return {
       educationData: (values.educationData || []).map((entry) => ({
         institution: entry.institution || '',
-        studyType: entry.studyType || '',
+        grade: entry.grade || '',
         qualification: entry.qualification || '',
-        awardDate: entry.awardDate ? new Date(entry.awardDate) : null,
+        awardDate: entry.awardDate ? new Date(entry.awardDate) : undefined,
         certificate: entry.certificate || null,
         transcript: entry.transcript || null
       })),
-      ...(studentType === 'international' && {
+      ...(defaultValues?.studentType === 'international' && {
         englishQualification: {
           englishTestType: values.englishQualification?.englishTestType || '',
           englishTestScore: values.englishQualification?.englishTestScore || '',
           englishTestDate: values.englishQualification?.englishTestDate
             ? new Date(values.englishQualification.englishTestDate)
-            : null,
+            : undefined,
           englishCertificate:
             values.englishQualification?.englishCertificate || null
         }
       })
     };
   };
-
   const form = useForm({
     resolver: zodResolver(educationSchema),
-    defaultValues: {
-      educationData: (value?.educationData || []).map((entry) => ({
-        institution: entry.institution || '',
-        studyType: entry.studyType || '',
-        qualification: entry.qualification || '',
-        awardDate: entry.awardDate ? new Date(entry.awardDate) : null,
-        certificate: entry.certificate || null,
-        transcript: entry.transcript || null
-      })),
-      ...(studentType === 'international' && {
-        englishQualification: {
-          englishTestType: value?.englishQualification?.englishTestType || '',
-          englishTestScore: value?.englishQualification?.englishTestScore || '',
-          englishTestDate: value?.englishQualification?.englishTestDate
-            ? new Date(value.englishQualification.englishTestDate)
-            : null,
-          englishCertificate:
-            value?.englishQualification?.englishCertificate || null
-        }
-      })
-    }
+    defaultValues: transformDefaultValues(defaultValues)
   });
+
+  useEffect(() => {
+    if (defaultValues) {
+      form.reset(defaultValues);
+    }
+  }, [defaultValues, form]);
+
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: 'educationData'
@@ -167,41 +157,15 @@ export function EducationStep({
   }, [defaultValues, form]);
 
   const onSubmit = async (data) => {
-    try {
-      // Format dates before submission
-      const formattedData = {
-        educationData: data.educationData.map((edu) => ({
-          ...edu,
-          awardDate: edu.awardDate ? new Date(edu.awardDate) : null
-        })),
-        ...(data.englishQualification
-          ? {
-              englishQualification: {
-                ...data.englishQualification,
-                englishTestDate: data.englishQualification.englishTestDate
-                  ? new Date(data.englishQualification.englishTestDate)
-                  : null
-              }
-            }
-          : {})
-      };
-
-      // Update form with the new data
-      form.reset(formattedData);
-
-      // Call the next handler
-      onNext(formattedData);
-    } catch (error) {
-      console.error('Submission error:', error);
-    }
+    await onSaveAndContinue(data);
   };
 
   const addEducationEntry = () => {
     append({
       institution: '',
-      studyType: '',
+      grade: '',
       qualification: '',
-      awardDate: null,
+      awardDate: undefined,
       certificate: null,
       transcript: null
     });
@@ -237,6 +201,10 @@ export function EducationStep({
     { value: 'pte', label: 'PTE Academic' },
     { value: 'other', label: 'Other' }
   ];
+
+  function handleBack() {
+    setCurrentStep(3);
+  }
 
   return (
     <Card className="border-none py-5 shadow-none ">
@@ -277,12 +245,20 @@ export function EducationStep({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Qualifications*</TableHead>
-                    <TableHead>Full/Part-Time*</TableHead>
-                    <TableHead className="min-w-[300px]">
-                      Name of the Institution*
+                    <TableHead>
+                      Qualifications <span className="text-red-500">*</span>
                     </TableHead>
-                    <TableHead>Date of Award</TableHead>
+                    <TableHead>
+                      Grade <span className="text-red-500">*</span>
+                    </TableHead>
+                    <TableHead className="min-w-[300px]">
+                      Name of the Institution
+                      <span className="text-red-500">*</span>
+                    </TableHead>
+                    <TableHead>
+                      Date of Award (MM/DD/YYYY)
+                      <span className="text-red-500">*</span>
+                    </TableHead>
                     <TableHead className="w-[80px]">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -312,46 +288,25 @@ export function EducationStep({
                         />
                       </TableCell>
                       <TableCell>
-                        <FormItem className="z-[1000]">
-                          <Controller
-                            control={form.control}
-                            name={`educationData.${index}.studyType`}
-                            render={({ field }) => (
-                              <Select
-                                options={studyTypeOptions}
-                                placeholder="Specify if it was full-time or part-time study."
-                                isClearable
-                                value={
-                                  studyTypeOptions.find(
-                                    (option) => option.value === field.value
-                                  ) || null
-                                }
-                                onChange={(option) =>
-                                  field.onChange(option ? option.value : '')
-                                }
-                                className="z-[1000] text-sm"
-                                styles={{
-                                  menuPortal: (base) => ({
-                                    ...base,
-                                    zIndex: 9999
-                                  }),
-                                  control: (base) => ({
-                                    ...base,
-                                    minHeight: 30,
-                                    fontSize: '14px'
-                                  })
-                                }}
-                                menuPortalTarget={document.body}
-                              />
-                            )}
-                          />
-
-                          <p className="text-xs text-gray-400">
-                            Options: Full-Time / Part-Time / Distance
-                          </p>
-
-                          <FormMessage />
-                        </FormItem>
+                        <FormField
+                          control={form.control}
+                          name={`educationData.${index}.grade`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  placeholder="Provide your grade"
+                                  className="text-sm"
+                                />
+                              </FormControl>
+                              <p className="mt-1 text-xs text-gray-400">
+                                Example: 3.91
+                              </p>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                       </TableCell>
                       <TableCell>
                         <FormField
@@ -382,7 +337,7 @@ export function EducationStep({
                           render={({ field }) => {
                             const selectedDate = field.value
                               ? new Date(field.value)
-                              : null;
+                              : undefined;
 
                             return (
                               <FormItem>
@@ -418,7 +373,7 @@ export function EducationStep({
               </Table>
             )}
 
-            {studentType === 'international' && (
+            {defaultValues?.studentType === 'international' && (
               <div className="mt-8 space-y-4">
                 <h3 className="text-xl font-semibold">
                   English Language Qualification
@@ -479,29 +434,29 @@ export function EducationStep({
                   <FormField
                     control={form.control}
                     name="englishQualification.englishTestDate"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Test Date</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="date"
-                            value={
-                              field.value
-                                ? moment(field.value).format('YYYY-MM-DD')
-                                : ''
-                            }
-                            onChange={(e) => {
-                              const newValue = e.target.value
-                                ? new Date(e.target.value)
-                                : null;
-                              field.onChange(newValue);
-                            }}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    render={({ field }) => {
+                      const selectedDate = field.value
+                        ? new Date(field.value)
+                        : null;
+
+                      return (
+                        <FormItem>
+                          <FormLabel>Test Date</FormLabel>
+                          <FormControl>
+                            <CustomDatePicker
+                              selected={selectedDate}
+                              onChange={(date) => field.onChange(date)}
+                            />
+                          </FormControl>
+                          <p className="text-xs text-gray-400">
+                            Example: 01/16/2022
+                          </p>
+                          <FormMessage />
+                        </FormItem>
+                      );
+                    }}
                   />
+
                   <FormItem>
                     <FormLabel>Upload Certificate</FormLabel>
                     <FileUpload
@@ -538,7 +493,7 @@ export function EducationStep({
             <Button
               type="button"
               variant="outline"
-              onClick={onBack}
+              onClick={handleBack}
               className="bg-watney text-white hover:bg-watney/90"
             >
               Back

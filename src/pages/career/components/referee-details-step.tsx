@@ -14,14 +14,7 @@ import {
   FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
+
 
 // Types
 type Relationship = 'Line Manager' | 'Colleague' | 'Friend' | 'Other';
@@ -45,46 +38,47 @@ const refereeDetailsSchema = z.object({
 
 export type RefereeFormValues = z.infer<typeof refereeDetailsSchema>;
 
-interface RefereeDetailsStepProps {
-  value: any;
-  onNext: (data: any) => void;
-  onBack: () => void;
-}
 
 export function RefereeDetailsStep({
-  value,
-  onNext,
-  onBack
-}: RefereeDetailsStepProps) {
+  defaultValues,
+  onSaveAndContinue,
+  setCurrentStep
+}) {
+
+
+  console.log(defaultValues,'aa')
   const form = useForm<RefereeFormValues>({
-    resolver: zodResolver(refereeDetailsSchema),
-    defaultValues: {
-      referee1: {
-        name: value?.referees?.[0]?.name || '',
-        organisation: value?.referees?.[0]?.organisation || '',
-        address: value?.referees?.[0]?.address || '',
-        relationship: (value?.referees?.[0]?.relationship as any) || '',
-        otherRelationship: value?.referees?.[0]?.otherRelationship || '',
-        email: value?.referees?.[0]?.email || '',
-        phone: value?.referees?.[0]?.phone || ''
-      },
-      referee2: {
-        name: value?.referees?.[1]?.name || '',
-        organisation: value?.referees?.[1]?.organisation || '',
-        address: value?.referees?.[1]?.address || '',
-        relationship: (value?.referees?.[1]?.relationship as any) || '',
-        otherRelationship: value?.referees?.[1]?.otherRelationship || '',
-        email: value?.referees?.[1]?.email || '',
-        phone: value?.referees?.[1]?.phone || ''
-      }
+  resolver: zodResolver(refereeDetailsSchema),
+  defaultValues: {
+    referee1: {
+      name: defaultValues?.referee1?.name ?? '',
+      organisation: defaultValues?.referee1?.organisation ?? '',
+      address: defaultValues?.referee1?.address ?? '',
+      relationship: defaultValues?.referee1?.relationship ?? '',
+      otherRelationship: defaultValues?.referee1?.otherRelationship ?? '',
+      email: defaultValues?.referee1?.email ?? '',
+      phone: defaultValues?.referee1?.phone ?? '',
+    },
+    referee2: {
+      name: defaultValues?.referee2?.name ?? '',
+      organisation: defaultValues?.referee2?.organisation ?? '',
+      address: defaultValues?.referee2?.address ?? '',
+      relationship: defaultValues?.referee2?.relationship ?? '',
+      otherRelationship: defaultValues?.referee2?.otherRelationship ?? '',
+      email: defaultValues?.referee2?.email ?? '',
+      phone: defaultValues?.referee2?.phone ?? '',
     }
-  });
+  }
+});
+
 
   const onSubmit = (data: RefereeFormValues) => {
-    onNext({
-      referees: [data.referee1, data.referee2]
-    });
+    console.log(data)
+    onSaveAndContinue(data);
   };
+   function handleBack() {
+    setCurrentStep(6);
+  }
 
   const renderRefereeFields = (
     refKey: 'referee1' | 'referee2',
@@ -92,7 +86,7 @@ export function RefereeDetailsStep({
     description: string
   ) => (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold">{title}*</h3>
+      <h3 className="text-lg font-semibold">{title} <span className="text-red-500">*</span></h3>
       <p className="text-sm text-gray-600">{description}</p>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -102,7 +96,7 @@ export function RefereeDetailsStep({
           name={`${refKey}.name`}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name*</FormLabel>
+              <FormLabel>Full Name <span className="text-red-500">*</span></FormLabel>
               <FormControl>
                 <Input
                   {...field}
@@ -122,7 +116,7 @@ export function RefereeDetailsStep({
           name={`${refKey}.organisation`}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Company / Institution*</FormLabel>
+              <FormLabel>Company / Institution <span className="text-red-500">*</span></FormLabel>
               <FormControl>
                 <Input
                   {...field}
@@ -144,7 +138,7 @@ export function RefereeDetailsStep({
           name={`${refKey}.address`}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Street Address*</FormLabel>
+              <FormLabel>Address <span className="text-red-500">*</span></FormLabel>
               <FormControl>
                 <Input
                   {...field}
@@ -166,7 +160,7 @@ export function RefereeDetailsStep({
           name={`${refKey}.relationship`}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Relationship to Referee*</FormLabel>
+              <FormLabel>Relationship <span className="text-red-500">*</span></FormLabel>
               <FormControl>
                 <Input
                   {...field}
@@ -189,7 +183,7 @@ export function RefereeDetailsStep({
           name={`${refKey}.email`}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email Address*</FormLabel>
+              <FormLabel>Email Address <span className="text-red-500">*</span></FormLabel>
               <FormControl>
                 <Input
                   {...field}
@@ -212,7 +206,7 @@ export function RefereeDetailsStep({
           name={`${refKey}.phone`}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Phone Number*</FormLabel>
+              <FormLabel>Phone Number <span className="text-red-500">*</span></FormLabel>
               <FormControl>
                 <Input
                   {...field}
@@ -234,7 +228,7 @@ export function RefereeDetailsStep({
   return (
     <Card className="border-none shadow-none">
       <CardHeader>
-        <h2 className="text-xl font-semibold">Referee Details</h2>
+        <h2 className="text-xl font-semibold">Reference Details</h2>
         <p className="text-sm text-gray-400">
           Please provide two referees as part of the recruitment process. Referees must be able to speak to your skills, experience, and character, and must not be friends or relatives. 
         </p>
@@ -247,12 +241,12 @@ export function RefereeDetailsStep({
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             {renderRefereeFields(
               'referee1',
-              'Professional Referee',
+              'Professional Reference',
               'A former supervisor, manager, or employer who can verify your work experience, responsibilities, and conduct.'
             )}
             {renderRefereeFields(
               'referee2',
-              'Academic or Personal Referee',
+              'Academic or Personal Reference',
               'An academic mentor, lecturer, or professional who has known you in a formal, non-personal capacity.'
             )}
 
@@ -260,7 +254,7 @@ export function RefereeDetailsStep({
               <Button
                 type="button"
                 variant="outline"
-                onClick={onBack}
+                onClick={handleBack}
                 className="bg-watney text-white hover:bg-watney/90"
               >
                 Back

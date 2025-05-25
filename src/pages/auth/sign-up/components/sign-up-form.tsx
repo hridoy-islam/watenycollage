@@ -266,7 +266,7 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="block text-sm font-medium text-gray-700">
-                    Please select the purpose of your visit{' '}
+                    Please select the role that describes you
                     <span className="text-red-500">*</span>
                   </FormLabel>
                   <Select

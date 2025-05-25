@@ -145,7 +145,7 @@ export function DocumentsStep({
     if (currentSection > 0) {
       setCurrentSection(currentSection - 1);
     } else {
-      setCurrentStep(7);
+      setCurrentStep(6);
     }
   }
 

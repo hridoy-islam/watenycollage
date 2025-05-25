@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import moment from 'moment';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -40,60 +40,67 @@ const careerSchema = z
     criminalConvictionDetails: z.string().optional(),
     appliedBefore: z.boolean({
       required_error: 'This field is required'
+    }),
+    termsAccepted: z.boolean().refine((val) => val === true, {
+      message: 'You must accept the terms and conditions.'
+    }),
+    dataProcessingAccepted: z.boolean().refine((val) => val === true, {
+      message: 'You must consent to data processing.'
     })
   })
-  .refine(
-    (data) => {
-      if (data.criminalConviction && !data.criminalConvictionDetails?.trim()) {
-        return false;
-      }
-      return true;
-    },
-    {
-      message: 'Please provide details of your conviction.',
-      path: ['criminalConvictionDetails']
+  .superRefine((data, ctx) => {
+    if (data.criminalConviction && !data.criminalConvictionDetails?.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Please provide details of your conviction.',
+        path: ['criminalConvictionDetails']
+      });
     }
-  );
+  });
 
 type TFormValues = z.infer<typeof careerSchema>;
 
-interface ReviewStepProps {
-  formData: Partial<TCareer>;
-  onSubmit: () => void;
-  onBack: () => void;
-}
-
-export function ReviewStep({ formData, onSubmit, onBack }: ReviewStepProps) {
-  const [termsAccepted, setTermsAccepted] = useState(false);
-  const [dataProcessingAccepted, setDataProcessingAccepted] = useState(false);
+export function ReviewStep({
+  defaultValues,
+  formData,
+  onSubmit,
+  setCurrentStep
+}) {
+ 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-
   const form = useForm<TFormValues>({
     resolver: zodResolver(careerSchema),
     defaultValues: {
-      declarationCorrectUpload:
-        typeof formData.declarationCorrectUpload === 'boolean'
-          ? formData.declarationCorrectUpload
-          : undefined,
+      ...defaultValues,
+      declarationCorrectUpload: undefined,
 
-      declarationContactReferee:
-        typeof formData.declarationContactReferee === 'boolean'
-          ? formData.declarationContactReferee
-          : undefined,
+      declarationContactReferee: undefined,
 
-      criminalConviction:
-        typeof formData.criminalConviction === 'boolean'
-          ? formData.criminalConviction
-          : undefined,
+      criminalConviction: undefined,
 
-      criminalConvictionDetails: formData.criminalConvictionDetails || '',
+      criminalConvictionDetails: '',
 
-      appliedBefore:
-        typeof formData.appliedBefore === 'boolean'
-          ? formData.appliedBefore
-          : undefined
+      appliedBefore: undefined,
+      termsAccepted: false,
+      dataProcessingAccepted: false
     }
   });
+
+  useEffect(() => {
+    if (defaultValues) {
+      form.reset(defaultValues);
+    }
+  }, [defaultValues, form]);
+
+
+  const termsAccepted = form.watch('termsAccepted');
+const dataProcessingAccepted = form.watch('dataProcessingAccepted');
+
+
+
+  function handleBack() {
+    setCurrentStep(8);
+  }
 
   const { watch } = form;
   const watchConviction = watch('criminalConviction');
@@ -220,60 +227,15 @@ export function ReviewStep({ formData, onSubmit, onBack }: ReviewStepProps) {
         needsReasonableAdjustment: formData.needsReasonableAdjustment,
         reasonableAdjustmentDetails: formData.reasonableAdjustmentDetails
       })}
-
-      {/* {renderSection('Right to Work', {
-        hasExpiry: formData.rightToWork?.hasExpiry,
-        expiryDate: formData.rightToWork?.expiryDate
-      })}
-      {formData.referees && formData.referees.length > 0 && (
-        <div>
-          <h3 className="mb-2 text-lg font-medium text-black">Referees</h3>
-          {formData.referees.map((referee, index) => (
-            <div
-              key={index}
-              className="mb-4 rounded-md border border-gray-200 bg-gray-50 p-4"
-            >
-              {renderSection('', referee, false)}
-            </div>
-          ))}
-        </div>
-      )} */}
-      {/* {renderSection('Declaration', {
-        declarationCorrectUpload: formData.declarationCorrectUpload,
-        declarationContactReferee: formData.declarationContactReferee,
-        criminalConviction: formData.criminalConviction,
-        criminalConvictionDetails: formData.criminalConvictionDetails,
-        appliedBefore: formData.appliedBefore
-      })} */}
     </div>
   );
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        <Card className='border-none shadow-none '>
+        <Card className="-mt-10 border-none shadow-none">
           <CardHeader />
           <CardContent className="space-y-6">
-            <div className="space-y-4">
-              <h3 className="text-2xl font-semibold">Applicant Declaration</h3>
-              <div className="max-h-40 overflow-y-auto rounded-md  p-4 text-sm">
-                <p className="mb-2">
-                  I confirm that the information provided throughout this
-                  application is true, complete, and accurate to the best of my
-                  knowledge. I understand that withholding material information
-                  or providing false or misleading statements may lead to the
-                  withdrawal of any job offer or termination of employment,
-                  without liability to the organisation.
-                </p>
-                <p className="mb-2">
-                  I acknowledge that the information and documents submitted may
-                  be used for recruitment, employment checks, and compliance
-                  purposes, and may be shared with relevant internal departments
-                  in line with the company's privacy policy and UK GDPR
-                  requirements.
-                </p>
-              </div>
-            </div>
             <div>
               <h1 className="text-2xl font-semibold">Consent & Permissions</h1>
               <p className="text-gray-400 ">
@@ -289,7 +251,8 @@ export function ReviewStep({ formData, onSubmit, onBack }: ReviewStepProps) {
                 <FormItem className="flex items-center gap-4">
                   <FormLabel className="mr-2">
                     Do you declare that all uploaded documents and information
-                    are correct and authentic?*
+                    are correct and authentic?{' '}
+                    <span className="text-red-500">*</span>
                   </FormLabel>
                   <FormControl>
                     <div className="flex items-center">
@@ -321,7 +284,7 @@ export function ReviewStep({ formData, onSubmit, onBack }: ReviewStepProps) {
                 <FormItem className="flex items-center gap-4">
                   <FormLabel className="mr-2">
                     Do you give permission for us to contact your referees on
-                    your behalf?*
+                    your behalf? <span className="text-red-500">*</span>
                   </FormLabel>
                   <FormControl>
                     <div className="flex items-center">
@@ -353,7 +316,8 @@ export function ReviewStep({ formData, onSubmit, onBack }: ReviewStepProps) {
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
                     <FormLabel className="mr-2">
                       Do you have any unspent criminal convictions? (as defined
-                      under the Rehabilitation of Offenders Act 1974)*
+                      under the Rehabilitation of Offenders Act 1974){' '}
+                      <span className="text-red-500">*</span>
                     </FormLabel>
 
                     <FormControl>
@@ -394,7 +358,8 @@ export function ReviewStep({ formData, onSubmit, onBack }: ReviewStepProps) {
                 render={({ field }) => (
                   <FormItem className="w-[500px]">
                     <FormLabel>
-                      Please provide details of the conviction
+                      Please provide details of the conviction{' '}
+                      <span className="text-red-500">*</span>
                     </FormLabel>
                     <FormControl>
                       <Textarea
@@ -415,7 +380,7 @@ export function ReviewStep({ formData, onSubmit, onBack }: ReviewStepProps) {
                 <FormItem className="flex items-center gap-4">
                   <FormLabel className="mr-2">
                     Have you previously applied for a role with this
-                    organisation?*
+                    organisation? <span className="text-red-500">*</span>
                   </FormLabel>
                   <FormControl>
                     <div className="flex items-center">
@@ -441,39 +406,83 @@ export function ReviewStep({ formData, onSubmit, onBack }: ReviewStepProps) {
             />
 
             <div>
-              <h1 className='font-semibold text-2xl mb-2'> Terms and Conditions Agreement</h1>
-              <p className='text-gray-400'>Please tick the boxes to confirm:</p>
+              <h1 className="mb-2 text-2xl font-semibold">
+                {' '}
+                Terms and Conditions Agreement
+              </h1>
+              <div className="space-y-4">
+                {/* <h3 className="text-2xl font-semibold">Applicant Declaration</h3> */}
+                <div className="max-h-40 overflow-y-auto rounded-md  text-sm">
+                  <p className="mb-2">
+                    I confirm that the information provided throughout this
+                    application is true, complete, and accurate to the best of
+                    my knowledge. I understand that withholding material
+                    information or providing false or misleading statements may
+                    lead to the withdrawal of any job offer or termination of
+                    employment, without liability to the organisation.
+                  </p>
+                  <p className="">
+                    I acknowledge that the information and documents submitted
+                    may be used for recruitment, employment checks, and
+                    compliance purposes, and may be shared with relevant
+                    internal departments in line with the company's privacy
+                    policy and UK GDPR requirements.
+                  </p>
+                </div>
+              </div>
             </div>
+            <p className="font-medium text-gray-800">
+              Please tick the boxes to confirm:
+            </p>
             <div className="space-y-4">
-              <div className="flex items-center space-x-3 rounded-lg border border-gray-300 p-4 transition-all duration-200 ease-in-out hover:shadow-md">
-                <Checkbox
-                  id="terms"
-                  checked={termsAccepted}
-                  onCheckedChange={(checked) => setTermsAccepted(!!checked)}
-                />
-                <label
-                  htmlFor="terms"
-                  className="text-sm font-medium text-gray-700"
-                >
-                 I accept the terms and conditions of this application process.
-                </label>
-              </div>
+              <FormField
+                control={form.control}
+                name="termsAccepted"
+                render={({ field }) => (
+                  <FormItem className="flex items-center space-x-3 rounded-lg border border-gray-300 p-4 transition-all duration-200 ease-in-out hover:shadow-md">
+                    <FormControl>
+                      <Checkbox
+                        id="terms"
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormLabel
+                      htmlFor="terms"
+                      className="text-sm font-medium text-gray-700"
+                    >
+                      I accept the terms and conditions of this application
+                      process.
+                    </FormLabel>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-              <div className="flex items-center space-x-3 rounded-lg border border-gray-300 p-4 transition-all duration-200 ease-in-out hover:shadow-md">
-                <Checkbox
-                  id="data-processing"
-                  checked={dataProcessingAccepted}
-                  onCheckedChange={(checked) =>
-                    setDataProcessingAccepted(!!checked)
-                  }
-                />
-                <label
-                  htmlFor="data-processing"
-                  className="text-sm font-medium text-gray-700"
-                >
-                  I consent to the processing of my personal data in accordance with the UK General Data Protection Regulation (UK GDPR) and the Data Protection Act 2018.
-                </label>
-              </div>
+              <FormField
+                control={form.control}
+                name="dataProcessingAccepted"
+                render={({ field }) => (
+                  <FormItem className="flex items-center space-x-3 rounded-lg border border-gray-300 p-4 transition-all duration-200 ease-in-out hover:shadow-md">
+                    <FormControl>
+                      <Checkbox
+                        id="data-processing"
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormLabel
+                      htmlFor="data-processing"
+                      className="text-sm font-medium text-gray-700"
+                    >
+                      I consent to the processing of my personal data in
+                      accordance with the UK General Data Protection Regulation
+                      (UK GDPR) and the Data Protection Act 2018.
+                    </FormLabel>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
             {/* Action Buttons */}
@@ -481,7 +490,7 @@ export function ReviewStep({ formData, onSubmit, onBack }: ReviewStepProps) {
               <Button
                 type="button"
                 variant="outline"
-                onClick={onBack}
+                onClick={handleBack}
                 className="bg-watney text-white hover:bg-watney/90"
               >
                 Back

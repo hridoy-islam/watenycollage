@@ -20,6 +20,11 @@ import CoursesPage from '@/pages/course';
 import TermPage from '@/pages/term';
 import CourseRegistration from '@/pages/course-register';
 import JobPage from '@/pages/jobs';
+import JobApplication from '@/pages/Job-registration';
+import Guideline from '@/components/shared/Guideline';
+import CareerGuideline from '@/pages/career/career-guideline';
+import CourseApplicationPage from '@/pages/dashboard-application/course-application';
+import JobApplicationPage from '@/pages/dashboard-application/job-application';
 const SignInPage = lazy(() => import('@/pages/auth/signin'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
 
@@ -67,8 +72,13 @@ export default function AppRouter() {
           index: true
         },
         {
-          path: 'new-applications',
-          element: <NewApplicationListPage />,
+          path: 'course-application',
+          element: <CourseApplicationPage />,
+          index: true
+        },
+        {
+          path: 'job-application',
+          element: <JobApplicationPage />,
           index: true
         },
         {
@@ -90,6 +100,21 @@ export default function AppRouter() {
           path: 'jobs',
           element: <JobPage />,
           index: true
+        },
+        {
+          path: 'career-application',
+          element: <CareerPage />,
+          index: true
+        },
+        {
+          path: 'career',
+          element: <CareerResumeUpload />,
+          index: true
+        },
+        {
+          path: 'career-guideline',
+          element: <CareerGuideline />,
+          index: true
         }
       ]
     }
@@ -102,8 +127,13 @@ export default function AppRouter() {
     //   index: true
     // },
     {
-      path: 'courses/course-registration/:id',
+      path: 'courses/apply/:id',
       element: <CourseRegistration />,
+      index: true
+    },
+    {
+      path: 'jobs/apply/:id',
+      element: <JobApplication />,
       index: true
     },
     {
@@ -138,16 +168,6 @@ export default function AppRouter() {
     {
       path: '*',
       element: <Navigate to="/404" replace />
-    },
-    {
-      path: '/career-application',
-      element: <CareerPage />,
-      index: true
-    },
-    {
-      path: '/career',
-      element: <CareerResumeUpload />,
-      index: true
     }
   ];
 

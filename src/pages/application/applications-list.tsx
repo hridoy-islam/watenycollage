@@ -18,6 +18,7 @@ import { DataTablePagination } from '@/components/shared/data-table-pagination';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import Loader from '@/components/shared/loader';
+import moment from 'moment';
 
 export default function ApplicationListPage() {
   const [applications, setApplications] = useState<any>([]);
@@ -40,10 +41,13 @@ export default function ApplicationListPage() {
         ...(searchTerm && { searchTerm })
       };
 
-      const endpoint =
-        user?.role === 'admin'
-          ? '/applications'
-          : `/applications?studentId=${user?._id}`;
+      let endpoint = '';
+
+      if (user?.role === 'student') {
+        endpoint = `/application-course?studentId=${user._id}`;
+      } else if (user?.role === 'applicant') {
+        endpoint = `/application-job?applicantId=${user._id}`;
+      }
 
       if (initialLoading) setInitialLoading(true);
 
@@ -72,8 +76,6 @@ export default function ApplicationListPage() {
     fetchData(currentPage, entriesPerPage);
   }, [currentPage, entriesPerPage]);
 
- 
-
   const navigate = useNavigate();
 
   const handleRoute = () => {
@@ -84,6 +86,8 @@ export default function ApplicationListPage() {
     if (!str) return '';
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   };
+
+  console.log(applications);
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -115,8 +119,23 @@ export default function ApplicationListPage() {
                 {user.role === 'admin' && <TableHead>Full Name</TableHead>}
                 {user.role === 'admin' && <TableHead>Email</TableHead>}
                 {user.role === 'admin' && <TableHead>Phone</TableHead>}
-                <TableHead className="">Course</TableHead>
-                <TableHead className="">Intake</TableHead>
+                {(user.role === 'applicant' ||
+                  user.role === 'admin') && (
+                    <TableHead className="">Job Title</TableHead>
+                  )}
+                {(user.role === 'applicant' ||
+                  user.role === 'admin') && (
+                    <TableHead className="">Application Deadline</TableHead>
+                  )}
+                
+                {(user.role === 'student' ||
+                  user.role === 'admin') && (
+                    <TableHead className="">Course</TableHead>
+                  )}
+                {(user.role === 'student' ||
+                user.role === 'admin') && (
+                    <TableHead className="">Intake</TableHead>
+                  )}
                 {user.role === 'admin' && (
                   <TableHead className="text-right">Action</TableHead>
                 )}
@@ -126,38 +145,67 @@ export default function ApplicationListPage() {
               {applications.map((application) => (
                 <TableRow key={application._id}>
                   {user.role === 'admin' && (
-                    <TableCell onClick={() =>
-                      navigate(`/dashboard/applications/${application._id}`)
-                    }>
-                      {capitalize(application.personalDetailsData.title)}{' '}
-                      {application?.personalDetailsData?.firstName}{' '}
-                      {application?.personalDetailsData?.lastName}
+                    <TableCell
+                      // onClick={() =>
+                      //   navigate(`/dashboard/applications/${application._id}`)
+                      // }
+                    >
+                      {capitalize(application.applicantId.title)}{' '}
+                      {application?.applicantId.firstName}{' '}
+                      {application?.applicantId.lastName}
                     </TableCell>
                   )}
                   {user.role === 'admin' && (
-                    <TableCell onClick={() =>
-                      navigate(`/dashboard/applications/${application._id}`)
-                    }>
-                      {capitalize(application?.personalDetailsData?.email)}{' '}
+                    <TableCell
+                      // onClick={() =>
+                      //   navigate(`/dashboard/applications/${application._id}`)
+                      // }
+                    >
+                      {capitalize(application?.applicantId.email)}{' '}
                     </TableCell>
                   )}
                   {user.role === 'admin' && (
-                    <TableCell onClick={() =>
-                      navigate(`/dashboard/applications/${application._id}`)
-                    }>
-                      {capitalize(application.contactData?.contactNumber)}{' '}
+                    <TableCell
+                      // onClick={() =>
+                      //   navigate(`/dashboard/applications/${application._id}`)
+                      // }
+                    >
+                      {capitalize(application.phone)}{' '}
                     </TableCell>
                   )}
-                  <TableCell onClick={() =>
-                          navigate(`/dashboard/applications/${application._id}`)
-                        }>
-                    {capitalize(application.courseDetailsData?.course)}{' '}
-                  </TableCell>
-                  <TableCell onClick={() =>
-                          navigate(`/dashboard/applications/${application._id}`)
-                        }>
-                    {capitalize(application.courseDetailsData?.intake)}{' '}
-                  </TableCell>
+
+                  {(user.role === 'applicant' || user.role === 'admin') && (
+                    <TableCell
+                      // onClick={() =>
+                      //   navigate(`/dashboard/applications/${application._id}`)
+                      // }
+                    >
+                      {capitalize(application.jobId?.jobTitle)}{' '}
+                    </TableCell>
+                  )}
+                  {(user.role === 'applicant' || user.role === 'admin') && (
+                    <TableCell
+                      // onClick={() =>
+                      //   navigate(`/dashboard/applications/${application._id}`)
+                      // }
+                    >
+                      {moment(application.jobId?.applicationDeadline).format(
+                        'MM-DD-YYYY'
+                      )}{' '}
+                    </TableCell>
+                  )}
+                  {(user.role === 'student' ||
+                  user.role === 'admin') && (
+                    <TableCell>
+                       {capitalize(application.courseId?.name)}{' '}
+                    </TableCell>
+                  )}
+                  {(user.role === 'student' ||
+                  user.role === 'admin') && (
+                    <TableCell>
+                       {capitalize(application.intakeId?.termName)}{' '}
+                    </TableCell>
+                  )}
 
                   {user.role === 'admin' && (
                     <TableCell className="flex flex-row items-center justify-end gap-2 text-right">

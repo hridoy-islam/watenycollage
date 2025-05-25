@@ -23,48 +23,63 @@ import { Textarea } from '@/components/ui/textarea';
 import type { TCareer } from '@/types/career';
 import { Checkbox } from '@/components/ui/checkbox';
 
-const disabilityInfoSchema = z.object({
-  hasDisability: z.boolean(),
-  disabilityDetails: z.string().optional(),
-  needsReasonableAdjustment: z.boolean(),
-  reasonableAdjustmentDetails: z.string().optional()
-});
+const disabilityInfoSchema = z
+  .object({
+    hasDisability: z.boolean(),
+    disabilityDetails: z.string().optional(),
+    needsReasonableAdjustment: z.boolean(),
+    reasonableAdjustmentDetails: z.string().optional()
+  })
+  .superRefine((data, ctx) => {
+    if (data.hasDisability && data.needsReasonableAdjustment) {
+      if (!data.disabilityDetails) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Disability details are required.',
+          path: ['disabilityDetails']
+        });
+      }
+
+      if (!data.reasonableAdjustmentDetails) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Details about adjustments are required.',
+          path: ['reasonableAdjustmentDetails']
+        });
+      }
+    }
+  });
 
 type DisabilityInfoFormValues = z.infer<typeof disabilityInfoSchema>;
 
-interface DisabilityInfoStepProps {
-  value: Partial<TCareer>;
-  onNext: (data: Partial<TCareer>) => void;
-  onBack: () => void;
-}
+
 
 export function DisabilityInfoStep({
-  value,
-  onNext,
-  onBack
-}: DisabilityInfoStepProps) {
+  defaultValues,
+  onSaveAndContinue,
+  setCurrentStep
+}) {
   const form = useForm<DisabilityInfoFormValues>({
     resolver: zodResolver(disabilityInfoSchema),
     defaultValues: {
-      hasDisability:
-        typeof value.hasDisability === 'boolean'
-          ? value.hasDisability
-          : undefined,
-      disabilityDetails: value.disabilityDetails || '',
-      needsReasonableAdjustment:
-        typeof value.needsReasonableAdjustment === 'boolean'
-          ? value.needsReasonableAdjustment
-          : undefined,
-      reasonableAdjustmentDetails: value.reasonableAdjustmentDetails || ''
+      hasDisability: undefined,
+      disabilityDetails: '',
+      needsReasonableAdjustment: undefined,
+      reasonableAdjustmentDetails: '',
+      ...defaultValues
     }
   });
 
   function onSubmit(data: DisabilityInfoFormValues) {
-    onNext(data);
+    onSaveAndContinue(data);
+  }
+
+   function handleBack() {
+    setCurrentStep(5);
   }
 
   return (
-    <Card className='border-none shadow-none '>
+    <Card className="border-none shadow-none ">
       <CardHeader>
         <CardTitle>Disability Information</CardTitle>
         <CardDescription>
@@ -82,7 +97,10 @@ export function DisabilityInfoStep({
               render={({ field }) => (
                 <FormItem className="py-2">
                   <div className="flex flex-row items-center space-x-3 space-y-0">
-                    <FormLabel>Do you have a disability?*</FormLabel>
+                    <FormLabel>
+                      Do you have a disability?{' '}
+                      <span className="text-red-500">*</span>
+                    </FormLabel>
 
                     <div className="flex space-x-6">
                       <div className="flex items-center">
@@ -107,6 +125,7 @@ export function DisabilityInfoStep({
                     Let us know if you consider yourself to have a disability
                     under the Equality Act 2010.{' '}
                   </p>
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -118,13 +137,14 @@ export function DisabilityInfoStep({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      Please provide details about your disability
+                      Please provide details about your disability{' '}
+                      <span className="text-red-500">*</span>
                     </FormLabel>
                     <FormControl>
                       <Textarea
                         {...field}
                         placeholder="Briefly describe your disability and how it may affect your ability to work or participate."
-                        className="min-h-[100px] !placeholder:text-gray-400   placeholder:text-xs  placeholder:text-gray-400 "
+                        className="!placeholder:text-gray-400 min-h-[100px]   placeholder:text-xs  placeholder:text-gray-400 "
                       />
                     </FormControl>
                     <p className="mt-2 text-xs text-gray-400">
@@ -145,7 +165,11 @@ export function DisabilityInfoStep({
                   <div className="flex flex-row items-center space-x-3">
                     <div className="space-y-1 leading-none">
                       <FormLabel>
-                        Do you require any reasonable adjustments?*
+                        Do you require any reasonable adjustments?{' '}
+                        <span className="text-red-500">
+                          {' '}
+                          <span className="text-red-500">*</span>
+                        </span>
                       </FormLabel>
                     </div>
                     <div className="flex space-x-6">
@@ -171,6 +195,7 @@ export function DisabilityInfoStep({
                     Indicate whether you need any changes or accommodations
                     during the application or employment process.
                   </p>
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -182,18 +207,20 @@ export function DisabilityInfoStep({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      Please provide details about the adjustments needed
+                      Please provide details about the adjustments needed{' '}
+                      <span className="text-red-500">*</span>
                     </FormLabel>
                     <FormControl>
                       <Textarea
                         {...field}
                         placeholder="Specify what support or adjustments would help you perform at your best"
-                        className="min-h-[100px] !placeholder:text-gray-400   placeholder:text-xs  placeholder:text-gray-400"
+                        className="!placeholder:text-gray-400 min-h-[100px]   placeholder:text-xs  placeholder:text-gray-400"
                       />
                     </FormControl>
                     <p className="mt-2 text-xs text-gray-400">
-                    Example: I require additional time during written assessments and access to screen-reading software.
-                  </p>
+                      Example: I require additional time during written
+                      assessments and access to screen-reading software.
+                    </p>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -204,7 +231,7 @@ export function DisabilityInfoStep({
               <Button
                 type="button"
                 variant="outline"
-                onClick={onBack}
+                onClick={handleBack}
                 className="bg-watney text-white hover:bg-watney/90"
               >
                 Back

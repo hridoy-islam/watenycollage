@@ -17,7 +17,7 @@ const CareerResumeUpload: React.FC = () => {
   };
 
   const handleSkip = () => {
-    navigate('/career-application');
+    navigate('/dashboard/career-application');
   };
 
   const handleContinue = async () => {

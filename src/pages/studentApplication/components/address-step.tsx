@@ -18,6 +18,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useEffect } from 'react';
 import { countries } from '@/types';
 
+
+
 const addressSchema = z
   .object({
     // Residential address
@@ -29,50 +31,26 @@ const addressSchema = z
     residentialPostCode: z
       .string()
       .min(1, { message: 'Post code is required' }),
-    residentialCountry: z.string().min(1, { message: 'Country is required' }),
+    residentialCountry: z
+      .string()
+      .min(1, { message: 'Country is required' }),
 
     // Postal address
     sameAsResidential: z.boolean().default(false),
     postalAddressLine1: z
       .string()
-      .min(1, { message: 'Address line 1 is required' })
-      .optional()
-      .or(z.literal('')),
+      .min(1, { message: 'Address line 1 is required' }),
     postalAddressLine2: z.string().optional(),
-    postalCity: z
-      .string()
-      .min(1, { message: 'City is required' })
-      .optional()
-      .or(z.literal('')),
+    postalCity: z.string().min(1, { message: 'City is required' }),
     postalPostCode: z
       .string()
-      .min(1, { message: 'Post code is required' })
-      .optional()
-      .or(z.literal('')),
+      .min(1, { message: 'Post code is required' }),
     postalCountry: z
       .string()
       .min(1, { message: 'Country is required' })
-      .optional()
-      .or(z.literal(''))
   })
-  .refine(
-    (data) => {
-      // If sameAsResidential is true, we don't need to validate postal address fields
-      if (data.sameAsResidential) return true;
+ 
 
-      // Otherwise, validate that postal address fields are filled
-      return (
-        !!data.postalAddressLine1 &&
-        !!data.postalCity &&
-        !!data.postalPostCode &&
-        !!data.postalCountry
-      );
-    },
-    {
-      message: 'Postal address is required',
-      path: ['postalAddressLine1']
-    }
-  );
 
 type AddressData = z.infer<typeof addressSchema>;
 
@@ -148,7 +126,7 @@ export function AddressStep({
           <CardContent className="">
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2 ">
               {/* Residential Address Section */}
-              <div className="mt-9 space-y-4">
+              <div className="mt-14 space-y-4">
                 <h2 className="text-xl font-semibold">Residential Address</h2>
 
                 <FormField
@@ -156,10 +134,20 @@ export function AddressStep({
                   name="residentialAddressLine1"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Address Line 1</FormLabel>
+                      <FormLabel>
+                        Address Line 1 <span className="text-red-500">*</span>
+                      </FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input
+                          {...field}
+                          placeholder="Enter the primary address (e.g., flat number, street name)"
+                          className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
+                        />
                       </FormControl>
+                      <p className="mt-1 text-xs text-gray-400">
+                        Example: 123 Baker Street
+                      </p>
+
                       <FormMessage />
                     </FormItem>
                   )}
@@ -172,8 +160,15 @@ export function AddressStep({
                     <FormItem>
                       <FormLabel>Address Line 2</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input
+                          {...field}
+                          placeholder="Additional address information (e.g., apartment, building name)"
+                          className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
+                        />
                       </FormControl>
+                      <p className="mt-1 text-xs text-gray-400">
+                        Example: 23 Walton Street
+                      </p>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -185,10 +180,19 @@ export function AddressStep({
                     name="residentialCity"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>City</FormLabel>
+                        <FormLabel>
+                          City <span className="text-red-500">*</span>
+                        </FormLabel>
                         <FormControl>
-                          <Input {...field} />
+                          <Input
+                            {...field}
+                            placeholder="Enter your city"
+                            className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
+                          />
                         </FormControl>
+                        <p className="mt-1 text-xs text-gray-400">
+                          Example: London
+                        </p>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -199,10 +203,19 @@ export function AddressStep({
                     name="residentialPostCode"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Post Code</FormLabel>
+                        <FormLabel>
+                          Post Code <span className="text-red-500">*</span>
+                        </FormLabel>
                         <FormControl>
-                          <Input {...field} />
+                          <Input
+                            {...field}
+                            placeholder="Enter the Postcode or ZIP Code"
+                            className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
+                          />
                         </FormControl>
+                        <p className="mt-1 text-xs text-gray-400">
+                          Example: W1U 6RS
+                        </p>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -214,7 +227,9 @@ export function AddressStep({
                   name="residentialCountry"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Country</FormLabel>
+                      <FormLabel>
+                        Country <span className="text-red-500">*</span>
+                      </FormLabel>
                       <FormControl>
                         <Select
                           options={countryOptions}
@@ -228,10 +243,21 @@ export function AddressStep({
                           onChange={(selected) =>
                             field.onChange(selected?.value)
                           }
-                          placeholder="Select Country"
+                          placeholder="Select your country of residence from the dropdown"
                           isClearable
+                          styles={{
+                            placeholder: (provided) => ({
+                              ...provided,
+                              fontSize: '0.75rem',
+                              color: '#9CA3AF'
+                            })
+                          }}
                         />
                       </FormControl>
+
+                      <p className="mt-1 text-xs text-gray-400">
+                        Example: England
+                      </p>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -240,10 +266,13 @@ export function AddressStep({
 
               {/* Postal Address Section */}
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col items-start justify-between mt-1">
                   <h2 className="text-xl font-semibold">
                     Correspondence Address
                   </h2>
+                  <p className="text-xs ">
+                    Check this box if your mailing address is the same as above.
+                  </p>
                 </div>
                 <FormField
                   control={form.control}
@@ -268,14 +297,24 @@ export function AddressStep({
                   name="postalAddressLine1"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Address Line 1</FormLabel>
+                      <FormLabel>
+                        Address Line 1 <span className="text-red-500">*</span>
+                      </FormLabel>
                       <FormControl>
                         <Input
                           {...field}
                           disabled={sameAsResidential}
-                          className={sameAsResidential ? 'bg-gray-100' : ''}
+                          className={
+                            sameAsResidential
+                              ? 'bg-gray-100'
+                              : '!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500'
+                          }
+                          placeholder="Enter the address (e.g., flat number, street name)"
                         />
                       </FormControl>
+                      <p className="mt-1 text-xs text-gray-400">
+                        Example: 123 Baker Street
+                      </p>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -291,9 +330,17 @@ export function AddressStep({
                         <Input
                           {...field}
                           disabled={sameAsResidential}
-                          className={sameAsResidential ? 'bg-gray-100' : ''}
+                          className={
+                            sameAsResidential
+                              ? 'bg-gray-100'
+                              : '!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500'
+                          }
+                          placeholder="Enter the address (e.g., flat number, street name)"
                         />
                       </FormControl>
+                      <p className="mt-1 text-xs text-gray-400">
+                        Example: 13 Walton Street
+                      </p>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -305,14 +352,24 @@ export function AddressStep({
                     name="postalCity"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>City</FormLabel>
+                        <FormLabel>
+                          City <span className="text-red-500">*</span>
+                        </FormLabel>
                         <FormControl>
                           <Input
                             {...field}
                             disabled={sameAsResidential}
-                            className={sameAsResidential ? 'bg-gray-100' : ''}
+                            className={
+                              sameAsResidential
+                                ? 'bg-gray-100'
+                                : '!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500'
+                            }
+                            placeholder="Enter the address (e.g., flat number, street name)"
                           />
                         </FormControl>
+                        <p className="mt-1 text-xs text-gray-400">
+                        Example: London
+                      </p>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -323,14 +380,24 @@ export function AddressStep({
                     name="postalPostCode"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Post Code</FormLabel>
+                        <FormLabel>
+                          Post Code <span className="text-red-500">*</span>
+                        </FormLabel>
                         <FormControl>
                           <Input
                             {...field}
                             disabled={sameAsResidential}
-                            className={sameAsResidential ? 'bg-gray-100' : ''}
+                            className={
+                              sameAsResidential
+                                ? 'bg-gray-100'
+                                : '!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500'
+                            }
+                            placeholder="Enter the Postcode or ZIP Code"
                           />
                         </FormControl>
+                        <p className="mt-1 text-xs text-gray-400">
+                        Example: M13 9PL
+                      </p>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -342,7 +409,9 @@ export function AddressStep({
                   name="postalCountry"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Country</FormLabel>
+                      <FormLabel>
+                        Country <span className="text-red-500">*</span>
+                      </FormLabel>
                       <FormControl>
                         <Select
                           options={countryOptions}
@@ -356,7 +425,6 @@ export function AddressStep({
                           onChange={(selected) =>
                             field.onChange(selected?.value)
                           }
-                          placeholder="Select Country"
                           isDisabled={sameAsResidential}
                           classNames={{
                             control: () =>
@@ -364,8 +432,19 @@ export function AddressStep({
                                 ? 'bg-gray-100 cursor-not-allowed'
                                 : ''
                           }}
+                          styles={{
+                            placeholder: (provided) => ({
+                              ...provided,
+                              fontSize: '0.75rem',
+                              color: '#9CA3AF'
+                            })
+                          }}
+                          placeholder="Select the country where you were born."
                         />
                       </FormControl>
+                       <p className="mt-1 text-xs text-gray-400">
+                        Example: Canada
+                      </p>
                       <FormMessage />
                     </FormItem>
                   )}

@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/form';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
+import { useEffect } from 'react';
 
 const termsSchema = z.object({
   acceptTerms: z.boolean().refine((val) => val === true, {
@@ -46,13 +47,20 @@ export function TermsSubmitStep({
     }
   });
 
+   useEffect(() => {
+      if (defaultValues) {
+        form.reset(defaultValues);
+      }
+    }, [defaultValues, form]);
+  
+
   // function handleSave() {
   //   const data = form.getValues();
   //   onSave(data);
   // }
 
   function handleBack() {
-    setCurrentStep(8);
+    setCurrentStep(7);
   }
 
 

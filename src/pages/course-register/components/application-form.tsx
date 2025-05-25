@@ -9,7 +9,7 @@ import RegistrationForm from "./registration-form"
 import LoginForm from "./login-form"
 import StudentApplication from "@/pages/studentApplication"
 import { MoveLeft } from "lucide-react"
-import { useParams } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 
 interface ApplicationFormProps {
   formData: {
@@ -25,7 +25,7 @@ export default function ApplicationForm({ formData, onBack }: ApplicationFormPro
   const [showStudentApplication, setShowStudentApplication] = useState(false)
   const [showRegisterDialog, setShowRegisterDialog] = useState(false)
   const [formSubmitted, setFormSubmitted] = useState(false)
-
+  const navigate = useNavigate()
 
   // Format student type for display
   const getFormattedStudentType = (type: string) => {
@@ -43,9 +43,9 @@ export default function ApplicationForm({ formData, onBack }: ApplicationFormPro
       )} */}
 
       <div className="-mt-4 w-full space-y-8">
-        {showStudentApplication ? (
+        {/* {showStudentApplication ? (
           <StudentApplication />
-        ) : (
+        ) : ( */}
           <>
             {/* Course Details */}
             <Card className="border border-gray-200 shadow-md">
@@ -103,7 +103,7 @@ export default function ApplicationForm({ formData, onBack }: ApplicationFormPro
                 </CardHeader>
                 <CardContent className="pt-6">
                   <LoginForm
-                    onSuccess={() => setShowStudentApplication(true)}
+                    onSuccess={() => navigate('/dashboard/resume-upload')}
                   />
                 </CardContent>
               </Card>
@@ -132,7 +132,7 @@ export default function ApplicationForm({ formData, onBack }: ApplicationFormPro
               </Card>
             </div>
           </>
-        )}
+        {/* )} */}
       </div>
 
       {/* Registration Dialog */}

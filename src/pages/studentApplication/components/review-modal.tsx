@@ -96,8 +96,7 @@ export function ReviewModal({ open, onClose, formData }: ReviewModalProps) {
 
   // Manual rendering for each section
   const renderPersonalDetails = () => {
-    if (!formData.personalDetailsData) return null;
-    const data = formData.personalDetailsData;
+    const data = formData;
 
     return (
       <div className="mb-6">
@@ -137,8 +136,8 @@ export function ReviewModal({ open, onClose, formData }: ReviewModalProps) {
   };
 
   const renderAddress = () => {
-    if (!formData.addressData) return null;
-    const data = formData.addressData;
+    if (!formData) return null;
+    const data = formData;
 
     return (
       <div className="mb-6">
@@ -202,9 +201,8 @@ export function ReviewModal({ open, onClose, formData }: ReviewModalProps) {
   };
 
   const renderCourseDetails = () => {
-    if (!formData.courseDetailsData) return null;
-    const data = formData.courseDetailsData;
-
+    if (!formData) return null;
+    const data = formData
     return (
       <div className="mb-6">
         <h3 className="mb-2 text-lg font-semibold">Course Details</h3>
@@ -219,8 +217,8 @@ export function ReviewModal({ open, onClose, formData }: ReviewModalProps) {
   };
 
   const renderContact = () => {
-    if (!formData.contactData) return null;
-    const data = formData.contactData;
+    if (!formData) return null;
+    const data = formData;
 
     return (
       <div className="mb-6">
@@ -259,8 +257,8 @@ export function ReviewModal({ open, onClose, formData }: ReviewModalProps) {
   };
 
   const renderEducation = () => {
-    if (!formData.educationData) return null;
-    const data = formData.educationData;
+    if (!formData) return null;
+    const data = formData;
 
     return (
       <div className="mb-6">
@@ -324,8 +322,8 @@ export function ReviewModal({ open, onClose, formData }: ReviewModalProps) {
   };
 
   const renderEmployment = () => {
-    if (!formData.employmentData) return null;
-    const data = formData.employmentData;
+    if (!formData) return null;
+    const data = formData;
 
     return (
       <div className="mb-6">
@@ -430,8 +428,8 @@ export function ReviewModal({ open, onClose, formData }: ReviewModalProps) {
   };
 
   const renderCompliance = () => {
-    if (!formData.complianceData) return null;
-    const data = formData.complianceData;
+    if (!formData) return null;
+    const data = formData;
 
     return (
       <div className="mb-6">
@@ -486,8 +484,8 @@ export function ReviewModal({ open, onClose, formData }: ReviewModalProps) {
   };
 
   const renderDocuments = () => {
-    if (!formData.documentsData) return null;
-    const data = formData.documentsData;
+    if (!formData) return null;
+    const data = formData;
 
     return (
       <div className="mb-6">

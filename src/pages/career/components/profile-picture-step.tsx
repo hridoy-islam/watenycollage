@@ -14,24 +14,21 @@ import { FileUpload } from './file-upload';
 import male from '@/assets/imges/home/male.jpeg';
 import female from '@/assets/imges/home/female.jpg';
 
-interface ProfilePictureStepProps {
-  value?: string;
-  onNext: (profilePictureUrl: string | undefined) => void;
-}
 
-export function ProfilePictureStep({ value, onNext }: ProfilePictureStepProps) {
+
+export function ProfilePictureStep({ defaultValues, onSaveAndContinue ,setCurrentStep}) {
   const [profilePicture, setProfilePicture] = useState<File | null>(null);
 
-  const handleNext = () => {
+  const handleNext = (data) => {
     // If there's a profile picture, you'd typically upload it to a server
     // and get back a URL. For now, we'll just pass the existing value.
-    onNext(value);
+    onSaveAndContinue(data);
   };
 
 
    const handleSkip = () => {
     setProfilePicture(null);
-    onNext(undefined); // Or null, depending on how you handle it in parent
+    setCurrentStep(2)// Or null, depending on how you handle it in parent
   };
 
 
@@ -48,7 +45,7 @@ export function ProfilePictureStep({ value, onNext }: ProfilePictureStepProps) {
         <div className="grid grid-cols-1 items-center gap-6 md:grid-cols-2">
           {/* Grid 1: File Upload */}
           <div className="flex flex-col items-center justify-center gap-4">
-            <FileUpload onFileSelected={setProfilePicture} value={value} />
+            <FileUpload onFileSelected={setProfilePicture} />
             <Button  variant="outline"  onClick={handleSkip}>
               Skip This Step
             </Button>

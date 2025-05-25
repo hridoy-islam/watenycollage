@@ -85,9 +85,16 @@ export function EmergencyContact({
             <div className="grid grid-cols-1">
               {/* Emergency Contact Section */}
               <div className="space-y-4">
-                <h2 className="text-xl font-semibold">
-                  Emergency Contact / Next of Kin
-                </h2>
+                <div className="flex flex-col items-start">
+                  <h2 className="text-xl font-semibold">
+                    Emergency Contact / Next of Kin
+                  </h2>
+                  <p className="text-md">
+                    Please provide the details of someone we can contact in case
+                    of an emergency. This is typically a close relative or
+                    someone you trust.
+                  </p>
+                </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <FormField
@@ -95,10 +102,19 @@ export function EmergencyContact({
                     name="emergencyFullName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Full Name</FormLabel>
+                        <FormLabel>
+                          Full Name <span className="text-red-500">*</span>
+                        </FormLabel>
                         <FormControl>
-                          <Input {...field} />
+                          <Input
+                            {...field}
+                            placeholder="Enter the full name of your emergency contact"
+                            className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
+                          />
                         </FormControl>
+                        <p className="mt-1 text-xs text-gray-400">
+                          Example: Jane Doe
+                        </p>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -109,10 +125,16 @@ export function EmergencyContact({
                     name="emergencyContactNumber"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Contact Number</FormLabel>
+                        <FormLabel>
+                          Contact Number <span className="text-red-500">*</span>
+                        </FormLabel>
                         <FormControl>
-                          <Input {...field} />
+                          <Input {...field}  placeholder="Enter a phone number where this person can be reached in an emergency"
+                            className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500" />
                         </FormControl>
+                         <p className="mt-1 text-xs text-gray-400">
+                         Example: +44 7700 900123
+                        </p>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -123,10 +145,15 @@ export function EmergencyContact({
                     name="emergencyEmail"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Email</FormLabel>
+                        <FormLabel>Email <span className="text-red-500">*</span></FormLabel>
                         <FormControl>
-                          <Input type="email" {...field} />
+                          <Input type="email" {...field} placeholder="Provide an email address for non-urgent communication"
+                      className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
+ />
                         </FormControl>
+                         <p className="mt-1 text-xs text-gray-400">
+                         Example: jane.doe@example.com
+                        </p>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -137,7 +164,7 @@ export function EmergencyContact({
                     name="emergencyRelationship"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Relationship</FormLabel>
+                        <FormLabel>Relationship <span className="text-red-500">*</span></FormLabel>
                         <FormControl>
                           <Select
                             options={relationshipOptions}
@@ -151,10 +178,21 @@ export function EmergencyContact({
                             onChange={(selected) =>
                               field.onChange(selected?.value)
                             }
-                            placeholder="Select Relation"
+                            placeholder="Select your relationship with this person"
                             isClearable
+                            styles={{
+                                placeholder: (provided) => ({
+                                  ...provided,
+                                  fontSize: '0.75rem',
+                                  color: '#9CA3AF'
+                                })
+                              }}
+
                           />
                         </FormControl>
+                         <p className="mt-1 text-xs text-gray-400">
+                          Example: Parent
+                        </p>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -164,12 +202,16 @@ export function EmergencyContact({
                     name="emergencyAddress"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Address</FormLabel>
-                        
-                          <FormControl>
-                          <Input type="text" {...field} />
-                     
+                        <FormLabel>Address <span className="text-red-500">*</span></FormLabel>
+
+                        <FormControl>
+                          <Input type="text" {...field} placeholder="Enter the full address of your emergency contact"
+                      className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
+ />
                         </FormControl>
+                         <p className="mt-1 text-xs text-gray-400">
+                          Example: 12 High Street, Bristol, BS1 4ST, United Kingdom
+                        </p>
                         <FormMessage />
                       </FormItem>
                     )}

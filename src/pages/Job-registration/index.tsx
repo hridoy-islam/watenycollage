@@ -1,135 +1,186 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog';
+
+import StudentApplication from '@/pages/studentApplication';
+import { Briefcase, Calendar, MoveLeft } from 'lucide-react';
+import { useNavigate, useParams } from 'react-router-dom';
+import RegistrationForm from './components/registration-form';
+import LoginForm from './components/login-form';
 import axiosInstance from '@/lib/axios';
-import JobSelectionForm from './components/job-selection-form';
-import JobApplicationForm from './components/job-application-form';
+import moment from 'moment';
+import CareerApplicationForm from '../career';
 
-export interface Job {
-  _id: string;
-  jobTitle: string;
-  applicationDeadline: string;
-  status: number;
-}
-
-export interface Department {
-  _id: string;
-  name: string;
-}
-
-function JobRegistration() {
-  const [formData, setFormData] = useState({
-    applicantType: '',
-    department: '',
-    jobTitle: '',
-    jobId: ''
-  });
-  const [jobs, setJobs] = useState<Job[]>([]);
-  const [departments, setDepartments] = useState<Department[]>([]);
-  const [showApplication, setShowApplication] = useState(false);
-  const { id: jobIdFromUrl } = useParams();
-
+export default function JobApplication() {
+  const [showJobApplication, setShowJobApplication] = useState(false);
+  const [showRegisterDialog, setShowRegisterDialog] = useState(false);
+  const [application, setApplication] = useState([]);
+  const [formSubmitted, setFormSubmitted] = useState(false);
+  const { id: applicationId } = useParams();
+  const navigate = useNavigate()
   useEffect(() => {
-    async function fetchInitialData() {
+    const fetchInitialData = async () => {
       try {
-        // This would fetch actual data in a real implementation
-        // Mock data for demonstration
-        const mockDepartments = [
-          { _id: "1", name: "Engineering" },
-          { _id: "2", name: "Marketing" },
-          { _id: "3", name: "Human Resources" },
-          { _id: "4", name: "Finance" },
-          { _id: "5", name: "Operations" }
-        ];
-        
-        const mockJobs = [
-          { _id: "101", jobTitle: "Senior Software Engineer", applicationDeadline: "2025-06-30", status: 1, departmentId: "1" },
-          { _id: "102", jobTitle: "Marketing Manager", applicationDeadline: "2025-07-15", status: 1, departmentId: "2" },
-          { _id: "103", jobTitle: "HR Specialist", applicationDeadline: "2025-06-25", status: 1, departmentId: "3" },
-          { _id: "104", jobTitle: "Financial Analyst", applicationDeadline: "2025-07-10", status: 1, departmentId: "4" },
-          { _id: "105", jobTitle: "Operations Director", applicationDeadline: "2025-08-01", status: 1, departmentId: "5" },
-          { _id: "106", jobTitle: "Frontend Developer", applicationDeadline: "2025-07-20", status: 1, departmentId: "1" },
-          { _id: "107", jobTitle: "Backend Developer", applicationDeadline: "2025-07-25", status: 1, departmentId: "1" }
-        ];
-
-        // In a real implementation, you would fetch this data from the server
-        // const [departmentsRes, jobsRes] = await Promise.all([
-        //   axiosInstance.get('/departments'),
-        //   axiosInstance.get('/jobs')
-        // ]);
-        
-        // setDepartments(departmentsRes?.data?.data?.result || []);
-        // const fetchedJobs = jobsRes?.data?.data?.result || [];
-        
-        setDepartments(mockDepartments);
-        setJobs(mockJobs);
-
-        // If there's a job ID in the URL, find and set that job
-        if (jobIdFromUrl) {
-          const selectedJob = mockJobs.find(
-            (job) => job._id === jobIdFromUrl
-          );
-          if (selectedJob) {
-            setFormData((prev) => ({
-              ...prev,
-              jobTitle: selectedJob.jobTitle,
-              jobId: selectedJob._id
-            }));
-          }
+        if (applicationId) {
+          localStorage.setItem("applicationId", applicationId);
         }
+        const response = await axiosInstance.get(`/jobs/${applicationId}`);
+
+        setApplication(response.data.data);
       } catch (error) {
         console.error('Error fetching initial data:', error);
       }
-    }
+    };
 
     fetchInitialData();
-  }, [jobIdFromUrl]);
+  }, [applicationId]);
 
-  const handleJobChange = (value: string) => {
-    const selectedJob = jobs.find((job) => job.jobTitle === value);
-    setFormData((prev) => ({
-      ...prev,
-      jobTitle: value,
-      jobId: selectedJob?._id || ''
-    }));
-  };
+  if(showJobApplication){
+    
+  }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  return (
+  <div className="flex min-h-screen flex-col items-center justify-start bg-white p-4">
+    <div className="w-full space-y-8">
+      <Card className="w-full rounded-xl border border-gray-100 bg-white shadow-lg">
+        <CardHeader className="border-b border-gray-100 bg-gray-50 px-8 py-5">
+          <div className="space-y-1">
+            <CardTitle className="text-2xl font-bold text-gray-800">
+              Application Details
+            </CardTitle>
+            <CardDescription className="text-sm text-gray-600">
+              Review your application details before submission
+            </CardDescription>
+          </div>
+        </CardHeader>
 
-    const selectedDepartment = departments.find(
-      (dept) => dept.name === formData.department
-    );
-    const departmentId = selectedDepartment?._id;
+        <CardContent className="px-8 py-6">
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+            {/* Role Applied For */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Briefcase className="h-5 w-5 text-gray-400" />
+                <span className="text-sm font-medium uppercase tracking-wider text-gray-500">
+                  Job Title
+                </span>
+              </div>
+              <p className="text-lg font-semibold text-gray-800">
+                {application?.jobTitle || (
+                  <span className="italic text-gray-400">
+                    No position selected
+                  </span>
+                )}
+              </p>
+            </div>
 
-    const selectedJob = jobs.find(
-      (job) => job.jobTitle === formData.jobTitle
-    );
-    const jobId = selectedJob?._id;
+            {/* Application Deadline */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Calendar className="h-5 w-5 text-gray-400" />
+                <span className="text-sm font-medium uppercase tracking-wider text-gray-500">
+                  Application Deadline
+                </span>
+              </div>
+              <div className="flex items-center gap-3">
+                <p className="text-lg font-semibold text-gray-800">
+                  {application?.applicationDeadline ? (
+                    moment(application.applicationDeadline).format(
+                      'MMMM D, YYYY'
+                    )
+                  ) : (
+                    <span className="italic text-gray-400">
+                      No deadline specified
+                    </span>
+                  )}
+                </p>
+                
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-    if (jobId && departmentId && formData.applicantType) {
-      localStorage.setItem('jobId', jobId);
-      localStorage.setItem('departmentId', departmentId);
-      localStorage.setItem('applicantType', formData.applicantType);
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        {/* Login Section - Left Side */}
+        <Card className="border border-gray-200 shadow-md">
+          <CardHeader className="bg-watney text-white">
+            <CardTitle>Login</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <LoginForm onSuccess={() => navigate('/dashboard/career-guideline')} />
+          </CardContent>
+        </Card>
 
-      setShowApplication(true);
-    }
-  };
+        {/* Register Section - Right Side */}
+        <Card className="border border-gray-200 shadow-md">
+          <CardHeader className="bg-watney text-white">
+            <CardTitle>Create a new user</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col items-center justify-center p-6">
+            <div className="mb-8 mt-4 text-center">
+              <Button
+                className="w-full bg-watney text-white hover:bg-watney/90"
+                onClick={() => setShowRegisterDialog(true)}
+              >
+                New User
+              </Button>
+            </div>
+            <p className="text-center text-sm text-gray-600">
+              You will be asked to create a Username (your email address)
+              and Password on the next screen. Please make a note of your
+              username and Password as you will need these to log back in to
+              your application.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
 
-  return showApplication ? (
-    <JobApplicationForm 
-      formData={formData} 
-      onBack={() => setShowApplication(false)} 
-    />
-  ) : (
-    <JobSelectionForm
-      formData={formData}
-      setFormData={setFormData}
-      jobs={jobs}
-      departments={departments}
-      handleJobChange={handleJobChange}
-      handleSubmit={handleSubmit}
-    />
-  );
+    {/* Registration Dialog */}
+    <Dialog open={showRegisterDialog} onOpenChange={setShowRegisterDialog}>
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[800px]">
+        <DialogHeader>
+          <DialogTitle>Register</DialogTitle>
+          <DialogDescription>
+            Create a new account to apply for this course
+          </DialogDescription>
+        </DialogHeader>
+        <RegistrationForm
+          formSubmitted={formSubmitted}
+          setFormSubmitted={setFormSubmitted}
+          setActiveTab={() => {
+            setShowRegisterDialog(false);
+            setFormSubmitted(false);
+          }}
+          onSuccess={() => {
+            setShowRegisterDialog(false);
+          }}
+        />
+      </DialogContent>
+    </Dialog>
+  </div>
+);
+
 }
-
-export default JobRegistration;

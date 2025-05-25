@@ -19,26 +19,34 @@ import { countries, nationalities } from '@/types';
 import Select from 'react-select';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { CustomDatePicker } from '@/components/shared/CustomDatePicker';
+
 // Schema
+
 const personalDetailsSchema = z.object({
   title: z.string().optional(),
-  firstName: z.string().optional(),
-  lastName: z.string().optional(),
+  firstName: z.string().min(1, { message: 'First name is required' }),
+  lastName: z.string().min(1, { message: 'Last name is required' }),
   initial: z.string().optional(),
-  dateOfBirth: z.any().optional(), // use `z.string()` if date is string
-  email: z.string().email().optional(),
-  phone: z.string().optional(),
+  dateOfBirth: z.any().optional(), // use z.string() if it's a string
+  email: z.string().email({ message: 'Invalid email address' }),
+  phone: z.string().min(1, { message: 'Phone number is required' }),
   gender: z.string().min(1, { message: 'Please select a gender' }),
   nationality: z.string().min(1, { message: 'Please select a nationality' }),
   ethnicity: z.string().min(1, { message: 'Please select an ethnicity' }),
   customEthnicity: z.string().optional(),
-  countryOfBirth: z
-    .string()
-    .min(1, { message: 'Please select country of birth' }),
+  countryOfBirth: z.string().min(1, { message: 'Please select country of birth' }),
   maritalStatus: z.string().min(1, { message: 'Please select marital status' }),
-  studentType: z.string().optional(),
-  requireVisa: z.string().optional(),
-  applicationLocation: z.string().optional()
+  requireVisa: z.string().min(1, { message: 'Required Field' }),
+  applicationLocation: z.string().min(1, { message: 'Required Field' }),
+}).superRefine((data, ctx) => {
+  if (data.ethnicity === 'Other' && (!data.customEthnicity || data.customEthnicity.trim() === '')) {
+    ctx.addIssue({
+      path: ['customEthnicity'],
+      code: z.ZodIssueCode.custom,
+      message: 'Please specify your ethnicity',
+    });
+  }
 });
 
 type PersonalDetailsData = z.infer<typeof personalDetailsSchema>;
@@ -54,7 +62,8 @@ export function PersonalDetailsStep({
   defaultValues,
   onSaveAndContinue,
   onSave,
-  setCurrentStep
+  setCurrentStep,
+  
 }: Props) {
   const form = useForm<PersonalDetailsData>({
     resolver: zodResolver(personalDetailsSchema),
@@ -83,8 +92,7 @@ export function PersonalDetailsStep({
     }
   }, [defaultValues, form]);
 
-  console.log(defaultValues);
-  const studentType = defaultValues?.studentType;
+  
   const ethnicity = useWatch({ control: form.control, name: 'ethnicity' });
 
   function handleBack() {
@@ -139,13 +147,15 @@ export function PersonalDetailsStep({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <CardContent className="space-y-6">
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             <FormField
               control={form.control}
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Title</FormLabel>
+                  <FormLabel>
+                    Title <span className="text-red-500">*</span>
+                  </FormLabel>
                   <Controller
                     name="title"
                     control={form.control}
@@ -156,10 +166,20 @@ export function PersonalDetailsStep({
                         onChange={(option) => onChange(option?.value)}
                         className="react-select-container"
                         classNamePrefix="react-select"
-                        placeholder="Select title"
+                        placeholder="Select your formal title as it appears on official documents."
+                        styles={{
+                          placeholder: (provided) => ({
+                            ...provided,
+                            fontSize: '0.75rem',
+                            color: '#9CA3AF'
+                          })
+                        }}
                       />
                     )}
                   />
+                  <p className="text-xs  text-gray-400">
+                    Example: Mr., Ms., Mrs., Dr., etc
+                  </p>
                   <FormMessage />
                 </FormItem>
               )}
@@ -170,10 +190,17 @@ export function PersonalDetailsStep({
               name="firstName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>First Name</FormLabel>
+                  <FormLabel>
+                    First Name <span className="text-red-500">*</span>
+                  </FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input
+                      {...field}
+                      placeholder="Enter your given name as it appears in your passport or national ID."
+                      className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
+                    />
                   </FormControl>
+                  <p className="text-xs  text-gray-400">Example: Ridoy</p>
                   <FormMessage />
                 </FormItem>
               )}
@@ -186,8 +213,13 @@ export function PersonalDetailsStep({
                 <FormItem>
                   <FormLabel>Middle Initial (Optional)</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input
+                      {...field}
+                      placeholder="If you have a middle name, enter only the first letter."
+                      className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
+                    />
                   </FormControl>
+                  <p className="text-xs  text-gray-400">Example: H</p>
                   <FormMessage />
                 </FormItem>
               )}
@@ -198,10 +230,17 @@ export function PersonalDetailsStep({
               name="lastName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Last Name</FormLabel>
+                  <FormLabel>
+                    Last Name (Surname) <span className="text-red-500">*</span>
+                  </FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input
+                      {...field}
+                      placeholder="If you have a middle name, enter only the first letter. Leave blank if not applicable."
+                      className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
+                    />
                   </FormControl>
+                  <p className="text-xs  text-gray-400">Example: Islam</p>
                   <FormMessage />
                 </FormItem>
               )}
@@ -210,22 +249,29 @@ export function PersonalDetailsStep({
             <FormField
               control={form.control}
               name="dateOfBirth"
-              render={({ field }) => (
-                <FormItem className="mt-2 flex flex-col">
-                  <FormLabel>Date of Birth</FormLabel>
-                  <Input
-                    type="date"
-                    value={
-                      field.value
-                        ? new Date(field.value).toISOString().split('T')[0]
-                        : ''
-                    }
-                    onChange={(e) => field.onChange(new Date(e.target.value))}
-                    className="mt-0.5 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-                  />
-                  <FormMessage />
-                </FormItem>
-              )}
+              render={({ field }) => {
+                const selectedDate = field.value ? new Date(field.value) : null;
+
+                return (
+                  <FormItem className="mt-2 flex flex-col">
+                    <FormLabel>
+                      Date of Birth (MM/DD/YYYY)
+                      <span className="text-red-500">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <CustomDatePicker
+                        selected={selectedDate}
+                        onChange={(date) => field.onChange(date)}
+                        placeholder="Enter your date of birth using the format DD/MM/YYYY."
+                      />
+                    </FormControl>
+                    <p className="mt-1 text-xs text-gray-400">
+                      Example: MM/DD/YYYY or 01/24/1995
+                    </p>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
             />
 
             <FormField
@@ -233,10 +279,20 @@ export function PersonalDetailsStep({
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>
+                    Email Address <span className="text-red-500">*</span>
+                  </FormLabel>
                   <FormControl>
-                    <Input type="email" {...field} />
+                    <Input
+                      type="email"
+                      {...field}
+                      placeholder="Enter a valid email address that you check regularly. All communication will be sent here."
+                      className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
+                    />
                   </FormControl>
+                  <p className="mt-1 text-xs text-gray-400">
+                    Example: ridoy@gmail.co
+                  </p>
                   <FormMessage />
                 </FormItem>
               )}
@@ -247,10 +303,21 @@ export function PersonalDetailsStep({
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Phone Number</FormLabel>
+                  <FormLabel>
+                    Phone Number <span className="text-red-500">*</span>
+                  </FormLabel>
                   <FormControl>
-                    <Input type="tel" {...field} />
+                    <Input
+                      type="tel"
+                      {...field}
+                      placeholder="Include your country code if applying from outside the UK."
+                      className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
+                    />
                   </FormControl>
+                  <p className="mt-1 text-xs text-gray-400">
+                    Example: +8801675792314 (for Bangladesh)
+                  </p>
+
                   <FormMessage />
                 </FormItem>
               )}
@@ -262,7 +329,9 @@ export function PersonalDetailsStep({
               name="gender"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Gender</FormLabel>
+                  <FormLabel>
+                    Gender <span className="text-red-500">*</span>
+                  </FormLabel>
                   <FormControl>
                     <Select
                       options={genderOptions}
@@ -274,10 +343,21 @@ export function PersonalDetailsStep({
                           : null
                       }
                       onChange={(selected) => field.onChange(selected?.value)}
-                      placeholder="Select Gender"
+                      placeholder="Please select your gender."
                       isClearable
+                      styles={{
+                        placeholder: (provided) => ({
+                          ...provided,
+                          fontSize: '0.75rem',
+                          color: '#9CA3AF'
+                        })
+                      }}
                     />
                   </FormControl>
+                  <p className="mt-1 text-xs text-gray-400">
+                    Example: Male, Female, Non-binary, Prefer not to say, Other
+                  </p>
+
                   <FormMessage />
                 </FormItem>
               )}
@@ -289,7 +369,9 @@ export function PersonalDetailsStep({
               name="nationality"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Country Of Domicile</FormLabel>
+                  <FormLabel>
+                    Country Of Domicile <span className="text-red-500">*</span>
+                  </FormLabel>
                   <FormControl>
                     <Select
                       options={nationalities.map((nation) => ({
@@ -304,10 +386,21 @@ export function PersonalDetailsStep({
                       onChange={(selectedOption) =>
                         field.onChange(selectedOption?.value)
                       }
-                      placeholder="Select"
+                      placeholder="Enter the country where you are legally resident."
                       isClearable
+                      styles={{
+                        placeholder: (provided) => ({
+                          ...provided,
+                          fontSize: '0.75rem',
+                          color: '#9CA3AF'
+                        })
+                      }}
                     />
                   </FormControl>
+                  <p className="mt-1 text-xs text-gray-400">
+                    Example: Bangladesh
+                  </p>
+
                   <FormMessage />
                 </FormItem>
               )}
@@ -319,7 +412,7 @@ export function PersonalDetailsStep({
               name="ethnicity"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Ethnicity</FormLabel>
+                  <FormLabel>Ethnicity <span className="text-red-500">*</span></FormLabel>
                   <FormControl>
                     <Select
                       options={ethnicityOptions}
@@ -347,12 +440,12 @@ export function PersonalDetailsStep({
                 name="customEthnicity"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Specify Ethnicity</FormLabel>
+                    <FormLabel>Specify Ethnicity <span className="text-red-500">*</span></FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Enter your ethnicity"
                         {...field}
-                        className="p-1 text-sm"
+                        className="!placeholder:text-gray-500 p-1 text-sm  placeholder:text-xs placeholder:text-gray-500"
+                        placeholder="This is collected for equal opportunity monitoring. It will not affect your application."
                       />
                     </FormControl>
                     <FormMessage />
@@ -367,7 +460,9 @@ export function PersonalDetailsStep({
               name="countryOfBirth"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Country of Birth</FormLabel>
+                  <FormLabel>
+                    Country of Birth <span className="text-red-500">*</span>
+                  </FormLabel>
                   <FormControl>
                     <Select
                       options={countryOptions}
@@ -379,10 +474,21 @@ export function PersonalDetailsStep({
                           : null
                       }
                       onChange={(selected) => field.onChange(selected?.value)}
-                      placeholder="Select Country"
+                      placeholder="Select the country where you were born."
                       isClearable
+                      styles={{
+                        placeholder: (provided) => ({
+                          ...provided,
+                          fontSize: '0.75rem',
+                          color: '#9CA3AF'
+                        })
+                      }}
                     />
                   </FormControl>
+                  <p className="mt-1 text-xs text-gray-400">
+                    Example: Bangladesh
+                  </p>
+
                   <FormMessage />
                 </FormItem>
               )}
@@ -406,17 +512,29 @@ export function PersonalDetailsStep({
                           : null
                       }
                       onChange={(selected) => field.onChange(selected?.value)}
-                      placeholder="Select"
+                      placeholder="Select your current marital status."
                       isClearable
+                      styles={{
+                        placeholder: (provided) => ({
+                          ...provided,
+                          fontSize: '0.75rem',
+                          color: '#9CA3AF'
+                        })
+                      }}
                     />
                   </FormControl>
+
+                  <p className="mt-1 text-xs text-gray-400">
+                    Options: Single, Married, Civil Partnership, Divorced,
+                    Widowed, Prefer not to say
+                  </p>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
             {/* Conditional International Fields */}
-            {studentType === 'international' && (
+            {defaultValues?.studentType === 'international' && (
               <>
                 <FormField
                   control={form.control}
@@ -424,7 +542,8 @@ export function PersonalDetailsStep({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        Do you require a visa to come to the UK?
+                        Do you require a visa to come to the UK?{' '}
+                        <span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>
                         <Select
@@ -439,10 +558,18 @@ export function PersonalDetailsStep({
                           onChange={(selected) =>
                             field.onChange(selected?.value)
                           }
-                          placeholder="Select"
+                          placeholder="Select yes or no"
                           isClearable
+                          styles={{
+                            placeholder: (provided) => ({
+                              ...provided,
+                              fontSize: '0.75rem',
+                              color: '#9CA3AF'
+                            })
+                          }}
                         />
                       </FormControl>
+                      <p className="mt-1 text-xs text-gray-400">Example: Yes</p>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -453,7 +580,8 @@ export function PersonalDetailsStep({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        From where are you making your application?
+                        From where are you making your application?{' '}
+                        <span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>
                         <Select
@@ -468,10 +596,20 @@ export function PersonalDetailsStep({
                           onChange={(selected) =>
                             field.onChange(selected?.value)
                           }
-                          placeholder="Select Country"
+                          placeholder="Select the Country"
                           isClearable
+                          styles={{
+                            placeholder: (provided) => ({
+                              ...provided,
+                              fontSize: '0.75rem',
+                              color: '#9CA3AF'
+                            })
+                          }}
                         />
                       </FormControl>
+                      <p className="mt-1 text-xs text-gray-400">
+                        Example: Canada
+                      </p>
                       <FormMessage />
                     </FormItem>
                   )}

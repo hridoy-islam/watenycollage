@@ -102,19 +102,7 @@ export default function RegistrationForm({
     }
   }
 
-  if (formSubmitted) {
-    return (
-      <div className="flex flex-col items-center justify-center space-y-4 py-6">
-        <div className="rounded-full bg-green-100 p-3">
-          <Check className="h-8 w-8 text-green-600" />
-        </div>
-        <h3 className="text-xl font-semibold">Registration Successful</h3>
-        <p className="text-center text-gray-600">
-          Your account has been created. Please check your email for verification.
-        </p>
-      </div>
-    )
-  }
+  
 
   return (
     <Form {...form}>

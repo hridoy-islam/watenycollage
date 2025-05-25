@@ -21,11 +21,8 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 
-import type { TCareer } from '@/types/career';
 import { Checkbox } from '@/components/ui/checkbox';
-import { useState } from 'react';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import DatePicker from 'react-datepicker';
+import { useEffect, useState } from 'react';
 import 'react-datepicker/dist/react-datepicker.css';
 import { CustomDatePicker } from '@/components/shared/CustomDatePicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -42,15 +39,10 @@ const daysOfWeek = [
 ];
 
 const applicationDetailsSchema = z.object({
-  applicationDate: z.date({ required_error: 'Application date is required' }),
+ 
   availableFromDate: z.date({ required_error: 'Application date is required' }),
-  position: z.string().min(1, { message: 'Position is required' }),
   source: z.string().min(1, { message: 'Source is required' }),
-  carTravelAllowance: z.boolean(),
-  // salaryExpectation: z
-  //   .string()
-  //   .min(1, { message: 'Salary expectation is required' }),
-  // maxHoursPerWeek: z.string().min(1, { message: 'Maximum hours is required' }),
+
   availability: z
     .object(
       Object.fromEntries(daysOfWeek.map((day) => [day, z.boolean().optional()]))
@@ -58,48 +50,32 @@ const applicationDetailsSchema = z.object({
     .refine((data) => Object.values(data).some((val) => val), {
       message: 'Please select at least one day of availability'
     }),
-  isStudent: z.boolean(),
-  // isBritishCitizen: z.boolean(),
+  isStudent: z.boolean().refine((val) => val === true || val === false, {
+    message: 'Please select if you are a student'
+  }),
   referralEmployee: z.string().optional(),
-  isUnderStatePensionAge: z.boolean(),
-  wtrDocumentUrl: z
-    .any()
-    .refine((file) => !file || (file instanceof File && file.size > 0), {
-      message: 'Please upload a valid file'
+  isUnderStatePensionAge: z
+    .boolean()
+    .refine((val) => val === true || val === false, {
+      message: 'Please indicate if you are under the state pension age'
     })
-    .optional()
 });
 
 type ApplicationDetailsFormValues = z.infer<typeof applicationDetailsSchema>;
 
-interface ApplicationDetailsStepProps {
-  value: Partial<TCareer>;
-  onNext: (data: Partial<TCareer>) => void;
-  onBack: () => void;
-}
-
 export function ApplicationDetailsStep({
-  value,
-  onNext,
-  onBack
-}: ApplicationDetailsStepProps) {
-  const [fileName, setFileName] = useState<string>('');
+  defaultValues,
+  onSaveAndContinue,
+  setCurrentStep
+}) {
 
   const form = useForm<ApplicationDetailsFormValues>({
     resolver: zodResolver(applicationDetailsSchema),
     defaultValues: {
-      applicationDate: value.applicationDate
-        ? new Date(value.applicationDate)
-        : undefined,
-      availableFromDate: value.availableFromDate
-        ? new Date(value.availableFromDate)
-        : undefined,
-      position: value.position || '',
-      source: value.source || '',
-      carTravelAllowance: value.carTravelAllowance || false,
-      // salaryExpectation: value.salaryExpectation || '',
-      // maxHoursPerWeek: value.maxHoursPerWeek || '',
-      availability: value.availability || {
+      availableFromDate: undefined ,
+      source: '',
+
+      availability: {
         monday: false,
         tuesday: false,
         wednesday: false,
@@ -108,13 +84,19 @@ export function ApplicationDetailsStep({
         saturday: false,
         sunday: false
       },
-      isStudent: value.isStudent || '',
+      isStudent: undefined,
       // isBritishCitizen: value.isBritishCitizen || false,
-      referralEmployee: value.referralEmployee || '',
-      isUnderStatePensionAge: value.isUnderStatePensionAge || '',
-      wtrDocumentUrl: value.wtrDocumentUrl || undefined
-    }
+      referralEmployee: '',
+      isUnderStatePensionAge: undefined
+    },
+    ...defaultValues
   });
+
+  useEffect(() => {
+    if (defaultValues) {
+      form.reset({...defaultValues, availableFromDate: defaultValues.availableFromDate? new Date(defaultValues.availableFromDate): undefined});
+    }
+  }, [defaultValues, form]);
 
   const options = [
     { value: 'website', label: 'Company Website' },
@@ -129,27 +111,17 @@ export function ApplicationDetailsStep({
     { value: false, label: 'No' }
   ];
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files.length > 0) {
-      const file = event.target.files[0];
-      setFileName(file.name);
-      form.setValue('wtrDocumentUrl', file);
-    }
-  };
 
   // Watch source field to show referral input conditionally
   const sourceValue = form.watch('source');
 
   function onSubmit(data: ApplicationDetailsFormValues) {
-    const result: Partial<TCareer> = {
-      ...data,
-      wtrDocumentUrl:
-        data.wtrDocumentUrl instanceof File
-          ? data.wtrDocumentUrl.name
-          : data.wtrDocumentUrl || ''
-    };
-    onNext(result);
+    onSaveAndContinue(data);
   }
+
+  const handleBack = () => {
+    setCurrentStep(2);
+  };
 
   return (
     <Card className="border-0 shadow-none ">
@@ -165,56 +137,7 @@ export function ApplicationDetailsStep({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <FormField
-                control={form.control}
-                name="position"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Position you applied for*</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        className="!placeholder:text-gray-400 placeholder:text-xs placeholder:text-gray-400 "
-                        placeholder="Enter the job title or role you're applying for"
-                      />
-                    </FormControl>
-                    {/* <p className="text-xs  text-gray-400">
-                      Example: Support Worker, Front-End Developer, Care
-                      Assistant
-                    </p> */}
-
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="applicationDate"
-                render={({ field }) => {
-                  const selectedDate = field.value
-                    ? new Date(field.value)
-                    : null;
-
-                  return (
-                    <FormItem className="mt-2 flex flex-col">
-                      <FormLabel>Application Date (MM/DD/YYYY)*</FormLabel>
-                      <FormControl>
-                        <CustomDatePicker
-                          selected={selectedDate}
-                          onChange={(date) => field.onChange(date)}
-                          placeholder="The date you’re submitting this application."
-                        />
-                      </FormControl>
-                      {/* <p className="text-xs  text-gray-400">
-                        Example: 01/15/2025
-                      </p> */}
-
-                      <FormMessage />
-                    </FormItem>
-                  );
-                }}
-              />
+              
 
               <FormField
                 control={form.control}
@@ -226,7 +149,10 @@ export function ApplicationDetailsStep({
 
                   return (
                     <FormItem className="mt-2 flex w-full flex-col">
-                      <FormLabel>Available From Date (MM/DD/YYYY)*</FormLabel>
+                      <FormLabel>
+                        Available From Date (MM/DD/YYYY)
+                        <span className="text-red-500">*</span>
+                      </FormLabel>
                       <FormControl>
                         <CustomDatePicker
                           selected={selectedDate}
@@ -249,7 +175,10 @@ export function ApplicationDetailsStep({
                 name="source"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>How did you hear about us?*</FormLabel>
+                    <FormLabel>
+                      How did you hear about us?
+                      <span className="text-red-500">*</span>
+                    </FormLabel>
 
                     <Controller
                       control={form.control}
@@ -288,7 +217,10 @@ export function ApplicationDetailsStep({
                 name="referralEmployee"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Referred by (Employee Name)*</FormLabel>
+                    <FormLabel>
+                      Referred by (Employee Name)
+                      <span className="text-red-500">*</span>
+                    </FormLabel>
                     <FormControl>
                       <Input {...field} placeholder="Enter the employee name" />
                     </FormControl>
@@ -341,7 +273,10 @@ export function ApplicationDetailsStep({
               render={() => (
                 <FormItem className="">
                   <div className="flex items-center justify-start gap-2">
-                    <FormLabel>Availability (Select all that apply)*</FormLabel>
+                    <FormLabel>
+                      Availability (Select all that apply)
+                      <span className="text-red-500">*</span>
+                    </FormLabel>
 
                     {/* Select All Button */}
                     <Button
@@ -407,13 +342,16 @@ export function ApplicationDetailsStep({
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {/* Student Status */}
-              <FormItem>
-                <FormLabel>Are you currently a student?*</FormLabel>
+              <FormField
+                control={form.control}
+                name="isStudent"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Are you currently a student?
+                      <span className="text-red-500">*</span>
+                    </FormLabel>
 
-                <Controller
-                  name="isStudent"
-                  control={form.control}
-                  render={({ field }) => (
                     <Select
                       options={yesNoOptions}
                       placeholder="Select Yes if you are currently enrolled in any educational institution."
@@ -427,22 +365,24 @@ export function ApplicationDetailsStep({
                       }
                       className="text-sm"
                     />
-                  )}
-                />
 
-                <p className="text-xs text-gray-400">Example: Yes / No</p>
-
-                <FormMessage />
-              </FormItem>
+                    <p className="text-xs text-gray-400">Example: Yes / No</p>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               {/* Under State Pension Age */}
-              <FormItem>
-                <FormLabel>Are you under state pension age?</FormLabel>
+              <FormField
+                control={form.control}
+                name="isUnderStatePensionAge"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Are you under state pension age?{' '}
+                      <span className="text-red-500">*</span>
+                    </FormLabel>
 
-                <Controller
-                  name="isUnderStatePensionAge"
-                  control={form.control}
-                  render={({ field }) => (
                     <Select
                       options={yesNoOptions}
                       placeholder="Indicate whether you are below the UK state pension age."
@@ -457,13 +397,12 @@ export function ApplicationDetailsStep({
                       }
                       className="text-sm"
                     />
-                  )}
-                />
 
-                <p className="text-xs text-gray-400">Example: Yes / No</p>
-
-                <FormMessage />
-              </FormItem>
+                    <p className="text-xs text-gray-400">Example: Yes / No</p>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
             {/* 
             <FormField
@@ -497,64 +436,11 @@ export function ApplicationDetailsStep({
               )}
             /> */}
 
-            <FormField
-              control={form.control}
-              name="carTravelAllowance"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>Car Travel Allowance</FormLabel>
-                    <p className="text-sm text-muted-foreground">
-                      Tick this box if you require a car travel allowance for
-                      the role{' '}
-                    </p>
-                  </div>
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="wtrDocumentUrl"
-              render={() => (
-                <FormItem className="w-full sm:w-1/2">
-                  <FormLabel>
-                    Upload Working Time Regulation (WTR) Document
-                  </FormLabel>
-                  <p className="text-xs text-gray-400">
-                    If you have a WTR agreement or related document, upload it
-                    here.
-                  </p>
-                  <FormControl>
-                    <div className="flex flex-col items-start space-y-2">
-                      <Input type="file" onChange={handleFileChange} />
-                      {fileName && (
-                        <span className="text-sm text-gray-500">
-                          {fileName}
-                        </span>
-                      )}
-                    </div>
-                  </FormControl>
-                  <p className="text-xs  text-gray-400">
-                    Accepted Formats: PDF, DOC, DOCX (Max size: 5MB)
-                  </p>
-
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
             <div className="flex justify-between">
               <Button
                 type="button"
                 variant="outline"
-                onClick={onBack}
+                onClick={handleBack}
                 className="bg-watney text-white hover:bg-watney/90"
               >
                 Back
