@@ -5,6 +5,7 @@ type StepValidationConfig = {
 };
 
 export const stepValidationConfigs: Record<number, StepValidationConfig> = {
+  1:{ requiredFields: []},
   2: { // Personal Details
     requiredFields: [
       'firstName',

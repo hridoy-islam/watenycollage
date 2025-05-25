@@ -41,7 +41,7 @@ export default function JobApplicationPage() {
   const [selectedJobId, setSelectedJobId] = useState('');
   const { user } = useSelector((state: any) => state.auth);
   const { toast } = useToast();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [isDisabled, setIsDisabled] = useState(false);
 
   const form = useForm<JobApplicationFormValues>({
@@ -50,51 +50,49 @@ export default function JobApplicationPage() {
     }
   });
 
-useEffect(() => {
-  const fetchJobs = async () => {
-    try {
-      const res = await axiosInstance.get('/jobs');
-      const jobList = res.data?.data.result || [];
-      setJobs(jobList);
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const res = await axiosInstance.get('/jobs');
+        const jobList = res.data?.data.result || [];
+        setJobs(jobList);
 
-      const storedAppId = localStorage.getItem('applicationId');
-      if (storedAppId) {
-        setIsDisabled(true);
-        const matchedJob = jobList.find((job) => job._id === storedAppId);
-        if (matchedJob) {
-          setSelectedJobId(matchedJob._id);
-          form.setValue('jobId', matchedJob._id);
+        const storedAppId = localStorage.getItem('applicationId');
+        if (storedAppId) {
+          setIsDisabled(true);
+          const matchedJob = jobList.find((job) => job._id === storedAppId);
+          if (matchedJob) {
+            setSelectedJobId(matchedJob._id);
+            form.setValue('jobId', matchedJob._id);
+          }
         }
+      } catch (error) {
+        console.error('Failed to fetch jobs:', error);
+        toast({ title: 'Failed to load job listings.' });
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error('Failed to fetch jobs:', error);
-      toast({ title: 'Failed to load job listings.' });
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
-  fetchJobs();
-}, [form]);
-
+    fetchJobs();
+  }, [form]);
 
   // Handle form submission
   const onSubmit = async (data: JobApplicationFormValues) => {
-
-
     setSubmitting(true);
     try {
       await axiosInstance.post('/application-job', {
         jobId: data.jobId,
         applicantId: user?._id
       });
-       navigate('/dashboard');
+            localStorage.removeItem('applicationId');
+
+      navigate('/dashboard');
       toast({ title: 'Successfully applied!' });
       form.reset();
       setSelectedJobId('');
     } catch (err: any) {
-      toast({title: err.response?.data?.message || 'Application failed.' }) 
-     
+      toast({ title: err.response?.data?.message || 'Application failed.' });
     } finally {
       setSubmitting(false);
     }
@@ -130,7 +128,7 @@ useEffect(() => {
                       setSelectedJobId(value);
                     }}
                     value={field.value}
-                     disabled={isDisabled}
+                    disabled={isDisabled}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Choose a job">

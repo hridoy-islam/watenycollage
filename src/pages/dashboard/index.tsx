@@ -33,7 +33,7 @@ export default function DashboardPage() {
       if (user.role === 'student') {
         navigate('/dashboard/student-form');
       } else if (user.role === 'applicant') {
-        navigate('/dashboard/career-application');
+        navigate('/dashboard/career');
       }
     }
   }, [user, navigate]);
