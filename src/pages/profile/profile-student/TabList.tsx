@@ -1,7 +1,8 @@
 import React from 'react';
 import { 
   User, MapPin, Phone, BookOpen, Briefcase, 
-  FileCheck, GraduationCap, ChevronRight 
+  FileCheck, GraduationCap, ChevronRight, 
+  File
 } from 'lucide-react';
 import { TabListProps, TabItemProps, TabType } from './types';
 
@@ -33,7 +34,7 @@ const TabList: React.FC<TabListProps> = ({ activeTab, setActiveTab }) => {
     { id: 'educationData' as TabType, label: 'Education', icon: <BookOpen size={20} /> },
     { id: 'employmentData' as TabType, label: 'Employment', icon: <Briefcase size={20} /> },
     { id: 'complianceData' as TabType, label: 'Compliance', icon: <FileCheck size={20} /> },
-    { id: 'courseDetails' as TabType, label: 'Course Details', icon: <GraduationCap size={20} /> }
+    { id: 'documentData' as TabType, label: 'Documents', icon: <File size={20} /> }
   ];
 
   return (

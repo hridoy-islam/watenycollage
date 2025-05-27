@@ -23,43 +23,47 @@ import { Textarea } from '@/components/ui/textarea';
 import { CustomDatePicker } from '@/components/shared/CustomDatePicker';
 import ReactSelect from 'react-select';
 
-const complianceSchema = z.object({
-  startDateInUK: z.date().optional(),
-  niNumber: z.string().optional(),
-  immigrationStatus: z.string().min(1, { message: 'Please select status' }),
-  ltrCode: z.string().optional(),
-  disability: z.string().min(1, { message: 'Please select an option' }),
-  disabilityDetails: z.string().optional(),
-  benefits: z.string().min(1, { message: 'Please select an option' }),
-  criminalConviction:  z.boolean({ required_error: 'Please select an option' }),
-  convictionDetails: z.string().optional(),
-  studentFinance: z.string().min(1, { message: 'Please select an option' }),
-  visaRequired: z.string().min(1, { message: 'Please select an option' }),
-  enteredUKBefore: z.string().min(1, { message: 'Please select an option' }),
-  completedUKCourse: z.string().min(1, { message: 'Please select an option' }),
-  visaRefusal: z.string().min(1, { message: 'Please select an option' })
-})
-.superRefine((data, ctx) => {
+const complianceSchema = z
+  .object({
+    startDateInUK: z.date().optional(),
+    niNumber: z.string().optional(),
+    immigrationStatus: z.string().min(1, { message: 'Please select status' }),
+    ltrCode: z.string().optional(),
+    disability: z.string().min(1, { message: 'Please select an option' }),
+    disabilityDetails: z.string().optional(),
+    benefits: z.string().min(1, { message: 'Please select an option' }),
+    criminalConviction: z.boolean({
+      required_error: 'Please select an option'
+    }),
+    convictionDetails: z.string().optional(),
+    studentFinance: z.string().min(1, { message: 'Please select an option' }),
+    visaRequired: z.string().min(1, { message: 'Please select an option' }),
+    enteredUKBefore: z.string().min(1, { message: 'Please select an option' }),
+    completedUKCourse: z
+      .string()
+      .min(1, { message: 'Please select an option' }),
+    visaRefusal: z.string().min(1, { message: 'Please select an option' })
+  })
+  .superRefine((data, ctx) => {
+    // Check if disability is "yes" and if disabilityDetails is provided
+    if (data.disability === 'yes' && !data.disabilityDetails?.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Disability details are required when disability is "yes".',
+        path: ['disabilityDetails']
+      });
+    }
 
-  // Check if disability is "yes" and if disabilityDetails is provided
-  if (data.disability === 'yes' && !data.disabilityDetails?.trim()) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: 'Disability details are required when disability is "yes".',
-      path: ['disabilityDetails']
-    });
-  }
-
-  // Check if criminalConviction is "yes" and if convictionDetails is provided
-  if (data.criminalConviction === true && !data.convictionDetails?.trim()) {
-  ctx.addIssue({
-    code: z.ZodIssueCode.custom,
-    message: 'Conviction details are required when criminal conviction is "yes".',
-    path: ['convictionDetails']
+    // Check if criminalConviction is "yes" and if convictionDetails is provided
+    if (data.criminalConviction === true && !data.convictionDetails?.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          'Conviction details are required when criminal conviction is "yes".',
+        path: ['convictionDetails']
+      });
+    }
   });
-}
-});
-
 
 type ComplianceData = z.infer<typeof complianceSchema>;
 
@@ -71,7 +75,9 @@ export function ComplianceStep({
   const form = useForm<ComplianceData>({
     resolver: zodResolver(complianceSchema),
     defaultValues: {
-      startDateInUK: defaultValues?.startDateInUK ? new Date(defaultValues.startDateInUK) : undefined,
+      startDateInUK: defaultValues?.startDateInUK
+        ? new Date(defaultValues.startDateInUK)
+        : undefined,
       niNumber: defaultValues?.niNumber || '',
       immigrationStatus: defaultValues?.immigrationStatus || '',
       ltrCode: defaultValues?.ltrCode || '',
@@ -551,43 +557,48 @@ export function ComplianceStep({
               />
 
               <FormField
-  control={form.control}
-  name="criminalConviction"
-  render={({ field }) => (
-    <FormItem className="flex w-full flex-col">
-      <FormLabel>
-        Do you have any criminal conviction?{' '}
-        <span className="text-red-500">*</span>
-      </FormLabel>
-      <FormControl>
-        <ReactSelect
-          options={[
-            { value: true, label: 'Yes' },
-            { value: false, label: 'No' }
-          ]}
-          placeholder="Please disclose any relevant criminal convictions as per UK law."
-          value={
-            field.value !== null
-              ? { value: field.value, label: field.value ? 'Yes' : 'No' }
-              : null
-          }
-          onChange={(option) => field.onChange(option?.value)}
-          className="react-select-container"
-          classNamePrefix="react-select"
-          styles={{
-            placeholder: (provided) => ({
-              ...provided,
-              fontSize: '0.75rem',
-              color: '#9CA3AF'
-            })
-          }}
-        />
-      </FormControl>
-      <p className="mt-1 text-xs text-gray-400">Example: Yes / No</p>
-      <FormMessage />
-    </FormItem>
-  )}
-/>
+                control={form.control}
+                name="criminalConviction"
+                render={({ field }) => (
+                  <FormItem className="flex w-full flex-col">
+                    <FormLabel>
+                      Do you have any criminal conviction?{' '}
+                      <span className="text-red-500">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <ReactSelect
+                        options={[
+                          { value: true, label: 'Yes' },
+                          { value: false, label: 'No' }
+                        ]}
+                        placeholder="Please disclose any relevant criminal convictions as per UK law."
+                        value={
+                          field.value !== null
+                            ? {
+                                value: field.value,
+                                label: field.value ? 'Yes' : 'No'
+                              }
+                            : null
+                        }
+                        onChange={(option) => field.onChange(option?.value)}
+                        className="react-select-container"
+                        classNamePrefix="react-select"
+                        styles={{
+                          placeholder: (provided) => ({
+                            ...provided,
+                            fontSize: '0.75rem',
+                            color: '#9CA3AF'
+                          })
+                        }}
+                      />
+                    </FormControl>
+                    <p className="mt-1 text-xs text-gray-400">
+                      Example: Yes / No
+                    </p>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               {watchCriminalConviction === true && (
                 <FormField

@@ -68,6 +68,23 @@ export default function CareerApplicationForm() {
   };
 
   useEffect(() => {
+    fetchedData();
+  }, []);
+
+  const findFirstIncompleteStep = (userData: any): number => {
+    if (!userData.image || userData.image.trim() === '') {
+      return 1;
+    }
+
+    // You can add more step checks here
+    // Example:
+    // if (!userData.education || userData.education.length === 0) return 2;
+    // if (!userData.experience || userData.experience.length === 0) return 3;
+
+    return -1;
+  };
+
+  useEffect(() => {
     if (Object.keys(fetchData).length === 0) return;
 
     const firstIncompleteStep = findFirstIncompleteStep(fetchData);
@@ -82,9 +99,7 @@ export default function CareerApplicationForm() {
     }
   }, [fetchData]);
 
-  useEffect(() => {
-    fetchedData();
-  }, []);
+  const applicationId = localStorage.getItem('applicationId');
 
   const handleStepClick = (stepId: number) => {
     setCurrentStep(stepId);
@@ -247,13 +262,18 @@ export default function CareerApplicationForm() {
     //   setCurrentStep(missingSteps[0]);
     //   return;
     // }
-
     try {
       await axiosInstance.patch(`/users/${user._id}`, {
         ...formData,
         isCompleted: true
       });
       dispatch(updateAuthIsCompleted(true));
+      await axiosInstance.post('/application-job', {
+        jobId: applicationId,
+        applicantId: user?._id
+      });
+      dispatch(updateAuthIsCompleted(true));
+
       localStorage.removeItem('applicationId');
 
       toast({

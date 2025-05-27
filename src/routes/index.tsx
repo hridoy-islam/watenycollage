@@ -25,6 +25,7 @@ import Guideline from '@/components/shared/Guideline';
 import CareerGuideline from '@/pages/career/career-guideline';
 import CourseApplicationPage from '@/pages/dashboard-application/course-application';
 import JobApplicationPage from '@/pages/dashboard-application/job-application';
+import StudentGuideline from '@/pages/studentApplication/student-guideline';
 const SignInPage = lazy(() => import('@/pages/auth/signin'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
 
@@ -114,6 +115,11 @@ export default function AppRouter() {
         {
           path: 'career-guideline',
           element: <CareerGuideline />,
+          index: true
+        },
+        {
+          path: 'student-guideline',
+          element: <StudentGuideline />,
           index: true
         }
       ]

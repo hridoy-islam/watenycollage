@@ -7,7 +7,7 @@ export type TabType =
   | 'educationData'
   | 'employmentData'
   | 'complianceData'
-  | 'courseDetails';
+  | 'documentData';
 
 export interface TabItemProps {
   id: TabType;
@@ -27,9 +27,3 @@ export interface TabContentProps {
   userData: User;
 }
 
-export interface TabSectionProps {
-  title: string;
-  description?: string;
-  userData: User;
-  children?: React.ReactNode;
-}

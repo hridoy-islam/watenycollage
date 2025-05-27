@@ -149,10 +149,10 @@ export default function StudentApplication() {
     }
   }, [fetchData]);
 
+  const savedStudentType = localStorage.getItem('studentType');
+  const savedCourseId = localStorage.getItem('courseId');
+  const savedTermId = localStorage.getItem('termId');
   useEffect(() => {
-    const savedStudentType = localStorage.getItem('studentType');
-    const savedCourseId = localStorage.getItem('courseId');
-    const savedTermId = localStorage.getItem('termId');
 
     setFormData((prev) => ({
       ...prev,
@@ -358,6 +358,11 @@ export default function StudentApplication() {
       //   isCompleted: true
       // });
 
+      await axiosInstance.post('/application-course', {
+        courseId: savedCourseId,
+        intakeId: savedTermId,
+        studentId: user._id
+      });
       localStorage.removeItem('studentType');
       localStorage.removeItem('termId');
       localStorage.removeItem('courseId');

@@ -23,17 +23,17 @@ export default function DashboardPage() {
 
   const handleRoute = () => {
   if (user.role === 'student') {
-    navigate('/dashboard/course-application');
+    navigate('/dashboard/student-guideline');
   } else if(user.role === 'applicant'){
-    navigate('/dashboard/job-application');
+    navigate('/dashboard/student-guideline');
   }
 };
   useEffect(() => {
     if (user && user.isCompleted === false) {
       if (user.role === 'student') {
-        navigate('/dashboard/student-form');
+        navigate('/dashboard/student-guideline');
       } else if (user.role === 'applicant') {
-        navigate('/dashboard/career');
+        navigate('/dashboard/career-guideline');
       }
     }
   }, [user, navigate]);
