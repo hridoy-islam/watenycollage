@@ -31,7 +31,7 @@ import RegistrationForm from './components/registration-form';
 import LoginForm from './components/login-form';
 import axiosInstance from '@/lib/axios';
 import moment from 'moment';
-import CareerApplicationForm from '../career';
+import CareerApplicationForm from '../career-application';
 
 export default function JobApplication() {
   const [showJobApplication, setShowJobApplication] = useState(false);

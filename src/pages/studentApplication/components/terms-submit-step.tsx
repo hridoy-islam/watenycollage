@@ -37,6 +37,7 @@ export function TermsSubmitStep({
   onSave,
   onReview,
   onSubmit,
+  onSaveAndContinue,
   setCurrentStep
 }: any) {
   const form = useForm<TermsData>({
@@ -47,28 +48,30 @@ export function TermsSubmitStep({
     }
   });
 
-   useEffect(() => {
-      if (defaultValues) {
-        form.reset(defaultValues);
-      }
-    }, [defaultValues, form]);
-  
+  useEffect(() => {
+    if (defaultValues) {
+      form.reset(defaultValues);
+    }
+  }, [defaultValues, form]);
 
   // function handleSave() {
   //   const data = form.getValues();
   //   onSave(data);
   // }
 
+  const handleSave = (data) => {
+    onSaveAndContinue(data);
+  };
+
   function handleBack() {
     setCurrentStep(7);
   }
-
 
   const isValid = form.formState.isValid;
 
   return (
     <Form {...form}>
-      <form>
+      <form onSubmit={form.handleSubmit(handleSave)}>
         <div>
           <CardContent className="space-y-2">
             <div>
@@ -187,19 +190,30 @@ export function TermsSubmitStep({
             </div>
           </CardContent>
         </div>
-        <div className="px-6 flex justify-between">
-          <Button type="button" variant="outline" onClick={handleBack}  className='bg-watney text-white hover:bg-watney/90'>
+        <div className="flex justify-between px-6">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleBack}
+            className="bg-watney text-white hover:bg-watney/90"
+          >
             Back
           </Button>
           <div className="space-x-3">
-            <Button type="button" variant="outline" onClick={onReview}  className='bg-watney text-white hover:bg-watney/90'>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onReview}
+              className="bg-watney text-white hover:bg-watney/90"
+            >
               Review Application
             </Button>
             <Button
-              type="button"
+              type="submit"
               onClick={onSubmit}
+            
               disabled={!isValid}
-              className="bg-green-600 hover:bg-green-700 text-white"
+              className="bg-green-600 text-white hover:bg-green-700"
             >
               Submit
             </Button>

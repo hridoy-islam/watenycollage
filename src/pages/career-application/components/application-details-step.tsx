@@ -85,7 +85,6 @@ export function ApplicationDetailsStep({
         sunday: false
       },
       isStudent: undefined,
-      // isBritishCitizen: value.isBritishCitizen || false,
       referralEmployee: '',
       isUnderStatePensionAge: undefined
     },

@@ -8,13 +8,7 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog';
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle
-} from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
@@ -50,52 +44,52 @@ const steps: React.ReactNode[] = [
   </div>
 ];
 
-export default function StudentGuideline() {
+export default function CareerGuideline() {
   const [step, setStep] = useState(0);
   const [open, setOpen] = useState(true);
   const navigate = useNavigate();
   const { user } = useSelector((state: any) => state.auth);
-  const courseId = localStorage.getItem('courseId');
 
   const handleNext = () => {
     if (step < steps.length - 1) {
       setStep(step + 1);
     } else {
       setOpen(false);
-      if (user?.isCompleted && user?.role === 'student') {
-        navigate(`/dashboard/course-application/${courseId}`);
+      if (user?.isCompleted && user?.role === 'applicant') {
+        navigate('/dashboard/job-application');
       } else {
-        navigate('/dashboard/resume-upload');
+        navigate('/dashboard/career');
       }
     }
   };
 
   return (
-    <Dialog open={open}>
-      <DialogContent
-        onInteractOutside={(e) => e.preventDefault()}
-        onEscapeKeyDown={(e) => e.preventDefault()}
-        className="h-screen w-screen max-w-none p-0"
-      >
-        <Card className="flex h-full w-full flex-col border-none shadow-none">
-          <CardHeader className="px-6 py-4">
-            <CardTitle className="text-xl font-semibold">Guidelines</CardTitle>
-          </CardHeader>
+ <Dialog open={open} >
+  <DialogContent
+    onInteractOutside={(e) => e.preventDefault()}
+    onEscapeKeyDown={(e) => e.preventDefault()}
+    className="p-0 w-screen h-screen max-w-none "
+  >
+    <Card className="flex h-full w-full flex-col border-none shadow-none">
+      <CardHeader className="px-6 py-4">
+        <CardTitle className="text-xl font-semibold">Guidelines</CardTitle>
+      </CardHeader>
 
-          <CardContent className="flex-1 overflow-y-auto px-6 py-6 text-base text-gray-700">
-            {steps[step]}
-          </CardContent>
+      <CardContent className="flex-1 overflow-y-auto px-6 py-6 text-base text-gray-700">
+        {steps[step]}
+      </CardContent>
 
-          <CardFooter className="flex justify-end px-6 py-4">
-            <Button
-              onClick={handleNext}
-              className="bg-watney text-white hover:bg-watney/90"
-            >
-              {step === steps.length - 1 ? 'Finish' : 'Next'}
-            </Button>
-          </CardFooter>
-        </Card>
-      </DialogContent>
-    </Dialog>
+      <CardFooter className="px-6 py-4  flex justify-end">
+        <Button
+          onClick={handleNext}
+          className="bg-watney text-white hover:bg-watney/90"
+        >
+          {step === steps.length - 1 ? 'Finish' : 'Next'}
+        </Button>
+      </CardFooter>
+    </Card>
+  </DialogContent>
+</Dialog>
+
   );
 }

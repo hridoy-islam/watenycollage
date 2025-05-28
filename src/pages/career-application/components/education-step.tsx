@@ -43,19 +43,20 @@ export function EducationStep({
   const educationEntrySchema = z.object({
     institution: z.string().min(1, { message: 'Institution name is required' }),
     grade: z.preprocess(
-      (val) => {
-        // Prevent empty string from being coerced to NaN
-        if (val === '' || val === null || val === undefined) return undefined;
-        return Number(val);
-      },
-      z
-        .number({
-          required_error: 'Grade is required',
-          invalid_type_error: 'Grade must be a valid number'
-        })
+    (val) => {
+      // If the value is empty or null, return undefined
+      if (val === '' || val === null || val === undefined) return undefined;
+      
+      const coercedValue = Number(val);
+      return isNaN(coercedValue) ? val : coercedValue; // return number if valid, else return string
+    },
+    z.union([
+      z.string(), // Accepts non-numeric strings like "abc"
+      z.number()
         .min(1, { message: 'Grade must be at least 1' })
-    ),
-
+        .max(100, { message: 'Grade cannot exceed 100' }),
+    ])
+  ),
     qualification: z
       .string()
       .min(1, { message: 'Qualification details are required' }),

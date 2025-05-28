@@ -260,13 +260,11 @@ export default function StudentApplication() {
 
   const handleTermsSave = async (data: any) => {
     try {
-      setFormData((prev) => ({ ...prev, termsData: data }));
-      await axiosInstance.patch(`/users/${user._id}`, {
-        termsAndSubmit: data
-      });
-      toast({
-        description: 'Terms acceptance saved successfully.'
-      });
+      setFormData((prev) => ({ ...prev, ...data }));
+      await axiosInstance.patch(`/users/${user._id}`, data);
+      // toast({
+      //   description: 'Terms acceptance saved successfully.'
+      // });
     } catch (error: any) {
       toast({
         title: error?.response?.data?.message || 'Something went wrong.',
@@ -379,6 +377,8 @@ export default function StudentApplication() {
     setFormSubmitted(true);
   };
 
+  console.log(formData)
+
   const renderStep = () => {
     switch (currentStep) {
       case 1:
@@ -466,6 +466,7 @@ export default function StudentApplication() {
             onReview={handleReviewClick}
             onSubmit={handleSubmit}
             setCurrentStep={setCurrentStep}
+            onSaveAndContinue={handleTermsSave}
           />
         );
 

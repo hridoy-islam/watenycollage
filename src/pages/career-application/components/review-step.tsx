@@ -356,7 +356,7 @@ const dataProcessingAccepted = form.watch('dataProcessingAccepted');
                 control={form.control}
                 name="criminalConvictionDetails"
                 render={({ field }) => (
-                  <FormItem className="w-[500px]">
+                  <FormItem className="w-full">
                     <FormLabel>
                       Please provide details of the conviction{' '}
                       <span className="text-red-500">*</span>
@@ -364,6 +364,7 @@ const dataProcessingAccepted = form.watch('dataProcessingAccepted');
                     <FormControl>
                       <Textarea
                         placeholder="Enter details here..."
+                        className='border-gray-200'
                         {...field}
                       />
                     </FormControl>

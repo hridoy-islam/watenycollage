@@ -13,19 +13,23 @@ import StudentApplication from '@/pages/studentApplication';
 import ResumeUpload from '@/pages/uploadResume';
 import ApplicationListPage from '@/pages/application/applications-list';
 import NewApplicationListPage from '@/pages/application/newApplications-list';
-import ViewApplicationPage from '@/pages/application/view-application';
-import CareerPage from '@/pages/career';
-import CareerResumeUpload from '@/pages/career/uploadResume/index';
+import ViewApplicationPage from '@/pages/application/view-careerApplication';
+import CareerPage from '@/pages/career-application';
+import CareerResumeUpload from '@/pages/career-application/uploadResume/index';
 import CoursesPage from '@/pages/course';
 import TermPage from '@/pages/term';
 import CourseRegistration from '@/pages/course-register';
 import JobPage from '@/pages/jobs';
 import JobApplication from '@/pages/Job-registration';
 import Guideline from '@/components/shared/Guideline';
-import CareerGuideline from '@/pages/career/career-guideline';
+import CareerGuideline from '@/pages/career-application/career-guideline';
 import CourseApplicationPage from '@/pages/dashboard-application/course-application';
 import JobApplicationPage from '@/pages/dashboard-application/job-application';
 import StudentGuideline from '@/pages/studentApplication/student-guideline';
+import ViewStudentApplicationPage from '@/pages/application/view-studentApplication';
+import ViewCareerApplicationPage from '@/pages/application/view-careerApplication';
+import VerifyPage from '@/pages/auth/verify';
+
 const SignInPage = lazy(() => import('@/pages/auth/signin'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
 
@@ -73,18 +77,23 @@ export default function AppRouter() {
           index: true
         },
         {
-          path: 'course-application',
+          path: 'course-application/:id',
           element: <CourseApplicationPage />,
           index: true
         },
         {
-          path: 'job-application',
+          path: 'job-application/:id',
           element: <JobApplicationPage />,
           index: true
         },
         {
-          path: 'applications/:id',
-          element: <ViewApplicationPage />,
+          path: 'student-application/:id',
+          element: <ViewStudentApplicationPage />,
+          index: true
+        },
+        {
+          path: 'career-application/:id',
+          element: <ViewCareerApplicationPage />,
           index: true
         },
         {
@@ -170,6 +179,10 @@ export default function AppRouter() {
     {
       path: '/404',
       element: <NotFound />
+    },
+    {
+      path: '/verify',
+      element: <VerifyPage />
     },
     {
       path: '*',

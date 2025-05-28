@@ -43,18 +43,20 @@ export function EducationStep({
   const educationEntrySchema = z.object({
     institution: z.string().min(1, { message: 'Institution name is required' }),
     grade: z.preprocess(
-      (val) => {
-        // Prevent empty string from being coerced to NaN
-        if (val === '' || val === null || val === undefined) return undefined;
-        return Number(val);
-      },
-      z
-        .number({
-          required_error: 'Grade is required',
-          invalid_type_error: 'Grade must be a valid number'
-        })
-        .min(1, { message: 'Grade must be at least 1' })
-    ),
+       (val) => {
+         // If the value is empty or null, return undefined
+         if (val === '' || val === null || val === undefined) return undefined;
+         
+         const coercedValue = Number(val);
+         return isNaN(coercedValue) ? val : coercedValue; // return number if valid, else return string
+       },
+       z.union([
+         z.string(), // Accepts non-numeric strings like "abc"
+         z.number()
+           .min(1, { message: 'Grade must be at least 1' })
+           .max(100, { message: 'Grade cannot exceed 100' }),
+       ])
+     ),
 
     qualification: z
       .string()
@@ -164,7 +166,7 @@ export function EducationStep({
   };
 
   const handleEnglishCertificateUpload = (files) => {
-    if (studentType === 'international') {
+    if (defaultValues.studentType === 'international') {
       form.setValue(
         'englishQualification.englishCertificate',
         files[0] || null,
@@ -199,11 +201,11 @@ export function EducationStep({
   }
 
   return (
-    <Card className="border-none py-5 shadow-none ">
+    <Card className="border-none  shadow-none ">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <CardHeader>
-            <CardTitle>Academic Qualification</CardTitle>
+            <CardTitle className='text-2xl'>Academic Qualification</CardTitle>
             <CardDescription>
               Please provide your highest level of academic qualification. This
               information is mandatory and will help us assess your educational

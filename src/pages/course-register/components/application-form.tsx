@@ -103,7 +103,7 @@ export default function ApplicationForm({ formData, onBack }: ApplicationFormPro
                 </CardHeader>
                 <CardContent className="pt-6">
                   <LoginForm
-                    onSuccess={() => navigate('/dashboard/resume-upload')}
+                    onSuccess={() => navigate('/dashboard/student-guideline')}
                   />
                 </CardContent>
               </Card>

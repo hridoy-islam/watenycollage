@@ -16,20 +16,29 @@ export function TopNav() {
     navigate('/');
   };
   const { user } = useSelector((state: any) => state.auth);
-
+  const isCompleted = user?.isCompleted;
   return (
     <div className="flex h-16 items-center justify-between bg-white px-4 shadow-sm">
       <div className="flex items-center space-x-4">
-        <Link
-          to="/dashboard"
-          className="flex items-center space-x-4 text-white"
-        >
-          <img src={logo} className="w-12" />
-          <span className="text-lg font-semibold text-black"></span>
-        </Link>
+        {isCompleted ? (
+          <Link to="/dashboard" className="flex items-center space-x-4">
+            <img src={logo} className="w-12" />
+            <span className="text-lg font-semibold text-black"></span>
+          </Link>
+        ) : (
+          <div className="flex  items-center space-x-4 ">
+            <img src={logo} className="w-12" />
+            <span className="text-lg font-semibold text-black"></span>
+          </div>
+        )}
       </div>
       <div className="flex items-center space-x-4">
-        <div className="flex flex-col items-start cursor-pointer" onClick={()=> navigate('/dashboard/profile')} >
+        <div
+          className={`flex flex-col items-start`}
+          onClick={() => {
+            if (isCompleted) navigate('/dashboard/profile');
+          }}
+        >
           <span className="text-sm font-semibold text-black">{user?.name}</span>
           <span className="text-[12px] font-medium text-black">
             {user?.email}
@@ -37,12 +46,10 @@ export function TopNav() {
         </div>
         <Button
           onClick={handleLogout}
-          className="flex cursor-pointer items-center space-x-6 rounded-md bg-watney p-2 text-white  hover:bg-watney/90 "
+          className="flex cursor-pointer items-center space-x-6 rounded-md bg-watney p-2 text-white hover:bg-watney/90"
         >
-          {/* <UserNav /> */}
-
-          <div className="flex flex-row items-center justify-center gap-1  rounded-md p-2">
-            <LogOut className=" h-4 w-4" />
+          <div className="flex flex-row items-center justify-center gap-1 rounded-md p-2">
+            <LogOut className="h-4 w-4" />
             <span className="font-semibold">Log out</span>
           </div>
         </Button>

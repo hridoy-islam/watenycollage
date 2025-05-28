@@ -352,7 +352,7 @@ export function ComplianceStep({
                     </FormControl>
 
                     <p className="mt-1 text-xs text-gray-400">
-                      Example: AB123456C
+                      Example: JM456789B
                     </p>
 
                     <FormMessage />
@@ -605,7 +605,7 @@ export function ComplianceStep({
                   control={form.control}
                   name="convictionDetails"
                   render={({ field }) => (
-                    <FormItem className="flex w-full flex-col">
+                    <FormItem className="flex w-full flex-col col-span-2">
                       <FormLabel>
                         If yes, Criminal Convictions details
                       </FormLabel>
@@ -613,7 +613,7 @@ export function ComplianceStep({
                         <Textarea
                           {...field}
                           placeholder="Please provide the details"
-                          className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
+                          className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500 border-gray-200"
                         />
                       </FormControl>
 

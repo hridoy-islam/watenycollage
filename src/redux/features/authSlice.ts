@@ -108,10 +108,12 @@ export const loginUser = createAsyncThunk<UserResponse, UserCredentials>(
 
     const response = await request.data;
 
-    localStorage.setItem('uniaid', JSON.stringify(response.data.accessToken));
+    localStorage.setItem('watney', JSON.stringify(response.data.accessToken));
     return response;
   }
 );
+
+
 
 export const authWithFbORGoogle = createAsyncThunk<
   UserResponse,
@@ -172,6 +174,18 @@ export const validateRequestOtp = createAsyncThunk<
   return response;
 });
 
+export const verifyEmail = createAsyncThunk(
+  'auth/verifyEmail',
+  async ({ email, otp }: { email: string; otp: string }, { rejectWithValue }) => {
+    try {
+      const response = await axios.patch(
+    `${import.meta.env.VITE_API_URL}/auth/verifyemail`, { email, otp });
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
 
 // patch new password
 export const changePassword = createAsyncThunk<
@@ -221,6 +235,9 @@ const authSlice = createSlice({
     },
     updateAuthIsCompleted: (state, action) => {
       state.user.isCompleted = action.payload;
+    },
+    updateAuthIsValided: (state, action) => {
+      state.user.isValided = action.payload;
     }
   },
   extraReducers: (builder) => {
@@ -303,9 +320,29 @@ const authSlice = createSlice({
       .addCase(changePassword.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.message || 'Failed to change password';
+      }).addCase(verifyEmail.pending, (state) => {
+        state.loading = true;
+        state.error = null;
       })
+      .addCase(verifyEmail.fulfilled, (state, action) => {
+        const { accessToken } = action.payload.data;
+        const decoded = jwtDecode(accessToken);
+        
+        state.loading = false;
+        state.token = accessToken;
+        state.user = {
+          ...decoded,
+          isValided: true
+        };
+        state.error = null;
+      })
+      .addCase(verifyEmail.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload?.message || 'Verification failed';
+      })
+      
   }
 });
 
-export const { resetError ,updateAuthIsCompleted} = authSlice.actions;
+export const { resetError ,updateAuthIsCompleted, updateAuthIsValided} = authSlice.actions;
 export default authSlice.reducer;

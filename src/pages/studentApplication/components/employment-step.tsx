@@ -756,7 +756,7 @@ export function EmploymentStep({
                           name="employmentGapsExplanation"
                           control={form.control}
                           render={({ field }) => (
-                            <FormItem className="max-w-2xl">
+                            <FormItem className="">
                               <FormLabel>
                                 Please explain the reason{' '}
                                 <span className="text-red-500">*</span>
@@ -764,7 +764,7 @@ export function EmploymentStep({
                               <FormControl>
                                 <Textarea
                                   {...field}
-                                  className="min-h-[100px]"
+                                  className="min-h-[100px] border-gray-200"
                                   placeholder="Explanation for Gaps
 "
                                 />

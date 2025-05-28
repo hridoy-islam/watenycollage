@@ -49,119 +49,117 @@ type Application = {
   createdAt: string;
   updatedAt: string;
   seen: boolean;
-  studentId: string;
-  personalDetailsData: {
-    title?: string;
-    firstName?: string;
-    lastName?: string;
-    otherName?: string;
-    gender?: string;
-    dateOfBirth?: string;
-    nationality?: string;
-    ethnicity?: string;
-    customEthnicity?: string;
-    countryOfBirth?: string;
-    maritalStatus?: string;
+  //personal
+  title?: string;
+  firstName?: string;
+  lastName?: string;
+  inital?: string;
+  gender?: string;
+  dateOfBirth?: string;
+  email?: string;
+  phone?: string;
+  studentType?: string;
+  applicationLocation?: string;
+  requireVisa?: string;
+  ethnicity?: string;
+  customEthnicity?: string;
+  countryOfBirth?: string;
+  maritalStatus?: string;
+
+  residentialAddressLine1?: string;
+  residentialAddressLine2?: string;
+  residentialCity?: string;
+  residentialPostCode?: string;
+  residentialCountry?: string;
+  sameAsResidential?: boolean;
+  postalAddressLine1?: string;
+  postalAddressLine2?: string;
+  postalCity?: string;
+  postalPostCode?: string;
+  postalCountry?: string;
+
+  emergencyContactNumber?: string;
+  emergencyEmail?: string;
+  emergencyFullName?: string;
+  emergencyRelationship?: string;
+  emergencyAddress?: string;
+  startDateInUK?: string;
+  niNumber?: string;
+  status?: string;
+  ltrCode?: string;
+  disability?: string;
+  disabilityDetails?: string;
+  benefits?: string;
+  criminalConviction?: string;
+  convictionDetails?: string;
+  studentFinance?: string;
+
+  hasDocument?: boolean;
+  passportNumber?: string;
+  passportExpiry?: string;
+  idDocument?: string[];
+  hasCertificates?: boolean;
+  certificatesDetails?: string;
+  qualificationCertificates?: string[];
+  cvResume?: string[];
+  hasProofOfAddress?: boolean;
+  proofOfAddressType?: string;
+  proofOfAddressDate?: string;
+  proofOfAddress?: string[];
+  otherDocuments?: string[];
+  otherDocumentsDescription?: string;
+  documentType?: string;
+  nationalID?: string;
+
+  isEmployed?: string;
+  currentEmployment?: {
+    employer?: string;
+    jobTitle?: string;
+    startDate?: string;
+    employmentType?: string;
+    responsibilities?: string;
   };
-  addressData: {
-    residentialAddressLine1?: string;
-    residentialAddressLine2?: string;
-    residentialCity?: string;
-    residentialPostCode?: string;
-    residentialCountry?: string;
-    sameAsResidential?: boolean;
-    postalAddressLine1?: string;
-    postalAddressLine2?: string;
-    postalCity?: string;
-    postalPostCode?: string;
-    postalCountry?: string;
-  };
-  contactData: {
-    contactNumber?: string;
-    email?: string;
-    confirmEmail?: string;
-    preferredContactMethod?: string;
-  };
-  emergencyContactData: {
-    emergencyContactNumber?: string;
-    emergencyEmail?: string;
-    emergencyFullName?: string;
-    emergencyRelationship?: string;
-  };
-  complianceData: {
-    startDateInUK?: string;
-    niNumber?: string;
-    status?: string;
-    ltrCode?: string;
-    disability?: string;
-    disabilityDetails?: string;
-    benefits?: string;
-    criminalConviction?: string;
-    convictionDetails?: string;
-    studentFinance?: string;
-  };
-  documentsData: {
-    hasDocument?: boolean;
-    passportNumber?: string;
-    passportExpiry?: string;
-    idDocument?: string[];
-    hasCertificates?: boolean;
-    certificatesDetails?: string;
-    qualificationCertificates?: string[];
-    cvResume?: string[];
-    hasProofOfAddress?: boolean;
-    proofOfAddressType?: string;
-    proofOfAddressDate?: string;
-    proofOfAddress?: string[];
-    otherDocuments?: string[];
-    otherDocumentsDescription?: string;
-    documentType?: string;
-    nationalID?: string;
-  };
-  employmentData: {
-    isEmployed?: string;
-    currentEmployment?: {
-      employer?: string;
-      jobTitle?: string;
-      startDate?: string;
-      employmentType?: string;
-      responsibilities?: string;
-      supervisor?: string;
-      contactPermission?: string;
-    };
-    previousEmployments?: {
-      employer?: string;
-      jobTitle?: string;
-      startDate?: string;
-      endDate?: string;
-      reasonForLeaving?: string;
-      responsibilities?: string;
-      contactPermission?: string;
-    }[];
-    hasEmploymentGaps?: string;
-    employmentGapsExplanation?: string;
-    declaration?: boolean;
-  };
-  termsData: {
-    acceptTerms?: boolean;
-    acceptDataProcessing?: boolean;
-  };
+  previousEmployments?: {
+    employer?: string;
+    jobTitle?: string;
+    startDate?: string;
+    endDate?: string;
+    reasonForLeaving?: string;
+    responsibilities?: string;
+    contactPermission?: string;
+  }[];
+  hasEmploymentGaps?: string;
+  employmentGapsExplanation?: string;
+  declaration?: boolean;
+
+  acceptTerms?: boolean;
+  acceptDataProcessing?: boolean;
+
   educationData?: {
     institution: string;
-    studyType: string;
+    grade: string;
     qualification: string;
     awardDate: string;
     certificate?: string;
-    transcript?: string;
   }[];
+
+  englishQualification: {
+    englishCertificate: string;
+    englishTestDate: string;
+    englishTestScore: string;
+    englishTestType: string;
+  };
+
   courseDetailsData?: {
     course: string;
     intake: string;
   };
 };
 
-export default function ViewApplicationPage() {
+export default function ViewStudentApplicationPage() {
   const [application, setApplication] = useState<Application | null>(null);
+  const [applicationCourse, setApplicationCourse] =
+    useState<Application | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('personal');
@@ -173,7 +171,7 @@ export default function ViewApplicationPage() {
     const fetchApplication = async () => {
       try {
         setLoading(true);
-        const response = await axiosInstace.get(`/applications/${id}`);
+        const response = await axiosInstace.get(`/users/${id}`);
         setApplication(response.data.data);
         setLoading(false);
       } catch (err) {
@@ -185,6 +183,27 @@ export default function ViewApplicationPage() {
 
     fetchApplication();
   }, []);
+
+  useEffect(() => {
+    const fetchCourse = async () => {
+      try {
+        setLoading(true);
+        const response = await axiosInstace.get(
+          `/application-course?studentId=${id}`
+        );
+        setApplicationCourse(response.data.data.result);
+        setLoading(false);
+      } catch (err) {
+        setLoading(false);
+        setError('Failed to fetch application data. Please try again.');
+        console.error('Error fetching application:', err);
+      }
+    };
+
+    fetchCourse();
+  }, []);
+
+  console.log(applicationCourse);
 
   const copyToClipboard = (value: string, field: string) => {
     navigator.clipboard.writeText(value).then(
@@ -321,7 +340,7 @@ export default function ViewApplicationPage() {
       <div className="flex items-center justify-between px-4">
         <Button
           className="bg-watney text-white hover:bg-watney/90 "
-          onClick={() => navigate('/dashboard/applications')}
+          onClick={() => navigate('/dashboard')}
         >
           <MoveLeft /> Back
         </Button>
@@ -349,19 +368,20 @@ export default function ViewApplicationPage() {
               <Home className="h-4 w-4" />
               <span className="hidden sm:inline">Address</span>
             </TabsTrigger>
-            <TabsTrigger
-              value="contact"
-              className="flex items-center gap-1 focus:bg-watney active:bg-watney data-[state=active]:bg-watney"
-            >
-              <Phone className="h-4 w-4" />
-              <span className="hidden sm:inline">Contact</span>
-            </TabsTrigger>
+
             <TabsTrigger
               value="other-information"
               className="flex items-center gap-1 focus:bg-watney active:bg-watney data-[state=active]:bg-watney"
             >
               <Shield className="h-4 w-4" />
               <span className="hidden sm:inline">Other information</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="emergency"
+              className="flex items-center gap-1 focus:bg-watney active:bg-watney data-[state=active]:bg-watney"
+            >
+              <Shield className="h-4 w-4" />
+              <span className="hidden sm:inline">Emergency Contact</span>
             </TabsTrigger>
             <TabsTrigger
               value="documents"
@@ -416,35 +436,23 @@ export default function ViewApplicationPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {renderFieldRow(
-                      'Title',
-                      application.personalDetailsData.title,
-                      'personalDetailsData.title'
-                    )}
+                    {renderFieldRow('Title', application?.title, 'title')}
                     {renderFieldRow(
                       'First Name',
-                      application.personalDetailsData.firstName,
-                      'personalDetailsData.firstName'
+                      application?.firstName,
+                      'firstName'
                     )}
+                    {renderFieldRow('Initial', application?.initial, 'initial')}
                     {renderFieldRow(
                       'Last Name',
-                      application.personalDetailsData.lastName,
-                      'personalDetailsData.lastName'
+                      application?.lastName,
+                      'lastName'
                     )}
-                    {renderFieldRow(
-                      'Other Name',
-                      application.personalDetailsData.otherName,
-                      'personalDetailsData.otherName'
-                    )}
-                    {renderFieldRow(
-                      'Gender',
-                      application.personalDetailsData.gender,
-                      'personalDetailsData.gender'
-                    )}
+                    {renderFieldRow('Gender', application?.gender, 'gender')}
                     {renderFieldRow(
                       'Date of Birth',
-                      application.personalDetailsData.dateOfBirth,
-                      'personalDetailsData.dateOfBirth'
+                      application?.dateOfBirth,
+                      'dateOfBirth'
                     )}
                   </TableBody>
                 </Table>
@@ -465,28 +473,28 @@ export default function ViewApplicationPage() {
                   <TableBody>
                     {renderFieldRow(
                       'Nationality',
-                      application.personalDetailsData.nationality,
-                      'personalDetailsData.nationality'
+                      application?.nationality,
+                      'nationality'
                     )}
                     {renderFieldRow(
                       'Ethnicity',
-                      application.personalDetailsData.ethnicity,
-                      'personalDetailsData.ethnicity'
+                      application?.ethnicity,
+                      'ethnicity'
                     )}
                     {renderFieldRow(
                       'Custom Ethnicity',
-                      application.personalDetailsData.customEthnicity,
-                      'personalDetailsData.customEthnicity'
+                      application?.customEthnicity,
+                      'customEthnicity'
                     )}
                     {renderFieldRow(
                       'Country of Birth',
-                      application.personalDetailsData.countryOfBirth,
-                      'personalDetailsData.countryOfBirth'
+                      application?.countryOfBirth,
+                      'countryOfBirth'
                     )}
                     {renderFieldRow(
                       'Marital Status',
-                      application.personalDetailsData.maritalStatus,
-                      'personalDetailsData.maritalStatus'
+                      application?.maritalStatus,
+                      'maritalStatus'
                     )}
                   </TableBody>
                 </Table>
@@ -515,28 +523,28 @@ export default function ViewApplicationPage() {
                   <TableBody>
                     {renderFieldRow(
                       'Address Line 1',
-                      application.addressData.residentialAddressLine1,
-                      'addressData.residentialAddressLine1'
+                      application?.residentialAddressLine1,
+                      'residentialAddressLine1'
                     )}
                     {renderFieldRow(
                       'Address Line 2',
-                      application.addressData.residentialAddressLine2,
-                      'addressData.residentialAddressLine2'
+                      application?.residentialAddressLine2,
+                      'residentialAddressLine2'
                     )}
                     {renderFieldRow(
                       'City',
-                      application.addressData.residentialCity,
-                      'addressData.residentialCity'
+                      application?.residentialCity,
+                      'residentialCity'
                     )}
                     {renderFieldRow(
                       'Post Code',
-                      application.addressData.residentialPostCode,
-                      'addressData.residentialPostCode'
+                      application?.residentialPostCode,
+                      'residentialPostCode'
                     )}
                     {renderFieldRow(
                       'Country',
-                      application.addressData.residentialCountry,
-                      'addressData.residentialCountry'
+                      application?.residentialCountry,
+                      'residentialCountry'
                     )}
                   </TableBody>
                 </Table>
@@ -550,14 +558,14 @@ export default function ViewApplicationPage() {
                   <h3 className="text-lg font-semibold">Postal Address</h3>
                   <Badge variant="outline" className="bg-watney text-sm">
                     <span className="text-white">
-                      {application.addressData.sameAsResidential
+                      {application?.sameAsResidential
                         ? 'Same as residential'
                         : 'Different from residential'}
                     </span>
                   </Badge>
                 </div>
 
-                {application.addressData.sameAsResidential ? (
+                {application?.sameAsResidential ? (
                   <p className="italic text-muted-foreground">
                     Same as residential address
                   </p>
@@ -573,28 +581,28 @@ export default function ViewApplicationPage() {
                     <TableBody>
                       {renderFieldRow(
                         'Address Line 1',
-                        application.addressData.postalAddressLine1,
-                        'addressData.postalAddressLine1'
+                        application?.postalAddressLine1,
+                        'postalAddressLine1'
                       )}
                       {renderFieldRow(
                         'Address Line 2',
-                        application.addressData.postalAddressLine2,
-                        'addressData.postalAddressLine2'
+                        application?.postalAddressLine2,
+                        'postalAddressLine2'
                       )}
                       {renderFieldRow(
                         'City',
-                        application.addressData.postalCity,
-                        'addressData.postalCity'
+                        application?.postalCity,
+                        'postalCity'
                       )}
                       {renderFieldRow(
                         'Post Code',
-                        application.addressData.postalPostCode,
-                        'addressData.postalPostCode'
+                        application?.postalPostCode,
+                        'postalPostCode'
                       )}
                       {renderFieldRow(
                         'Country',
-                        application.addressData.postalCountry,
-                        'addressData.postalCountry'
+                        application?.postalCountry,
+                        'postalCountry'
                       )}
                     </TableBody>
                   </Table>
@@ -603,91 +611,8 @@ export default function ViewApplicationPage() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="contact">
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <Card>
-                <CardContent className="pt-6">
-                  <h3 className="mb-4 text-lg font-semibold">
-                    Contact Information
-                  </h3>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-1/3 text-left">Field</TableHead>
-                        <TableHead className="text-right">Value</TableHead>
-                        <TableHead className="w-10 text-right"></TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {renderFieldRow(
-                        'Contact Number',
-                        application.contactData.contactNumber,
-                        'contactData.contactNumber'
-                      )}
-                      {renderFieldRow(
-                        'Email',
-                        application.contactData.email,
-                        'contactData.email'
-                      )}
-                      {renderFieldRow(
-                        'Confirm Email',
-                        application.contactData.confirmEmail,
-                        'contactData.confirmEmail'
-                      )}
-                      {renderFieldRow(
-                        'Preferred Contact Method',
-                        application.contactData.preferredContactMethod,
-                        'contactData.preferredContactMethod'
-                      )}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="pt-6">
-                  <h3 className="mb-4 text-lg font-semibold">
-                    Emergency Contact
-                  </h3>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-1/3 text-left">Field</TableHead>
-                        <TableHead className="text-right">Value</TableHead>
-                        <TableHead className="w-10 text-right"></TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {renderFieldRow(
-                        'Full Name',
-                        application.emergencyContactData.emergencyFullName,
-                        'emergencyContactData.emergencyFullName'
-                      )}
-                      {renderFieldRow(
-                        'Relationship',
-                        application.emergencyContactData.emergencyRelationship,
-                        'emergencyContactData.emergencyRelationship'
-                      )}
-                      {renderFieldRow(
-                        'Contact Number',
-                        application.emergencyContactData.emergencyContactNumber,
-                        'emergencyContactData.emergencyContactNumber'
-                      )}
-                      {renderFieldRow(
-                        'Email',
-                        application.emergencyContactData.emergencyEmail,
-                        'emergencyContactData.emergencyEmail'
-                      )}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
           <TabsContent value="other-information">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              {/* First Card */}
               <Card>
                 <CardContent className="pt-6">
                   <h3 className="mb-4 text-lg font-semibold">
@@ -704,35 +629,30 @@ export default function ViewApplicationPage() {
                     <TableBody>
                       {renderFieldRow(
                         'Start Date in UK',
-                        application.complianceData.startDateInUK,
-                        'complianceData.startDateInUK'
+                        application.startDateInUK,
+                        'startDateInUK'
                       )}
                       {renderFieldRow(
                         'NI Number',
-                        application.complianceData.niNumber,
-                        'complianceData.niNumber'
+                        application.niNumber,
+                        'niNumber'
                       )}
-                      {renderFieldRow(
-                        'Status',
-                        application.complianceData.status,
-                        'complianceData.status'
-                      )}
+                      {renderFieldRow('Status', application.status, 'status')}
                       {renderFieldRow(
                         'LTR Code',
-                        application.complianceData.ltrCode,
-                        'complianceData.ltrCode'
+                        application.ltrCode,
+                        'ltrCode'
                       )}
                       {renderFieldRow(
                         'Disability',
-                        application.complianceData.disability,
-                        'complianceData.disability'
+                        application.disability,
+                        'disability'
                       )}
                     </TableBody>
                   </Table>
                 </CardContent>
               </Card>
 
-              {/* Second Card */}
               <Card>
                 <CardContent className="pt-6">
                   <Table>
@@ -746,28 +666,75 @@ export default function ViewApplicationPage() {
                     <TableBody>
                       {renderFieldRow(
                         'Disability Details',
-                        application.complianceData.disabilityDetails,
-                        'complianceData.disabilityDetails'
+                        application.disabilityDetails,
+                        'disabilityDetails'
                       )}
                       {renderFieldRow(
                         'Benefits',
-                        application.complianceData.benefits,
-                        'complianceData.benefits'
+                        application.benefits,
+                        'benefits'
                       )}
                       {renderFieldRow(
                         'Criminal Conviction',
-                        application.complianceData.criminalConviction,
-                        'complianceData.criminalConviction'
+                        application.criminalConviction,
+                        'criminalConviction'
                       )}
                       {renderFieldRow(
                         'Conviction Details',
-                        application.complianceData.convictionDetails,
-                        'complianceData.convictionDetails'
+                        application.convictionDetails,
+                        'convictionDetails'
                       )}
                       {renderFieldRow(
                         'Student Finance',
-                        application.complianceData.studentFinance,
-                        'complianceData.studentFinance'
+                        application.studentFinance,
+                        'studentFinance'
+                      )}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+          <TabsContent value="emergency">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <Card>
+                <CardContent className="pt-6">
+                  <h3 className="mb-4 text-lg font-semibold">
+                    Other Information
+                  </h3>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-1/3 text-left">Field</TableHead>
+                        <TableHead className="text-right">Value</TableHead>
+                        <TableHead className="w-10 text-right"></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {renderFieldRow(
+                        'Full Name',
+                        application.emergencyFullName,
+                        'emergencyFullName'
+                      )}
+                      {renderFieldRow(
+                        'Email',
+                        application.emergencyEmail,
+                        'emergencyEmail'
+                      )}
+                      {renderFieldRow(
+                        'Contact Number',
+                        application.emergencyContactNumber,
+                        'emergencyContactNumber'
+                      )}
+                      {renderFieldRow(
+                        'Address',
+                        application?.emergencyAddress,
+                        'emergencyAddress'
+                      )}
+                      {renderFieldRow(
+                        'Relationship',
+                        application.emergencyRelationship,
+                        'emergencyRelationship'
                       )}
                     </TableBody>
                   </Table>
@@ -778,7 +745,6 @@ export default function ViewApplicationPage() {
 
           <TabsContent value="documents">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              {/* First Card */}
               <Card>
                 <CardContent className="pt-6">
                   <h3 className="mb-4 text-lg font-semibold">Documents</h3>
@@ -793,50 +759,49 @@ export default function ViewApplicationPage() {
                     <TableBody>
                       {renderFieldRow(
                         'Document Type',
-                        application.documentsData.documentType,
-                        'documentsData.documentType'
+                        application.documentType,
+                        'documentType'
                       )}
                       {renderFieldRow(
                         'National ID',
-                        application.documentsData.nationalID,
-                        'documentsData.nationalID'
+                        application.nationalID,
+                        'nationalID'
                       )}
                       {renderFieldRow(
                         'Has Passport',
-                        application.documentsData.hasDocument,
-                        'documentsData.hasDocument'
+                        application.hasDocument,
+                        'hasDocument'
                       )}
                       {renderFieldRow(
                         'Passport Number',
-                        application.documentsData.passportNumber,
-                        'documentsData.passportNumber'
+                        application.passportNumber,
+                        'passportNumber'
                       )}
                       {renderFieldRow(
                         'Passport Expiry',
-                        application.documentsData.passportExpiry,
-                        'documentsData.passportExpiry'
+                        application.passportExpiry,
+                        'passportExpiry'
                       )}
                       {renderFieldRow(
                         'ID Document Count',
-                        application.documentsData.idDocument?.length,
-                        'documentsData.idDocument.length'
+                        application.idDocument?.length,
+                        'idDocument.length'
                       )}
                       {renderFieldRow(
                         'Has Certificates',
-                        application.documentsData.hasCertificates,
-                        'documentsData.hasCertificates'
+                        application.hasCertificates,
+                        'hasCertificates'
                       )}
                       {renderFieldRow(
                         'Certificates Details',
-                        application.documentsData.certificatesDetails,
-                        'documentsData.certificatesDetails'
+                        application.certificatesDetails,
+                        'certificatesDetails'
                       )}
                     </TableBody>
                   </Table>
                 </CardContent>
               </Card>
 
-              {/* Second Card */}
               <Card>
                 <CardContent className="pt-6">
                   <Table>
@@ -850,50 +815,45 @@ export default function ViewApplicationPage() {
                     <TableBody>
                       {renderFieldRow(
                         'Qualification Certificates Count',
-                        application.documentsData.qualificationCertificates
-                          ?.length,
-                        'documentsData.qualificationCertificates.length'
+                        application.qualificationCertificates?.length,
+                        'qualificationCertificates.length'
                       )}
                       {renderFieldRow(
                         'CV/Resume Count',
-                        application.documentsData.cvResume?.length,
-                        'documentsData.cvResume.length'
+                        application.cvResume?.length,
+                        'cvResume.length'
                       )}
                       {renderFieldRow(
                         'Has Proof of Address',
-                        application.documentsData.hasProofOfAddress,
-                        'documentsData.hasProofOfAddress'
+                        application.hasProofOfAddress,
+                        'hasProofOfAddress'
                       )}
                       {renderFieldRow(
                         'Proof of Address Type',
-                        application.documentsData.proofOfAddressType,
-                        'documentsData.proofOfAddressType'
+                        application.proofOfAddressType,
+                        'proofOfAddressType'
                       )}
                       {renderFieldRow(
                         'Proof of Address Date',
-                        application.documentsData.proofOfAddressDate,
-                        'documentsData.proofOfAddressDate'
+                        application.proofOfAddressDate,
+                        'proofOfAddressDate'
                       )}
                       {renderFieldRow(
                         'Proof of Address Count',
-                        application.documentsData.proofOfAddress?.length,
-                        'documentsData.proofOfAddress.length'
+                        application.proofOfAddress?.length,
+                        'proofOfAddress.length'
                       )}
                       {renderFieldRow(
                         'Other Documents Count',
-                        application.documentsData.otherDocuments?.length,
-                        'documentsData.otherDocuments.length'
+                        application.otherDocuments?.length,
+                        'otherDocuments.length'
                       )}
                       {renderFieldRow(
                         'Other Documents Descriptions',
-                        Array.isArray(
-                          application.documentsData.otherDocumentsDescription
-                        )
-                          ? application.documentsData.otherDocumentsDescription.join(
-                              ', '
-                            )
-                          : application.documentsData.otherDocumentsDescription,
-                        'documentsData.otherDocumentsDescription'
+                        Array.isArray(application.otherDocumentsDescription)
+                          ? application.otherDocumentsDescription.join(', ')
+                          : application.otherDocumentsDescription,
+                        'otherDocumentsDescription'
                       )}
                     </TableBody>
                   </Table>
@@ -904,7 +864,6 @@ export default function ViewApplicationPage() {
 
           <TabsContent value="employment">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              {/* Card 1: Employment Status */}
               <Card>
                 <CardContent className="pt-6">
                   <h3 className="mb-2 text-lg font-semibold">
@@ -921,33 +880,32 @@ export default function ViewApplicationPage() {
                     <TableBody>
                       {renderFieldRow(
                         'Is Employed',
-                        application.employmentData.isEmployed,
-                        'employmentData.isEmployed'
+                        application.isEmployed,
+                        'isEmployed'
                       )}
                       {renderFieldRow(
                         'Has Employment Gaps',
-                        application.employmentData.hasEmploymentGaps,
-                        'employmentData.hasEmploymentGaps'
+                        application.hasEmploymentGaps,
+                        'hasEmploymentGaps'
                       )}
                       {renderFieldRow(
                         'Employment Gaps Explanation',
-                        application.employmentData.employmentGapsExplanation,
-                        'employmentData.employmentGapsExplanation'
+                        application.employmentGapsExplanation,
+                        'employmentGapsExplanation'
                       )}
                       {renderFieldRow(
                         'Declaration',
-                        application.employmentData.declaration,
-                        'employmentData.declaration'
+                        application.declaration,
+                        'declaration'
                       )}
                     </TableBody>
                   </Table>
                 </CardContent>
               </Card>
 
-              {/* Card 2: Current & Previous Employment */}
               <Card>
                 <CardContent className="pt-6">
-                  {application.employmentData.currentEmployment && (
+                  {application.currentEmployment && (
                     <>
                       <h3 className="mb-2 text-lg font-semibold">
                         Current Employment
@@ -965,60 +923,52 @@ export default function ViewApplicationPage() {
                         <TableBody>
                           {renderFieldRow(
                             'Employer',
-                            application.employmentData.currentEmployment
-                              .employer,
-                            'employmentData.currentEmployment.employer'
+                            application.currentEmployment.employer,
+                            'currentEmployment.employer'
                           )}
                           {renderFieldRow(
                             'Job Title',
-                            application.employmentData.currentEmployment
-                              .jobTitle,
-                            'employmentData.currentEmployment.jobTitle'
+                            application.currentEmployment.jobTitle,
+                            'currentEmployment.jobTitle'
                           )}
                           {renderFieldRow(
                             'Start Date',
-                            application.employmentData.currentEmployment
-                              .startDate,
-                            'employmentData.currentEmployment.startDate'
+                            application.currentEmployment.startDate,
+                            'currentEmployment.startDate'
                           )}
                           {renderFieldRow(
                             'Employment Type',
-                            application.employmentData.currentEmployment
-                              .employmentType,
-                            'employmentData.currentEmployment.employmentType'
+                            application.currentEmployment.employmentType,
+                            'currentEmployment.employmentType'
                           )}
                           {renderFieldRow(
                             'Responsibilities',
-                            application.employmentData.currentEmployment
-                              .responsibilities,
-                            'employmentData.currentEmployment.responsibilities'
+                            application.currentEmployment.responsibilities,
+                            'currentEmployment.responsibilities'
                           )}
                           {renderFieldRow(
                             'Supervisor',
-                            application.employmentData.currentEmployment
-                              .supervisor,
-                            'employmentData.currentEmployment.supervisor'
+                            application.currentEmployment.supervisor,
+                            'currentEmployment.supervisor'
                           )}
                           {renderFieldRow(
                             'Contact Permission',
-                            application.employmentData.currentEmployment
-                              .contactPermission,
-                            'employmentData.currentEmployment.contactPermission'
+                            application.currentEmployment.contactPermission,
+                            'currentEmployment.contactPermission'
                           )}
                         </TableBody>
                       </Table>
                     </>
                   )}
 
-                  {application.employmentData.previousEmployments &&
-                    application.employmentData.previousEmployments.length >
-                      0 && (
+                  {application.previousEmployments &&
+                    application.previousEmployments.length > 0 && (
                       <>
                         <h3 className="mb-2 text-lg font-semibold">
                           Previous Employment
                         </h3>
                         <div className="space-y-6">
-                          {application.employmentData.previousEmployments.map(
+                          {application.previousEmployments.map(
                             (employment, index) => (
                               <div key={index}>
                                 <div className="mb-2 flex items-center">
@@ -1032,37 +982,37 @@ export default function ViewApplicationPage() {
                                     {renderFieldRow(
                                       'Employer',
                                       employment.employer,
-                                      `employmentData.previousEmployments.${index}.employer`
+                                      `previousEmployments.${index}.employer`
                                     )}
                                     {renderFieldRow(
                                       'Job Title',
                                       employment.jobTitle,
-                                      `employmentData.previousEmployments.${index}.jobTitle`
+                                      `previousEmployments.${index}.jobTitle`
                                     )}
                                     {renderFieldRow(
                                       'Start Date',
                                       employment.startDate,
-                                      `employmentData.previousEmployments.${index}.startDate`
+                                      `previousEmployments.${index}.startDate`
                                     )}
                                     {renderFieldRow(
                                       'End Date',
                                       employment.endDate,
-                                      `employmentData.previousEmployments.${index}.endDate`
+                                      `previousEmployments.${index}.endDate`
                                     )}
                                     {renderFieldRow(
                                       'Reason for Leaving',
                                       employment.reasonForLeaving,
-                                      `employmentData.previousEmployments.${index}.reasonForLeaving`
+                                      `previousEmployments.${index}.reasonForLeaving`
                                     )}
                                     {renderFieldRow(
                                       'Responsibilities',
                                       employment.responsibilities,
-                                      `employmentData.previousEmployments.${index}.responsibilities`
+                                      `previousEmployments.${index}.responsibilities`
                                     )}
                                     {renderFieldRow(
                                       'Contact Permission',
                                       employment.contactPermission,
-                                      `employmentData.previousEmployments.${index}.contactPermission`
+                                      `previousEmployments.${index}.contactPermission`
                                     )}
                                   </TableBody>
                                 </Table>
@@ -1109,8 +1059,8 @@ export default function ViewApplicationPage() {
                               )}
                               {renderFieldRow(
                                 'Study Type',
-                                education.studyType,
-                                `educationData.${index}.studyType`
+                                education.grade,
+                                `educationData.${index}.grade`
                               )}
                               {renderFieldRow(
                                 'Qualification',
@@ -1127,11 +1077,6 @@ export default function ViewApplicationPage() {
                                 education.certificate,
                                 `educationData.${index}.certificate`
                               )}
-                              {renderFieldRow(
-                                'Transcript',
-                                education.transcript,
-                                `educationData.${index}.transcript`
-                              )}
                             </TableBody>
                           </Table>
                         </CardContent>
@@ -1139,47 +1084,95 @@ export default function ViewApplicationPage() {
                     ))}
                   </div>
                 )}
+
+                {/* English Qualification Card */}
+                {application.englishQualification && (
+                  <div className="mt-6">
+                    <h3 className="mb-4 text-lg font-semibold">
+                      English Qualification
+                    </h3>
+                    <Card>
+                      <CardContent className="pt-4">
+                        <div className="mb-2 flex items-center">
+                          <h4 className="font-medium">English Test</h4>
+                          <Separator className="mx-4 flex-1" />
+                        </div>
+                        <Table>
+                          <TableBody>
+                            {renderFieldRow(
+                              'Test Type',
+                              application.englishQualification.englishTestType,
+                              'englishQualification.englishTestType'
+                            )}
+                            {renderFieldRow(
+                              'Test Score',
+                              application.englishQualification.englishTestScore,
+                              'englishQualification.englishTestScore'
+                            )}
+                            {renderFieldRow(
+                              'Test Date',
+                              application.englishQualification.englishTestDate,
+                              'englishQualification.englishTestDate'
+                            )}
+                            {renderFieldRow(
+                              'Certificate',
+                              application.englishQualification
+                                .englishCertificate,
+                              'englishQualification.englishCertificate'
+                            )}
+                          </TableBody>
+                        </Table>
+                      </CardContent>
+                    </Card>
+                  </div>
+                )}
               </div>
             </div>
           </TabsContent>
 
           <TabsContent value="course">
-            <Card className="w-1/2">
-              <CardContent className="pt-6">
-                <h3 className="mb-4 text-lg font-semibold">Course Details</h3>
-
-                {!application.courseDetailsData ? (
-                  <p className="italic text-muted-foreground">
-                    No course details provided
-                  </p>
-                ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-1/3 text-left">Field</TableHead>
-                        <TableHead className="text-right">Value</TableHead>
-                        <TableHead className="w-10 text-right"></TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {renderFieldRow(
-                        'Course',
-                        application.courseDetailsData.course,
-                        'courseDetailsData.course'
-                      )}
-                      {renderFieldRow(
-                        'Intake',
-                        application.courseDetailsData.intake,
-                        'courseDetailsData.intake'
-                      )}
-                    </TableBody>
-                  </Table>
-                )}
-              </CardContent>
-            </Card>
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              {applicationCourse && applicationCourse.length > 0 ? (
+                applicationCourse?.map((courseEntry, index) => (
+                  <Card key={courseEntry._id || index}>
+                    <CardContent className="pt-6">
+                      <h3 className="mb-4 text-lg font-semibold">
+                        Course {index + 1}
+                      </h3>
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="w-1/3 text-left">
+                              Field
+                            </TableHead>
+                            <TableHead className="text-right">Value</TableHead>
+                            <TableHead className="w-10 text-right"></TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {renderFieldRow(
+                            'Course',
+                            courseEntry.courseId?.name ?? 'N/A',
+                            `applicationCourse.${index}.courseId.name`
+                          )}
+                          {renderFieldRow(
+                            'Intake',
+                            courseEntry.intakeId?.termName ?? 'N/A',
+                            `applicationCourse.${index}.intakeId.termName`
+                          )}
+                        </TableBody>
+                      </Table>
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                <p className="italic text-muted-foreground">
+                  No course details provided
+                </p>
+              )}
+            </div>
           </TabsContent>
 
-          {/* New TabsContent for Terms Acceptance */}
           <TabsContent value="terms">
             <Card className="w-1/2">
               <CardContent className="pt-6">
@@ -1195,13 +1188,13 @@ export default function ViewApplicationPage() {
                   <TableBody>
                     {renderFieldRow(
                       'Accept Terms',
-                      application.termsData.acceptTerms,
-                      'termsData.acceptTerms'
+                      application.acceptTerms,
+                      'acceptTerms'
                     )}
                     {renderFieldRow(
                       'Accept Data Processing',
-                      application.termsData.acceptDataProcessing,
-                      'termsData.acceptDataProcessing'
+                      application.acceptDataProcessing,
+                      'acceptDataProcessing'
                     )}
                   </TableBody>
                 </Table>

@@ -18,39 +18,26 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useEffect } from 'react';
 import { countries } from '@/types';
 
+const addressSchema = z.object({
+  // Residential address
+  residentialAddressLine1: z
+    .string()
+    .min(1, { message: 'Address line 1 is required' }),
+  residentialAddressLine2: z.string().optional(),
+  residentialCity: z.string().min(1, { message: 'City is required' }),
+  residentialPostCode: z.string().min(1, { message: 'Post code is required' }),
+  residentialCountry: z.string().min(1, { message: 'Country is required' }),
 
-
-const addressSchema = z
-  .object({
-    // Residential address
-    residentialAddressLine1: z
-      .string()
-      .min(1, { message: 'Address line 1 is required' }),
-    residentialAddressLine2: z.string().optional(),
-    residentialCity: z.string().min(1, { message: 'City is required' }),
-    residentialPostCode: z
-      .string()
-      .min(1, { message: 'Post code is required' }),
-    residentialCountry: z
-      .string()
-      .min(1, { message: 'Country is required' }),
-
-    // Postal address
-    sameAsResidential: z.boolean().default(false),
-    postalAddressLine1: z
-      .string()
-      .min(1, { message: 'Address line 1 is required' }),
-    postalAddressLine2: z.string().optional(),
-    postalCity: z.string().min(1, { message: 'City is required' }),
-    postalPostCode: z
-      .string()
-      .min(1, { message: 'Post code is required' }),
-    postalCountry: z
-      .string()
-      .min(1, { message: 'Country is required' })
-  })
- 
-
+  // Postal address
+  sameAsResidential: z.boolean().default(false),
+  postalAddressLine1: z
+    .string()
+    .min(1, { message: 'Address line 1 is required' }),
+  postalAddressLine2: z.string().optional(),
+  postalCity: z.string().min(1, { message: 'City is required' }),
+  postalPostCode: z.string().min(1, { message: 'Post code is required' }),
+  postalCountry: z.string().min(1, { message: 'Country is required' })
+});
 
 type AddressData = z.infer<typeof addressSchema>;
 
@@ -126,7 +113,7 @@ export function AddressStep({
           <CardContent className="">
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2 ">
               {/* Residential Address Section */}
-              <div className="mt-14 space-y-4">
+              <div className="mt-10 space-y-4">
                 <h2 className="text-xl font-semibold">Residential Address</h2>
 
                 <FormField
@@ -266,19 +253,19 @@ export function AddressStep({
 
               {/* Postal Address Section */}
               <div className="space-y-4">
-                <div className="flex flex-col items-start justify-between mt-1">
+                <div className="mt-1 flex flex-col items-start justify-between">
                   <h2 className="text-xl font-semibold">
                     Correspondence Address
                   </h2>
-                  <p className="text-xs ">
-                    Check this box if your mailing address is the same as above.
-                  </p>
                 </div>
                 <FormField
                   control={form.control}
                   name="sameAsResidential"
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                      <FormLabel>
+                       
+                      </FormLabel>
                       <FormControl>
                         <Checkbox
                           checked={field.value}
@@ -286,7 +273,8 @@ export function AddressStep({
                         />
                       </FormControl>
                       <FormLabel className="cursor-pointer text-sm font-normal">
-                        Same as residential address
+                        Check this box if your mailing address is the same as
+                          the residential address.
                       </FormLabel>
                     </FormItem>
                   )}
@@ -368,8 +356,8 @@ export function AddressStep({
                           />
                         </FormControl>
                         <p className="mt-1 text-xs text-gray-400">
-                        Example: London
-                      </p>
+                          Example: London
+                        </p>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -396,8 +384,8 @@ export function AddressStep({
                           />
                         </FormControl>
                         <p className="mt-1 text-xs text-gray-400">
-                        Example: M13 9PL
-                      </p>
+                          Example: M13 9PL
+                        </p>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -442,7 +430,7 @@ export function AddressStep({
                           placeholder="Select the country where you were born."
                         />
                       </FormControl>
-                       <p className="mt-1 text-xs text-gray-400">
+                      <p className="mt-1 text-xs text-gray-400">
                         Example: Canada
                       </p>
                       <FormMessage />
