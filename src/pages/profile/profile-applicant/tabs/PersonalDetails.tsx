@@ -36,19 +36,21 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
   };
 
   // Assume `nationalities` and `countries` arrays are already available
-const nationalityOptions = nationalities.map((nationality) => ({
-  label: nationality,
-  value: nationality.toLowerCase().replace(/\s/g, '-')
-}));
+  const nationalityOptions = nationalities.map((nationality) => ({
+    label: nationality,
+    value: nationality.toLowerCase().replace(/\s/g, '-')
+  }));
 
-const countryOptions = countries.map((country) => ({
-  label: country,
-  value: country.toLowerCase().replace(/\s/g, '-')
-}));
+  const countryOptions = countries.map((country) => ({
+    label: country,
+    value: country.toLowerCase().replace(/\s/g, '-')
+  }));
 
-// Utility function to get selected option from value
-const findOption = (options: { value: string; label: string }[], value: string) =>
-  options.find((opt) => opt.value === value);
+  // Utility function to get selected option from value
+  const findOption = (
+    options: { value: string; label: string }[],
+    value: string
+  ) => options.find((opt) => opt.value === value);
 
   const titleOptions = [
     { value: 'Mr', label: 'Mr' },
@@ -126,7 +128,7 @@ const findOption = (options: { value: string; label: string }[], value: string) 
             {isEditing && (
               <label
                 htmlFor="profile-image"
-                className="absolute bottom-0 right-0 cursor-pointer rounded-full bg-indigo-600 p-2 text-white shadow-md transition-colors hover:bg-indigo-700"
+                className="absolute bottom-0 right-0 cursor-pointer rounded-full bg-watney p-2 text-white shadow-md transition-colors hover:bg-indigo-700"
               >
                 <Camera size={16} />
                 <input
@@ -238,6 +240,35 @@ const findOption = (options: { value: string; label: string }[], value: string) 
                 </div>
               )}
             </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Country of Residence
+              </label>
+              {isEditing ? (
+                <div className="mt-1">
+                  <Select
+                    options={countryOptions}
+                    value={findOption(
+                      countryOptions,
+                      localData?.countryOfResidence || ''
+                    )}
+                    onChange={(selectedOption) =>
+                      handleInputChange(
+                        'countryOfResidence',
+                        selectedOption?.value || ''
+                      )
+                    }
+                  />
+                </div>
+              ) : (
+                <div className="mt-1 text-gray-900">
+                  {findOption(
+                    countryOptions,
+                    localData?.countryOfResidence || ''
+                  )?.label || '-'}
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="space-y-4">
@@ -309,50 +340,35 @@ const findOption = (options: { value: string; label: string }[], value: string) 
               )}
             </div>
 
-             <div>
-      <label className="block text-sm font-medium text-gray-700">Nationality</label>
-      {isEditing ? (
-        <div className="mt-1">
-          <Select
-            options={nationalityOptions}
-            value={findOption(nationalityOptions, localData?.nationality || '')}
-            onChange={(selectedOption) =>
-              handleInputChange('nationality', selectedOption?.value || '')
-            }
-          />
-        </div>
-      ) : (
-        <div className="mt-1 text-gray-900">
-          {
-            findOption(nationalityOptions, localData?.nationality || '')?.label || '-'
-          }
-        </div>
-      )}
-    </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Nationality
+              </label>
+              {isEditing ? (
+                <div className="mt-1">
+                  <Select
+                    options={nationalityOptions}
+                    value={findOption(
+                      nationalityOptions,
+                      localData?.nationality || ''
+                    )}
+                    onChange={(selectedOption) =>
+                      handleInputChange(
+                        'nationality',
+                        selectedOption?.value || ''
+                      )
+                    }
+                  />
+                </div>
+              ) : (
+                <div className="mt-1 text-gray-900">
+                  {findOption(nationalityOptions, localData?.nationality || '')
+                    ?.label || '-'}
+                </div>
+              )}
+            </div>
 
-    {/* Country of Residence */}
-    <div>
-      <label className="block text-sm font-medium text-gray-700">
-        Country of Residence
-      </label>
-      {isEditing ? (
-        <div className="mt-1">
-          <Select
-            options={countryOptions}
-            value={findOption(countryOptions, localData?.countryOfResidence || '')}
-            onChange={(selectedOption) =>
-              handleInputChange('countryOfResidence', selectedOption?.value || '')
-            }
-          />
-        </div>
-      ) : (
-        <div className="mt-1 text-gray-900">
-          {
-            findOption(countryOptions, localData?.countryOfResidence || '')?.label || '-'
-          }
-        </div>
-      )}
-    </div>
+            {/* Country of Residence */}
           </div>
         </div>
 

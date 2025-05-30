@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ApplicantDashboard } from './components/applicant-dashboard';
-import { StudentDashboard } from './components/student-applicant';
-import { AdminDashboard } from './components/admin-dashboard';
+import { ApplicantDashboard } from './rolewise-dashboard/applicant-dashboard';
+import { StudentDashboard } from './rolewise-dashboard/student-applicant';
+import { AdminDashboard } from './rolewise-dashboard/admin-dashboard';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import VerifyPage from '../auth/verify';
@@ -26,7 +26,6 @@ export default function DashboardPage() {
   }, [user, navigate]);
 
 
-  console.log(user)
 
   if (loading) {
     return (

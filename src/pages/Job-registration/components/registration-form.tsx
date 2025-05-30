@@ -78,14 +78,14 @@ export default function RegistrationForm({
         name: `${values.title} ${values.firstName} ${values.initial} ${values.lastName}`,
         role:'applicant',
         isCompleted: false,
-        personalDetails: {
+    
           title: values.title,
           firstName: values.firstName,
           initial: values.initial,
           lastName: values.lastName,
           nationality: values.nationality,
           dateOfBirth: values.dateOfBirth
-        }
+        
       });
 
       setFormSubmitted(true);

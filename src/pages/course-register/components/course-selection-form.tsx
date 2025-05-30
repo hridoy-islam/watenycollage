@@ -20,9 +20,10 @@ export interface Term {
   termName: string;
 }
 const studentTypes = [
-  { label: 'International Student', value: 'international' },
-  { label: 'European Union Student', value: 'eu' }
+  { label: 'Overseas', value: 'international' },
+  { label: 'Home Student', value: 'eu' }
 ];
+
 
 const containerVariants = {
   hidden: { opacity: 0 },

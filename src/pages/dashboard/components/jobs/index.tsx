@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, Pen } from 'lucide-react';
+import { Plus, Pen, MoveLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import {
@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/input';
 import { DataTablePagination } from '@/components/shared/data-table-pagination';
 import { JobDialog } from './components/job-dialog';
 import moment from 'moment';
+import { useNavigate } from 'react-router-dom';
 
 export default function JobPage() {
   const [jobs, setJobs] = useState<any>([]);
@@ -113,35 +114,48 @@ export default function JobPage() {
     fetchData(currentPage, entriesPerPage); // Refresh data
   }, [currentPage, entriesPerPage]);
 
+  const navigate = useNavigate()
+
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">All jobs</h1>
-        <Button
-          className="border-none bg-watney text-white hover:bg-watney/90"
-          size={'sm'}
-          onClick={() => setDialogOpen(true)}
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          New job
-        </Button>
-      </div>
-
-      <div className="flex items-center space-x-4">
-        <Input
-          type="text"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Search by job Name"
-          className="h-8 max-w-[400px]"
-        />
-        <Button
-          onClick={handleSearch}
-          size="sm"
-          className="min-w-[100px] border-none bg-watney text-white hover:bg-watney/90"
-        >
-          Search
-        </Button>
+        <div className="flex flex-row items-center gap-4 ">
+          <h1 className="text-2xl font-semibold">All jobs</h1>
+          <div className="flex items-center space-x-4">
+            <Input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search by job Name"
+              className="h-8 max-w-[400px]"
+            />
+            <Button
+              onClick={handleSearch}
+              size="sm"
+              className="min-w-[100px] border-none bg-watney text-white hover:bg-watney/90"
+            >
+              Search
+            </Button>
+          </div>
+        </div>
+        <div className="flex flex-row items-center gap-4">
+          <Button
+            className="border-none bg-watney text-white hover:bg-watney/90"
+            size={'sm'}
+            onClick={() => navigate('/dashboard')}
+          >
+            <MoveLeft className="mr-2 h-4 w-4" />
+            Back
+          </Button>
+          <Button
+            className="border-none bg-watney text-white hover:bg-watney/90"
+            size={'sm'}
+            onClick={() => setDialogOpen(true)}
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            New job
+          </Button>
+        </div>
       </div>
 
       <div className="rounded-md bg-white p-4 shadow-2xl">

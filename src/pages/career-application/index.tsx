@@ -268,10 +268,14 @@ export default function CareerApplicationForm() {
         isCompleted: true
       });
       dispatch(updateAuthIsCompleted(true));
-      await axiosInstance.post('/application-job', {
-        jobId: applicationId,
-        applicantId: user?._id
-      });
+
+      if (applicationId) {
+        await axiosInstance.post('/application-job', {
+          jobId: applicationId,
+          applicantId: user?._id
+        });
+      }
+
       dispatch(updateAuthIsCompleted(true));
 
       localStorage.removeItem('applicationId');

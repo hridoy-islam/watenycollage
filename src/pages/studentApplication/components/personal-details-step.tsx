@@ -23,31 +23,72 @@ import { CustomDatePicker } from '@/components/shared/CustomDatePicker';
 
 // Schema
 
-const personalDetailsSchema = z.object({
-  title: z.string().optional(),
-  firstName: z.string().min(1, { message: 'First name is required' }),
-  lastName: z.string().min(1, { message: 'Last name is required' }),
-  initial: z.string().optional(),
-  dateOfBirth: z.any().optional(), // use z.string() if it's a string
-  email: z.string().email({ message: 'Invalid email address' }),
-  phone: z.string().min(1, { message: 'Phone number is required' }),
-  gender: z.string().min(1, { message: 'Please select a gender' }),
-  nationality: z.string().min(1, { message: 'Please select a nationality' }),
-  ethnicity: z.string().min(1, { message: 'Please select an ethnicity' }),
-  customEthnicity: z.string().optional(),
-  countryOfBirth: z.string().min(1, { message: 'Please select country of birth' }),
-  maritalStatus: z.string().min(1, { message: 'Please select marital status' }),
-  requireVisa: z.string().min(1, { message: 'Required Field' }),
-  applicationLocation: z.string().min(1, { message: 'Required Field' }),
-}).superRefine((data, ctx) => {
-  if (data.ethnicity === 'Other' && (!data.customEthnicity || data.customEthnicity.trim() === '')) {
-    ctx.addIssue({
-      path: ['customEthnicity'],
-      code: z.ZodIssueCode.custom,
-      message: 'Please specify your ethnicity',
-    });
-  }
-});
+const personalDetailsSchema = z
+  .object({
+    studentType: z.string().optional(), // used for conditional validation
+    title: z.string().optional(),
+    firstName: z.string().min(1, { message: 'First name is required' }),
+    lastName: z.string().min(1, { message: 'Last name is required' }),
+    initial: z.string().optional(),
+    dateOfBirth: z.any().optional(), // use z.string() if needed
+    email: z.string().email({ message: 'Invalid email address' }),
+    phone: z.string().min(1, { message: 'Phone number is required' }),
+    gender: z.string().min(1, { message: 'Please select a gender' }),
+    countryOfDomicile: z
+      .string()
+      .min(1, { message: 'Please select Country of Domicile' }),
+    nationality: z.string().optional(),
+    ethnicity: z.string().min(1, { message: 'Please select an ethnicity' }),
+    customEthnicity: z.string().optional(),
+    countryOfBirth: z
+      .string()
+      .min(1, { message: 'Please select country of birth' }),
+    maritalStatus: z
+      .string()
+      .min(1, { message: 'Please select marital status' }),
+    requireVisa: z.string().optional(), 
+    applicationLocation: z.string().optional()
+  })
+  .superRefine((data, ctx) => {
+    if (
+      data.ethnicity === 'Other' &&
+      (!data.customEthnicity || data.customEthnicity.trim() === '')
+    ) {
+      ctx.addIssue({
+        path: ['customEthnicity'],
+        code: z.ZodIssueCode.custom,
+        message: 'Please specify your ethnicity'
+      });
+    }
+
+      if (
+      data.studentType === 'eu' &&
+      (!data.nationality || data.nationality.trim() === '')
+    ) {
+      ctx.addIssue({
+        path: ['nationality'],
+        code: z.ZodIssueCode.custom,
+        message: 'Nationality is required for EU students',
+      });
+    }
+    // If studentType is not 'eu', then require these fields
+    if (data.studentType !== 'eu') {
+      if (!data.requireVisa || data.requireVisa.trim() === '') {
+        ctx.addIssue({
+          path: ['requireVisa'],
+          code: z.ZodIssueCode.custom,
+          message: 'Required Field'
+        });
+      }
+      if (!data.applicationLocation || data.applicationLocation.trim() === '') {
+        ctx.addIssue({
+          path: ['applicationLocation'],
+          code: z.ZodIssueCode.custom,
+          message: 'Required Field'
+        });
+      }
+    }
+  });
 
 type PersonalDetailsData = z.infer<typeof personalDetailsSchema>;
 
@@ -62,8 +103,7 @@ export function PersonalDetailsStep({
   defaultValues,
   onSaveAndContinue,
   onSave,
-  setCurrentStep,
-  
+  setCurrentStep
 }: Props) {
   const form = useForm<PersonalDetailsData>({
     resolver: zodResolver(personalDetailsSchema),
@@ -80,8 +120,10 @@ export function PersonalDetailsStep({
       ethnicity: '',
       countryOfBirth: '',
       maritalStatus: '',
+      countryOfDomicile: '',
       requireVisa: '',
       applicationLocation: '',
+      studentType: defaultValues?.studentType || '',
       ...defaultValues
     }
   });
@@ -92,7 +134,6 @@ export function PersonalDetailsStep({
     }
   }, [defaultValues, form]);
 
-  
   const ethnicity = useWatch({ control: form.control, name: 'ethnicity' });
 
   function handleBack() {
@@ -122,6 +163,10 @@ export function PersonalDetailsStep({
     value: country,
     label: country
   }));
+  const nationalityOptions = countries.map((nationality) => ({
+    value: nationality,
+    label: nationality
+  }));
 
   const maritalStatusOptions = [
     { value: 'single', label: 'Single' },
@@ -143,6 +188,7 @@ export function PersonalDetailsStep({
     { value: 'Prof', label: 'Prof' }
   ];
 
+  console.log(defaultValues);
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -362,11 +408,50 @@ export function PersonalDetailsStep({
                 </FormItem>
               )}
             />
+            {defaultValues?.studentType === 'eu' && (
+            <FormField
+              control={form.control}
+              name="nationality"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Nationality <span className="text-red-500">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Select
+                      options={nationalityOptions}
+                      value={
+                        field.value
+                          ? nationalityOptions.find(
+                              (option) => option.value === field.value
+                            )
+                          : null
+                      }
+                      onChange={(selected) => field.onChange(selected?.value)}
+                      placeholder="Please select your gender."
+                      isClearable
+                      styles={{
+                        placeholder: (provided) => ({
+                          ...provided,
+                          fontSize: '0.75rem',
+                          color: '#9CA3AF'
+                        })
+                      }}
+                    />
+                  </FormControl>
+                  <p className="mt-1 text-xs text-gray-400">
+                    Example: Male, Female, Non-binary, Prefer not to say, Other
+                  </p>
+
+                  <FormMessage />
+                </FormItem>
+              )}
+            />)}
 
             {/* Nationality */}
             <FormField
               control={form.control}
-              name="nationality"
+              name="countryOfDomicile"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
@@ -374,13 +459,12 @@ export function PersonalDetailsStep({
                   </FormLabel>
                   <FormControl>
                     <Select
-                      options={nationalities.map((nation) => ({
-                        value: nation,
-                        label: nation
-                      }))}
+                      options={countryOptions}
                       value={
                         field.value
-                          ? { value: field.value, label: field.value }
+                          ? countryOptions.find(
+                              (option) => option.value === field.value
+                            )
                           : null
                       }
                       onChange={(selectedOption) =>
@@ -412,7 +496,9 @@ export function PersonalDetailsStep({
               name="ethnicity"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Ethnicity <span className="text-red-500">*</span></FormLabel>
+                  <FormLabel>
+                    Ethnicity <span className="text-red-500">*</span>
+                  </FormLabel>
                   <FormControl>
                     <Select
                       options={ethnicityOptions}
@@ -440,7 +526,9 @@ export function PersonalDetailsStep({
                 name="customEthnicity"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Specify Ethnicity <span className="text-red-500">*</span></FormLabel>
+                    <FormLabel>
+                      Specify Ethnicity <span className="text-red-500">*</span>
+                    </FormLabel>
                     <FormControl>
                       <Textarea
                         {...field}

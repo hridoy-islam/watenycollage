@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { FileUpload } from "./file-upload"
 
 // Define document types
-const DOCUMENT_TYPES = ["ID", "CV", "Proof of Address", "Qualification", "Reference", "Cover Letter", "Other"] as const
+const DOCUMENT_TYPES = ["Passport", "CV", "Reference", "Cover Letter", "Miscellaneous"] as const
 
 // Extend schema to handle custom documents
 const documentSchema = z.object({
@@ -67,7 +67,7 @@ export function DocumentsStep({ defaultValues, onSaveAndContinue, setCurrentStep
       {
         type: selectedDocumentType as any,
         file: selectedFile,
-        customTitle: selectedDocumentType === "Other" ? customTitle : undefined,
+        customTitle: selectedDocumentType === "Miscellaneous" ? customTitle : undefined,
       },
     ])
 
@@ -142,7 +142,7 @@ export function DocumentsStep({ defaultValues, onSaveAndContinue, setCurrentStep
                           />
                         </FormItem>
 
-                        {selectedDocumentType === "Other" && (
+                        {selectedDocumentType === "Miscellaneous" && (
                           <FormItem>
                             <FormLabel>Document Title</FormLabel>
                             <Textarea

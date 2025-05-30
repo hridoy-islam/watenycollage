@@ -127,7 +127,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
             {isEditing && (
               <label
                 htmlFor="profile-image"
-                className="absolute bottom-0 right-0 cursor-pointer rounded-full bg-indigo-600 p-2 text-white shadow-md transition-colors hover:bg-indigo-700"
+                className="absolute bottom-0 right-0 cursor-pointer rounded-full bg-watney p-2 text-white shadow-md transition-colors hover:bg-indigo-700"
               >
                 <Camera size={16} />
                 <input

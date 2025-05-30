@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Plus, Pen } from 'lucide-react'
+import { Plus, Pen, MoveLeft } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import {
@@ -15,13 +15,14 @@ import { useToast } from "@/components/ui/use-toast";
 import { BlinkingDots } from "@/components/shared/blinking-dots";
 import { Input } from "@/components/ui/input"
 import { DataTablePagination } from "@/components/shared/data-table-pagination"
-import { TermDialog } from "./components/term-dialog"
+import { CourseDialog } from "./components/course-dialog"
+import { useNavigate } from "react-router-dom"
 
-export default function TermPage() {
-  const [terms, setTerms] = useState<any>([])
+export default function CoursesPage() {
+  const [courses, setCourses] = useState<any>([])
   const [initialLoading, setInitialLoading] = useState(true); 
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [editingterm, setEditingterm] = useState<any>()
+  const [editingCourse, setEditingCourse] = useState<any>()
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -33,14 +34,14 @@ export default function TermPage() {
     try {
       
       if (initialLoading) setInitialLoading(true);
-      const response = await axiosInstance.get(`/terms`, {
+      const response = await axiosInstance.get(`/courses`, {
         params: {
           page,
           limit: entriesPerPage,
           ...(searchTerm ? { searchTerm } : {}),
         },
       });
-      setTerms(response.data.data.result);
+      setCourses(response.data.data.result);
       setTotalPages(response.data.data.meta.totalPage);
     } catch (error) {
       console.error("Error fetching institutions:", error);
@@ -53,10 +54,10 @@ export default function TermPage() {
   const handleSubmit = async (data) => {
     try {
       let response;
-      if (editingterm) {
-        response = await axiosInstance.patch(`/terms/${editingterm?._id}`, data);
+      if (editingCourse) {
+        response = await axiosInstance.patch(`/courses/${editingCourse?._id}`, data);
       } else {
-        response = await axiosInstance.post(`/terms`, data);
+        response = await axiosInstance.post(`/courses`, data);
       }
 
       if (response.data && response.data.success === true) {
@@ -77,7 +78,7 @@ export default function TermPage() {
       }
       // Refresh data
       fetchData(currentPage, entriesPerPage);
-      setEditingterm(undefined) // Reset editing state
+      setEditingCourse(undefined) // Reset editing state
 
     } catch (error) {
       // Display an error toast if the request fails
@@ -97,7 +98,7 @@ export default function TermPage() {
   const handleStatusChange = async (id, status) => {
     try {
       const updatedStatus = status ? "1" : "0";
-      await axiosInstance.patch(`/terms/${id}`, { status: updatedStatus });
+      await axiosInstance.patch(`/courses/${id}`, { status: updatedStatus });
       toast({ title: "Record updated successfully", className: "bg-watney border-none text-white", });
       fetchData(currentPage, entriesPerPage);
     } catch (error) {
@@ -105,8 +106,8 @@ export default function TermPage() {
     }
   };
 
-  const handleEdit = (term) => {
-    setEditingterm(term)
+  const handleEdit = (course) => {
+    setEditingCourse(course)
     setDialogOpen(true)
   }
 
@@ -115,40 +116,55 @@ export default function TermPage() {
 
   }, [currentPage, entriesPerPage]);
 
-  return (
+  const navigate = useNavigate()
+ return (
     <div className="space-y-3">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold">All terms</h1>
-        <Button className="bg-watney text-white hover:bg-watney/90 border-none" size={'sm'} onClick={() => setDialogOpen(true)}>
-          <Plus className="w-4 h-4 mr-2" />
-          New term
-        </Button>
+      <div className="flex items-center justify-between">
+        <div className="flex flex-row items-center gap-4">
+          <h1 className="text-2xl font-semibold">All Courses</h1>
+          <div className="flex items-center space-x-4">
+            <Input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search by Course Name"
+              className="h-8 max-w-[400px]"
+            />
+            <Button
+              onClick={handleSearch}
+              size="sm"
+              className="min-w-[100px] border-none bg-watney text-white hover:bg-watney/90"
+            >
+              Search
+            </Button>
+          </div>
+        </div>
+        <div className="flex flex-row items-center gap-4">
+          <Button
+            className="border-none bg-watney text-white hover:bg-watney/90"
+            size={'sm'}
+            onClick={() => navigate('/dashboard')}
+          >
+            <MoveLeft className="mr-2 h-4 w-4" />
+            Back
+          </Button>
+          <Button
+            className="border-none bg-watney text-white hover:bg-watney/90"
+            size={'sm'}
+            onClick={() => setDialogOpen(true)}
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            New Course
+          </Button>
+        </div>
       </div>
 
-
-      <div className="flex items-center space-x-4">
-        <Input
-          type="text"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)} 
-          placeholder="Search by term Name"
-          className='max-w-[400px] h-8'
-        />
-        <Button
-          onClick={handleSearch} 
-          size="sm"
-          className="border-none bg-watney min-w-[100px] text-white hover:bg-watney/90"
-        >
-          Search
-        </Button>
-      </div>
-      
-      <div className="rounded-md bg-white shadow-2xl p-4">
+      <div className="rounded-md bg-white p-4 shadow-2xl">
         {initialLoading ? (
           <div className="flex justify-center py-6">
             <BlinkingDots size="large" color="bg-watney" />
           </div>
-        ) : terms.length === 0 ? (
+        ) : courses.length === 0 ? (
           <div className="flex justify-center py-6 text-gray-500">
             No records found.
           </div>
@@ -156,32 +172,32 @@ export default function TermPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                
-                <TableHead>term Name</TableHead>
+                <TableHead>Course Name</TableHead>
                 <TableHead className="w-32 text-center">Status</TableHead>
                 <TableHead className="w-32 text-center">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {terms.map((term) => (
-                <TableRow key={term._id}>
-                  
-                  <TableCell>{term.termName}</TableCell>
+              {courses.map((course) => (
+                <TableRow key={course._id}>
+                  <TableCell>{course.name}</TableCell>
                   <TableCell className="text-center">
                     <Switch
-                      checked={term.status == 1}
-                      onCheckedChange={(checked) => handleStatusChange(term._id, checked)}
+                      checked={course.status == 1}
+                      onCheckedChange={(checked) =>
+                        handleStatusChange(course._id, checked)
+                      }
                       className="mx-auto"
                     />
                   </TableCell>
                   <TableCell className="text-center">
                     <Button
                       variant="ghost"
-                      className="bg-watney text-white hover:bg-watney/90 border-none"
+                      className="border-none bg-watney text-white hover:bg-watney/90"
                       size="icon"
-                      onClick={() => handleEdit(term)}
+                      onClick={() => handleEdit(course)}
                     >
-                      <Pen className="w-4 h-4" />
+                      <Pen className="h-4 w-4" />
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -197,15 +213,18 @@ export default function TermPage() {
           onPageChange={setCurrentPage}
         />
       </div>
-      <TermDialog
+
+      <CourseDialog
         open={dialogOpen}
         onOpenChange={(open) => {
-          setDialogOpen(open)
-          if (!open) setEditingterm(undefined)
+          setDialogOpen(open);
+          if (!open) setEditingCourse(undefined);
         }}
         onSubmit={handleSubmit}
-        initialData={editingterm}
+        initialData={editingCourse}
       />
     </div>
-  )
+  );
 }
+
+

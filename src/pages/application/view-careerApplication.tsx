@@ -339,7 +339,7 @@ export default function ViewCareerApplicationPage() {
       <div className="flex items-center justify-between px-4">
         <Button
           className="bg-watney text-white hover:bg-watney/90 "
-          onClick={() => navigate('/dashboard')}
+          onClick={() => navigate('/dashboard/career-applications')}
         >
           <MoveLeft /> Back
         </Button>

@@ -110,7 +110,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
   return (
     <div className="flex-1 space-y-4">
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      {/* <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Course Applications</CardTitle>
@@ -129,13 +129,13 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
             <div className="text-2xl font-bold">{allCourses.length}</div>
           </CardContent>
         </Card>
-      </div>
+      </div> */}
 
       {/* Tabs */}
       <Tabs defaultValue="applied" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="applied">Applied Courses ({applications.length})</TabsTrigger>
-          <TabsTrigger value="all-courses">All Courses ({allCourses.length})</TabsTrigger>
+          <TabsTrigger value="applied">Applied Courses </TabsTrigger>
+          <TabsTrigger value="all-courses">All Courses </TabsTrigger>
         </TabsList>
 
         {/* Applied Courses Tab */}
@@ -214,7 +214,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                             className="bg-watney text-white hover:bg-watney/90"
                             onClick={() => handleApply(course._id)}
                           >
-                            Apply
+                            Take This Course
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -229,7 +229,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                 </TableBody>
               </Table>
 
-              {allCourses.length > 0 && (
+              
                 <DataTablePagination
                   pageSize={entriesPerPage}
                   setPageSize={setEntriesPerPage}
@@ -237,7 +237,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                   totalPages={totalPages}
                   onPageChange={setCurrentPage}
                 />
-              )}
+            
             </CardContent>
           </Card>
         </TabsContent>

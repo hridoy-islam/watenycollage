@@ -8,6 +8,7 @@ import {
   DialogTitle
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import moment from 'moment';
 
 interface ReviewModalProps {
   open: boolean;
@@ -74,9 +75,9 @@ export function ReviewModal({ open, onClose, formData }: ReviewModalProps) {
     if (typeof value === 'boolean') {
       return value ? 'Yes' : 'No';
     }
-    if (value instanceof Date) {
-      return value.toLocaleDateString();
-    }
+   if (value instanceof Date || moment(value, moment.ISO_8601, true).isValid()) {
+    return moment(value).format('MM-DD-YYYY');
+  }
     if (Array.isArray(value)) {
       if (value.length === 0) return 'None';
       if (value[0] instanceof File) return `${value.length} file(s) uploaded`;
@@ -274,7 +275,7 @@ export function ReviewModal({ open, onClose, formData }: ReviewModalProps) {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <FieldDisplay label="Institution" value={edu.institution} />
-                    <FieldDisplay label="Study Type" value={edu.studyType} />
+                    <FieldDisplay label="Grade" value={edu.grade} />
                     <FieldDisplay
                       label="Qualification"
                       value={edu.qualification}

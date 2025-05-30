@@ -24,6 +24,7 @@ import axiosInstance from '@/lib/axios';
 import { useNavigate } from 'react-router-dom';
 import moment from 'moment';
 import { DataTablePagination } from '@/components/shared/data-table-pagination';
+import { BlinkingDots } from '@/components/shared/blinking-dots';
 
 // Types
 interface Job {
@@ -111,41 +112,12 @@ export function ApplicantDashboard({ user }: ApplicantDashboardProps) {
   return (
     <div className="flex-1 space-y-4 p-4">
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Applications
-            </CardTitle>
-            <Briefcase className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalApplication}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Available Jobs
-            </CardTitle>
-            <Building className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{allJobs.length}</div>
-          </CardContent>
-        </Card>
-      </div>
 
       {/* Tabs */}
       <Tabs defaultValue="applied" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="applied">
-            Jobs Applied ({applications.length})
-          </TabsTrigger>
-          <TabsTrigger value="all-jobs">
-            All Jobs ({allJobs.length})
-          </TabsTrigger>
+          <TabsTrigger value="applied">Jobs Applied</TabsTrigger>
+          <TabsTrigger value="all-jobs">All Jobs</TabsTrigger>
         </TabsList>
 
         {/* Applied Jobs Tab */}
@@ -159,7 +131,7 @@ export function ApplicantDashboard({ user }: ApplicantDashboardProps) {
             </CardHeader>
             <CardContent>
               {loading ? (
-                <p>Loading...</p>
+                <BlinkingDots size="small" color="bg-white" />
               ) : applications.length > 0 ? (
                 <>
                   <Table>
@@ -214,7 +186,7 @@ export function ApplicantDashboard({ user }: ApplicantDashboardProps) {
             </CardHeader>
             <CardContent>
               {loading ? (
-                <p>Loading...</p>
+                <BlinkingDots size="small" color="bg-white" />
               ) : allJobs.length > 0 ? (
                 <>
                   <Table>

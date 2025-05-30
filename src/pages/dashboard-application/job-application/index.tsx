@@ -22,12 +22,14 @@ import { useToast } from '@/components/ui/use-toast';
 import { useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import moment from 'moment';
+import { MoveLeft } from 'lucide-react';
 
 // Types
 interface Job {
   _id: string;
   jobTitle: string;
   applicationDeadline: string | Date;
+  jobDetail?: string;
 }
 
 type JobApplicationFormValues = {
@@ -70,7 +72,7 @@ export default function JobApplicationPage() {
       } catch (error) {
         console.error('Error fetching job:', error);
         toast({ title: 'Failed to load job information.' });
-        // Redirect to jobs list or home
+        navigate('/dashboard');
       } finally {
         setLoading(false);
       }
@@ -91,8 +93,8 @@ export default function JobApplicationPage() {
         applicantId: user._id,
         jobId: data.jobId
       });
-      navigate('/dashboard')
-      toast({ title: ' Application submitted successfully!' });
+      toast({ title: 'Application submitted successfully!' });
+      navigate('/dashboard');
       localStorage.removeItem('applicationId');
     } catch (error: any) {
       const message =
@@ -106,56 +108,109 @@ export default function JobApplicationPage() {
 
   if (loading) {
     return (
-      <div className="flex justify-center py-10">
-        <BlinkingDots />
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <BlinkingDots size="large" color="bg-watney" />
       </div>
     );
   }
 
   if (!job) {
     return (
-      <div className="py-10 text-center">
-        <h2 className="text-xl font-semibold text-gray-700">Job not found</h2>
+      <div className=" flex flex-col items-center justify-center p-6 text-center">
+        <h2 className="text-2xl font-semibold text-gray-700">Job not found</h2>
+        <p className="mt-2 text-gray-500">
+          We couldn't find the requested job.
+        </p>
         <Button
-          variant="link"
-          onClick={() => navigate('/jobs')}
-          className="mt-4"
+          variant="outline"
+          onClick={() => navigate('/dashboard')}
+          className="mt-4 border-watney text-watney hover:bg-watney hover:text-white"
         >
-          Back to Jobs
+          Back to Dashboard
         </Button>
       </div>
     );
   }
 
   return (
-    <div className=" mx-auto p-6 ">
-      <h1 className="mb-2 text-3xl font-bold">{job.jobTitle}</h1>
+    <div className="mx-auto">
+      {/* Job Info Card */}
+      <div className="mb-8 rounded-lg border border-gray-200 bg-white p-8 shadow-xl">
+        <div className="flex flex-col md:flex-row md:items-start md:justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">{job.jobTitle}</h1>
 
-      <p className="mb-6 text-gray-500">
-        Application Deadline:{' '}
-        <span className="font-medium text-gray-900">
-          {moment(job?.applicationDeadline).format('MMMM Do, YYYY')}
-        </span>
-      </p>
-
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          {/* Hidden field for jobId */}
-          <FormField
-            control={form.control}
-            name="jobId"
-            render={({ field }) => <input type="hidden" {...field} />}
-          />
-
+            {/* Application Deadline - displayed inline with job title */}
+            <div className="mt-2 inline-flex items-center rounded-full bg-watney/10 px-4 py-1 text-sm text-watney">
+              <span>
+                Deadline:{' '}
+                {moment(job.applicationDeadline).format('MMM Do, YYYY')}
+              </span>
+            </div>
+          </div>
           <Button
-            type="submit"
-            disabled={submitting}
-            className={`w-[200px] ${'bg-watney hover:bg-watney/90'} text-white`}
+            onClick={() => navigate('/dashboard')}
+            className="mt-4 border-watney bg-watney text-white hover:bg-watney/90 "
           >
-            {submitting ? 'Submitting...' : 'Apply Now'}
+            <MoveLeft/>
+            Back to Dashboard
           </Button>
-        </form>
-      </Form>
+        </div>
+
+        {/* Rich HTML description */}
+        <div
+          className="prose mt-6 max-w-none text-gray-600"
+          dangerouslySetInnerHTML={{
+            __html:
+              job.jobDetail ||
+              '<p>No description available for this position.</p>'
+          }}
+        ></div>
+
+        {/* Application Form Section */}
+        <div className="mt-10 rounded-lg border border-gray-100 bg-gray-50 p-6 shadow-sm">
+          <div className="mb-6 flex flex-col items-start gap-2 border-b pb-4">
+            <h2 className="text-xl font-semibold text-gray-800">Apply Now</h2>
+            <p className="text-sm text-gray-500">
+              Submit your application below to apply for this position.
+            </p>
+          </div>
+
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField
+                control={form.control}
+                name="jobId"
+                render={({ field }) => <input type="hidden" {...field} />}
+              />
+
+              <div className="flex flex-row items-center gap-4">
+                <p className="text-center text-gray-600 sm:text-left">
+                  Ready to apply? Click the button below to submit your
+                  application.
+                </p>
+
+                <Button
+                  type="submit"
+                  disabled={submitting}
+                  className="flex items-center gap-2 bg-watney px-6 text-white transition-colors duration-200 hover:bg-watney/90"
+                >
+                  {submitting ? (
+                    <>
+                      <BlinkingDots size="small" color="bg-white" />
+                    </>
+                  ) : (
+                    <>
+                      Apply Now
+                     
+                    </>
+                  )}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </div>
+      </div>
     </div>
   );
 }

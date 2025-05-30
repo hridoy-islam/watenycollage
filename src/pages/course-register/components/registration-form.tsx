@@ -1,108 +1,114 @@
-"use client"
+'use client';
 
-import type React from "react"
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
-import { Check, Eye, EyeOff } from "lucide-react"
-import { useToast } from "@/components/ui/use-toast"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import axiosInstance from "@/lib/axios"
-import { nationalities } from "@/types"
+import type React from 'react';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Check, Eye, EyeOff } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
+} from '@/components/ui/form';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
+import axiosInstance from '@/lib/axios';
+import { nationalities } from '@/types';
 
 const registrationSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  firstName: z.string().min(1, "First name is required").max(50),
+  title: z.string().min(1, 'Title is required'),
+  firstName: z.string().min(1, 'First name is required').max(50),
   initial: z.string().optional(),
-  lastName: z.string().min(1, "Last name is required").max(50),
-  phone: z.string().min(10, "Phone number must be at least 10 digits"),
-  nationality: z.string().min(1, "Nationality is required"),
-  dateOfBirth: z.string().min(1, "Date of birth is required"),
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-})
+  lastName: z.string().min(1, 'Last name is required').max(50),
+  phone: z.string().min(10, 'Phone number must be at least 10 digits'),
+  nationality: z.string().min(1, 'Nationality is required'),
+  dateOfBirth: z.string().min(1, 'Date of birth is required'),
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(6, 'Password must be at least 6 characters')
+});
 
 const defaultRegistrationValues = {
-  title: "",
-  firstName: "",
-  initial: "",
-  lastName: "",
-  phone: "",
-  nationality: "",
-  dateOfBirth: "",
-  email: "",
-  password: "",
-}
+  title: '',
+  firstName: '',
+  initial: '',
+  lastName: '',
+  phone: '',
+  nationality: '',
+  dateOfBirth: '',
+  email: '',
+  password: ''
+};
 
 interface RegistrationFormProps {
-  formSubmitted: boolean
-  setFormSubmitted: React.Dispatch<React.SetStateAction<boolean>>
-  setActiveTab: React.Dispatch<React.SetStateAction<string>> | (() => void)
-  onSuccess?: () => void
+  formSubmitted: boolean;
+  setFormSubmitted: React.Dispatch<React.SetStateAction<boolean>>;
+  setActiveTab: React.Dispatch<React.SetStateAction<string>> | (() => void);
+  onSuccess?: () => void;
 }
 
 export default function RegistrationForm({
   formSubmitted,
   setFormSubmitted,
   setActiveTab,
-  onSuccess,
+  onSuccess
 }: RegistrationFormProps) {
-  const [showPassword, setShowPassword] = useState(false)
-  const { toast } = useToast()
+  const [showPassword, setShowPassword] = useState(false);
+  const { toast } = useToast();
 
   // Initialize form with React Hook Form + Zod validation
   const form = useForm({
     resolver: zodResolver(registrationSchema),
-    defaultValues: defaultRegistrationValues,
-  })
+    defaultValues: defaultRegistrationValues
+  });
 
   const onSubmit = async (values: z.infer<typeof registrationSchema>) => {
     try {
-      const response = await axiosInstance.post("/auth/signup", {
+      const response = await axiosInstance.post('/auth/signup', {
         ...values,
-          name: `${values.title} ${values.firstName} ${values.initial} ${values.lastName}`,
-        personalDetails: {
-          title: values.title,
-          firstName: values.firstName,
-          initial: values.initial,
-          lastName: values.lastName,
-          nationality: values.nationality,
-          dateOfBirth: values.dateOfBirth,
-        },
-      })
+        name: `${values.title} ${values.firstName} ${values.initial} ${values.lastName}`,
+        title: values.title,
+        firstName: values.firstName,
+        initial: values.initial,
+        lastName: values.lastName,
+        nationality: values.nationality,
+        dateOfBirth: values.dateOfBirth,
+        role:'student'
+      });
 
-      setFormSubmitted(true)
+      setFormSubmitted(true);
 
       // if (typeof setActiveTab === "function") {
       //   setActiveTab()
       // }
 
-    
-        toast({
-          title: "Account Created",
-          description: "Your account was successfully created.",
-        })
+      toast({
+        title: 'Account Created',
+        description: 'Your account was successfully created.'
+      });
 
-         if (onSuccess) {
-          onSuccess()
-        }
-      
-        
-      
+      if (onSuccess) {
+        onSuccess();
+      }
     } catch (err: any) {
       toast({
-        title: "Server Error",
-        description: err.response?.data?.message || "Please try again later.",
-        variant: "destructive",
-      })
+        title: 'Server Error',
+        description: err.response?.data?.message || 'Please try again later.',
+        variant: 'destructive'
+      });
     }
-  }
-
-  
+  };
 
   return (
     <Form {...form}>
@@ -115,14 +121,17 @@ export default function RegistrationForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Title *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select title" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {["Mr", "Mrs", "Miss", "Ms", "Dr"].map((item) => (
+                    {['Mr', 'Mrs', 'Miss', 'Ms', 'Dr'].map((item) => (
                       <SelectItem key={item} value={item}>
                         {item}
                       </SelectItem>
@@ -201,7 +210,10 @@ export default function RegistrationForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Nationality *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select nationality" />
@@ -244,7 +256,11 @@ export default function RegistrationForm({
             <FormItem>
               <FormLabel>Email Address *</FormLabel>
               <FormControl>
-                <Input type="email" placeholder="john.doe@example.com" {...field} />
+                <Input
+                  type="email"
+                  placeholder="john.doe@example.com"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -260,26 +276,39 @@ export default function RegistrationForm({
               <FormLabel>Password *</FormLabel>
               <div className="relative">
                 <FormControl>
-                  <Input type={showPassword ? "text" : "password"} placeholder="••••••••" {...field} />
+                  <Input
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="••••••••"
+                    {...field}
+                  />
                 </FormControl>
                 <button
                   type="button"
                   onClick={() => setShowPassword((prev) => !prev)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
-                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
                 </button>
               </div>
               <FormMessage />
-              <p className="text-xs text-gray-500">Password must be at least 6 characters</p>
+              <p className="text-xs text-gray-500">
+                Password must be at least 6 characters
+              </p>
             </FormItem>
           )}
         />
 
-        <Button type="submit" className="w-full bg-watney text-white hover:bg-watney/90">
+        <Button
+          type="submit"
+          className="w-full bg-watney text-white hover:bg-watney/90"
+        >
           Create Account
         </Button>
       </form>
     </Form>
-  )
+  );
 }

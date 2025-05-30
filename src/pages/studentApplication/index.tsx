@@ -350,17 +350,16 @@ export default function StudentApplication() {
       );
 
       dispatch(updateAuthIsCompleted(true));
-      // await axiosInstance.patch(`/users/${user?._id}`, {
-      //   ...formData,
-      //   studentId: user._id,
-      //   isCompleted: true
-      // });
+      
 
+       if (savedCourseId && savedTermId) {
       await axiosInstance.post('/application-course', {
         courseId: savedCourseId,
         intakeId: savedTermId,
         studentId: user._id
       });
+    }
+    
       localStorage.removeItem('studentType');
       localStorage.removeItem('termId');
       localStorage.removeItem('courseId');

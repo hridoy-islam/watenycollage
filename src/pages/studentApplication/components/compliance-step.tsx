@@ -27,8 +27,8 @@ const complianceSchema = z
   .object({
     startDateInUK: z.date().optional(),
     niNumber: z.string().optional(),
-    immigrationStatus: z.string().min(1, { message: 'Please select status' }),
     ltrCode: z.string().optional(),
+    immigrationStatus: z.string().min(1, { message: 'Please select status' }),
     disability: z.string().min(1, { message: 'Please select an option' }),
     disabilityDetails: z.string().optional(),
     benefits: z.string().min(1, { message: 'Please select an option' }),
@@ -36,6 +36,7 @@ const complianceSchema = z
       required_error: 'Please select an option'
     }),
     convictionDetails: z.string().optional(),
+    visaRefusalDetail: z.string().optional(),
     studentFinance: z.string().min(1, { message: 'Please select an option' }),
     visaRequired: z.string().min(1, { message: 'Please select an option' }),
     enteredUKBefore: z.string().min(1, { message: 'Please select an option' }),
@@ -46,6 +47,13 @@ const complianceSchema = z
   })
   .superRefine((data, ctx) => {
     // Check if disability is "yes" and if disabilityDetails is provided
+    if (data.visaRefusal === 'yes' && !data.visaRefusalDetail?.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Visa Refusal details are required".',
+        path: ['visaRefusalDetail']
+      });
+    }
     if (data.disability === 'yes' && !data.disabilityDetails?.trim()) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -90,10 +98,12 @@ export function ComplianceStep({
       visaRequired: defaultValues?.visaRequired || '',
       enteredUKBefore: defaultValues?.enteredUKBefore || '',
       completedUKCourse: defaultValues?.completedUKCourse || '',
-      visaRefusal: defaultValues?.visaRefusal || ''
+      visaRefusal: defaultValues?.visaRefusal || '',
+      visaRefusalDetail: defaultValues?.visaRefusalDetail || ''
     }
   });
 
+  const watchVisaRefusal = form.watch('visaRefusal');
   const watchDisability = form.watch('disability');
   const watchCriminalConviction = form.watch('criminalConviction');
 
@@ -163,44 +173,11 @@ export function ComplianceStep({
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <FormField
                 control={form.control}
-                name="startDateInUK"
-                render={({ field }) => {
-                  const selectedDate = field.value
-                    ? new Date(field.value)
-                    : undefined;
-
-                  return (
-                    <FormItem className="mt-2 flex flex-col">
-                      <FormLabel>
-                        When did you first enter into UK (MM/DD/YYYY)
-                        <span className="text-red-500">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <CustomDatePicker
-                          selected={selectedDate}
-                          onChange={(date) => field.onChange(date)}
-                          placeholder="Enter your entry date using the format DD/MM/YYYY."
-                          onBlur={field.onBlur}
-                          name={field.name}
-                          ref={field.ref}
-                        />
-                      </FormControl>
-                      <p className="mt-1 text-xs text-gray-400">
-                        Example: 01/24/2022
-                      </p>
-                      <FormMessage />
-                    </FormItem>
-                  );
-                }}
-              />
-
-              <FormField
-                control={form.control}
                 name="visaRequired"
                 render={({ field }) => (
                   <FormItem className="mt-2 flex w-full flex-col">
                     <FormLabel>
-                      Do you require visa to come to UK?{' '}
+                      Do you require visa to come to the UK?{' '}
                       <span className="text-red-500">*</span>
                     </FormLabel>
                     <FormControl>
@@ -229,14 +206,13 @@ export function ComplianceStep({
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="enteredUKBefore"
                 render={({ field }) => (
                   <FormItem className="flex w-full flex-col ">
                     <FormLabel>
-                      Have you entered into UK before?{' '}
+                      Have you entered into the UK before?{' '}
                       <span className="text-red-500">*</span>
                     </FormLabel>
                     <FormControl>
@@ -268,11 +244,44 @@ export function ComplianceStep({
 
               <FormField
                 control={form.control}
+                name="startDateInUK"
+                render={({ field }) => {
+                  const selectedDate = field.value
+                    ? new Date(field.value)
+                    : undefined;
+
+                  return (
+                    <FormItem className="mt-2 flex flex-col">
+                      <FormLabel>
+                        When did you first enter into the UK (MM/DD/YYYY)
+                        <span className="text-red-500">*</span>
+                      </FormLabel>
+                      <FormControl>
+                        <CustomDatePicker
+                          selected={selectedDate}
+                          onChange={(date) => field.onChange(date)}
+                          placeholder="Enter your entry date using the format DD/MM/YYYY."
+                          onBlur={field.onBlur}
+                          name={field.name}
+                          ref={field.ref}
+                        />
+                      </FormControl>
+                      <p className="mt-1 text-xs text-gray-400">
+                        Example: 01/24/2022
+                      </p>
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
+              />
+
+              <FormField
+                control={form.control}
                 name="completedUKCourse"
                 render={({ field }) => (
                   <FormItem className="flex w-full flex-col">
                     <FormLabel>
-                      Have you completed any course from UK before?
+                      Have you completed any course from the UK before?
                       <span className="text-red-500">*</span>
                     </FormLabel>
                     <FormControl>
@@ -337,28 +346,85 @@ export function ComplianceStep({
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="niNumber"
-                render={({ field }) => (
-                  <FormItem className="flex w-full flex-col">
-                    <FormLabel>National Insurance (NI) Number</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        placeholder="If you have one, please enter your NI number."
-                        className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
-                      />
-                    </FormControl>
 
-                    <p className="mt-1 text-xs text-gray-400">
-                      Example: JM456789B
-                    </p>
+              {watchVisaRefusal === 'yes' && (
+                <FormField
+                  control={form.control}
+                  name="visaRefusalDetail"
+                  render={({ field }) => (
+                    <FormItem className="flex w-full flex-col">
+                      <FormLabel>
+                        Visa Refusal Details{' '}
+                        <span className="text-red-500">*</span>
+                      </FormLabel>
+                      <FormControl>
+                        <Textarea
+                          {...field}
+                          placeholder="Please provide your visa refusal details"
+                          className="!placeholder:text-gray-500  border-gray-200 placeholder:text-xs placeholder:text-gray-500"
+                        />
+                      </FormControl>
 
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      <p className="mt-1 text-xs text-gray-400">
+                        Example: I was refused a UK student visa due to a
+                        documentation issue.
+                      </p>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+              {defaultValues.studentType === 'international' && (
+                <>
+                  <FormField
+                    control={form.control}
+                    name="niNumber"
+                    render={({ field }) => (
+                      <FormItem className="flex w-full flex-col">
+                        <FormLabel>National Insurance (NI) Number</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder="If you have one, please enter your NI number."
+                            className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
+                          />
+                        </FormControl>
+
+                        <p className="mt-1 text-xs text-gray-400">
+                          Example: JM456789B
+                        </p>
+
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="ltrCode"
+                    render={({ field }) => (
+                      <FormItem className="flex w-full flex-col">
+                        <FormLabel>
+                          Please provide your LTR (Leave to Remain) Code
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder="Required if you have EU Settled or Pre-Settled Status."
+                            className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
+                          />
+                        </FormControl>
+
+                        <p className="mt-1 text-xs text-gray-400">
+                          Example: LTR123456789
+                        </p>
+
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
 
               <FormField
                 control={form.control}
@@ -390,31 +456,6 @@ export function ComplianceStep({
                     <p className="mt-1 text-xs text-gray-400">
                       Example: UK Citizen, Tier 4 Student Visa, etc.
                     </p>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="ltrCode"
-                render={({ field }) => (
-                  <FormItem className="flex w-full flex-col">
-                    <FormLabel>
-                      Please provide your LTR (Leave to Remain) Code
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        placeholder="Required if you have EU Settled or Pre-Settled Status."
-                        className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
-                      />
-                    </FormControl>
-
-                    <p className="mt-1 text-xs text-gray-400">
-                      Example: LTR123456789
-                    </p>
-
                     <FormMessage />
                   </FormItem>
                 )}
@@ -470,7 +511,7 @@ export function ComplianceStep({
                         <Textarea
                           {...field}
                           placeholder="Please provide your disabiility details"
-                          className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
+                          className="!placeholder:text-gray-500  border-gray-200 placeholder:text-xs placeholder:text-gray-500"
                         />
                       </FormControl>
 
@@ -605,7 +646,7 @@ export function ComplianceStep({
                   control={form.control}
                   name="convictionDetails"
                   render={({ field }) => (
-                    <FormItem className="flex w-full flex-col col-span-2">
+                    <FormItem className="col-span-2 flex w-full flex-col">
                       <FormLabel>
                         If yes, Criminal Convictions details
                       </FormLabel>
@@ -613,7 +654,7 @@ export function ComplianceStep({
                         <Textarea
                           {...field}
                           placeholder="Please provide the details"
-                          className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500 border-gray-200"
+                          className="!placeholder:text-gray-500  border-gray-200 placeholder:text-xs placeholder:text-gray-500 "
                         />
                       </FormControl>
 

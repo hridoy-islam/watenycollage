@@ -16,10 +16,10 @@ import NewApplicationListPage from '@/pages/application/newApplications-list';
 import ViewApplicationPage from '@/pages/application/view-careerApplication';
 import CareerPage from '@/pages/career-application';
 import CareerResumeUpload from '@/pages/career-application/uploadResume/index';
-import CoursesPage from '@/pages/course';
-import TermPage from '@/pages/term';
+import CoursesPage from '@/pages/dashboard/components/course';
+import TermPage from '@/pages/dashboard/components/term';
 import CourseRegistration from '@/pages/course-register';
-import JobPage from '@/pages/jobs';
+import JobPage from '@/pages/dashboard/components/jobs';
 import JobApplication from '@/pages/Job-registration';
 import Guideline from '@/components/shared/Guideline';
 import CareerGuideline from '@/pages/career-application/career-guideline';
@@ -29,6 +29,11 @@ import StudentGuideline from '@/pages/studentApplication/student-guideline';
 import ViewStudentApplicationPage from '@/pages/application/view-studentApplication';
 import ViewCareerApplicationPage from '@/pages/application/view-careerApplication';
 import VerifyPage from '@/pages/auth/verify';
+import StudentApplicationsPage from '@/pages/dashboard/components/student-applications';
+import CareerApplicationsPage from '@/pages/dashboard/components/career-applicaitons';
+import TotalCoursesPage from '@/pages/dashboard/components/total-courses';
+import TotalIntakePage from '@/pages/dashboard/components/total-intake';
+import TotalJobsPage from '@/pages/dashboard/components/total-jobs';
 
 const SignInPage = lazy(() => import('@/pages/auth/signin'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
@@ -130,7 +135,18 @@ export default function AppRouter() {
           path: 'student-guideline',
           element: <StudentGuideline />,
           index: true
+        },
+        {
+          path: 'student-applications',
+          element: <StudentApplicationsPage />,
+          index: true
+        },
+        {
+          path: 'career-applications',
+          element: <CareerApplicationsPage />,
+          index: true
         }
+        
       ]
     }
   ];
@@ -180,10 +196,7 @@ export default function AppRouter() {
       path: '/404',
       element: <NotFound />
     },
-    {
-      path: '/verify',
-      element: <VerifyPage />
-    },
+   
     {
       path: '*',
       element: <Navigate to="/404" replace />

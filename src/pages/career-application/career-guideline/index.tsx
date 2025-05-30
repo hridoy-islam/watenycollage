@@ -68,7 +68,7 @@ export default function CareerGuideline() {
   <DialogContent
     onInteractOutside={(e) => e.preventDefault()}
     onEscapeKeyDown={(e) => e.preventDefault()}
-    className="p-0 w-screen h-screen max-w-none "
+    className="p-0 w-[95vw] h-[95vh] max-w-none "
   >
     <Card className="flex h-full w-full flex-col border-none shadow-none">
       <CardHeader className="px-6 py-4">
@@ -84,7 +84,7 @@ export default function CareerGuideline() {
           onClick={handleNext}
           className="bg-watney text-white hover:bg-watney/90"
         >
-          {step === steps.length - 1 ? 'Finish' : 'Next'}
+          {step === steps.length - 1 ? 'Continue Application' : 'Next'}
         </Button>
       </CardFooter>
     </Card>
