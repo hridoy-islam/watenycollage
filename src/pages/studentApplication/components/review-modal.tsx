@@ -103,7 +103,7 @@ export function ReviewModal({ open, onClose, formData }: ReviewModalProps) {
       <div className="mb-6">
         <h3 className="mb-2 text-lg font-semibold">Personal Details</h3>
         <div className="rounded-md border border-gray-200 bg-gray-50 p-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4">
             <div className="space-y-2">
               <FieldDisplay label="Title" value={data.title} />
               <FieldDisplay label="First Name" value={data.firstName} />
@@ -117,7 +117,7 @@ export function ReviewModal({ open, onClose, formData }: ReviewModalProps) {
               <FieldDisplay label="Phone" value={data.phone} />
             </div>
           </div>
-          <div className="mt-4 grid grid-cols-2 gap-4">
+          <div className="mt-4 grid grid-cols-1 gap-4">
             <div className="space-y-2">
               <FieldDisplay label="Nationality" value={data.nationality} />
               <FieldDisplay label="Ethnicity" value={data.ethnicity} />
@@ -145,7 +145,7 @@ export function ReviewModal({ open, onClose, formData }: ReviewModalProps) {
         <h3 className="mb-2 text-lg font-semibold">Address</h3>
         <div className="rounded-md border border-gray-200 bg-gray-50 p-4">
           <h4 className="mb-2 font-medium">Residential Address</h4>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4">
             <div className="space-y-2">
               <FieldDisplay
                 label="Address Line 1"
@@ -174,7 +174,7 @@ export function ReviewModal({ open, onClose, formData }: ReviewModalProps) {
           {!data.sameAsResidential && (
             <>
               <h4 className="mb-2 mt-4 font-medium">Postal Address</h4>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <div className="space-y-2">
                   <FieldDisplay
                     label="Address Line 1"
@@ -208,7 +208,7 @@ export function ReviewModal({ open, onClose, formData }: ReviewModalProps) {
       <div className="mb-6">
         <h3 className="mb-2 text-lg font-semibold">Course Details</h3>
         <div className="rounded-md border border-gray-200 bg-gray-50 p-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4">
             <FieldDisplay label="Course" value={courseName || 'Loading...'} />
             <FieldDisplay label="Intake" value={termName || 'Loading...'} />
           </div>
@@ -225,7 +225,7 @@ export function ReviewModal({ open, onClose, formData }: ReviewModalProps) {
       <div className="mb-6">
         <h3 className="mb-2 text-lg font-semibold">Contact Information</h3>
         <div className="rounded-md border border-gray-200 bg-gray-50 p-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4">
             <div className="space-y-2">
               <FieldDisplay
                 label="Emergency Contact Name"
@@ -272,7 +272,7 @@ export function ReviewModal({ open, onClose, formData }: ReviewModalProps) {
                 className="mb-4 border-b border-gray-200 pb-4 last:border-0 last:pb-0"
               >
                 <h4 className="mb-2 font-medium">Education #{index + 1}</h4>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4">
                   <div className="space-y-2">
                     <FieldDisplay label="Institution" value={edu.institution} />
                     <FieldDisplay label="Grade" value={edu.grade} />
@@ -293,7 +293,7 @@ export function ReviewModal({ open, onClose, formData }: ReviewModalProps) {
           {data.englishQualification && (
             <div className="mt-4">
               <h4 className="mb-2 font-medium">English Qualification</h4>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <div className="space-y-2">
                   <FieldDisplay
                     label="Test Type"
@@ -335,7 +335,7 @@ export function ReviewModal({ open, onClose, formData }: ReviewModalProps) {
           {data.currentEmployment && (
             <div className="mt-4">
               <h4 className="mb-2 font-medium">Current Employment</h4>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <div className="space-y-2">
                   <FieldDisplay
                     label="Employer"
@@ -384,7 +384,7 @@ export function ReviewModal({ open, onClose, formData }: ReviewModalProps) {
                     key={index}
                     className="mb-4 border-b border-gray-200 pb-4 last:border-0 last:pb-0"
                   >
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4">
                       <div className="space-y-2">
                         <FieldDisplay label="Employer" value={emp.employer} />
                         <FieldDisplay label="Job Title" value={emp.jobTitle} />
@@ -436,7 +436,7 @@ export function ReviewModal({ open, onClose, formData }: ReviewModalProps) {
       <div className="mb-6">
         <h3 className="mb-2 text-lg font-semibold">Compliance</h3>
         <div className="rounded-md border border-gray-200 bg-gray-50 p-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4">
             <div className="space-y-2">
               <FieldDisplay label="NI Number" value={data.niNumber} />
               <FieldDisplay label="Status" value={data.status} />
@@ -468,7 +468,7 @@ export function ReviewModal({ open, onClose, formData }: ReviewModalProps) {
               <FieldDisplay label="Visa Required" value={data.visaRequired} />
             </div>
           </div>
-          <div className="mt-4 grid grid-cols-2 gap-4">
+          <div className="mt-4 grid grid-cols-1 gap-4">
             <FieldDisplay
               label="Entered UK Before"
               value={data.enteredUKBefore}
@@ -492,7 +492,7 @@ export function ReviewModal({ open, onClose, formData }: ReviewModalProps) {
       <div className="mb-6">
         <h3 className="mb-2 text-lg font-semibold">Documents</h3>
         <div className="rounded-md border border-gray-200 bg-gray-50 p-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4">
             <div className="space-y-2">
               <FieldDisplay label="Document Type" value={data.documentType} />
               <FieldDisplay label="National ID" value={data.nationalID} />
@@ -547,7 +547,7 @@ export function ReviewModal({ open, onClose, formData }: ReviewModalProps) {
               )}
             </div>
           </div>
-          <div className="mt-4 grid grid-cols-2 gap-4">
+          <div className="mt-4 grid grid-cols-1 gap-4">
             <FieldDisplay label="Other Documents" value={data.otherDocuments} />
             {data.otherDocuments && (
               <FieldDisplay
@@ -570,7 +570,7 @@ export function ReviewModal({ open, onClose, formData }: ReviewModalProps) {
     value: any;
     className?: string;
   }) => (
-    <div className={`grid grid-cols-2 gap-2 ${className}`}>
+    <div className={`grid grid-cols-1 gap-2 ${className}`}>
       <div className="text-sm font-medium">{label}</div>
       <div className="text-sm">{formatValue(value)}</div>
     </div>

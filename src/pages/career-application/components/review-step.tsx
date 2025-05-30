@@ -139,7 +139,7 @@ const dataProcessingAccepted = form.watch('dataProcessingAccepted');
               .replace(/([A-Z])/g, ' $1')
               .replace(/^./, (s) => s.toUpperCase());
             return (
-              <div key={key} className="mb-2 grid grid-cols-2 gap-2">
+              <div key={key} className="mb-2 grid grid-cols-1 gap-2">
                 <div className="text-sm font-medium">{label}</div>
                 <div className="text-sm">
                   {value === undefined || value === null || value === ''
