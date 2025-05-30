@@ -121,11 +121,11 @@ export function AdminDashboard() {
       setCourseTotalPages(courseRes.data.data?.meta?.totalPage || 1);
       setTermTotalPages(termRes.data.data?.meta?.totalPage || 1);
       setJobTotalPages(jobRes.data.data?.meta?.totalPage || 1);
-      settTotalStudent(studentRes.data.data?.meta?.total || 1);
-      setTotalApplicant(careerRes.data.data?.meta?.total || 1);
-      setTotalCourse(courseRes.data.data?.meta?.total || 1);
-      setTotalTerm(termRes.data.data?.meta?.total || 1);
-      setTotalJob(jobRes.data.data?.meta?.total || 1);
+      settTotalStudent(studentRes.data.data?.meta?.total );
+      setTotalApplicant(careerRes.data.data?.meta?.total );
+      setTotalCourse(courseRes.data.data?.meta?.total );
+      setTotalTerm(termRes.data.data?.meta?.total);
+      setTotalJob(jobRes.data.data?.meta?.total);
 
       // Set data
       setStudentApplications(studentRes.data.data?.result || []);
