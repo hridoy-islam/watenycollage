@@ -164,7 +164,7 @@ export function AdminDashboard() {
         </Card>
 
         {/* Career Applications */}
-        <Card onClick={()=> navigate('/dashboard/career-applications')} className='cursor-pointer'>
+        {/* <Card onClick={()=> navigate('/dashboard/career-applications')} className='cursor-pointer'>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               Career Applications
@@ -174,7 +174,7 @@ export function AdminDashboard() {
           <CardContent>
             <div className="text-2xl font-bold">{totalApplicant}</div>
           </CardContent>
-        </Card>
+        </Card> */}
 
         {/* Total Courses */}
         <Card onClick={()=> navigate('/dashboard/courses')} className='cursor-pointer'>

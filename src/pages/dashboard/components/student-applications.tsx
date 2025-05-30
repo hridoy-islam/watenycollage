@@ -16,10 +16,12 @@ import { DataTablePagination } from '@/components/shared/data-table-pagination';
 import { useNavigate } from 'react-router-dom';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
 import { Input } from '@/components/ui/input';
+import Select from 'react-select';
 
 interface StudentApplication {
   _id: string;
   studentId?: {
+    _id?: string;
     name?: string;
     email?: string;
     title?: string;
@@ -27,22 +29,45 @@ interface StudentApplication {
     initial?: string;
     lastName?: string;
   };
-  courseId?: { name?: string };
+  courseId?: {
+    _id?: string;
+    name?: string;
+  };
+}
+
+interface CourseOption {
+  value: string;
+  label: string;
 }
 
 export default function StudentApplicationsPage() {
   const [applications, setApplications] = useState<StudentApplication[]>([]);
-  const [filteredApplications, setFilteredApplications] = useState<StudentApplication[]>([]);
+  const [filteredApplications, setFilteredApplications] = useState<
+    StudentApplication[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(10);
   const [searchQuery, setSearchQuery] = useState('');
+  const [courses, setCourses] = useState<CourseOption[]>([]);
+  const [selectedCourse, setSelectedCourse] = useState<CourseOption | null>(
+    null
+  );
 
-  const fetchData = async (page = 1, limit = 10) => {
+  const fetchData = async (page = 1, limit = 10, courseId?: string) => {
     try {
+      const params: { page: number; limit: number; courseId?: string } = {
+        page,
+        limit
+      };
+
+      if (courseId) {
+        params.courseId = courseId;
+      }
+
       const res = await axiosInstance.get('/application-course', {
-        params: { page, limit }
+        params
       });
       const data = res.data.data.result || [];
       setApplications(data);
@@ -55,9 +80,24 @@ export default function StudentApplicationsPage() {
     }
   };
 
+  const fetchCourses = async () => {
+    try {
+      const res = await axiosInstance.get('/courses');
+      const data = res.data.data.result || [];
+      const courseOptions = data.map((course: any) => ({
+        value: course._id,
+        label: course.name
+      }));
+      setCourses(courseOptions);
+    } catch (error) {
+      console.error('Error fetching courses:', error);
+    }
+  };
+
   useEffect(() => {
-    fetchData(currentPage, entriesPerPage);
-  }, [currentPage, entriesPerPage]);
+    fetchData(currentPage, entriesPerPage, selectedCourse?.value);
+    fetchCourses();
+  }, [currentPage, entriesPerPage, selectedCourse]);
 
   const navigate = useNavigate();
 
@@ -92,27 +132,67 @@ export default function StudentApplicationsPage() {
     setFilteredApplications(results);
   };
 
- return (
+  // Handle course filter change
+  const handleCourseChange = (selectedOption: CourseOption | null) => {
+    setSelectedCourse(selectedOption);
+    setCurrentPage(1);
+  };
+
+  return (
     <div className="space-y-6">
       {/* Header with Search & Back Button */}
       <div className="flex flex-row items-center justify-between">
         <div className="flex flex-row flex-nowrap items-center gap-4">
-          <h2 className="text-xl font-bold whitespace-nowrap">Student Applications</h2>
-          <div className="flex flex-row items-center gap-4">
+          <h2 className="whitespace-nowrap text-xl font-bold">
+            Student Applications
+          </h2>
+          {/* <div className="flex flex-row items-center gap-4">
             <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-[300px] h-8"
+              className="h-8 w-[300px]"
               placeholder="Search by Student name, email, course"
             />
             <Button
               size="sm"
-              className="bg-watney w-[100px] text-white hover:bg-watney"
+              className="w-[100px] bg-watney text-white hover:bg-watney"
               onClick={handleSearch}
             >
               <Search className="mr-2 h-4 w-4" />
               Search
             </Button>
+          </div> */}
+          <div className="w-[250px]">
+            <Select
+              options={courses}
+              value={selectedCourse}
+              onChange={handleCourseChange}
+              placeholder="Filter by course"
+              isClearable
+              className="text-sm"
+              styles={{
+                control: (base) => ({
+                  ...base,
+                  height: '32px',
+                  minHeight: '32px'
+                }),
+                valueContainer: (base) => ({
+                  ...base,
+                  height: '32px',
+                  padding: '0 8px'
+                }),
+                input: (base) => ({
+                  ...base,
+                  margin: '0px',
+                  paddingBottom: '0px',
+                  paddingTop: '0px'
+                }),
+                indicatorsContainer: (base) => ({
+                  ...base,
+                  height: '32px'
+                })
+              }}
+            />
           </div>
         </div>
         <Button
@@ -130,7 +210,7 @@ export default function StudentApplicationsPage() {
           <div className="flex justify-center py-6">
             <BlinkingDots size="large" color="bg-watney" />
           </div>
-        ) : applications.length === 0 ? (
+        ) : filteredApplications.length === 0 ? (
           <div className="flex justify-center py-6 text-gray-500">
             No matching results found.
           </div>
@@ -146,7 +226,7 @@ export default function StudentApplicationsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {applications.map((app) => (
+                {filteredApplications.map((app) => (
                   <TableRow key={app._id}>
                     <TableCell className="font-medium">
                       {app.studentId?.title} {app.studentId?.firstName}{' '}
@@ -157,7 +237,7 @@ export default function StudentApplicationsPage() {
                     <TableCell className="text-center">
                       <Button
                         variant="ghost"
-                        className="bg-watney hover:bg-watney/90 text-white border-none"
+                        className="border-none bg-watney text-white hover:bg-watney/90"
                         size="icon"
                         onClick={() =>
                           navigate(

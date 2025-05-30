@@ -30,7 +30,7 @@ import ViewStudentApplicationPage from '@/pages/application/view-studentApplicat
 import ViewCareerApplicationPage from '@/pages/application/view-careerApplication';
 import VerifyPage from '@/pages/auth/verify';
 import StudentApplicationsPage from '@/pages/dashboard/components/student-applications';
-import CareerApplicationsPage from '@/pages/dashboard/components/career-applicaitons';
+import CareerApplicationsPage from '@/pages/dashboard/components/jobs/job-applicant';
 import TotalCoursesPage from '@/pages/dashboard/components/total-courses';
 import TotalIntakePage from '@/pages/dashboard/components/total-intake';
 import TotalJobsPage from '@/pages/dashboard/components/total-jobs';
@@ -117,6 +117,11 @@ export default function AppRouter() {
           index: true
         },
         {
+          path: 'jobs/:id',
+          element: <CareerApplicationsPage />,
+          index: true
+        },
+        {
           path: 'career-application',
           element: <CareerPage />,
           index: true
@@ -141,11 +146,11 @@ export default function AppRouter() {
           element: <StudentApplicationsPage />,
           index: true
         },
-        {
-          path: 'career-applications',
-          element: <CareerApplicationsPage />,
-          index: true
-        }
+        // {
+        //   path: 'career-applications',
+        //   element: <CareerApplicationsPage />,
+        //   index: true
+        // }
         
       ]
     }

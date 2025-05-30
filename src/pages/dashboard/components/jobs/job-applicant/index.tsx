@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Briefcase, Eye, MoveLeft } from 'lucide-react';
 import moment from 'moment';
 import { DataTablePagination } from '@/components/shared/data-table-pagination';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
 import { Input } from '@/components/ui/input';
 
@@ -40,13 +40,14 @@ export default function CareerApplicationsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(10);
+  const {id} = useParams();
   const navigate = useNavigate();
 
   // Fetch all applications once
   const fetchAllApplications = async (page, entriesPerPage,searchTerm="") => {
     setLoading(true);
     try {
-      const res = await axiosInstance.get('/application-job', {
+      const res = await axiosInstance.get(`/application-job?jobId=${id}`, {
         params: { page,  limit: entriesPerPage,
           ...(searchTerm ? { searchTerm } : {}), } 
       });
@@ -78,7 +79,7 @@ return (
       <div className="flex items-center justify-between">
         <div className="flex flex-row items-center gap-4">
           <h2 className="text-xl font-bold">Career Applications</h2>
-          <div className="flex flex-col items-start gap-4 sm:flex-row">
+          {/* <div className="flex flex-col items-start gap-4 sm:flex-row">
             <Input
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -92,11 +93,11 @@ return (
             >
               Search
             </Button>
-          </div>
+          </div> */}
         </div>
         <Button
           className="bg-watney text-white hover:bg-watney/90"
-          onClick={() => navigate('/dashboard')}
+          onClick={() => navigate('/dashboard/jobs')}
         >
           <MoveLeft className="mr-2 h-4 w-4" />
           Back

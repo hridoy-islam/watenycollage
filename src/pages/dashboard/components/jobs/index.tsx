@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, Pen, MoveLeft } from 'lucide-react';
+import { Plus, Pen, MoveLeft, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import {
@@ -114,7 +114,7 @@ export default function JobPage() {
     fetchData(currentPage, entriesPerPage); // Refresh data
   }, [currentPage, entriesPerPage]);
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   return (
     <div className="space-y-3">
@@ -193,7 +193,15 @@ export default function JobPage() {
                       className="mx-auto"
                     />
                   </TableCell>
-                  <TableCell className="text-center">
+                  <TableCell className="text-center flex flex-row items-center justify-center gap-4">
+                    <Button
+                      variant="ghost"
+                      className="border-none bg-watney text-white hover:bg-watney/90"
+                      size="icon"
+                      onClick={() => navigate(`/dashboard/jobs/${job._id}`)}
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
                     <Button
                       variant="ghost"
                       className="border-none bg-watney text-white hover:bg-watney/90"
