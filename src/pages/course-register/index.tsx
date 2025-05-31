@@ -4,6 +4,7 @@ import axiosInstance from '@/lib/axios';
 import ApplicationForm from './components/application-form';
 import CourseSelectionForm from './components/course-selection-form';
 import { useParams } from 'react-router-dom';
+import { BlinkingDots } from '@/components/shared/blinking-dots';
 
 export interface Course {
   _id: string;
@@ -26,6 +27,7 @@ function CourseRegistration() {
   const [startDates, setStartDates] = useState<Term[]>([]);
   const [showApplication, setShowApplication] = useState(false);
   const { id: courseIdFromUrl } = useParams();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function fetchInitialData() {
@@ -54,6 +56,8 @@ function CourseRegistration() {
         }
       } catch (error) {
         console.error('Error fetching initial data:', error);
+      } finally {
+        setIsLoading(false);
       }
     }
 
@@ -92,9 +96,23 @@ function CourseRegistration() {
   };
 
   // Check if course ID from URL matches any course
+  // const isPreselectedCourse = Boolean(
+  //   courseIdFromUrl && courses.find((course) => course._id === courseIdFromUrl)
+  // );
+
   const isPreselectedCourse = Boolean(
-    courseIdFromUrl && courses.find((course) => course._id === courseIdFromUrl)
+    !isLoading &&
+      courseIdFromUrl &&
+      courses.find((course) => course._id === courseIdFromUrl)
   );
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-white p-2">
+        <BlinkingDots size="large" color="bg-watney" />
+      </div>
+    );
+  }
 
   return showApplication ? (
     <ApplicationForm
