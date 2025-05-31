@@ -47,8 +47,8 @@ export default function SignUpPage() {
     
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100 p-4 lg:p-8">
-      <div className="w-full max-w-3xl">
-        <Card className=" flex max-h-[90vh] w-full flex-col justify-start overflow-y-auto rounded-sm border border-gray-200 p-4">
+      <div className="w-full max-w-6xl">
+        <Card className=" flex max-h-[96vh] w-full flex-col justify-start overflow-y-auto rounded-sm border border-gray-200 p-4">
           <div className=" flex flex-col text-left">
             <div className="mb-4 flex items-center gap-4">
               <Link to="/">
@@ -69,7 +69,7 @@ export default function SignUpPage() {
             </p>
           </div>
 
-          <div className="overflow-y-auto">
+          <div >
             <SignUpForm />
           </div>
         </Card>

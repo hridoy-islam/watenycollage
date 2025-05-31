@@ -167,7 +167,7 @@ export default function StudentApplicationsPage() {
               options={courses}
               value={selectedCourse}
               onChange={handleCourseChange}
-              placeholder="Filter by course"
+              placeholder="Filter student by course"
               isClearable
               className="text-sm"
               styles={{

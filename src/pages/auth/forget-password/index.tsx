@@ -51,13 +51,14 @@ export default function ForgotPassword() {
   return (
     <>
       <div className="grid h-screen bg-gray-100 lg:px-0">
-        <div className="flex h-full items-center justify-center p-4 lg:p-8">
-          <div className="mx-auto flex w-full flex-col justify-center space-y-2 sm:w-[480px] lg:p-8">
+        <div className="flex  h-full items-center justify-center p-4 lg:p-8">
+          <div className="mx-auto flex w-full flex-col justify-centers space-y-4 sm:w-[680px] sm:p-8">
             <Card className="flex w-full flex-col justify-center space-y-4 border border-gray-200 p-4 ">
               <div className="mb-2 flex flex-col space-y-2 text-left">
                 <div className="flex flex-row items-center gap-4 space-y-2 text-center">
-                  
-                  <Link to="/"><img src={logo} alt="logo" className="w-12 " /></Link>
+                  <Link to="/">
+                    <img src={logo} alt="logo" className="w-12 " />
+                  </Link>
                   <div className="h-12 border"></div>
                   <h1 className="text-2xl font-semibold tracking-tight">
                     Forget Password
@@ -70,7 +71,7 @@ export default function ForgotPassword() {
                 <Form {...form}>
                   <form
                     onSubmit={form.handleSubmit(onSubmit)}
-                    className="w-full space-y-2"
+                    className="w-full space-y-4"
                   >
                     <FormField
                       control={form.control}
@@ -94,7 +95,7 @@ export default function ForgotPassword() {
 
                     <Button
                       disabled={loading}
-                      className="ml-auto w-full bg-background text-white hover:bg-background"
+                      className="ml-auto w-full bg-watney text-white hover:bg-watney"
                       type="submit"
                     >
                       Reset Password

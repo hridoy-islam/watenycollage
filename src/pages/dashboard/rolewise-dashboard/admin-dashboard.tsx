@@ -88,11 +88,11 @@ export function AdminDashboard() {
   const [termTotalPages, setTermTotalPages] = useState(1);
   const [jobTotalPages, setJobTotalPages] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(10);
-  const [totalStudent, settTotalStudent] = useState(10);
+  const [totalStudent, settTotalStudent] = useState(0);
   const [totalApplicant, setTotalApplicant] = useState(10);
-  const [totalCourse, setTotalCourse] = useState(10);
-  const [totalTerm, setTotalTerm] = useState(10);
-  const [totalJob, setTotalJob] = useState(10);
+  const [totalCourse, setTotalCourse] = useState(0);
+  const [totalTerm, setTotalTerm] = useState(0);
+  const [totalJob, setTotalJob] = useState(0);
 
   const fetchData = async (page = 1, entriesPerPage = 10) => {
     try {

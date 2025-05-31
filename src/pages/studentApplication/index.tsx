@@ -117,13 +117,41 @@ export default function StudentApplication() {
     residentialCountry: country
   };
 
+  
+  const savedStudentType = localStorage.getItem('studentType');
+  const savedCourseId = localStorage.getItem('courseId');
+  const savedTermId = localStorage.getItem('termId');
+  useEffect(() => {
+    setFormData((prev) => ({
+      ...prev,
+
+      studentType: savedStudentType ,
+      courseDetailsData: {
+        ...(prev.courseDetailsData || {}),
+        course: savedCourseId || '',
+        intake: savedTermId || ''
+      }
+    }));
+  }, [savedCourseId, savedStudentType, savedTermId]);
+
   const fetchedData = async () => {
     try {
       const response = await axiosInstance.get(`/users/${user._id}`);
       const userData = response.data.data;
+      console.log('Fetched user data:', userData);
       setFetchData((prev) => ({
         ...prev,
-        ...userData
+        ...userData,
+        studentType: userData.studentType || savedStudentType,
+      }));
+      setFormData((prev) => ({
+        ...prev,
+        studentType: userData.studentType || savedStudentType,
+        courseDetailsData: {
+          ...(prev.courseDetailsData || {}),
+          course: savedCourseId || '',
+          intake: savedTermId || ''
+        }
       }));
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -149,22 +177,6 @@ export default function StudentApplication() {
     }
   }, [fetchData]);
 
-  const savedStudentType = localStorage.getItem('studentType');
-  const savedCourseId = localStorage.getItem('courseId');
-  const savedTermId = localStorage.getItem('termId');
-  useEffect(() => {
-
-    setFormData((prev) => ({
-      ...prev,
-
-      studentType: savedStudentType || '',
-      courseDetailsData: {
-        ...(prev.courseDetailsData || {}),
-        course: savedCourseId || '',
-        intake: savedTermId || ''
-      }
-    }));
-  }, []);
 
   const handleStepClick = (stepId: number) => {
     setCurrentStep(stepId);
@@ -386,12 +398,8 @@ export default function StudentApplication() {
             defaultValues={{
               ...fetchData,
               ...formData,
-              ...Object.fromEntries(
-                Object.entries(personalDetailsData || {}).filter(
-                  ([_, value]) =>
-                    value !== '' && value !== undefined && value !== null
-                )
-              )
+            
+              
             }}
             onSaveAndContinue={handlePersonalDetailsSaveAndContinue}
             onSave={handlePersonalDetailsSave}

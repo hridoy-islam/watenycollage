@@ -115,7 +115,10 @@ export default function JobPage() {
   }, [currentPage, entriesPerPage]);
 
   const navigate = useNavigate();
-
+  const handleApply = (jobId: string) => {
+    navigate(`/dashboard/job-application/${jobId}`);
+  };
+  
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
@@ -173,6 +176,9 @@ export default function JobPage() {
               <TableRow>
                 <TableHead>Job Title</TableHead>
                 <TableHead>Application Deadline</TableHead>
+                <TableHead >
+                  View Applicant
+                </TableHead>
                 <TableHead className="w-32 text-center">Status</TableHead>
                 <TableHead className="w-32 text-center">Actions</TableHead>
               </TableRow>
@@ -184,6 +190,16 @@ export default function JobPage() {
                   <TableCell>
                     {moment(job.applicationDeadline).format('MM/DD/YYYY')}
                   </TableCell>
+                  <TableCell>
+                    <Button
+                      variant="ghost"
+                      className="border-none bg-watney text-white hover:bg-watney/90 w-[100px]"
+                      size="icon"
+                      onClick={() => navigate(`/dashboard/jobs/${job._id}`)}
+                    >
+                      View{' '}
+                    </Button>
+                  </TableCell>
                   <TableCell className="text-center">
                     <Switch
                       checked={job.status == 1}
@@ -193,12 +209,12 @@ export default function JobPage() {
                       className="mx-auto"
                     />
                   </TableCell>
-                  <TableCell className="text-center flex flex-row items-center justify-center gap-4">
+                  <TableCell className="flex flex-row items-center justify-center gap-4 text-center">
                     <Button
                       variant="ghost"
                       className="border-none bg-watney text-white hover:bg-watney/90"
                       size="icon"
-                      onClick={() => navigate(`/dashboard/jobs/${job._id}`)}
+                      onClick={() =>handleApply(job._id)}
                     >
                       <Eye className="h-4 w-4" />
                     </Button>

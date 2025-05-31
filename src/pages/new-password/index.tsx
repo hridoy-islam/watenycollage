@@ -85,10 +85,10 @@ export default function NewPassword() {
   return (
     <div className="relative h-screen flex-col items-center justify-center">
       {/* Right Side (Form) */}
-      <div className="flex h-full items-center bg-gray-100  p-4 lg:p-8">
-        <div className="mx-auto flex w-full flex-col justify-center space-y-8 sm:w-[350px]">
+      <div className="flex h-full items-center bg-gray-100  p-4 sm:p-16">
+        <div className="mx-auto flex w-full flex-col justify-center space-y-8 sm:w-[680px] py-8 ">
           {dialogOpen ? (
-            <Card className="space-y-6 p-6 text-center">
+            <Card className="space-y-6 py-8 px-6 text-center">
               <h1 className="text-2xl font-semibold tracking-tight">
                 Password Changed Successfully
               </h1>
@@ -98,7 +98,7 @@ export default function NewPassword() {
               </p>
               <Button
                 onClick={() => router.push('/')}
-                className="w-full hover:bg-black hover:text-white"
+                className="w-full hover:bg-watney/90 bg-watney text-white hover:text-white"
               >
                 Login Now
               </Button>

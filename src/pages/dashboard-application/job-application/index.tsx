@@ -121,13 +121,26 @@ export default function JobApplicationPage() {
         <p className="mt-2 text-gray-500">
           We couldn't find the requested job.
         </p>
-        <Button
-          variant="outline"
-          onClick={() => navigate('/dashboard')}
-          className="mt-4 border-watney text-watney hover:bg-watney hover:text-white"
-        >
-          Back to Dashboard
-        </Button>
+
+        {user.role === 'admin' ? (
+          <Button
+            variant="outline"
+            onClick={() => navigate('/dashboard/jobs')}
+            className="y mt-4 bg-watney text-white hover:bg-watney/90"
+          >
+            <MoveLeft />
+            Back
+          </Button>
+        ) : (
+          <Button
+            variant="outline"
+            onClick={() => navigate('/dashboard')}
+            className="y mt-4 bg-watney text-white hover:bg-watney/90"
+          >
+            <MoveLeft />
+            Back to Dashboard
+          </Button>
+        )}
       </div>
     );
   }
@@ -148,13 +161,25 @@ export default function JobApplicationPage() {
               </span>
             </div>
           </div>
-          <Button
-            onClick={() => navigate('/dashboard')}
-            className="mt-4 border-watney bg-watney text-white hover:bg-watney/90 "
-          >
-            <MoveLeft/>
-            Back to Dashboard
-          </Button>
+          {user.role === 'admin' ? (
+            <Button
+              variant="outline"
+              onClick={() => navigate('/dashboard/jobs')}
+              className="y mt-4 bg-watney text-white hover:bg-watney/90"
+            >
+              <MoveLeft />
+              Back
+            </Button>
+          ) : (
+            <Button
+              variant="outline"
+              onClick={() => navigate('/dashboard')}
+              className="y mt-4 bg-watney text-white hover:bg-watney/90"
+            >
+              <MoveLeft />
+              Back to Dashboard
+            </Button>
+          )}
         </div>
 
         {/* Rich HTML description */}
@@ -166,50 +191,51 @@ export default function JobApplicationPage() {
               '<p>No description available for this position.</p>'
           }}
         ></div>
+        {user.role !== 'admin' && (
+          <div className="mt-10 rounded-lg border border-gray-100 bg-gray-50 p-6 shadow-sm">
+            <div className="mb-6 flex flex-col items-start gap-2 border-b pb-4">
+              <h2 className="text-xl font-semibold text-gray-800">Apply Now</h2>
+              <p className="text-sm text-gray-500">
+                Submit your application below to apply for this position.
+              </p>
+            </div>
 
-        {/* Application Form Section */}
-        <div className="mt-10 rounded-lg border border-gray-100 bg-gray-50 p-6 shadow-sm">
-          <div className="mb-6 flex flex-col items-start gap-2 border-b pb-4">
-            <h2 className="text-xl font-semibold text-gray-800">Apply Now</h2>
-            <p className="text-sm text-gray-500">
-              Submit your application below to apply for this position.
-            </p>
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6"
+              >
+                <FormField
+                  control={form.control}
+                  name="jobId"
+                  render={({ field }) => <input type="hidden" {...field} />}
+                />
+                {}
+                <div className="flex flex-row items-center gap-4">
+                  <p className="text-center text-gray-600 sm:text-left">
+                    Ready to apply? Click the button below to submit your
+                    application.
+                  </p>
+
+                  <Button
+                    type="submit"
+                    disabled={submitting}
+                    className="flex items-center gap-2 bg-watney px-6 text-white transition-colors duration-200 hover:bg-watney/90"
+                  >
+                    {submitting ? (
+                      <>
+                        <BlinkingDots size="small" color="bg-white" />
+                      </>
+                    ) : (
+                      <>Apply Now</>
+                    )}
+                  </Button>
+                </div>
+              </form>
+            </Form>
           </div>
-
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
-                control={form.control}
-                name="jobId"
-                render={({ field }) => <input type="hidden" {...field} />}
-              />
-
-              <div className="flex flex-row items-center gap-4">
-                <p className="text-center text-gray-600 sm:text-left">
-                  Ready to apply? Click the button below to submit your
-                  application.
-                </p>
-
-                <Button
-                  type="submit"
-                  disabled={submitting}
-                  className="flex items-center gap-2 bg-watney px-6 text-white transition-colors duration-200 hover:bg-watney/90"
-                >
-                  {submitting ? (
-                    <>
-                      <BlinkingDots size="small" color="bg-white" />
-                    </>
-                  ) : (
-                    <>
-                      Apply Now
-                     
-                    </>
-                  )}
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </div>
+        )}
+        {/* Application Form Section */}
       </div>
     </div>
   );

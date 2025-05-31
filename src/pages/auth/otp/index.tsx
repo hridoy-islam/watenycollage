@@ -127,9 +127,9 @@ export default function Otp() {
     <div className="grid h-screen lg:px-0">
       {/* Right Form Panel */}
       <div className="flex h-full items-center justify-center bg-gray-100 p-4 lg:p-8">
-        <div className="w-full max-w-md space-y-6">
+        <div className="w-full max-w-lg space-y-6">
           <Card className="flex w-full flex-col rounded-sm justify-center space-y-4 border border-gray-200 p-6 ">
-            <div className="flex flex-col space-y-2 text-left">
+            <div className="flex flex-col space-y-6 text-left">
               <div className="flex flex-row items-center gap-4 space-y-2 text-center">
                 <Link to="/">
                   <img src={logo} alt="logo" className="w-12 " />
@@ -172,7 +172,7 @@ export default function Otp() {
               <Button
                 disabled={otp.some((digit) => digit === '')}
                 onClick={handleOtpSubmit}
-                className="mt-5 w-full text-white"
+                className="mt-5 w-full text-white bg-watney hover:bg-watney/90 disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 Verify OTP
               </Button>
