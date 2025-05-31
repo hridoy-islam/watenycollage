@@ -82,7 +82,7 @@ export default function StudentApplicationsPage() {
 
   const fetchCourses = async () => {
     try {
-      const res = await axiosInstance.get('/courses');
+      const res = await axiosInstance.get('/courses?status=1&limit=all');
       const data = res.data.data.result || [];
       const courseOptions = data.map((course: any) => ({
         value: course._id,

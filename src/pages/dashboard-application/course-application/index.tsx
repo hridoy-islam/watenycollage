@@ -29,7 +29,7 @@ export default function CourseApplicationPage() {
       try {
         const [courseRes, termsRes] = await Promise.all([
           axiosInstance.get(`/courses/${id}`),
-          axiosInstance.get('/terms')
+          axiosInstance.get('/terms?status=1&limit=all')
         ]);
 
         setCourse(courseRes.data?.data || null);

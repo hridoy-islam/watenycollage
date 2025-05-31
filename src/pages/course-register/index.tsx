@@ -1,22 +1,20 @@
-'use client';
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-
-
 import axiosInstance from '@/lib/axios';
 import ApplicationForm from './components/application-form';
 import CourseSelectionForm from './components/course-selection-form';
 import { useParams } from 'react-router-dom';
+
 export interface Course {
-  _id: string
-  name: string
+  _id: string;
+  name: string;
 }
 
 export interface Term {
-  _id: string
-  termName: string
+  _id: string;
+  termName: string;
 }
+
 function CourseRegistration() {
   const [formData, setFormData] = useState({
     studentType: '',
@@ -27,15 +25,14 @@ function CourseRegistration() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [startDates, setStartDates] = useState<Term[]>([]);
   const [showApplication, setShowApplication] = useState(false);
-  const {id:courseIdFromUrl} = useParams()
-
+  const { id: courseIdFromUrl } = useParams();
 
   useEffect(() => {
     async function fetchInitialData() {
       try {
         const [termsRes, coursesRes] = await Promise.all([
-          axiosInstance.get('/terms'),
-          axiosInstance.get('/courses')
+          axiosInstance.get('/terms?status=1&limit=all'),
+          axiosInstance.get('/courses?status=1&limit=all')
         ]);
 
         setStartDates(termsRes?.data?.data?.result || []);
@@ -45,7 +42,7 @@ function CourseRegistration() {
         // If there's a course ID in the URL, find and set that course
         if (courseIdFromUrl) {
           const selectedCourse = fetchedCourses.find(
-            (course: any) => course._id === courseIdFromUrl
+            (course: any) => String(course._id) === String(courseIdFromUrl)
           );
           if (selectedCourse) {
             setFormData((prev) => ({
@@ -94,10 +91,15 @@ function CourseRegistration() {
     }
   };
 
+  // Check if course ID from URL matches any course
+  const isPreselectedCourse = Boolean(
+    courseIdFromUrl && courses.find((course) => course._id === courseIdFromUrl)
+  );
+
   return showApplication ? (
-    <ApplicationForm 
-      formData={formData} 
-      onBack={() => setShowApplication(false)} 
+    <ApplicationForm
+      formData={formData}
+      onBack={() => setShowApplication(false)}
     />
   ) : (
     <CourseSelectionForm
@@ -107,6 +109,8 @@ function CourseRegistration() {
       startDates={startDates}
       handleCourseChange={handleCourseChange}
       handleSubmit={handleSubmit}
+      courseIdFromUrl={courseIdFromUrl}
+      isPreselectedCourse={isPreselectedCourse}
     />
   );
 }
