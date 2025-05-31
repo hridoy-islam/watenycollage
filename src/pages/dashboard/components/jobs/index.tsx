@@ -118,6 +118,24 @@ export default function JobPage() {
   const handleApply = (jobId: string) => {
     navigate(`/dashboard/job-application/${jobId}`);
   };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text).then(
+      () => {
+        toast({
+          title: 'URL copied to clipboard',
+          className: 'bg-watney border-none text-white'
+        });
+      },
+      (err) => {
+        console.error('Could not copy text: ', err);
+        toast({
+          title: 'Failed to copy URL',
+          className: 'bg-red-500 border-none text-white'
+        });
+      }
+    );
+  };
   
   return (
     <div className="space-y-3">
@@ -176,9 +194,7 @@ export default function JobPage() {
               <TableRow>
                 <TableHead>Job Title</TableHead>
                 <TableHead>Application Deadline</TableHead>
-                <TableHead >
-                  View Applicant
-                </TableHead>
+                <TableHead>View Applicant</TableHead>
                 <TableHead className="w-32 text-center">Status</TableHead>
                 <TableHead className="w-32 text-center">Actions</TableHead>
               </TableRow>
@@ -186,14 +202,51 @@ export default function JobPage() {
             <TableBody>
               {jobs.map((job) => (
                 <TableRow key={job._id}>
-                  <TableCell>{job.jobTitle}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center justify-start gap-4">
+                      <span>{job.jobTitle}</span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="border-none bg-blue-100 text-blue-600 hover:bg-blue-200"
+                        onClick={() =>
+                          copyToClipboard(
+                            `https://watneycollegeform.netlify.app/jobs/apply/${job._id}`
+                          )
+                        }
+                        title="Copy application link"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <rect
+                            x="9"
+                            y="9"
+                            width="13"
+                            height="13"
+                            rx="2"
+                            ry="2"
+                          ></rect>
+                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                      </Button>
+                    </div>
+                  </TableCell>
                   <TableCell>
                     {moment(job.applicationDeadline).format('MM/DD/YYYY')}
                   </TableCell>
                   <TableCell>
                     <Button
                       variant="ghost"
-                      className="border-none bg-watney text-white hover:bg-watney/90 w-[100px]"
+                      className="w-[100px] border-none bg-watney text-white hover:bg-watney/90"
                       size="icon"
                       onClick={() => navigate(`/dashboard/jobs/${job._id}`)}
                     >
@@ -214,7 +267,7 @@ export default function JobPage() {
                       variant="ghost"
                       className="border-none bg-watney text-white hover:bg-watney/90"
                       size="icon"
-                      onClick={() =>handleApply(job._id)}
+                      onClick={() => handleApply(job._id)}
                     >
                       <Eye className="h-4 w-4" />
                     </Button>
