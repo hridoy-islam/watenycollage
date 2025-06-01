@@ -297,29 +297,29 @@ export default function StudentApplication() {
 
   const handleReviewClick = () => {
     // Check if all required steps are completed before showing the review
-    const requiredSteps = [1, 2, 3, 4, 5, 6, 7]; // All steps except the final Terms & Submit
-    const missingSteps = requiredSteps.filter(
-      (step) => !completedSteps.includes(step)
-    );
+    // const requiredSteps = [1, 2, 3, 4, 5, 6, 7]; // All steps except the final Terms & Submit
+    // const missingSteps = requiredSteps.filter(
+    //   (step) => !completedSteps.includes(step)
+    // );
 
-    if (missingSteps.length > 0) {
-      // Get the names of the missing steps
-      const missingStepNames = missingSteps.map(
-        (stepId) =>
-          formSteps.find((step) => step.id === stepId)?.label ||
-          `Step ${stepId}`
-      );
+    // if (missingSteps.length > 0) {
+    //   // Get the names of the missing steps
+    //   const missingStepNames = missingSteps.map(
+    //     (stepId) =>
+    //       formSteps.find((step) => step.id === stepId)?.label ||
+    //       `Step ${stepId}`
+    //   );
 
-      toast({
-        title: 'Incomplete Application',
-        description: `Please complete the following sections before reviewing: ${missingStepNames.join(', ')}`,
-        variant: 'destructive'
-      });
+    //   toast({
+    //     title: 'Incomplete Application',
+    //     description: `Please complete the following sections before reviewing: ${missingStepNames.join(', ')}`,
+    //     variant: 'destructive'
+    //   });
 
-      // Navigate to the first incomplete step
-      setCurrentStep(missingSteps[0]);
-      return;
-    }
+    //   // Navigate to the first incomplete step
+    //   setCurrentStep(missingSteps[0]);
+    //   return;
+    // }
 
     setReviewModalOpen(true);
   };
@@ -509,16 +509,19 @@ export default function StudentApplication() {
 
   if (formSubmitted) {
     return (
-      <div className="flex min-h-[calc(100vh-150px)] items-center justify-center px-4">
-        <Card className=" rounded-lg border border-gray-100 bg-watney/90 p-24 shadow-lg ">
+      <div className="flex  items-center justify-center px-4">
+        <Card className="rounded-lg border  bg-watney/90 p-24 shadow-lg">
           <div className="flex flex-col items-center gap-6 text-center">
+            {/* Submission Icon */}
             <div className="rounded-full bg-white p-8">
               <Check size={84} className="text-watney" />
             </div>
+
+            {/* Title & Description */}
             <div className="flex items-center gap-4 text-center">
               <div>
                 <CardTitle className="text-2xl font-semibold text-white">
-                  Application Submitted Sucessfull
+                  Application Submitted Successfully
                 </CardTitle>
                 <CardDescription className="mt-2 text-base leading-relaxed text-white">
                   Thank you for your submission. Our team has received your
@@ -527,17 +530,48 @@ export default function StudentApplication() {
               </div>
             </div>
 
+            {/* Done Button */}
             <Button
               onClick={handleDashboardRedirect}
-              className="*: mt-4 w-full rounded-sm bg-white px-6 py-3 text-base font-semibold text-watney transition hover:bg-white sm:w-auto"
+              className="*: mt-4 w-full rounded-sm bg-white px-12 py-3 text-lg font-semibold text-watney transition hover:bg-white sm:w-auto"
             >
               Done
             </Button>
+
+            {/* Support Section */}
+            <div className=" w-full rounded-md  text-left text-sm text-white ">
+              <h3 className="mb-2 text-base font-semibold text-white">
+                📞 Need Assistance?
+              </h3>
+              <p>
+                If you have any questions or need help with your application,
+                please don’t hesitate to contact us:
+              </p>
+              <ul className="mt-3 list-none space-y-2">
+                <li>
+                  📧 <strong>Email:</strong>{' '}
+                  <a
+                    href="mailto:admissions@watneycollege.ac.uk"
+                    className="underline"
+                  >
+                    admissions@watneycollege.ac.uk
+                  </a>
+                </li>
+                <li>
+                  ☎ <strong>Phone:</strong> +44 (0)20 1234 5678
+                </li>
+                <li>
+                  💬 <strong>Live Chat:</strong> Monday to Friday, 9am–5pm (UK
+                  time)
+                </li>
+              </ul>
+            </div>
           </div>
         </Card>
       </div>
     );
   }
+  
 
   return (
     <div className=" w-full ">
