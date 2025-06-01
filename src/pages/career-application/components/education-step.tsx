@@ -43,26 +43,27 @@ export function EducationStep({
   const educationEntrySchema = z.object({
     institution: z.string().min(1, { message: 'Institution name is required' }),
     grade: z.preprocess(
-    (val) => {
-      // If the value is empty or null, return undefined
-      if (val === '' || val === null || val === undefined) return undefined;
-      
-      const coercedValue = Number(val);
-      return isNaN(coercedValue) ? val : coercedValue; // return number if valid, else return string
-    },
-    z.union([
-      z.string(), // Accepts non-numeric strings like "abc"
-      z.number()
-        .min(1, { message: 'Grade must be at least 1' })
-        .max(100, { message: 'Grade cannot exceed 100' }),
-    ])
-  ),
+      (val) => {
+        // If the value is empty or null, return undefined
+        if (val === '' || val === null || val === undefined) return undefined;
+
+        const coercedValue = Number(val);
+        return isNaN(coercedValue) ? val : coercedValue; // return number if valid, else return string
+      },
+      z.union([
+        z.string(), // Accepts non-numeric strings like "abc"
+        z
+          .number()
+          .min(1, { message: 'Grade must be at least 1' })
+          .max(100, { message: 'Grade cannot exceed 100' })
+      ])
+    ),
     qualification: z
       .string()
       .min(1, { message: 'Qualification details are required' }),
     awardDate: z.date({ required_error: 'Date of award is required' }),
-    certificate: z.any().optional(),
-    transcript: z.any().optional()
+    certificate: z.any().optional()
+    // .refine((file) => !!file, { message: 'certificate is required' })
   });
 
   const englishQualificationSchema = z.object({
@@ -95,8 +96,7 @@ export function EducationStep({
             grade: '',
             qualification: '',
             awardDate: undefined,
-            certificate: undefined,
-            transcript: null
+            certificate: undefined
           }
         ],
         ...(defaultValues?.studentType === 'international'
@@ -118,8 +118,7 @@ export function EducationStep({
         grade: entry.grade || '',
         qualification: entry.qualification || '',
         awardDate: entry.awardDate ? new Date(entry.awardDate) : undefined,
-        certificate: entry.certificate || null,
-        transcript: entry.transcript || null
+        certificate: entry.certificate || null
       })),
       ...(defaultValues?.studentType === 'international' && {
         englishQualification: {
@@ -167,8 +166,7 @@ export function EducationStep({
       grade: '',
       qualification: '',
       awardDate: undefined,
-      certificate: null,
-      transcript: null
+      certificate: undefined
     });
   };
 
@@ -258,6 +256,10 @@ export function EducationStep({
                     </TableHead>
                     <TableHead>
                       Date of Award (MM/DD/YYYY)
+                      <span className="text-red-500">*</span>
+                    </TableHead>
+                    <TableHead>
+                      Certificate
                       <span className="text-red-500">*</span>
                     </TableHead>
                     <TableHead className="w-[80px]">Actions</TableHead>
@@ -355,6 +357,30 @@ export function EducationStep({
                               </FormItem>
                             );
                           }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <FormField
+                          control={form.control}
+                          name={`educationData.${index}.certificate`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input
+                                  type="file"
+                                  accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" // optional: restrict file types
+                                  onChange={(e) =>
+                                    field.onChange(e.target.files?.[0])
+                                  }
+                                  className="text-sm text-gray-700"
+                                />
+                              </FormControl>
+                              <p className="text-xs text-gray-400">
+                                Accepted formats: PDF, JPG, PNG
+                              </p>
+                              <FormMessage />
+                            </FormItem>
+                          )}
                         />
                       </TableCell>
                       <TableCell>

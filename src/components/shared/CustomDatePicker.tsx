@@ -12,7 +12,7 @@ interface CustomDatePickerProps {
 export function CustomDatePicker({
   selected,
   onChange,
-  disabled = false,
+  disabled ,
   placeholder = 'Select date'
 }: CustomDatePickerProps) {
   const years = Array.from(
@@ -50,6 +50,7 @@ export function CustomDatePicker({
             type="text"
             readOnly
             placeholder={placeholder}
+            disabled={disabled}
             value={selected ? format(selected, 'yyyy-MM-dd') : 'Select date'}
             className="w-full cursor-pointer rounded-md border border-gray-300 bg-white px-3 py-2 text-sm"
             onClick={(e) => {

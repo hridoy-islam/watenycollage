@@ -131,7 +131,15 @@ export function PersonalDetailsStep({
 
   useEffect(() => {
     if (defaultValues) {
-      form.reset({...defaultValues,   dateOfBirth: defaultValues.dateOfBirth ? new Date(defaultValues.dateOfBirth) : undefined });
+      form.reset({
+        ...defaultValues,
+        dateOfBirth: defaultValues.dateOfBirth
+          ? new Date(defaultValues.dateOfBirth)
+          : undefined,
+        nationality: defaultValues.nationality
+          ? defaultValues.nationality.toLowerCase().replace(/\s/g, '-')
+          : ''
+      });
     }
   }, [defaultValues, form]);
 
@@ -174,6 +182,8 @@ export function PersonalDetailsStep({
     label: nationality,
     value: nationality.toLowerCase().replace(/\s/g, '-')
   }));
+
+  console.log(defaultValues, 'defaultValues in personal details step');
 
   const watchNationality = form.watch('nationality');
 
@@ -222,6 +232,7 @@ export function PersonalDetailsStep({
                                 color: '#9CA3AF'
                               })
                             }}
+                            isDisabled
                           />
                         )}
                       />
@@ -246,6 +257,7 @@ export function PersonalDetailsStep({
                           {...field}
                           placeholder="Enter your first name"
                           className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
+                          disabled
                         />
                       </FormControl>
                       <p className="text-xs  text-gray-500">Example: Emma</p>
@@ -266,6 +278,7 @@ export function PersonalDetailsStep({
                           {...field}
                           placeholder="Enter your middle name, if applicable."
                           className="!placeholder:text-gray-400 placeholder:text-xs placeholder:text-gray-400"
+                          disabled
                         />
                       </FormControl>
                       <p className="text-xs  text-gray-400">Example: J</p>
@@ -288,6 +301,7 @@ export function PersonalDetailsStep({
                           {...field}
                           placeholder="Enter your family name/surname"
                           className="!placeholder:text-gray-400 placeholder:text-xs placeholder:text-gray-400"
+                          disabled
                         />
                       </FormControl>
                       <p className="text-xs  text-gray-400">
@@ -316,6 +330,7 @@ export function PersonalDetailsStep({
                             selected={value}
                             onChange={(date) => field.onChange(date)}
                             placeholder="Use your official birth date"
+                            disabled
                           />
                         </FormControl>
                         <p className="text-xs text-gray-400">
@@ -341,6 +356,7 @@ export function PersonalDetailsStep({
                           {...field}
                           placeholder="Enter a valid email address you check regularly"
                           className="!placeholder:text-gray-400   placeholder:text-xs  placeholder:text-gray-400 "
+                          disabled
                         />
                       </FormControl>
                       <p className="text-xs  text-gray-400">
@@ -366,6 +382,7 @@ export function PersonalDetailsStep({
                           {...field}
                           placeholder="Include country code if applying from outside the UK"
                           className="!placeholder:text-gray-400 placeholder:text-xs placeholder:text-gray-400"
+                          disabled
                         />
                       </FormControl>
                       <p className="text-xs  text-gray-400">
@@ -443,6 +460,7 @@ export function PersonalDetailsStep({
                                     color: '#9CA3AF'
                                   })
                                 }}
+                                isDisabled
                               />
                             )}
                           />
