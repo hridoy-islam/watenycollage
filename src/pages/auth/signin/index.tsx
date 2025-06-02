@@ -20,20 +20,30 @@ export default function SignInPage() {
   }, [user, navigate]);
 
   return (
-    <div className="relative h-screen flex-col items-center justify-center w-full lg:px-0">
+    <div
+      className="relative flex h-screen w-full items-center justify-center lg:px-0"
+      style={{
+        backgroundImage: "url('/login.jpg')",
+        backgroundSize: 'cover',
+        backgroundPosition: 'center'
+      }}
+    >
+      {/* Blur Overlay */}
+      <div className="absolute inset-0 z-0 bg-black/20 backdrop-blur-0" />
 
-      <div className="flex h-full items-center p-4 lg:p-8 bg-gray-100 shadow-md">
-        <Card className="mx-auto rounded-sm p-4 border border-gray-200 flex w-full flex-col justify-center space-y-4 sm:w-[350px]">
-          <div className="flex flex-row space-y-2 text-center items-center gap-4">
-            <img src={logo} alt="logo" className='w-12 ' />
-            <div className='border h-12'></div>
-            <h1 className="text-2xl font-semibold tracking-tight">Watney College</h1>
+      {/* Content */}
+      <div className="relative z-10 flex h-full items-center  p-4 shadow-md lg:p-8">
+        <Card className="mx-auto flex w-full flex-col justify-center space-y-4 rounded-sm border border-gray-200 p-4 sm:w-[450px]">
+          <div className="flex flex-row items-center gap-4 space-y-2 text-center">
+            <h1 className="text-2xl font-semibold tracking-tight pb-4">
+             Investment 
+            </h1>
           </div>
-          <h1 className='font-semibold text-2xl'>Login</h1>
+          <h1 className="text-2xl text-center font-medium"><span className='font-bold'>Login</span> to you account</h1>
           <UserAuthForm />
-          
         </Card>
       </div>
     </div>
   );
+  
 }

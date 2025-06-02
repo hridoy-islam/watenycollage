@@ -20,11 +20,11 @@ export function TopNav() {
 
   // Dynamic navigation links configuration
   const navLinks = [
-    { path: '/dashboard/student-applications', label: 'Student Applications' },
-    // { path: '/dashboard/career-applications', label: 'Career Applications' },
-    { path: '/dashboard/courses', label: 'Course' },
-    { path: '/dashboard/terms', label: 'Term' },
-    { path: '/dashboard/jobs', label: 'Job' },
+    // { path: '/dashboard/student-applications', label: 'Student Applications' },
+    // // { path: '/dashboard/career-applications', label: 'Career Applications' },
+    // { path: '/dashboard/courses', label: 'Course' },
+    // { path: '/dashboard/terms', label: 'Term' },
+    // { path: '/dashboard/jobs', label: 'Job' },
   ];
 
   return (

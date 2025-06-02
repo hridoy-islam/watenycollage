@@ -123,13 +123,13 @@ export default function UserAuthForm() {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="w-full space-y-2"
+          className="w-full space-y-4"
         >
           <FormField
             control={form.control}
             name="email"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className=''>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
                   <Input
@@ -137,7 +137,7 @@ export default function UserAuthForm() {
                     placeholder="Enter your email..."
                     disabled={loading}
                     {...field}
-                    className='w-full'
+                    className='w-full h-12'
                   />
                 </FormControl>
                 <FormMessage />
@@ -157,7 +157,7 @@ export default function UserAuthForm() {
                     placeholder="Enter your password..."
                     disabled={loading}
                     {...field}
-                    className='w-full'
+                    className='w-full h-12'
                   />
                 </FormControl>
                 <FormMessage />
@@ -167,7 +167,7 @@ export default function UserAuthForm() {
 
           <Button
             disabled={loading}
-            className="ml-auto w-full bg-watney text-white hover:bg-watney/90"
+            className="ml-auto h-12  w-full bg-watney text-white hover:bg-watney/90"
             type="submit"
           >
             Login
@@ -175,10 +175,10 @@ export default function UserAuthForm() {
         </form>
       </Form>
       {error && <Badge className="mt-2 bg-white text-red-500">{error}</Badge>}
-      <p className="text-sm">
+      {/* <p className="text-sm">
         Don't have account? <span className='hover:underline'> <Link to="/signup">Signup</Link></span>{' '}
-      </p>
-      <p className="text-sm">
+      </p> */}
+      <p className="text-sm text-right">
         <Link to="/forgot-password">Forgot Password?</Link>
       </p>
 
