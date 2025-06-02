@@ -400,7 +400,7 @@ export function EducationStep({
               </Table>
             )}
 
-            {defaultValues?.studentType === 'international' && (
+            {/* {defaultValues?.studentType === 'international' && (
               <div className="mt-8 space-y-4">
                 <h3 className="text-xl font-semibold">
                   English Language Qualification
@@ -513,7 +513,7 @@ export function EducationStep({
                   </FormItem>
                 </div>
               </div>
-            )}
+            )} */}
           </CardContent>
 
           <div className="flex justify-between px-6">

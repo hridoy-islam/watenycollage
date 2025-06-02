@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { FileUpload } from "./file-upload"
 
 // Define document types
-const DOCUMENT_TYPES = ["Passport", "CV", "Reference", "Cover Letter", "Miscellaneous"] as const
+const DOCUMENT_TYPES = ["Passport", "CV", "Reference", "Personal Statement", "Miscellaneous"] as const
 
 // Extend schema to handle custom documents
 const documentSchema = z.object({
@@ -90,9 +90,26 @@ export function DocumentsStep({ defaultValues, onSaveAndContinue, setCurrentStep
       <CardHeader>
         <h2 className="text-xl font-semibold">Documents</h2>
         <p className="text-sm text-muted-foreground">
-          Please upload all required documents. You can add multiple documents as needed.
+          Please upload all required documents. You can add multiple documents
+          as needed.
         </p>
+        <div className="mt-4 text-sm">
+          <p className="font-medium">Required Documents:</p>
+          <ul className="mt-2 list-inside list-disc space-y-1">
+            <li>
+              Updated <strong>CV or Resume</strong>
+            </li>
+            <li>
+              Cover letter
+            </li>
+            <li>
+              Proof of right to work in the UK (e.g., passport, BRP, settled
+              status)
+            </li>
+          </ul>
+        </div>
       </CardHeader>
+
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -100,7 +117,11 @@ export function DocumentsStep({ defaultValues, onSaveAndContinue, setCurrentStep
               {/* Add Document Dialog */}
               <Dialog open={openDialog} onOpenChange={setOpenDialog}>
                 <DialogTrigger asChild>
-                  <Button type="button" variant="outline" className="mb-4 bg-watney hover:bg-watney/90 text-white">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="mb-4 bg-watney text-white hover:bg-watney/90"
+                  >
                     Add Document
                   </Button>
                 </DialogTrigger>
@@ -111,13 +132,22 @@ export function DocumentsStep({ defaultValues, onSaveAndContinue, setCurrentStep
                   <div className="space-y-4">
                     <FormItem>
                       <FormLabel>Document Type</FormLabel>
-                      <Select value={selectedDocumentType} onValueChange={(value) => setSelectedDocumentType(value)}>
+                      <Select
+                        value={selectedDocumentType}
+                        onValueChange={(value) =>
+                          setSelectedDocumentType(value)
+                        }
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Select document type" />
                         </SelectTrigger>
                         <SelectContent>
                           {DOCUMENT_TYPES.map((type) => (
-                            <SelectItem key={type} value={type} className="hover:bg-gray-800 hover:text-white">
+                            <SelectItem
+                              key={type}
+                              value={type}
+                              className="hover:bg-gray-800 hover:text-white"
+                            >
                               {type}
                             </SelectItem>
                           ))}
@@ -133,7 +163,7 @@ export function DocumentsStep({ defaultValues, onSaveAndContinue, setCurrentStep
                             id="document-upload"
                             onFilesSelected={(files) => {
                               if (files && files.length > 0) {
-                                setSelectedFile(files[0])
+                                setSelectedFile(files[0]);
                               }
                             }}
                             accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
@@ -142,7 +172,7 @@ export function DocumentsStep({ defaultValues, onSaveAndContinue, setCurrentStep
                           />
                         </FormItem>
 
-                        {selectedDocumentType === "Miscellaneous" && (
+                        {selectedDocumentType === 'Miscellaneous' && (
                           <FormItem>
                             <FormLabel>Document Title</FormLabel>
                             <Textarea
@@ -155,7 +185,7 @@ export function DocumentsStep({ defaultValues, onSaveAndContinue, setCurrentStep
                         )}
 
                         {/* Additional fields based on document type */}
-                        {selectedDocumentType === "ID" && (
+                        {selectedDocumentType === 'ID' && (
                           <div className="space-y-4">
                             <FormItem>
                               <FormLabel>ID Type</FormLabel>
@@ -164,9 +194,15 @@ export function DocumentsStep({ defaultValues, onSaveAndContinue, setCurrentStep
                                   <SelectValue placeholder="Select ID type" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="passport">Passport</SelectItem>
-                                  <SelectItem value="nationalID">National ID</SelectItem>
-                                  <SelectItem value="drivingLicense">Driving License</SelectItem>
+                                  <SelectItem value="passport">
+                                    Passport
+                                  </SelectItem>
+                                  <SelectItem value="nationalID">
+                                    National ID
+                                  </SelectItem>
+                                  <SelectItem value="drivingLicense">
+                                    Driving License
+                                  </SelectItem>
                                 </SelectContent>
                               </Select>
                             </FormItem>
@@ -181,7 +217,7 @@ export function DocumentsStep({ defaultValues, onSaveAndContinue, setCurrentStep
                           </div>
                         )}
 
-                        {selectedDocumentType === "Proof of Address" && (
+                        {selectedDocumentType === 'Proof of Address' && (
                           <div className="space-y-4">
                             <FormItem>
                               <FormLabel>Document Type</FormLabel>
@@ -190,9 +226,15 @@ export function DocumentsStep({ defaultValues, onSaveAndContinue, setCurrentStep
                                   <SelectValue placeholder="Select document type" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="utility">Utility Bill</SelectItem>
-                                  <SelectItem value="bankStatement">Bank Statement</SelectItem>
-                                  <SelectItem value="councilTax">Council Tax</SelectItem>
+                                  <SelectItem value="utility">
+                                    Utility Bill
+                                  </SelectItem>
+                                  <SelectItem value="bankStatement">
+                                    Bank Statement
+                                  </SelectItem>
+                                  <SelectItem value="councilTax">
+                                    Council Tax
+                                  </SelectItem>
                                 </SelectContent>
                               </Select>
                             </FormItem>
@@ -203,7 +245,7 @@ export function DocumentsStep({ defaultValues, onSaveAndContinue, setCurrentStep
                           </div>
                         )}
 
-                        {selectedDocumentType === "Qualification" && (
+                        {selectedDocumentType === 'Qualification' && (
                           <div className="space-y-4">
                             <FormItem>
                               <FormLabel>Qualification Title</FormLabel>
@@ -221,7 +263,11 @@ export function DocumentsStep({ defaultValues, onSaveAndContinue, setCurrentStep
                         )}
 
                         <div className="flex justify-end space-x-2 pt-4">
-                          <Button type="button" variant="outline" onClick={() => setOpenDialog(false)}>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setOpenDialog(false)}
+                          >
                             Cancel
                           </Button>
                           <Button
@@ -240,7 +286,7 @@ export function DocumentsStep({ defaultValues, onSaveAndContinue, setCurrentStep
               </Dialog>
 
               {/* Documents Table */}
-              {form.watch("documents")?.length > 0 ? (
+              {form.watch('documents')?.length > 0 ? (
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -250,7 +296,7 @@ export function DocumentsStep({ defaultValues, onSaveAndContinue, setCurrentStep
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {form.watch("documents").map((doc, index) => (
+                    {form.watch('documents').map((doc, index) => (
                       <TableRow key={index}>
                         <TableCell>
                           {doc.customTitle || doc?.type} ({doc?.file?.name})
@@ -262,7 +308,7 @@ export function DocumentsStep({ defaultValues, onSaveAndContinue, setCurrentStep
                             variant="ghost"
                             size="icon"
                             onClick={() => removeDocument(index)}
-                            className="hover:bg-red-500 text-red-500 hover:text-white"
+                            className="text-red-500 hover:bg-red-500 hover:text-white"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -290,7 +336,7 @@ export function DocumentsStep({ defaultValues, onSaveAndContinue, setCurrentStep
               <Button
                 type="submit"
                 className="bg-watney text-white hover:bg-watney/90"
-                disabled={form.watch("documents")?.length === 0}
+                disabled={form.watch('documents')?.length === 0}
               >
                 Next
               </Button>
@@ -299,5 +345,5 @@ export function DocumentsStep({ defaultValues, onSaveAndContinue, setCurrentStep
         </Form>
       </CardContent>
     </Card>
-  )
+  );
 }

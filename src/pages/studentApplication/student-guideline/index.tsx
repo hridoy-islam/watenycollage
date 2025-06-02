@@ -48,54 +48,44 @@ const steps: React.ReactNode[] = [
     </p>
     <ul className="mt-4 list-disc space-y-2 pl-8 text-xl text-gray-700">
       <li>
-        <strong>Personal Details:</strong> Full name, date of birth, gender,
-        nationality, residency status, contact info.
+        <strong>Personal Details:</strong> Title, First Name, Middle
+        Name(Initial), Last Name, Date of birth, Gender, Country Of Birth.
       </li>
       <li>
-        <strong>Address & Emergency Contact:</strong> Your current address and
-        emergency contact (e.g., guardian).
+        <strong>Address Information:</strong> Your current residential address,
+        including Address Line1, Address Line 2, City, Post code, Country.
       </li>
       <li>
-        <strong>Education History:</strong> Previous schools attended,
-        transcripts or certificates.
+        <strong>Emergency Contact:</strong> Provide your emergency contact
+        details, including their full name, relationship to you, and contact
+        number, email, address.
       </li>
       <li>
-        <strong>Identification:</strong> Passport, driving licence, birth
-        certificate, or BRP.
+        <strong>Education History:</strong> Previous Institution Name,
+        qualification, grade, award date and certificate.
       </li>
       <li>
-        <strong>English Language Proficiency:</strong> Required for non-native
-        speakers (IELTS, TOEFL, etc.).
+        <strong>English Language Proficiency:</strong>{' '}
+        <li>
+          <strong>English Language Proficiency:</strong> Required for
+          non-British citizens (e.g., IELTS, TOEFL, etc.).
+        </li>
       </li>
       <li>
-        <strong>Personal Statement:</strong> For selected courses — explain your
-        motivation, goals, and experience.
+        <strong>Employment Details:</strong> If applicable, provide your current
+        or most recent employer's name, job title, and employment start date and
+        your responsibilities.
       </li>
-    </ul>
-  </div>,
 
-  // Step 3: Choosing Your Course
-  <div key="step-3" className="space-y-4">
-    <h3 className="text-2xl font-semibold">📘 Choosing Your Course</h3>
-    <p className="text-xl">
-      We offer a wide range of courses across various disciplines. As you
-      prepare to apply:
-    </p>
-    <ul className="mt-4 list-disc space-y-2 pl-8 text-xl text-gray-700">
       <li>
-        You may apply for one course per application (multiple applications
-        allowed).
-      </li>
-      <li>Ensure you meet the entry criteria listed under each course.</li>
-      <li>Choose your preferred intake period (e.g., September or January).</li>
-      <li>
-        Review course pages carefully for modules, duration, and career paths.
+        <strong>Miscellaneous:</strong> Any additional information that may
+        support your application, such as personal statement.
       </li>
     </ul>
   </div>,
 
   // Step 4: Important Reminders
-  <div key="step-4" className="space-y-4">
+  <div key="step-3" className="space-y-4">
     <h3 className="text-2xl font-semibold">✅ Important Reminders</h3>
     <ul className="mt-4 list-disc space-y-2 pl-8 text-xl text-gray-700">
       <li>
@@ -112,38 +102,23 @@ const steps: React.ReactNode[] = [
       </li>
     </ul>
     <p className="mt-4 text-xl text-gray-700">
-      If you need help during the process, our admissions team is available via
-      email, phone, or live chat.
+      We are here to help you succeed — make sure to reach out if you need any
+      clarification.
     </p>
   </div>,
 
   // Step 5: Data & Support + Final Call to Action
-  <div key="step-5" className="space-y-6 text-center">
+  <div key="step-4" className="space-y-6 text-start">
     <h3 className="text-2xl font-semibold">🔐 Data Privacy & Support</h3>
     <p className="text-xl text-gray-700">
       Watney College handles your data securely in compliance with UK GDPR. Your
       personal information will only be used for admissions purposes.
     </p>
 
-    <h4 className="text-xl font-medium">📞 Need Help?</h4>
-    <ul className="mt-2 inline-block space-y-1 text-left text-xl text-gray-700">
-      <li>
-        Email:{' '}
-        <a
-          href="mailto:admissions@watneycollege.ac.uk"
-          className="text-blue-600 underline"
-        >
-          admissions@watneycollege.ac.uk
-        </a>
-      </li>
-      <li>Phone: +44 (0)20 1234 5678</li>
-      <li>Live Chat: Mon–Fri, 9am–5pm (UK time)</li>
-    </ul>
-
     <p className="mb-2 mt-6 text-3xl font-bold">🎓 Ready to Apply?</p>
     <p className="text-xl text-gray-700">
-      By clicking "Continue Application” you agree to provide honest and accurate
-      information.
+      By clicking "Continue Application” you agree to provide honest and
+      accurate information.
     </p>
   </div>
 ];

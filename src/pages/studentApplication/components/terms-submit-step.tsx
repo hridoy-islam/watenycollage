@@ -48,11 +48,11 @@ export function TermsSubmitStep({
     }
   });
 
-  useEffect(() => {
-    if (defaultValues) {
-      form.reset(defaultValues);
-    }
-  }, [defaultValues, form]);
+  // useEffect(() => {
+  //   if (defaultValues) {
+  //     form.reset(defaultValues);
+  //   }
+  // }, [defaultValues, form]);
 
   // function handleSave() {
   //   const data = form.getValues();

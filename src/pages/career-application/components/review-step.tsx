@@ -25,6 +25,14 @@ import {
   FormMessage
 } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table';
 
 const careerSchema = z
   .object({
@@ -86,11 +94,11 @@ export function ReviewStep({
     }
   });
 
-  useEffect(() => {
-    if (defaultValues) {
-      form.reset(defaultValues);
-    }
-  }, [defaultValues, form]);
+  // useEffect(() => {
+  //   if (defaultValues) {
+  //     form.reset(defaultValues);
+  //   }
+  // }, [defaultValues, form]);
 
 
   const termsAccepted = form.watch('termsAccepted');
@@ -112,44 +120,66 @@ const dataProcessingAccepted = form.watch('dataProcessingAccepted');
 
   const renderSection = (title: string, data: any, showTitle = true) => {
     if (!data) return null;
+
+    const rows = Object.entries(data).reduce(
+      (acc: [string, string][], [key, value]) => {
+        if (
+          typeof value === 'object' &&
+          value !== null &&
+          !(value instanceof Date)
+        ) {
+          return acc; // Skip nested objects
+        }
+
+        // Format value
+        if (
+          value instanceof Date ||
+          moment(value, moment.ISO_8601, true).isValid()
+        ) {
+          value = formatDate(value);
+        }
+
+        if (typeof value === 'boolean') {
+          value = value ? 'Yes' : 'No';
+        }
+
+        const label = key
+          .replace(/([A-Z])/g, ' $1')
+          .replace(/^./, (s) => s.toUpperCase());
+
+        acc.push([
+          label,
+          value === undefined || value === null || value === ''
+            ? 'Not provided'
+            : String(value)
+        ]);
+
+        return acc;
+      },
+      []
+    );
+
     return (
       <div key={title}>
         {showTitle && (
           <h3 className="mb-2 text-lg font-medium text-black">{title}</h3>
         )}
-        <div className="rounded-md border border-gray-200 bg-gray-50 p-4">
-          {Object.entries(data).map(([key, value]) => {
-            if (
-              typeof value === 'object' &&
-              value !== null &&
-              !(value instanceof Date)
-            ) {
-              return null;
-            }
-            if (
-              value instanceof Date ||
-              moment(value, moment.ISO_8601, true).isValid()
-            ) {
-              value = formatDate(value);
-            }
-            if (typeof value === 'boolean') {
-              value = value ? 'Yes' : 'No';
-            }
-            const label = key
-              .replace(/([A-Z])/g, ' $1')
-              .replace(/^./, (s) => s.toUpperCase());
-            return (
-              <div key={key} className="mb-2 grid grid-cols-1 gap-2">
-                <div className="text-sm font-medium">{label}</div>
-                <div className="text-sm">
-                  {value === undefined || value === null || value === ''
-                    ? 'Not provided'
-                    : String(value)}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Field</TableHead>
+              <TableHead>Value</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {rows.map(([label, value], index) => (
+              <TableRow key={index}>
+                <TableCell className="font-medium">{label}</TableCell>
+                <TableCell>{value}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
     );
   };

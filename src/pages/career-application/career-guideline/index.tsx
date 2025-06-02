@@ -19,7 +19,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
 const steps: React.ReactNode[] = [
-  // Step 1: Welcome to Careers at Watney College
+  // Step 1: Welcome to Watney College
   <div key="step-1" className="space-y-4">
     <p className="text-2xl font-medium">
       👋 <strong>Welcome to Careers at Watney College</strong> — a leading
@@ -44,111 +44,83 @@ const steps: React.ReactNode[] = [
 
   // Step 2: What You’ll Need
   <div key="step-2" className="space-y-4">
-    <h3 className="text-2xl font-semibold">📋 What You'll Need</h3>
+    <h3 className="text-2xl font-semibold">🔹 What You'll Need</h3>
     <p className="text-xl">
-      To help us assess your application accurately, please ensure you have the
+      To complete your application successfully, make sure you have the
       following ready:
     </p>
-
     <ul className="mt-4 list-disc space-y-2 pl-8 text-xl text-gray-700">
       <li>
-        <strong>Personal Details:</strong> Full name, date of birth, gender
-        (optional), nationality, eligibility to work in the UK.
+        <strong>Personal Details:</strong> Title, First Name, Middle
+        Name(Initial), Last Name, Date of birth, Gender, Country Of Residence
+        and also your current residential address, including Address Line1,
+        Address Line 2, City, Post code, Country.
       </li>
       <li>
-        <strong>Contact Information:</strong> Current address, email, and phone
-        number.
+        <strong>Application Details:</strong> Provide the of your availablility
+        to start work, your weekly availablility.
       </li>
       <li>
-        <strong>Employment History:</strong> Previous roles (job titles,
-        employers, dates), key responsibilities and achievements.
+        <strong>Education History:</strong> Previous Institution Name,
+        qualification, grade, award date and certificate.
       </li>
       <li>
-        <strong>Education & Qualifications:</strong> Relevant degrees,
-        certifications, or training courses.
+        <strong>Employment Details:</strong> If applicable, provide your current
+        or most recent employer's name, job title, and employment start date and
+        your responsibilities.
       </li>
-      <li>
-        <strong>Supporting Documents:</strong> Updated CV/Resume, cover letter
-        (if applicable), proof of right to work in the UK (passport, BRP,
-        settled status).
-      </li>
-      <li>
-        <strong>References:</strong> At least two referees (not family members).
-      </li>
-    </ul>
-  </div>,
 
-  // Step 3: Choosing the Right Role
-  <div key="step-3" className="space-y-4">
-    <h3 className="text-2xl font-semibold">💼 Choosing the Right Role</h3>
-    <p className="text-xl">
-      Please review the available job listings carefully. Each role includes
-      important information such as:
-    </p>
-    <ul className="mt-4 list-disc space-y-2 pl-8 text-xl text-gray-700">
-      <li>Job title and responsibilities</li>
-      <li>Contract type (e.g., full-time, part-time, temporary)</li>
-      <li>Location (onsite or remote)</li>
-      <li>Salary range and benefits</li>
-      <li>Required qualifications and experience</li>
+      <li>
+        <strong>Disability Details:</strong> If you have a disability, please
+        provide details so we can make necessary accommodations during the
+        application process.
+      </li>
+      <li>
+        <strong>Reference Details:</strong> You will need to provide two
+        professional references, including their full name, relationship to you,
+        and contact number, email, address.
+      </li>
+      <li>
+        <strong>Documents:</strong> You have to upload your CV , Cover Letter and Proof of address
+        (e.g., utility bill, bank statement) dated within the last 3 months.
+      </li>
     </ul>
-    <p className="text-xl text-gray-700">
-      ⚠️ You may only apply for one role per submission, but you’re welcome to
-      apply again for other roles in the future.
-    </p>
   </div>,
 
   // Step 4: Important Reminders
-  <div key="step-4" className="space-y-4">
-    <h3 className="text-2xl font-semibold">⚠️ Important Reminders</h3>
+  <div key="step-3" className="space-y-4">
+    <h3 className="text-2xl font-semibold">✅ Important Reminders</h3>
     <ul className="mt-4 list-disc space-y-2 pl-8 text-xl text-gray-700">
       <li>
-        <strong>Be truthful and accurate:</strong> False or misleading
-        information may lead to disqualification.
+        <strong>Accuracy matters:</strong> Double-check all details before
+        submission.
       </li>
       <li>
-        <strong>Tailor your application:</strong> Make sure your CV and cover
-        letter align with the job you're applying for.
+        <strong>Be honest:</strong> This is a legal and binding record. False
+        info may result in rejection.
       </li>
       <li>
-        <strong>Accessibility and Inclusion:</strong> If you need reasonable
-        adjustments during the application or interview process, let us know —
-        we are here to support you.
+        <strong>Support & Accessibility:</strong> Let us know if you need
+        assistance or accommodations.
       </li>
     </ul>
     <p className="mt-4 text-xl text-gray-700">
-      We are committed to creating a workplace that reflects the diversity of
-      the students and community we serve.
+      We are here to help you succeed — make sure to reach out if you need any
+      clarification.
     </p>
   </div>,
 
   // Step 5: Data & Support + Final Call to Action
-  <div key="step-5" className="space-y-6 text-center">
+  <div key="step-4" className="space-y-6 text-start">
     <h3 className="text-2xl font-semibold">🔐 Data Privacy & Support</h3>
     <p className="text-xl text-gray-700">
-      We collect and process your personal data in compliance with UK GDPR and
-      employment legislation. Your data will be used solely for recruitment
-      purposes and stored securely.
+      Watney College handles your data securely in compliance with UK GDPR. Your
+      personal information will only be used for application purposes.
     </p>
 
-    <h4 className="text-xl font-medium">📞 Need Help?</h4>
-    <ul className="mt-2 inline-block space-y-1 text-left text-xl text-gray-700">
-      <li>
-        Email:{' '}
-        <a
-          href="mailto:careers@watneycollege.ac.uk"
-          className="text-blue-600 underline"
-        >
-          careers@watneycollege.ac.uk
-        </a>
-      </li>
-      <li>Phone: +44 (0)20 9876 5432</li>
-      <li>Live Chat: Mon–Fri, 9am–5pm (UK time)</li>
-    </ul>
-
-    <p className="mb-2 mt-6 text-3xl font-bold">✅ Ready to Apply?</p>
+    <p className="mb-2 mt-6 text-3xl font-bold">🎓 Ready to Apply?</p>
     <p className="text-xl text-gray-700">
-      By clicking “Continue Application,” you agree to provide honest and
+      By clicking "Continue Application” you agree to provide honest and
       accurate information.
     </p>
   </div>

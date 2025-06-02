@@ -526,6 +526,27 @@ export default function StudentApplication() {
                 <CardDescription className="mt-2 text-base leading-relaxed text-white">
                   Thank you for your submission. Our team has received your
                   application and will get back to you shortly. Stay tuned!
+                  {/* Support Section */}
+                  <div className=" w-full rounded-md mt-2 text-left text-base text-white ">
+                    <p>
+                      If you have any questions or need help with your
+                      application, please don’t hesitate to contact us:
+                    </p>
+                    <ul className="mt-3 list-none space-y-2">
+                      <li>
+                        📧 <strong>Email:</strong>{' '}
+                        <a
+                          href="mailto:admissions@watneycollege.ac.uk"
+                          className="underline"
+                        >
+                          admissions@watneycollege.ac.uk
+                        </a>
+                      </li>
+                      <li>
+                        ☎ <strong>Phone:</strong> +44 (0)20 1234 5678
+                      </li>
+                    </ul>
+                  </div>
                 </CardDescription>
               </div>
             </div>
@@ -537,35 +558,6 @@ export default function StudentApplication() {
             >
               Done
             </Button>
-
-            {/* Support Section */}
-            <div className=" w-full rounded-md  text-left text-sm text-white ">
-              <h3 className="mb-2 text-base font-semibold text-white">
-                📞 Need Assistance?
-              </h3>
-              <p>
-                If you have any questions or need help with your application,
-                please don’t hesitate to contact us:
-              </p>
-              <ul className="mt-3 list-none space-y-2">
-                <li>
-                  📧 <strong>Email:</strong>{' '}
-                  <a
-                    href="mailto:admissions@watneycollege.ac.uk"
-                    className="underline"
-                  >
-                    admissions@watneycollege.ac.uk
-                  </a>
-                </li>
-                <li>
-                  ☎ <strong>Phone:</strong> +44 (0)20 1234 5678
-                </li>
-                <li>
-                  💬 <strong>Live Chat:</strong> Monday to Friday, 9am–5pm (UK
-                  time)
-                </li>
-              </ul>
-            </div>
           </div>
         </Card>
       </div>

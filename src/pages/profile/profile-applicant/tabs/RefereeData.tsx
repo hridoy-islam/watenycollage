@@ -68,7 +68,7 @@ const RefereeDetails = ({
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             />
           ) : (
-            <div className="mt-1 text-gray-900">{referee.name || '-'}</div>
+            <div className="mt-1 text-gray-900">{referee?.name || '-'}</div>
           )}
         </div>
 
@@ -83,7 +83,7 @@ const RefereeDetails = ({
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             />
           ) : (
-            <div className="mt-1 text-gray-900">{referee.organisation || '-'}</div>
+            <div className="mt-1 text-gray-900">{referee?.organisation || '-'}</div>
           )}
         </div>
 
@@ -98,7 +98,7 @@ const RefereeDetails = ({
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             />
           ) : (
-            <div className="mt-1 text-gray-900">{referee.address || '-'}</div>
+            <div className="mt-1 text-gray-900">{referee?.address || '-'}</div>
           )}
         </div>
 
@@ -129,7 +129,7 @@ const RefereeDetails = ({
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
               />
             ) : (
-              <div className="mt-1 text-gray-900">{referee.otherRelationship || '-'}</div>
+              <div className="mt-1 text-gray-900">{referee?.otherRelationship || '-'}</div>
             )}
           </div>
         )}
@@ -145,7 +145,7 @@ const RefereeDetails = ({
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             />
           ) : (
-            <div className="mt-1 text-gray-900">{referee.email || '-'}</div>
+            <div className="mt-1 text-gray-900">{referee?.email || '-'}</div>
           )}
         </div>
 
@@ -160,7 +160,7 @@ const RefereeDetails = ({
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             />
           ) : (
-            <div className="mt-1 text-gray-900">{referee.phone || '-'}</div>
+            <div className="mt-1 text-gray-900">{referee?.phone || '-'}</div>
           )}
         </div>
       </div>

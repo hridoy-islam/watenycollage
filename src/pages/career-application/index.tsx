@@ -416,6 +416,27 @@ export default function CareerApplicationForm() {
                   Thank you for your submission. Our team has received your
                   career application and will get back to you shortly. Stay
                   tuned!
+                  {/* Support Section */}
+                  <div className=" mt-2 w-full rounded-md text-left text-base text-white ">
+                    <p>
+                      If you have any questions or need help with your
+                      application, please don’t hesitate to contact us:
+                    </p>
+                    <ul className="mt-3 list-none space-y-2">
+                      <li>
+                        📧 <strong>Email:</strong>{' '}
+                        <a
+                          href="mailto:admissions@watneycollege.ac.uk"
+                          className="underline"
+                        >
+                          admissions@watneycollege.ac.uk
+                        </a>
+                      </li>
+                      <li>
+                        ☎ <strong>Phone:</strong> +44 (0)20 1234 5678
+                      </li>
+                    </ul>
+                  </div>
                 </CardDescription>
               </div>
             </div>
