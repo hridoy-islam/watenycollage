@@ -447,7 +447,7 @@ export function EducationStep({
             </TableHeader>
             <TableBody>
               {fields.map((field, index) => (
-                <TableRow key={field.id}>
+                <TableRow key={field.id} >
                   <TableCell>
                     <FormField
                       control={form.control}
@@ -538,7 +538,7 @@ export function EducationStep({
                       }}
                     />
                   </TableCell>
-                  <TableCell>
+                  <TableCell >
                     <FormItem className="mt-4 flex flex-col">
                       <Button
                         type="button"

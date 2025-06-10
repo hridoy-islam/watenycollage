@@ -198,7 +198,7 @@ export default function CoursesPage() {
             <TableBody>
               {courses.map((course) => (
                 <TableRow key={course._id}>
-                  <TableCell className='flex items-center gap-2'>
+                  <TableCell className="flex items-center gap-2">
                     <span>{course.name}</span>
                     <Button
                       variant="ghost"
@@ -206,7 +206,7 @@ export default function CoursesPage() {
                       className="border-none bg-blue-100 text-blue-600 hover:bg-blue-200"
                       onClick={() =>
                         copyToClipboard(
-                          `https://watneycollegeform.netlify.app/courses/apply/${course._id}`
+                          `${window.location.origin}/courses/apply/${course._id}`
                         )
                       }
                       title="Copy application link"

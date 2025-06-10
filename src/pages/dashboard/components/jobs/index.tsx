@@ -211,7 +211,7 @@ export default function JobPage() {
                         className="border-none bg-blue-100 text-blue-600 hover:bg-blue-200"
                         onClick={() =>
                           copyToClipboard(
-                            `https://watneycollegeform.netlify.app/jobs/apply/${job._id}`
+                            `${window.location.origin}/jobs/apply/${job._id}`
                           )
                         }
                         title="Copy application link"

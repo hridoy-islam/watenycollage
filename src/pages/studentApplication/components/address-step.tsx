@@ -270,6 +270,7 @@ export function AddressStep({
                         <Checkbox
                           checked={field.value}
                           onCheckedChange={handleSameAddressChange}
+                          className="h-6 w-6"
                         />
                       </FormControl>
                       <FormLabel className="cursor-pointer text-sm font-normal">

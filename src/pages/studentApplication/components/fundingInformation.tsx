@@ -149,7 +149,7 @@ export function FundingInformation({
           </div>
         </CardContent>
 
-        <div className="mt-8 flex justify-between px-6">
+        <div className="mt-8 flex justify-between ">
           <Button
             type="button"
             variant="outline"
