@@ -28,6 +28,7 @@ import {
 } from '@/utils/form-validation-utils';
 import { updateUserProfile } from '@/redux/features/profileSlice';
 import { updateAuthIsCompleted } from '@/redux/features/authSlice';
+import { FundingInformation } from './components/fundingInformation';
 
 export default function StudentApplication() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -39,6 +40,8 @@ export default function StudentApplication() {
   const { toast } = useToast();
   const [parsedResume, setParsedResume] = useState<string | null>(null);
   const dispatch = useDispatch<AppDispatch>();
+  let stepContent;
+
 
   useEffect(() => {
     if (location.state?.parsedResume) {
@@ -121,16 +124,13 @@ export default function StudentApplication() {
   const savedStudentType = localStorage.getItem('studentType');
   const savedCourseId = localStorage.getItem('courseId');
   const savedTermId = localStorage.getItem('termId');
+
   useEffect(() => {
     setFormData((prev) => ({
       ...prev,
 
       studentType: savedStudentType ,
-      courseDetailsData: {
-        ...(prev.courseDetailsData || {}),
-        course: savedCourseId || '',
-        intake: savedTermId || ''
-      }
+      
     }));
   }, [savedCourseId, savedStudentType, savedTermId]);
 
@@ -269,6 +269,18 @@ export default function StudentApplication() {
       console.error('Failed to update documents:', error);
     }
   };
+  const handleFundingInformationSaveAndContinue = async (
+    data: any
+  ) => {
+    try {
+      setFormData((prev) => ({ ...prev, ...data }));
+      await axiosInstance.patch(`/users/${user._id}`, data);
+      markStepAsCompleted(8);
+      setCurrentStep(9);
+    } catch (error) {
+      console.error('Failed to update documents:', error);
+    }
+  };
 
   const handleTermsSave = async (data: any) => {
     try {
@@ -324,6 +336,36 @@ export default function StudentApplication() {
     setReviewModalOpen(true);
   };
 
+
+  const submitApplicationCourse = async () => {
+    if (savedCourseId && savedTermId && user?._id) {
+      try {
+        await axiosInstance.post('/application-course', {
+          courseId: savedCourseId,
+          intakeId: savedTermId,
+          studentId: user._id
+        });
+
+        localStorage.removeItem('termId');
+        localStorage.removeItem('courseId');
+      } catch (error) {
+        console.error('Error submitting application course:', error);
+        toast({
+          title: error?.response?.data?.message || 'Something went wrong.',
+          className: 'destructive border-none text-white'
+        });
+        localStorage.removeItem('termId');
+        localStorage.removeItem('courseId');
+      }
+    }
+  };
+
+  useEffect(() => {
+    submitApplicationCourse();
+  }, []);
+
+
+
   const handleSubmit = async () => {
     // const requiredSteps = [1, 2, 3, 4, 5, 6, 7];
     // const missingSteps = requiredSteps.filter(
@@ -349,6 +391,9 @@ export default function StudentApplication() {
     //   return;
     // }
 
+
+    
+    
     try {
        dispatch(
         updateUserProfile({
@@ -364,17 +409,10 @@ export default function StudentApplication() {
       dispatch(updateAuthIsCompleted(true));
       
 
-       if (savedCourseId && savedTermId) {
-      await axiosInstance.post('/application-course', {
-        courseId: savedCourseId,
-        intakeId: savedTermId,
-        studentId: user._id
-      });
-    }
+      
     
       localStorage.removeItem('studentType');
-      localStorage.removeItem('termId');
-      localStorage.removeItem('courseId');
+     
       toast({
         description: 'Applicaiton saved successfully.'
       });
@@ -391,35 +429,30 @@ export default function StudentApplication() {
   console.log(formData)
 
   const renderStep = () => {
-    switch (currentStep) {
+    // Normalize currentStep value to handle both number and { step, subStep }
+    const stepValue =
+      typeof currentStep === 'object' ? currentStep.step : currentStep;
+    const subStep = typeof currentStep === 'object' ? currentStep.subStep : 1;
+
+    switch (stepValue) {
       case 1:
         return (
           <PersonalDetailsStep
-            defaultValues={{
-              ...fetchData,
-              ...formData,
-            
-              
-            }}
+            defaultValues={{ ...fetchData, ...formData }}
             onSaveAndContinue={handlePersonalDetailsSaveAndContinue}
             onSave={handlePersonalDetailsSave}
             setCurrentStep={setCurrentStep}
           />
         );
+
       case 2:
         return (
           <AddressStep
             defaultValues={{
               ...fetchData,
               ...formData,
-              ...Object.fromEntries(
-                Object.entries(addressData || {}).filter(
-                  ([_, value]) =>
-                    value !== '' && value !== undefined && value !== null
-                )
-              )
+              ...(addressData || {})
             }}
-            // studentType={formData.personalDetailsData.studentType}
             onSaveAndContinue={handleAddressSaveAndContinue}
             setCurrentStep={setCurrentStep}
           />
@@ -433,14 +466,21 @@ export default function StudentApplication() {
             setCurrentStep={setCurrentStep}
           />
         );
+
       case 4:
         return (
           <EducationStep
-            defaultValues={{ ...fetchData, ...formData }}
+            defaultValues={{
+              ...fetchData,
+              ...formData,
+             
+            }}
             onSaveAndContinue={handleEducationSaveAndContinue}
             setCurrentStep={setCurrentStep}
+            setCurrentSubStep={subStep}
           />
         );
+
       case 5:
         return (
           <EmploymentStep
@@ -449,6 +489,7 @@ export default function StudentApplication() {
             setCurrentStep={setCurrentStep}
           />
         );
+
       case 6:
         return (
           <ComplianceStep
@@ -457,6 +498,7 @@ export default function StudentApplication() {
             setCurrentStep={setCurrentStep}
           />
         );
+
       case 7:
         return (
           <DocumentsStep
@@ -466,6 +508,15 @@ export default function StudentApplication() {
           />
         );
       case 8:
+        return (
+          <FundingInformation
+            defaultValues={{ ...fetchData, ...formData }}
+            onSaveAndContinue={handleFundingInformationSaveAndContinue}
+            setCurrentStep={setCurrentStep}
+          />
+        );
+
+      case 9:
         return (
           <TermsSubmitStep
             defaultValues={{ ...fetchData, ...formData }}
@@ -480,22 +531,30 @@ export default function StudentApplication() {
       default:
         return (
           <div className="rounded-lg bg-gray-50 p-8 text-center">
-            <h2 className="mb-4 text-xl font-semibold">Step {currentStep}</h2>
+            <h2 className="mb-4 text-xl font-semibold">Step Not Found</h2>
             <p className="mb-4 text-gray-600">
               This step is not implemented yet.
             </p>
             <div className="flex justify-center space-x-4">
               <Button
                 variant="outline"
-                onClick={() => setCurrentStep((prev) => Math.max(1, prev - 1))}
+                onClick={() =>
+                  setCurrentStep((prev) =>
+                    typeof prev === 'object'
+                      ? prev.step - 1
+                      : Math.max(1, prev - 1)
+                  )
+                }
               >
                 Previous
               </Button>
               <Button
                 onClick={() => {
-                  markStepAsCompleted(currentStep);
+                  markStepAsCompleted(stepValue);
                   setCurrentStep((prev) =>
-                    Math.min(formSteps.length, prev + 1)
+                    typeof prev === 'object'
+                      ? { step: prev.step + 1, subStep: 1 }
+                      : Math.min(formSteps.length, prev + 1)
                   );
                 }}
               >
@@ -506,7 +565,6 @@ export default function StudentApplication() {
         );
     }
   };
-
   if (formSubmitted) {
     return (
       <div className="flex  items-center justify-center px-4">

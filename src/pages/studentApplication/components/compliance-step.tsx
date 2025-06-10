@@ -92,7 +92,7 @@ export function ComplianceStep({
       disability: defaultValues?.disability || '',
       disabilityDetails: defaultValues?.disabilityDetails || '',
       benefits: defaultValues?.benefits || '',
-      criminalConviction: defaultValues?.criminalConviction || undefined,
+      criminalConviction: defaultValues?.criminalConviction || false,
       convictionDetails: defaultValues?.convictionDetails || '',
       studentFinance: defaultValues?.studentFinance || '',
       visaRequired: defaultValues?.visaRequired || '',
@@ -177,7 +177,7 @@ export function ComplianceStep({
                 render={({ field }) => (
                   <FormItem className="mt-2 flex w-full flex-col">
                     <FormLabel>
-                      Do you require visa to come to the UK?{' '}
+                      Do you require visa to come or stay to the UK?{' '}
                       <span className="text-red-500">*</span>
                     </FormLabel>
                     <FormControl>

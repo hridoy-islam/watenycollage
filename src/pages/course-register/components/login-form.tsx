@@ -1,4 +1,3 @@
-"use client"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -34,7 +33,6 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
   const handleLoginSubmit = async (values: z.infer<typeof loginSchema>) => {
     try {
 
-      console.log(values)
       const response = await dispatch(loginUser(values))
       const result = response.payload
 

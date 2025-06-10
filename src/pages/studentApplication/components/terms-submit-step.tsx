@@ -64,7 +64,7 @@ export function TermsSubmitStep({
   };
 
   function handleBack() {
-    setCurrentStep(7);
+    setCurrentStep(8);
   }
 
   const isValid = form.formState.isValid;

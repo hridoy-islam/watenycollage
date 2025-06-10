@@ -1,89 +1,94 @@
-"use client"
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import { Button } from "@/components/ui/button"
-import { Card, CardHeader, CardContent } from "@/components/ui/card"
-import { Form, FormItem, FormLabel } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Trash2 } from "lucide-react"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { FileUpload } from "./file-upload"
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardContent } from '@/components/ui/card';
+import { Form, FormItem, FormLabel } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table';
+import { Trash2 } from 'lucide-react';
+import { FileUpload } from './file-upload';
 
-// Define document types
-const DOCUMENT_TYPES = ["Passport", "CV", "Reference", "Personal Statement", "Miscellaneous"] as const
-
-// Extend schema to handle custom documents
+// Schema for validation
 const documentSchema = z.object({
   documents: z.array(
     z.object({
-      type: z.enum(DOCUMENT_TYPES),
-      file: z.any().optional(),
-      customTitle: z.string().optional(),
-    }),
-  ),
-})
+      title: z.string(),
+      file: z.any().optional()
+    })
+  )
+});
 
-type DocumentFormValues = z.infer<typeof documentSchema>
+type DocumentFormValues = z.infer<typeof documentSchema>;
 
 interface DocumentsStepProps {
-  defaultValues?: any
-  onSaveAndContinue: (data: any) => void
-  setCurrentStep: (step: number) => void
+  defaultValues?: any;
+  onSaveAndContinue: (data: any) => void;
+  setCurrentStep: (step: number) => void;
 }
 
-export function DocumentsStep({ defaultValues, onSaveAndContinue, setCurrentStep }: DocumentsStepProps) {
-  const [openDialog, setOpenDialog] = useState(false)
-  const [selectedDocumentType, setSelectedDocumentType] = useState<string>("")
-  const [customTitle, setCustomTitle] = useState<string>("")
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+const guidelines: Record<string, string> = {
+  'Passport / ID': "Make sure it's clear and both sides are visible.",
+  'CV (Curriculum Vitae)':
+    'PDF format preferred. Include work experience and education.',
+  'Proof of Address':
+    'Must be recent (within last 3 months). Utility bill or bank statement only.',
+  'Photograph': 'Recent passport-sized photo (white background recommended).'
+};
+
+
+export function DocumentsStep({
+  defaultValues,
+  onSaveAndContinue,
+  setCurrentStep
+}: DocumentsStepProps) {
+  const [documents, setDocuments] = useState<
+    Array<{ title: string; file: File | null }>
+  >([
+    { title: 'Passport / ID', file: null },
+    { title: 'CV (Curriculum Vitae)', file: null },
+    { title: 'Proof of Address', file: null },
+    { title: 'Photograph', file: null },
+    { title: 'Signature', file: null }
+  ]);
 
   const form = useForm<DocumentFormValues>({
     resolver: zodResolver(documentSchema),
-    defaultValues: {
-      documents: [],
-      ...defaultValues,
-    },
-  })
+    defaultValues: defaultValues || {
+      documents: []
+    }
+  });
 
   const onSubmit = (data: DocumentFormValues) => {
-    onSaveAndContinue(data)
-  }
+    onSaveAndContinue({
+      ...data,
+      documents: documents.filter((doc) => doc.file)
+    });
+  };
 
-  function handleBack() {
-    setCurrentStep(6)
-  }
+  const handleBack = () => {
+    setCurrentStep(6);
+  };
 
-  const addDocument = () => {
-    if (!selectedFile) return
-
-    const currentDocuments = form.getValues("documents") || []
-    form.setValue("documents", [
-      ...currentDocuments,
-      {
-        type: selectedDocumentType as any,
-        file: selectedFile,
-        customTitle: selectedDocumentType === "Miscellaneous" ? customTitle : undefined,
-      },
-    ])
-
-    setOpenDialog(false)
-    setSelectedDocumentType("")
-    setCustomTitle("")
-    setSelectedFile(null)
-  }
+  const handleFileChange = (index: number, file: File | null) => {
+    const updatedDocs = [...documents];
+    updatedDocs[index].file = file;
+    setDocuments(updatedDocs);
+  };
 
   const removeDocument = (index: number) => {
-    const currentDocuments = form.getValues("documents") || []
-    form.setValue(
-      "documents",
-      currentDocuments.filter((_, i) => i !== index),
-    )
-  }
+    const updatedDocs = [...documents];
+    updatedDocs.splice(index, 1);
+    setDocuments(updatedDocs);
+  };
 
   return (
     <Card className="border-none shadow-none">
@@ -97,224 +102,83 @@ export function DocumentsStep({ defaultValues, onSaveAndContinue, setCurrentStep
           <p className="font-medium">Required Documents:</p>
           <ul className="mt-2 list-inside list-disc space-y-1">
             <li>
-              Updated <strong>CV or Resume</strong>
+              <strong>Passport / ID</strong>
             </li>
             <li>
-              Cover letter
+              <strong>CV</strong> (Curriculum Vitae)
             </li>
             <li>
-              Proof of right to work in the UK (e.g., passport, BRP, settled
-              status)
+              <strong>Proof of Address</strong> (e.g., utility bill, bank
+              statement)
+            </li>
+            <li>
+              <strong>Photograph</strong> (Recent passport-sized photo)
             </li>
           </ul>
         </div>
       </CardHeader>
-
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="space-y-4">
-              {/* Add Document Dialog */}
-              <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-                <DialogTrigger asChild>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="mb-4 bg-watney text-white hover:bg-watney/90"
-                  >
-                    Add Document
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Upload New Document</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4">
-                    <FormItem>
-                      <FormLabel>Document Type</FormLabel>
-                      <Select
-                        value={selectedDocumentType}
-                        onValueChange={(value) =>
-                          setSelectedDocumentType(value)
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select document type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {DOCUMENT_TYPES.map((type) => (
-                            <SelectItem
-                              key={type}
-                              value={type}
-                              className="hover:bg-gray-800 hover:text-white"
-                            >
-                              {type}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </FormItem>
-
-                    {selectedDocumentType && (
-                      <>
-                        <FormItem>
-                          <FormLabel>File</FormLabel>
-                          <FileUpload
-                            id="document-upload"
-                            onFilesSelected={(files) => {
-                              if (files && files.length > 0) {
-                                setSelectedFile(files[0]);
-                              }
-                            }}
-                            accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                            multiple={false}
-                            buttonLabel="Upload Document"
-                          />
-                        </FormItem>
-
-                        {selectedDocumentType === 'Miscellaneous' && (
-                          <FormItem>
-                            <FormLabel>Document Title</FormLabel>
-                            <Textarea
-                              className="border-gray-300"
-                              placeholder="Enter document title"
-                              value={customTitle}
-                              onChange={(e) => setCustomTitle(e.target.value)}
-                            />
-                          </FormItem>
-                        )}
-
-                        {/* Additional fields based on document type */}
-                        {selectedDocumentType === 'ID' && (
-                          <div className="space-y-4">
-                            <FormItem>
-                              <FormLabel>ID Type</FormLabel>
-                              <Select defaultValue="passport">
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select ID type" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="passport">
-                                    Passport
-                                  </SelectItem>
-                                  <SelectItem value="nationalID">
-                                    National ID
-                                  </SelectItem>
-                                  <SelectItem value="drivingLicense">
-                                    Driving License
-                                  </SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </FormItem>
-                            <FormItem>
-                              <FormLabel>ID Number</FormLabel>
-                              <Input placeholder="Enter ID number" />
-                            </FormItem>
-                            <FormItem>
-                              <FormLabel>Expiry Date</FormLabel>
-                              <Input type="date" />
-                            </FormItem>
-                          </div>
-                        )}
-
-                        {selectedDocumentType === 'Proof of Address' && (
-                          <div className="space-y-4">
-                            <FormItem>
-                              <FormLabel>Document Type</FormLabel>
-                              <Select defaultValue="utility">
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select document type" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="utility">
-                                    Utility Bill
-                                  </SelectItem>
-                                  <SelectItem value="bankStatement">
-                                    Bank Statement
-                                  </SelectItem>
-                                  <SelectItem value="councilTax">
-                                    Council Tax
-                                  </SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </FormItem>
-                            <FormItem>
-                              <FormLabel>Issue Date</FormLabel>
-                              <Input type="date" />
-                            </FormItem>
-                          </div>
-                        )}
-
-                        {selectedDocumentType === 'Qualification' && (
-                          <div className="space-y-4">
-                            <FormItem>
-                              <FormLabel>Qualification Title</FormLabel>
-                              <Input placeholder="e.g., BSc Computer Science" />
-                            </FormItem>
-                            <FormItem>
-                              <FormLabel>Institution</FormLabel>
-                              <Input placeholder="e.g., University of Example" />
-                            </FormItem>
-                            <FormItem>
-                              <FormLabel>Year Completed</FormLabel>
-                              <Input type="number" placeholder="e.g., 2020" />
-                            </FormItem>
-                          </div>
-                        )}
-
-                        <div className="flex justify-end space-x-2 pt-4">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => setOpenDialog(false)}
-                          >
-                            Cancel
-                          </Button>
-                          <Button
-                            type="button"
-                            onClick={addDocument}
-                            disabled={!selectedFile}
-                            className="bg-watney text-white hover:bg-watney/90"
-                          >
-                            Save
-                          </Button>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </DialogContent>
-              </Dialog>
-
-              {/* Documents Table */}
-              {form.watch('documents')?.length > 0 ? (
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 ">
+            {/* Document Upload Fields */}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+              {documents.map((doc, index) => (
+                <FormItem key={index}>
+                  <FormLabel>{doc.title}</FormLabel>
+                  <FileUpload
+                    id={`document-upload-${index}`}
+                    onFilesSelected={(files) =>
+                      handleFileChange(index, files[0] || null)
+                    }
+                    accept={
+                      doc.title.includes('Photograph')
+                        ? '.jpg,.jpeg,.png'
+                        : '.pdf,.jpg,.jpeg,.png,.doc,.docx'
+                    }
+                    buttonLabel={`Upload ${doc.title}`}
+                  />
+                  {doc.file && (
+                    <p className="mt-1 text-xs text-gray-500">
+                      Selected: {doc.file.name}
+                    </p>
+                  )}
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    {guidelines[doc.title]}
+                  </p>
+                </FormItem>
+              ))}
+            </div>
+            <div>
+              {/* Uploaded Documents Table */}
+              {documents.filter((doc) => doc.file).length > 0 ? (
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Document</TableHead>
-                      <TableHead>Type</TableHead>
+                      <TableHead>Title</TableHead>
+                      <TableHead>File Name</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {form.watch('documents').map((doc, index) => (
-                      <TableRow key={index}>
-                        <TableCell>
-                          {doc.customTitle || doc?.type} ({doc?.file?.name})
-                        </TableCell>
-                        <TableCell>{doc?.type}</TableCell>
-                        <TableCell className="text-right">
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => removeDocument(index)}
-                            className="text-red-500 hover:bg-red-500 hover:text-white"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {documents
+                      .filter((doc) => doc.file)
+                      .map((doc, index) => (
+                        <TableRow key={index}>
+                          <TableCell>{doc.title}</TableCell>
+                          <TableCell>{doc.file?.name}</TableCell>
+                          <TableCell className="text-right">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => removeDocument(index)}
+                              className="text-red-500 hover:bg-red-500 hover:text-white"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
                   </TableBody>
                 </Table>
               ) : (
@@ -324,19 +188,20 @@ export function DocumentsStep({ defaultValues, onSaveAndContinue, setCurrentStep
               )}
             </div>
 
+            {/* Navigation Buttons */}
             <div className="flex justify-between pt-6">
               <Button
                 type="button"
                 variant="outline"
-                className="bg-watney text-white hover:bg-watney/90"
                 onClick={handleBack}
+                className="bg-watney text-white hover:bg-watney/90"
               >
                 Back
               </Button>
               <Button
                 type="submit"
                 className="bg-watney text-white hover:bg-watney/90"
-                disabled={form.watch('documents')?.length === 0}
+                disabled={documents.every((doc) => !doc.file)}
               >
                 Next
               </Button>

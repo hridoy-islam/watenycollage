@@ -86,8 +86,10 @@ export default function CourseApplicationPage() {
       setSelectedCourse('');
       setSelectedTerm('');
     } catch (err: any) {
-      toast({ title: err.response?.data?.message || 'Application failed.' });
-      console.error(err);
+      toast({ title: err.response?.data?.message || 'Application failed.', className: 'bg-destructive text-white border-none' });
+      localStorage.removeItem('termId');
+      localStorage.removeItem('courseId');
+      localStorage.removeItem('studentType');
     } finally {
       setSubmitting(false);
     }

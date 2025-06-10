@@ -64,6 +64,12 @@ export const stepValidationConfigs: Record<number, StepValidationConfig> = {
     requiredFields: [
       
     ]
+  },
+  8: { // fundingInformation
+    requiredFields: [
+      'fundingType',
+      
+    ]
   }
 };
 

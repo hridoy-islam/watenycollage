@@ -188,7 +188,11 @@ export function EmploymentStep({
   };
 
   const handleBack = () => {
-    setCurrentStep(4);
+    if (defaultValues?.studentType === 'international') {
+      setCurrentStep({ step: 4, subStep: 2 });
+    } else {
+      setCurrentStep({ step: 4, subStep: 1 });
+    }
   };
 
   // Initially show only the first question

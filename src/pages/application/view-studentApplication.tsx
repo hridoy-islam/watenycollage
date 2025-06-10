@@ -412,6 +412,13 @@ export default function ViewStudentApplicationPage() {
               <span className="hidden sm:inline">Course</span>
             </TabsTrigger>
             <TabsTrigger
+              value="funding"
+              className="flex items-center gap-1 focus:bg-watney active:bg-watney data-[state=active]:bg-watney"
+            >
+              <GraduationCap className="h-4 w-4" />
+              <span className="hidden sm:inline">Funding Information</span>
+            </TabsTrigger>
+            <TabsTrigger
               value="terms"
               className="flex items-center gap-1 focus:bg-watney active:bg-watney data-[state=active]:bg-watney"
             >
