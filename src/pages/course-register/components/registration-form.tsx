@@ -25,6 +25,7 @@ import {
   SelectValue
 } from '@/components/ui/select';
 import axiosInstance from '@/lib/axios';
+import ReactSelect, { SingleValue } from 'react-select';
 import { nationalities } from '@/types';
 
 const registrationSchema = z.object({
@@ -110,6 +111,11 @@ export default function RegistrationForm({
     }
   };
 
+    const nationalityOptions = nationalities.map((nation) => ({
+      value: nation,
+      label: nation
+    }));
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -131,7 +137,7 @@ export default function RegistrationForm({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {['Mr', 'Mrs', 'Miss', 'Ms', 'Dr'].map((item) => (
+                    {['Mr', 'Mrs', 'Miss', 'Ms', 'Dr', 'Prof'].map((item) => (
                       <SelectItem key={item} value={item}>
                         {item}
                       </SelectItem>
@@ -209,25 +215,24 @@ export default function RegistrationForm({
             name="nationality"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Nationality *</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select nationality" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {nationalities.map((nation, index) => (
-                      <SelectItem key={index} value={nation}>
-                        {nation}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
+                <FormLabel className="block text-sm font-medium text-gray-700">
+                  Nationality <span className="text-red-500">*</span>
+                </FormLabel>
+                <FormControl>
+                  <ReactSelect
+                    options={nationalityOptions}
+                    value={nationalityOptions.find(
+                      (opt) => opt.value === field.value
+                    )}
+                    onChange={(option: SingleValue<OptionType>) =>
+                      field.onChange(option?.value)
+                    }
+                    placeholder="Select nationality"
+                    className="react-select-container"
+                    classNamePrefix="react-select"
+                  />
+                </FormControl>
+                <FormMessage className="text-xs text-red-600" />
               </FormItem>
             )}
           />

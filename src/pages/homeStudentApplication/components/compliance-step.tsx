@@ -33,7 +33,7 @@ const complianceSchema = z
     immigrationStatus: z.string().min(1, { message: 'Please select status' }),
     disability: z.string().min(1, { message: 'Please select an option' }),
     disabilityDetails: z.string().optional(),
-    benefits: z.string().min(1, { message: 'Please select an option' }),
+
     criminalConviction: z.boolean({
       required_error: 'Please select an option'
     }),
@@ -81,7 +81,7 @@ export function ComplianceStep({
       ltrCode: defaultValues?.ltrCode || '',
       disability: defaultValues?.disability || '',
       disabilityDetails: defaultValues?.disabilityDetails || '',
-      benefits: defaultValues?.benefits || '',
+   
       criminalConviction: defaultValues?.criminalConviction || false,
       convictionDetails: defaultValues?.convictionDetails || '',
       studentFinance: defaultValues?.studentFinance || ''
@@ -336,7 +336,7 @@ export function ComplianceStep({
                 />
               )}
 
-              <FormField
+              {/* <FormField
                 control={form.control}
                 name="benefits"
                 render={({ field }) => (
@@ -370,7 +370,7 @@ export function ComplianceStep({
                     <FormMessage />
                   </FormItem>
                 )}
-              />
+              /> */}
               <FormField
                 control={form.control}
                 name="studentFinance"

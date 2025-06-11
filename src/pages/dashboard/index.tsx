@@ -21,9 +21,22 @@ export default function DashboardPage() {
         } else if (user.role === 'applicant') {
           navigate('/dashboard/career-guideline');
         }
+      } else {
+        if (user.role === 'student') {
+          const courseId = localStorage.getItem('courseId');
+          if (courseId) {
+            navigate(`/dashboard/course-application/${courseId}`);
+          }
+        } else if (user.role === 'applicant') {
+          const jobId = localStorage.getItem('jobId');
+          if (jobId) {
+            navigate(`/dashboard/job-application/${jobId}`);
+          }
+        }
       }
     }
   }, [user, navigate]);
+  
 
 
 

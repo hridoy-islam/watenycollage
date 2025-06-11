@@ -24,7 +24,6 @@ const complianceSchema = z
     immigrationStatus: z.string().min(1, { message: 'Please select status' }),
     disability: z.string().min(1, { message: 'Please select an option' }),
     disabilityDetails: z.string().optional(),
-    benefits: z.string().min(1, { message: 'Please select an option' }),
     criminalConviction: z.boolean({
       required_error: 'Please select an option'
     }),
@@ -82,7 +81,6 @@ export function ComplianceStep({
       ltrCode: defaultValues?.ltrCode || '',
       disability: defaultValues?.disability || '',
       disabilityDetails: defaultValues?.disabilityDetails || '',
-      benefits: defaultValues?.benefits || '',
       criminalConviction: defaultValues?.criminalConviction || false,
       convictionDetails: defaultValues?.convictionDetails || '',
       studentFinance: defaultValues?.studentFinance || '',
@@ -436,41 +434,7 @@ export function ComplianceStep({
                 />
               )}
 
-              <FormField
-                control={form.control}
-                name="benefits"
-                render={({ field }) => (
-                  <FormItem className="flex w-full flex-col">
-                    <FormLabel>
-                      Are you in receipt of any benefits?{' '}
-                      <span className="text-red-500">*</span>
-                    </FormLabel>
-                    <FormControl>
-                      <ReactSelect
-                        options={benefitsOptions}
-                        placeholder="Select Yes if you are in receipt of government benefits."
-                        value={benefitsOptions.find(
-                          (opt) => opt.value === field.value
-                        )}
-                        onChange={(option) => field.onChange(option?.value)}
-                        className="react-select-container"
-                        classNamePrefix="react-select"
-                        styles={{
-                          placeholder: (provided) => ({
-                            ...provided,
-                            fontSize: '0.75rem',
-                            color: '#9CA3AF'
-                          })
-                        }}
-                      />
-                    </FormControl>
-                    <p className="mt-1 text-xs text-gray-400">
-                      Example: Yes / No
-                    </p>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+           
               <FormField
                 control={form.control}
                 name="studentFinance"

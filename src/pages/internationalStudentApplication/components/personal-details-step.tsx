@@ -209,7 +209,7 @@ export function PersonalDetailsStep({
                             color: '#9CA3AF'
                           })
                         }}
-                        isDisabled
+                        
                       />
                     )}
                   />
@@ -234,7 +234,6 @@ export function PersonalDetailsStep({
                       {...field}
                       placeholder="Enter your given name as it appears in your passport or national ID."
                       className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
-                      disabled
                     />
                   </FormControl>
                   <p className="text-xs  text-gray-400">Example: Ridoy</p>
@@ -254,7 +253,6 @@ export function PersonalDetailsStep({
                       {...field}
                       placeholder="If you have a middle name, enter only the first letter."
                       className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
-                      disabled
                     />
                   </FormControl>
                   <p className="text-xs  text-gray-400">Example: H</p>
@@ -276,7 +274,6 @@ export function PersonalDetailsStep({
                       {...field}
                       placeholder="If you have a middle name, enter only the first letter. Leave blank if not applicable."
                       className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
-                      disabled
                     />
                   </FormControl>
                   <p className="text-xs  text-gray-400">Example: Islam</p>
@@ -302,7 +299,7 @@ export function PersonalDetailsStep({
                         selected={selectedDate}
                         onChange={(date) => field.onChange(date)}
                         placeholder="Enter your date of birth using the format DD/MM/YYYY."
-                        disabled = {true}
+                        // disabled = {true}
                       />
                     </FormControl>
                     <p className="mt-1 text-xs text-gray-400">
@@ -353,7 +350,6 @@ export function PersonalDetailsStep({
                       {...field}
                       placeholder="Include your country code if applying from outside the UK."
                       className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
-                      disabled
                     />
                   </FormControl>
                   <p className="mt-1 text-xs text-gray-400">

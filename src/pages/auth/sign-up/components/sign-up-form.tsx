@@ -1,16 +1,13 @@
 'use client';
-
 import { useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Eye, EyeOff } from 'lucide-react';
-
 import axiosInstance from '@/lib/axios';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/components/ui/use-toast';
 import { useRouter } from '@/routes/hooks';
-
 import {
   Form,
   FormControl,
@@ -21,16 +18,14 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem
-} from '@/components/ui/select';
-
 import type { HTMLAttributes } from 'react';
+import ReactSelect, { SingleValue } from 'react-select';
 import { nationalities } from '@/types';
+
+interface OptionType {
+  value: string;
+  label: string;
+}
 
 interface SignUpFormProps extends HTMLAttributes<HTMLDivElement> {}
 
@@ -41,7 +36,7 @@ const signUpSchema = z
     lastName: z.string().min(1, 'Last name is required'),
     initial: z.string().optional(),
     email: z.string().email('Invalid email address'),
-    password: z.string().min(6, 'Password must be at least 8 characters'),
+    password: z.string().min(6, 'Password must be at least 6 characters'),
     phone: z.string().min(7, 'Phone number is required'),
     nationality: z.string().min(1, 'Nationality is required'),
     dateOfBirth: z.string().min(1, 'Date of birth is required'),
@@ -53,7 +48,7 @@ const signUpSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'Student type is required for students',
-        path: ['studentType'] // points to the studentType field
+        path: ['studentType']
       });
     }
   });
@@ -87,7 +82,6 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
       const response = await axiosInstance.post('/auth/signup', {
         ...data,
         name: `${data.title} ${data.firstName} ${data.initial} ${data.lastName}`,
-
         title: data.title,
         firstName: data.firstName,
         initial: data.initial,
@@ -95,7 +89,7 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
         nationality: data.nationality,
         dateOfBirth: data.dateOfBirth,
         role: data.role,
-        studentType: data.studentType || undefined,
+        studentType: data.studentType || undefined
       });
 
       if (response?.data?.success) {
@@ -121,16 +115,33 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
     }
   };
 
-
   const selectedRole = useWatch({
     control: form.control,
     name: 'role'
   });
 
+  // Utility to convert strings to options
+  const getOptions = (values: string[]) =>
+    values.map((val) => ({ value: val, label: val }));
+
+  const titleOptions = getOptions(['Mr', 'Mrs', 'Miss', 'Ms', 'Dr', 'Prof']);
+  const nationalityOptions = nationalities.map((nation) => ({
+    value: nation,
+    label: nation
+  }));
+  const roleOptions = [
+    { value: 'student', label: 'Student' },
+    { value: 'applicant', label: 'Job Applicant' }
+  ];
+  const studentTypeOptions = [
+    { value: 'eu', label: 'Home Student' },
+    { value: 'international', label: 'Overseas' }
+  ];
+
   return (
     <section>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 ">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             {/* Title */}
             <FormField
@@ -141,23 +152,20 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
                   <FormLabel className="block text-sm font-medium text-gray-700">
                     Title <span className="text-red-500">*</span>
                   </FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select title" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {['Mr', 'Mrs', 'Miss', 'Ms', 'Dr'].map((item) => (
-                        <SelectItem key={item} value={item}>
-                          {item}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <ReactSelect
+                      options={titleOptions}
+                      value={titleOptions.find(
+                        (opt) => opt.value === field.value
+                      )}
+                      onChange={(option: SingleValue<OptionType>) =>
+                        field.onChange(option?.value)
+                      }
+                      placeholder="Select title"
+                      className="react-select-container"
+                      classNamePrefix="react-select"
+                    />
+                  </FormControl>
                   <FormMessage className="text-xs text-red-600" />
                 </FormItem>
               )}
@@ -240,28 +248,26 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
                   <FormLabel className="block text-sm font-medium text-gray-700">
                     Nationality <span className="text-red-500">*</span>
                   </FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select nationality" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {nationalities.map((nation, index) => (
-                        <SelectItem key={index} value={nation}>
-                          {nation}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <ReactSelect
+                      options={nationalityOptions}
+                      value={nationalityOptions.find(
+                        (opt) => opt.value === field.value
+                      )}
+                      onChange={(option: SingleValue<OptionType>) =>
+                        field.onChange(option?.value)
+                      }
+                      placeholder="Select nationality"
+                      className="react-select-container"
+                      classNamePrefix="react-select"
+                    />
+                  </FormControl>
                   <FormMessage className="text-xs text-red-600" />
                 </FormItem>
               )}
             />
 
+            {/* Date of Birth */}
             <FormField
               control={form.control}
               name="dateOfBirth"
@@ -278,36 +284,36 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
               )}
             />
 
+            {/* Role */}
             <FormField
               control={form.control}
               name="role"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="block text-sm font-medium text-gray-700">
-                    Please select the role that describes you
+                   Choose Your Role 
                     <span className="text-red-500">*</span>
                   </FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select an option" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="student">
-                        Course Registration
-                      </SelectItem>
-                      <SelectItem value="applicant">Job Application</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <ReactSelect
+                      options={roleOptions}
+                      value={roleOptions.find(
+                        (opt) => opt.value === field.value
+                      )}
+                      onChange={(option: SingleValue<OptionType>) =>
+                        field.onChange(option?.value)
+                      }
+                      placeholder="Select an option"
+                      className="react-select-container"
+                      classNamePrefix="react-select"
+                    />
+                  </FormControl>
                   <FormMessage className="text-xs text-red-600" />
                 </FormItem>
               )}
             />
 
+            {/* Student Type (Conditional) */}
             {selectedRole === 'student' && (
               <FormField
                 control={form.control}
@@ -317,28 +323,29 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
                     <FormLabel className="block text-sm font-medium text-gray-700">
                       Student Type <span className="text-red-500">*</span>
                     </FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select student type" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="eu">Home Student</SelectItem>
-                        <SelectItem value="international">Overseas</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <FormControl>
+                      <ReactSelect
+                        options={studentTypeOptions}
+                        value={studentTypeOptions.find(
+                          (opt) => opt.value === field.value
+                        )}
+                        onChange={(option: SingleValue<OptionType>) =>
+                          field.onChange(option?.value)
+                        }
+                        placeholder="Select student type"
+                        className="react-select-container"
+                        classNamePrefix="react-select"
+                      />
+                    </FormControl>
                     <FormMessage className="text-xs text-red-600" />
                   </FormItem>
                 )}
               />
             )}
           </div>
+
+          {/* Email & Password Row */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-         
             {/* Email - Full width */}
             <FormField
               control={form.control}
@@ -359,6 +366,7 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
                 </FormItem>
               )}
             />
+
             {/* Password - Full width */}
             <FormField
               control={form.control}

@@ -348,11 +348,11 @@ export default function InternationalStudentApplication() {
 
         localStorage.removeItem('termId');
         localStorage.removeItem('courseId');
-      } catch (error) {
-        console.error('Error submitting application course:', error);
+      } catch (err:any) {
+        console.error('Error submitting application course:', err);
         toast({
-          title: error?.data?.message || 'Something went wrong.',
-          className: 'destructive border-none text-white'
+          title: err.response?.data?.message || 'Application failed.',
+          className: 'bg-destructive text-white border-none'
         });
         localStorage.removeItem('termId');
         localStorage.removeItem('courseId');

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, useFieldArray, useWatch, Controller } from 'react-hook-form';
+import { useForm, useFieldArray, useWatch } from 'react-hook-form';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import {
@@ -28,8 +28,6 @@ import {
   TableRow
 } from '@/components/ui/table';
 import moment from 'moment';
-import { FileUpload } from './file-upload';
-import 'react-datepicker/dist/react-datepicker.css';
 import { CustomDatePicker } from '@/components/shared/CustomDatePicker';
 import Select from 'react-select';
 import { ImageUploader } from './document-uploader';
@@ -48,13 +46,12 @@ export function EducationStep({
     return 2;
   });
 
-  // Track upload context (which field initiated the upload)
   const [uploadState, setUploadState] = useState({
     isOpen: false,
-    field: null // e.g., "englishCertificate" or "educationData.0.certificate"
+    field: null
   });
 
-  const { user } = useSelector((state: any) => state.auth);
+  const { user } = useSelector((state) => state.auth);
 
   const educationEntrySchema = z.object({
     institution: z.string().min(1, { message: 'Institution name is required' }),
@@ -80,27 +77,24 @@ export function EducationStep({
   });
 
   const englishQualificationSchema = z.object({
-    englishTestType: z.string().min(1, {
-      message: 'Test type is required'
-    }),
-    englishTestScore: z.string().min(1, {
-      message: 'Test score is required'
-    }),
-    englishTestDate: z.date({
-      required_error: 'Test date is required'
-    }),
+    englishTestType: z.string().min(1, { message: 'Test type is required' }),
+    englishTestScore: z.string().min(1, { message: 'Test score is required' }),
+    englishTestDate: z.date({ required_error: 'Test date is required' }),
     englishCertificate: z
       .any()
-      .refine((file) => file instanceof File || typeof file === 'string', {
-        message: 'Certificate is required'
-      })
+      .refine(
+        (file) =>
+          file instanceof File ||
+          (typeof file === 'object' && file !== null && 'fileUrl' in file) ||
+          typeof file === 'string',
+        { message: 'Certificate is required' }
+      )
   });
 
   const englishQualificationField =
     defaultValues.studentType === 'international'
-      ? englishQualificationSchema // required
-      : englishQualificationSchema.optional(); // optional
-
+      ? englishQualificationSchema
+      : englishQualificationSchema.optional();
 
   const createEducationSchema = (studentType) =>
     z.object({
@@ -124,7 +118,6 @@ export function EducationStep({
             certificate: undefined
           }
         ],
-
         englishQualification: {
           englishTestType: '',
           englishTestScore: '',
@@ -133,6 +126,7 @@ export function EducationStep({
         }
       };
     }
+
     return {
       educationData: (values.educationData || []).map((entry) => ({
         institution: entry.institution || '',
@@ -141,17 +135,15 @@ export function EducationStep({
         awardDate: entry.awardDate ? new Date(entry.awardDate) : undefined,
         certificate: entry.certificate || undefined
       })),
-     
-        englishQualification: {
-          englishTestType: values.englishQualification?.englishTestType || '',
-          englishTestScore: values.englishQualification?.englishTestScore || '',
-          englishTestDate: values.englishQualification?.englishTestDate
-            ? new Date(values.englishQualification?.englishTestDate)
-            : undefined,
-          englishCertificate:
-            values.englishQualification?.englishCertificate || null
-        }
-   
+      englishQualification: {
+        englishTestType: values.englishQualification?.englishTestType || '',
+        englishTestScore: values.englishQualification?.englishTestScore || '',
+        englishTestDate: values.englishQualification?.englishTestDate
+          ? new Date(values.englishQualification?.englishTestDate)
+          : undefined,
+        englishCertificate:
+          values.englishQualification?.englishCertificate || null
+      }
     };
   };
 
@@ -172,13 +164,22 @@ export function EducationStep({
   }, [defaultValues, form]);
 
   const onSubmit = async (data) => {
-    await onSaveAndContinue(data);
-  };
+    // Transform englishCertificate from object to just the fileUrl string
+    const transformedData = {
+      ...data,
+      englishQualification: data.englishQualification
+        ? {
+            ...data.englishQualification,
+            englishCertificate: data.englishQualification.englishCertificate
+              ?.fileUrl
+              ? data.englishQualification.englishCertificate.fileUrl
+              : data.englishQualification.englishCertificate
+          }
+        : undefined
+    };
 
-  const englishQualificationErrors = useWatch({
-    control: form.control,
-    name: 'englishQualification'
-  });
+    await onSaveAndContinue(transformedData);
+  };
 
   const addEducationEntry = () => {
     append({
@@ -201,19 +202,20 @@ export function EducationStep({
     const uploadedFileData = {
       fileUrl: uploadResponse.data.fileUrl,
       name: decodeURIComponent(
-        uploadResponse.data?.fileUrl?.split('/').pop() || 'Uploaded File'
+        uploadResponse.data.fileUrl.split('/').pop() || 'Uploaded File'
       )
     };
 
     if (field === 'englishCertificate') {
       form.setValue(
         'englishQualification.englishCertificate',
-        uploadedFileData.fileUrl,
+        uploadedFileData,
         {
           shouldValidate: true,
           shouldDirty: true
         }
       );
+      form.trigger('englishQualification');
     } else if (field.startsWith('educationData.')) {
       form.setValue(field, uploadedFileData.fileUrl, {
         shouldValidate: true,
@@ -223,10 +225,9 @@ export function EducationStep({
 
     setUploadState({ isOpen: false, field: null });
   };
-
-
-  async function handleNext() {
+  const handleNext = async () => {
     if (defaultValues?.studentType === 'international' && currentPage === 1) {
+      // Validate only the englishQualification part for international students on page 1
       const isValid = await form.trigger('englishQualification');
       if (isValid) {
         setCurrentPage(2);
@@ -234,9 +235,12 @@ export function EducationStep({
       return;
     }
 
-    form.handleSubmit(onSubmit)();
-  }
-
+    // For other cases, validate the entire form and submit
+    const isValid = await form.trigger();
+    if (isValid) {
+      form.handleSubmit(onSubmit)();
+    }
+  };
 
   const educationData = useWatch({
     control: form.control,
@@ -258,8 +262,6 @@ export function EducationStep({
     }
   }
 
- 
-
   const renderEnglishQualificationStep = () => (
     <div className="space-y-8">
       <CardHeader>
@@ -273,14 +275,14 @@ export function EducationStep({
       </CardHeader>
       <CardContent className="scroll mt-2 p-0 px-6">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <FormItem>
-            <FormLabel>
-              English Test Type <span className="text-red-500">*</span>
-            </FormLabel>
-            <Controller
-              control={form.control}
-              name="englishQualification.englishTestType"
-              render={({ field }) => (
+          <FormField
+            control={form.control}
+            name="englishQualification.englishTestType"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  English Test Type <span className="text-red-500">*</span>
+                </FormLabel>
                 <Select
                   options={englishTestTypeOptions}
                   placeholder="Select test type"
@@ -293,7 +295,6 @@ export function EducationStep({
                   onChange={(option) =>
                     field.onChange(option ? option.value : '')
                   }
-                  className="text-sm"
                   styles={{
                     menuPortal: (base) => ({ ...base, zIndex: 9999 }),
                     control: (base) => ({
@@ -304,11 +305,12 @@ export function EducationStep({
                   }}
                   menuPortalTarget={document.body}
                 />
-              )}
-            />
-            <p className="text-xs text-gray-400">Example: IELTS</p>
-            <FormMessage />
-          </FormItem>
+                <p className="text-xs text-gray-400">Example: IELTS</p>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           <FormField
             control={form.control}
             name="englishQualification.englishTestScore"
@@ -331,6 +333,7 @@ export function EducationStep({
               </FormItem>
             )}
           />
+
           <FormField
             control={form.control}
             name="englishQualification.englishTestDate"
@@ -353,42 +356,57 @@ export function EducationStep({
               );
             }}
           />
-          <FormItem className="flex flex-col gap-2">
-            <FormLabel>
-              Upload Certificate <span className="text-red-500">*</span>
-            </FormLabel>
-            <Button
-              type="button"
-              className="bg-watney text-white hover:bg-watney/90"
-              onClick={() =>
-                setUploadState({ isOpen: true, field: 'englishCertificate' })
-              }
-            >
-              Upload
-            </Button>
 
-            {form.watch('englishQualification.englishCertificate') && (
-              <p className="mt-1 text-sm">
-                {decodeURIComponent(
-                  form
-                    .watch('englishQualification.englishCertificate')
-                    .split('/')
-                    .pop() || 'Uploaded File'
+          <FormField
+            control={form.control}
+            name="englishQualification.englishCertificate"
+            render={({ field }) => (
+              <FormItem className="flex flex-col gap-2">
+                <FormLabel>
+                  Upload Certificate <span className="text-red-500">*</span>
+                </FormLabel>
+                <Button
+                  type="button"
+                  className="bg-watney text-white hover:bg-watney/90"
+                  onClick={() =>
+                    setUploadState({
+                      isOpen: true,
+                      field: 'englishCertificate'
+                    })
+                  }
+                >
+                  Upload
+                </Button>
+
+                {/* Show uploaded file name */}
+                {field.value && (
+                  <div className="mt-1">
+                    {/* Display the name property if available, otherwise extract from URL */}
+                    <p className="text-sm">
+                      {field.value.name ||
+                        (typeof field.value === 'string'
+                          ? field.value.split('/').pop()
+                          : field.value.fileUrl?.split('/').pop())}
+                    </p>
+                    <a
+                      href={
+                        typeof field.value === 'string'
+                          ? field.value
+                          : field.value.fileUrl
+                      }
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-blue-600 underline"
+                    >
+                      View File
+                    </a>
+                  </div>
                 )}
-              </p>
-            )}
 
-            {form.watch('englishQualification.englishCertificate') && (
-              <a
-                href={form.watch('englishQualification.englishCertificate')}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-1 text-xs text-blue-600 underline"
-              >
-                View File
-              </a>
+                <FormMessage />
+              </FormItem>
             )}
-          </FormItem>
+          />
         </div>
       </CardContent>
     </div>
@@ -426,6 +444,7 @@ export function EducationStep({
             </Button>
           )}
         </div>
+
         {fields.length > 0 && (
           <Table>
             <TableHeader>
@@ -437,16 +456,15 @@ export function EducationStep({
                   Grade <span className="text-red-500">*</span>
                 </TableHead>
                 <TableHead className="min-w-[300px]">
-                  Name of the Institution
+                  Name of the Institution{' '}
                   <span className="text-red-500">*</span>
                 </TableHead>
                 <TableHead>
-                  Date of Award (MM/DD/YYYY)
+                  Date of Award (MM/DD/YYYY){' '}
                   <span className="text-red-500">*</span>
                 </TableHead>
                 <TableHead>
-                  Certificate
-                  <span className="text-red-500">*</span>
+                  Certificate <span className="text-red-500">*</span>
                 </TableHead>
                 <TableHead className="w-[80px]">Actions</TableHead>
               </TableRow>
@@ -464,7 +482,6 @@ export function EducationStep({
                             <Input
                               {...field}
                               value={field.value || ''}
-                              className="!placeholder:text-gray-400 placeholder:text-xs placeholder:text-gray-400"
                               placeholder="Enter the name of the qualification"
                             />
                           </FormControl>
@@ -486,7 +503,6 @@ export function EducationStep({
                             <Input
                               {...field}
                               placeholder="Provide your grade"
-                              className="text-sm"
                             />
                           </FormControl>
                           <p className="mt-1 text-xs text-gray-400">
@@ -507,7 +523,6 @@ export function EducationStep({
                             <Input
                               {...field}
                               value={field.value || ''}
-                              className="!placeholder:text-gray-400 placeholder:text-xs placeholder:text-gray-400"
                               placeholder="Provide the full name of the university, college"
                             />
                           </FormControl>
@@ -526,7 +541,7 @@ export function EducationStep({
                       render={({ field }) => {
                         const selectedDate = field.value
                           ? new Date(field.value)
-                          : undefined;
+                          : null;
                         return (
                           <FormItem>
                             <FormControl>
@@ -558,10 +573,9 @@ export function EducationStep({
                       >
                         Upload Certificate
                       </Button>
-                      <p className=" text-xs text-gray-500">
+                      <p className="text-xs text-gray-500">
                         Accepted formats: PDF, JPG, PNG. Max size 5MB.
                       </p>
-
                       {form.watch(`educationData.${index}.certificate`) && (
                         <p className="mt-1 text-sm">
                           {decodeURIComponent(
@@ -572,7 +586,6 @@ export function EducationStep({
                           )}
                         </p>
                       )}
-
                       {form.watch(`educationData.${index}.certificate`) && (
                         <a
                           href={form.watch(
@@ -626,20 +639,10 @@ export function EducationStep({
             <Button
               type="button"
               onClick={handleNext}
-              disabled={
-                (defaultValues?.studentType === 'international' &&
-                  currentPage === 1 &&
-                  !form.formState.isValid) ||
-                (defaultValues?.studentType === 'international' &&
-                  currentPage === 2 &&
-                  educationData?.length === 0)
-              }
               className="bg-watney text-white hover:bg-watney/90"
+              disabled={form.formState.isSubmitting}
             >
-              {defaultValues?.studentType === 'international' &&
-              currentPage === 1
-                ? 'Next'
-                : 'Next'}
+              Next
             </Button>
           </div>
         </form>
