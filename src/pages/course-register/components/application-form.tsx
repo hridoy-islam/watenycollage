@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -30,6 +30,7 @@ import LoginForm from './login-form';
 import StudentApplication from '@/pages/homeStudentApplication';
 import { MoveLeft } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 interface ApplicationFormProps {
   formData: {
@@ -49,6 +50,7 @@ export default function ApplicationForm({
   const [showRegisterDialog, setShowRegisterDialog] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
   const navigate = useNavigate();
+  const { user } = useSelector((state: any) => state.auth);
 
   // Format student type for display
   const getFormattedStudentType = (type: string) => {
@@ -58,6 +60,19 @@ export default function ApplicationForm({
         ? 'Home Student'
         : type;
   };
+
+  useEffect(() => {
+    if (!user) return;
+
+    if (user.isCompleted) {
+      const courseId = localStorage.getItem('courseId');
+      if (courseId) {
+        navigate(`/dashboard/course-application/${courseId}`);
+      }
+    } else {
+      navigate('/dashboard/student-guideline');
+    }
+  }, [user, navigate]);
 
   return (
     <div className="flex min-h-screen flex-col bg-white">
@@ -115,9 +130,7 @@ export default function ApplicationForm({
                   <CardTitle>Login</CardTitle>
                 </CardHeader>
                 <CardContent className="pt-6">
-                  <LoginForm
-                    onSuccess={() => navigate('/dashboard/student-guideline')}
-                  />
+                  <LoginForm />
                 </CardContent>
               </Card>
 

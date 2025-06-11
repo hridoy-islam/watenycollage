@@ -19,7 +19,7 @@ interface LoginFormProps {
   onSuccess: () => void
 }
 
-export default function LoginForm({ onSuccess }: LoginFormProps) {
+export default function LoginForm() {
   const { toast } = useToast()
   const dispatch = useDispatch<AppDispatch>()
 
@@ -48,7 +48,7 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
       }
 
       // Login was successful
-      onSuccess()
+      // onSuccess()
       toast({
         title: "Login Successful",
         description: "You have been logged in successfully.",

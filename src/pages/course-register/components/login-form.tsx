@@ -14,11 +14,11 @@ const loginSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters"),
 })
 
-interface LoginFormProps {
-  onSuccess: () => void
-}
+// interface LoginFormProps {
+//   onSuccess: () => void
+// }
 
-export default function LoginForm({ onSuccess }: LoginFormProps) {
+export default function LoginForm() {
   const { toast } = useToast()
   const dispatch = useDispatch<AppDispatch>()
 
@@ -46,12 +46,13 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
       }
 
       // Login was successful
-      onSuccess()
+      // onSuccess()
       toast({
         title: "Login Successful",
         description: "You have been logged in successfully.",
       })
     } catch (error) {
+      console.error("Login error:", error)
       toast({
         title: "Login Error",
         description: "Something went wrong during the login process. Please try again later.",
