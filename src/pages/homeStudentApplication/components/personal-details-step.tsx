@@ -37,7 +37,9 @@ const personalDetailsSchema = z
     countryOfDomicile: z
       .string()
       .min(1, { message: 'Please select Country of Domicile' }),
-    nationality: z.string().optional(),
+    nationality: z
+      .string()
+      .min(1, { message: 'Please select your nationality' }),
     ethnicity: z.string().min(1, { message: 'Please select an ethnicity' }),
     customEthnicity: z.string().optional(),
     countryOfBirth: z
@@ -46,7 +48,7 @@ const personalDetailsSchema = z
     maritalStatus: z
       .string()
       .min(1, { message: 'Please select marital status' }),
-    requireVisa: z.string().optional(), 
+    requireVisa: z.string().optional(),
     applicationLocation: z.string().optional()
   })
   .superRefine((data, ctx) => {
@@ -59,34 +61,6 @@ const personalDetailsSchema = z
         code: z.ZodIssueCode.custom,
         message: 'Please specify your ethnicity'
       });
-    }
-
-      if (
-      data.studentType === 'eu' &&
-      (!data.nationality || data.nationality.trim() === '')
-    ) {
-      ctx.addIssue({
-        path: ['nationality'],
-        code: z.ZodIssueCode.custom,
-        message: 'Nationality is required for EU students',
-      });
-    }
-    // If studentType is not 'eu', then require these fields
-    if (data.studentType !== 'eu') {
-      if (!data.requireVisa || data.requireVisa.trim() === '') {
-        ctx.addIssue({
-          path: ['requireVisa'],
-          code: z.ZodIssueCode.custom,
-          message: 'Required Field'
-        });
-      }
-      if (!data.applicationLocation || data.applicationLocation.trim() === '') {
-        ctx.addIssue({
-          path: ['applicationLocation'],
-          code: z.ZodIssueCode.custom,
-          message: 'Required Field'
-        });
-      }
     }
   });
 
@@ -116,13 +90,11 @@ export function PersonalDetailsStep({
       phone: '',
       dateOfBirth: '',
       email: '',
-      nationality: '',
+      nationality:defaultValues?.nationality|| '',
       ethnicity: '',
       countryOfBirth: '',
       maritalStatus: '',
       countryOfDomicile: '',
-      requireVisa: '',
-      applicationLocation: '',
       studentType: defaultValues?.studentType || '',
       ...defaultValues
     }
@@ -163,7 +135,7 @@ export function PersonalDetailsStep({
     value: country,
     label: country
   }));
-  const nationalityOptions = countries.map((nationality) => ({
+  const nationalityOptions = nationalities.map((nationality) => ({
     value: nationality,
     label: nationality
   }));
@@ -312,7 +284,7 @@ export function PersonalDetailsStep({
                         selected={selectedDate}
                         onChange={(date) => field.onChange(date)}
                         placeholder="Enter your date of birth using the format DD/MM/YYYY."
-                        disabled = {true}
+                        disabled={true}
                       />
                     </FormControl>
                     <p className="mt-1 text-xs text-gray-400">
@@ -414,7 +386,7 @@ export function PersonalDetailsStep({
                 </FormItem>
               )}
             />
-            {defaultValues?.studentType === 'eu' && (
+
             <FormField
               control={form.control}
               name="nationality"
@@ -434,7 +406,7 @@ export function PersonalDetailsStep({
                           : null
                       }
                       onChange={(selected) => field.onChange(selected?.value)}
-                      placeholder="Please select your gender."
+                      placeholder="Please select your nationality."
                       isClearable
                       styles={{
                         placeholder: (provided) => ({
@@ -447,15 +419,14 @@ export function PersonalDetailsStep({
                     />
                   </FormControl>
                   <p className="mt-1 text-xs text-gray-400">
-                    Example: Male, Female, Non-binary, Prefer not to say, Other
+                    Example: Indonesian
                   </p>
 
                   <FormMessage />
                 </FormItem>
               )}
-            />)}
+            />
 
-            {/* Nationality */}
             <FormField
               control={form.control}
               name="countryOfDomicile"
@@ -627,90 +598,6 @@ export function PersonalDetailsStep({
                 </FormItem>
               )}
             />
-
-            {/* Conditional International Fields */}
-            {defaultValues?.studentType === 'international' && (
-              <>
-                <FormField
-                  control={form.control}
-                  name="requireVisa"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Do you require a visa to come to the UK?{' '}
-                        <span className="text-red-500">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Select
-                          options={visaOptions}
-                          value={
-                            field.value
-                              ? visaOptions.find(
-                                  (option) => option.value === field.value
-                                )
-                              : null
-                          }
-                          onChange={(selected) =>
-                            field.onChange(selected?.value)
-                          }
-                          placeholder="Select yes or no"
-                          isClearable
-                          styles={{
-                            placeholder: (provided) => ({
-                              ...provided,
-                              fontSize: '0.75rem',
-                              color: '#9CA3AF'
-                            })
-                          }}
-                        />
-                      </FormControl>
-                      <p className="mt-1 text-xs text-gray-400">Example: Yes</p>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="applicationLocation"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        From where are you making your application?{' '}
-                        <span className="text-red-500">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Select
-                          options={countryOptions}
-                          value={
-                            field.value
-                              ? countryOptions.find(
-                                  (option) => option.value === field.value
-                                )
-                              : null
-                          }
-                          onChange={(selected) =>
-                            field.onChange(selected?.value)
-                          }
-                          placeholder="Select the Country"
-                          isClearable
-                          styles={{
-                            placeholder: (provided) => ({
-                              ...provided,
-                              fontSize: '0.75rem',
-                              color: '#9CA3AF'
-                            })
-                          }}
-                        />
-                      </FormControl>
-                      <p className="mt-1 text-xs text-gray-400">
-                        Example: Canada
-                      </p>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </>
-            )}
           </div>
         </CardContent>
 

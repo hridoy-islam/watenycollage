@@ -100,8 +100,7 @@ export function EducationStep({
     defaultValues.studentType === 'international'
       ? englishQualificationSchema // required
       : englishQualificationSchema.optional(); // optional
-  
-  console.log('defaultValues', defaultValues.studentType);
+
 
   const createEducationSchema = (studentType) =>
     z.object({
@@ -110,8 +109,6 @@ export function EducationStep({
         .min(1, { message: 'At least one education entry is required' }),
       englishQualification: englishQualificationField
     });
-
-  
 
   const educationSchema = createEducationSchema(defaultValues?.studentType);
 
@@ -127,16 +124,13 @@ export function EducationStep({
             certificate: undefined
           }
         ],
-        ...(defaultValues?.studentType === 'international'
-          ? {
-              englishQualification: {
-                englishTestType: '',
-                englishTestScore: '',
-                englishTestDate: undefined,
-                englishCertificate: null
-              }
-            }
-          : {})
+
+        englishQualification: {
+          englishTestType: '',
+          englishTestScore: '',
+          englishTestDate: undefined,
+          englishCertificate: null
+        }
       };
     }
     return {
@@ -147,7 +141,7 @@ export function EducationStep({
         awardDate: entry.awardDate ? new Date(entry.awardDate) : undefined,
         certificate: entry.certificate || undefined
       })),
-      ...(defaultValues?.studentType === 'international' && {
+     
         englishQualification: {
           englishTestType: values.englishQualification?.englishTestType || '',
           englishTestScore: values.englishQualification?.englishTestScore || '',
@@ -157,7 +151,7 @@ export function EducationStep({
           englishCertificate:
             values.englishQualification?.englishCertificate || null
         }
-      })
+   
     };
   };
 
@@ -180,6 +174,11 @@ export function EducationStep({
   const onSubmit = async (data) => {
     await onSaveAndContinue(data);
   };
+
+  const englishQualificationErrors = useWatch({
+    control: form.control,
+    name: 'englishQualification'
+  });
 
   const addEducationEntry = () => {
     append({
@@ -225,6 +224,20 @@ export function EducationStep({
     setUploadState({ isOpen: false, field: null });
   };
 
+
+  async function handleNext() {
+    if (defaultValues?.studentType === 'international' && currentPage === 1) {
+      const isValid = await form.trigger('englishQualification');
+      if (isValid) {
+        setCurrentPage(2);
+      }
+      return;
+    }
+
+    form.handleSubmit(onSubmit)();
+  }
+
+
   const educationData = useWatch({
     control: form.control,
     name: 'educationData'
@@ -245,14 +258,7 @@ export function EducationStep({
     }
   }
 
-  function handleNext() {
-    if (defaultValues?.studentType === 'international' && currentPage === 1) {
-      // form.handleSubmit(onSubmit)();
-      setCurrentPage(2);
-    } else {
-      form.handleSubmit(onSubmit)();
-    }
-  }
+ 
 
   const renderEnglishQualificationStep = () => (
     <div className="space-y-8">
@@ -447,7 +453,7 @@ export function EducationStep({
             </TableHeader>
             <TableBody>
               {fields.map((field, index) => (
-                <TableRow key={field.id} >
+                <TableRow key={field.id}>
                   <TableCell>
                     <FormField
                       control={form.control}
@@ -538,7 +544,7 @@ export function EducationStep({
                       }}
                     />
                   </TableCell>
-                  <TableCell >
+                  <TableCell>
                     <FormItem className="mt-4 flex flex-col">
                       <Button
                         type="button"
@@ -621,9 +627,12 @@ export function EducationStep({
               type="button"
               onClick={handleNext}
               disabled={
-                defaultValues?.studentType === 'international' &&
-                currentPage === 2 &&
-                educationData?.length === 0
+                (defaultValues?.studentType === 'international' &&
+                  currentPage === 1 &&
+                  !form.formState.isValid) ||
+                (defaultValues?.studentType === 'international' &&
+                  currentPage === 2 &&
+                  educationData?.length === 0)
               }
               className="bg-watney text-white hover:bg-watney/90"
             >

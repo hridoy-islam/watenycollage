@@ -27,7 +27,7 @@ import {
 } from '@/components/ui/dialog';
 import RegistrationForm from './registration-form';
 import LoginForm from './login-form';
-import StudentApplication from '@/pages/studentApplication';
+import StudentApplication from '@/pages/homeStudentApplication';
 import { MoveLeft } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -108,8 +108,6 @@ export default function ApplicationForm({
         {/* Login and Re gister Section - Centered */}
         <div className="w-full  py-8">
           <div className="flex flex-col items-center">
-            
-
             <div className="grid w-full  grid-cols-1 gap-6  md:grid-cols-2">
               {/* Login Section - Left Side */}
               <Card className="border border-gray-200 shadow-md">

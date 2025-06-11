@@ -12,20 +12,13 @@ import {
   FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
+
 import { Textarea } from '@/components/ui/textarea';
 import { CustomDatePicker } from '@/components/shared/CustomDatePicker';
 import ReactSelect from 'react-select';
 
 const complianceSchema = z
   .object({
-    startDateInUK: z.date().optional(),
     niNumber: z.string().optional(),
     ltrCode: z.string().optional(),
     immigrationStatus: z.string().min(1, { message: 'Please select status' }),
@@ -83,9 +76,7 @@ export function ComplianceStep({
   const form = useForm<ComplianceData>({
     resolver: zodResolver(complianceSchema),
     defaultValues: {
-      startDateInUK: defaultValues?.startDateInUK
-        ? new Date(defaultValues.startDateInUK)
-        : undefined,
+     
       niNumber: defaultValues?.niNumber || '',
       immigrationStatus: defaultValues?.immigrationStatus || '',
       ltrCode: defaultValues?.ltrCode || '',
@@ -210,7 +201,7 @@ export function ComplianceStep({
                 control={form.control}
                 name="enteredUKBefore"
                 render={({ field }) => (
-                  <FormItem className="flex w-full flex-col ">
+                  <FormItem className="flex w-full flex-col mt-2">
                     <FormLabel>
                       Have you entered into the UK before?{' '}
                       <span className="text-red-500">*</span>
@@ -242,44 +233,12 @@ export function ComplianceStep({
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="startDateInUK"
-                render={({ field }) => {
-                  const selectedDate = field.value
-                    ? new Date(field.value)
-                    : undefined;
-
-                  return (
-                    <FormItem className="mt-2 flex flex-col">
-                      <FormLabel>
-                        When did you first enter into the UK (MM/DD/YYYY)
-                        <span className="text-red-500">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <CustomDatePicker
-                          selected={selectedDate}
-                          onChange={(date) => field.onChange(date)}
-                          placeholder="Enter your entry date using the format DD/MM/YYYY."
-                          onBlur={field.onBlur}
-                          name={field.name}
-                          ref={field.ref}
-                        />
-                      </FormControl>
-                      <p className="mt-1 text-xs text-gray-400">
-                        Example: 01/24/2022
-                      </p>
-                      <FormMessage />
-                    </FormItem>
-                  );
-                }}
-              />
 
               <FormField
                 control={form.control}
                 name="completedUKCourse"
                 render={({ field }) => (
-                  <FormItem className="flex w-full flex-col">
+                  <FormItem className="flex w-full flex-col ">
                     <FormLabel>
                       Have you completed any course from the UK before?
                       <span className="text-red-500">*</span>
@@ -375,56 +334,7 @@ export function ComplianceStep({
                   )}
                 />
               )}
-              {defaultValues.studentType === 'international' && (
-                <>
-                  <FormField
-                    control={form.control}
-                    name="niNumber"
-                    render={({ field }) => (
-                      <FormItem className="flex w-full flex-col">
-                        <FormLabel>National Insurance (NI) Number</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            placeholder="If you have one, please enter your NI number."
-                            className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
-                          />
-                        </FormControl>
-
-                        <p className="mt-1 text-xs text-gray-400">
-                          Example: JM456789B
-                        </p>
-
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="ltrCode"
-                    render={({ field }) => (
-                      <FormItem className="flex w-full flex-col">
-                        <FormLabel>
-                          Please provide your LTR (Leave to Remain) Code
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            placeholder="Required if you have EU Settled or Pre-Settled Status."
-                            className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
-                          />
-                        </FormControl>
-
-                        <p className="mt-1 text-xs text-gray-400">
-                          Example: LTR123456789
-                        </p>
-
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </>
-              )}
+            
 
               <FormField
                 control={form.control}

@@ -1,6 +1,4 @@
-'use client';
-
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -17,6 +15,7 @@ import {
 } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import axiosInstance from '@/lib/axios';
 
 const steps: React.ReactNode[] = [
   // Step 1: Welcome to Watney College
@@ -130,19 +129,63 @@ export default function StudentGuideline() {
   const { user } = useSelector((state: any) => state.auth);
   const courseId = localStorage.getItem('courseId');
 
+  const [studentType, setStudentType] = useState<string | null>(null);
+
+  useEffect(() => {
+    const getStudentType = async () => {
+      try {
+        const response = await axiosInstance.get(`/users/${user._id}`);
+        const fetchedType = response.data.data?.studentType;
+        console.log('Fetched student type:', fetchedType);
+
+        if (fetchedType) {
+          setStudentType(fetchedType);
+          localStorage.setItem('studentType', fetchedType);
+        } else {
+          // Fallback to localStorage
+          const storedType = localStorage.getItem('studentType');
+          if (storedType) {
+            setStudentType(storedType);
+          }
+        }
+      } catch (err) {
+        // Fallback to localStorage if error occurs
+        const storedType = localStorage.getItem('studentType');
+        if (storedType) {
+          setStudentType(storedType);
+        }
+      }
+    };
+
+    if (user?._id) {
+      getStudentType();
+    }
+  }, [user]);
+  
   const handleNext = () => {
     if (step < steps.length - 1) {
       setStep(step + 1);
     } else {
+      if (!studentType) {
+        console.warn('Student type is not set yet!');
+        return;
+      }
+
       setOpen(false);
       if (user?.isCompleted && user?.role === 'student') {
         navigate(`/dashboard/course-application/${courseId}`);
       } else {
-        navigate('/dashboard/student-form');
+        if (studentType === 'international') {
+          navigate('/dashboard/international/student-form');
+        } else {
+          navigate('/dashboard/eu/student-form');
+        }
       }
     }
   };
 
+  
+  
   return (
     <Dialog open={open}>
       <DialogContent

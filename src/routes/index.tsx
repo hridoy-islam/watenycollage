@@ -9,7 +9,7 @@ import NotificationsPage from '@/pages/notification';
 import Otp from '@/pages/auth/otp';
 import NewPassword from '@/pages/new-password';
 import AdminLayout from '@/components/layout/admin-layout';
-import StudentApplication from '@/pages/studentApplication';
+import StudentApplication from '@/pages/homeStudentApplication';
 import ResumeUpload from '@/pages/uploadResume';
 import ApplicationListPage from '@/pages/application/applications-list';
 import NewApplicationListPage from '@/pages/application/newApplications-list';
@@ -22,10 +22,10 @@ import CourseRegistration from '@/pages/course-register';
 import JobPage from '@/pages/dashboard/components/jobs';
 import JobApplication from '@/pages/Job-registration';
 import Guideline from '@/components/shared/Guideline';
-import CareerGuideline from '@/pages/career-application/career-guideline';
+import CareerGuideline from '@/pages/guideline/career-guideline';
 import CourseApplicationPage from '@/pages/dashboard-application/course-application';
 import JobApplicationPage from '@/pages/dashboard-application/job-application';
-import StudentGuideline from '@/pages/studentApplication/student-guideline';
+import StudentGuideline from '@/pages/guideline/student-guideline';
 import ViewStudentApplicationPage from '@/pages/application/view-studentApplication';
 import ViewCareerApplicationPage from '@/pages/application/view-careerApplication';
 import VerifyPage from '@/pages/auth/verify';
@@ -34,6 +34,8 @@ import CareerApplicationsPage from '@/pages/dashboard/components/jobs/job-applic
 import TotalCoursesPage from '@/pages/dashboard/components/total-courses';
 import TotalIntakePage from '@/pages/dashboard/components/total-intake';
 import TotalJobsPage from '@/pages/dashboard/components/total-jobs';
+import HomeStudentApplication from '@/pages/homeStudentApplication';
+import InternationalStudentApplication from '@/pages/internationalStudentApplication';
 
 const SignInPage = lazy(() => import('@/pages/auth/signin'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
@@ -67,8 +69,13 @@ export default function AppRouter() {
           element: <NotificationsPage />
         },
         {
-          path: 'student-form',
-          element: <StudentApplication />,
+          path: 'eu/student-form',
+          element: <HomeStudentApplication />,
+          index: true
+        },
+        {
+          path: 'international/student-form',
+          element: <InternationalStudentApplication />,
           index: true
         },
         {
@@ -145,13 +152,12 @@ export default function AppRouter() {
           path: 'student-applications',
           element: <StudentApplicationsPage />,
           index: true
-        },
+        }
         // {
         //   path: 'career-applications',
         //   element: <CareerApplicationsPage />,
         //   index: true
         // }
-        
       ]
     }
   ];
@@ -201,7 +207,7 @@ export default function AppRouter() {
       path: '/404',
       element: <NotFound />
     },
-   
+
     {
       path: '*',
       element: <Navigate to="/404" replace />

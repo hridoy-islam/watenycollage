@@ -30,7 +30,7 @@ import { updateUserProfile } from '@/redux/features/profileSlice';
 import { updateAuthIsCompleted } from '@/redux/features/authSlice';
 import { FundingInformation } from './components/fundingInformation';
 
-export default function StudentApplication() {
+export default function HomeStudentApplication() {
   const [currentStep, setCurrentStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [formData, setFormData] = useState<any>({});
@@ -262,7 +262,7 @@ export default function StudentApplication() {
   const handleDocumentsSaveAndContinue = async (data: any) => {
     try {
       setFormData((prev) => ({ ...prev, ...data }));
-      // await axiosInstance.patch(`/users/${user._id}`, data);
+      await axiosInstance.patch(`/users/${user._id}`, data);
       markStepAsCompleted(7);
       setCurrentStep(8);
     } catch (error) {
@@ -351,8 +351,8 @@ export default function StudentApplication() {
       } catch (error) {
         console.error('Error submitting application course:', error);
         toast({
-          title: error?.response?.data?.message || 'Something went wrong.',
-          className: 'destructive border-none text-white'
+          title: error?.data?.message || 'Something went wrong.',
+          className: 'bg-destructive border-none text-white'
         });
         localStorage.removeItem('termId');
         localStorage.removeItem('courseId');
@@ -426,7 +426,6 @@ export default function StudentApplication() {
     setFormSubmitted(true);
   };
 
-  console.log(formData)
 
   const renderStep = () => {
     // Normalize currentStep value to handle both number and { step, subStep }
@@ -451,7 +450,7 @@ export default function StudentApplication() {
             defaultValues={{
               ...fetchData,
               ...formData,
-              ...(addressData || {})
+          
             }}
             onSaveAndContinue={handleAddressSaveAndContinue}
             setCurrentStep={setCurrentStep}

@@ -203,7 +203,6 @@ export default function ViewStudentApplicationPage() {
     fetchCourse();
   }, []);
 
-  console.log(applicationCourse);
 
   const copyToClipboard = (value: string, field: string) => {
     navigator.clipboard.writeText(value).then(
@@ -353,78 +352,27 @@ export default function ViewStudentApplicationPage() {
           value={activeTab}
           onValueChange={setActiveTab}
         >
-          <TabsList className="mb-6 grid grid-cols-3 rounded-md bg-white shadow-lg md:grid-cols-5 lg:grid-cols-9">
-            <TabsTrigger
-              value="personal"
-              className="flex items-center gap-1 focus:bg-watney active:bg-watney data-[state=active]:bg-watney"
-            >
-              <User className="h-4 w-4" />
-              <span className="hidden sm:inline">Personal</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="address"
-              className="flex items-center gap-1 focus:bg-watney active:bg-watney data-[state=active]:bg-watney"
-            >
-              <Home className="h-4 w-4" />
-              <span className="hidden sm:inline">Address</span>
-            </TabsTrigger>
-
-            <TabsTrigger
-              value="other-information"
-              className="flex items-center gap-1 focus:bg-watney active:bg-watney data-[state=active]:bg-watney"
-            >
-              <Shield className="h-4 w-4" />
-              <span className="hidden sm:inline">Other information</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="emergency"
-              className="flex items-center gap-1 focus:bg-watney active:bg-watney data-[state=active]:bg-watney"
-            >
-              <Shield className="h-4 w-4" />
-              <span className="hidden sm:inline">Emergency Contact</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="documents"
-              className="flex items-center gap-1 focus:bg-watney active:bg-watney data-[state=active]:bg-watney"
-            >
-              <FileCheck className="h-4 w-4" />
-              <span className="hidden sm:inline">Documents</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="employment"
-              className="flex items-center gap-1 focus:bg-watney active:bg-watney data-[state=active]:bg-watney"
-            >
-              <Briefcase className="h-4 w-4" />
-              <span className="hidden sm:inline">Employment</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="education"
-              className="flex items-center gap-1 focus:bg-watney active:bg-watney data-[state=active]:bg-watney"
-            >
-              <BookOpen className="h-4 w-4" />
-              <span className="hidden sm:inline">Education</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="course"
-              className="flex items-center gap-1 focus:bg-watney active:bg-watney data-[state=active]:bg-watney"
-            >
-              <GraduationCap className="h-4 w-4" />
-              <span className="hidden sm:inline">Course</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="funding"
-              className="flex items-center gap-1 focus:bg-watney active:bg-watney data-[state=active]:bg-watney"
-            >
-              <GraduationCap className="h-4 w-4" />
-              <span className="hidden sm:inline">Funding Information</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="terms"
-              className="flex items-center gap-1 focus:bg-watney active:bg-watney data-[state=active]:bg-watney"
-            >
-              <GraduationCap className="h-4 w-4" />
-              <span className="hidden sm:inline">Terms & Conditions</span>
-            </TabsTrigger>
+          <TabsList className="mb-6 grid grid-cols-2 gap-x-2 gap-y-3 rounded-md bg-white p-2 text-xs shadow-lg sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-10">
+            {[
+              { value: 'personal', label: 'Personal' },
+              { value: 'address', label: 'Address' },
+              { value: 'other-information', label: 'Other info' },
+              { value: 'emergency', label: 'Emergency Contact' },
+              { value: 'documents', label: 'Documents' },
+              { value: 'employment', label: 'Employment' },
+              { value: 'education', label: 'Education' },
+              { value: 'course', label: 'Course' },
+              { value: 'funding', label: 'Funding ' },
+              { value: 'terms', label: 'Terms' }
+            ].map(({ value, label }) => (
+              <TabsTrigger
+                key={value}
+                value={value}
+                className="flex items-center justify-center rounded px-2 py-1 text-xs transition-colors duration-200 ease-in-out focus:bg-watney active:bg-watney data-[state=active]:bg-watney"
+              >
+                <span className="text-center">{label}</span>
+              </TabsTrigger>
+            ))}
           </TabsList>
 
           <TabsContent
@@ -1094,7 +1042,7 @@ export default function ViewStudentApplicationPage() {
 
                 {/* English Qualification Card */}
                 {application.englishQualification && (
-                  <div className="mt-6">
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                     <h3 className="mb-4 text-lg font-semibold">
                       English Qualification
                     </h3>
@@ -1178,6 +1126,36 @@ export default function ViewStudentApplicationPage() {
                 </p>
               )}
             </div>
+          </TabsContent>
+          <TabsContent value="funding">
+            <Card className="w-1/2">
+              <CardContent className="pt-6">
+                <h3 className="mb-4 text-lg font-semibold">
+                  Funding Information
+                </h3>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-1/3 text-left">Field</TableHead>
+                      <TableHead className="text-right">Value</TableHead>
+                      <TableHead className="w-10 text-right"></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {renderFieldRow(
+                      'Funding Type',
+                      application.fundingType,
+                      'fundingType'
+                    )}
+                    {renderFieldRow(
+                      'Grant Details',
+                      application.grantDetails,
+                      'grantDetails'
+                    )}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="terms">
