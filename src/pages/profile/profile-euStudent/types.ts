@@ -7,7 +7,9 @@ export type TabType =
   | 'educationData'
   | 'employmentData'
   | 'complianceData'
-  | 'documentData';
+  | 'documentData'
+  | 'fundingData'
+  | 'courseData'
 
 export interface TabItemProps {
   id: TabType;

@@ -11,6 +11,8 @@ import axiosInstance from '@/lib/axios';
 import { useToast } from '@/components/ui/use-toast';
 import { useSelector } from 'react-redux';
 import DocumentData from './tabs/DocumentData';
+import FundingData from './tabs/FundingData';
+import CourseData from './tabs/courseData';
 
 const TabContent: React.FC<TabContentProps> = ({ activeTab, userData }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -61,6 +63,10 @@ const TabContent: React.FC<TabContentProps> = ({ activeTab, userData }) => {
         return <EmploymentData {...commonProps} />;
       case 'complianceData':
         return <ComplianceData {...commonProps} />;
+      case 'fundingData':
+        return <FundingData {...commonProps} />;
+      case 'courseData':
+        return <CourseData {...commonProps} />;
       case 'documentData':
         return <DocumentData {...commonProps} />;
       default:

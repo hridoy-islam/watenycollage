@@ -141,7 +141,7 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
   return (
     <section>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 py-14">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             {/* Title */}
             <FormField

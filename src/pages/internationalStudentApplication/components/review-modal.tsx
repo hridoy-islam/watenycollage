@@ -418,13 +418,14 @@ export function ReviewModal({ open, onClose, formData, userId }: ReviewModalProp
                 )
               )}
             {/* Compliance */}
-            {renderSection('Compliance', {
+            {renderSection('Miscellienious', {
               disability: getDataValue('disability'),
               disabilityDetails: getDataValue('disabilityDetails'),
               benefits: getDataValue('benefits'),
               criminalConviction: getDataValue('criminalConviction'),
               convictionDetails: getDataValue('convictionDetails'),
               studentFinance: getDataValue('studentFinance'),
+              hearAboutUs: getDataValue('hearAboutUs'),
               visaRequired: getDataValue('visaRequired'),
               enteredUKBefore: getDataValue('enteredUKBefore'),
               completedUKCourse: getDataValue('completedUKCourse'),
@@ -432,14 +433,20 @@ export function ReviewModal({ open, onClose, formData, userId }: ReviewModalProp
             })}
             {renderSection('Funding Information', {
               fundingType: getDataValue('fundingType'),
-              grantDetails: getDataValue('grantDetails')
+              grantDetails: getDataValue('grantDetails'),
+              fundingCompanyName: getDataValue('fundingCompanyName'),
+              fundingContactPerson: getDataValue('fundingContactPerson'),
+              fundingEmail: getDataValue('fundingEmail'),
+              fundingPhoneNumber: getDataValue('fundingPhoneNumber')
             })}
             {/* Documents */}
             {renderSection('Documents', {
-              cv: getDataValue('cv') || [],
-              coverLetter: getDataValue('coverLetter') || [],
-              rightToWork: getDataValue('rightToWork') || [],
-              signature: getDataValue('signature') || 'Not provided'
+              passport: getDataValue('passport') || [],
+              qualification: getDataValue('qualification') || [],
+              workExperience: getDataValue('workExperience') || [],
+              personalStatement: getDataValue('personalStatement') || [],
+              bankStatement: getDataValue('bankStatement') || [],
+              proofOfAddress: getDataValue('proofOfAddress') || []
             })}
           </div>
         </div>

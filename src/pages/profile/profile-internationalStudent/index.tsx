@@ -5,7 +5,7 @@ import { TabType } from './types';
 import axiosInstance from '@/lib/axios';
 import { useSelector } from 'react-redux';
 
-const StudentProfile: React.FC = () => {
+const InternationalStudentProfile: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('personalDetails');
   const { user } = useSelector((state: any) => state.auth);
   const [userData, setUserData] = useState<any>([]);
@@ -72,4 +72,4 @@ useEffect(() => {
   );
 };
 
-export default StudentProfile;
+export default InternationalStudentProfile;

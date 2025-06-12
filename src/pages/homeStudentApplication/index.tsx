@@ -138,7 +138,6 @@ export default function HomeStudentApplication() {
     try {
       const response = await axiosInstance.get(`/users/${user._id}`);
       const userData = response.data.data;
-      console.log('Fetched user data:', userData);
       setFetchData((prev) => ({
         ...prev,
         ...userData,

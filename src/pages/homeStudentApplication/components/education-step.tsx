@@ -74,7 +74,6 @@ export function EducationStep({
     certificate: z.any().optional()
   });
 
-  console.log('defaultValues', defaultValues.studentType);
 
   const createEducationSchema = (studentType) =>
     z.object({

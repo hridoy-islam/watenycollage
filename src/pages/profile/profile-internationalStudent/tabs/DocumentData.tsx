@@ -9,13 +9,12 @@ import {
   Upload,
   CheckCircle
 } from 'lucide-react';
-import { ImageUploader } from './document-uploader';
-import { useSelector } from 'react-redux';
 import { z } from 'zod';
 
 // Zod validation schema
 export const documentSchema = z.object({
-  image: z.string().min(1, { message: 'Photo ID is required' }),
+  // image: z.string().min(1, { message: 'Photo ID is required' }),
+  image: z.string().optional(),
   proofOfAddress: z.array(z.string()).nonempty({
     message: 'Proof of address is required'
   }),
@@ -26,25 +25,22 @@ export const documentSchema = z.object({
 
 export type DocumentFile = z.infer<typeof documentSchema>;
 
-interface DocumentsStepProps {
-  defaultValues?: Partial<DocumentFile>;
-  onSaveAndContinue: (data: DocumentFile) => void;
-  setCurrentStep: (step: number) => void;
+interface DocumentDataProps {
+  userData: DocumentFile;
+  isEditing?: boolean;
+  onSave: (documents: DocumentFile) => void;
+  onCancel: () => void;
+  onEdit: () => void;
 }
 
-export function DocumentsStep({
-  defaultValues,
-  onSaveAndContinue,
-  setCurrentStep
-}: DocumentsStepProps) {
-  const [documents, setDocuments] = useState<DocumentFile>({
-    image: defaultValues?.image ?? '',
-    proofOfAddress: defaultValues?.proofOfAddress ?? [],
-    qualification: defaultValues?.qualification ?? [],
-    workExperience: defaultValues?.workExperience ?? [],
-    personalStatement: defaultValues?.personalStatement ?? []
-  });
-
+export default function DocumentData({
+  userData,
+  isEditing = false,
+  onSave,
+  onCancel,
+  onEdit
+}: DocumentDataProps) {
+  const [documents, setDocuments] = useState<DocumentFile>(userData);
   const [uploadState, setUploadState] = useState<{
     isOpen: boolean;
     field: keyof Omit<DocumentFile, 'image'> | 'image' | null;
@@ -57,15 +53,14 @@ export function DocumentsStep({
     Record<string, string>
   >({});
 
-  const { user } = useSelector((state: any) => state.auth);
-
   const handleRemoveFile = (field: keyof DocumentFile, fileName: string) => {
     if (field === 'image') {
       setDocuments((prev) => ({
         ...prev,
         image: ''
       }));
-    } else {
+    }
+    else {
       setDocuments((prev) => ({
         ...prev,
         [field]: (prev[field] as string[]).filter((file) => file !== fileName)
@@ -73,8 +68,8 @@ export function DocumentsStep({
     }
   };
 
-  const handleBack = () => {
-    setCurrentStep(6);
+  const hasChanges = () => {
+    return JSON.stringify(userData) !== JSON.stringify(documents);
   };
 
   const handleSubmit = () => {
@@ -88,12 +83,8 @@ export function DocumentsStep({
       return;
     }
     setValidationErrors({});
-    onSaveAndContinue(documents);
+    onSave(documents);
   };
-
-  // Check if all required documents have at least one file
-  const allDocumentsUploaded =
-    documents.image !== '' && documents.proofOfAddress.length > 0;
 
   const renderUploadedFiles = (field: keyof DocumentFile) => {
     if (field === 'image') {
@@ -103,7 +94,7 @@ export function DocumentsStep({
           fileUrl.split('/').pop() || 'Photo-ID'
         );
         return (
-          <div className="mt-3 space-y-2">
+          <div className="mt-3 space-y-2 ">
             <div className="flex w-auto items-center justify-between rounded-lg border border-gray-200 bg-white p-3 transition-all hover:shadow-md">
               <div className="flex items-center space-x-3">
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
@@ -208,16 +199,16 @@ export function DocumentsStep({
   };
 
   const documentTypes = [
-    {
-      id: 'image',
-      label: 'Photo ID',
-      required: true,
-      instructions:
-        'Upload a clear copy of any valid photo ID (e.g., passport, driver’s license)',
-      formats: 'PDF, JPG, PNG',
-      error: validationErrors.image,
-      icon: FileText
-    },
+    // {
+    //   id: 'image',
+    //   label: 'Photo ID',
+    //   required: true,
+    //   instructions:
+    //     "Upload a clear copy of any valid photo ID (e.g., passport, driver's license)",
+    //   formats: 'PDF, JPG, PNG',
+    //   error: validationErrors.image,
+    //   icon: FileText
+    // },
     {
       id: 'proofOfAddress',
       label: 'Proof of Address',
@@ -228,15 +219,7 @@ export function DocumentsStep({
       error: validationErrors.proofOfAddress,
       icon: FileText
     },
-    {
-      id: 'qualification',
-      label: 'Qualification Certificates',
-      required: false,
-      instructions: 'Upload your qualification certificates',
-      formats: 'PDF, JPG, PNG',
-      error: validationErrors.qualification,
-      icon: FileText
-    },
+    
     {
       id: 'workExperience',
       label: 'Work Experience Documents',
@@ -262,59 +245,14 @@ export function DocumentsStep({
           <div className="space-y-4">
             <div>
               <h2 className="text-2xl font-bold text-gray-900">
-                Document Upload
+                Document 
               </h2>
-              <p className="mt-1 text-gray-600">
-                Please upload all required documents to complete your
-                application
-              </p>
-            </div>
-            <div className="rounded-lg border border-gray-200 bg-white p-4">
-              <h3 className="mb-3 flex items-center font-semibold text-gray-900">
-                <CheckCircle className="mr-2 h-5 w-5 text-blue-600" />
-                Document Requirements
-              </h3>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div>
-                  <p className="mb-2 font-medium text-gray-700">
-                    Required Documents:
-                  </p>
-                  <ul className="space-y-1 text-sm text-gray-600">
-                    <li className="flex items-center">
-                      <div className="mr-2 h-2 w-2 rounded-full bg-red-500"></div>
-                      Photo ID
-                    </li>
-                    <li className="flex items-center">
-                      <div className="mr-2 h-2 w-2 rounded-full bg-red-500"></div>
-                      Proof of address
-                    </li>
-                  </ul>
-                </div>
-                <div>
-                  <p className="mb-2 font-medium text-gray-700">
-                    Optional Documents:
-                  </p>
-                  <ul className="space-y-1 text-sm text-gray-600">
-                    <li className="flex items-center">
-                      <div className="mr-2 h-2 w-2 rounded-full bg-gray-400"></div>
-                      Qualification certificates
-                    </li>
-                    <li className="flex items-center">
-                      <div className="mr-2 h-2 w-2 rounded-full bg-gray-400"></div>
-                      Work experience documents
-                    </li>
-                    <li className="flex items-center">
-                      <div className="mr-2 h-2 w-2 rounded-full bg-gray-400"></div>
-                      Personal statement
-                    </li>
-                  </ul>
-                </div>
-              </div>
+              
             </div>
           </div>
         </CardHeader>
         <CardContent className="p-6">
-          <div className="space-y-6">
+          <div className="gap-4 grid md:grid-cols-2 grid-cols-1 ">
             {documentTypes.map(
               ({
                 id,
@@ -411,34 +349,16 @@ export function DocumentsStep({
           </div>
 
           {/* Navigation Buttons */}
-          <div className="flex justify-between pt-8">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleBack}
-              className="bg-watney text-white hover:bg-watney/90"
-            >
-              Back
-            </Button>
-            <Button
-              type="button"
-              onClick={handleSubmit}
-              disabled={!allDocumentsUploaded}
-              className="bg-watney text-white hover:bg-watney/90"
-            >
-              Next
-            </Button>
-          </div>
-
-          {/* Image Uploader Modal */}
-          <ImageUploader
-            open={uploadState.isOpen}
-            onOpenChange={(isOpen) =>
-              setUploadState((prev) => ({ ...prev, isOpen }))
-            }
-            onUploadComplete={handleUploadComplete}
-            entityId={user?._id}
-          />
+          <div className="flex justify-end pt-8">
+            {hasChanges() && (
+              <Button
+                type="button"
+                onClick={handleSubmit}
+                className="bg-watney text-white hover:bg-watney/90"
+              >
+                Save
+              </Button>
+            )}</div>
         </CardContent>
       </Card>
     </div>

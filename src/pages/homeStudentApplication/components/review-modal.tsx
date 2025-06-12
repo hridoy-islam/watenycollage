@@ -355,11 +355,12 @@ export function ReviewModal({
               )}
 
             {/* Compliance */}
-            {renderSection('Compliance', {
+            {renderSection('Miscellienious', {
               startDateInUK: getDataValue('startDateInUK'),
               niNumber: getDataValue('niNumber'),
               immigrationStatus: getDataValue('immigrationStatus'),
               ltrCode: getDataValue('ltrCode'),
+              hearAboutUs: getDataValue('hearAboutUs'),
               disability: getDataValue('disability'),
               disabilityDetails: getDataValue('disabilityDetails'),
               benefits: getDataValue('benefits'),
@@ -370,14 +371,19 @@ export function ReviewModal({
 
             {renderSection('Funding Information', {
               fundingType: getDataValue('fundingType'),
-              grantDetails: getDataValue('grantDetails')
+              grantDetails: getDataValue('grantDetails'),
+              fundingCompanyName: getDataValue('fundingCompanyName'),
+              fundingContactPerson: getDataValue('fundingContactPerson'),
+              fundingEmail: getDataValue('fundingEmail'),
+              fundingPhoneNumber: getDataValue('fundingPhoneNumber')
             })}
             {/* Documents */}
             {renderSection('Documents', {
-              cv: getDataValue('cv') || [],
-              coverLetter: getDataValue('coverLetter') || [],
-              rightToWork: getDataValue('rightToWork') || [],
-              signature: getDataValue('signature') || 'Not provided'
+              qualification: getDataValue('qualification') || [],
+              workExperience: getDataValue('workExperience') || [],
+              personalStatement: getDataValue('personalStatement') || [],
+              proofOfAddress: getDataValue('proofOfAddress') || [],
+              image: getDataValue('image') || 'Not Provided'
             })}
           </div>
         </div>

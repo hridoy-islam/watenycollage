@@ -18,19 +18,23 @@ import { useEffect } from 'react';
 const fundingSchema = z
   .object({
     fundingType: z.string().min(1, { message: 'Funding type is required' }),
-    grantDetails: z.string().optional()
+    grantDetails: z.string().optional(),
+    fundingCompanyName: z.string().optional(),
+    fundingContactPerson: z.string().optional(),
+    fundingEmail: z.string().optional(),
+    fundingPhoneNumber: z.string().optional()
   })
   .superRefine((data, ctx) => {
-    if (
-      data.fundingType === 'Bursary/Grant' &&
-      !data.grantDetails?.trim()
-    ) {
+    if (data.fundingType === 'Bursary/Grant' && !data.grantDetails?.trim()) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'Please specify the bursary or grant details',
         path: ['grantDetails']
       });
     }
+
+    
+    
   });
 
 type FundingData = z.infer<typeof fundingSchema>;
@@ -48,7 +52,11 @@ export function FundingInformation({
     resolver: zodResolver(fundingSchema),
     defaultValues: {
       fundingType: defaultValues?.fundingType || '',
-      grantDetails: defaultValues?.grantDetails || ''
+      grantDetails: defaultValues?.grantDetails || '',
+      fundingCompanyName: defaultValues?.fundingCompanyName || '',
+      fundingContactPerson: defaultValues?.fundingContactPerson || '',
+      fundingEmail: defaultValues?.fundingEmail || '',
+      fundingPhoneNumber: defaultValues?.fundingPhoneNumber || ''
     }
   });
 
@@ -92,7 +100,7 @@ export function FundingInformation({
               control={form.control}
               name="fundingType"
               render={({ field }) => (
-                <FormItem className='md:w-1/2 '>
+                <FormItem className="md:w-1/2">
                   <FormLabel>
                     Who is funding your course?{' '}
                     <span className="text-red-500">*</span>
@@ -128,7 +136,7 @@ export function FundingInformation({
                 control={form.control}
                 name="grantDetails"
                 render={({ field }) => (
-                  <FormItem className='md:w-1/2 '>
+                  <FormItem className="md:w-1/2">
                     <FormLabel>
                       Bursary / Grant Details{' '}
                       <span className="text-red-500">*</span>
@@ -138,7 +146,7 @@ export function FundingInformation({
                         {...field}
                         rows={4}
                         placeholder="Please provide the name of the bursary or grant, and any relevant details."
-                        className="!placeholder:text-gray-500 placeholder:text-xs border-gray-300"
+                        className="!placeholder:text-gray-500 border-gray-300 placeholder:text-xs"
                       />
                     </FormControl>
                     <FormMessage />
@@ -146,10 +154,92 @@ export function FundingInformation({
                 )}
               />
             )}
+
+            {form.watch('fundingType') === 'Employer-sponsored' && (
+              <div className="">
+                <h1 className="text-lg font-medium py-2">
+                  {' '}
+                  Employer details (if applicable):
+                </h1>
+
+                <div className="grid gap-4 md:grid-cols-2">
+                  <FormField
+                    control={form.control}
+                    name="fundingCompanyName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Company Name</FormLabel>
+                        <FormControl>
+                          <input
+                            {...field}
+                            className="w-full rounded-md border border-gray-300 p-2 text-sm"
+                            placeholder="Enter company name"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="fundingContactPerson"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Contact Person</FormLabel>
+                        <FormControl>
+                          <input
+                            {...field}
+                            className="w-full rounded-md border border-gray-300 p-2 text-sm"
+                            placeholder="Enter contact person"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="fundingEmail"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <input
+                            type="email"
+                            {...field}
+                            className="w-full rounded-md border border-gray-300 p-2 text-sm"
+                            placeholder="Enter email"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="fundingPhoneNumber"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Phone Number</FormLabel>
+                        <FormControl>
+                          <input
+                            type="tel"
+                            {...field}
+                            className="w-full rounded-md border border-gray-300 p-2 text-sm"
+                            placeholder="Enter phone number"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </CardContent>
 
-        <div className="mt-8 flex justify-between ">
+        <div className="mt-8 flex justify-between">
           <Button
             type="button"
             variant="outline"

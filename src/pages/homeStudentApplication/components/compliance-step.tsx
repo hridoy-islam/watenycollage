@@ -12,23 +12,13 @@ import {
   FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { CustomDatePicker } from '@/components/shared/CustomDatePicker';
 import ReactSelect from 'react-select';
 
 const complianceSchema = z
   .object({
-    startDateInUK: z.date({
-      required_error: 'Please select the date'
-    }),
     niNumber: z.string().optional(),
+    hearAboutUs: z.string().optional(),
     ltrCode: z.string().optional(),
     immigrationStatus: z.string().min(1, { message: 'Please select status' }),
     disability: z.string().min(1, { message: 'Please select an option' }),
@@ -73,15 +63,12 @@ export function ComplianceStep({
   const form = useForm<ComplianceData>({
     resolver: zodResolver(complianceSchema),
     defaultValues: {
-      startDateInUK: defaultValues?.startDateInUK
-        ? new Date(defaultValues.startDateInUK)
-        : undefined,
       niNumber: defaultValues?.niNumber || '',
       immigrationStatus: defaultValues?.immigrationStatus || '',
       ltrCode: defaultValues?.ltrCode || '',
       disability: defaultValues?.disability || '',
       disabilityDetails: defaultValues?.disabilityDetails || '',
-   
+      hearAboutUs: defaultValues?.hearAboutUs || '',
       criminalConviction: defaultValues?.criminalConviction || false,
       convictionDetails: defaultValues?.convictionDetails || '',
       studentFinance: defaultValues?.studentFinance || ''
@@ -104,23 +91,19 @@ export function ComplianceStep({
     setCurrentStep(5);
   }
 
-  const visaOptions = [
-    { value: 'yes', label: 'Yes' },
-    { value: 'no', label: 'No' }
-  ];
-  const enteredUKOptions = [
-    { value: 'yes', label: 'Yes' },
-    { value: 'no', label: 'No' }
-  ];
-
-  const completedUKCourseOptions = [
-    { value: 'yes', label: 'Yes' },
-    { value: 'no', label: 'No' }
-  ];
-
-  const visaRefusalOptions = [
-    { value: 'yes', label: 'Yes' },
-    { value: 'no', label: 'No' }
+  const hearAboutUsOptions = [
+    { label: 'Google Search', value: 'google' },
+    { label: 'Facebook', value: 'facebook' },
+    { label: 'Instagram', value: 'instagram' },
+    { label: 'LinkedIn', value: 'linkedin' },
+    { label: 'YouTube', value: 'youtube' },
+    { label: 'Word of Mouth', value: 'word_of_mouth' },
+    { label: 'Friend or Family', value: 'friend_family' },
+    { label: 'University Fair', value: 'university' },
+    { label: 'Online Advertisement', value: 'online' },
+    { label: 'Education Agent', value: 'agent' },
+    { label: 'School/College', value: 'school/college' },
+    { label: 'Other', value: 'other' }
   ];
 
   const statusOptions = [
@@ -138,10 +121,6 @@ export function ComplianceStep({
     { value: 'prefer-not-to-say', label: 'Prefer not to say' }
   ];
 
-  const benefitsOptions = [
-    { value: 'yes', label: 'Yes' },
-    { value: 'no', label: 'No' }
-  ];
   const studentFinanceOptions = [
     { value: 'yes', label: 'Yes' },
     { value: 'no', label: 'No' }
@@ -155,39 +134,6 @@ export function ComplianceStep({
             <h2 className="mb-6 text-2xl font-semibold">Miscellienious</h2>
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <FormField
-                control={form.control}
-                name="startDateInUK"
-                render={({ field }) => {
-                  const selectedDate = field.value
-                    ? new Date(field.value)
-                    : undefined;
-
-                  return (
-                    <FormItem className="mt-2 flex flex-col">
-                      <FormLabel>
-                        When did you first enter into the UK (MM/DD/YYYY)
-                        <span className="text-red-500">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <CustomDatePicker
-                          selected={selectedDate}
-                          onChange={(date) => field.onChange(date)}
-                          placeholder="Enter your entry date using the format DD/MM/YYYY."
-                          onBlur={field.onBlur}
-                          name={field.name}
-                          ref={field.ref}
-                        />
-                      </FormControl>
-                      <p className="mt-1 text-xs text-gray-400">
-                        Example: 01/24/2022
-                      </p>
-                      <FormMessage />
-                    </FormItem>
-                  );
-                }}
-              />
-
               <FormField
                 control={form.control}
                 name="immigrationStatus"
@@ -222,55 +168,86 @@ export function ComplianceStep({
                   </FormItem>
                 )}
               />
-                
-                  <FormField
-                    control={form.control}
-                    name="niNumber"
-                    render={({ field }) => (
-                      <FormItem className="flex w-full flex-col">
-                        <FormLabel>National Insurance (NI) Number</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            placeholder="If you have one, please enter your NI number."
-                            className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
-                          />
-                        </FormControl>
 
-                        <p className="mt-1 text-xs text-gray-400">
-                          Example: JM456789B
-                        </p>
+              <FormField
+                control={form.control}
+                name="niNumber"
+                render={({ field }) => (
+                  <FormItem className="flex w-full flex-col">
+                    <FormLabel>National Insurance (NI) Number</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder="If you have one, please enter your NI number."
+                        className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
+                      />
+                    </FormControl>
 
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="ltrCode"
-                    render={({ field }) => (
-                      <FormItem className="flex w-full flex-col">
-                        <FormLabel>
-                          Please provide your LTR (Leave to Remain) Code
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            placeholder="Required if you have EU Settled or Pre-Settled Status."
-                            className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
-                          />
-                        </FormControl>
+                    <p className="mt-1 text-xs text-gray-400">
+                      Example: JM456789B
+                    </p>
 
-                        <p className="mt-1 text-xs text-gray-400">
-                          Example: LTR123456789
-                        </p>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="ltrCode"
+                render={({ field }) => (
+                  <FormItem className="flex w-full flex-col">
+                    <FormLabel>
+                      Please provide your LTR (Leave to Remain) Code
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder="Required if you have EU Settled or Pre-Settled Status."
+                        className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
+                      />
+                    </FormControl>
 
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-             
-          
+                    <p className="mt-1 text-xs text-gray-400">
+                      Example: LTR123456789
+                    </p>
+
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="hearAboutUs"
+                render={({ field }) => (
+                  <FormItem className="flex w-full flex-col ">
+                    <FormLabel>Where did you hear about us?</FormLabel>
+                    <FormControl>
+                      <ReactSelect
+                        options={hearAboutUsOptions}
+                        placeholder="Select Yes if you have studied in the UK prior to this application."
+                        value={hearAboutUsOptions.find(
+                          (opt) => opt.value === field.value
+                        )}
+                        onChange={(option) => field.onChange(option?.value)}
+                        className="react-select-container"
+                        classNamePrefix="react-select"
+                        styles={{
+                          placeholder: (provided) => ({
+                            ...provided,
+                            fontSize: '0.75rem',
+                            color: '#9CA3AF'
+                          })
+                        }}
+                      />
+                    </FormControl>
+                    <p className="mt-1 text-xs text-gray-400">
+                      Example: Website
+                    </p>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <FormField
                 control={form.control}
                 name="disability"
@@ -336,41 +313,6 @@ export function ComplianceStep({
                 />
               )}
 
-              {/* <FormField
-                control={form.control}
-                name="benefits"
-                render={({ field }) => (
-                  <FormItem className="flex w-full flex-col">
-                    <FormLabel>
-                      Are you in receipt of any benefits?{' '}
-                      <span className="text-red-500">*</span>
-                    </FormLabel>
-                    <FormControl>
-                      <ReactSelect
-                        options={benefitsOptions}
-                        placeholder="Select Yes if you are in receipt of government benefits."
-                        value={benefitsOptions.find(
-                          (opt) => opt.value === field.value
-                        )}
-                        onChange={(option) => field.onChange(option?.value)}
-                        className="react-select-container"
-                        classNamePrefix="react-select"
-                        styles={{
-                          placeholder: (provided) => ({
-                            ...provided,
-                            fontSize: '0.75rem',
-                            color: '#9CA3AF'
-                          })
-                        }}
-                      />
-                    </FormControl>
-                    <p className="mt-1 text-xs text-gray-400">
-                      Example: Yes / No
-                    </p>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              /> */}
               <FormField
                 control={form.control}
                 name="studentFinance"

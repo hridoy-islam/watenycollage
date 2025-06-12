@@ -66,7 +66,7 @@ export function TopNav() {
           <span className="text-sm font-semibold text-black">{user?.name}</span>
           <div className="text-[12px] gap-4 cursor-pointer flex flex-row items-center font-medium text-black">
             <span>{user?.email}</span>
-            <span className='text-watney'>Edit Profile</span>
+            <span className='text-watney'>My Profile</span>
           </div>
         </div>
         <Button

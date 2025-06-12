@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/form';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
-import { useEffect } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 const termsSchema = z.object({
   acceptTerms: z.boolean().refine((val) => val === true, {
@@ -48,24 +48,27 @@ export function TermsSubmitStep({
     }
   });
 
-  // useEffect(() => {
-  //   if (defaultValues) {
-  //     form.reset(defaultValues);
-  //   }
-  // }, [defaultValues, form]);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
 
-  // function handleSave() {
-  //   const data = form.getValues();
-  //   onSave(data);
-  // }
+  const handleScroll = () => {
+    const container = scrollContainerRef.current;
+    if (container) {
+      const { scrollTop, scrollHeight, clientHeight } = container;
+      const isAtBottom = scrollHeight - scrollTop <= clientHeight + 5;
+      if (isAtBottom && !hasScrolledToBottom) {
+        setHasScrolledToBottom(true);
+      }
+    }
+  };
 
-  const handleSave = (data) => {
+  const handleSave = (data: TermsData) => {
     onSaveAndContinue(data);
   };
 
-  function handleBack() {
+  const handleBack = () => {
     setCurrentStep(8);
-  }
+  };
 
   const isValid = form.formState.isValid;
 
@@ -78,7 +81,11 @@ export function TermsSubmitStep({
               <h2 className="mb-2 text-xl font-semibold">
                 Terms and Conditions
               </h2>
-              <div className="mb-2 max-h-60 overflow-y-auto rounded-md bg-gray-50 p-4">
+              <div
+                ref={scrollContainerRef}
+                onScroll={handleScroll}
+                className="mb-2 max-h-[350px] overflow-y-auto rounded-md bg-gray-50 p-4"
+              >
                 <h3 className="mb-2 font-medium">What happens next</h3>
                 <p className="mb-2 text-sm">
                   Thank you for taking the time to provide all of the
@@ -190,7 +197,7 @@ export function TermsSubmitStep({
             </div>
           </CardContent>
         </div>
-        <div className="flex justify-between px-6">
+        <div className="flex justify-between px-6 py-4">
           <Button
             type="button"
             variant="outline"
@@ -210,10 +217,12 @@ export function TermsSubmitStep({
             </Button>
             <Button
               type="submit"
-              onClick={onSubmit}
-            
-              disabled={!isValid}
-              className="bg-green-600 text-white hover:bg-green-700"
+              disabled={!hasScrolledToBottom}
+              className={`${
+                hasScrolledToBottom
+                  ? 'bg-green-600 hover:bg-green-700'
+                  : 'cursor-not-allowed bg-green-600/50'
+              } text-white`}
             >
               Submit
             </Button>

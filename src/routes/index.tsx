@@ -37,7 +37,7 @@ import TotalJobsPage from '@/pages/dashboard/components/total-jobs';
 import HomeStudentApplication from '@/pages/homeStudentApplication';
 import InternationalStudentApplication from '@/pages/internationalStudentApplication';
 
-const SignInPage = lazy(() => import('@/pages/auth/signin'));
+const SignInPage = lazy(() => import('@/pages/auth/signin/index'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
 
 // ----------------------------------------------------------------------

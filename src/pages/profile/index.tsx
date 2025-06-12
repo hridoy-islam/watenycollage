@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import StudentProfile from './profile-student';
 import ApplicantProfile from './profile-applicant';
+import InternationalStudentProfile from './profile-internationalStudent';
+import EuStudentProfile from './profile-euStudent';
 
 
 const ProfilePage: React.FC = () => {
@@ -11,7 +12,12 @@ const ProfilePage: React.FC = () => {
 
   return (
     <div>
-      {user.role === 'student' && <StudentProfile />}
+      {user.role === 'student' && user.studentType === 'eu' && (
+        <EuStudentProfile />
+      )}
+      {user.role === 'student' && user.studentType === 'international' && (
+        <InternationalStudentProfile />
+      )}
       {user.role === 'applicant' && <ApplicantProfile />}
     </div>
   );

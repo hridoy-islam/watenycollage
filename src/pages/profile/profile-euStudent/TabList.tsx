@@ -2,7 +2,9 @@ import React from 'react';
 import { 
   User, MapPin, Phone, BookOpen, Briefcase, 
   FileCheck, GraduationCap, ChevronRight, 
-  File
+  File,
+  BadgePoundSterling,
+  BookCheck
 } from 'lucide-react';
 import { TabListProps, TabItemProps, TabType } from './types';
 
@@ -28,13 +30,52 @@ const TabItem: React.FC<TabItemProps> = ({ id, label, icon, isActive, onClick })
 const TabList: React.FC<TabListProps> = ({ activeTab, setActiveTab }) => {
   // Define tab data
   const tabs = [
-    { id: 'personalDetails' as TabType, label: 'Personal Details', icon: <User size={20} /> },
-    { id: 'addressData' as TabType, label: 'Address', icon: <MapPin size={20} /> },
-    { id: 'emergencyContactData' as TabType, label: 'Emergency Contact', icon: <Phone size={20} /> },
-    { id: 'educationData' as TabType, label: 'Education', icon: <BookOpen size={20} /> },
-    { id: 'employmentData' as TabType, label: 'Employment', icon: <Briefcase size={20} /> },
-    { id: 'complianceData' as TabType, label: 'Compliance', icon: <FileCheck size={20} /> },
-    { id: 'documentData' as TabType, label: 'Documents', icon: <File size={20} /> }
+    {
+      id: 'personalDetails' as TabType,
+      label: 'Personal Details',
+      icon: <User size={20} />
+    },
+    {
+      id: 'addressData' as TabType,
+      label: 'Address',
+      icon: <MapPin size={20} />
+    },
+    {
+      id: 'emergencyContactData' as TabType,
+      label: 'Emergency Contact',
+      icon: <Phone size={20} />
+    },
+    {
+      id: 'educationData' as TabType,
+      label: 'Education',
+      icon: <BookOpen size={20} />
+    },
+    {
+      id: 'employmentData' as TabType,
+      label: 'Employment',
+      icon: <Briefcase size={20} />
+    },
+    {
+      id: 'complianceData' as TabType,
+      label: 'Miscellaneous',
+      icon: <FileCheck size={20} />
+    },
+    {
+      id: 'fundingData' as TabType,
+      label: 'Funding Information',
+      icon: <BadgePoundSterling size={20} />
+    },
+    {
+      id: 'courseData' as TabType,
+      label: 'Applied Courses',
+      icon: <BookCheck size={20} />
+    },
+    
+    {
+      id: 'documentData' as TabType,
+      label: 'Documents',
+      icon: <File size={20} />
+    }
   ];
 
   return (

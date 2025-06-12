@@ -61,10 +61,10 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
   ];
 
   const genderOptions = [
-    { value: 'Male', label: 'Male' },
-    { value: 'Female', label: 'Female' },
-    { value: 'Non-binary', label: 'Non-binary' },
-    { value: 'Prefer not to say', label: 'Prefer not to say' }
+    { value: 'male', label: 'Male' },
+    { value: 'female', label: 'Female' },
+    { value: 'other', label: 'Other' },
+    { value: 'prefer-not-to-say', label: 'Prefer not to say' }
   ];
 
   const studentTypeOptions = [
@@ -72,15 +72,12 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
     { value: 'international', label: 'International' }
   ];
 
-  const yesNoOptions = [
-    { value: 'yes', label: 'Yes' },
-    { value: 'no', label: 'No' }
-  ];
-
   const visaOptions = [
     { value: 'yes', label: 'Yes' },
     { value: 'no', label: 'No' }
   ];
+
+
 
   const maritalStatusOptions = [
     { value: 'single', label: 'Single' },
@@ -151,7 +148,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
             <p className="text-gray-500">{localData.email}</p>
             <p className="text-gray-500">{localData.phone}</p>
             <p className="mt-1 inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
-              {localData.status}
+              {capitalizeFirstLetter(localData?.studentType || 'N/A')}
             </p>
           </div>
         </div>
@@ -241,6 +238,24 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700">
+                Phone
+              </label>
+              {isEditing ? (
+                <Input
+                  type="text"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  value={localData?.phone || ''}
+                  onChange={(e) => handleInputChange('phone', e.target.value)}
+                />
+              ) : (
+                <div className="mt-1 text-gray-900">
+                  {capitalizeFirstLetter(localData?.phone || '-')}
+                </div>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
                 Ethnicity
               </label>
               {isEditing ? (
@@ -258,26 +273,27 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
                 </div>
               )}
             </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Custom Ethnicity
-              </label>
-              {isEditing ? (
-                <Input
-                  type="text"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                  value={localData?.customEthnicity || ''}
-                  onChange={(e) =>
-                    handleInputChange('customEthnicity', e.target.value)
-                  }
-                />
-              ) : (
-                <div className="mt-1 text-gray-900">
-                  {capitalizeFirstLetter(localData?.customEthnicity || '-')}
-                </div>
-              )}
-            </div>
+            {localData.ethnicity === 'other' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Specify Ethnicity
+                </label>
+                {isEditing ? (
+                  <Input
+                    type="text"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    value={localData?.customEthnicity || ''}
+                    onChange={(e) =>
+                      handleInputChange('customEthnicity', e.target.value)
+                    }
+                  />
+                ) : (
+                  <div className="mt-1 text-gray-900">
+                    {capitalizeFirstLetter(localData?.customEthnicity || '-')}
+                  </div>
+                )}
+              </div>
+            )}
 
             <div>
               <label className="block text-sm font-medium text-gray-700">
@@ -371,39 +387,74 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Require Visa
+                Country Of Domicile
               </label>
               {isEditing ? (
                 <Select
-                  className="react-select-container"
-                  classNamePrefix="react-select"
-                  options={visaOptions}
-                  value={visaOptions.find(
-                    (option) => option.value === localData?.requireVisa
+                  id="countryOfDomicile"
+                  options={countryOptions}
+                  value={countryOptions.find(
+                    (option) =>
+                      option.value.toLowerCase() ===
+                      localData?.countryOfBirth?.toLowerCase()
                   )}
                   onChange={(selectedOption) =>
-                    handleInputChange('requireVisa', selectedOption?.value)
+                    handleInputChange(
+                      'countryOfDomicile',
+                      selectedOption?.value || ''
+                    )
                   }
+                  className="react-select-container mt-1"
+                  classNamePrefix="react-select"
+                  placeholder="Select country"
+                  menuPortalTarget={document.body}
+                  menuPosition="fixed"
+                  styles={{
+                    menuPortal: (base) => ({ ...base, zIndex: 9999 })
+                  }}
                 />
               ) : (
                 <div className="mt-1 text-gray-900">
-                  {capitalizeFirstLetter(localData?.requireVisa || '-')}
+                  {capitalizeFirstLetter(localData?.countryOfBirth || '-')}
                 </div>
               )}
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Application Location
+                Gender
               </label>
               {isEditing ? (
-               <Select
+                <Select
+                  className="react-select-container"
+                  classNamePrefix="react-select"
+                  options={genderOptions}
+                  value={genderOptions.find(
+                    (option) => option.value === localData?.gender
+                  )}
+                  onChange={(selectedOption) =>
+                    handleInputChange('gender', selectedOption?.value)
+                  }
+                />
+              ) : (
+                <div className="mt-1 text-gray-900">
+                  {capitalizeFirstLetter(localData?.gender || '-')}
+                </div>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                From where am I making the application?
+              </label>
+              {isEditing ? (
+                <Select
                   id="applicationLocation"
                   options={countryOptions}
                   value={countryOptions.find(
                     (option) =>
                       option.value.toLowerCase() ===
-                      localData?.countryOfBirth?.toLowerCase()
+                      localData?.applicationLocation?.toLowerCase()
                   )}
                   onChange={(selectedOption) =>
                     handleInputChange(
@@ -413,7 +464,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
                   }
                   className="react-select-container mt-1"
                   classNamePrefix="react-select"
-                  placeholder="Select country"
+                  placeholder="Select option"
                   menuPortalTarget={document.body}
                   menuPosition="fixed"
                   styles={{
@@ -429,65 +480,35 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Is British Citizen
+                Required visa to come to the UK?
               </label>
               {isEditing ? (
                 <Select
-                  className="react-select-container"
-                  classNamePrefix="react-select"
-                  options={yesNoOptions}
-                  value={yesNoOptions.find(
-                    (option) => option.value === localData?.isBritishCitizen
+                  id="requireVisa"
+                  options={visaOptions}
+                  value={visaOptions.find(
+                    (option) =>
+                      option.value.toLowerCase() ===
+                      localData?.requireVisa?.toLowerCase()
                   )}
                   onChange={(selectedOption) =>
-                    handleInputChange('isBritishCitizen', selectedOption?.value)
+                    handleInputChange(
+                      'requireVisa',
+                      selectedOption?.value || ''
+                    )
                   }
+                  className="react-select-container mt-1"
+                  classNamePrefix="react-select"
+                  placeholder="Select option"
+                  menuPortalTarget={document.body}
+                  menuPosition="fixed"
+                  styles={{
+                    menuPortal: (base) => ({ ...base, zIndex: 9999 })
+                  }}
                 />
               ) : (
                 <div className="mt-1 text-gray-900">
-                  {capitalizeFirstLetter(localData?.isBritishCitizen || '-')}
-                </div>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Share Code
-              </label>
-              {isEditing ? (
-                <Input
-                  type="text"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                  value={localData?.shareCode || ''}
-                  onChange={(e) =>
-                    handleInputChange('shareCode', e.target.value)
-                  }
-                />
-              ) : (
-                <div className="mt-1 text-gray-900">
-                  {capitalizeFirstLetter(localData?.shareCode || '-')}
-                </div>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                National Insurance Number
-              </label>
-              {isEditing ? (
-                <Input
-                  type="text"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                  value={localData?.nationalInsuranceNumber || ''}
-                  onChange={(e) =>
-                    handleInputChange('nationalInsuranceNumber', e.target.value)
-                  }
-                />
-              ) : (
-                <div className="mt-1 text-gray-900">
-                  {capitalizeFirstLetter(
-                    localData?.nationalInsuranceNumber || '-'
-                  )}
+                  {capitalizeFirstLetter(localData?.requireVisa || '-')}
                 </div>
               )}
             </div>
