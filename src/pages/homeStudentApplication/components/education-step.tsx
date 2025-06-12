@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, useFieldArray, useWatch, Controller } from 'react-hook-form';
+import { useForm, useFieldArray, useWatch } from 'react-hook-form';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import {
@@ -28,7 +28,6 @@ import {
   TableRow
 } from '@/components/ui/table';
 import moment from 'moment';
-import { FileUpload } from './file-upload';
 import 'react-datepicker/dist/react-datepicker.css';
 import { CustomDatePicker } from '@/components/shared/CustomDatePicker';
 import Select from 'react-select';
@@ -42,13 +41,11 @@ export function EducationStep({
   setCurrentSubStep
 }) {
   const [currentPage, setCurrentPage] = useState(1);
-
   // Track upload context (which field initiated the upload)
   const [uploadState, setUploadState] = useState({
     isOpen: false,
     field: null // e.g., "englishCertificate" or "educationData.0.certificate"
   });
-
   const { user } = useSelector((state: any) => state.auth);
 
   const educationEntrySchema = z.object({
@@ -74,15 +71,25 @@ export function EducationStep({
     certificate: z.any().optional()
   });
 
-
-  const createEducationSchema = (studentType) =>
+  const createEducationSchema = () =>
     z.object({
       educationData: z
         .array(educationEntrySchema)
-        .min(1, { message: 'At least one education entry is required' })
+        .refine(
+          (data) =>
+            data.length === 0 ||
+            data.every(
+              (entry) =>
+                entry.institution && entry.qualification && entry.awardDate
+            ),
+          {
+            message:
+              'All education fields must be filled if any entry is provided'
+          }
+        )
     });
 
-  const educationSchema = createEducationSchema(defaultValues?.studentType);
+  const educationSchema = createEducationSchema();
 
   const transformDefaultValues = (values) => {
     if (!values) {
@@ -111,7 +118,8 @@ export function EducationStep({
 
   const form = useForm({
     resolver: zodResolver(educationSchema),
-    defaultValues: transformDefaultValues(defaultValues)
+    defaultValues: transformDefaultValues(defaultValues),
+    mode: 'onChange'
   });
 
   const { fields, append, remove } = useFieldArray({
@@ -141,7 +149,6 @@ export function EducationStep({
 
   const handleUploadComplete = (uploadResponse) => {
     const { field } = uploadState;
-
     if (!field || !uploadResponse?.success || !uploadResponse.data?.fileUrl) {
       setUploadState({ isOpen: false, field: null });
       return;
@@ -351,7 +358,6 @@ export function EducationStep({
                       <p className=" text-xs text-gray-500">
                         Accepted formats: PDF, JPG, PNG. Max size 5MB.
                       </p>
-
                       {form.watch(`educationData.${index}.certificate`) && (
                         <p className="mt-1 text-sm">
                           {decodeURIComponent(
@@ -362,7 +368,6 @@ export function EducationStep({
                           )}
                         </p>
                       )}
-
                       {form.watch(`educationData.${index}.certificate`) && (
                         <a
                           href={form.watch(
@@ -412,15 +417,10 @@ export function EducationStep({
               Back
             </Button>
             <Button
-              type="button"
+              type="submit"
               onClick={form.handleSubmit(onSubmit)}
-              disabled={
-            
-                educationData?.length === 0
-              }
               className="bg-watney text-white hover:bg-watney/90"
             >
-            
               Next
             </Button>
           </div>

@@ -100,8 +100,8 @@ const ComplianceData = ({
   
   return (
     <TabSection
-      title="Other Information"
-      description="Regulatory and other requirements"
+      title="Miscellaneous"
+      description=""
       userData={userData}
       isEditing={isEditing}
       onSave={handleSave}
@@ -183,8 +183,6 @@ const ComplianceData = ({
               )}
             </div>
           )}{' '}
-
-          
           <div>
             <label className="block text-sm font-medium text-gray-700">
               Where did I hear about Watney College?

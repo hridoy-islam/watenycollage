@@ -10,6 +10,8 @@ import {
   CheckCircle
 } from 'lucide-react';
 import { z } from 'zod';
+import { ImageUploader } from '../components/document-uploader';
+import { useSelector } from 'react-redux';
 
 // Zod validation schema
 export const documentSchema = z.object({
@@ -17,6 +19,9 @@ export const documentSchema = z.object({
   image: z.string().optional(),
   proofOfAddress: z.array(z.string()).nonempty({
     message: 'Proof of address is required'
+  }),
+  photoId: z.array(z.string()).nonempty({
+    message: 'Photo ID is required'
   }),
   qualification: z.array(z.string()).optional(),
   workExperience: z.array(z.string()).optional(),
@@ -48,6 +53,7 @@ export default function DocumentData({
     isOpen: false,
     field: null
   });
+  const { user } = useSelector((state: any) => state.auth);
 
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string>
@@ -141,18 +147,16 @@ export default function DocumentData({
                 className="flex w-auto items-center justify-between rounded-lg border border-gray-200 bg-white p-3 transition-all hover:shadow-md"
               >
                 <div className="flex items-center space-x-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
-                    <FileText className="h-4 w-4 text-green-600" />
-                  </div>
-                  <div className="min-w-0 flex-1">
+                  <div className="flex min-w-0 flex-1 gap-2">
                     <a
                       href={fileUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center space-x-2 text-sm font-medium text-gray-900 transition-colors hover:text-watney/90"
                     >
-                      <span className="truncate">{fileName}</span>
-                      <ExternalLink className="h-3 w-3 flex-shrink-0" />
+                      <Button className="flex flex-row items-center gap-4 bg-watney text-white hover:bg-watney/90">
+                        View <ExternalLink className="h-3 w-3 flex-shrink-0" />
+                      </Button>
                     </a>
                   </div>
                 </div>
@@ -199,16 +203,16 @@ export default function DocumentData({
   };
 
   const documentTypes = [
-    // {
-    //   id: 'image',
-    //   label: 'Photo ID',
-    //   required: true,
-    //   instructions:
-    //     "Upload a clear copy of any valid photo ID (e.g., passport, driver's license)",
-    //   formats: 'PDF, JPG, PNG',
-    //   error: validationErrors.image,
-    //   icon: FileText
-    // },
+    {
+      id: 'photoId',
+      label: 'Photo ID',
+      required: true,
+      instructions:
+        "Upload a clear copy of any valid photo ID (e.g., passport, driver's license)",
+      formats: 'PDF, JPG, PNG',
+      error: validationErrors.photoId,
+      icon: FileText
+    },
     {
       id: 'proofOfAddress',
       label: 'Proof of Address',
@@ -219,7 +223,7 @@ export default function DocumentData({
       error: validationErrors.proofOfAddress,
       icon: FileText
     },
-   
+
     {
       id: 'workExperience',
       label: 'Work Experience Documents',
@@ -359,6 +363,14 @@ export default function DocumentData({
                 Save
               </Button>
             )}</div>
+            <ImageUploader
+                      open={uploadState.isOpen}
+                      onOpenChange={(isOpen) =>
+                        setUploadState((prev) => ({ ...prev, isOpen }))
+                      }
+                      onUploadComplete={handleUploadComplete}
+                      entityId={user?._id}
+                    />
         </CardContent>
       </Card>
     </div>

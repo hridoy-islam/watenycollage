@@ -38,8 +38,9 @@ export function DocumentsStep({
   setCurrentStep
 }: DocumentsStepProps) {
   const [documents, setDocuments] = useState<DocumentFile>({
-    image: defaultValues?.image ?? '',
+    // image: defaultValues?.image ?? '',
     proofOfAddress: defaultValues?.proofOfAddress ?? [],
+    photoId: defaultValues?.photoId ?? [],
     qualification: defaultValues?.qualification ?? [],
     workExperience: defaultValues?.workExperience ?? [],
     personalStatement: defaultValues?.personalStatement ?? []
@@ -209,13 +210,13 @@ export function DocumentsStep({
 
   const documentTypes = [
     {
-      id: 'image',
+      id: 'photoId',
       label: 'Photo ID',
       required: true,
       instructions:
         'Upload a clear copy of any valid photo ID (e.g., passport, driver’s license)',
       formats: 'PDF, JPG, PNG',
-      error: validationErrors.image,
+      error: validationErrors.photoId,
       icon: FileText
     },
     {
@@ -228,15 +229,7 @@ export function DocumentsStep({
       error: validationErrors.proofOfAddress,
       icon: FileText
     },
-    {
-      id: 'qualification',
-      label: 'Qualification Certificates',
-      required: false,
-      instructions: 'Upload your qualification certificates',
-      formats: 'PDF, JPG, PNG',
-      error: validationErrors.qualification,
-      icon: FileText
-    },
+
     {
       id: 'workExperience',
       label: 'Work Experience Documents',
@@ -313,8 +306,8 @@ export function DocumentsStep({
             </div>
           </div>
         </CardHeader>
-        <CardContent className="p-6">
-          <div className="space-y-6">
+        <CardContent className="p-6 ">
+          <div className="grid md:grid-cols-2 gap-4  ">
             {documentTypes.map(
               ({
                 id,
@@ -342,7 +335,7 @@ export function DocumentsStep({
                           : 'border-gray-100 bg-gray-50 hover:border-gray-200'
                     }`}
                   >
-                    <div className="p-6">
+                    <div className="p-6 ">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="mb-2 flex items-center space-x-3">

@@ -10,13 +10,18 @@ import {
   CheckCircle
 } from 'lucide-react';
 import { z } from 'zod';
+import { useSelector } from 'react-redux';
+import { ImageUploader } from '../components/document-uploader';
 
 // Zod validation schema
 export const documentSchema = z.object({
   // image: z.string().min(1, { message: 'Photo ID is required' }),
-  image: z.string().optional(),
-  proofOfAddress: z.array(z.string()).nonempty({
-    message: 'Proof of address is required'
+  photoId: z.string().optional(),
+  passport: z.array(z.string()).nonempty({
+    message: 'Passport is required'
+  }),
+  bankStatement: z.array(z.string()).nonempty({
+    message: 'Bank Statement is required'
   }),
   qualification: z.array(z.string()).optional(),
   workExperience: z.array(z.string()).optional(),
@@ -43,7 +48,7 @@ export default function DocumentData({
   const [documents, setDocuments] = useState<DocumentFile>(userData);
   const [uploadState, setUploadState] = useState<{
     isOpen: boolean;
-    field: keyof Omit<DocumentFile, 'image'> | 'image' | null;
+    field: keyof Omit<DocumentFile, 'photoId'> | 'photoId' | null;
   }>({
     isOpen: false,
     field: null
@@ -51,13 +56,16 @@ export default function DocumentData({
 
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string>
-  >({});
+    >({});
+  
+    const { user } = useSelector((state: any) => state.auth);
+  
 
   const handleRemoveFile = (field: keyof DocumentFile, fileName: string) => {
-    if (field === 'image') {
+    if (field === 'photoId') {
       setDocuments((prev) => ({
         ...prev,
-        image: ''
+        photoId: ''
       }));
     }
     else {
@@ -87,28 +95,29 @@ export default function DocumentData({
   };
 
   const renderUploadedFiles = (field: keyof DocumentFile) => {
-    if (field === 'image') {
-      const fileUrl = documents.image;
+    if (field === 'photoId') {
+      const fileUrl = documents.photoId;
       if (fileUrl) {
         const fileName = decodeURIComponent(
           fileUrl.split('/').pop() || 'Photo-ID'
         );
         return (
           <div className="mt-3 space-y-2 ">
-            <div className="flex w-auto items-center justify-between rounded-lg border border-gray-200 bg-white p-3 transition-all hover:shadow-md">
-              <div className="flex items-center space-x-3">
+            <div className="flex w-auto items-center justify-between overflow-hidden rounded-lg border border-gray-200 bg-white p-3 transition-all hover:shadow-md">
+              <div className="flex items-center space-x-3 overflow-hidden">
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
                   <FileText className="h-4 w-4 text-green-600" />
                 </div>
-                <div className="min-w-0 flex-1">
+                <div className="flex min-w-0 flex-1 gap-2">
                   <a
                     href={fileUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center space-x-2 text-sm font-medium text-gray-900 transition-colors hover:text-watney/90"
                   >
-                    <span className="truncate">{fileName}</span>
-                    <ExternalLink className="h-3 w-3 flex-shrink-0" />
+                    <Button className="flex flex-row items-center gap-4 bg-watney text-white hover:bg-watney/90">
+                      View <ExternalLink className="h-3 w-3 flex-shrink-0" />
+                    </Button>
                   </a>
                 </div>
               </div>
@@ -141,18 +150,17 @@ export default function DocumentData({
                 className="flex w-auto items-center justify-between rounded-lg border border-gray-200 bg-white p-3 transition-all hover:shadow-md"
               >
                 <div className="flex items-center space-x-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
-                    <FileText className="h-4 w-4 text-green-600" />
-                  </div>
-                  <div className="min-w-0 flex-1">
+                 
+                  <div className="min-w-0 flex-1 flex gap-2">
                     <a
                       href={fileUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center space-x-2 text-sm font-medium text-gray-900 transition-colors hover:text-watney/90"
                     >
-                      <span className="truncate">{fileName}</span>
-                      <ExternalLink className="h-3 w-3 flex-shrink-0" />
+                      <Button className="flex flex-row items-center gap-4 bg-watney text-white hover:bg-watney/90">
+                        View <ExternalLink className="h-3 w-3 flex-shrink-0" />
+                      </Button>
                     </a>
                   </div>
                 </div>
@@ -184,10 +192,10 @@ export default function DocumentData({
       return;
     }
     const fileUrl = uploadResponse.data.fileUrl;
-    if (field === 'image') {
+    if (field === 'photoId') {
       setDocuments((prev) => ({
         ...prev,
-        image: fileUrl
+        photoId: fileUrl
       }));
     } else {
       setDocuments((prev) => ({
@@ -210,16 +218,24 @@ export default function DocumentData({
     //   icon: FileText
     // },
     {
-      id: 'proofOfAddress',
-      label: 'Proof of Address',
+      id: 'passport',
+      label: 'Passport',
       required: true,
-      instructions:
-        'Upload recent utility bill or bank statement showing your address',
+      instructions: 'Upload a clear copy of your passport',
       formats: 'PDF, JPG, PNG',
-      error: validationErrors.proofOfAddress,
+      error: validationErrors.passport,
       icon: FileText
     },
-    
+    {
+      id: 'bankStatement',
+      label: 'Bank Statement',
+      required: true,
+      instructions: 'Upload recent bank statement showing your address',
+      formats: 'PDF, JPG, PNG',
+      error: validationErrors.bankStatement,
+      icon: FileText
+    },
+
     {
       id: 'workExperience',
       label: 'Work Experience Documents',
@@ -264,8 +280,8 @@ export default function DocumentData({
                 icon: Icon
               }) => {
                 const hasFiles =
-                  id === 'image'
-                    ? !!documents.image
+                  id === 'photoId'
+                    ? !!documents.photoId
                     : Array.isArray(documents[id as keyof DocumentFile]) &&
                       (documents[id as keyof DocumentFile] as string[]).length >
                         0;
@@ -342,6 +358,14 @@ export default function DocumentData({
                       </div>
                       {renderUploadedFiles(id as keyof DocumentFile)}
                     </div>
+                    <ImageUploader
+                      open={uploadState.isOpen}
+                      onOpenChange={(isOpen) =>
+                        setUploadState((prev) => ({ ...prev, isOpen }))
+                      }
+                      onUploadComplete={handleUploadComplete}
+                      entityId={user?._id}
+                    />
                   </div>
                 );
               }

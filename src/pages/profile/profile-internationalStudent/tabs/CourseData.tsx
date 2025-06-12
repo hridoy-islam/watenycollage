@@ -26,6 +26,7 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
 
 interface Course {
   _id: string;
@@ -143,15 +144,15 @@ export default function CourseData({ user }: StudentDashboardProps) {
           )
         );
         toast({
-          title: 'Your application has been withdrawn.'
+          title: 'Your application has been Cancelled.'
         });
         closeModal();
       }
     } catch (error) {
       console.error('Error deleting application:', error);
       toast({
-          title: 'There was an error to withdraw the application.',
-          className:'bg-destructive text-white boder-none'
+        title: 'There was an error to withdraw the application.',
+        className: 'bg-destructive text-white boder-none'
       });
     }
   };
@@ -173,29 +174,44 @@ export default function CourseData({ user }: StudentDashboardProps) {
                 <TableHead>Course Name</TableHead>
                 <TableHead>Intake</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead className="text-right">Withdraw</TableHead>
+                <TableHead className="text-right">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {applications.length > 0 ? (
                 applications.map((application) => (
                   <TableRow key={application._id}>
-                    <TableCell className="font-medium">
+                    <TableCell className="py-4 font-medium">
                       {application?.courseId?.name || 'Unnamed Course'}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="py-4">
                       {application?.intakeId?.termName || 'N/A'}
                     </TableCell>
-                    <TableCell>{application?.status || 'N/A'}</TableCell>
-                    <TableCell className="text-right">
-                      <Button
-                        onClick={() => openDeleteModal(application._id)}
-                        variant="ghost"
-                        size="icon"
-                        className="text-red-600 hover:bg-red-600 hover:text-white"
+                    <TableCell className="py-4">
+                      <Badge
+                        className={`text-white ${
+                          application?.status === 'applied'
+                            ? 'bg-blue-500'
+                            : application?.status === 'cancelled'
+                              ? 'bg-red-500'
+                              : application?.status === 'approved'
+                                ? 'bg-green-500'
+                                : 'bg-gray-500'
+                        }`}
                       >
-                        <Trash />
-                      </Button>
+                        {application?.status || 'N/A'}
+                      </Badge>
+                    </TableCell>
+
+                    <TableCell className="text-right">
+                      {application?.status !== 'cancelled' && (
+                        <Button
+                          onClick={() => openDeleteModal(application._id)}
+                          className="border-none bg-destructive text-white hover:bg-destructive/90"
+                        >
+                          Cancel
+                        </Button>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))
@@ -228,15 +244,15 @@ export default function CourseData({ user }: StudentDashboardProps) {
             <DialogTitle>Are you sure?</DialogTitle>
           </DialogHeader>
           <p className="text-gray-600">
-            Do you want to withdraw this application? This action cannot be
+            Do you want to cancel this application? This action cannot be
             undone.
           </p>
           <div className="mt-4 flex justify-end space-x-4">
             <Button onClick={closeModal} variant="outline">
-              Cancel
+              Close
             </Button>
             <Button onClick={handleDelete} variant="destructive">
-              Yes, Withdraw Application
+              Yes, Cancel Application
             </Button>
           </div>
         </DialogContent>

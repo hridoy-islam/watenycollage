@@ -89,8 +89,8 @@ const ComplianceData = ({
 
   return (
     <TabSection
-      title="Other Information"
-      description="Regulatory and other requirements"
+      title="Miscellaneous"
+      description=""
       userData={userData}
       isEditing={isEditing}
       onSave={handleSave}

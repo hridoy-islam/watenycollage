@@ -286,8 +286,8 @@ export function ReviewModal({
 
             {/* Course Details */}
             {renderSection('Course Details', {
-              course: courseName || 'Loading...',
-              intake: termName || 'Loading...'
+              course: courseName || 'N/A',
+              intake: termName || 'N/A'
             })}
 
             {/* Contact Information */}
