@@ -11,7 +11,7 @@ interface PDFGeneratorProps {
 const PDFGenerator: React.FC<PDFGeneratorProps> = ({ application }) => {
   if (!application) return null;
 
-  const fileName = `${application?.personalDetailsData?.firstName || 'Applicant'}_${application?.personalDetailsData?.lastName || ''}_Application.pdf`;
+  const fileName = `${application?.firstName || 'Applicant'}_${application?.lastName || ''}_Application.pdf`;
 
   return (
     <PDFDownloadLink

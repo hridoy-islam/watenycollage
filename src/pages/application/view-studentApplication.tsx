@@ -1094,6 +1094,11 @@ export default function ViewStudentApplicationPage() {
                                 `educationData.${index}.awardDate`
                               )}
                               {renderFieldRow(
+                                'Grade',
+                                education.grade,
+                                `educationData.${index}.grade`
+                              )}
+                              {renderFieldRow(
                                 'Certificate',
                                 education.certificate,
                                 `educationData.${index}.certificate`

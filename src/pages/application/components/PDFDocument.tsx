@@ -1,38 +1,28 @@
-import React from 'react';
-import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
-
-// Register font if needed (optional)
-Font.register({
-  family: 'Helvetica',
-  fonts: [
-    { src: 'https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-regular-webfont.ttf' },
-    { src: 'https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-bold-webfont.ttf', fontWeight: 'bold' },
-  ],
-});
+import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 
 // Define styles for the PDF
 const styles = StyleSheet.create({
   page: {
     padding: 40,
     fontFamily: 'Helvetica',
-    fontSize: 10,
+    fontSize: 10
   },
   header: {
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 15,
+    marginBottom: 15
   },
   sectionHeader: {
     fontSize: 12,
     fontWeight: 'bold',
     marginBottom: 8,
-    marginTop: 15,
+    marginTop: 15
   },
   subSectionHeader: {
     fontSize: 10,
     fontWeight: 'bold',
-    marginBottom: 5,
+    marginBottom: 5
   },
   table: {
     display: 'flex',
@@ -40,17 +30,17 @@ const styles = StyleSheet.create({
     borderStyle: 'solid',
     borderWidth: 1,
     borderRightWidth: 0,
-    borderBottomWidth: 0,
+    borderBottomWidth: 0
   },
   tableRow: {
-    flexDirection: 'row',
+    flexDirection: 'row'
   },
   tableCol: {
     borderStyle: 'solid',
     borderWidth: 1,
     borderLeftWidth: 0,
     borderTopWidth: 0,
-    padding: 5,
+    padding: 5
   },
   tableColHeader: {
     borderStyle: 'solid',
@@ -58,14 +48,7 @@ const styles = StyleSheet.create({
     borderLeftWidth: 0,
     borderTopWidth: 0,
     padding: 5,
-    fontWeight: 'bold',
-  },
-  checkbox: {
-    width: 10,
-    height: 10,
-    borderStyle: 'solid',
-    borderWidth: 1,
-    marginRight: 5,
+    fontWeight: 'bold'
   },
   footer: {
     position: 'absolute',
@@ -75,33 +58,65 @@ const styles = StyleSheet.create({
     right: 40,
     textAlign: 'center',
     borderTop: '1px solid #ccc',
-    paddingTop: 5,
+    paddingTop: 5
   },
   signatureLine: {
     marginTop: 30,
     borderBottom: '1px solid #000',
-    width: 200,
+    width: 200
   },
   addressBlock: {
     marginTop: 20,
     fontSize: 9,
-    textAlign: 'center',
-  },
+    textAlign: 'center'
+  }
 });
 
-const ApplicationFormPDF = ({ formData }) => {
-  // Helper function to format date
+// Format date utility
+const formatDate = (dateString: string): string => {
+  if (!dateString) return '';
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB');
+  } catch {
+    return dateString;
+  }
+};
 
-  console.log('Form Data:', formData); // Debugging line to check formData
-  const formatDate = (dateString) => {
-    if (!dateString) return '';
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('en-GB');
-    } catch {
-      return dateString;
-    }
-  };
+// Get today's date
+const getTodaysDate = (): string => {
+  return new Date().toLocaleDateString('en-GB');
+};
+
+// Capitalize first letter utility
+const capitalizeFirstLetter = (str: string): string => {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+};
+
+// Safe access to nested properties
+const safeGet = (obj: any, path: string, defaultValue: string = ''): string => {
+  if (!obj) return defaultValue;
+  const keys = path.split('.');
+  const result = keys.reduce(
+    (acc, key) => (acc && acc[key] !== undefined ? acc[key] : defaultValue),
+    obj
+  );
+  return typeof result === 'string'
+    ? capitalizeFirstLetter(result)
+    : String(result);
+};
+
+// Main PDF Component
+interface ApplicationFormPDFProps {
+  formData: any;
+}
+
+const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
+  formData
+}) => {
+  // Ensure formData is not undefined
+  const data = formData || {};
 
   return (
     <Document>
@@ -116,304 +131,430 @@ const ApplicationFormPDF = ({ formData }) => {
           {/* Row A1 */}
           <View style={styles.tableRow}>
             <View style={[styles.tableCol, { width: '30%' }]}>
-              <Text>A1. First Name(s):</Text>
+              <Text>Title: (Mr/Mrs/Ms)</Text>
             </View>
             <View style={[styles.tableCol, { width: '70%' }]}>
-              <Text>{formData?.personalDetailsData?.firstName || ''}</Text>
+              <Text>{capitalizeFirstLetter(data.title || '')}</Text>
             </View>
           </View>
-          
+          <View style={styles.tableRow}>
+            <View style={[styles.tableCol, { width: '30%' }]}>
+              <Text>First Name:</Text>
+            </View>
+            <View style={[styles.tableCol, { width: '70%' }]}>
+              <Text>{capitalizeFirstLetter(data.firstName || '')}</Text>
+            </View>
+          </View>
+
           {/* Row A2 */}
           <View style={styles.tableRow}>
             <View style={[styles.tableCol, { width: '30%' }]}>
-              <Text>A2. Surname/Family Name:</Text>
+              <Text>Middle Name:</Text>
             </View>
             <View style={[styles.tableCol, { width: '70%' }]}>
-              <Text>{formData?.personalDetailsData?.lastName || ''}</Text>
+              <Text>{capitalizeFirstLetter(data.initial || '')}</Text>
             </View>
           </View>
-          
+
           {/* Row A3 */}
           <View style={styles.tableRow}>
             <View style={[styles.tableCol, { width: '30%' }]}>
-              <Text>A3. Title: (Mr/Mrs/Ms)</Text>
+              <Text>Last Name:</Text>
             </View>
             <View style={[styles.tableCol, { width: '70%' }]}>
-              <Text>{formData?.personalDetailsData?.title || ''}</Text>
+              <Text>{capitalizeFirstLetter(data.lastName || '')}</Text>
             </View>
           </View>
-          
-          {/* Row A4 */}
-          <View style={styles.tableRow}>
-            <View style={[styles.tableCol, { width: '30%' }]}>
-              <Text>A4. Nationality:</Text>
+
+          {data.studentType === 'eu' && (
+            <View style={styles.tableRow}>
+              <View style={[styles.tableCol, { width: '30%' }]}>
+                <Text>Nationality:</Text>
+              </View>
+              <View style={[styles.tableCol, { width: '70%' }]}>
+                <Text>{capitalizeFirstLetter(data.nationality || '')}</Text>
+              </View>
             </View>
-            <View style={[styles.tableCol, { width: '70%' }]}>
-              <Text>{formData?.personalDetailsData?.nationality || ''}</Text>
-            </View>
-          </View>
-          
-          {/* Row A5 */}
-          <View style={styles.tableRow}>
-            <View style={[styles.tableCol, { width: '30%' }]}>
-              <Text>A5. Passport Number (if applicable):</Text>
-            </View>
-            <View style={[styles.tableCol, { width: '70%' }]}>
-              <Text>{formData?.documentsData?.passportNumber || ''}</Text>
-            </View>
-          </View>
-          
+          )}
+
           {/* Row A6 */}
           <View style={styles.tableRow}>
             <View style={[styles.tableCol, { width: '30%' }]}>
-              <Text>A6. Date Of Birth: (dd/mm/yyyy)</Text>
+              <Text>Date Of Birth: (dd/mm/yyyy)</Text>
             </View>
             <View style={[styles.tableCol, { width: '70%' }]}>
-              <Text>{formatDate(formData?.personalDetailsData?.dateOfBirth) || ''}</Text>
+              <Text>{formatDate(data.dateOfBirth)}</Text>
             </View>
           </View>
-          
+
           {/* Row A7 */}
           <View style={styles.tableRow}>
             <View style={[styles.tableCol, { width: '30%' }]}>
-              <Text>A7. Country Of Birth:</Text>
+              <Text>Country Of Birth:</Text>
             </View>
             <View style={[styles.tableCol, { width: '70%' }]}>
-              <Text>{formData?.personalDetailsData?.countryOfBirth || ''}</Text>
+              <Text>{capitalizeFirstLetter(data.countryOfBirth || '')}</Text>
             </View>
           </View>
-          
+
           {/* Row A8 */}
           <View style={styles.tableRow}>
             <View style={[styles.tableCol, { width: '30%' }]}>
-              <Text>A8. Gender:</Text>
+              <Text>Gender:</Text>
             </View>
-            <View style={[styles.tableCol, { width: '70%', flexDirection: 'row' }]}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 10 }}>
-                <View style={styles.checkbox}>
-                  {formData?.personalDetailsData?.gender === 'female' && <Text style={{ fontSize: 14, color: '#000' }}>X</Text>}
-                </View>
-                <Text> Female</Text>
-              </View>
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 10 }}>
-                <View style={styles.checkbox}>
-                  {formData?.personalDetailsData?.gender === 'male' && <Text  style={{ fontSize: 14, color: '#000' }}>X</Text>}
-                </View>
-                <Text> Male</Text>
-              </View>
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 10  }}>
-                <View style={styles.checkbox}>
-                  {formData?.personalDetailsData?.gender === 'other' && <Text  style={{ fontSize: 14, color: '#000' }}>X</Text>}
-                </View>
-                <Text> Other</Text>
-              </View>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <View style={styles.checkbox}>
-                  {formData?.personalDetailsData?.gender === 'Prefer not to say' && <Text  style={{ fontSize: 14, color: '#000' }}>X</Text>}
-                </View>
-                <Text> Prefer not to say</Text>
-              </View>
+            <View style={[styles.tableCol, { width: '70%' }]}>
+              <Text>{capitalizeFirstLetter(data.gender || '')}</Text>
             </View>
           </View>
-          
+
           {/* Row A9 */}
           <View style={styles.tableRow}>
             <View style={[styles.tableCol, { width: '30%' }]}>
-              <Text>A9. Home address:</Text>
+              <Text>Home address:</Text>
             </View>
             <View style={[styles.tableCol, { width: '70%' }]}>
-              <Text>First Line: {formData?.addressData?.residentialAddressLine1 || ''}</Text>
-              <Text>Road / Street: {formData?.addressData?.residentialAddressLine2 || ''}</Text>
-              <Text>City: {formData?.addressData?.residentialCity || ''}</Text>
+              <Text>
+                First Line:{' '}
+                {capitalizeFirstLetter(data.residentialAddressLine1 || '')}
+              </Text>
+              <Text>
+                Road / Street:{' '}
+                {capitalizeFirstLetter(data.residentialAddressLine2 || '')}
+              </Text>
+              <Text>
+                City: {capitalizeFirstLetter(data.residentialCity || '')}
+              </Text>
               <Text>County: </Text>
-              <Text>Post Code: {formData?.addressData?.residentialPostCode || ''}</Text>
-              <Text>Country: {formData?.addressData?.residentialCountry || ''}</Text>
+              <Text>
+                Post Code: {(data.residentialPostCode || '').toUpperCase()}
+              </Text>
+              <Text>
+                Country: {capitalizeFirstLetter(data.residentialCountry || '')}
+              </Text>
             </View>
           </View>
-          
+
           {/* Row A10 */}
           <View style={styles.tableRow}>
             <View style={[styles.tableCol, { width: '30%' }]}>
-              <Text>A10. Contact Address (if different)</Text>
+              <Text>Contact Address (if different)</Text>
             </View>
             <View style={[styles.tableCol, { width: '70%' }]}>
-              {!formData?.addressData?.sameAsResidential ? (
+              {!data.sameAsResidential ? (
                 <>
-                  <Text>First Line: {formData?.addressData?.postalAddressLine1 || ''}</Text>
-                  <Text>Road / Street: {formData?.addressData?.postalAddressLine2 || ''}</Text>
-                  <Text>City: {formData?.addressData?.postalCity || ''}</Text>
+                  <Text>
+                    First Line:{' '}
+                    {capitalizeFirstLetter(data.postalAddressLine1 || '')}
+                  </Text>
+                  <Text>
+                    Road / Street:{' '}
+                    {capitalizeFirstLetter(data.postalAddressLine2 || '')}
+                  </Text>
+                  <Text>
+                    City: {capitalizeFirstLetter(data.postalCity || '')}
+                  </Text>
                   <Text>County: </Text>
-                  <Text>Post Code: {formData?.addressData?.postalPostCode || ''}</Text>
-                  <Text>Country: {formData?.addressData?.postalCountry || ''}</Text>
+                  <Text>
+                    Post Code: {(data.postalPostCode || '').toUpperCase()}
+                  </Text>
+                  <Text>
+                    Country: {capitalizeFirstLetter(data.postalCountry || '')}
+                  </Text>
                 </>
               ) : (
                 <Text>Same as home address</Text>
               )}
             </View>
           </View>
-          
+
           {/* Row A11 */}
           <View style={styles.tableRow}>
             <View style={[styles.tableCol, { width: '30%' }]}>
-              <Text>A11. Contact Number:</Text>
+              <Text>Contact Number:</Text>
             </View>
             <View style={[styles.tableCol, { width: '70%' }]}>
-              <Text>{formData?.contactData?.contactNumber || ''}</Text>
+              <Text>{data.phone || ''}</Text>
             </View>
           </View>
-          
+
           {/* Row A12 */}
           <View style={styles.tableRow}>
             <View style={[styles.tableCol, { width: '30%' }]}>
-              <Text>A12. Email Address:</Text>
+              <Text>Email Address:</Text>
             </View>
             <View style={[styles.tableCol, { width: '70%' }]}>
-              <Text>{formData?.contactData?.email || ''}</Text>
+              <Text>{data.email || ''}</Text>
             </View>
           </View>
-          
-          {/* Row A13 */}
           <View style={styles.tableRow}>
             <View style={[styles.tableCol, { width: '30%' }]}>
-              <Text>A13. How did you hear about Watney College?</Text>
+              <Text>Country Of Domicile:</Text>
             </View>
             <View style={[styles.tableCol, { width: '70%' }]}>
-              <Text></Text>
+              <Text>{capitalizeFirstLetter(data.countryOfDomicile || '')}</Text>
             </View>
           </View>
+          <View style={styles.tableRow}>
+            <View style={[styles.tableCol, { width: '30%' }]}>
+              <Text>Ethnicity:</Text>
+            </View>
+            <View style={[styles.tableCol, { width: '70%' }]}>
+              <Text>{capitalizeFirstLetter(data.ethnicity || '')}</Text>
+            </View>
+          </View>
+          {data.ethnicity === 'other' && (
+            <View style={styles.tableRow}>
+              <View style={[styles.tableCol, { width: '30%' }]}>
+                <Text>Specify Ethnicity:</Text>
+              </View>
+              <View style={[styles.tableCol, { width: '70%' }]}>
+                <Text>{capitalizeFirstLetter(data.customEthnicity || '')}</Text>
+              </View>
+            </View>
+          )}
+
+          <View style={styles.tableRow}>
+            <View style={[styles.tableCol, { width: '30%' }]}>
+              <Text>Marital Status</Text>
+            </View>
+            <View style={[styles.tableCol, { width: '70%' }]}>
+              <Text>{capitalizeFirstLetter(data.maritalStatus || '')}</Text>
+            </View>
+          </View>
+          {data.studentType === 'eu' && (
+            <>
+              <View style={styles.tableRow}>
+                <View style={[styles.tableCol, { width: '30%' }]}>
+                  <Text>Immigration Status</Text>
+                </View>
+                <View style={[styles.tableCol, { width: '70%' }]}>
+                  <Text>
+                    {capitalizeFirstLetter(data.immigrationStatus || '')}
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.tableRow}>
+                <View style={[styles.tableCol, { width: '30%' }]}>
+                  <Text>Please provide your LTR (Leave to Remain) Code</Text>
+                </View>
+                <View style={[styles.tableCol, { width: '70%' }]}>
+                  <Text>{(data.ltrCode || '').toUpperCase()}</Text>
+                </View>
+              </View>
+              <View style={styles.tableRow}>
+                <View style={[styles.tableCol, { width: '30%' }]}>
+                  <Text>National Insurance (NI) Number </Text>
+                </View>
+                <View style={[styles.tableCol, { width: '70%' }]}>
+                  <Text>{(data.niNumber || '').toUpperCase()}</Text>
+                </View>
+              </View>
+            </>
+          )}
+          {data.studentType === 'international' && (
+            <>
+              <View style={styles.tableRow}>
+                <View style={[styles.tableCol, { width: '30%' }]}>
+                  <Text>Do you require a visa to come to the UK?</Text>
+                </View>
+                <View style={[styles.tableCol, { width: '70%' }]}>
+                  <Text>{capitalizeFirstLetter(data.requireVisa || '')}</Text>
+                </View>
+              </View>
+              <View style={styles.tableRow}>
+                <View style={[styles.tableCol, { width: '30%' }]}>
+                  <Text>From where are you making your application?</Text>
+                </View>
+                <View style={[styles.tableCol, { width: '70%' }]}>
+                  <Text>
+                    {capitalizeFirstLetter(data.applicationLocation || '')}
+                  </Text>
+                </View>
+              </View>
+            </>
+          )}
         </View>
 
         <Text style={styles.footer}>
-          Application Form    Page 1 of 3    June, 2024
+          Application Form Page 1 of 4 - {getTodaysDate()}
         </Text>
       </Page>
 
       {/* Page 2 */}
       <Page size="A4" style={styles.page}>
         <Text style={styles.header}>WATNEY COLLEGE</Text>
-        
+
         {/* Section B */}
-        <Text style={styles.sectionHeader}>SECTION B: QUALIFICATIONS OBTAINED</Text>
+        <Text style={styles.sectionHeader}>
+          SECTION B: QUALIFICATIONS OBTAINED
+        </Text>
         <View style={styles.table}>
           <View style={styles.tableRow}>
-            <View style={[styles.tableColHeader, { width: '20%' }]}>
+            <View style={[styles.tableColHeader, { width: '30%' }]}>
               <Text>Level / Qualification</Text>
             </View>
-            <View style={[styles.tableColHeader, { width: '25%' }]}>
-              <Text>Subject(s)</Text>
+            <View style={[styles.tableColHeader, { width: '20%' }]}>
+              <Text>Award Date</Text>
             </View>
-            <View style={[styles.tableColHeader, { width: '25%' }]}>
-              <Text>Course Duration</Text>
-            </View>
-            <View style={[styles.tableColHeader, { width: '15%' }]}>
+            <View style={[styles.tableColHeader, { width: '30%' }]}>
               <Text>College/ University</Text>
             </View>
-            <View style={[styles.tableColHeader, { width: '15%' }]}>
+            <View style={[styles.tableColHeader, { width: '20%' }]}>
               <Text>Results</Text>
             </View>
           </View>
-          
-          {Array.isArray(formData?.educationData) && formData?.educationData.map((edu, index) => (
-  <View key={index} style={styles.tableRow}>
-    <View style={[styles.tableCol, { width: '20%' }]}>
-      <Text>{edu?.studyType || ''}</Text>
-    </View>
-    <View style={[styles.tableCol, { width: '25%' }]}>
-      <Text>{edu?.qualification || ''}</Text>
-    </View>
-    <View style={[styles.tableCol, { width: '25%' }]}>
-      <Text>{edu?.startDate ? formatDate(edu.startDate) : ''} - {edu?.endDate ? formatDate(edu.endDate) : ''}</Text>
-    </View>
-    <View style={[styles.tableCol, { width: '15%' }]}>
-      <Text>{edu?.institution || ''}</Text>
-    </View>
-    <View style={[styles.tableCol, { width: '15%' }]}>
-      <Text></Text>
-    </View>
-  </View>
-))}
 
-          
-          {/* Empty rows for remaining space */}
-          {[...Array(4 - (formData?.educationData?.length || 0))].map((_, i) => (
-            <View key={`empty-${i}`} style={styles.tableRow}>
-              <View style={[styles.tableCol, { width: '20%' }]}>
-                <Text></Text>
-              </View>
-              <View style={[styles.tableCol, { width: '25%' }]}>
-                <Text></Text>
-              </View>
-              <View style={[styles.tableCol, { width: '25%' }]}>
-                <Text></Text>
-              </View>
-              <View style={[styles.tableCol, { width: '15%' }]}>
-                <Text></Text>
-              </View>
-              <View style={[styles.tableCol, { width: '15%' }]}>
-                <Text></Text>
-              </View>
-            </View>
-          ))}
+          {Array.isArray(data.educationData) && data.educationData.length > 0
+            ? data.educationData.map((edu: any, index: number) => (
+                <View key={index} style={styles.tableRow}>
+                  <View style={[styles.tableCol, { width: '30%' }]}>
+                    <Text>
+                      {capitalizeFirstLetter(safeGet(edu, 'qualification'))}
+                    </Text>
+                  </View>
+                  <View style={[styles.tableCol, { width: '20%' }]}>
+                    <Text>{formatDate(safeGet(edu, 'awardDate'))}</Text>
+                  </View>
+                  <View style={[styles.tableCol, { width: '30%' }]}>
+                    <Text>
+                      {capitalizeFirstLetter(safeGet(edu, 'institution'))}
+                    </Text>
+                  </View>
+                  <View style={[styles.tableCol, { width: '20%' }]}>
+                    <Text>
+                      {capitalizeFirstLetter(safeGet(edu, 'grade', ''))}
+                    </Text>
+                  </View>
+                </View>
+              ))
+            : [...Array(3)].map((_, i) => (
+                <View key={`empty-edu-${i}`} style={styles.tableRow}>
+                  <View style={[styles.tableCol, { width: '30%' }]}>
+                    <Text></Text>
+                  </View>
+                  <View style={[styles.tableCol, { width: '20%' }]}>
+                    <Text></Text>
+                  </View>
+                  <View style={[styles.tableCol, { width: '30%' }]}>
+                    <Text></Text>
+                  </View>
+                  <View style={[styles.tableCol, { width: '20%' }]}>
+                    <Text></Text>
+                  </View>
+                </View>
+              ))}
         </View>
 
+        {/* Conditional rendering for English Qualification */}
+        {data.studentType === 'international' && (
+          <>
+            <Text style={styles.sectionHeader}>ENGLISH QUALIFICATION</Text>
+            <View style={styles.table}>
+              <View style={styles.tableRow}>
+                <View style={[styles.tableColHeader, { width: '35%' }]}>
+                  <Text>Test Type</Text>
+                </View>
+                <View style={[styles.tableColHeader, { width: '35%' }]}>
+                  <Text>Score</Text>
+                </View>
+                <View style={[styles.tableColHeader, { width: '30%' }]}>
+                  <Text>Test Date</Text>
+                </View>
+              </View>
+
+              {/* Display English Qualification Data */}
+              {data.englishQualification && data.englishQualification.type ? (
+                <View style={styles.tableRow}>
+                  <View style={[styles.tableCol, { width: '35%' }]}>
+                    <Text>
+                      {capitalizeFirstLetter(
+                        data.englishQualification.englishTestType
+                      )}
+                    </Text>
+                  </View>
+                  <View style={[styles.tableCol, { width: '35%' }]}>
+                    <Text>{data.englishQualification.englishTestScore}</Text>
+                  </View>
+                  <View style={[styles.tableCol, { width: '30%' }]}>
+                    <Text>
+                      {formatDate(data.englishQualification.englishTestDate)}
+                    </Text>
+                  </View>
+                </View>
+              ) : (
+                // Empty row if no English qualification data
+                <View style={styles.tableRow}>
+                  <View style={[styles.tableCol, { width: '35%' }]}>
+                    <Text></Text>
+                  </View>
+                  <View style={[styles.tableCol, { width: '35%' }]}>
+                    <Text></Text>
+                  </View>
+                  <View style={[styles.tableCol, { width: '30%' }]}>
+                    <Text></Text>
+                  </View>
+                </View>
+              )}
+            </View>
+          </>
+        )}
         {/* Section C */}
-        <Text style={styles.sectionHeader}>SECTION C: PREVIOUS STUDY IN THE UK</Text>
+        <Text style={styles.sectionHeader}>
+          SECTION C: PREVIOUS STUDY IN THE UK (Applicable to Overseas Students)
+        </Text>
         <View style={styles.table}>
           {/* Row C1 */}
           <View style={styles.tableRow}>
             <View style={[styles.tableCol, { width: '80%' }]}>
-              <Text>C1. Have you ever studied or made a visa application to study in the UK?</Text>
+              <Text>
+                C1. Have you ever studied or made a visa application to study in
+                the UK?
+              </Text>
             </View>
-            <View style={[styles.tableCol, { width: '20%', flexDirection: 'row' }]}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 10 }}>
-                <View style={styles.checkbox}>
-                  {formData?.complianceData?.previousUKStudy === 'Yes' && <Text>X</Text>}
-                </View>
-                <Text> Yes</Text>
-              </View>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <View style={styles.checkbox}>
-                  {formData?.complianceData?.previousUKStudy === 'No' && <Text>X</Text>}
-                </View>
-                <Text> No</Text>
-              </View>
+            <View style={[styles.tableCol, { width: '20%' }]}>
+              <Text>{capitalizeFirstLetter(data.enteredUKBefore || '')}</Text>
             </View>
           </View>
-          
+
           {/* Row C2 */}
           <View style={styles.tableRow}>
             <View style={[styles.tableCol, { width: '80%' }]}>
-              <Text>C2. Have you previously received a visa refusal to study in the UK? If yes, please attach a copy and indicate the reason for this refusal.</Text>
-            </View>
-            <View style={[styles.tableCol, { width: '20%', flexDirection: 'row' }]}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 10 }}>
-                <View style={styles.checkbox}>
-                  {formData?.complianceData?.visaRefusal === 'Yes' && <Text>X</Text>}
-                </View>
-                <Text> Yes</Text>
-              </View>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <View style={styles.checkbox}>
-                  {formData?.complianceData?.visaRefusal === 'No' && <Text>X</Text>}
-                </View>
-                <Text> No</Text>
-              </View>
-            </View>
-          </View>
-          
-          {/* Row C3 */}
-          <View style={styles.tableRow}>
-            <View style={[styles.tableCol, { width: '80%' }]}>
-              <Text>C3. Date of first entry in UK (if applicable)</Text>
+              <Text>
+                C2. Have you previously received a visa refusal to study in the
+                UK? If yes, please attach a copy and indicate the reason for
+                this refusal.
+              </Text>
             </View>
             <View style={[styles.tableCol, { width: '20%' }]}>
-              <Text>{formatDate(formData?.complianceData?.startDateInUK) || ''}</Text>
+              <Text>{capitalizeFirstLetter(data.visaRefusal || '')}</Text>
+            </View>
+          </View>
+          {data?.visaRefusal === 'yes' && (
+            <View style={styles.tableRow}>
+              <View style={[styles.tableCol, { width: '80%' }]}>
+                <Text>C3.1: Visa refusal Details </Text>
+              </View>
+              <View style={[styles.tableCol, { width: '20%' }]}>
+                <Text>{capitalizeFirstLetter(data.visaRefusalDetail) || ''}</Text>
+              </View>
+            </View>
+          )}
+          <View style={styles.tableRow}>
+            <View style={[styles.tableCol, { width: '80%' }]}>
+              <Text>
+                C1. Have you applied for Student Finance before? ?
+              </Text>
+            </View>
+            <View style={[styles.tableCol, { width: '20%' }]}>
+              <Text>{capitalizeFirstLetter(data.studentFinance || '')}</Text>
             </View>
           </View>
         </View>
 
         {/* Section D */}
-        <Text style={styles.sectionHeader}>SECTION D: EMPLOYMENT INFORMATION (IF APPLICABLE)</Text>
+        <Text style={styles.sectionHeader}>
+          SECTION D: EMPLOYMENT INFORMATION (IF APPLICABLE)
+        </Text>
         <View style={styles.table}>
           <View style={styles.tableRow}>
             <View style={[styles.tableColHeader, { width: '25%' }]}>
@@ -426,35 +567,83 @@ const ApplicationFormPDF = ({ formData }) => {
               <Text>Full-time or Part-time</Text>
             </View>
             <View style={[styles.tableColHeader, { width: '15%' }]}>
-              <Text>From (mm/yy)</Text>
+              <Text>From (mm/dd/yyyy)</Text>
             </View>
             <View style={[styles.tableColHeader, { width: '20%' }]}>
-              <Text>To (mm/yy)</Text>
+              <Text>To (mm/dd/yyyy)</Text>
             </View>
           </View>
-          
-          {formData?.employmentData?.previousEmployments?.map((job, index) => (
-            <View key={index} style={styles.tableRow}>
+
+          {/* Current employment */}
+          {data.currentEmployment && (
+            <View style={styles.tableRow}>
               <View style={[styles.tableCol, { width: '25%' }]}>
-                <Text>{job?.jobTitle || ''}</Text>
+                <Text>
+                  {capitalizeFirstLetter(
+                    safeGet(data.currentEmployment, 'jobTitle')
+                  )}
+                </Text>
               </View>
               <View style={[styles.tableCol, { width: '25%' }]}>
-                <Text>{job?.employer || ''}</Text>
+                <Text>
+                  {capitalizeFirstLetter(
+                    safeGet(data.currentEmployment, 'employer')
+                  )}
+                </Text>
               </View>
               <View style={[styles.tableCol, { width: '15%' }]}>
-                <Text>{job?.employmentType || ''}</Text>
+                <Text>
+                  {capitalizeFirstLetter(
+                    safeGet(data.currentEmployment, 'employmentType')
+                  )}
+                </Text>
               </View>
               <View style={[styles.tableCol, { width: '15%' }]}>
-                <Text>{job?.startDate ? formatDate(job.startDate) : ''}</Text>
+                <Text>
+                  {formatDate(safeGet(data.currentEmployment, 'startDate'))}
+                </Text>
               </View>
               <View style={[styles.tableCol, { width: '20%' }]}>
-                <Text>{job?.endDate ? formatDate(job.endDate) : ''}</Text>
+                <Text>Present</Text>
               </View>
             </View>
-          ))}
-          
+          )}
+
+          {/* Previous employments */}
+          {Array.isArray(data.previousEmployments) &&
+            data.previousEmployments.map((job: any, index: number) => (
+              <View key={index} style={styles.tableRow}>
+                <View style={[styles.tableCol, { width: '25%' }]}>
+                  <Text>{capitalizeFirstLetter(safeGet(job, 'jobTitle'))}</Text>
+                </View>
+                <View style={[styles.tableCol, { width: '25%' }]}>
+                  <Text>{capitalizeFirstLetter(safeGet(job, 'employer'))}</Text>
+                </View>
+                <View style={[styles.tableCol, { width: '15%' }]}>
+                  <Text>
+                    {capitalizeFirstLetter(safeGet(job, 'employmentType'))}
+                  </Text>
+                </View>
+                <View style={[styles.tableCol, { width: '15%' }]}>
+                  <Text>{formatDate(safeGet(job, 'startDate'))}</Text>
+                </View>
+                <View style={[styles.tableCol, { width: '20%' }]}>
+                  <Text>{formatDate(safeGet(job, 'endDate'))}</Text>
+                </View>
+              </View>
+            ))}
+
           {/* Empty rows for remaining space */}
-          {[...Array(3 - (formData?.employmentData?.previousEmployments?.length || 0))].map((_, i) => (
+          {[
+            ...Array(
+              Math.max(
+                0,
+                3 -
+                  ((data.previousEmployments?.length || 0) +
+                    (data.currentEmployment ? 1 : 0))
+              )
+            )
+          ].map((_, i) => (
             <View key={`empty-job-${i}`} style={styles.tableRow}>
               <View style={[styles.tableCol, { width: '25%' }]}>
                 <Text></Text>
@@ -476,110 +665,189 @@ const ApplicationFormPDF = ({ formData }) => {
         </View>
 
         <Text style={styles.footer}>
-          Application Form    Page 2 of 3    June, 2024
+          Application Form Page 2 of 4 - {getTodaysDate()}
         </Text>
       </Page>
 
       {/* Page 3 */}
       <Page size="A4" style={styles.page}>
         <Text style={styles.header}>WATNEY COLLEGE</Text>
-        
+
         {/* Section E */}
-        <Text style={styles.sectionHeader}>SECTION E: REFEREE(S)</Text>
+        <Text style={styles.sectionHeader}>SECTION E: EMERGENCY CONTACT</Text>
         <View style={[styles.table, { marginBottom: 15 }]}>
           <View style={styles.tableRow}>
-            <View style={[styles.tableCol, { width: '50%' }]}>
-              <Text>Referee 01</Text>
+            <View style={[styles.tableCol, { width: '30%' }]}>
+              <Text>Full Name:</Text>
             </View>
-            <View style={[styles.tableCol, { width: '50%' }]}>
-              <Text>Referee 02</Text>
-            </View>
-          </View>
-          <View style={styles.tableRow}>
-            <View style={[styles.tableCol, { width: '50%' }]}>
-              <Text>Full Name</Text>
-            </View>
-            <View style={[styles.tableCol, { width: '50%' }]}>
-              <Text>Full Name</Text>
+            <View style={[styles.tableCol, { width: '70%' }]}>
+              <Text>{capitalizeFirstLetter(data.emergencyFullName || '')}</Text>
             </View>
           </View>
           <View style={styles.tableRow}>
-            <View style={[styles.tableCol, { width: '50%' }]}>
-              <Text>Address and Post code</Text>
+            <View style={[styles.tableCol, { width: '30%' }]}>
+              <Text>Relationship:</Text>
             </View>
-            <View style={[styles.tableCol, { width: '50%' }]}>
-              <Text>Address and Post code</Text>
-            </View>
-          </View>
-          <View style={styles.tableRow}>
-            <View style={[styles.tableCol, { width: '50%' }]}>
-              <Text>Contact Number</Text>
-            </View>
-            <View style={[styles.tableCol, { width: '50%' }]}>
-              <Text>Contact Number</Text>
+            <View style={[styles.tableCol, { width: '70%' }]}>
+              <Text>
+                {capitalizeFirstLetter(data.emergencyRelationship || '')}
+              </Text>
             </View>
           </View>
           <View style={styles.tableRow}>
-            <View style={[styles.tableCol, { width: '50%' }]}>
-              <Text>Email</Text>
+            <View style={[styles.tableCol, { width: '30%' }]}>
+              <Text>Address:</Text>
             </View>
-            <View style={[styles.tableCol, { width: '50%' }]}>
-              <Text>Email</Text>
+            <View style={[styles.tableCol, { width: '70%' }]}>
+              <Text>{capitalizeFirstLetter(data.emergencyAddress || '')}</Text>
+            </View>
+          </View>
+          <View style={styles.tableRow}>
+            <View style={[styles.tableCol, { width: '30%' }]}>
+              <Text>Contact Number:</Text>
+            </View>
+            <View style={[styles.tableCol, { width: '70%' }]}>
+              <Text>{data.emergencyContactNumber || ''}</Text>
+            </View>
+          </View>
+          <View style={styles.tableRow}>
+            <View style={[styles.tableCol, { width: '30%' }]}>
+              <Text>Email:</Text>
+            </View>
+            <View style={[styles.tableCol, { width: '70%' }]}>
+              <Text>{data.emergencyEmail || ''}</Text>
             </View>
           </View>
         </View>
 
         {/* Section F */}
         <Text style={styles.sectionHeader}>SECTION F: DISABILITIES</Text>
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
-          <View style={styles.checkbox}>
-            {formData?.complianceData?.disability === 'Yes' && <Text>X</Text>}
-          </View>
-          <Text> Do you have any known disabilities? (Please check 'X' if yes and provide details in the box below.)</Text>
+        <View style={{ marginBottom: 10 }}>
+          <Text>
+            Do you have any known disabilities?{' '}
+            {capitalizeFirstLetter(data.disability || 'No')}
+          </Text>
         </View>
         <View style={{ border: '1px solid #000', minHeight: 50, padding: 5 }}>
-          <Text>{formData?.complianceData?.disabilityDetails || ''}</Text>
+          <Text>{capitalizeFirstLetter(data.disabilityDetails || '')}</Text>
         </View>
 
         {/* Section G */}
-        <Text style={styles.sectionHeader}>SECTION G: DECLARATION</Text>
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
-          <View style={styles.checkbox}>
-            {formData?.termsData?.acceptTerms && <Text>X</Text>}
-          </View>
+        <Text style={styles.sectionHeader}>
+          SECTION G: CRIMINAL CONVICTIONS
+        </Text>
+        <View style={{ marginBottom: 10 }}>
           <Text>
-            I confirm that the information given on this form is true, complete and accurate and that none of the information requested or other material information has been omitted. I accept that if it is discovered that I have supplied false, inaccurate or misleading information, WATNEY COLLEGE reserves the right to cancel my application, withdraw its offer of a place or terminate attendance at the College and I shall have no claim against WATNEY COLLEGE in relation thereto.
+            Do you have any criminal convictions?{' '}
+            {data.criminalConviction ? 'Yes' : 'No'}
           </Text>
+        </View>
+        <View style={{ border: '1px solid #000', minHeight: 50, padding: 5 }}>
+          <Text>{capitalizeFirstLetter(data.convictionDetails || '')}</Text>
         </View>
 
         {/* Section H */}
-        <Text style={styles.sectionHeader}>SECTION H: DATA PROTECTION ACT 1988</Text>
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
-          <View style={styles.checkbox}>
-            {formData?.termsData?.acceptDataProcessing && <Text>X</Text>}
+        <Text style={styles.sectionHeader}>SECTION H: FUNDING INFORMATION</Text>
+        <View style={[styles.table, { marginBottom: 15 }]}>
+          <View style={styles.tableRow}>
+            <View style={[styles.tableCol, { width: '30%' }]}>
+              <Text>Funding Type:</Text>
+            </View>
+            <View style={[styles.tableCol, { width: '70%' }]}>
+              <Text>{capitalizeFirstLetter(data.fundingType || '')}</Text>
+            </View>
           </View>
+          {data.fundingType === 'Employer-sponsored' && (
+            <>
+              <View style={styles.tableRow}>
+                <View style={[styles.tableCol, { width: '30%' }]}>
+                  <Text>Company Name:</Text>
+                </View>
+                <View style={[styles.tableCol, { width: '70%' }]}>
+                  <Text>
+                    {capitalizeFirstLetter(data.fundingCompanyName || '')}
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.tableRow}>
+                <View style={[styles.tableCol, { width: '30%' }]}>
+                  <Text>Contact Person:</Text>
+                </View>
+                <View style={[styles.tableCol, { width: '70%' }]}>
+                  <Text>
+                    {capitalizeFirstLetter(data.fundingContactPerson || '')}
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.tableRow}>
+                <View style={[styles.tableCol, { width: '30%' }]}>
+                  <Text>Email:</Text>
+                </View>
+                <View style={[styles.tableCol, { width: '70%' }]}>
+                  <Text>{data.fundingEmail || ''}</Text>
+                </View>
+              </View>
+              <View style={styles.tableRow}>
+                <View style={[styles.tableCol, { width: '30%' }]}>
+                  <Text>Phone Number:</Text>
+                </View>
+                <View style={[styles.tableCol, { width: '70%' }]}>
+                  <Text>{data.fundingPhoneNumber || ''}</Text>
+                </View>
+              </View>
+            </>
+          )}
+        </View>
+        <Text style={styles.footer}>
+          Application Form Page 3 of 4 - {getTodaysDate()}
+        </Text>
+      </Page>
+
+      {/* Page 4 */}
+      <Page size="A4" style={styles.page}>
+        <Text style={styles.header}>WATNEY COLLEGE</Text>
+
+        {/* Section I */}
+        <Text style={styles.sectionHeader}>SECTION I: DECLARATION</Text>
+        <View style={{ marginBottom: 10 }}>
           <Text>
-            I consent to Watney College processing my personal data for purposes related to my application, studies, health and safety, and compliance with College policies. This includes academic performance, learning support, disciplinary matters, CCTV usage, ID card photos, and data required by the Higher Education Statistics Agency (HESA) or other legitimate purposes. I consent to the disclosure of this data for academic references, further education, employment, council tax, or immigration matters, including verification with the UK Border Agency. I understand I can request a copy of my data and that details on HESA are available on the College's intranet.
+            I confirm that the information given on this form is true, complete
+            and accurate: {data.declaration ? 'Yes' : 'No'}
+          </Text>
+        </View>
+
+        {/* Section J */}
+        <Text style={styles.sectionHeader}>SECTION J: DATA PROTECTION</Text>
+        <View style={{ marginBottom: 10 }}>
+          <Text>
+            I consent to Watney College processing my personal data for purposes
+            related to my application:{' '}
+            {data.acceptDataProcessing ? 'Yes' : 'No'}
           </Text>
         </View>
 
         {/* Signature */}
         <View style={{ marginTop: 30 }}>
-          <Text>Signature</Text>
+          <Text>Signature: {capitalizeFirstLetter(data.initial || '')}</Text>
           <View style={styles.signatureLine}></View>
         </View>
 
         {/* Return address */}
         <View style={styles.addressBlock}>
-          <Text>Thank you for completing this form. Once completed, please return it to the following address</Text>
-          <Text style={{ fontWeight: 'bold', marginTop: 5 }}>Watney College</Text>
+          <Text>
+            Thank you for completing this form. Once completed, please return it
+            to the following address
+          </Text>
+          <Text style={{ fontWeight: 'bold', marginTop: 5 }}>
+            Watney College
+          </Text>
           <Text>80-82 Nelson Street, London, E1 2DY</Text>
           <Text>Email: admission@watneycollege.co.uk</Text>
           <Text>Phone: +44 (0)208 004 6463</Text>
         </View>
 
         <Text style={styles.footer}>
-          Application Form    Page 3 of 3    June, 2024
+          Application Form Page 4 of 4 - {getTodaysDate()}
         </Text>
       </Page>
     </Document>
