@@ -9,7 +9,7 @@ const EuStudentProfile: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('personalDetails');
   const { user } = useSelector((state: any) => state.auth);
   const [userData, setUserData] = useState<any>([]);
-
+const [refreshCounter, setRefreshCounter] = useState(0);
   const fetchData = async () => {
     try {
       const response = await axiosInstance.get(`/users/${user._id}`);
@@ -23,35 +23,12 @@ useEffect(() => {
   if (user?._id) {
     fetchData();
   }
-}, [user]);
+}, [user,refreshCounter]);
 
+const refreshData = () => {
+  setRefreshCounter((prev) => prev + 1);
+};
 
-  // // Mock user data - in a real app, this would come from an API
-  // const userData = {
-  //   _id: '1',
-  //   name: 'John Doe',
-  //   email: 'john.doe@example.com',
-  //   role: 'student' as const,
-  //   status: 'active',
-  //   image: 'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=150',
-  //   phone: '+44 123 456 7890',
-  //   personalDetails: {
-  //     title: 'Mr',
-  //     firstName: 'John',
-  //     lastName: 'Doe',
-  //     gender: 'Male',
-  //     dateOfBirth: '1990-01-01',
-  //     nationality: 'British',
-  //     countryOfBirth: 'United Kingdom',
-  //     studentType: 'International'
-  //   },
-  //   addressData: {
-  //     residentialAddressLine1: '123 Main St',
-  //     residentialCity: 'London',
-  //     residentialPostCode: 'SW1A 1AA',
-  //     residentialCountry: 'United Kingdom'
-  //   }
-  // };
 
   return (
     <div className="min-h-full ">
@@ -64,7 +41,7 @@ useEffect(() => {
           </div>
 
           <div className="flex-1 p-6">
-            <TabContent activeTab={activeTab} userData={userData} />
+            <TabContent activeTab={activeTab} userData={userData} refreshData={refreshData} />
           </div>
         </div>
       </div>

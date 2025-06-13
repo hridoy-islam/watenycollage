@@ -16,10 +16,12 @@ import { z } from 'zod';
 
 // Zod validation schema
 export const documentSchema = z.object({
+  image: z.string().min(1, 'Image is required'),
+
   passport: z.array(z.string()).nonempty({
     message: 'Passport is required'
   }),
- 
+
   workExperience: z.array(z.string()).optional(),
   personalStatement: z.array(z.string()).optional(),
   bankStatement: z.array(z.string()).nonempty({
@@ -41,6 +43,7 @@ export function DocumentsStep({
   setCurrentStep
 }: DocumentsStepProps) {
   const [documents, setDocuments] = useState<DocumentFile>({
+    image: defaultValues?.image ?? '',
     passport: defaultValues?.passport ?? [],
     workExperience: defaultValues?.workExperience ?? [],
     personalStatement: defaultValues?.personalStatement ?? [],
@@ -49,7 +52,7 @@ export function DocumentsStep({
 
   const [uploadState, setUploadState] = useState<{
     isOpen: boolean;
-    field: keyof DocumentFile | null;
+    field: keyof Omit<DocumentFile, 'image'> | 'image' | null;
   }>({
     isOpen: false,
     field: null
@@ -62,10 +65,17 @@ export function DocumentsStep({
   const { user } = useSelector((state: any) => state.auth);
 
   const handleRemoveFile = (field: keyof DocumentFile, fileName: string) => {
-    setDocuments((prev) => ({
-      ...prev,
-      [field]: (prev[field] as string[]).filter((file) => file !== fileName)
-    }));
+    if (field === 'image') {
+      setDocuments((prev) => ({
+        ...prev,
+        image: ''
+      }));
+    } else {
+      setDocuments((prev) => ({
+        ...prev,
+        [field]: (prev[field] as string[]).filter((file) => file !== fileName)
+      }));
+    }
   };
 
   const handleBack = () => {
@@ -90,13 +100,52 @@ export function DocumentsStep({
 
   // Check if all required documents have at least one file
   const allDocumentsUploaded =
+    documents.image !== '' &&
     documents.passport.length > 0 &&
-    
     documents.bankStatement.length > 0;
 
   const renderUploadedFiles = (field: keyof DocumentFile) => {
-    const value = documents[field];
+    if (field === 'image') {
+      const fileUrl = documents.image;
+      if (fileUrl) {
+        const fileName = decodeURIComponent(
+          fileUrl.split('/').pop() || 'Photo-ID'
+        );
+        return (
+          <div className="mt-3 space-y-2">
+            <div className="flex w-auto items-center justify-between rounded-lg border border-gray-200 bg-white p-3 transition-all hover:shadow-md">
+              <div className="flex items-center space-x-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
+                  <FileText className="h-4 w-4 text-green-600" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <a
+                    href={fileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center space-x-2 text-sm font-medium text-gray-900 transition-colors hover:text-watney/90"
+                  >
+                    <span className="truncate">{fileName}</span>
+                    <ExternalLink className="h-3 w-3 flex-shrink-0" />
+                  </a>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleRemoveFile(field, fileUrl)}
+                className="h-8 w-8 p-0 text-gray-400 hover:bg-red-50 hover:text-red-500"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        );
+      }
+      return null;
+    }
 
+    const value = documents[field];
     if (Array.isArray(value) && value.length > 0) {
       return (
         <div className="mt-3 space-y-2">
@@ -139,7 +188,6 @@ export function DocumentsStep({
         </div>
       );
     }
-
     return null;
   };
 
@@ -149,23 +197,35 @@ export function DocumentsStep({
 
   const handleUploadComplete = (uploadResponse: any) => {
     const { field } = uploadState;
-
     if (!field || !uploadResponse?.success || !uploadResponse.data?.fileUrl) {
       setUploadState({ isOpen: false, field: null });
       return;
     }
-
     const fileUrl = uploadResponse.data.fileUrl;
-
-    setDocuments((prev) => ({
-      ...prev,
-      [field]: [...(prev[field] as string[]), fileUrl]
-    }));
-
+    if (field === 'image') {
+      setDocuments((prev) => ({
+        ...prev,
+        image: fileUrl
+      }));
+    } else {
+      setDocuments((prev) => ({
+        ...prev,
+        [field]: [...(prev[field] as string[]), fileUrl]
+      }));
+    }
     setUploadState({ isOpen: false, field: null });
   };
 
   const documentTypes = [
+    {
+      id: 'image',
+      label: 'Photograpgh',
+      required: true,
+      instructions: 'Please upload a recent and formal photo of yourself.',
+      formats: 'JPG, PNG',
+      error: validationErrors.image,
+      icon: FileText
+    },
     {
       id: 'passport',
       label: 'Passport/ID Document',
@@ -175,7 +235,7 @@ export function DocumentsStep({
       error: validationErrors.passport,
       icon: FileText
     },
-   
+
     {
       id: 'bankStatement',
       label: 'Bank Statement',
@@ -191,6 +251,8 @@ export function DocumentsStep({
       required: false,
       instructions: 'Upload relevant work experience documents',
       formats: 'PDF, JPG, PNG',
+      uploadLabel: 'You can upload multiple files',
+
       icon: FileText
     },
     {
@@ -231,9 +293,13 @@ export function DocumentsStep({
                   <ul className="space-y-1 text-sm text-gray-600">
                     <li className="flex items-center">
                       <div className="mr-2 h-2 w-2 rounded-full bg-red-500"></div>
+                      Photograpgh
+                    </li>
+                    <li className="flex items-center">
+                      <div className="mr-2 h-2 w-2 rounded-full bg-red-500"></div>
                       Passport or ID document
                     </li>
-                    
+
                     <li className="flex items-center">
                       <div className="mr-2 h-2 w-2 rounded-full bg-red-500"></div>
                       Bank statement
@@ -261,7 +327,7 @@ export function DocumentsStep({
         </CardHeader>
 
         <CardContent className="p-6">
-          <div className="gap-4 grid grid-cols-2 ">
+          <div className="grid grid-cols-2 gap-4 ">
             {documentTypes.map(
               ({
                 id,
@@ -270,7 +336,8 @@ export function DocumentsStep({
                 instructions,
                 formats,
                 error,
-                icon: Icon
+                icon: Icon,
+                uploadLabel
               }) => {
                 const hasFiles =
                   Array.isArray(documents[id as keyof DocumentFile]) &&
@@ -325,6 +392,9 @@ export function DocumentsStep({
                               </p>
                               <p className="mt-1 text-xs text-gray-500">
                                 Accepted formats: {formats}
+                              </p>
+                              <p className="mt-1 text-xs font-semibold text-gray-800">
+                                {uploadLabel}
                               </p>
                             </div>
                           </div>

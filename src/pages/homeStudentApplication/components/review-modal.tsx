@@ -194,7 +194,6 @@ export function ReviewModal({
       </div>
     );
   };
-  
 
   const renderAddress = (address: any) => {
     if (!address) return 'Not provided';
@@ -285,10 +284,13 @@ export function ReviewModal({
               })}
 
             {/* Course Details */}
-            {renderSection('Course Details', {
-              course: courseName || 'N/A',
-              intake: termName || 'N/A'
-            })}
+            {formData?.courseDetailsData?.course &&
+            formData?.courseDetailsData?.intake
+              ? renderSection('Course Details', {
+                  course: courseName || 'N/A',
+                  intake: termName || 'N/A'
+                })
+              : null}
 
             {/* Contact Information */}
             {renderSection('Contact Information', {
@@ -379,11 +381,10 @@ export function ReviewModal({
             })}
             {/* Documents */}
             {renderSection('Documents', {
-              qualification: getDataValue('qualification') || [],
               workExperience: getDataValue('workExperience') || [],
               personalStatement: getDataValue('personalStatement') || [],
               proofOfAddress: getDataValue('proofOfAddress') || [],
-              image: getDataValue('image') || 'Not Provided'
+              PhotoId: getDataValue('photoId') || 'Not Provided'
             })}
           </div>
         </div>

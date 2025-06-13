@@ -14,7 +14,8 @@ import { z } from 'zod';
 
 // Zod validation schema
 export const documentSchema = z.object({
-  image: z.string().optional(),
+  image: z.string().min(1, 'Image is required'),
+
   photoId: z.array(z.string()).nonempty({
     message: 'Photo ID is required'
   }),
@@ -40,7 +41,7 @@ export function DocumentsStep({
   setCurrentStep
 }: DocumentsStepProps) {
   const [documents, setDocuments] = useState<DocumentFile>({
-    // image: defaultValues?.image ?? '',
+    image: defaultValues?.image ?? '',
     proofOfAddress: defaultValues?.proofOfAddress ?? [],
     photoId: defaultValues?.photoId ?? [],
     qualification: defaultValues?.qualification ?? [],
@@ -96,7 +97,9 @@ export function DocumentsStep({
 
   // Check if all required documents have at least one file
   const allDocumentsUploaded =
-    documents.image !== '' && documents.proofOfAddress.length > 0;
+    documents.image !== '' &&
+    documents.photoId.length > 0 &&
+    documents.proofOfAddress.length > 0;
 
   const renderUploadedFiles = (field: keyof DocumentFile) => {
     if (field === 'image') {
@@ -212,6 +215,16 @@ export function DocumentsStep({
 
   const documentTypes = [
     {
+      id: 'image',
+      label: 'Photograpgh',
+      required: true,
+      instructions: 'Please upload a recent and formal photo of yourself.',
+      formats: 'JPG, PNG',
+      error: validationErrors.image,
+
+      icon: FileText
+    },
+    {
       id: 'photoId',
       label: 'Photo ID',
       required: true,
@@ -238,6 +251,8 @@ export function DocumentsStep({
       required: false,
       instructions: 'Upload relevant work experience documents',
       formats: 'PDF, JPG, PNG',
+      uploadLabel: 'You can upload multiple files',
+
       icon: FileText
     },
     {
@@ -277,6 +292,10 @@ export function DocumentsStep({
                   <ul className="space-y-1 text-sm text-gray-600">
                     <li className="flex items-center">
                       <div className="mr-2 h-2 w-2 rounded-full bg-red-500"></div>
+                      Photograph
+                    </li>
+                    <li className="flex items-center">
+                      <div className="mr-2 h-2 w-2 rounded-full bg-red-500"></div>
                       Photo ID
                     </li>
                     <li className="flex items-center">
@@ -290,7 +309,6 @@ export function DocumentsStep({
                     Optional Documents:
                   </p>
                   <ul className="space-y-1 text-sm text-gray-600">
-                   
                     <li className="flex items-center">
                       <div className="mr-2 h-2 w-2 rounded-full bg-gray-400"></div>
                       Work experience documents
@@ -306,7 +324,7 @@ export function DocumentsStep({
           </div>
         </CardHeader>
         <CardContent className="p-6 ">
-          <div className="grid md:grid-cols-2 gap-4  ">
+          <div className="grid gap-4 md:grid-cols-2  ">
             {documentTypes.map(
               ({
                 id,
@@ -315,7 +333,8 @@ export function DocumentsStep({
                 instructions,
                 formats,
                 error,
-                icon: Icon
+                icon: Icon,
+                uploadLabel
               }) => {
                 const hasFiles =
                   id === 'image'
@@ -372,6 +391,9 @@ export function DocumentsStep({
                               </p>
                               <p className="mt-1 text-xs text-gray-500">
                                 Accepted formats: {formats}
+                              </p>
+                              <p className="mt-1 text-xs font-semibold text-gray-800">
+                                {uploadLabel}
                               </p>
                             </div>
                           </div>

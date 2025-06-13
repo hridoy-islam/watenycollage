@@ -6,6 +6,8 @@ import { CustomDatePicker } from '@/components/shared/CustomDatePicker';
 import TabSection from '../TabSection';
 import { Input } from '@/components/ui/input';
 import { countries, nationalities } from '@/types';
+import { useSelector } from 'react-redux';
+import { ImageUploader } from '../components/userImage-uploader';
 
 interface PersonalDetailsProps {
   userData: User;
@@ -13,12 +15,15 @@ interface PersonalDetailsProps {
   onSave?: (data: User) => void; // Updated to accept data parameter
   onCancel?: () => void;
   onEdit?: () => void;
+  refreshData;
 }
 
 const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
-  const { userData, isEditing, onSave, onCancel, onEdit } = props;
+  const { userData, isEditing, onSave, onCancel, onEdit, refreshData } = props;
 
   const [localData, setLocalData] = useState<User>(userData);
+  const { user } = useSelector((state: any) => state.auth);
+  const [uploadOpen, setUploadOpen] = useState(false);
 
   const handleInputChange = (field: keyof User, value: any) => {
     setLocalData((prevData) => ({
@@ -77,8 +82,6 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
     { value: 'no', label: 'No' }
   ];
 
-
-
   const maritalStatusOptions = [
     { value: 'single', label: 'Single' },
     { value: 'married', label: 'Married' },
@@ -91,6 +94,12 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
   const capitalizeFirstLetter = (str: string) => {
     if (!str) return ''; // return empty string if input is empty or undefined
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  };
+  const handleUploadComplete = (data) => {
+    setUploadOpen(false);
+    if (refreshData) {
+      refreshData();
+    }
   };
 
   return (
@@ -126,14 +135,9 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
                 htmlFor="profile-image"
                 className="absolute bottom-0 right-0 cursor-pointer rounded-full bg-watney p-2 text-white shadow-md transition-colors hover:bg-indigo-700"
               >
-                <Camera size={16} />
-                <input
-                  id="profile-image"
-                  type="file"
-                  className="hidden"
-                  accept="image/*"
-                  // onChange={handleImageChange}
-                />
+                <div onClick={() => setUploadOpen(true)}>
+                  <Camera size={16} />
+                </div>
               </label>
             )}
           </div>
@@ -514,6 +518,12 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
             </div>
           </div>
         </div>
+        <ImageUploader
+          open={uploadOpen}
+          onOpenChange={setUploadOpen}
+          onUploadComplete={handleUploadComplete}
+          entityId={user?._id}
+        />
       </div>
     </TabSection>
   );

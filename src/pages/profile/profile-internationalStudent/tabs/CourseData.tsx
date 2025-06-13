@@ -27,6 +27,7 @@ import {
   DialogTitle
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
+import moment from 'moment';
 
 interface Course {
   _id: string;
@@ -157,106 +158,110 @@ export default function CourseData({ user }: StudentDashboardProps) {
     }
   };
 
-  return (
-    <div className="flex-1 space-y-4">
-      {/* Applied Courses Tab */}
-      <Card className="shadow-none">
-        <CardHeader>
-          <CardTitle>Your Course Applications</CardTitle>
-          <CardDescription>
-            Track the status of your course applications
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Course Name</TableHead>
-                <TableHead>Intake</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Action</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {applications.length > 0 ? (
-                applications.map((application) => (
-                  <TableRow key={application._id}>
-                    <TableCell className="py-4 font-medium">
-                      {application?.courseId?.name || 'Unnamed Course'}
-                    </TableCell>
-                    <TableCell className="py-4">
-                      {application?.intakeId?.termName || 'N/A'}
-                    </TableCell>
-                    <TableCell className="py-4">
-                      <Badge
-                        className={`text-white ${
-                          application?.status === 'applied'
-                            ? 'bg-blue-500'
-                            : application?.status === 'cancelled'
-                              ? 'bg-red-500'
-                              : application?.status === 'approved'
-                                ? 'bg-green-500'
-                                : 'bg-gray-500'
-                        }`}
-                      >
-                        {application?.status || 'N/A'}
-                      </Badge>
-                    </TableCell>
-
-                    <TableCell className="text-right">
-                      {application?.status !== 'cancelled' && (
-                        <Button
-                          onClick={() => openDeleteModal(application._id)}
-                          className="border-none bg-destructive text-white hover:bg-destructive/90"
+   return (
+      <div className="flex-1 space-y-4">
+        {/* Applied Courses Tab */}
+        <Card className="shadow-none">
+          <CardHeader>
+            <CardTitle>Your Course Applications</CardTitle>
+            <CardDescription>
+              Track the status of your course applications
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Course Name</TableHead>
+                  <TableHead>Intake</TableHead>
+                  <TableHead>Application Date</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Action</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {applications.length > 0 ? (
+                  applications.map((application) => (
+                    <TableRow key={application._id}>
+                      <TableCell className="py-4 font-medium">
+                        {application?.courseId?.name || 'Unnamed Course'}
+                      </TableCell>
+                      <TableCell className="py-4">
+                        {application?.intakeId?.termName || 'N/A'}
+                      </TableCell>
+                      <TableCell>
+                        {moment(application?.createAt).format('MM-DD-YYYY')}
+                      </TableCell>
+                      <TableCell className="py-4">
+                        <Badge
+                          className={`text-white ${
+                            application?.status === 'applied'
+                              ? 'bg-blue-500'
+                              : application?.status === 'cancelled'
+                                ? 'bg-red-500'
+                                : application?.status === 'approved'
+                                  ? 'bg-green-500'
+                                  : 'bg-gray-500'
+                          }`}
                         >
-                          Cancel
-                        </Button>
-                      )}
+                          {application?.status || 'N/A'}
+                        </Badge>
+                      </TableCell>
+                      
+                      <TableCell className="text-right">
+                        {application?.status !== 'cancelled' && (
+                          <Button
+                            onClick={() => openDeleteModal(application._id)}
+                            className="border-none bg-destructive text-white hover:bg-destructive/90"
+                          >
+                            Cancel
+                          </Button>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center">
+                      No applications found.
                     </TableCell>
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={4} className="text-center">
-                    No applications found.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-
-          {applications.length > 0 && (
-            <DataTablePagination
-              pageSize={entriesPerPage}
-              setPageSize={setEntriesPerPage}
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-            />
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Confirmation Modal */}
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Are you sure?</DialogTitle>
-          </DialogHeader>
-          <p className="text-gray-600">
-            Do you want to cancel this application? This action cannot be
-            undone.
-          </p>
-          <div className="mt-4 flex justify-end space-x-4">
-            <Button onClick={closeModal} variant="outline">
-              Close
-            </Button>
-            <Button onClick={handleDelete} variant="destructive">
-              Yes, Cancel Application
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
+                )}
+              </TableBody>
+            </Table>
+  
+            {applications.length > 0 && (
+              <DataTablePagination
+                pageSize={entriesPerPage}
+                setPageSize={setEntriesPerPage}
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
+            )}
+          </CardContent>
+        </Card>
+  
+        {/* Confirmation Modal */}
+        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Are you sure?</DialogTitle>
+            </DialogHeader>
+            <p className="text-gray-600">
+              Do you want to cancel this application? This action cannot be
+              undone.
+            </p>
+            <div className="mt-4 flex justify-end space-x-4">
+              <Button onClick={closeModal} variant="outline">
+                Close
+              </Button>
+              <Button onClick={handleDelete} variant="destructive">
+                Yes, Cancel Application
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+    );
 }

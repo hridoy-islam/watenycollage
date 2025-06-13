@@ -27,6 +27,7 @@ import {
   DialogTitle
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
+import moment from 'moment';
 
 interface Course {
   _id: string;
@@ -173,6 +174,7 @@ export default function CourseData({ user }: StudentDashboardProps) {
               <TableRow>
                 <TableHead>Course Name</TableHead>
                 <TableHead>Intake</TableHead>
+                <TableHead>Application Date</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Action</TableHead>
               </TableRow>
@@ -186,6 +188,9 @@ export default function CourseData({ user }: StudentDashboardProps) {
                     </TableCell>
                     <TableCell className="py-4">
                       {application?.intakeId?.termName || 'N/A'}
+                    </TableCell>
+                    <TableCell>
+                      {moment(application?.createAt).format('MM-DD-YYYY')}
                     </TableCell>
                     <TableCell className="py-4">
                       <Badge
@@ -202,7 +207,7 @@ export default function CourseData({ user }: StudentDashboardProps) {
                         {application?.status || 'N/A'}
                       </Badge>
                     </TableCell>
-
+                    
                     <TableCell className="text-right">
                       {application?.status !== 'cancelled' && (
                         <Button

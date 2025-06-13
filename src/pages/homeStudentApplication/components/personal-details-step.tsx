@@ -509,7 +509,7 @@ export function PersonalDetailsStep({
                     <FormControl>
                       <Textarea
                         {...field}
-                        className="!placeholder:text-gray-500 p-1 text-sm  placeholder:text-xs placeholder:text-gray-500"
+                        className="!placeholder:text-gray-500 p-1 text-sm  placeholder:text-xs placeholder:text-gray-500 border-gray-200"
                         placeholder="This is collected for equal opportunity monitoring. It will not affect your application."
                       />
                     </FormControl>

@@ -366,16 +366,16 @@ export default function ViewStudentApplicationPage() {
             <MoveLeft /> Back
           </Button>
 
-          <div>
+          <div className='flex flex-row items-center gap-2'>
             <h1 className="text-md font-semibold">
               {application?.title} {application?.firstName}{' '}
               {application?.initial} {application?.lastName}
             </h1>
-            <Badge className="bg-watney text-white">
+            <Badge className="bg-watney text-white hover:bg-watney">
               {application?.studentType === 'international'
                 ? 'International'
                 : application?.studentType === 'eu'
-                  ? 'Home Student'
+                  ? 'Home'
                   : 'Not provided'}
             </Badge>
           </div>
@@ -824,7 +824,7 @@ export default function ViewStudentApplicationPage() {
                           {application?.photoId?.map(
                             (url: string, index: number) =>
                               renderFieldRow(
-                                `Photo ID ${index + 1}`,
+                                `Photo ID `,
                                 url,
                                 `photoId[${index}]`
                               )
@@ -837,7 +837,7 @@ export default function ViewStudentApplicationPage() {
                           {application?.passport?.map(
                             (url: string, index: number) =>
                               renderFieldRow(
-                                `Passport File ${index + 1}`,
+                                `Passport File `,
                                 url,
                                 `passport[${index}]`
                               )
@@ -848,7 +848,7 @@ export default function ViewStudentApplicationPage() {
                       {application?.workExperience?.map(
                         (url: string, index: number) =>
                           renderFieldRow(
-                            `Work Experience File ${index + 1}`,
+                            `Work Experience File `,
                             url,
                             `workExperience[${index}]`
                           )
@@ -874,7 +874,7 @@ export default function ViewStudentApplicationPage() {
                           {application?.proofOfAddress?.map(
                             (url: string, index: number) =>
                               renderFieldRow(
-                                `Proof Of Address ${index + 1}`,
+                                `Proof Of Address `,
                                 url,
                                 `proofOfAddress[${index}]`
                               )
@@ -887,7 +887,7 @@ export default function ViewStudentApplicationPage() {
                           {application?.bankStatement?.map(
                             (url: string, index: number) =>
                               renderFieldRow(
-                                `Bank Statement File ${index + 1}`,
+                                `Bank Statement File `,
                                 url,
                                 `bankStatement[${index}]`
                               )
@@ -898,7 +898,7 @@ export default function ViewStudentApplicationPage() {
                       {application?.personalStatement?.map(
                         (url: string, index: number) =>
                           renderFieldRow(
-                            `Personal Statement File ${index + 1}`,
+                            `Personal Statement File `,
                             url,
                             `personalStatement[${index}]`
                           )
@@ -1185,6 +1185,16 @@ export default function ViewStudentApplicationPage() {
                             'Intake',
                             courseEntry.intakeId?.termName ?? 'N/A',
                             `applicationCourse.${index}.intakeId.termName`
+                          )}
+                          {renderFieldRow(
+                            'Status',
+                            courseEntry.status?? 'N/A',
+                            `applicationCourse.${index}.status`
+                          )}
+                          {renderFieldRow(
+                            'Application Date',
+                            courseEntry.createdAt?? 'N/A',
+                            `applicationCourse.${index}.createdAt`
                           )}
                         </TableBody>
                       </Table>

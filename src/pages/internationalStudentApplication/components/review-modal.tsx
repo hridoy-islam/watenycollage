@@ -333,10 +333,14 @@ export function ReviewModal({ open, onClose, formData, userId }: ReviewModalProp
                   getDataValue('postalCountry')
               })}
             {/* Course Details */}
-            {renderSection('Course Details', {
-              course: courseName || 'Loading...',
-              intake: termName || 'Loading...'
-            })}
+
+            {formData?.courseDetailsData?.course &&
+            formData?.courseDetailsData?.intake
+              ? renderSection('Course Details', {
+                  course: courseName || 'N/A',
+                  intake: termName || 'N/A'
+                })
+              : null}
             {/* Contact Information */}
             {renderSection('Contact Information', {
               emergencyFullName: getDataValue('emergencyFullName'),
@@ -442,11 +446,10 @@ export function ReviewModal({ open, onClose, formData, userId }: ReviewModalProp
             {/* Documents */}
             {renderSection('Documents', {
               passport: getDataValue('passport') || [],
-              qualification: getDataValue('qualification') || [],
               workExperience: getDataValue('workExperience') || [],
               personalStatement: getDataValue('personalStatement') || [],
               bankStatement: getDataValue('bankStatement') || [],
-              proofOfAddress: getDataValue('proofOfAddress') || []
+              photoId: getDataValue('photoId') || []
             })}
           </div>
         </div>
