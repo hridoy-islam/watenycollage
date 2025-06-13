@@ -1,4 +1,3 @@
-'use client';
 import { useState } from 'react';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,7 +14,10 @@ import { z } from 'zod';
 
 // Zod validation schema
 export const documentSchema = z.object({
-  image: z.string().min(1, { message: 'Photo ID is required' }),
+  image: z.string().optional(),
+  photoId: z.array(z.string()).nonempty({
+    message: 'Photo ID is required'
+  }),
   proofOfAddress: z.array(z.string()).nonempty({
     message: 'Proof of address is required'
   }),
@@ -288,10 +290,7 @@ export function DocumentsStep({
                     Optional Documents:
                   </p>
                   <ul className="space-y-1 text-sm text-gray-600">
-                    <li className="flex items-center">
-                      <div className="mr-2 h-2 w-2 rounded-full bg-gray-400"></div>
-                      Qualification certificates
-                    </li>
+                   
                     <li className="flex items-center">
                       <div className="mr-2 h-2 w-2 rounded-full bg-gray-400"></div>
                       Work experience documents

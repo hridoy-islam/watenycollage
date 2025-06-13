@@ -203,7 +203,6 @@ export default function ViewStudentApplicationPage() {
     fetchCourse();
   }, []);
 
-
   const copyToClipboard = (value: string, field: string) => {
     navigator.clipboard.writeText(value).then(
       () => {
@@ -255,25 +254,47 @@ export default function ViewStudentApplicationPage() {
 
     return String(value);
   };
-
   const renderFieldRow = (label: string, value: any, fieldPath: string) => {
-    const displayValue = formatValue(value);
     const isCopied = copiedFields[fieldPath] || false;
     const isEmptyValue = value === undefined || value === null || value === '';
+    const isUrl = typeof value === 'string' && value.startsWith('http');
+
+    const isEmail =
+      typeof value === 'string' &&
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+
+    const displayValue = isUrl
+      ? null
+      : isEmail
+        ? value.toLowerCase()
+        : formatValue(value);
 
     return (
       <TableRow key={fieldPath} className="hover:bg-muted/10">
         <TableCell className="text-left align-middle font-medium">
           {label}
         </TableCell>
+
         <TableCell
           className={cn(
             'text-right align-middle',
             isEmptyValue && 'italic text-muted-foreground'
           )}
         >
-          {displayValue}
+          {isUrl ? (
+            <a
+              href={value}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block text-blue-600 underline hover:text-blue-800"
+            >
+              View File
+            </a>
+          ) : (
+            displayValue
+          )}
         </TableCell>
+
         <TableCell className="w-10 text-right">
           {!isEmptyValue && (
             <Button
@@ -337,12 +358,28 @@ export default function ViewStudentApplicationPage() {
   return (
     <div className="w-full">
       <div className="flex items-center justify-between px-4">
-        <Button
-          className="bg-watney text-white hover:bg-watney/90 "
-          onClick={() => navigate('/dashboard/student-applications')}
-        >
-          <MoveLeft /> Back
-        </Button>
+        <div className="flex flex-row items-center gap-4">
+          <Button
+            className="bg-watney text-white hover:bg-watney/90 "
+            onClick={() => navigate('/dashboard/student-applications')}
+          >
+            <MoveLeft /> Back
+          </Button>
+
+          <div>
+            <h1 className="text-md font-semibold">
+              {application?.title} {application?.firstName}{' '}
+              {application?.initial} {application?.lastName}
+            </h1>
+            <Badge className="bg-watney text-white">
+              {application?.studentType === 'international'
+                ? 'International'
+                : application?.studentType === 'eu'
+                  ? 'Home Student'
+                  : 'Not provided'}
+            </Badge>
+          </div>
+        </div>
 
         <PDFGenerator application={application} />
       </div>
@@ -356,7 +393,7 @@ export default function ViewStudentApplicationPage() {
             {[
               { value: 'personal', label: 'Personal' },
               { value: 'address', label: 'Address' },
-              { value: 'other-information', label: 'Other info' },
+              { value: 'other-information', label: 'Miscellaneous' },
               { value: 'emergency', label: 'Emergency Contact' },
               { value: 'documents', label: 'Documents' },
               { value: 'employment', label: 'Employment' },
@@ -403,11 +440,18 @@ export default function ViewStudentApplicationPage() {
                       application?.lastName,
                       'lastName'
                     )}
+                    {renderFieldRow('Email', application?.email, 'email')}
                     {renderFieldRow('Gender', application?.gender, 'gender')}
                     {renderFieldRow(
                       'Date of Birth',
                       application?.dateOfBirth,
                       'dateOfBirth'
+                    )}
+                    {renderFieldRow('Phone', application?.phone, 'phone')}
+                    {renderFieldRow(
+                      'Country Of Domicile',
+                      application?.countryOfDomicile,
+                      'countryOfDomicile'
                     )}
                   </TableBody>
                 </Table>
@@ -426,21 +470,25 @@ export default function ViewStudentApplicationPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {renderFieldRow(
-                      'Nationality',
-                      application?.nationality,
-                      'nationality'
-                    )}
+                    {application?.studentType === 'eu' &&
+                      renderFieldRow(
+                        'Nationality',
+                        application?.nationality,
+                        'nationality'
+                      )}
                     {renderFieldRow(
                       'Ethnicity',
                       application?.ethnicity,
                       'ethnicity'
                     )}
-                    {renderFieldRow(
-                      'Custom Ethnicity',
-                      application?.customEthnicity,
-                      'customEthnicity'
-                    )}
+
+                    {application?.ethnicity === 'other' &&
+                      renderFieldRow(
+                        'Specify Ethnicity',
+                        application?.customEthnicity,
+                        'customEthnicity'
+                      )}
+
                     {renderFieldRow(
                       'Country of Birth',
                       application?.countryOfBirth,
@@ -450,6 +498,21 @@ export default function ViewStudentApplicationPage() {
                       'Marital Status',
                       application?.maritalStatus,
                       'maritalStatus'
+                    )}
+
+                    {application?.studentType === 'international' && (
+                      <>
+                        {renderFieldRow(
+                          'Do you require a visa to come to the UK?',
+                          application?.requireVisa,
+                          'requireVisa'
+                        )}
+                        {renderFieldRow(
+                          'From where are you making your application?',
+                          application?.applicationLocation,
+                          'applicationLocation'
+                        )}
+                      </>
                     )}
                   </TableBody>
                 </Table>
@@ -582,27 +645,76 @@ export default function ViewStudentApplicationPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {renderFieldRow(
-                        'Start Date in UK',
-                        application.startDateInUK,
-                        'startDateInUK'
+                      {application?.studentType === 'international' && (
+                        <>
+                          {renderFieldRow(
+                            'Do you require visa to come or stay to the UK? *',
+                            application?.visaRequired,
+                            'visaRequired'
+                          )}
+                          {renderFieldRow(
+                            'Have you entered into the UK before?',
+                            application?.enteredUKBefore,
+                            'enteredUKBefore'
+                          )}
+                          {renderFieldRow(
+                            'Have you completed any course from the UK before?',
+                            application?.completedUKCourse,
+                            'completedUKCourse'
+                          )}
+                          {renderFieldRow(
+                            'Do you have any visa refusal?',
+                            application?.visaRefusal,
+                            'visaRefusal'
+                          )}
+
+                          {application?.visaRefusal === 'yes' &&
+                            renderFieldRow(
+                              'Visa Refusal Details',
+                              application?.visaRefusalDetail,
+                              'visaRefusalDetail'
+                            )}
+                        </>
                       )}
-                      {renderFieldRow(
-                        'NI Number',
-                        application.niNumber,
-                        'niNumber'
+
+                      {application?.studentType === 'eu' && (
+                        <>
+                          {renderFieldRow(
+                            'Immigration Status',
+                            application?.immigrationStatus,
+                            'immigrationStatus'
+                          )}
+                          {renderFieldRow(
+                            'National Insurance (NI) Number',
+                            application?.niNumber,
+                            'niNumber'
+                          )}
+                          {renderFieldRow(
+                            'lease provide your LTR (Leave to Remain) Code',
+                            application?.ltrCode,
+                            'ltrCode'
+                          )}
+                        </>
                       )}
-                      {renderFieldRow('Status', application.status, 'status')}
+
                       {renderFieldRow(
-                        'LTR Code',
-                        application.ltrCode,
-                        'ltrCode'
+                        'Where did you hear about us?',
+                        application?.hearAboutUs,
+                        'hearAboutUs'
                       )}
+
                       {renderFieldRow(
-                        'Disability',
-                        application.disability,
+                        'Do you have disability?',
+                        application?.disability,
                         'disability'
                       )}
+
+                      {application?.disability === 'yes' &&
+                        renderFieldRow(
+                          'Disability Details ',
+                          application?.disabilityDetails,
+                          'disabilityDetails'
+                        )}
                     </TableBody>
                   </Table>
                 </CardContent>
@@ -619,11 +731,6 @@ export default function ViewStudentApplicationPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {renderFieldRow(
-                        'Disability Details',
-                        application.disabilityDetails,
-                        'disabilityDetails'
-                      )}
                       {renderFieldRow(
                         'Benefits',
                         application.benefits,
@@ -712,45 +819,39 @@ export default function ViewStudentApplicationPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {renderFieldRow(
-                        'Document Type',
-                        application.documentType,
-                        'documentType'
+                      {application?.studentType === 'eu' && (
+                        <>
+                          {application?.photoId?.map(
+                            (url: string, index: number) =>
+                              renderFieldRow(
+                                `Photo ID ${index + 1}`,
+                                url,
+                                `photoId[${index}]`
+                              )
+                          )}
+                        </>
                       )}
-                      {renderFieldRow(
-                        'National ID',
-                        application.nationalID,
-                        'nationalID'
+
+                      {application?.studentType === 'international' && (
+                        <>
+                          {application?.passport?.map(
+                            (url: string, index: number) =>
+                              renderFieldRow(
+                                `Passport File ${index + 1}`,
+                                url,
+                                `passport[${index}]`
+                              )
+                          )}
+                        </>
                       )}
-                      {renderFieldRow(
-                        'Has Passport',
-                        application.hasDocument,
-                        'hasDocument'
-                      )}
-                      {renderFieldRow(
-                        'Passport Number',
-                        application.passportNumber,
-                        'passportNumber'
-                      )}
-                      {renderFieldRow(
-                        'Passport Expiry',
-                        application.passportExpiry,
-                        'passportExpiry'
-                      )}
-                      {renderFieldRow(
-                        'ID Document Count',
-                        application.idDocument?.length,
-                        'idDocument.length'
-                      )}
-                      {renderFieldRow(
-                        'Has Certificates',
-                        application.hasCertificates,
-                        'hasCertificates'
-                      )}
-                      {renderFieldRow(
-                        'Certificates Details',
-                        application.certificatesDetails,
-                        'certificatesDetails'
+
+                      {application?.workExperience?.map(
+                        (url: string, index: number) =>
+                          renderFieldRow(
+                            `Work Experience File ${index + 1}`,
+                            url,
+                            `workExperience[${index}]`
+                          )
                       )}
                     </TableBody>
                   </Table>
@@ -768,47 +869,39 @@ export default function ViewStudentApplicationPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {renderFieldRow(
-                        'Qualification Certificates Count',
-                        application.qualificationCertificates?.length,
-                        'qualificationCertificates.length'
+                      {application?.studentType === 'eu' && (
+                        <>
+                          {application?.proofOfAddress?.map(
+                            (url: string, index: number) =>
+                              renderFieldRow(
+                                `Proof Of Address ${index + 1}`,
+                                url,
+                                `proofOfAddress[${index}]`
+                              )
+                          )}
+                        </>
                       )}
-                      {renderFieldRow(
-                        'CV/Resume Count',
-                        application.cvResume?.length,
-                        'cvResume.length'
+
+                      {application?.studentType === 'international' && (
+                        <>
+                          {application?.bankStatement?.map(
+                            (url: string, index: number) =>
+                              renderFieldRow(
+                                `Bank Statement File ${index + 1}`,
+                                url,
+                                `bankStatement[${index}]`
+                              )
+                          )}
+                        </>
                       )}
-                      {renderFieldRow(
-                        'Has Proof of Address',
-                        application.hasProofOfAddress,
-                        'hasProofOfAddress'
-                      )}
-                      {renderFieldRow(
-                        'Proof of Address Type',
-                        application.proofOfAddressType,
-                        'proofOfAddressType'
-                      )}
-                      {renderFieldRow(
-                        'Proof of Address Date',
-                        application.proofOfAddressDate,
-                        'proofOfAddressDate'
-                      )}
-                      {renderFieldRow(
-                        'Proof of Address Count',
-                        application.proofOfAddress?.length,
-                        'proofOfAddress.length'
-                      )}
-                      {renderFieldRow(
-                        'Other Documents Count',
-                        application.otherDocuments?.length,
-                        'otherDocuments.length'
-                      )}
-                      {renderFieldRow(
-                        'Other Documents Descriptions',
-                        Array.isArray(application.otherDocumentsDescription)
-                          ? application.otherDocumentsDescription.join(', ')
-                          : application.otherDocumentsDescription,
-                        'otherDocumentsDescription'
+
+                      {application?.personalStatement?.map(
+                        (url: string, index: number) =>
+                          renderFieldRow(
+                            `Personal Statement File ${index + 1}`,
+                            url,
+                            `personalStatement[${index}]`
+                          )
                       )}
                     </TableBody>
                   </Table>
@@ -822,7 +915,7 @@ export default function ViewStudentApplicationPage() {
               <Card>
                 <CardContent className="pt-6">
                   <h3 className="mb-2 text-lg font-semibold">
-                    Employment Status
+                    Current Employment
                   </h3>
                   <Table className="mb-6">
                     <TableHeader>
@@ -834,151 +927,124 @@ export default function ViewStudentApplicationPage() {
                     </TableHeader>
                     <TableBody>
                       {renderFieldRow(
-                        'Is Employed',
+                        'Are you currently employed?',
                         application.isEmployed,
                         'isEmployed'
                       )}
-                      {renderFieldRow(
-                        'Has Employment Gaps',
-                        application.hasEmploymentGaps,
-                        'hasEmploymentGaps'
-                      )}
-                      {renderFieldRow(
-                        'Employment Gaps Explanation',
-                        application.employmentGapsExplanation,
-                        'employmentGapsExplanation'
-                      )}
-                      {renderFieldRow(
-                        'Declaration',
-                        application.declaration,
-                        'declaration'
+                      {application.isEmployed === 'yes' && (
+                        <>
+                          {renderFieldRow(
+                            'Employer',
+                            application?.currentEmployment?.employer,
+                            'currentEmployment.employer'
+                          )}
+                          {renderFieldRow(
+                            'Job Title',
+                            application?.currentEmployment?.jobTitle,
+                            'currentEmployment.jobTitle'
+                          )}
+                          {renderFieldRow(
+                            'Start Date',
+                            application?.currentEmployment?.startDate,
+                            'currentEmployment.startDate'
+                          )}
+                          {renderFieldRow(
+                            'Employment Type',
+                            application?.currentEmployment?.employmentType,
+                            'currentEmployment.employmentType'
+                          )}
+                          {renderFieldRow(
+                            'Responsibilities',
+                            application?.currentEmployment?.responsibilities,
+                            'currentEmployment.responsibilities'
+                          )}
+
+                          {renderFieldRow(
+                            'Do you have previous employment history?',
+                            application?.hasPreviousEmployment,
+                            'hasPreviousEmployment'
+                          )}
+                        </>
                       )}
                     </TableBody>
                   </Table>
                 </CardContent>
               </Card>
+              {application?.hasPreviousEmployment === 'yes' && (
+                <Card>
+                  <CardContent className="pt-6">
+                    {application.previousEmployments &&
+                      application.previousEmployments.length > 0 && (
+                        <>
+                          <h3 className="mb-2 text-lg font-semibold">
+                            Previous Employment
+                          </h3>
+                          <div className="space-y-6">
+                            {application.previousEmployments.map(
+                              (employment, index) => (
+                                <div key={index}>
+                                  <div className="mb-2 flex items-center">
+                                    <h4 className="font-medium">
+                                      Previous Employment {index + 1}
+                                    </h4>
+                                    <Separator className="mx-4 flex-1" />
+                                  </div>
+                                  <Table>
+                                    <TableBody>
+                                      {renderFieldRow(
+                                        'Employer Name',
+                                        employment.employer,
+                                        `previousEmployments.${index}.employer`
+                                      )}
+                                      {renderFieldRow(
+                                        'Job Position',
+                                        employment.jobTitle,
+                                        `previousEmployments.${index}.jobTitle`
+                                      )}
+                                      {renderFieldRow(
+                                        'Start Date',
+                                        employment.startDate,
+                                        `previousEmployments.${index}.startDate`
+                                      )}
+                                      {renderFieldRow(
+                                        'End Date',
+                                        employment.endDate,
+                                        `previousEmployments.${index}.endDate`
+                                      )}
+                                      {renderFieldRow(
+                                        'Reason for Leaving',
+                                        employment.reasonForLeaving,
+                                        `previousEmployments.${index}.reasonForLeaving`
+                                      )}
+                                      {renderFieldRow(
+                                        'Main Responsibilities',
+                                        employment.responsibilities,
+                                        `previousEmployments.${index}.responsibilities`
+                                      )}
 
-              <Card>
-                <CardContent className="pt-6">
-                  {application.currentEmployment && (
-                    <>
-                      <h3 className="mb-2 text-lg font-semibold">
-                        Current Employment
-                      </h3>
-                      <Table className="mb-6">
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead className="w-1/3 text-left">
-                              Field
-                            </TableHead>
-                            <TableHead className="text-right">Value</TableHead>
-                            <TableHead className="w-10 text-right"></TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {renderFieldRow(
-                            'Employer',
-                            application.currentEmployment.employer,
-                            'currentEmployment.employer'
-                          )}
-                          {renderFieldRow(
-                            'Job Title',
-                            application.currentEmployment.jobTitle,
-                            'currentEmployment.jobTitle'
-                          )}
-                          {renderFieldRow(
-                            'Start Date',
-                            application.currentEmployment.startDate,
-                            'currentEmployment.startDate'
-                          )}
-                          {renderFieldRow(
-                            'Employment Type',
-                            application.currentEmployment.employmentType,
-                            'currentEmployment.employmentType'
-                          )}
-                          {renderFieldRow(
-                            'Responsibilities',
-                            application.currentEmployment.responsibilities,
-                            'currentEmployment.responsibilities'
-                          )}
-                          {renderFieldRow(
-                            'Supervisor',
-                            application.currentEmployment.supervisor,
-                            'currentEmployment.supervisor'
-                          )}
-                          {renderFieldRow(
-                            'Contact Permission',
-                            application.currentEmployment.contactPermission,
-                            'currentEmployment.contactPermission'
-                          )}
-                        </TableBody>
-                      </Table>
-                    </>
-                  )}
-
-                  {application.previousEmployments &&
-                    application.previousEmployments.length > 0 && (
-                      <>
-                        <h3 className="mb-2 text-lg font-semibold">
-                          Previous Employment
-                        </h3>
-                        <div className="space-y-6">
-                          {application.previousEmployments.map(
-                            (employment, index) => (
-                              <div key={index}>
-                                <div className="mb-2 flex items-center">
-                                  <h4 className="font-medium">
-                                    Previous Employment {index + 1}
-                                  </h4>
-                                  <Separator className="mx-4 flex-1" />
+                                      {renderFieldRow(
+                                        'Has Employment Gaps',
+                                        application.hasEmploymentGaps,
+                                        'hasEmploymentGaps'
+                                      )}
+                                      {application.hasEmploymentGaps ===
+                                        'yes' &&
+                                        renderFieldRow(
+                                          'Employment Gaps Explanation',
+                                          application.employmentGapsExplanation,
+                                          'employmentGapsExplanation'
+                                        )}
+                                    </TableBody>
+                                  </Table>
                                 </div>
-                                <Table>
-                                  <TableBody>
-                                    {renderFieldRow(
-                                      'Employer',
-                                      employment.employer,
-                                      `previousEmployments.${index}.employer`
-                                    )}
-                                    {renderFieldRow(
-                                      'Job Title',
-                                      employment.jobTitle,
-                                      `previousEmployments.${index}.jobTitle`
-                                    )}
-                                    {renderFieldRow(
-                                      'Start Date',
-                                      employment.startDate,
-                                      `previousEmployments.${index}.startDate`
-                                    )}
-                                    {renderFieldRow(
-                                      'End Date',
-                                      employment.endDate,
-                                      `previousEmployments.${index}.endDate`
-                                    )}
-                                    {renderFieldRow(
-                                      'Reason for Leaving',
-                                      employment.reasonForLeaving,
-                                      `previousEmployments.${index}.reasonForLeaving`
-                                    )}
-                                    {renderFieldRow(
-                                      'Responsibilities',
-                                      employment.responsibilities,
-                                      `previousEmployments.${index}.responsibilities`
-                                    )}
-                                    {renderFieldRow(
-                                      'Contact Permission',
-                                      employment.contactPermission,
-                                      `previousEmployments.${index}.contactPermission`
-                                    )}
-                                  </TableBody>
-                                </Table>
-                              </div>
-                            )
-                          )}
-                        </div>
-                      </>
-                    )}
-                </CardContent>
-              </Card>
+                              )
+                            )}
+                          </div>
+                        </>
+                      )}
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </TabsContent>
 
@@ -1039,47 +1105,52 @@ export default function ViewStudentApplicationPage() {
                     ))}
                   </div>
                 )}
-
-                {/* English Qualification Card */}
-                {application.englishQualification && (
-                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                    <h3 className="mb-4 text-lg font-semibold">
-                      English Qualification
-                    </h3>
-                    <Card>
-                      <CardContent className="pt-4">
-                        <div className="mb-2 flex items-center">
-                          <h4 className="font-medium">English Test</h4>
-                          <Separator className="mx-4 flex-1" />
-                        </div>
-                        <Table>
-                          <TableBody>
-                            {renderFieldRow(
-                              'Test Type',
-                              application.englishQualification.englishTestType,
-                              'englishQualification.englishTestType'
-                            )}
-                            {renderFieldRow(
-                              'Test Score',
-                              application.englishQualification.englishTestScore,
-                              'englishQualification.englishTestScore'
-                            )}
-                            {renderFieldRow(
-                              'Test Date',
-                              application.englishQualification.englishTestDate,
-                              'englishQualification.englishTestDate'
-                            )}
-                            {renderFieldRow(
-                              'Certificate',
-                              application.englishQualification
-                                .englishCertificate,
-                              'englishQualification.englishCertificate'
-                            )}
-                          </TableBody>
-                        </Table>
-                      </CardContent>
-                    </Card>
-                  </div>
+                {application?.studentType === 'international' && (
+                  <>
+                    {/* English Qualification Card */}
+                    {application.englishQualification && (
+                      <div className="mt-4 grid grid-cols-1 gap-6 md:grid-cols-2">
+                        <Card>
+                          <CardContent className="pt-4">
+                            <div className="mb-2 flex items-center">
+                              <h4 className="font-medium">
+                                English Language Test
+                              </h4>
+                              <Separator className="mx-4 flex-1" />
+                            </div>
+                            <Table>
+                              <TableBody>
+                                {renderFieldRow(
+                                  'Test Type',
+                                  application.englishQualification
+                                    .englishTestType,
+                                  'englishQualification.englishTestType'
+                                )}
+                                {renderFieldRow(
+                                  'Test Score',
+                                  application.englishQualification
+                                    .englishTestScore,
+                                  'englishQualification.englishTestScore'
+                                )}
+                                {renderFieldRow(
+                                  'Test Date',
+                                  application.englishQualification
+                                    .englishTestDate,
+                                  'englishQualification.englishTestDate'
+                                )}
+                                {renderFieldRow(
+                                  'Certificate',
+                                  application.englishQualification
+                                    .englishCertificate,
+                                  'englishQualification.englishCertificate'
+                                )}
+                              </TableBody>
+                            </Table>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </div>
@@ -1147,10 +1218,35 @@ export default function ViewStudentApplicationPage() {
                       application.fundingType,
                       'fundingType'
                     )}
-                    {renderFieldRow(
-                      'Grant Details',
-                      application.grantDetails,
-                      'grantDetails'
+                    {application?.fundingType === 'Bursary/Grant' &&
+                      renderFieldRow(
+                        'Grant Details',
+                        application?.grantDetails,
+                        'grantDetails'
+                      )}
+                    {application?.fundingType === 'Employer-sponsored' && (
+                      <>
+                        {renderFieldRow(
+                          'Company Name',
+                          application?.fundingCompanyName,
+                          'fundingCompanyName'
+                        )}
+                        {renderFieldRow(
+                          'Contact Person',
+                          application?.fundingContactPerson,
+                          'fundingContactPerson'
+                        )}
+                        {renderFieldRow(
+                          'Email',
+                          application?.fundingEmail,
+                          'fundingEmail'
+                        )}
+                        {renderFieldRow(
+                          'Phone Number',
+                          application?.fundingPhoneNumber,
+                          'fundingPhoneNumber'
+                        )}
+                      </>
                     )}
                   </TableBody>
                 </Table>

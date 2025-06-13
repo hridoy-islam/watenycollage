@@ -36,6 +36,7 @@ export default function CareerApplicationsPage() {
 
 
   const [searchTerm, setSearchTerm] = useState("");
+  const [jobTitle, setJobTitle] = useState("");
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -43,23 +44,36 @@ export default function CareerApplicationsPage() {
   const {id} = useParams();
   const navigate = useNavigate();
 
-  // Fetch all applications once
-  const fetchAllApplications = async (page, entriesPerPage,searchTerm="") => {
-    setLoading(true);
-    try {
-      const res = await axiosInstance.get(`/application-job?jobId=${id}`, {
-        params: { page,  limit: entriesPerPage,
-          ...(searchTerm ? { searchTerm } : {}), } 
-      });
-      
-      setAllApplications(res.data.data.result || 0);
-       setTotalPages(res.data.data.meta.totalPage);
-    } catch (error) {
-      console.error('Error fetching career applications:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+
+  const fetchAllApplications = async (page, entriesPerPage, searchTerm = "") => {
+  setLoading(true);
+  try {
+    // Parallel API calls using Promise.all
+    const [applicationsRes, jobRes] = await Promise.all([
+      axiosInstance.get(`/application-job?jobId=${id}`, {
+        params: {
+          page,
+          limit: entriesPerPage,
+          ...(searchTerm ? { searchTerm } : {}),
+        },
+      }),
+      axiosInstance.get(`/jobs/${id}`),
+    ]);
+
+    // Handle applications data
+    const applicationsData = applicationsRes.data.data;
+    setAllApplications(applicationsData.result || []);
+    setTotalPages(applicationsData.meta.totalPage);
+
+    setJobTitle(jobRes?.data?.data?.jobTitle);
+
+  } catch (error) {
+    console.error('Error fetching applications or job details:', error);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   useEffect(() => {
     fetchAllApplications(currentPage, entriesPerPage);
@@ -78,7 +92,7 @@ return (
       {/* Header with Search + Back Button */}
       <div className="flex items-center justify-between">
         <div className="flex flex-row items-center gap-4">
-          <h2 className="text-xl font-bold">Career Applications</h2>
+          <h2 className="text-xl font-bold">{jobTitle}</h2>
           {/* <div className="flex flex-col items-start gap-4 sm:flex-row">
             <Input
               value={searchTerm}
