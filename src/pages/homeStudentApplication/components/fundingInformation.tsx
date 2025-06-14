@@ -15,6 +15,7 @@ import { Textarea } from '@/components/ui/textarea';
 import Select from 'react-select';
 import { useEffect } from 'react';
 
+
 const fundingSchema = z
   .object({
     fundingType: z.string().min(1, { message: 'Funding type is required' }),
@@ -33,8 +34,40 @@ const fundingSchema = z
       });
     }
 
-   
+    if (data.fundingType === 'Employer-sponsored') {
+      if (!data.fundingCompanyName?.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Company name is required for employer-sponsored funding',
+          path: ['fundingCompanyName']
+        });
+      }
+      if (!data.fundingContactPerson?.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Contact person is required for employer-sponsored funding',
+          path: ['fundingContactPerson']
+        });
+      }
+      if (!data.fundingEmail?.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Email is required for employer-sponsored funding',
+          path: ['fundingEmail']
+        });
+      }
+      if (!data.fundingPhoneNumber?.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Phone number is required for employer-sponsored funding',
+          path: ['fundingPhoneNumber']
+        });
+      }
+    }
   });
+
+export default fundingSchema;
+
 
 type FundingData = z.infer<typeof fundingSchema>;
 
@@ -161,7 +194,7 @@ export function FundingInformation({
                   name="fundingCompanyName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Company Name</FormLabel>
+                      <FormLabel>Company Name <span className="text-red-500">*</span></FormLabel>
                       <FormControl>
                         <input
                           {...field}
@@ -178,7 +211,7 @@ export function FundingInformation({
                   name="fundingContactPerson"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Contact Person</FormLabel>
+                      <FormLabel>Contact Person <span className="text-red-500">*</span></FormLabel>
                       <FormControl>
                         <input
                           {...field}
@@ -195,7 +228,7 @@ export function FundingInformation({
                   name="fundingEmail"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel>Email <span className="text-red-500">*</span></FormLabel>
                       <FormControl>
                         <input
                           type="email"
@@ -213,7 +246,7 @@ export function FundingInformation({
                   name="fundingPhoneNumber"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Phone Number</FormLabel>
+                      <FormLabel>Phone Number <span className="text-red-500">*</span></FormLabel>
                       <FormControl>
                         <input
                           type="tel"

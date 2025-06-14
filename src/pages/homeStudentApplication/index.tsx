@@ -285,6 +285,8 @@ export default function HomeStudentApplication() {
     try {
       setFormData((prev) => ({ ...prev, ...data }));
       await axiosInstance.patch(`/users/${user._id}`, data);
+      markStepAsCompleted(9);
+      handleSubmit();
       // toast({
       //   description: 'Terms acceptance saved successfully.'
       // });

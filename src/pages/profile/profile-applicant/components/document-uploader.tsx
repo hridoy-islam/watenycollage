@@ -6,9 +6,9 @@ import {
   DialogTitle
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { ImageIcon, X } from 'lucide-react';
+import { FileIcon, ImageIcon, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import axiosInstance from "@/lib/axios";
+import axiosInstance from '@/lib/axios';
 
 export function ImageUploader({
   open,
@@ -22,8 +22,9 @@ export function ImageUploader({
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  const MAX_SIZE = 2 * 1024 * 1024; // 2MB
+  const [imageError, setImageError] = useState(false);
+  const MAX_SIZE = 5 * 1024 * 1024; // 2MB
+  const [fileType, setFileType] = useState<string | null>(null);
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -53,10 +54,13 @@ export function ImageUploader({
 
   const handleFile = (file: File) => {
     if (file.size > MAX_SIZE) {
-      alert("File size exceeds the 2MB limit.");
+      alert('File size exceeds the 2MB limit.');
       return;
     }
-    
+
+    setFileType(file.type); // <== Track file type here
+    setImageError(false); // reset image error on new selection
+
     const reader = new FileReader();
     reader.onload = (e) => {
       setSelectedImage(e.target?.result as string);
@@ -79,21 +83,17 @@ export function ImageUploader({
 
       const formData = new FormData();
       formData.append('entityId', entityId);
-      formData.append('file_type', 'studentDoc');
+      formData.append('file_type', 'careerDoc');
       formData.append('file', file);
 
-      const response = await axiosInstance.post(
-        '/documents',
-        formData,
-        {
-          onUploadProgress: (progressEvent) => {
-            const percentCompleted = Math.round(
-              (progressEvent.loaded * 100) / progressEvent.total
-            );
-            setUploadProgress(percentCompleted);
-          }
+      const response = await axiosInstance.post('/documents', formData, {
+        onUploadProgress: (progressEvent) => {
+          const percentCompleted = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total
+          );
+          setUploadProgress(percentCompleted);
         }
-      );
+      });
 
       if (response.status === 200) {
         onUploadComplete(response.data);
@@ -102,7 +102,9 @@ export function ImageUploader({
       }
     } catch (error) {
       console.error('Error uploading image:', error);
-      setUploadError('An error occurred while uploading the image. Please try again.');
+      setUploadError(
+        'An error occurred while uploading the image. Please try again.'
+      );
     } finally {
       setUploading(false);
       setUploadProgress(0);
@@ -113,7 +115,7 @@ export function ImageUploader({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md z-[10008]">
+      <DialogContent className="z-[10008] sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Upload Document</DialogTitle>
         </DialogHeader>
@@ -140,11 +142,19 @@ export function ImageUploader({
             />
             {selectedImage ? (
               <div className="relative aspect-square w-full max-w-[200px] overflow-hidden rounded-lg">
-                <img
-                  src={selectedImage}
-                  alt="Preview"
-                  className="object-cover"
-                />
+                {fileType?.startsWith('image/') && !imageError ? (
+                  <img
+                    src={selectedImage!}
+                    alt="Preview"
+                    className="object-cover"
+                    onError={() => setImageError(true)}
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center bg-muted">
+                    <FileIcon className="h-12 w-12 text-muted-foreground" />
+                  </div>
+                )}
+
                 <Button
                   size="icon"
                   variant="destructive"
@@ -162,10 +172,10 @@ export function ImageUploader({
               <div className="flex flex-col items-center gap-2 text-center">
                 <ImageIcon className="h-8 w-8 text-muted-foreground" />
                 <div className="text-sm font-medium">
-                  Drag & drop an image here, or click to select
+                  Drag & drop here, or click to select
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  PNG, JPG or GIF (max. 2MB)
+                  PNG, JPG or GIF (max. 5MB)
                 </div>
               </div>
             )}

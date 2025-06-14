@@ -42,7 +42,6 @@ export default function InternationalStudentApplication() {
   const dispatch = useDispatch<AppDispatch>();
   let stepContent;
 
-
   useEffect(() => {
     if (location.state?.parsedResume) {
       setParsedResume(location.state.parsedResume);
@@ -120,7 +119,6 @@ export default function InternationalStudentApplication() {
     residentialCountry: country
   };
 
-  
   const savedStudentType = localStorage.getItem('studentType');
   const savedCourseId = localStorage.getItem('courseId');
   const savedTermId = localStorage.getItem('termId');
@@ -129,8 +127,7 @@ export default function InternationalStudentApplication() {
     setFormData((prev) => ({
       ...prev,
 
-      studentType: savedStudentType ,
-      
+      studentType: savedStudentType
     }));
   }, [savedCourseId, savedStudentType, savedTermId]);
 
@@ -141,7 +138,7 @@ export default function InternationalStudentApplication() {
       setFetchData((prev) => ({
         ...prev,
         ...userData,
-        studentType: userData.studentType || savedStudentType,
+        studentType: userData.studentType || savedStudentType
       }));
       setFormData((prev) => ({
         ...prev,
@@ -172,10 +169,9 @@ export default function InternationalStudentApplication() {
       //   description: `Redirecting to step ${firstIncompleteStep} to complete required information.`
       // });
 
-      setCurrentStep(firstIncompleteStep );
+      setCurrentStep(firstIncompleteStep);
     }
   }, [fetchData]);
-
 
   const handleStepClick = (stepId: number) => {
     setCurrentStep(stepId);
@@ -268,9 +264,7 @@ export default function InternationalStudentApplication() {
       console.error('Failed to update documents:', error);
     }
   };
-  const handleFundingInformationSaveAndContinue = async (
-    data: any
-  ) => {
+  const handleFundingInformationSaveAndContinue = async (data: any) => {
     try {
       setFormData((prev) => ({ ...prev, ...data }));
       await axiosInstance.patch(`/users/${user._id}`, data);
@@ -285,6 +279,8 @@ export default function InternationalStudentApplication() {
     try {
       setFormData((prev) => ({ ...prev, ...data }));
       await axiosInstance.patch(`/users/${user._id}`, data);
+      markStepAsCompleted(9);
+      handleSubmit();
       // toast({
       //   description: 'Terms acceptance saved successfully.'
       // });
@@ -335,7 +331,6 @@ export default function InternationalStudentApplication() {
     setReviewModalOpen(true);
   };
 
-
   const submitApplicationCourse = async () => {
     if (savedCourseId && savedTermId && user?._id) {
       try {
@@ -347,7 +342,7 @@ export default function InternationalStudentApplication() {
 
         localStorage.removeItem('termId');
         localStorage.removeItem('courseId');
-      } catch (err:any) {
+      } catch (err: any) {
         console.error('Error submitting application course:', err);
         toast({
           title: err.response?.data?.message || 'Application failed.',
@@ -362,8 +357,6 @@ export default function InternationalStudentApplication() {
   useEffect(() => {
     submitApplicationCourse();
   }, []);
-
-
 
   const handleSubmit = async () => {
     // const requiredSteps = [1, 2, 3, 4, 5, 6, 7];
@@ -390,11 +383,8 @@ export default function InternationalStudentApplication() {
     //   return;
     // }
 
-
-    
-    
     try {
-       dispatch(
+      dispatch(
         updateUserProfile({
           userId: user._id,
           profileData: {
@@ -406,12 +396,9 @@ export default function InternationalStudentApplication() {
       );
 
       dispatch(updateAuthIsCompleted(true));
-      
 
-      
-    
       localStorage.removeItem('studentType');
-     
+
       toast({
         description: 'Applicaiton saved successfully.'
       });
@@ -425,7 +412,7 @@ export default function InternationalStudentApplication() {
     setFormSubmitted(true);
   };
 
-  console.log(formData)
+  console.log(formData);
 
   const renderStep = () => {
     // Normalize currentStep value to handle both number and { step, subStep }
@@ -449,8 +436,7 @@ export default function InternationalStudentApplication() {
           <AddressStep
             defaultValues={{
               ...fetchData,
-              ...formData,
-             
+              ...formData
             }}
             onSaveAndContinue={handleAddressSaveAndContinue}
             setCurrentStep={setCurrentStep}
@@ -471,8 +457,7 @@ export default function InternationalStudentApplication() {
           <EducationStep
             defaultValues={{
               ...fetchData,
-              ...formData,
-             
+              ...formData
             }}
             onSaveAndContinue={handleEducationSaveAndContinue}
             setCurrentStep={setCurrentStep}
@@ -584,7 +569,7 @@ export default function InternationalStudentApplication() {
                   Thank you for your submission. Our team has received your
                   application and will get back to you shortly. Stay tuned!
                   {/* Support Section */}
-                  <div className=" w-full rounded-md mt-2 text-left text-base text-white ">
+                  <div className=" mt-2 w-full rounded-md text-left text-base text-white ">
                     <p>
                       If you have any questions or need help with your
                       application, please don’t hesitate to contact us:
@@ -620,7 +605,6 @@ export default function InternationalStudentApplication() {
       </div>
     );
   }
-  
 
   return (
     <div className=" w-full ">

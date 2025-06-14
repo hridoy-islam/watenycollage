@@ -15,6 +15,7 @@ import { Textarea } from '@/components/ui/textarea';
 import Select from 'react-select';
 import { useEffect } from 'react';
 
+
 const fundingSchema = z
   .object({
     fundingType: z.string().min(1, { message: 'Funding type is required' }),
@@ -33,9 +34,40 @@ const fundingSchema = z
       });
     }
 
-    
-    
+    if (data.fundingType === 'Employer-sponsored') {
+      if (!data.fundingCompanyName?.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Company name is required for employer-sponsored funding',
+          path: ['fundingCompanyName']
+        });
+      }
+      if (!data.fundingContactPerson?.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Contact person is required for employer-sponsored funding',
+          path: ['fundingContactPerson']
+        });
+      }
+      if (!data.fundingEmail?.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Email is required for employer-sponsored funding',
+          path: ['fundingEmail']
+        });
+      }
+      if (!data.fundingPhoneNumber?.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Phone number is required for employer-sponsored funding',
+          path: ['fundingPhoneNumber']
+        });
+      }
+    }
   });
+
+export default fundingSchema;
+
 
 type FundingData = z.infer<typeof fundingSchema>;
 
@@ -156,84 +188,77 @@ export function FundingInformation({
             )}
 
             {form.watch('fundingType') === 'Employer-sponsored' && (
-              <div className="">
-                <h1 className="text-lg font-medium py-2">
-                  {' '}
-                  Employer details (if applicable):
-                </h1>
-
-                <div className="grid gap-4 md:grid-cols-2">
-                  <FormField
-                    control={form.control}
-                    name="fundingCompanyName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Company Name</FormLabel>
-                        <FormControl>
-                          <input
-                            {...field}
-                            className="w-full rounded-md border border-gray-300 p-2 text-sm"
-                            placeholder="Enter company name"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="fundingContactPerson"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Contact Person</FormLabel>
-                        <FormControl>
-                          <input
-                            {...field}
-                            className="w-full rounded-md border border-gray-300 p-2 text-sm"
-                            placeholder="Enter contact person"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="fundingEmail"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email</FormLabel>
-                        <FormControl>
-                          <input
-                            type="email"
-                            {...field}
-                            className="w-full rounded-md border border-gray-300 p-2 text-sm"
-                            placeholder="Enter email"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="fundingPhoneNumber"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Phone Number</FormLabel>
-                        <FormControl>
-                          <input
-                            type="tel"
-                            {...field}
-                            className="w-full rounded-md border border-gray-300 p-2 text-sm"
-                            placeholder="Enter phone number"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="fundingCompanyName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Company Name <span className="text-red-500">*</span></FormLabel>
+                      <FormControl>
+                        <input
+                          {...field}
+                          className="w-full rounded-md border border-gray-300 p-2 text-sm"
+                          placeholder="Enter company name"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="fundingContactPerson"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Contact Person <span className="text-red-500">*</span></FormLabel>
+                      <FormControl>
+                        <input
+                          {...field}
+                          className="w-full rounded-md border border-gray-300 p-2 text-sm"
+                          placeholder="Enter contact person"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="fundingEmail"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email <span className="text-red-500">*</span></FormLabel>
+                      <FormControl>
+                        <input
+                          type="email"
+                          {...field}
+                          className="w-full rounded-md border border-gray-300 p-2 text-sm"
+                          placeholder="Enter email"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="fundingPhoneNumber"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Phone Number <span className="text-red-500">*</span></FormLabel>
+                      <FormControl>
+                        <input
+                          type="tel"
+                          {...field}
+                          className="w-full rounded-md border border-gray-300 p-2 text-sm"
+                          placeholder="Enter phone number"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
             )}
           </div>
