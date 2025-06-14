@@ -358,7 +358,7 @@ export function EducationStep({
                       <p className=" text-xs text-gray-500">
                         Accepted formats: PDF, JPG, PNG. Max size 5MB.
                       </p>
-                      {form.watch(`educationData.${index}.certificate`) && (
+                      {/* {form.watch(`educationData.${index}.certificate`) && (
                         <p className="mt-1 text-sm">
                           {decodeURIComponent(
                             form
@@ -367,7 +367,7 @@ export function EducationStep({
                               .pop() || 'Uploaded File'
                           )}
                         </p>
-                      )}
+                      )} */}
                       {form.watch(`educationData.${index}.certificate`) && (
                         <a
                           href={form.watch(

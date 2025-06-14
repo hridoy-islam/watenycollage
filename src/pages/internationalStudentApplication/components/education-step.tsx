@@ -382,12 +382,12 @@ export function EducationStep({
                 {field.value && (
                   <div className="mt-1">
                     {/* Display the name property if available, otherwise extract from URL */}
-                    <p className="text-sm">
+                    {/* <p className="text-sm">
                       {field.value.name ||
                         (typeof field.value === 'string'
                           ? field.value.split('/').pop()
                           : field.value.fileUrl?.split('/').pop())}
-                    </p>
+                    </p> */}
                     <a
                       href={
                         typeof field.value === 'string'
