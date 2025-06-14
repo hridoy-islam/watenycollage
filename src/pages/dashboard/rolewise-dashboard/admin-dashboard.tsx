@@ -1,35 +1,22 @@
-'use client';
+
 import { useState, useEffect } from 'react';
 import axiosInstance from '@/lib/axios';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle
 } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from '@/components/ui/table';
+
+
 import {
   Users,
-  Briefcase,
   GraduationCap,
-  Calendar,
   BookOpen,
   FolderOpen,
-  Eye
+
 } from 'lucide-react';
-import moment from 'moment';
-import { DataTablePagination } from '@/components/shared/data-table-pagination';
+
 import { useNavigate } from 'react-router-dom';
 
 // Define types with optional chaining support

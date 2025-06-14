@@ -1,4 +1,4 @@
-'use client';
+
 
 import { useState } from 'react';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
