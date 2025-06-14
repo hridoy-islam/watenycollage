@@ -28,6 +28,7 @@ import {
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import moment from 'moment';
+import { useSelector } from 'react-redux';
 
 interface Course {
   _id: string;
@@ -51,9 +52,8 @@ interface StudentDashboardProps {
   };
 }
 
-export default function CourseData({ user }: StudentDashboardProps) {
+export default function CourseData({  }: StudentDashboardProps) {
   const [applications, setApplications] = useState<Application[]>([]);
-  const [allCourses, setAllCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -64,11 +64,12 @@ export default function CourseData({ user }: StudentDashboardProps) {
     string | null
   >(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { user } = useSelector((state: any) => state.auth);
 
   const fetchData = async (page = 1, limit = 10) => {
     try {
       // Fetch applications
-      const appRes = await axiosInstance.get('/application-course', {
+      const appRes = await axiosInstance.get(`/application-course?studentId=${user._id}`, {
         params: { page, limit }
       });
       const appData = appRes.data?.data || {};
@@ -77,27 +78,14 @@ export default function CourseData({ user }: StudentDashboardProps) {
         : [];
       setTotalApplication(appData.meta?.total || 0);
 
-      // Fetch courses
-      const courseRes = await axiosInstance.get('/courses', {
-        params: { page, limit }
-      });
-      const courseData = courseRes.data?.data || {};
-      const coursesList = Array.isArray(courseData.result)
-        ? courseData.result
-        : [];
-
-      setTotalPages(appData.meta?.totalPage || 1);
-
+     
       const appliedCourseIds = new Set(
         applicationsList.map((app: Application) => app.courseId?._id)
       );
 
-      const filteredCourses = coursesList.filter(
-        (course: Course) => !appliedCourseIds.has(course._id)
-      );
+     
 
       setApplications(applicationsList);
-      setAllCourses(filteredCourses);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -106,7 +94,9 @@ export default function CourseData({ user }: StudentDashboardProps) {
   };
 
   useEffect(() => {
+    
     fetchData(currentPage, entriesPerPage);
+
   }, [currentPage, entriesPerPage]);
 
   const navigate = useNavigate();
@@ -201,7 +191,7 @@ export default function CourseData({ user }: StudentDashboardProps) {
                               ? 'bg-red-500'
                               : application?.status === 'approved'
                                 ? 'bg-green-500'
-                                : 'bg-gray-500'
+                                : 'bg-green-500'
                         }`}
                       >
                         {application?.status || 'N/A'}
@@ -209,7 +199,7 @@ export default function CourseData({ user }: StudentDashboardProps) {
                     </TableCell>
                     
                     <TableCell className="text-right">
-                      {application?.status !== 'cancelled' && (
+                      {application?.status !== 'cancelled' && application?.status !== 'approved' && (
                         <Button
                           onClick={() => openDeleteModal(application._id)}
                           className="border-none bg-destructive text-white hover:bg-destructive/90"
