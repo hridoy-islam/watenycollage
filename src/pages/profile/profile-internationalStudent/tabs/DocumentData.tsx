@@ -56,10 +56,9 @@ export default function DocumentData({
 
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string>
-    >({});
-  
-    const { user } = useSelector((state: any) => state.auth);
-  
+  >({});
+
+  const { user } = useSelector((state: any) => state.auth);
 
   const handleRemoveFile = (field: keyof DocumentFile, fileName: string) => {
     if (field === 'photoId') {
@@ -67,8 +66,7 @@ export default function DocumentData({
         ...prev,
         photoId: ''
       }));
-    }
-    else {
+    } else {
       setDocuments((prev) => ({
         ...prev,
         [field]: (prev[field] as string[]).filter((file) => file !== fileName)
@@ -150,8 +148,7 @@ export default function DocumentData({
                 className="flex w-auto items-center justify-between rounded-lg border border-gray-200 bg-white p-3 transition-all hover:shadow-md"
               >
                 <div className="flex items-center space-x-3">
-                 
-                  <div className="min-w-0 flex-1 flex gap-2">
+                  <div className="flex min-w-0 flex-1 gap-2">
                     <a
                       href={fileUrl}
                       target="_blank"
@@ -242,7 +239,8 @@ export default function DocumentData({
       required: false,
       instructions: 'Upload relevant work experience documents',
       formats: 'PDF, JPG, PNG',
-      icon: FileText
+      icon: FileText,
+      uploadLabel: 'You can upload multiple files'
     },
     {
       id: 'personalStatement',
@@ -260,15 +258,12 @@ export default function DocumentData({
         <CardHeader className="">
           <div className="space-y-4">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">
-                Document 
-              </h2>
-              
+              <h2 className="text-2xl font-bold text-gray-900">Document</h2>
             </div>
           </div>
         </CardHeader>
         <CardContent className="p-6">
-          <div className="gap-4 grid md:grid-cols-2 grid-cols-1 ">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 ">
             {documentTypes.map(
               ({
                 id,
@@ -277,7 +272,8 @@ export default function DocumentData({
                 instructions,
                 formats,
                 error,
-                icon: Icon
+                icon: Icon,
+                uploadLabel
               }) => {
                 const hasFiles =
                   id === 'photoId'
@@ -335,6 +331,9 @@ export default function DocumentData({
                               <p className="mt-1 text-xs text-gray-500">
                                 Accepted formats: {formats}
                               </p>
+                              <p className="mt-1 text-xs text-gray-800 font-semibold">
+                               {uploadLabel}
+                              </p>
                             </div>
                           </div>
                           {error && (
@@ -382,7 +381,8 @@ export default function DocumentData({
               >
                 Save
               </Button>
-            )}</div>
+            )}
+          </div>
         </CardContent>
       </Card>
     </div>

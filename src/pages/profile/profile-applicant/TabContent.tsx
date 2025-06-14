@@ -14,7 +14,7 @@ import DocumentData from './tabs/DocumentData';
 import ApplicationData from './tabs/ApplicationData';
 import RefereeDetails from './tabs/RefereeData';
 
-const TabContent: React.FC<TabContentProps> = ({ activeTab, userData }) => {
+const TabContent: React.FC<TabContentProps> = ({ activeTab, userData,refreshData }) => {
   const [isEditing, setIsEditing] = useState(false);
   const { user } = useSelector((state: any) => state.auth);
 
@@ -47,7 +47,8 @@ const TabContent: React.FC<TabContentProps> = ({ activeTab, userData }) => {
       isEditing,
       onSave: handleSave,
       onCancel: handleCancel,
-      onEdit: handleEdit
+      onEdit: handleEdit,
+      refreshData
     };
 
     switch (activeTab) {

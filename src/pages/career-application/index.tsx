@@ -25,6 +25,7 @@ import {
 } from '@/utils/careerform-validation-utils';
 import { updateAuthIsCompleted } from '@/redux/features/authSlice';
 import { AppDispatch } from '@/redux/store';
+import { useLocation } from 'react-router-dom';
 
 // Define form steps for career application
 const careerFormSteps = [
@@ -52,6 +53,115 @@ export default function CareerApplicationForm() {
   const navigate = useNavigate();
   const { user } = useSelector((state: any) => state.auth);
   const dispatch = useDispatch<AppDispatch>();
+  const [parsedResume, setParsedResume] = useState<string | null>(null);
+const location = useLocation();
+const [refreshCounter, setRefreshCounter] = useState(0);
+
+
+const refreshData = () => {
+  setRefreshCounter((prev) => prev + 1);
+};
+
+
+  useEffect(() => {
+    if (location.state?.parsedResume) {
+      setParsedResume(location.state.parsedResume);
+      // Optionally clear the state after reading it
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
+
+
+
+
+  const nameMatch = parsedResume?.match(
+    /\b([A-Z][a-z]+(?:\s[A-Z][a-z]+)*)\s([A-Z][a-z]+)\b/
+  );
+  const emailMatch = parsedResume?.match(
+    /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/
+  );
+
+  const phoneMatch = parsedResume?.match(
+    /\+?\d{1,4}[\s\-]?\(?\d{1,4}\)?[\s\-]?\d{6,10}/
+  );
+
+  const dobMatch = parsedResume?.match(
+    /(?:\b(?:[A-Za-z]+\s)?\d{1,2}[,\s]?\s?\d{4}\b|\b\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}\b)/
+  );
+  const passportIdMatch = parsedResume?.match(/\b([A-Za-z0-9]{6,10})\b/);
+  const expiryDateMatch = parsedResume?.match(
+    /\b(?:[A-Za-z]+\s)?\d{1,2}[,\s]?\s?\d{4}\b|\b\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}\b/
+  );
+  const maritalStatusMatch = parsedResume?.match(
+    /\b(Single|Married|Divorced|Widowed|Separated)\b/
+  );
+  const ethnicityMatch = parsedResume?.match(
+    /\b(Caucasian|Asian|Hispanic|Black|Latino|Middle Eastern|Native American|Pacific Islander|African|European|South Asian|...)\b/
+  );
+  const nationalityMatch = parsedResume?.match(
+    /\b(American|Bangladeshi|Canadian|British|Australian|Indian|Pakistani|Chinese|Japanese|French|German|Spanish|Russian|Brazilian|Mexican|Italian|...)\b/
+  );
+  const countryOfBirthMatch = parsedResume?.match(/\bBorn\s([A-Za-z\s]+)\b/);
+  const addressLine1Match = parsedResume?.match(/^(.*\d{1,5}.*)$/);
+  const addressLine2Match = parsedResume?.match(
+    /^(.*[A-Za-z0-9\s]*[A-Za-z]{2,})$/
+  );
+  const cityMatch = parsedResume?.match(
+    /\b([A-Za-z\s]+(?:[A-Za-z]+))\b(?:,\s?)/
+  );
+  const postCodeMatch = parsedResume?.match(/\b\d{5}(?:[-\s]?\d{4})?\b/);
+  const countryMatch = parsedResume?.match(/\b([A-Za-z\s]+)\b$/);
+  const institutionMatch = parsedResume?.match(
+    /(?:University|College|Institute|Academy|School|Campus)[A-Za-z\s]+/i
+  );
+
+  const phoneNumber = phoneMatch ? phoneMatch[0] : '';
+  const passportId = passportIdMatch ? passportIdMatch[0] : '';
+  const email = emailMatch ? emailMatch[0] : null;
+  const addressLine1 = addressLine1Match ? addressLine1Match[0] : '';
+  const addressLine2 = addressLine2Match ? addressLine2Match[0] : '';
+  const city = cityMatch ? cityMatch[1] : '';
+  const postCode = postCodeMatch ? postCodeMatch[0] : '';
+  const country = countryMatch ? countryMatch[1] : '';
+  const academicInstitution = institutionMatch ? institutionMatch[0] : '';
+
+  const passportNumber = passportIdMatch ? passportIdMatch[0] : '';
+  const expiryDate = expiryDateMatch ? expiryDateMatch[0] : '';
+  const maritalStatus = maritalStatusMatch ? maritalStatusMatch[0] : '';
+  const nationality = nationalityMatch ? nationalityMatch[0] : '';
+  const ethnicity = ethnicityMatch ? ethnicityMatch[0] : '';
+  const countryOfBirth = countryOfBirthMatch ? countryOfBirthMatch[1] : '';
+  const dateOfBirth = dobMatch ? dobMatch[0] : '';
+
+  const residentialAddressLine1 = addressLine1 || '';
+  const residentialAddressLine2 = addressLine2 || '';
+  const residentialCity = city || '';
+  const residentialPostCode = postCode || '';
+  const residentialCountry = country || '';
+
+  useEffect(() => {
+    if (parsedResume) {
+      setFormData((prev) => ({
+        ...prev,
+        dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined,
+        phone: phoneNumber,
+        passportNumber,
+        
+        maritalStatus,
+        nationality,
+        ethnicity,
+        countryOfBirth,
+
+        postalAddressLine1: residentialAddressLine1,
+        postalAddressLine2: residentialAddressLine2,
+        postalCity: residentialCity,
+        postalPostCode: residentialPostCode,
+        postalCountry: residentialCountry
+      }));
+    }
+  }, [parsedResume]);
+
+  console.log(formData,'FORM');
 
   const fetchedData = async () => {
     try {
@@ -69,7 +179,7 @@ export default function CareerApplicationForm() {
 
   useEffect(() => {
     fetchedData();
-  }, []);
+  }, [refreshCounter]);
 
   const findFirstIncompleteStep = (userData: any): number => {
     if (!userData.image || userData.image.trim() === '') {
@@ -301,6 +411,7 @@ export default function CareerApplicationForm() {
             defaultValues={{ ...fetchData, ...formData }}
             onSaveAndContinue={handleProfilePictureSaveAndContinue}
             setCurrentStep={setCurrentStep}
+            refreshData={refreshData}
           />
         );
       case 2:

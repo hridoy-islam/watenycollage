@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '@/lib/axios';
+import { useSelector } from 'react-redux';
 
 const CareerResumeUpload: React.FC = () => {
   const [resume, setResume] = useState<File | null>(null);
   const navigate = useNavigate();
+  const { user } = useSelector((state: any) => state.auth);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -23,32 +25,41 @@ const CareerResumeUpload: React.FC = () => {
   const handleContinue = async () => {
     if (resume) {
       const formData = new FormData();
-      formData.append("file", resume); 
-  
+      formData.append('entityId', user._id); // Add your entityId here
+      formData.append('file_type', 'resumeDoc'); // Add your file type
+      formData.append('file', resume);
+
       try {
-        const response = await axiosInstance.post("/documents", formData, {
+        const response = await axiosInstance.post('/documents', formData, {
           headers: {
-            "Content-Type": "multipart/form-data",
-          },
+            'Content-Type': 'multipart/form-data'
+          }
         });
 
-        const { textContent } = response.data.data;
-        navigate('/career-application', {
-            state: { parsedResume: textContent } 
-          });
+        const textContent = response.data?.data?.fileContent;
+        const fileUrl = response.data?.data?.fileUrl;
+
+        await axiosInstance.patch(`/users/${user._id}`, {
+          cvResume: fileUrl
+        });
+
+        navigate('/dashboard/career-application', {
+          state: { parsedResume: textContent }
+        });
       } catch (error) {
-        console.error("Error uploading resume:", error);
+        console.error('Error uploading resume:', error);
       }
     } else {
-      console.warn("No resume file selected");
+      console.warn('No resume file selected');
     }
   };
-  
+
   return (
     <div className="flex min-h-[calc(100vh-150px)] items-center justify-center">
       <div className="w-[500px] space-y-6 rounded-2xl bg-white p-6 shadow-md">
         <h2 className="text-md text-start font-medium text-gray-800">
-         Upload your resume to fill in your application details quickly and accurately automatically.
+          Upload your resume to fill in your application details quickly and
+          accurately automatically.
         </h2>
 
         {!resume ? (

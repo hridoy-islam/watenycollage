@@ -11,12 +11,11 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Eye, MoveLeft, Search } from 'lucide-react';
-import moment from 'moment';
 import { DataTablePagination } from '@/components/shared/data-table-pagination';
 import { useNavigate } from 'react-router-dom';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
-import { Input } from '@/components/ui/input';
 import Select from 'react-select';
+import { Badge } from '@/components/ui/badge';
 
 interface StudentApplication {
   _id: string;
@@ -51,19 +50,26 @@ export default function StudentApplicationsPage() {
   const [entriesPerPage, setEntriesPerPage] = useState(10);
   const [searchQuery, setSearchQuery] = useState('');
   const [courses, setCourses] = useState<CourseOption[]>([]);
+  const [terms, setTerms] = useState<CourseOption[]>([]);
   const [selectedCourse, setSelectedCourse] = useState<CourseOption | null>(
     null
   );
+  const [selectedTerm, setSelectedTerm] = useState<CourseOption | null>(
+    null
+  );
 
-  const fetchData = async (page = 1, limit = 10, courseId?: string) => {
+  const fetchData = async (page = 1, limit = 10, courseId?: string, intakeId?: string) => {
     try {
-      const params: { page: number; limit: number; courseId?: string } = {
+      const params: { page: number; limit: number; courseId?: string,intakeId?: string } = {
         page,
         limit
       };
 
       if (courseId) {
         params.courseId = courseId;
+      }
+      if (intakeId) {
+        params.intakeId = intakeId;
       }
 
       const res = await axiosInstance.get('/application-course', {
@@ -93,11 +99,25 @@ export default function StudentApplicationsPage() {
       console.error('Error fetching courses:', error);
     }
   };
+  const fetchTerms = async () => {
+    try {
+      const res = await axiosInstance.get('/terms?status=1&limit=all');
+      const data = res.data.data.result || [];
+      const termOptions = data.map((term: any) => ({
+        value: term._id,
+        label: term.termName
+      }));
+      setTerms(termOptions);
+    } catch (error) {
+      console.error('Error fetching Terms:', error);
+    }
+  };
 
   useEffect(() => {
-    fetchData(currentPage, entriesPerPage, selectedCourse?.value);
+    fetchData(currentPage, entriesPerPage, selectedCourse?.value, selectedTerm?.value);
     fetchCourses();
-  }, [currentPage, entriesPerPage, selectedCourse]);
+    fetchTerms();
+  }, [currentPage, entriesPerPage, selectedCourse,selectedTerm]);
 
   const navigate = useNavigate();
 
@@ -108,33 +128,14 @@ export default function StudentApplicationsPage() {
     } ${student?.lastName || ''}`.toLowerCase();
   };
 
-  // Handle Search Button Click
-  const handleSearch = () => {
-    if (!searchQuery.trim()) {
-      setFilteredApplications(applications); // Reset if empty
-      return;
-    }
-
-    const query = searchQuery.toLowerCase();
-
-    const results = applications.filter((app) => {
-      const studentName = getStudentName(app.studentId);
-      const email = app.studentId?.email?.toLowerCase() || '';
-      const course = app.courseId?.name?.toLowerCase() || '';
-
-      return (
-        studentName.includes(query) ||
-        email.includes(query) ||
-        course.includes(query)
-      );
-    });
-
-    setFilteredApplications(results);
-  };
 
   // Handle course filter change
   const handleCourseChange = (selectedOption: CourseOption | null) => {
     setSelectedCourse(selectedOption);
+    setCurrentPage(1);
+  };
+  const handleTermChange = (selectedOption: CourseOption | null) => {
+    setSelectedTerm(selectedOption);
     setCurrentPage(1);
   };
 
@@ -167,6 +168,38 @@ export default function StudentApplicationsPage() {
               options={courses}
               value={selectedCourse}
               onChange={handleCourseChange}
+              placeholder="Filter student by course"
+              isClearable
+              className="text-sm"
+              styles={{
+                control: (base) => ({
+                  ...base,
+                  height: '32px',
+                  minHeight: '32px'
+                }),
+                valueContainer: (base) => ({
+                  ...base,
+                  height: '32px',
+                  padding: '0 8px'
+                }),
+                input: (base) => ({
+                  ...base,
+                  margin: '0px',
+                  paddingBottom: '0px',
+                  paddingTop: '0px'
+                }),
+                indicatorsContainer: (base) => ({
+                  ...base,
+                  height: '32px'
+                })
+              }}
+            />
+          </div>
+          <div className="w-[250px]">
+            <Select
+              options={terms}
+              value={selectedTerm}
+              onChange={handleTermChange}
               placeholder="Filter student by course"
               isClearable
               className="text-sm"
@@ -230,7 +263,11 @@ export default function StudentApplicationsPage() {
                   <TableRow key={app._id}>
                     <TableCell className="font-medium">
                       {app.studentId?.title} {app.studentId?.firstName}{' '}
-                      {app.studentId?.initial} {app.studentId?.lastName}
+                      {app.studentId?.initial} {app.studentId?.lastName}{' '}
+                      <Badge className="bg-watney text-white hover:bg-watney">
+                        {app.studentId?.studentType?.charAt(0).toUpperCase() +
+                          app.studentId?.studentType?.slice(1)}
+                      </Badge>
                     </TableCell>
                     <TableCell>{app.studentId?.email ?? 'N/A'}</TableCell>
                     <TableCell>{app.courseId?.name ?? 'N/A'}</TableCell>

@@ -215,7 +215,7 @@ export function ReviewModal({ open, onClose, formData, userId }: ReviewModalProp
             rel="noopener noreferrer"
             className="text-blue-600 hover:underline"
           >
-            {formatFieldName(key)}
+            View Document
           </a>
         ];
       }
@@ -379,7 +379,7 @@ export function ReviewModal({ open, onClose, formData, userId }: ReviewModalProp
                     awardDate: entry.awardDate
                       ? new Date(entry.awardDate).toLocaleDateString()
                       : '',
-                    certificate: entry.certificate ? 'Uploaded' : 'Not uploaded'
+                    certificate: entry.certificate 
                   })}
                 </React.Fragment>
               ))}
@@ -449,7 +449,7 @@ export function ReviewModal({ open, onClose, formData, userId }: ReviewModalProp
               personalStatement: getDataValue('personalStatement') || [],
               bankStatement: getDataValue('bankStatement') || [],
               photoId: getDataValue('photoId') || [],
-              image: getDataValue('image') || "View Document"
+              photograph: getDataValue('image') || "View Document"
             })}
           </div>
         </div>

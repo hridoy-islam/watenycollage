@@ -21,8 +21,8 @@ interface PersonalDetailsProps {
 
 const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
   const { userData, isEditing, onSave, onCancel, onEdit, refreshData } = props;
-  const [uploadOpen, setUploadOpen] = useState(false);
   const [localData, setLocalData] = useState<User>(userData);
+  const [uploadOpen, setUploadOpen] = useState(false);
   const { user } = useSelector((state: any) => state.auth);
 
   const handleInputChange = (field: keyof User, value: any) => {

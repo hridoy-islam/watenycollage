@@ -33,6 +33,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
+import React from 'react';
 
 const careerSchema = z
   .object({
@@ -74,7 +75,6 @@ export function ReviewStep({
   onSubmit,
   setCurrentStep
 }) {
- 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const form = useForm<TFormValues>({
     resolver: zodResolver(careerSchema),
@@ -100,11 +100,8 @@ export function ReviewStep({
   //   }
   // }, [defaultValues, form]);
 
-
   const termsAccepted = form.watch('termsAccepted');
-const dataProcessingAccepted = form.watch('dataProcessingAccepted');
-
-
+  const dataProcessingAccepted = form.watch('dataProcessingAccepted');
 
   function handleBack() {
     setCurrentStep(8);
@@ -118,72 +115,112 @@ const dataProcessingAccepted = form.watch('dataProcessingAccepted');
     return moment(date).format('DD/MM/YYYY');
   };
 
+   const formatValue = (value: any): string => {
+      if (value === null || value === undefined || value === '') {
+        return 'Not provided';
+      }
+      if (typeof value === 'boolean') {
+        return value ? 'Yes' : 'No';
+      }
+      if (
+        value instanceof Date ||
+        moment(value, moment.ISO_8601, true).isValid()
+      ) {
+        return moment(value).format('MM-DD-YYYY');
+      }
+      if (Array.isArray(value)) {
+        if (value.length === 0) return 'None';
+        if (value[0] instanceof File) return `${value.length} file(s) uploaded`;
+        return value.join(', ');
+      }
+      if (value instanceof File) {
+        return 'File uploaded';
+      }
+      if (typeof value === 'object') {
+        return JSON.stringify(value, null, 2);
+      }
+      // Convert to string and capitalize first letter
+      const str = String(value);
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    };
+  
+const formatFieldName = (name: string) => {
+    return name
+      .replace(/([A-Z])/g, ' $1')
+      .replace(/^./, (str) => str.toUpperCase())
+      .trim();
+  };
   const renderSection = (title: string, data: any, showTitle = true) => {
     if (!data) return null;
 
-    const rows = Object.entries(data).reduce(
-      (acc: [string, string][], [key, value]) => {
-        if (
-          typeof value === 'object' &&
-          value !== null &&
-          !(value instanceof Date)
-        ) {
-          return acc; // Skip nested objects
-        }
+    const rows = Object.entries(data).map(([key, value]) => {
+      // Handle array of URLs
+      if (
+        Array.isArray(value) &&
+        value.length > 0 &&
+        typeof value[0] === 'string' &&
+        value[0].startsWith('http')
+      ) {
+        return [
+          formatFieldName(key),
+          <div key={key} className="flex flex-col gap-1">
+            {value.map((url, index) => (
+              <a
+                key={index}
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:underline"
+              >
+                View Document
+              </a>
+            ))}
+          </div>
+        ];
+      }
 
-        // Format value
-        if (
-          value instanceof Date ||
-          moment(value, moment.ISO_8601, true).isValid()
-        ) {
-          value = formatDate(value);
-        }
+      // Handle single URL string
+      if (typeof value === 'string' && value.startsWith('http')) {
+        return [
+          formatFieldName(key),
+          <a
+            key={key}
+            href={value}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:underline"
+          >
+            View Document
+          </a>
+        ];
+      }
 
-        if (typeof value === 'boolean') {
-          value = value ? 'Yes' : 'No';
-        }
-
-        const label = key
-          .replace(/([A-Z])/g, ' $1')
-          .replace(/^./, (s) => s.toUpperCase());
-
-        acc.push([
-          label,
-          value === undefined || value === null || value === ''
-            ? 'Not provided'
-            : String(value)
-        ]);
-
-        return acc;
-      },
-      []
-    );
+      // Standard value formatting
+      return [formatFieldName(key), formatValue(value)];
+    });
 
     return (
-      <div key={title}>
-        {showTitle && (
-          <h3 className="mb-2 text-lg font-medium text-black">{title}</h3>
-        )}
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Field</TableHead>
-              <TableHead>Value</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {rows.map(([label, value], index) => (
-              <TableRow key={index}>
-                <TableCell className="font-medium">{label}</TableCell>
-                <TableCell>{value}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+      <div className="mb-6">
+        {showTitle && <h3 className="mb-2 text-lg font-semibold">{title}</h3>}
+        <div className="rounded-md border border-gray-200 p-4">
+          <table className="min-w-full divide-y divide-gray-200">
+            <tbody className="divide-y divide-gray-200">
+              {rows.map(([label, value], index) => (
+                <tr key={index}>
+                  <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
+                    {label}
+                  </td>
+                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                    {value}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     );
   };
-
   const renderAddress = (address: any) => {
     if (!address) return 'Not provided';
     return `${address.line1}${address.line2 ? `, ${address.line2}` : ''}, ${address.city}, ${address.postCode}, ${address.country}`;
@@ -192,37 +229,64 @@ const dataProcessingAccepted = form.watch('dataProcessingAccepted');
   const sections = (
     <div className="space-y-6">
       {renderSection('Personal Details', {
-        title: formData.title,
-        firstName: formData.firstName,
-        initial: formData.initial,
-        lastName: formData.lastName,
-        dateOfBirth: formData.dateOfBirth,
-        gender: formData.gender,
-        maritalStatus: formData.maritalStatus,
-        nationality: formData.nationality,
-        isBritishCitizen: formData.isBritishCitizen,
-        shareCode: formData.shareCode,
-        nationalInsuranceNumber: formData.nationalInsuranceNumber
+        title: defaultValues.title,
+        firstName: defaultValues.firstName,
+        initial: defaultValues.initial,
+        lastName: defaultValues.lastName,
+        dateOfBirth: defaultValues.dateOfBirth,
+        gender: defaultValues.gender,
+        maritalStatus: defaultValues.maritalStatus,
+        nationality: defaultValues.nationality,
+        shareCode: defaultValues.shareCode,
+        nationalInsuranceNumber: defaultValues.nationalInsuranceNumber,
+        postalAddressLine1: defaultValues.postalAddressLine1,
+        postalAddressLine2: defaultValues.postalAddressLine2,
+        postalCity: defaultValues.postalCity,
+        postalPostCode: defaultValues.postalPostCode,
+        postalCountry: defaultValues.postalCountry
       })}
 
       {renderSection('Application Details', {
-        position: formData.position,
-        applicationDate: formData.applicationDate,
-        availableFromDate: formData.availableFromDate,
-        employmentType: formData.employmentType,
-        source: formData.source,
-        carTravelAllowance: formData.carTravelAllowance,
-        isFullTime: formData.isFullTime
+        availableFromDate: defaultValues.availableFromDate,
+        source: defaultValues.source,
+        isStudent: defaultValues.isStudent,
+        referralEmployee: defaultValues.referralEmployee,
+        isUnderStatePensionAge: defaultValues.isUnderStatePensionAge
       })}
-      {renderSection('Current Employment', formData.currentEmployment)}
-      {formData.previousEmployments &&
-        formData.previousEmployments.length > 0 && (
+
+      {/* 🔥 New Section: Availability */}
+      {renderSection('Availability', {
+        monday: defaultValues.availability.monday,
+        tuesday: defaultValues.availability.tuesday,
+        wednesday: defaultValues.availability.wednesday,
+        thursday: defaultValues.availability.thursday,
+        friday: defaultValues.availability.friday,
+        saturday: defaultValues.availability.saturday,
+        sunday: defaultValues.availability.sunday
+      })}
+
+      {Array.isArray(defaultValues.educationData) &&
+        defaultValues.educationData.map((education, index) => (
+          <React.Fragment key={index}>
+            {renderSection(`Education ${index + 1}`, {
+              institution: education.institution,
+              qualification: education.qualification,
+              grade: education.grade,
+              awardDate: education.awardDate,
+              certificate: education.certificate
+            })}
+          </React.Fragment>
+        ))}
+
+      {renderSection('Current Employment', defaultValues.currentEmployment)}
+      {defaultValues.previousEmployments &&
+        defaultValues.previousEmployments.length > 0 && (
           <div>
             <h3 className="mb-2 text-lg font-medium text-black">
               Previous Employment
             </h3>
 
-            {formData.previousEmployments.map((employment, index) => (
+            {defaultValues.previousEmployments.map((employment, index) => (
               <div
                 key={index}
                 className="mb-4 rounded-md border border-gray-200 bg-gray-50 p-4"
@@ -233,30 +297,28 @@ const dataProcessingAccepted = form.watch('dataProcessingAccepted');
           </div>
         )}
       {renderSection('Employment Gaps', {
-        hasEmploymentGaps: formData.hasEmploymentGaps,
-        employmentGapsExplanation: formData.employmentGapsExplanation
+        hasEmploymentGaps: defaultValues.hasEmploymentGaps,
+        employmentGapsExplanation: defaultValues.employmentGapsExplanation
       })}
 
-      {renderSection('Contact Information', {
-        email: formData.email,
-        phone: formData.phone,
-        postalAddress: formData.postalAddress
-          ? renderAddress(formData.postalAddress)
-          : null,
-        countryOfResidence: formData.countryOfResidence
-      })}
-
-      {renderSection('Demographics', {
-        ethnicOrigin: formData.ethnicOrigin,
-        isStudent: formData.isStudent,
-        isUnderStatePensionAge: formData.isUnderStatePensionAge
-      })}
+      {renderSection('Reference 1', defaultValues.referee1)}
+      {renderSection('Reference 2', defaultValues.referee2)}
       {renderSection('Disability Information', {
-        hasDisability: formData.hasDisability,
-        disabilityDetails: formData.disabilityDetails,
-        needsReasonableAdjustment: formData.needsReasonableAdjustment,
-        reasonableAdjustmentDetails: formData.reasonableAdjustmentDetails
+        hasDisability: defaultValues.hasDisability,
+        disabilityDetails: defaultValues.disabilityDetails,
+        needsReasonableAdjustment: defaultValues.needsReasonableAdjustment,
+        reasonableAdjustmentDetails: defaultValues.reasonableAdjustmentDetails
       })}
+
+      {renderSection('Documents', {
+  cvResume: defaultValues.cvResume,
+  proofOfAddress: defaultValues.proofOfAddress,
+
+  workExperience: defaultValues.workExperience,
+  personalStatement: defaultValues.personalStatement
+})}
+
+
     </div>
   );
 
@@ -394,7 +456,7 @@ const dataProcessingAccepted = form.watch('dataProcessingAccepted');
                     <FormControl>
                       <Textarea
                         placeholder="Enter details here..."
-                        className='border-gray-200'
+                        className="border-gray-200"
                         {...field}
                       />
                     </FormControl>

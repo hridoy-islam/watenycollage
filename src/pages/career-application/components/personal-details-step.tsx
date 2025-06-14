@@ -65,13 +65,13 @@ export const personalDetailsSchema = z
     isBritishCitizen: z.boolean().optional(),
     shareCode: z.string().optional(),
 
-    postalAddress: z.object({
-      line1: z.string().min(1, { message: 'Address line 1 is required' }),
-      line2: z.string().optional(),
-      city: z.string().min(1, { message: 'City is required' }),
-      postCode: z.string().min(1, { message: 'Postal code is required' }),
-      country: z.string().min(1, { message: 'Country is required' })
-    })
+
+      postalAddressLine1: z.string().min(1, { message: 'Address line 1 is required' }),
+      postalAddressLine2: z.string().optional(),
+      postalCity: z.string().min(1, { message: 'City is required' }),
+      postalPostCode: z.string().min(1, { message: 'Postal code is required' }),
+      postalCountry: z.string().min(1, { message: 'Country is required' })
+  
   })
   .superRefine((data, ctx) => {
     if (data.nationality !== 'British') {
@@ -100,8 +100,6 @@ export function PersonalDetailsStep({
   onSaveAndContinue,
   setCurrentStep
 }) {
-
-  console.log(defaultValues,'sss')
   const form = useForm<PersonalDetailsFormValues>({
     resolver: zodResolver(personalDetailsSchema),
     defaultValues: {
@@ -115,17 +113,16 @@ export function PersonalDetailsStep({
       phone: '',
       nationality: '',
       countryOfResidence: '',
-      dateOfBirth:  undefined,
+      dateOfBirth: undefined,
       nationalInsuranceNumber: '',
       isBritishCitizen: undefined,
       shareCode: '',
-      postalAddress: {
-        line1: '',
-        line2: '',
-        city: '',
-        postCode: '',
-        country: ''
-      }
+
+      postalAddressLine1: '',
+      postalAddressLine2: '',
+      postalCity: '',
+      postalPostCode: '',
+      postalCountry: ''
     }
   });
 
@@ -232,7 +229,6 @@ export function PersonalDetailsStep({
                                 color: '#9CA3AF'
                               })
                             }}
-                            isDisabled
                           />
                         )}
                       />
@@ -257,7 +253,6 @@ export function PersonalDetailsStep({
                           {...field}
                           placeholder="Enter your first name"
                           className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
-                          disabled
                         />
                       </FormControl>
                       <p className="text-xs  text-gray-500">Example: Emma</p>
@@ -278,7 +273,6 @@ export function PersonalDetailsStep({
                           {...field}
                           placeholder="Enter your middle name, if applicable."
                           className="!placeholder:text-gray-400 placeholder:text-xs placeholder:text-gray-400"
-                          disabled
                         />
                       </FormControl>
                       <p className="text-xs  text-gray-400">Example: J</p>
@@ -301,7 +295,6 @@ export function PersonalDetailsStep({
                           {...field}
                           placeholder="Enter your family name/surname"
                           className="!placeholder:text-gray-400 placeholder:text-xs placeholder:text-gray-400"
-                          disabled
                         />
                       </FormControl>
                       <p className="text-xs  text-gray-400">
@@ -330,7 +323,6 @@ export function PersonalDetailsStep({
                             selected={value}
                             onChange={(date) => field.onChange(date)}
                             placeholder="Use your official birth date"
-                            disabled
                           />
                         </FormControl>
                         <p className="text-xs text-gray-400">
@@ -382,7 +374,6 @@ export function PersonalDetailsStep({
                           {...field}
                           placeholder="Include country code if applying from outside the UK"
                           className="!placeholder:text-gray-400 placeholder:text-xs placeholder:text-gray-400"
-                          disabled
                         />
                       </FormControl>
                       <p className="text-xs  text-gray-400">
@@ -460,7 +451,6 @@ export function PersonalDetailsStep({
                                     color: '#9CA3AF'
                                   })
                                 }}
-                                isDisabled
                               />
                             )}
                           />
@@ -604,7 +594,7 @@ export function PersonalDetailsStep({
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <FormField
                     control={form.control}
-                    name="postalAddress.line1"
+                    name="postalAddressLine1"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
@@ -628,7 +618,7 @@ export function PersonalDetailsStep({
 
                   <FormField
                     control={form.control}
-                    name="postalAddress.line2"
+                    name="postalAddressLine2"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Address Line 2 (Optional)</FormLabel>
@@ -650,7 +640,7 @@ export function PersonalDetailsStep({
 
                   <FormField
                     control={form.control}
-                    name="postalAddress.city"
+                    name="postalCity"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
@@ -674,7 +664,7 @@ export function PersonalDetailsStep({
 
                   <FormField
                     control={form.control}
-                    name="postalAddress.postCode"
+                    name="postalPostCode"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
@@ -698,14 +688,14 @@ export function PersonalDetailsStep({
 
                   <FormField
                     control={form.control}
-                    name="postalAddress.country"
+                    name="postalCountry"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
                           Country<span className="text-red-500">*</span>
                         </FormLabel>
                         <Controller
-                          name="postalAddress.country"
+                          name="postalCountry"
                           control={form.control}
                           render={({ field: { onChange, value } }) => (
                             <Select

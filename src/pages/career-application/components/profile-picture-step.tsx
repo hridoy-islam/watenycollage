@@ -1,7 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-
+import { useEffect, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -10,27 +9,59 @@ import {
   CardTitle
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FileUpload } from './file-upload';
 import male from '@/assets/imges/home/male.jpeg';
 import female from '@/assets/imges/home/female.jpg';
+import { useSelector } from 'react-redux';
+import { ImageUploader } from './userImage-uploader';
+
+export function ProfilePictureStep({
+  defaultValues,
+  onSaveAndContinue,
+  setCurrentStep,
+  refreshData
+}) {
+  const [profilePictureUrl, setProfilePictureUrl] = useState<string | null>(
+    defaultValues?.image || null
+  );
+  const [uploadOpen, setUploadOpen] = useState(false);
+  const { user } = useSelector((state: any) => state.auth);
 
 
+  useEffect(() => {
+  if (defaultValues?.image && defaultValues.image !== '') {
+    setProfilePictureUrl(defaultValues.image);
+  }
+}, [defaultValues]);
 
-export function ProfilePictureStep({ defaultValues, onSaveAndContinue ,setCurrentStep}) {
-  const [profilePicture, setProfilePicture] = useState<File | null>(null);
+const isValidImageUrl = (url) => {
+  return url && url.startsWith('http');
+};
 
-  const handleNext = (data) => {
-    // If there's a profile picture, you'd typically upload it to a server
-    // and get back a URL. For now, we'll just pass the existing value.
-    onSaveAndContinue(data);
+  const handleNext = () => {
+    // Pass only the image URL as part of the form data
+    onSaveAndContinue({ image: profilePictureUrl });
   };
 
+  const handleUploadComplete = (uploadResponse) => {
+    if (uploadResponse?.success && uploadResponse.data?.fileUrl) {
+      const fileUrl = uploadResponse.data.fileUrl;
+      setProfilePictureUrl(fileUrl); // Update local state with new image URL
 
-   const handleSkip = () => {
-    setProfilePicture(null);
-    setCurrentStep(2)// Or null, depending on how you handle it in parent
+     
+      
+    }
+
+    setUploadOpen(false);
+
+    if (refreshData) {
+      refreshData();
+    }
   };
 
+  const handleSkip = () => {
+    setProfilePictureUrl(null);
+    setCurrentStep(2); // Go to next step
+  };
 
   return (
     <Card className="border-0 shadow-none">
@@ -45,10 +76,33 @@ export function ProfilePictureStep({ defaultValues, onSaveAndContinue ,setCurren
         <div className="grid grid-cols-1 items-center gap-6 md:grid-cols-2">
           {/* Grid 1: File Upload */}
           <div className="flex flex-col items-center justify-center gap-4">
-            <FileUpload onFileSelected={setProfilePicture} />
-            <Button  variant="outline"  onClick={handleSkip}>
-              Skip This Step
+            <div className="h-[200px] w-[200px] overflow-hidden  border-2 border-gray-300 bg-gray-100">
+              {profilePictureUrl ? (
+                <img
+                  src={profilePictureUrl}
+                  alt="Profile Preview"
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-gray-400">
+                  No Image
+                </div>
+              )}
+            </div>
+
+            <Button
+              variant="default"
+              className="bg-watney text-white hover:bg-watney/90"
+              onClick={() => setUploadOpen(true)}
+            >
+              Upload Image
             </Button>
+
+            {!profilePictureUrl && (
+              <Button variant="outline" onClick={handleSkip}>
+                Skip This Step
+              </Button>
+            )}
           </div>
 
           {/* Grid 2: Example Images + Description */}
@@ -73,17 +127,21 @@ export function ProfilePictureStep({ defaultValues, onSaveAndContinue ,setCurren
         </div>
 
         <div className="flex justify-end gap-2 pt-4">
-          {/* <Button variant="default" onClick={handleNext} className="bg-watney text-white hover:bg-watney/90">
-            Skip
-          </Button> */}
-           <Button
+          <Button
             onClick={handleNext}
             className="bg-watney text-white hover:bg-watney/90"
-            disabled={!profilePicture} // Only enabled when a picture is selected
+            disabled={!isValidImageUrl(profilePictureUrl)} // Only enable if an image is selected
           >
             Next
           </Button>
         </div>
+
+        <ImageUploader
+          open={uploadOpen}
+          onOpenChange={setUploadOpen}
+          onUploadComplete={handleUploadComplete}
+          entityId={user?._id}
+        />
       </CardContent>
     </Card>
   );

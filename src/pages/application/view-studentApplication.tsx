@@ -42,6 +42,8 @@ import axiosInstace from '@/lib/axios';
 import moment from 'moment';
 import PDFGenerator from './components/PDFGenerator';
 import Loader from '@/components/shared/loader';
+import axiosInstance from '@/lib/axios';
+import { useToast } from '@/components/ui/use-toast';
 
 // Type definition for application data
 type Application = {
@@ -166,6 +168,7 @@ export default function ViewStudentApplicationPage() {
   const [copiedFields, setCopiedFields] = useState<Record<string, boolean>>({});
   const navigate = useNavigate();
   const { id } = useParams();
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchApplication = async () => {
@@ -184,22 +187,21 @@ export default function ViewStudentApplicationPage() {
     fetchApplication();
   }, []);
 
+  const fetchCourse = async () => {
+    try {
+      setLoading(true);
+      const response = await axiosInstace.get(
+        `/application-course?studentId=${id}`
+      );
+      setApplicationCourse(response.data.data.result);
+      setLoading(false);
+    } catch (err) {
+      setLoading(false);
+      setError('Failed to fetch application data. Please try again.');
+      console.error('Error fetching application:', err);
+    }
+  };
   useEffect(() => {
-    const fetchCourse = async () => {
-      try {
-        setLoading(true);
-        const response = await axiosInstace.get(
-          `/application-course?studentId=${id}`
-        );
-        setApplicationCourse(response.data.data.result);
-        setLoading(false);
-      } catch (err) {
-        setLoading(false);
-        setError('Failed to fetch application data. Please try again.');
-        console.error('Error fetching application:', err);
-      }
-    };
-
     fetchCourse();
   }, []);
 
@@ -210,15 +212,15 @@ export default function ViewStudentApplicationPage() {
         setCopiedFields((prev) => ({ ...prev, [field]: true }));
 
         // Show toast notification
-        toast.success('Copied to clipboard!');
+        // toast.success('Copied to clipboard!');
 
         // Reset copied state after 2 seconds
         setTimeout(() => {
           setCopiedFields((prev) => ({ ...prev, [field]: false }));
-        }, 2000);
+        }, 1000);
       },
       () => {
-        toast.error('Failed to copy text');
+        console.log('Failed to copy text');
       }
     );
   };
@@ -366,7 +368,7 @@ export default function ViewStudentApplicationPage() {
             <MoveLeft /> Back
           </Button>
 
-          <div className='flex flex-row items-center gap-2'>
+          <div className="flex flex-row items-center gap-2">
             <h1 className="text-md font-semibold">
               {application?.title} {application?.firstName}{' '}
               {application?.initial} {application?.lastName}
@@ -1167,9 +1169,43 @@ export default function ViewStudentApplicationPage() {
                 applicationCourse?.map((courseEntry, index) => (
                   <Card key={courseEntry._id || index}>
                     <CardContent className="pt-6">
-                      <h3 className="mb-4 text-lg font-semibold">
-                        Course {index + 1}
-                      </h3>
+                      <div className="flex flex-row items-center justify-between">
+                        <h3 className="mb-4 text-lg font-semibold">
+                          Course {index + 1}
+                        </h3>
+
+                        <Button
+                          className="mb-4 bg-watney text-white hover:bg-watney/90"
+                          variant="default"
+                          size="sm"
+                          disabled={courseEntry.status === 'approved'}
+                          onClick={async () => {
+                            try {
+                              await axiosInstance.patch(
+                                `/application-course/${courseEntry._id}`,
+                                {
+                                  status: 'approved'
+                                }
+                              );
+
+                              toast({ title: 'Course approved successfully!' });
+                              fetchCourse();
+                            } catch (error) {
+                              console.error('Error approving course:', error);
+                              toast({
+                                title: 'Failed to approve course.',
+                                className:
+                                  'bg-destructive text-white border-none'
+                              });
+                            }
+                          }}
+                        >
+                          {courseEntry.status === 'approved'
+                            ? 'Approved'
+                            : 'Approve'}
+                        </Button>
+                      </div>
+
                       <Table>
                         <TableHeader>
                           <TableRow>
@@ -1193,12 +1229,12 @@ export default function ViewStudentApplicationPage() {
                           )}
                           {renderFieldRow(
                             'Status',
-                            courseEntry.status?? 'N/A',
+                            courseEntry.status ?? 'N/A',
                             `applicationCourse.${index}.status`
                           )}
                           {renderFieldRow(
                             'Application Date',
-                            courseEntry.createdAt?? 'N/A',
+                            courseEntry.createdAt ?? 'N/A',
                             `applicationCourse.${index}.createdAt`
                           )}
                         </TableBody>
@@ -1213,6 +1249,7 @@ export default function ViewStudentApplicationPage() {
               )}
             </div>
           </TabsContent>
+
           <TabsContent value="funding">
             <Card className="w-1/2">
               <CardContent className="pt-6">

@@ -230,7 +230,8 @@ export default function DocumentData({
       required: false,
       instructions: 'Upload relevant work experience documents',
       formats: 'PDF, JPG, PNG',
-      icon: FileText
+      icon: FileText,
+       uploadLabel: 'You can upload multiple files',
     },
     {
       id: 'personalStatement',
@@ -265,7 +266,8 @@ export default function DocumentData({
                 instructions,
                 formats,
                 error,
-                icon: Icon
+                icon: Icon,
+                uploadLabel
               }) => {
                 const hasFiles =
                   id === 'image'
@@ -322,6 +324,9 @@ export default function DocumentData({
                               </p>
                               <p className="mt-1 text-xs text-gray-500">
                                 Accepted formats: {formats}
+                              </p>
+                              <p className="mt-1 text-xs text-gray-800 font-semibold">
+                                {uploadLabel}
                               </p>
                             </div>
                           </div>

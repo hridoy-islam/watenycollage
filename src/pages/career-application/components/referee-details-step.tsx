@@ -23,9 +23,7 @@ const refereeSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   organisation: z.string().min(1, 'Organisation is required'),
   address: z.string().min(1, 'Address is required'),
-  relationship: z.string({
-  required_error: 'Relationship is required'
-}),
+  relationship: z.string().min(1, 'Relationship is required'),
   otherRelationship: z.string().optional(),
   email: z.string().email('Invalid email address'),
   phone: z.string().min(1, 'Phone number is required')
@@ -46,7 +44,7 @@ export function RefereeDetailsStep({
 }) {
 
 
-  console.log(defaultValues,'aa')
+
   const form = useForm<RefereeFormValues>({
   resolver: zodResolver(refereeDetailsSchema),
   defaultValues: {

@@ -145,7 +145,7 @@ export function ReviewModal({
                 rel="noopener noreferrer"
                 className="text-blue-600 hover:underline"
               >
-                {`${formatFieldName(key)} ${index + 1}`}
+                View Document
               </a>
             ))}
           </div>
@@ -163,7 +163,7 @@ export function ReviewModal({
             rel="noopener noreferrer"
             className="text-blue-600 hover:underline"
           >
-            {formatFieldName(key)}
+            View Document
           </a>
         ];
       }
@@ -312,7 +312,7 @@ export function ReviewModal({
                     awardDate: entry.awardDate
                       ? new Date(entry.awardDate).toLocaleDateString()
                       : '',
-                    certificate: entry.certificate ? 'Uploaded' : 'Not uploaded'
+                    certificate: entry.certificate
                   })}
                 </React.Fragment>
               ))}
@@ -384,7 +384,8 @@ export function ReviewModal({
               workExperience: getDataValue('workExperience') || [],
               personalStatement: getDataValue('personalStatement') || [],
               proofOfAddress: getDataValue('proofOfAddress') || [],
-              PhotoId: getDataValue('photoId') || 'Not Provided'
+              PhotoId: getDataValue('photoId') || [],
+              Photograph: getDataValue('image') || 'Not Provided'
             })}
           </div>
         </div>

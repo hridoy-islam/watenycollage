@@ -78,11 +78,11 @@ export default function AppRouter() {
           element: <InternationalStudentApplication />,
           index: true
         },
-        {
-          path: 'resume-upload',
-          element: <ResumeUpload />,
-          index: true
-        },
+        // {
+        //   path: 'resume-upload',
+        //   element: <ResumeUpload />,
+        //   index: true
+        // },
         {
           path: 'applications',
           element: <ApplicationListPage />,

@@ -39,10 +39,11 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
 
   // Source options
   const sourceOptions = [
-    { value: 'website', label: 'Company Website' },
+     { value: 'website', label: 'Company Website' },
     { value: 'referral', label: 'Referral' },
-    { value: 'agent', label: 'Agent' },
-    { value: 'socialMedia', label: 'Social Media' }
+    { value: 'linkedin', label: 'LinkedIn' },
+    { value: 'indeed', label: 'Indeed' },
+    { value: 'other', label: 'Other' }
   ];
 
   // Yes/No options for dropdowns
@@ -116,8 +117,7 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
           )}
         </div>
 
-        {/* Referral Employee */}
-        <div>
+        {localData.source === 'referral' &&<div>
           <label className="block text-sm font-medium text-gray-700">
             Referral Employee
           </label>
@@ -134,9 +134,10 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
               {localData.referralEmployee || '-'}
             </div>
           )}
-        </div>
+        </div> }
+        
 
-        {/* Is Student? */}
+  
         <div>
           <label className="block text-sm font-medium text-gray-700">
             Is Student?

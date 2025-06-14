@@ -25,5 +25,6 @@ export interface TabListProps {
 export interface TabContentProps {
   activeTab: TabType;
   userData: User;
+  refreshData: any
 }
 

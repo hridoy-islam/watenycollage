@@ -1,317 +1,38 @@
-// import { zodResolver } from '@hookform/resolvers/zod';
-// import { useForm } from 'react-hook-form';
-// import * as z from 'zod';
-// import { Button } from '@/components/ui/button';
-// import { Card, CardHeader, CardContent } from '@/components/ui/card';
-// import {
-//   Form,
-//   FormControl,
-//   FormField,
-//   FormItem,
-//   FormLabel,
-//   FormMessage,
-// } from '@/components/ui/form';
-// import { Input } from '@/components/ui/input';
-// import {
-//   Dialog,
-//   DialogContent,
-//   DialogHeader,
-//   DialogTitle,
-//   DialogTrigger,
-// } from '@/components/ui/dialog';
-// import {
-//   Table,
-//   TableBody,
-//   TableCell,
-//   TableHead,
-//   TableHeader,
-//   TableRow,
-// } from '@/components/ui/table';
-// import { Trash2 } from 'lucide-react';
-// import { useState } from 'react';
-// import { Textarea } from '@/components/ui/textarea';
-// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useState } from 'react';
+import { Card, CardHeader, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import {
+  Trash2,
+  FileText,
+  ExternalLink,
+  Upload,
+  CheckCircle
+} from 'lucide-react';
+import { ImageUploader } from './document-uploader';
+import { useSelector } from 'react-redux';
+import { z } from 'zod';
 
-// // Define document types
-// const DOCUMENT_TYPES = [
-//   'ID',
-//   'CV',
-//   'Proof of Address',
-//   'Qualification',
-//   'Reference',
-//   'Cover Letter',
-//   'Other'
-// ] as const;
-
-// // Extend schema to handle custom documents
-// const documentSchema = z.object({
-//   documents: z.array(z.object({
-//     type: z.enum(DOCUMENT_TYPES),
-//     file: z.instanceof(File).optional(),
-//     customTitle: z.string().optional(),
-//   }))
-// });
-
-// type DocumentFormValues = z.infer<typeof documentSchema>;
-
-
-
-// export function DocumentStep({   defaultValues,
-//   onSaveAndContinue,
-//   setCurrentStep }) {
-//   const [openDialog, setOpenDialog] = useState(false);
-//   const [selectedDocumentType, setSelectedDocumentType] = useState<string>('');
-
-//   const form = useForm<DocumentFormValues>({
-//     resolver: zodResolver(documentSchema),
-//     defaultValues: {
-//       documents:  [],
-//       ...defaultValues
-//     }
-//   });
-
-//   const onSubmit = (data: DocumentFormValues) => {
-//     onSaveAndContinue(data);
-//   };
-
-//    function handleBack() {
-//     setCurrentStep(7);
-//   }
-//   const handleFileChange = (field: any, e: React.ChangeEvent<HTMLInputElement>) => {
-//     if (e.target.files && e.target.files[0]) {
-//       field.onChange(e.target.files[0]);
-//     }
-//   };
-
-//   const addDocument = (data: { type: string, file: File, customTitle?: string }) => {
-//     const currentDocuments = form.getValues('documents') || [];
-//     form.setValue('documents', [...currentDocuments, {
-//       type: data.type as any,
-//       file: data.file,
-//       customTitle: data.customTitle
-//     }]);
-//     setOpenDialog(false);
-//     setSelectedDocumentType('');
-//   };
-
-//   const removeDocument = (index: number) => {
-//     const currentDocuments = form.getValues('documents') || [];
-//     form.setValue('documents', currentDocuments.filter((_, i) => i !== index));
-//   };
-
-//   return (
-//     <Card className='border-none shadow-none'>
-//       <CardHeader>
-//         <h2 className="text-xl font-semibold">Documents</h2>
-//         <p className="text-sm text-muted-foreground">
-//           Please upload all required documents. You can add multiple documents as needed.
-//         </p>
-//       </CardHeader>
-//       <CardContent>
-//         <Form {...form}>
-//           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-//             <div className="space-y-4">
-//               {/* Add Document Dialog */}
-//               <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-//                 <DialogTrigger asChild>
-//                   <Button type="button" variant="outline" className="mb-4 bg-watney hover:bg-watney/90">
-//                     Add Document
-//                   </Button>
-//                 </DialogTrigger>
-//                 <DialogContent>
-//                   <DialogHeader>
-//                     <DialogTitle>Upload New Document</DialogTitle>
-//                   </DialogHeader>
-//                   <div className="space-y-4">
-//                     <FormItem>
-//                       <FormLabel>Document Type</FormLabel>
-//                       <Select
-//                         value={selectedDocumentType}
-//                         onValueChange={(value) => setSelectedDocumentType(value)}
-//                       >
-//                         <SelectTrigger>
-//                           <SelectValue placeholder="Select document type" />
-//                         </SelectTrigger>
-//                         <SelectContent>
-//                           {DOCUMENT_TYPES.map((type) => (
-//                             <SelectItem key={type} value={type} className='hover:bg-gray-800 hover:text-white'>
-//                               {type}
-//                             </SelectItem>
-//                           ))}
-//                         </SelectContent>
-//                       </Select>
-//                     </FormItem>
-
-//                     {selectedDocumentType && (
-//                       <>
-//                         <FormItem>
-//                           <FormLabel>File</FormLabel>
-//                           <Input
-//                             type="file"
-//                             onChange={(e) => {
-//                               const file = e.target.files?.[0];
-//                               if (file) {
-//                                 if (selectedDocumentType === 'Other') {
-//                                   // For "Other" type, we'll handle in the dialog
-//                                 } else {
-//                                   addDocument({
-//                                     type: selectedDocumentType,
-//                                     file: file
-//                                   });
-//                                 }
-//                               }
-//                             }}
-//                           />
-//                         </FormItem>
-
-//                         {selectedDocumentType === 'Other' && (
-//                           <FormItem >
-//                             <FormLabel>Document Title</FormLabel>
-//                             <Textarea
-//                             className='border-gray-300'
-//                               placeholder="Enter document title"
-//                               onChange={(e) => {
-//                                 // We'll handle this when saving
-//                               }}
-//                             />
-//                           </FormItem>
-//                         )}
-
-//                         <div className="flex justify-end space-x-2 pt-4">
-//                           <Button
-//                             type="button"
-//                             variant="outline"
-//                             onClick={() => setOpenDialog(false)}
-//                           >
-//                             Cancel
-//                           </Button>
-//                           <Button
-//                             type="button"
-//                             onClick={() => {
-//                               const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-//                               const file = fileInput?.files?.[0];
-//                               if (file) {
-//                                 addDocument({
-//                                   type: selectedDocumentType,
-//                                   file: file,
-//                                   customTitle: selectedDocumentType === 'Other'
-//                                     ? (document.querySelector('textarea')?.value || 'Other Document')
-//                                     : undefined
-//                                 });
-//                               }
-//                             }}
-//                             className='bg-watney text-white hover:bg-watney/90'
-//                           >
-//                             Save
-//                           </Button>
-//                         </div>
-//                       </>
-//                     )}
-//                   </div>
-//                 </DialogContent>
-//               </Dialog>
-
-//               {/* Documents Table */}
-//               {form.watch('documents')?.length > 0 ? (
-//                 <Table>
-//                   <TableHeader>
-//                     <TableRow>
-//                       <TableHead>Document</TableHead>
-//                       <TableHead>Type</TableHead>
-//                       <TableHead className='text-right'>Actions</TableHead>
-//                     </TableRow>
-//                   </TableHeader>
-//                   <TableBody>
-//                     {form.watch('documents').map((doc, index) => (
-//                       <TableRow key={index}>
-//                         <TableCell>
-//                           {doc.customTitle || doc?.type} ({doc?.file?.name})
-//                         </TableCell>
-//                         <TableCell>{doc?.type}</TableCell>
-//                         <TableCell className='text-right'>
-//                           <Button
-//                             type="button"
-//                             variant="default"
-//                             size="icon"
-//                             onClick={() => removeDocument(index)}
-//                             className='hover:bg-red-500 text-red-500 hover:text-white'
-//                           >
-//                             <Trash2 className="h-4 w-4 " />
-//                           </Button>
-//                         </TableCell>
-//                       </TableRow>
-//                     ))}
-//                   </TableBody>
-//                 </Table>
-//               ) : (
-//                 <div className="rounded-md border border-dashed p-4 text-center text-sm text-muted-foreground">
-//                   No documents uploaded yet.
-//                 </div>
-//               )}
-//             </div>
-
-//             <div className="flex justify-between pt-6">
-//               <Button
-//                 type="button"
-//                 variant="outline"
-//                 className="bg-watney text-white hover:bg-watney/90"
-//                 onClick={handleBack}
-//               >
-//                 Back
-//               </Button>
-//               <Button
-//                 type="submit"
-//                 className="bg-watney text-white hover:bg-watney/90"
-//                 disabled={form.watch('documents')?.length === 0}
-//               >
-//                 Next
-//               </Button>
-//             </div>
-//           </form>
-//         </Form>
-//       </CardContent>
-//     </Card>
-//   );
-// }
-
-
-
-"use client"
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import { Button } from "@/components/ui/button"
-import { Card, CardHeader, CardContent } from "@/components/ui/card"
-import { Form, FormItem, FormLabel } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Trash2 } from "lucide-react"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { FileUpload } from "./file-upload"
-
-// Define document types
-const DOCUMENT_TYPES = ["Passport", "CV", "Reference", "Personal Statement", "Miscellaneous"] as const
-
-// Extend schema to handle custom documents
-const documentSchema = z.object({
-  documents: z.array(
-    z.object({
-      type: z.enum(DOCUMENT_TYPES),
-      file: z.any().optional(),
-      customTitle: z.string().optional(),
+// 🔁 Create dynamic schema factory
+export const createDocumentSchema = (hasExistingResume = false) =>
+  z.object({
+    image: z.string().optional(),
+    cvResume: hasExistingResume
+      ? z.string().optional()
+      : z.string().min(1, 'Resume is required'),
+    proofOfAddress: z.array(z.string()).nonempty({
+      message: 'Proof of address is required'
     }),
-  ),
-})
+    workExperience: z.array(z.string()).optional(),
+    personalStatement: z.array(z.string()).optional()
+  });
 
-type DocumentFormValues = z.infer<typeof documentSchema>
+// 🧾 Type derived from schema
+export type DocumentFile = z.infer<ReturnType<typeof createDocumentSchema>>;
 
 interface DocumentsStepProps {
-  defaultValues?: any
-  onSaveAndContinue: (data: any) => void
-  setCurrentStep: (step: number) => void
+  defaultValues?: Partial<DocumentFile>;
+  onSaveAndContinue: (data: DocumentFile) => void;
+  setCurrentStep: (step: number) => void;
 }
 
 export function DocumentStep({
@@ -319,311 +40,482 @@ export function DocumentStep({
   onSaveAndContinue,
   setCurrentStep
 }: DocumentsStepProps) {
-  const [openDialog, setOpenDialog] = useState(false);
-  const [selectedDocumentType, setSelectedDocumentType] = useState<string>('');
-  const [customTitle, setCustomTitle] = useState<string>('');
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  // Check if resume already exists
+  const hasExistingResume = !!defaultValues?.cvResume;
 
-  const form = useForm<DocumentFormValues>({
-    resolver: zodResolver(documentSchema),
-    defaultValues: {
-      documents: [],
-      ...defaultValues
-    }
+  console.log(!!defaultValues?.cvResume,'cvresume')
+
+  // Create dynamic schema based on existing data
+  const documentSchema = createDocumentSchema(hasExistingResume);
+
+  // Initialize state
+  const [documents, setDocuments] = useState<DocumentFile>({
+    image: defaultValues?.image ?? '',
+    proofOfAddress: defaultValues?.proofOfAddress ?? [],
+    cvResume: defaultValues?.cvResume ?? '',
+    workExperience: defaultValues?.workExperience ?? [],
+    personalStatement: defaultValues?.personalStatement ?? []
   });
 
-  const onSubmit = (data: DocumentFormValues) => {
-    onSaveAndContinue(data);
+  const [uploadState, setUploadState] = useState<{
+    isOpen: boolean;
+    field: keyof Omit<DocumentFile, 'image'> | 'image' | null;
+  }>({
+    isOpen: false,
+    field: null
+  });
+
+  const [validationErrors, setValidationErrors] = useState<
+    Record<string, string>
+  >({});
+
+  const { user } = useSelector((state: any) => state.auth);
+
+  // Remove file handler
+  const handleRemoveFile = (field: keyof DocumentFile, fileName: string) => {
+    if (field === 'image') {
+      setDocuments((prev) => ({
+        ...prev,
+        image: ''
+      }));
+    } else if (field === 'cvResume') {
+      setDocuments((prev) => ({
+        ...prev,
+        cvResume: undefined
+      }));
+    } else {
+      setDocuments((prev) => ({
+        ...prev,
+        [field]: (prev[field] as string[]).filter((file) => file !== fileName)
+      }));
+    }
   };
 
-  function handleBack() {
+  // Navigation handlers
+  const handleBack = () => {
     setCurrentStep(7);
-  }
+  };
 
-  const addDocument = () => {
-    if (!selectedFile) return;
+  const handleSubmit = () => {
+    const validationResult = documentSchema.safeParse(documents);
+    if (!validationResult.success) {
+      const errors: Record<string, string> = {};
+      validationResult.error.issues.forEach((issue) => {
+        errors[issue.path[0]] = issue.message;
+      });
+      setValidationErrors(errors);
+      return;
+    }
+    setValidationErrors({});
+    onSaveAndContinue(validationResult.data);
+  };
 
-    const currentDocuments = form.getValues('documents') || [];
-    form.setValue('documents', [
-      ...currentDocuments,
-      {
-        type: selectedDocumentType as any,
-        file: selectedFile,
-        customTitle:
-          selectedDocumentType === 'Miscellaneous' ? customTitle : undefined
+  // Check if all required documents are uploaded
+  const allDocumentsUploaded =
+    // documents.image !== '' &&
+    (hasExistingResume || documents.cvResume) &&
+    documents.proofOfAddress.length > 0;
+
+  // Render uploaded files
+  const renderUploadedFiles = (field: keyof DocumentFile) => {
+    if (field === 'image') {
+      const fileUrl = documents.image;
+      if (fileUrl) {
+        const fileName = decodeURIComponent(
+          fileUrl.split('/').pop() || 'Photo-ID'
+        );
+        return (
+          <div className="mt-3 space-y-2">
+            <div className="flex w-auto items-center justify-between rounded-lg border border-gray-200 bg-white p-3 transition-all hover:shadow-md">
+              <div className="flex items-center space-x-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
+                  <FileText className="h-4 w-4 text-green-600" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <a
+                    href={fileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center space-x-2 text-sm font-medium text-gray-900 transition-colors hover:text-watney/90"
+                  >
+                    <span className="truncate">{fileName}</span>
+                    <ExternalLink className="h-3 w-3 flex-shrink-0" />
+                  </a>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleRemoveFile(field, fileUrl)}
+                className="h-8 w-8 p-0 text-gray-400 hover:bg-red-50 hover:text-red-500"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        );
       }
-    ]);
+      return null;
+    }
 
-    setOpenDialog(false);
-    setSelectedDocumentType('');
-    setCustomTitle('');
-    setSelectedFile(null);
+    if (field === 'cvResume') {
+      const fileUrl = documents.cvResume;
+      if (fileUrl) {
+        const fileName = decodeURIComponent(
+          fileUrl.split('/').pop() || 'Resume'
+        );
+        return (
+          <div className="mt-3 space-y-2">
+            <div className="flex w-auto items-center justify-between rounded-lg border border-gray-200 bg-white p-3 transition-all hover:shadow-md">
+              <div className="flex items-center space-x-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
+                  <FileText className="h-4 w-4 text-green-600" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <a
+                    href={fileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center space-x-2 text-sm font-medium text-gray-900 transition-colors hover:text-watney/90"
+                  >
+                    <span className="truncate">{fileName}</span>
+                    <ExternalLink className="h-3 w-3 flex-shrink-0" />
+                  </a>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleRemoveFile(field, fileUrl)}
+                className="h-8 w-8 p-0 text-gray-400 hover:bg-red-50 hover:text-red-500"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        );
+      }
+      return null;
+    }
+
+    const value = documents[field];
+    if (Array.isArray(value) && value.length > 0) {
+      return (
+        <div className="mt-3 space-y-2">
+          {value.map((fileUrl, index) => {
+            const fileName = decodeURIComponent(
+              fileUrl.split('/').pop() || `File-${index}`
+            );
+            return (
+              <div
+                key={`${fileUrl}-${index}`}
+                className="flex w-auto items-center justify-between rounded-lg border border-gray-200 bg-white p-3 transition-all hover:shadow-md"
+              >
+                <div className="flex items-center space-x-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
+                    <FileText className="h-4 w-4 text-green-600" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <a
+                      href={fileUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center space-x-2 text-sm font-medium text-gray-900 transition-colors hover:text-watney/90"
+                    >
+                      <span className="truncate">{fileName}</span>
+                      <ExternalLink className="h-3 w-3 flex-shrink-0" />
+                    </a>
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleRemoveFile(field, fileUrl)}
+                  className="h-8 w-8 p-0 text-gray-400 hover:bg-red-50 hover:text-red-500"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+
+    return null;
   };
 
-  const removeDocument = (index: number) => {
-    const currentDocuments = form.getValues('documents') || [];
-    form.setValue(
-      'documents',
-      currentDocuments.filter((_, i) => i !== index)
-    );
+  const openImageUploader = (field: keyof DocumentFile) => {
+    setUploadState({ isOpen: true, field });
   };
+
+  const handleUploadComplete = (uploadResponse: any) => {
+    const { field } = uploadState;
+    if (!field || !uploadResponse?.success || !uploadResponse.data?.fileUrl) {
+      setUploadState({ isOpen: false, field: null });
+      return;
+    }
+
+    const fileUrl = uploadResponse.data.fileUrl;
+
+    if (field === 'image') {
+      setDocuments((prev) => ({
+        ...prev,
+        image: fileUrl
+      }));
+    } else if (field === 'cvResume') {
+      setDocuments((prev) => ({
+        ...prev,
+        cvResume: fileUrl
+      }));
+    } else {
+      setDocuments((prev) => ({
+        ...prev,
+        [field]: [...(prev[field] as string[]), fileUrl]
+      }));
+    }
+
+    setUploadState({ isOpen: false, field: null });
+  };
+
+  const documentTypes = [
+  // {
+  //   id: 'image',
+  //   label: 'Photograph',
+  //   required: true,
+  //   instructions: 'Please upload a recent and formal photo of yourself.',
+  //   formats: 'JPG, PNG',
+  //   error: validationErrors.image,
+  //   icon: FileText
+  // },
+  {
+    id: 'cvResume',
+    label: 'Resume',
+    required: !hasExistingResume,
+    instructions: 'Upload your CV or Resume',
+    formats: 'PDF, JPG, PNG',
+    error: validationErrors.cvResume,
+    icon: FileText
+  },
+  {
+    id: 'proofOfAddress',
+    label: 'Proof of Address',
+    required: true,
+    instructions:
+      'Upload recent utility bill or bank statement showing your address',
+    formats: 'PDF, JPG, PNG',
+    error: validationErrors.proofOfAddress,
+    icon: FileText
+  },
+  {
+    id: 'workExperience',
+    label: 'Work Experience Documents',
+    required: false,
+    instructions: 'Upload relevant work experience documents',
+    formats: 'PDF, JPG, PNG',
+    uploadLabel: 'You can upload multiple files',
+    icon: FileText
+  },
+  {
+    id: 'personalStatement',
+    label: 'Personal Statement',
+    required: false,
+    instructions: 'Upload your personal statement',
+    formats: 'PDF, DOCX, TXT',
+    icon: FileText
+  }
+].filter(doc => hasExistingResume ? doc.id !== 'cvResume' : true);
 
   return (
-    <Card className="border-none shadow-none">
-      <CardHeader>
-        <h2 className="text-xl font-semibold">Documents</h2>
-        <p className="text-sm text-muted-foreground">
-          Please upload all required documents. You can add multiple documents
-          as needed.
-        </p>
-        <div className="mt-4 text-sm">
-          <p className="font-medium">Required Documents:</p>
-          <ul className="mt-2 list-inside list-disc space-y-1">
-            <li>
-              Updated <strong>CV or Resume</strong>
-            </li>
-            <li>Cover letter</li>
-            <li>
-              Proof of right to work in the UK (e.g., passport, BRP, settled
-              status)
-            </li>
-          </ul>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="space-y-4">
-              {/* Add Document Dialog */}
-              <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-                <DialogTrigger asChild>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="mb-4 bg-watney text-white hover:bg-watney/90"
-                  >
-                    Add Document
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Upload New Document</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4">
-                    <FormItem>
-                      <FormLabel>Document Type</FormLabel>
-                      <Select
-                        value={selectedDocumentType}
-                        onValueChange={(value) =>
-                          setSelectedDocumentType(value)
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select document type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {DOCUMENT_TYPES.map((type) => (
-                            <SelectItem
-                              key={type}
-                              value={type}
-                              className="hover:bg-gray-800 hover:text-white"
-                            >
-                              {type}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </FormItem>
-
-                    {selectedDocumentType && (
-                      <>
-                        <FormItem>
-                          <FormLabel>File</FormLabel>
-                          <FileUpload
-                            id="document-upload"
-                            onFilesSelected={(files) => {
-                              if (files && files.length > 0) {
-                                setSelectedFile(files[0]);
-                              }
-                            }}
-                            accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                            multiple={false}
-                            buttonLabel="Upload Document"
-                          />
-                        </FormItem>
-
-                        {selectedDocumentType === 'Miscellaneous' && (
-                          <FormItem>
-                            <FormLabel>Document Title</FormLabel>
-                            <Textarea
-                              className="border-gray-300"
-                              placeholder="Enter document title"
-                              value={customTitle}
-                              onChange={(e) => setCustomTitle(e.target.value)}
-                            />
-                          </FormItem>
-                        )}
-
-                        {/* Additional fields based on document type */}
-                        {selectedDocumentType === 'ID' && (
-                          <div className="space-y-4">
-                            <FormItem>
-                              <FormLabel>ID Type</FormLabel>
-                              <Select defaultValue="passport">
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select ID type" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="passport">
-                                    Passport
-                                  </SelectItem>
-                                  <SelectItem value="nationalID">
-                                    National ID
-                                  </SelectItem>
-                                  <SelectItem value="drivingLicense">
-                                    Driving License
-                                  </SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </FormItem>
-                            <FormItem>
-                              <FormLabel>ID Number</FormLabel>
-                              <Input placeholder="Enter ID number" />
-                            </FormItem>
-                            <FormItem>
-                              <FormLabel>Expiry Date</FormLabel>
-                              <Input type="date" />
-                            </FormItem>
-                          </div>
-                        )}
-
-                        {selectedDocumentType === 'Proof of Address' && (
-                          <div className="space-y-4">
-                            <FormItem>
-                              <FormLabel>Document Type</FormLabel>
-                              <Select defaultValue="utility">
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select document type" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="utility">
-                                    Utility Bill
-                                  </SelectItem>
-                                  <SelectItem value="bankStatement">
-                                    Bank Statement
-                                  </SelectItem>
-                                  <SelectItem value="councilTax">
-                                    Council Tax
-                                  </SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </FormItem>
-                            <FormItem>
-                              <FormLabel>Issue Date</FormLabel>
-                              <Input type="date" />
-                            </FormItem>
-                          </div>
-                        )}
-
-                        {selectedDocumentType === 'Qualification' && (
-                          <div className="space-y-4">
-                            <FormItem>
-                              <FormLabel>Qualification Title</FormLabel>
-                              <Input placeholder="e.g., BSc Computer Science" />
-                            </FormItem>
-                            <FormItem>
-                              <FormLabel>Institution</FormLabel>
-                              <Input placeholder="e.g., University of Example" />
-                            </FormItem>
-                            <FormItem>
-                              <FormLabel>Year Completed</FormLabel>
-                              <Input type="number" placeholder="e.g., 2020" />
-                            </FormItem>
-                          </div>
-                        )}
-
-                        <div className="flex justify-end space-x-2 pt-4">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => setOpenDialog(false)}
-                          >
-                            Cancel
-                          </Button>
-                          <Button
-                            type="button"
-                            onClick={addDocument}
-                            disabled={!selectedFile}
-                            className="bg-watney text-white hover:bg-watney/90"
-                          >
-                            Save
-                          </Button>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </DialogContent>
-              </Dialog>
-
-              {/* Documents Table */}
-              {form.watch('documents')?.length > 0 ? (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Document</TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {form.watch('documents').map((doc, index) => (
-                      <TableRow key={index}>
-                        <TableCell>
-                          {doc.customTitle || doc?.type} ({doc?.file?.name})
-                        </TableCell>
-                        <TableCell>{doc?.type}</TableCell>
-                        <TableCell className="text-right">
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => removeDocument(index)}
-                            className="text-red-500 hover:bg-red-500 hover:text-white"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              ) : (
-                <div className="rounded-md border border-dashed p-4 text-center text-sm text-muted-foreground">
-                  No documents uploaded yet.
+    <div className="">
+      <Card className="border-0 shadow-none">
+        <CardHeader className="">
+          <div className="space-y-4">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">
+                Document Upload
+              </h2>
+              <p className="mt-1 text-gray-600">
+                Please upload all required documents to complete your application
+              </p>
+            </div>
+            <div className="rounded-lg border border-gray-200 bg-white p-4">
+              <h3 className="mb-3 flex items-center font-semibold text-gray-900">
+                <CheckCircle className="mr-2 h-5 w-5 text-blue-600" />
+                Document Requirements
+              </h3>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                  <p className="mb-2 font-medium text-gray-700">
+                    Required Documents:
+                  </p>
+                  <ul className="space-y-1 text-sm text-gray-600">
+                    {!hasExistingResume && <li className="flex items-center">
+                      <div className="mr-2 h-2 w-2 rounded-full bg-red-500"></div>
+                      Resume
+                    </li>}
+                    
+                   
+                    <li className="flex items-center">
+                      <div className="mr-2 h-2 w-2 rounded-full bg-red-500"></div>
+                      Proof of address
+                    </li>
+                  </ul>
                 </div>
-              )}
+                <div>
+                  <p className="mb-2 font-medium text-gray-700">
+                    Optional Documents:
+                  </p>
+                  <ul className="space-y-1 text-sm text-gray-600">
+                    <li className="flex items-center">
+                      <div className="mr-2 h-2 w-2 rounded-full bg-gray-400"></div>
+                      Work experience documents
+                    </li>
+                    <li className="flex items-center">
+                      <div className="mr-2 h-2 w-2 rounded-full bg-gray-400"></div>
+                      Personal statement
+                    </li>
+                  </ul>
+                </div>
+              </div>
             </div>
+          </div>
+        </CardHeader>
+        <CardContent className="p-6">
+          <div className="grid gap-4 md:grid-cols-2">
+            {documentTypes.map(
+              ({
+                id,
+                label,
+                required,
+                instructions,
+                formats,
+                error,
+                icon: Icon,
+                uploadLabel
+              }) => {
+                const hasFiles =
+                  id === 'image'
+                    ? !!documents.image
+                    : id === 'cvResume'
+                      ? !!documents.cvResume
+                      : Array.isArray(documents[id as keyof DocumentFile]) &&
+                        (documents[id as keyof DocumentFile] as string[]).length >
+                          0;
 
-            <div className="flex justify-between pt-6">
-              <Button
-                type="button"
-                variant="outline"
-                className="bg-watney text-white hover:bg-watney/90"
-                onClick={handleBack}
-              >
-                Back
-              </Button>
-              <Button
-                type="submit"
-                className="bg-watney text-white hover:bg-watney/90"
-                disabled={form.watch('documents')?.length === 0}
-              >
-                Next
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+                return (
+                  <div
+                    key={id}
+                    className={`rounded-xl border-2 transition-all ${
+                      error
+                        ? 'border-red-200 bg-red-50'
+                        : hasFiles
+                          ? 'border-gray-100 bg-gray-50 hover:border-gray-200'
+                          : 'border-gray-100 bg-gray-50 hover:border-gray-200'
+                    }`}
+                  >
+                    <div className="p-6">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="mb-2 flex items-center space-x-3">
+                            <div
+                              className={`rounded-lg p-2 ${
+                                error
+                                  ? 'bg-red-100'
+                                  : hasFiles
+                                    ? 'bg-gray-100'
+                                    : 'bg-gray-100'
+                              }`}
+                            >
+                              <Icon
+                                className={`h-5 w-5 ${
+                                  error
+                                    ? 'text-red-600'
+                                    : hasFiles
+                                      ? 'text-green-600'
+                                      : 'text-gray-600'
+                                }`}
+                              />
+                            </div>
+                            <div>
+                              <h3 className="flex items-center text-lg font-semibold text-gray-900">
+                                {label}
+                                {required && (
+                                  <span className="ml-2 text-red-500">*</span>
+                                )}
+                                {hasFiles && (
+                                  <CheckCircle className="ml-2 h-5 w-5 text-green-600" />
+                                )}
+                              </h3>
+                              <p className="text-sm text-gray-600">
+                                {instructions}
+                              </p>
+                              <p className="mt-1 text-xs text-gray-500">
+                                Accepted formats: {formats}
+                              </p>
+                              <p className="mt-1 text-xs font-semibold text-gray-800">
+                                {uploadLabel}
+                              </p>
+                            </div>
+                          </div>
+                          {error && (
+                            <div className="mt-2 rounded-lg border border-red-200 bg-red-100 p-3">
+                              <p className="text-sm font-medium text-red-700">
+                                {error}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                        <Button
+                          type="button"
+                          onClick={() =>
+                            openImageUploader(id as keyof DocumentFile)
+                          }
+                          className="ml-4 flex items-center space-x-2 rounded-lg bg-watney px-6 py-2 text-white transition-colors hover:bg-watney/90"
+                        >
+                          <Upload className="h-4 w-4" />
+                          <span>Upload</span>
+                        </Button>
+                      </div>
+                      {renderUploadedFiles(id as keyof DocumentFile)}
+                    </div>
+                  </div>
+                );
+              }
+            )}
+          </div>
+
+          {/* Navigation Buttons */}
+          <div className="flex justify-between pt-8">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleBack}
+              className="bg-watney text-white hover:bg-watney/90"
+            >
+              Back
+            </Button>
+            <Button
+              type="button"
+              onClick={handleSubmit}
+              disabled={!allDocumentsUploaded}
+              className="bg-watney text-white hover:bg-watney/90"
+            >
+              Next
+            </Button>
+          </div>
+
+          {/* Image Uploader Modal */}
+          <ImageUploader
+            open={uploadState.isOpen}
+            onOpenChange={(isOpen) =>
+              setUploadState((prev) => ({ ...prev, isOpen }))
+            }
+            onUploadComplete={handleUploadComplete}
+            entityId={user?._id}
+          />
+        </CardContent>
+      </Card>
+    </div>
   );
 }

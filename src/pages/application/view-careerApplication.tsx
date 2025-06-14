@@ -257,23 +257,46 @@ export default function ViewCareerApplicationPage() {
   };
 
   const renderFieldRow = (label: string, value: any, fieldPath: string) => {
-    const displayValue = formatValue(value);
     const isCopied = copiedFields[fieldPath] || false;
     const isEmptyValue = value === undefined || value === null || value === '';
+    const isUrl = typeof value === 'string' && value.startsWith('http');
+
+    const isEmail =
+      typeof value === 'string' &&
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+
+    const displayValue = isUrl
+      ? null
+      : isEmail
+        ? value.toLowerCase()
+        : formatValue(value);
 
     return (
       <TableRow key={fieldPath} className="hover:bg-muted/10">
         <TableCell className="text-left align-middle font-medium">
           {label}
         </TableCell>
+
         <TableCell
           className={cn(
             'text-right align-middle',
             isEmptyValue && 'italic text-muted-foreground'
           )}
         >
-          {displayValue}
+          {isUrl ? (
+            <a
+              href={value}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block text-blue-600 underline hover:text-blue-800"
+            >
+              View File
+            </a>
+          ) : (
+            displayValue
+          )}
         </TableCell>
+
         <TableCell className="w-10 text-right">
           {!isEmptyValue && (
             <Button
@@ -427,6 +450,10 @@ export default function ViewCareerApplicationPage() {
             {/* First Card */}
             <Card className="w-[50%]">
               <CardContent className="pt-6">
+                <h3 className="mb-4 text-lg font-semibold">
+                  Personal Information
+                </h3>
+
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -470,11 +497,7 @@ export default function ViewCareerApplicationPage() {
                       application?.nationalInsuranceNumber,
                       'nationalInsuranceNumber'
                     )}
-                    {renderFieldRow(
-                      'Is British Citizen',
-                      application?.isBritishCitizen ? 'Yes' : 'No',
-                      'isBritishCitizen'
-                    )}
+
                     {renderFieldRow(
                       'Share Code',
                       application?.shareCode,
@@ -488,7 +511,9 @@ export default function ViewCareerApplicationPage() {
             {/* Second Card - Postal Address */}
             <Card className="w-[50%]">
               <CardContent className="">
-                <h3 className="mb-4 mt-4 text-lg font-semibold">Postal Address</h3>
+                <h3 className="mb-4 mt-4 text-lg font-semibold">
+                  Postal Address
+                </h3>
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -499,29 +524,29 @@ export default function ViewCareerApplicationPage() {
                   </TableHeader>
                   <TableBody>
                     {renderFieldRow(
-                      'Line 1',
-                      application?.postalAddress?.line1,
-                      'postalAddress.line1'
+                      'Postal Address Line1',
+                      application?.postalAddressLine1,
+                      'postalAddressLine1'
                     )}
                     {renderFieldRow(
-                      'Line 2',
-                      application?.postalAddress?.line2,
-                      'postalAddress.line2'
+                      'Postal Address Line1',
+                      application?.postalAddressLine1,
+                      'postalAddressLine2'
                     )}
                     {renderFieldRow(
-                      'City',
-                      application?.postalAddress?.city,
-                      'postalAddress.city'
+                      'Postal City',
+                      application?.postalCity,
+                      'postalCity'
                     )}
                     {renderFieldRow(
                       'Post Code',
-                      application?.postalAddress?.postCode,
-                      'postalAddress.postCode'
+                      application?.postalPostCode,
+                      'postalPostCode'
                     )}
                     {renderFieldRow(
-                      'Country',
-                      application?.postalAddress?.country,
-                      'postalAddress.country'
+                      'Postal Country',
+                      application?.postalCountry,
+                      'postalCountry'
                     )}
                   </TableBody>
                 </Table>
@@ -531,7 +556,7 @@ export default function ViewCareerApplicationPage() {
 
           <TabsContent
             value="application"
-            className="grid -mt-0.5 w-full grid-cols-1 gap-6 md:grid-cols-2"
+            className="-mt-0.5 grid w-full grid-cols-1 gap-6 md:grid-cols-2"
           >
             {/* Availability Details Card */}
             <Card>
@@ -554,11 +579,13 @@ export default function ViewCareerApplicationPage() {
                       'availableFromDate'
                     )}
                     {renderFieldRow('Source', application?.source, 'source')}
-                    {renderFieldRow(
-                      'Referral Employee',
-                      application?.referralEmployee,
-                      'referralEmployee'
-                    )}
+                    {application.source === 'referral' &&
+                      renderFieldRow(
+                        'Referral Employee',
+                        application?.referralEmployee,
+                        'referralEmployee'
+                      )}
+
                     {renderFieldRow(
                       'Is Student',
                       application?.isStudent ? 'Yes' : 'No',
@@ -604,11 +631,11 @@ export default function ViewCareerApplicationPage() {
           </TabsContent>
 
           <TabsContent value="employment">
-            <div className="grid grid-cols-1 -mt-2 gap-6 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <Card>
                 <CardContent className="pt-6">
                   <h3 className="mb-2 text-lg font-semibold">
-                    Employment Status
+                    Current Employment
                   </h3>
                   <Table className="mb-6">
                     <TableHeader>
@@ -620,131 +647,124 @@ export default function ViewCareerApplicationPage() {
                     </TableHeader>
                     <TableBody>
                       {renderFieldRow(
-                        'Is Employed',
+                        'Are you currently employed?',
                         application.isEmployed,
                         'isEmployed'
                       )}
-                      {renderFieldRow(
-                        'Has Employment Gaps',
-                        application.hasEmploymentGaps,
-                        'hasEmploymentGaps'
-                      )}
-                      {renderFieldRow(
-                        'Employment Gaps Explanation',
-                        application.employmentGapsExplanation,
-                        'employmentGapsExplanation'
-                      )}
-                      {renderFieldRow(
-                        'Declaration',
-                        application.declaration,
-                        'declaration'
+                      {application.isEmployed === 'yes' && (
+                        <>
+                          {renderFieldRow(
+                            'Employer',
+                            application?.currentEmployment?.employer,
+                            'currentEmployment.employer'
+                          )}
+                          {renderFieldRow(
+                            'Job Title',
+                            application?.currentEmployment?.jobTitle,
+                            'currentEmployment.jobTitle'
+                          )}
+                          {renderFieldRow(
+                            'Start Date',
+                            application?.currentEmployment?.startDate,
+                            'currentEmployment.startDate'
+                          )}
+                          {renderFieldRow(
+                            'Employment Type',
+                            application?.currentEmployment?.employmentType,
+                            'currentEmployment.employmentType'
+                          )}
+                          {renderFieldRow(
+                            'Responsibilities',
+                            application?.currentEmployment?.responsibilities,
+                            'currentEmployment.responsibilities'
+                          )}
+
+                          {renderFieldRow(
+                            'Do you have previous employment history?',
+                            application?.hasPreviousEmployment,
+                            'hasPreviousEmployment'
+                          )}
+                        </>
                       )}
                     </TableBody>
                   </Table>
                 </CardContent>
               </Card>
+              {application?.hasPreviousEmployment === 'yes' && (
+                <Card>
+                  <CardContent className="pt-6">
+                    {application.previousEmployments &&
+                      application.previousEmployments.length > 0 && (
+                        <>
+                          <h3 className="mb-2 text-lg font-semibold">
+                            Previous Employment
+                          </h3>
+                          <div className="space-y-6">
+                            {application.previousEmployments.map(
+                              (employment, index) => (
+                                <div key={index}>
+                                  <div className="mb-2 flex items-center">
+                                    <h4 className="font-medium">
+                                      Previous Employment {index + 1}
+                                    </h4>
+                                    <Separator className="mx-4 flex-1" />
+                                  </div>
+                                  <Table>
+                                    <TableBody>
+                                      {renderFieldRow(
+                                        'Employer Name',
+                                        employment.employer,
+                                        `previousEmployments.${index}.employer`
+                                      )}
+                                      {renderFieldRow(
+                                        'Job Position',
+                                        employment.jobTitle,
+                                        `previousEmployments.${index}.jobTitle`
+                                      )}
+                                      {renderFieldRow(
+                                        'Start Date',
+                                        employment.startDate,
+                                        `previousEmployments.${index}.startDate`
+                                      )}
+                                      {renderFieldRow(
+                                        'End Date',
+                                        employment.endDate,
+                                        `previousEmployments.${index}.endDate`
+                                      )}
+                                      {renderFieldRow(
+                                        'Reason for Leaving',
+                                        employment.reasonForLeaving,
+                                        `previousEmployments.${index}.reasonForLeaving`
+                                      )}
+                                      {renderFieldRow(
+                                        'Main Responsibilities',
+                                        employment.responsibilities,
+                                        `previousEmployments.${index}.responsibilities`
+                                      )}
 
-              <Card>
-                <CardContent className="pt-6">
-                  {application.currentEmployment && (
-                    <>
-                      <h3 className="mb-2 text-lg font-semibold">
-                        Current Employment
-                      </h3>
-                      <Table className="mb-6">
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead className="w-1/3 text-left">
-                              Field
-                            </TableHead>
-                            <TableHead className="text-right">Value</TableHead>
-                            <TableHead className="w-10 text-right"></TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {renderFieldRow(
-                            'Employer',
-                            application.currentEmployment.employer,
-                            'currentEmployment.employer'
-                          )}
-                          {renderFieldRow(
-                            'Job Title',
-                            application.currentEmployment.jobTitle,
-                            'currentEmployment.jobTitle'
-                          )}
-                          {renderFieldRow(
-                            'Start Date',
-                            application.currentEmployment.startDate,
-                            'currentEmployment.startDate'
-                          )}
-                          {renderFieldRow(
-                            'Employment Type',
-                            application.currentEmployment.employmentType,
-                            'currentEmployment.employmentType'
-                          )}
-                          {renderFieldRow(
-                            'Responsibilities',
-                            application.currentEmployment.responsibilities,
-                            'currentEmployment.responsibilities'
-                          )}
-                        </TableBody>
-                      </Table>
-                    </>
-                  )}
-
-                  {application.previousEmployments &&
-                    application.previousEmployments.length > 0 && (
-                      <>
-                        <h3 className="mb-2 text-lg font-semibold">
-                          Previous Employment
-                        </h3>
-                        <div className="space-y-6">
-                          {application.previousEmployments.map(
-                            (employment, index) => (
-                              <div key={index}>
-                                <div className="mb-2 flex items-center">
-                                  <h4 className="font-medium">
-                                    Previous Employment {index + 1}
-                                  </h4>
-                                  <Separator className="mx-4 flex-1" />
+                                      {renderFieldRow(
+                                        'Has Employment Gaps',
+                                        application.hasEmploymentGaps,
+                                        'hasEmploymentGaps'
+                                      )}
+                                      {application.hasEmploymentGaps ===
+                                        'yes' &&
+                                        renderFieldRow(
+                                          'Employment Gaps Explanation',
+                                          application.employmentGapsExplanation,
+                                          'employmentGapsExplanation'
+                                        )}
+                                    </TableBody>
+                                  </Table>
                                 </div>
-                                <Table>
-                                  <TableBody>
-                                    {renderFieldRow(
-                                      'Employer',
-                                      employment.employer,
-                                      `previousEmployments.${index}.employer`
-                                    )}
-                                    {renderFieldRow(
-                                      'Job Title',
-                                      employment.jobTitle,
-                                      `previousEmployments.${index}.jobTitle`
-                                    )}
-                                    {renderFieldRow(
-                                      'Start Date',
-                                      employment.startDate,
-                                      `previousEmployments.${index}.startDate`
-                                    )}
-                                    {renderFieldRow(
-                                      'End Date',
-                                      employment.endDate,
-                                      `previousEmployments.${index}.endDate`
-                                    )}
-                                    {renderFieldRow(
-                                      'Reason for Leaving',
-                                      employment.reasonForLeaving,
-                                      `previousEmployments.${index}.reasonForLeaving`
-                                    )}
-                                  </TableBody>
-                                </Table>
-                              </div>
-                            )
-                          )}
-                        </div>
-                      </>
-                    )}
-                </CardContent>
-              </Card>
+                              )
+                            )}
+                          </div>
+                        </>
+                      )}
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </TabsContent>
 
@@ -852,7 +872,7 @@ export default function ViewCareerApplicationPage() {
           </TabsContent>
 
           <TabsContent value="disability">
-            <div className="grid grid-cols-1 -mt-1.5 gap-6 md:grid-cols-2">
+            <div className="-mt-1.5 grid grid-cols-1 gap-6 md:grid-cols-2">
               {/* Disability Info Card */}
               <Card>
                 <CardContent className="pt-6">
@@ -916,7 +936,7 @@ export default function ViewCareerApplicationPage() {
           </TabsContent>
 
           <TabsContent value="referee">
-            <div className="grid -mt-1.5 grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="-mt-1.5 grid grid-cols-1 gap-6 md:grid-cols-2">
               {/* Referee 1 */}
               <Card>
                 <CardContent className="pt-6">
@@ -950,11 +970,7 @@ export default function ViewCareerApplicationPage() {
                         application?.referee1?.relationship,
                         'referee1.relationship'
                       )}
-                      {renderFieldRow(
-                        'Other Relationship',
-                        application?.referee1?.otherRelationship,
-                        'referee1.otherRelationship'
-                      )}
+
                       {renderFieldRow(
                         'Email',
                         application?.referee1?.email,
@@ -1003,11 +1019,7 @@ export default function ViewCareerApplicationPage() {
                         application?.referee2?.relationship,
                         'referee2.relationship'
                       )}
-                      {renderFieldRow(
-                        'Other Relationship',
-                        application?.referee2?.otherRelationship,
-                        'referee2.otherRelationship'
-                      )}
+
                       {renderFieldRow(
                         'Email',
                         application?.referee2?.email,
@@ -1026,49 +1038,85 @@ export default function ViewCareerApplicationPage() {
           </TabsContent>
 
           <TabsContent value="documents">
-            <div className="grid -mt-1.5 grid-cols-1 gap-6 md:grid-cols-2">
-              {application.documents?.map((doc, index) => (
-                <Card key={index}>
-                  <CardContent className="pt-6">
-                    <h3 className="mb-4 text-lg font-semibold">
-                      Document {index + 1}
-                    </h3>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="w-1/3 text-left">
-                            Field
-                          </TableHead>
-                          <TableHead className="text-right">Value</TableHead>
-                          <TableHead className="w-10 text-right"></TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {renderFieldRow(
-                          'Document Type',
-                          doc.type,
-                          `documents[${index}].type`
-                        )}
-                        {renderFieldRow(
-                          'Custom Title',
-                          doc.customTitle || 'N/A',
-                          `documents[${index}].customTitle`
-                        )}
-                        {renderFieldRow(
-                          'File Name',
-                          doc.file?.name || 'No file uploaded',
-                          `documents[${index}].file`
-                        )}
-                      </TableBody>
-                    </Table>
-                  </CardContent>
-                </Card>
-              ))}
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <Card>
+                <CardContent className="pt-6">
+                  <h3 className="mb-4 text-lg font-semibold">Documents</h3>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-1/3 text-left">Field</TableHead>
+                        <TableHead className="text-right">Value</TableHead>
+                        <TableHead className="w-10 text-right"></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {application?.proofOfAddress?.map(
+                        (url: string, index: number) =>
+                          renderFieldRow(
+                            `Proof Of Address `,
+                            url,
+                            `proofOfAddress[${index}]`
+                          )
+                      )}
+
+                      {application?.workExperience?.map(
+                        (url: string, index: number) =>
+                          renderFieldRow(
+                            `Work Experience File `,
+                            url,
+                            `workExperience[${index}]`
+                          )
+                      )}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="pt-6">
+                  <h3 className="mb-4 text-lg font-semibold">Documents</h3>
+
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-1/3 text-left">Field</TableHead>
+                        <TableHead className="text-right">Value</TableHead>
+                        <TableHead className="w-10 text-right"></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {renderFieldRow(
+                        'Photograph',
+                        application?.image,
+                        'image'
+                      )}
+                      {application?.bankStatement?.map(
+                        (url: string, index: number) =>
+                          renderFieldRow(
+                            `Bank Statement File `,
+                            url,
+                            `bankStatement[${index}]`
+                          )
+                      )}
+
+                      {application?.personalStatement?.map(
+                        (url: string, index: number) =>
+                          renderFieldRow(
+                            `Personal Statement File `,
+                            url,
+                            `personalStatement[${index}]`
+                          )
+                      )}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
             </div>
           </TabsContent>
 
           <TabsContent value="job">
-            <div className="grid -mt-1.5 grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="-mt-1.5 grid grid-cols-1 gap-6 md:grid-cols-2">
               {applicationJob && applicationJob.length > 0 ? (
                 applicationJob.map((jobEntry, index) => (
                   <Card key={jobEntry._id || index}>
@@ -1115,7 +1163,7 @@ export default function ViewCareerApplicationPage() {
           </TabsContent>
 
           <TabsContent value="terms">
-            <Card className="w-full -mt-1.5 md:w-1/2">
+            <Card className="-mt-1.5 w-full md:w-1/2">
               <CardContent className="pt-6">
                 <h3 className="mb-4 text-lg font-semibold">
                   Terms & Declarations

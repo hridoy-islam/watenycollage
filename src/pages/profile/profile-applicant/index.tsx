@@ -9,7 +9,7 @@ const ApplicantProfile: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('personalDetails');
   const { user } = useSelector((state: any) => state.auth);
   const [userData, setUserData] = useState<any>([]);
-
+const [refreshCounter, setRefreshCounter] = useState(0);
   const fetchData = async () => {
     try {
       const response = await axiosInstance.get(`/users/${user._id}`);
@@ -18,14 +18,15 @@ const ApplicantProfile: React.FC = () => {
       console.error('Error fetching user data:', error);
     }
   };
-
 useEffect(() => {
   if (user?._id) {
     fetchData();
   }
-}, [user]);
+}, [user,refreshCounter]);
 
-
+const refreshData = () => {
+  setRefreshCounter((prev) => prev + 1);
+};
 
 
   return (
@@ -39,7 +40,7 @@ useEffect(() => {
           </div>
 
           <div className="flex-1 p-6">
-            <TabContent activeTab={activeTab} userData={userData} />
+            <TabContent activeTab={activeTab} userData={userData} refreshData={refreshData}/>
           </div>
         </div>
       </div>

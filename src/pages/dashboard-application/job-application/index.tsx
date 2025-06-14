@@ -100,7 +100,7 @@ export default function JobApplicationPage() {
       const message =
         error.response?.data?.message ||
         'Failed to submit application. Please try again.';
-      toast({ title: message });
+      toast({ title: message ,className:"bg-destructive text-white border-none"});
     } finally {
       setSubmitting(false);
     }
