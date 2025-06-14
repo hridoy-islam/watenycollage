@@ -532,7 +532,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
           {data?.visaRefusal === 'yes' && (
             <View style={styles.tableRow}>
               <View style={[styles.tableCol, { width: '80%' }]}>
-                <Text>C3.1: Visa refusal Details </Text>
+                <Text>C2.1: Visa refusal Details </Text>
               </View>
               <View style={[styles.tableCol, { width: '20%' }]}>
                 <Text>{capitalizeFirstLetter(data.visaRefusalDetail) || ''}</Text>
@@ -542,7 +542,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
           <View style={styles.tableRow}>
             <View style={[styles.tableCol, { width: '80%' }]}>
               <Text>
-                C1. Have you applied for Student Finance before? ?
+                C3. Have you applied for Student Finance before?
               </Text>
             </View>
             <View style={[styles.tableCol, { width: '20%' }]}>
@@ -633,35 +633,8 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
               </View>
             ))}
 
-          {/* Empty rows for remaining space */}
-          {[
-            ...Array(
-              Math.max(
-                0,
-                3 -
-                  ((data.previousEmployments?.length || 0) +
-                    (data.currentEmployment ? 1 : 0))
-              )
-            )
-          ].map((_, i) => (
-            <View key={`empty-job-${i}`} style={styles.tableRow}>
-              <View style={[styles.tableCol, { width: '25%' }]}>
-                <Text></Text>
-              </View>
-              <View style={[styles.tableCol, { width: '25%' }]}>
-                <Text></Text>
-              </View>
-              <View style={[styles.tableCol, { width: '15%' }]}>
-                <Text></Text>
-              </View>
-              <View style={[styles.tableCol, { width: '15%' }]}>
-                <Text></Text>
-              </View>
-              <View style={[styles.tableCol, { width: '20%' }]}>
-                <Text></Text>
-              </View>
-            </View>
-          ))}
+         
+          
         </View>
 
         <Text style={styles.footer}>

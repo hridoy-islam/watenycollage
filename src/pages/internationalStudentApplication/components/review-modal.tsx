@@ -70,7 +70,6 @@ export function ReviewModal({ open, onClose, formData, userId }: ReviewModalProp
     }
   }, [open]);
 
-  // Helper to get the data value, prioritizing fetchData over formData
   const getDataValue = (key: string, subKey?: string) => {
     if (fetchData && fetchData[key] !== undefined) {
       return subKey ? fetchData[key]?.[subKey] : fetchData[key];
@@ -113,7 +112,7 @@ export function ReviewModal({ open, onClose, formData, userId }: ReviewModalProp
                 rel="noopener noreferrer"
                 className="text-blue-600 hover:underline"
               >
-                Document {index + 1}
+                Document 
               </a>
             ))}
           </div>
@@ -198,7 +197,7 @@ export function ReviewModal({ open, onClose, formData, userId }: ReviewModalProp
                 rel="noopener noreferrer"
                 className="text-blue-600 hover:underline"
               >
-                {`${formatFieldName(key)} ${index + 1}`}
+                View Document
               </a>
             ))}
           </div>
@@ -449,7 +448,8 @@ export function ReviewModal({ open, onClose, formData, userId }: ReviewModalProp
               workExperience: getDataValue('workExperience') || [],
               personalStatement: getDataValue('personalStatement') || [],
               bankStatement: getDataValue('bankStatement') || [],
-              photoId: getDataValue('photoId') || []
+              photoId: getDataValue('photoId') || [],
+              image: getDataValue('image') || "View Document"
             })}
           </div>
         </div>
