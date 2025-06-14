@@ -12,7 +12,8 @@ import { useToast } from '@/components/ui/use-toast';
 import { useSelector } from 'react-redux';
 import DocumentData from './tabs/DocumentData';
 import FundingData from './tabs/FundingData';
-import CourseData from './tabs/courseData';
+import CourseData from './tabs/CourseData';
+
 
 const TabContent: React.FC<TabContentProps> = ({ activeTab, userData,refreshData }) => {
   const [isEditing, setIsEditing] = useState(false);

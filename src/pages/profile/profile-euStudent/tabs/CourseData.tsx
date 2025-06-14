@@ -44,15 +44,10 @@ interface Application {
   status: string;
 }
 
-interface StudentDashboardProps {
-  user: {
-    _id: string;
-    name: string;
-    role: string;
-  };
-}
 
-export default function CourseData({  }: StudentDashboardProps) {
+
+
+export default function CourseData() {
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
