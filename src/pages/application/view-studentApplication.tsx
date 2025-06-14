@@ -721,42 +721,41 @@ export default function ViewStudentApplicationPage() {
                   </Table>
                 </CardContent>
               </Card>
-
-              <Card>
-                <CardContent className="pt-6">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-1/3 text-left">Field</TableHead>
-                        <TableHead className="text-right">Value</TableHead>
-                        <TableHead className="w-10 text-right"></TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {renderFieldRow(
-                        'Benefits',
-                        application.benefits,
-                        'benefits'
-                      )}
-                      {renderFieldRow(
-                        'Criminal Conviction',
-                        application.criminalConviction,
-                        'criminalConviction'
-                      )}
-                      {renderFieldRow(
-                        'Conviction Details',
-                        application.convictionDetails,
-                        'convictionDetails'
-                      )}
-                      {renderFieldRow(
-                        'Student Finance',
-                        application.studentFinance,
-                        'studentFinance'
-                      )}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
+              {application?.studentType === 'eu' && (
+                <Card>
+                  <CardContent className="pt-6">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-1/3 text-left">
+                            Field
+                          </TableHead>
+                          <TableHead className="text-right">Value</TableHead>
+                          <TableHead className="w-10 text-right"></TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {renderFieldRow(
+                          'Criminal Conviction',
+                          application.criminalConviction,
+                          'criminalConviction'
+                        )}
+                        {renderFieldRow(
+                          'Conviction Details',
+                          application.convictionDetails,
+                          'convictionDetails'
+                        )}
+                        {application?.studentType === 'eu' &&
+                          renderFieldRow(
+                            'Student Finance',
+                            application.studentFinance,
+                            'studentFinance'
+                          )}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </TabsContent>
           <TabsContent value="emergency">

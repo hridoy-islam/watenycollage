@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import axiosInstance from '@/lib/axios';
 import {
@@ -54,13 +53,21 @@ export default function StudentApplicationsPage() {
   const [selectedCourse, setSelectedCourse] = useState<CourseOption | null>(
     null
   );
-  const [selectedTerm, setSelectedTerm] = useState<CourseOption | null>(
-    null
-  );
+  const [selectedTerm, setSelectedTerm] = useState<CourseOption | null>(null);
 
-  const fetchData = async (page = 1, limit = 10, courseId?: string, intakeId?: string) => {
+  const fetchData = async (
+    page = 1,
+    limit = 10,
+    courseId?: string,
+    intakeId?: string
+  ) => {
     try {
-      const params: { page: number; limit: number; courseId?: string,intakeId?: string } = {
+      const params: {
+        page: number;
+        limit: number;
+        courseId?: string;
+        intakeId?: string;
+      } = {
         page,
         limit
       };
@@ -114,10 +121,15 @@ export default function StudentApplicationsPage() {
   };
 
   useEffect(() => {
-    fetchData(currentPage, entriesPerPage, selectedCourse?.value, selectedTerm?.value);
+    fetchData(
+      currentPage,
+      entriesPerPage,
+      selectedCourse?.value,
+      selectedTerm?.value
+    );
     fetchCourses();
     fetchTerms();
-  }, [currentPage, entriesPerPage, selectedCourse,selectedTerm]);
+  }, [currentPage, entriesPerPage, selectedCourse, selectedTerm]);
 
   const navigate = useNavigate();
 
@@ -127,7 +139,6 @@ export default function StudentApplicationsPage() {
       student?.initial || ''
     } ${student?.lastName || ''}`.toLowerCase();
   };
-
 
   // Handle course filter change
   const handleCourseChange = (selectedOption: CourseOption | null) => {
@@ -253,6 +264,7 @@ export default function StudentApplicationsPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Student Name</TableHead>
+                  <TableHead>Student Type</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Course</TableHead>
                   <TableHead className="w-32 text-center">Action</TableHead>
@@ -264,9 +276,15 @@ export default function StudentApplicationsPage() {
                     <TableCell className="font-medium">
                       {app.studentId?.title} {app.studentId?.firstName}{' '}
                       {app.studentId?.initial} {app.studentId?.lastName}{' '}
+                    </TableCell>
+                    <TableCell>
                       <Badge className="bg-watney text-white hover:bg-watney">
-                        {app.studentId?.studentType?.charAt(0).toUpperCase() +
-                          app.studentId?.studentType?.slice(1)}
+                        {app.studentId?.studentType === 'eu'
+                          ? 'Home'
+                          : app.studentId?.studentType
+                              ?.charAt(0)
+                              .toUpperCase() +
+                            app.studentId?.studentType?.slice(1)}
                       </Badge>
                     </TableCell>
                     <TableCell>{app.studentId?.email ?? 'N/A'}</TableCell>

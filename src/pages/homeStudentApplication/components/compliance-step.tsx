@@ -69,7 +69,7 @@ export function ComplianceStep({
       disability: defaultValues?.disability || '',
       disabilityDetails: defaultValues?.disabilityDetails || '',
       hearAboutUs: defaultValues?.hearAboutUs || '',
-      criminalConviction: defaultValues?.criminalConviction || false,
+      criminalConviction: defaultValues?.criminalConviction || undefined,
       convictionDetails: defaultValues?.convictionDetails || '',
       studentFinance: defaultValues?.studentFinance || ''
     }

@@ -16,7 +16,10 @@ import {
   CardTitle
 } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import axiosInstance from '@/lib/axios'
+import { AppDispatch } from '@/redux/store';
+import { updateAuthIsAuthorized } from '@/redux/features/authSlice';
 
 const steps: React.ReactNode[] = [
   // Step 1: Welcome to Watney College
@@ -131,14 +134,25 @@ export default function CareerGuideline() {
   const [open, setOpen] = useState(true);
   const navigate = useNavigate();
   const { user } = useSelector((state: any) => state.auth);
+ const applicationId = localStorage.getItem('applicationId');
 
-  const handleNext = () => {
+
+ const dispatch = useDispatch<AppDispatch>();
+
+
+ 
+  const handleNext = async() => {
     if (step < steps.length - 1) {
       setStep(step + 1);
     } else {
+
+       await axiosInstance.patch(`/users/${user._id}`, {
+              authorized: true
+            });
+            dispatch(updateAuthIsAuthorized(true));
       setOpen(false);
       if (user?.isCompleted && user?.role === 'applicant') {
-        navigate('/dashboard/job-application');
+        navigate(`/dashboard/job-application/${applicationId}`);
       } else {
         navigate('/dashboard/career');
       }

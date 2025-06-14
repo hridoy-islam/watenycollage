@@ -224,7 +224,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
               <Text>
                 City: {capitalizeFirstLetter(data.residentialCity || '')}
               </Text>
-              <Text>County: </Text>
+
               <Text>
                 Post Code: {(data.residentialPostCode || '').toUpperCase()}
               </Text>
@@ -253,7 +253,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
                   <Text>
                     City: {capitalizeFirstLetter(data.postalCity || '')}
                   </Text>
-                  <Text>County: </Text>
+
                   <Text>
                     Post Code: {(data.postalPostCode || '').toUpperCase()}
                   </Text>
@@ -347,6 +347,16 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
                 </View>
                 <View style={[styles.tableCol, { width: '70%' }]}>
                   <Text>{(data.niNumber || '').toUpperCase()}</Text>
+                </View>
+              </View>
+              <View style={styles.tableRow}>
+                <View style={[styles.tableCol, { width: '30%' }]}>
+                  <Text>Have you applied for Student Finance before?</Text>
+                </View>
+                <View style={[styles.tableCol, { width: '70%' }]}>
+                  <Text>
+                    {capitalizeFirstLetter(data.studentFinance || '')}
+                  </Text>
                 </View>
               </View>
             </>
@@ -535,20 +545,12 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
                 <Text>C2.1: Visa refusal Details </Text>
               </View>
               <View style={[styles.tableCol, { width: '20%' }]}>
-                <Text>{capitalizeFirstLetter(data.visaRefusalDetail) || ''}</Text>
+                <Text>
+                  {capitalizeFirstLetter(data.visaRefusalDetail) || ''}
+                </Text>
               </View>
             </View>
           )}
-          <View style={styles.tableRow}>
-            <View style={[styles.tableCol, { width: '80%' }]}>
-              <Text>
-                C3. Have you applied for Student Finance before?
-              </Text>
-            </View>
-            <View style={[styles.tableCol, { width: '20%' }]}>
-              <Text>{capitalizeFirstLetter(data.studentFinance || '')}</Text>
-            </View>
-          </View>
         </View>
 
         {/* Section D */}
@@ -632,9 +634,6 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
                 </View>
               </View>
             ))}
-
-         
-          
         </View>
 
         <Text style={styles.footer}>
@@ -801,7 +800,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
 
         {/* Signature */}
         <View style={{ marginTop: 30 }}>
-          <Text>Signature: {capitalizeFirstLetter(data.initial || '')}</Text>
+          <Text>Signature: </Text>
           <View style={styles.signatureLine}></View>
         </View>
 

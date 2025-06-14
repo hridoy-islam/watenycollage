@@ -1,5 +1,3 @@
-
-
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -61,18 +59,43 @@ export default function ApplicationForm({
         : type;
   };
 
+  // useEffect(() => {
+  //   if (!user) return;
+
+  //   if (user.isCompleted) {
+  //     const courseId = localStorage.getItem('courseId');
+  //     if (courseId) {
+  //       navigate(`/dashboard/course-application/${courseId}`);
+  //     }
+  //   } else if (!user.authorized) {
+  //     navigate('/dashboard/student-guideline');
+  //   } else {
+  //     if (formData.studentType === 'international') {
+  //       navigate('/dashboard/international/student-form');
+  //     } else {
+  //       navigate('/dashboard/eu/student-form');
+  //     }
+  //   }
+  // }, [user,formData,  navigate]);
+
   useEffect(() => {
     if (!user) return;
 
-    if (user.isCompleted) {
-      const courseId = localStorage.getItem('courseId');
-      if (courseId) {
-        navigate(`/dashboard/course-application/${courseId}`);
-      }
-    } else {
+    if (!user.authorized) {
       navigate('/dashboard/student-guideline');
+    } else {
+      if (user.isCompleted) {
+        const courseId = localStorage.getItem('courseId');
+        if (courseId) {
+          navigate(`/dashboard/course-application/${courseId}`);
+        }
+      } else if (formData.studentType === 'international') {
+        navigate('/dashboard/international/student-form');
+      } else {
+        navigate('/dashboard/eu/student-form');
+      }
     }
-  }, [user, navigate]);
+  }, [user, formData, navigate]);
 
   return (
     <div className="flex min-h-screen flex-col bg-white">

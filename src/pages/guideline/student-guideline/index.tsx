@@ -14,8 +14,10 @@ import {
   CardTitle
 } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import axiosInstance from '@/lib/axios';
+import { AppDispatch } from '@/redux/store';
+import { updateAuthIsAuthorized } from '@/redux/features/authSlice';
 
 const steps: React.ReactNode[] = [
   // Step 1: Welcome to Watney College
@@ -161,8 +163,9 @@ export default function StudentGuideline() {
       getStudentType();
     }
   }, [user]);
-  
-  const handleNext = () => {
+  const dispatch = useDispatch<AppDispatch>();
+
+  const handleNext = async () => {
     if (step < steps.length - 1) {
       setStep(step + 1);
     } else {
@@ -170,7 +173,10 @@ export default function StudentGuideline() {
         console.warn('Student type is not set yet!');
         return;
       }
-
+      await axiosInstance.patch(`/users/${user._id}`, {
+        authorized: true
+      });
+      dispatch(updateAuthIsAuthorized(true));
       setOpen(false);
       if (user?.isCompleted && user?.role === 'student') {
         navigate(`/dashboard/course-application/${courseId}`);
@@ -184,8 +190,6 @@ export default function StudentGuideline() {
     }
   };
 
-  
-  
   return (
     <Dialog open={open}>
       <DialogContent

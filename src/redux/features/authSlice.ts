@@ -238,6 +238,9 @@ const authSlice = createSlice({
     },
     updateAuthIsValided: (state, action) => {
       state.user.isValided = action.payload;
+    },
+    updateAuthIsAuthorized: (state, action) => {
+      state.user.authorized = action.payload;
     }
   },
   extraReducers: (builder) => {
@@ -344,5 +347,5 @@ const authSlice = createSlice({
   }
 });
 
-export const { resetError ,updateAuthIsCompleted, updateAuthIsValided} = authSlice.actions;
+export const { resetError ,updateAuthIsCompleted, updateAuthIsValided, updateAuthIsAuthorized} = authSlice.actions;
 export default authSlice.reducer;

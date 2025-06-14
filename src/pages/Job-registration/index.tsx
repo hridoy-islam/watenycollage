@@ -62,19 +62,26 @@ export default function JobApplication() {
   }, [applicationId]);
 
   
-  useEffect(() => {
+
+
+    useEffect(() => {
     if (!user) return;
 
-    if (user.isCompleted) {
+    if (!user.authorized) {
+      navigate('/dashboard/career-guideline');
+    } 
+    else if (user.isCompleted) {
       const applicationId = localStorage.getItem('applicationId');
       if (applicationId) {
         navigate(`/dashboard/job-application/${applicationId}`);
       }
-    } else {
-      navigate('/dashboard/career-guideline');
+    }else{
+      navigate('/dashboard/career')
     }
+    
+    
+    
   }, [user, navigate]);
-
 
   return (
   <div className="flex min-h-screen flex-col items-center justify-start bg-white p-4">

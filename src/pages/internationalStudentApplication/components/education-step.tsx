@@ -73,7 +73,14 @@ export function EducationStep({
       .string()
       .min(1, { message: 'Qualification details are required' }),
     awardDate: z.date({ required_error: 'Date of award is required' }),
-    certificate: z.any().optional()
+    certificate: z.any()
+      .refine(
+        (file) =>
+          file instanceof File ||
+          (typeof file === 'object' && file !== null && 'fileUrl' in file) ||
+          typeof file === 'string',
+        { message: 'Certificate is required' }
+      )
   });
 
   const englishQualificationSchema = z.object({
@@ -115,14 +122,14 @@ export function EducationStep({
             grade: '',
             qualification: '',
             awardDate: undefined,
-            certificate: undefined
+            certificate: ''
           }
         ],
         englishQualification: {
           englishTestType: '',
           englishTestScore: '',
           englishTestDate: undefined,
-          englishCertificate: null
+          englishCertificate: ''
         }
       };
     }
@@ -560,45 +567,47 @@ export function EducationStep({
                     />
                   </TableCell>
                   <TableCell>
-                    <FormItem className="mt-4 flex flex-col">
-                      <Button
-                        type="button"
-                        className="bg-watney text-white hover:bg-watney/90"
-                        onClick={() =>
-                          setUploadState({
-                            isOpen: true,
-                            field: `educationData.${index}.certificate`
-                          })
-                        }
-                      >
-                        Upload Certificate
-                      </Button>
-                      <p className="text-xs text-gray-500">
-                        Accepted formats: PDF, JPG, PNG. Max size 5MB.
-                      </p>
-                      {form.watch(`educationData.${index}.certificate`) && (
-                        <p className="mt-1 text-sm">
-                          {decodeURIComponent(
-                            form
-                              .watch(`educationData.${index}.certificate`)
-                              .split('/')
-                              .pop() || 'Uploaded File'
+                    <FormField
+                      control={form.control}
+                      name={`educationData.${index}.certificate`}
+                      render={({ field }) => (
+                        <FormItem className="mt-4 flex flex-col">
+                          <Button
+                            type="button"
+                            className="bg-watney text-white hover:bg-watney/90"
+                            onClick={() =>
+                              setUploadState({
+                                isOpen: true,
+                                field: field.name
+                              })
+                            }
+                          >
+                            Upload Certificate
+                          </Button>
+                          <p className="text-xs text-gray-500">
+                            Accepted formats: PDF, JPG, PNG. Max size 5MB.
+                          </p>
+
+                          {field.value && (
+                            <>
+                              {/* <p className="mt-1 text-sm">
+            {decodeURIComponent(field.value.split('/').pop() || 'Uploaded File')}
+          </p> */}
+                              <a
+                                href={field.value}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="mt-1 text-xs text-blue-600 underline"
+                              >
+                                View File
+                              </a>
+                            </>
                           )}
-                        </p>
+
+                          <FormMessage />
+                        </FormItem>
                       )}
-                      {form.watch(`educationData.${index}.certificate`) && (
-                        <a
-                          href={form.watch(
-                            `educationData.${index}.certificate`
-                          )}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="mt-1 text-xs text-blue-600 underline"
-                        >
-                          View File
-                        </a>
-                      )}
-                    </FormItem>
+                    />
                   </TableCell>
                   <TableCell>
                     <Button
@@ -640,7 +649,10 @@ export function EducationStep({
               type="button"
               onClick={handleNext}
               className="bg-watney text-white hover:bg-watney/90"
-              disabled={form.formState.isSubmitting}
+              disabled={
+    form.formState.isSubmitting ||
+    (currentPage !== 1 && educationData?.length === 0)
+  }
             >
               Next
             </Button>
