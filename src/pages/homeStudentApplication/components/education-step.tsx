@@ -68,7 +68,14 @@ export function EducationStep({
       .string()
       .min(1, { message: 'Qualification details are required' }),
     awardDate: z.date({ required_error: 'Date of award is required' }),
-    certificate: z.any().optional()
+    certificate: z.any()
+          .refine(
+            (file) =>
+              file instanceof File ||
+              (typeof file === 'object' && file !== null && 'fileUrl' in file) ||
+              typeof file === 'string',
+            { message: 'Certificate is required' }
+          )
   });
 
   const createEducationSchema = () =>
