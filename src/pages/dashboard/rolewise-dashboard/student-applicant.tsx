@@ -21,6 +21,7 @@ import axiosInstance from '@/lib/axios';
 import { DataTablePagination } from '@/components/shared/data-table-pagination';
 import { useToast } from '@/components/ui/use-toast';
 import { useNavigate } from 'react-router-dom';
+import Loader from '@/components/shared/loader';
 
 interface Course {
   _id: string;
@@ -95,13 +96,19 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
   };
 
   return (
-    <div className="flex-1 space-y-4">
-      <Card>
-        <CardHeader>
-          <CardTitle>Available Courses</CardTitle>
-          <CardDescription>Browse and apply to new courses</CardDescription>
-        </CardHeader>
-        <CardContent>
+  <div className="flex-1 space-y-4">
+    <Card>
+      <CardHeader>
+        <CardTitle>Available Courses</CardTitle>
+        <CardDescription>Browse and apply to new courses</CardDescription>
+      </CardHeader>
+      <CardContent>
+        {loading ? (
+         
+          <div className="flex justify-center py-6">
+           <Loader/>
+          </div>
+        ) : allCourses.length > 0 ? (
           <Table>
             <TableHeader>
               <TableRow>
@@ -110,31 +117,32 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {allCourses.length > 0 ? (
-                allCourses.map((course) => (
-                  <TableRow key={course._id}>
-                    <TableCell className="font-medium">{course.name}</TableCell>
-                    <TableCell className="text-right">
-                      <Button
-                        size="sm"
-                        className="bg-watney text-white hover:bg-watney/90"
-                        onClick={() => handleApply(course._id)}
-                      >
-                        Take This Course
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={2} className="text-center">
-                    No available courses at the moment.
+              {allCourses.map((course) => (
+                <TableRow key={course._id}>
+                  <TableCell className="font-medium">{course.name}</TableCell>
+                  <TableCell className="text-right">
+                    <Button
+                      size="sm"
+                      className="bg-watney text-white hover:bg-watney/90"
+                      onClick={() => handleApply(course._id)}
+                    >
+                      Take This Course
+                    </Button>
                   </TableCell>
                 </TableRow>
-              )}
+              ))}
             </TableBody>
           </Table>
+        ) : (
+          <TableRow>
+            <TableCell colSpan={2} className="text-center">
+              No available courses at the moment.
+            </TableCell>
+          </TableRow>
+        )}
 
+        {/* Pagination */}
+        {!loading && (
           <DataTablePagination
             pageSize={entriesPerPage}
             setPageSize={setEntriesPerPage}
@@ -142,8 +150,9 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
             totalPages={totalPages}
             onPageChange={setCurrentPage}
           />
-        </CardContent>
-      </Card>
-    </div>
-  );
+        )}
+      </CardContent>
+    </Card>
+  </div>
+);
 }
