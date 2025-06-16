@@ -473,7 +473,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
               </View>
 
               {/* Display English Qualification Data */}
-              {data.englishQualification && data.englishQualification.type ? (
+              {data.englishQualification ?(
                 <View style={styles.tableRow}>
                   <View style={[styles.tableCol, { width: '35%' }]}>
                     <Text>
@@ -558,83 +558,101 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
           SECTION D: EMPLOYMENT INFORMATION (IF APPLICABLE)
         </Text>
         <View style={styles.table}>
+  <View style={styles.tableRow}>
+    <View style={[styles.tableColHeader, { width: '25%' }]}>
+      <Text>Nature of work/training</Text>
+    </View>
+    <View style={[styles.tableColHeader, { width: '25%' }]}>
+      <Text>Name of organisation</Text>
+    </View>
+    <View style={[styles.tableColHeader, { width: '15%' }]}>
+      <Text>Full-time or Part-time</Text>
+    </View>
+    <View style={[styles.tableColHeader, { width: '15%' }]}>
+      <Text>From (mm/dd/yyyy)</Text>
+    </View>
+    <View style={[styles.tableColHeader, { width: '20%' }]}>
+      <Text>To (mm/dd/yyyy)</Text>
+    </View>
+  </View>
+
+  {/* Employment Rows */}
+  {
+  data.currentEmployment ||
+  (Array.isArray(data.previousEmployments) && data.previousEmployments.length > 0)
+    ? (
+      <>
+        {/* Current Employment */}
+        {data.currentEmployment && (
           <View style={styles.tableRow}>
-            <View style={[styles.tableColHeader, { width: '25%' }]}>
-              <Text>Nature of work/training</Text>
+            <View style={[styles.tableCol, { width: '25%' }]}>
+              <Text>
+                {capitalizeFirstLetter(
+                  safeGet(data.currentEmployment, 'jobTitle')
+                )}
+              </Text>
             </View>
-            <View style={[styles.tableColHeader, { width: '25%' }]}>
-              <Text>Name of organisation</Text>
+            <View style={[styles.tableCol, { width: '25%' }]}>
+              <Text>
+                {capitalizeFirstLetter(
+                  safeGet(data.currentEmployment, 'employer')
+                )}
+              </Text>
             </View>
-            <View style={[styles.tableColHeader, { width: '15%' }]}>
-              <Text>Full-time or Part-time</Text>
+            <View style={[styles.tableCol, { width: '15%' }]}>
+              <Text>
+                {capitalizeFirstLetter(
+                  safeGet(data.currentEmployment, 'employmentType')
+                )}
+              </Text>
             </View>
-            <View style={[styles.tableColHeader, { width: '15%' }]}>
-              <Text>From (mm/dd/yyyy)</Text>
+            <View style={[styles.tableCol, { width: '15%' }]}>
+              <Text>
+                {formatDate(safeGet(data.currentEmployment, 'startDate'))}
+              </Text>
             </View>
-            <View style={[styles.tableColHeader, { width: '20%' }]}>
-              <Text>To (mm/dd/yyyy)</Text>
+            <View style={[styles.tableCol, { width: '20%' }]}>
+              <Text>Present</Text>
             </View>
           </View>
+        )}
 
-          {/* Current employment */}
-          {data.currentEmployment && (
-            <View style={styles.tableRow}>
+        {/* Previous Employments */}
+        {Array.isArray(data.previousEmployments) &&
+          data.previousEmployments.map((job: any, index: number) => (
+            <View key={`prev-job-${index}`} style={styles.tableRow}>
               <View style={[styles.tableCol, { width: '25%' }]}>
-                <Text>
-                  {capitalizeFirstLetter(
-                    safeGet(data.currentEmployment, 'jobTitle')
-                  )}
-                </Text>
+                <Text>{capitalizeFirstLetter(safeGet(job, 'jobTitle'))}</Text>
               </View>
               <View style={[styles.tableCol, { width: '25%' }]}>
-                <Text>
-                  {capitalizeFirstLetter(
-                    safeGet(data.currentEmployment, 'employer')
-                  )}
-                </Text>
+                <Text>{capitalizeFirstLetter(safeGet(job, 'employer'))}</Text>
               </View>
               <View style={[styles.tableCol, { width: '15%' }]}>
                 <Text>
-                  {capitalizeFirstLetter(
-                    safeGet(data.currentEmployment, 'employmentType')
-                  )}
+                  {capitalizeFirstLetter(safeGet(job, 'employmentType'))}
                 </Text>
               </View>
               <View style={[styles.tableCol, { width: '15%' }]}>
-                <Text>
-                  {formatDate(safeGet(data.currentEmployment, 'startDate'))}
-                </Text>
+                <Text>{formatDate(safeGet(job, 'startDate'))}</Text>
               </View>
               <View style={[styles.tableCol, { width: '20%' }]}>
-                <Text>Present</Text>
+                <Text>{formatDate(safeGet(job, 'endDate'))}</Text>
               </View>
             </View>
-          )}
-
-          {/* Previous employments */}
-          {Array.isArray(data.previousEmployments) &&
-            data.previousEmployments.map((job: any, index: number) => (
-              <View key={index} style={styles.tableRow}>
-                <View style={[styles.tableCol, { width: '25%' }]}>
-                  <Text>{capitalizeFirstLetter(safeGet(job, 'jobTitle'))}</Text>
-                </View>
-                <View style={[styles.tableCol, { width: '25%' }]}>
-                  <Text>{capitalizeFirstLetter(safeGet(job, 'employer'))}</Text>
-                </View>
-                <View style={[styles.tableCol, { width: '15%' }]}>
-                  <Text>
-                    {capitalizeFirstLetter(safeGet(job, 'employmentType'))}
-                  </Text>
-                </View>
-                <View style={[styles.tableCol, { width: '15%' }]}>
-                  <Text>{formatDate(safeGet(job, 'startDate'))}</Text>
-                </View>
-                <View style={[styles.tableCol, { width: '20%' }]}>
-                  <Text>{formatDate(safeGet(job, 'endDate'))}</Text>
-                </View>
-              </View>
-            ))}
+          ))}
+      </>
+    )
+    : Array.from({ length: 2 }).map((_, idx) => (
+        <View key={`empty-row-${idx}`} style={styles.tableRow}>
+          <View style={[styles.tableCol, { width: '25%' }]}><Text>&nbsp;</Text></View>
+          <View style={[styles.tableCol, { width: '25%' }]}><Text>&nbsp;</Text></View>
+          <View style={[styles.tableCol, { width: '15%' }]}><Text>&nbsp;</Text></View>
+          <View style={[styles.tableCol, { width: '15%' }]}><Text>&nbsp;</Text></View>
+          <View style={[styles.tableCol, { width: '20%' }]}><Text>&nbsp;</Text></View>
         </View>
+      ))
+}
+</View>
 
         <Text style={styles.footer}>
           Application Form Page 2 of 4 - {getTodaysDate()}

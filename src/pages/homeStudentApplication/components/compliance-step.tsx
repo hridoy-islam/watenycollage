@@ -400,7 +400,7 @@ export function ComplianceStep({
                   render={({ field }) => (
                     <FormItem className="col-span-2 flex w-full flex-col">
                       <FormLabel>
-                        If yes, Criminal Convictions details
+                        If yes, Criminal Convictions details <span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>
                         <Textarea
