@@ -126,6 +126,12 @@ export function ComplianceStep({
     { value: 'no', label: 'No' }
   ];
 
+    const criminalConviction = [
+    { value: true, label: 'Yes' },
+    { value: false, label: 'No' }
+  ];
+
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -360,19 +366,11 @@ export function ComplianceStep({
                     </FormLabel>
                     <FormControl>
                       <ReactSelect
-                        options={[
-                          { value: true, label: 'Yes' },
-                          { value: false, label: 'No' }
-                        ]}
+                        options={criminalConviction}
                         placeholder="Please disclose any relevant criminal convictions as per UK law."
-                        value={
-                          field.value !== null
-                            ? {
-                                value: field.value,
-                                label: field.value ? 'Yes' : 'No'
-                              }
-                            : null
-                        }
+                         value={criminalConviction.find(
+                          (opt) => opt.value === field.value
+                        )}
                         onChange={(option) => field.onChange(option?.value)}
                         className="react-select-container"
                         classNamePrefix="react-select"
@@ -400,7 +398,7 @@ export function ComplianceStep({
                   render={({ field }) => (
                     <FormItem className="col-span-2 flex w-full flex-col">
                       <FormLabel>
-                        If yes, Criminal Convictions details <span className="text-red-500">*</span>
+                        If yes, Criminal Convictions details  <span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>
                         <Textarea

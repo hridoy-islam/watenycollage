@@ -15,7 +15,7 @@ import FundingData from './tabs/FundingData';
 import CourseData from './tabs/CourseData';
 
 
-const TabContent: React.FC<TabContentProps> = ({ activeTab, userData,refreshData }) => {
+const TabContent: React.FC<TabContentProps> = ({ activeTab, userData,refreshData,loading }) => {
   const [isEditing, setIsEditing] = useState(false);
   const { user } = useSelector((state: any) => state.auth);
 
@@ -49,7 +49,8 @@ const TabContent: React.FC<TabContentProps> = ({ activeTab, userData,refreshData
       onSave: handleSave,
       onCancel: handleCancel,
       onEdit: handleEdit,
-       refreshData
+       refreshData,
+       loading
     };
 
     switch (activeTab) {

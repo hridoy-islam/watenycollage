@@ -98,21 +98,21 @@ const EducationData = ({
     setUploadState({ isOpen: false, field: '' });
   };
 
-  return (
-    <TabSection
-      title="Education"
-      description="Your educational background and qualifications"
-      userData={userData}
-      isEditing={isEditing}
-      onSave={handleSave}
-      onCancel={onCancel}
-      onEdit={onEdit}
-    >
-      <div className="space-y-8">
-        {/* Education Data */}
-        <div>
-          <h3 className="mb-4 text-lg font-medium text-gray-900">Education</h3>
-          {(localData.educationData || []).map((entry, index) => (
+ return (
+  <TabSection
+    title="Education"
+    description="Your educational background and qualifications"
+    userData={userData}
+    isEditing={isEditing}
+    onSave={handleSave}
+    onCancel={onCancel}
+    onEdit={onEdit}
+  >
+    <div className="space-y-8">
+      {/* Education Data */}
+      <div>
+        {localData.educationData && localData.educationData.length > 0 ? (
+          localData.educationData.map((entry, index) => (
             <div key={index} className="mb-6 rounded-md border p-4">
               <h4 className="text-md mb-2 font-semibold text-gray-800">
                 Education {index + 1}
@@ -243,23 +243,22 @@ const EducationData = ({
                       </p>
 
                       {entry.certificate && (
-                        <p className="mt-2 text-sm text-gray-900">
-                          {decodeURIComponent(
-                            entry.certificate.split('/').pop() ||
-                              'Uploaded File'
-                          )}
-                        </p>
-                      )}
-
-                      {entry.certificate && (
-                        <a
-                          href={entry.certificate}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="mt-1 inline-block text-xs text-blue-600 underline"
-                        >
-                          View File
-                        </a>
+                        <>
+                          <p className="mt-2 text-sm text-gray-900">
+                            {decodeURIComponent(
+                              entry.certificate.split('/').pop() ||
+                                'Uploaded File'
+                            )}
+                          </p>
+                          <a
+                            href={entry.certificate}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-1 inline-block text-xs text-blue-600 underline"
+                          >
+                            View File
+                          </a>
+                        </>
                       )}
                     </div>
                   ) : (
@@ -281,31 +280,37 @@ const EducationData = ({
                 </div>
               </div>
             </div>
-          ))}
+          ))
+        ) : (
+          <p className="text-sm text-gray-600 italic">
+            No education data available.
+          </p>
+        )}
 
-          {isEditing && (
-            <button
-              type="button"
-              onClick={handleAddEducation}
-              className="focus:watney/90 rounded-md bg-watney px-4 py-2 text-sm font-medium text-white hover:bg-watney/90 focus:outline-none focus:ring-2"
-            >
-              + Add Education
-            </button>
-          )}
-        </div>
+        {isEditing && (
+          <button
+            type="button"
+            onClick={handleAddEducation}
+            className="mt-4 rounded-md bg-watney px-4 py-2 text-sm font-medium text-white hover:bg-watney/90 focus:outline-none focus:ring-2"
+          >
+            + Add Education
+          </button>
+        )}
       </div>
+    </div>
 
-      {/* Document Uploader Modal */}
-      <ImageUploader
-        open={uploadState.isOpen}
-        onOpenChange={(isOpen) =>
-          setUploadState({ isOpen, field: uploadState.field })
-        }
-        onUploadComplete={handleUploadComplete}
-        entityId={user?._id}
-      />
-    </TabSection>
-  );
+    {/* Document Uploader Modal */}
+    <ImageUploader
+      open={uploadState.isOpen}
+      onOpenChange={(isOpen) =>
+        setUploadState({ isOpen, field: uploadState.field })
+      }
+      onUploadComplete={handleUploadComplete}
+      entityId={user?._id}
+    />
+  </TabSection>
+);
+
 };
 
 export default EducationData;

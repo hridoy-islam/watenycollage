@@ -41,7 +41,8 @@ export default function InternationalStudentApplication() {
   const [parsedResume, setParsedResume] = useState<string | null>(null);
   const dispatch = useDispatch<AppDispatch>();
   let stepContent;
-
+ const [loading, setLoading] = useState<boolean>(true);
+const location = useLocation()
   useEffect(() => {
     if (location.state?.parsedResume) {
       setParsedResume(location.state.parsedResume);
@@ -133,6 +134,7 @@ export default function InternationalStudentApplication() {
 
   const fetchedData = async () => {
     try {
+      setLoading(true)
       const response = await axiosInstance.get(`/users/${user._id}`);
       const userData = response.data.data;
       setFetchData((prev) => ({
@@ -151,6 +153,8 @@ export default function InternationalStudentApplication() {
       }));
     } catch (error) {
       console.error('Error fetching data:', error);
+    }finally{
+      setLoading(false)
     }
   };
 
@@ -264,6 +268,18 @@ export default function InternationalStudentApplication() {
       console.error('Failed to update documents:', error);
     }
   };
+    const handleDocumentSave = async (data: any) => {
+      try {
+        setFormData((prev) => ({ ...prev, ...data }));
+        await axiosInstance.patch(`/users/${user._id}`, data);     
+      } catch (error: any) {
+        toast({
+          title: error?.response?.data?.message || 'Something went wrong.',
+          className: 'destructive border-none text-white'
+        });
+      }
+    };
+
   const handleFundingInformationSaveAndContinue = async (data: any) => {
     try {
       setFormData((prev) => ({ ...prev, ...data }));
@@ -428,6 +444,7 @@ export default function InternationalStudentApplication() {
             onSaveAndContinue={handlePersonalDetailsSaveAndContinue}
             onSave={handlePersonalDetailsSave}
             setCurrentStep={setCurrentStep}
+            loading= {loading}
           />
         );
 
@@ -489,6 +506,7 @@ export default function InternationalStudentApplication() {
             defaultValues={{ ...fetchData, ...formData }}
             onSaveAndContinue={handleDocumentsSaveAndContinue}
             setCurrentStep={setCurrentStep}
+           onSave={handleDocumentSave}
           />
         );
       case 8:
@@ -549,27 +567,33 @@ export default function InternationalStudentApplication() {
         );
     }
   };
-  if (formSubmitted) {
-    return (
-      <div className="flex  items-center justify-center px-4">
-        <Card className="rounded-lg border  bg-watney/90 p-24 shadow-lg">
-          <div className="flex flex-col items-center gap-6 text-center">
-            {/* Submission Icon */}
-            <div className="rounded-full bg-white p-8">
-              <Check size={84} className="text-watney" />
-            </div>
+   if (formSubmitted) {
+  const courseId = localStorage.getItem('courseId');
+  const intakeId = localStorage.getItem('termId');
 
-            {/* Title & Description */}
-            <div className="flex items-center gap-4 text-center">
-              <div>
-                <CardTitle className="text-2xl font-semibold text-white">
-                  Application Submitted Successfully
-                </CardTitle>
-                <CardDescription className="mt-2 text-base leading-relaxed text-white">
-                  Thank you for your submission. Our team has received your
-                  application and will get back to you shortly. Stay tuned!
-                  {/* Support Section */}
-                  <div className=" mt-2 w-full rounded-md text-left text-base text-white ">
+  const isCourseSubmission = courseId && intakeId;
+
+  return (
+    <div className="flex items-center justify-center px-4">
+      <Card className="rounded-lg border bg-watney/90 p-24 shadow-lg">
+        <div className="flex flex-col items-center gap-6 text-center">
+          {/* Submission Icon */}
+          <div className="rounded-full bg-white p-8">
+            <Check size={84} className="text-watney" />
+          </div>
+
+          {/* Title & Description */}
+          <div className="flex items-center gap-4 text-center">
+            <div>
+              <CardTitle className="text-2xl font-semibold text-white">
+                {isCourseSubmission
+                  ? 'Application Submitted Successfully'
+                  : 'Profile Data Submitted Successfully'}
+              </CardTitle>
+
+              <CardDescription className="mt-2 text-base leading-relaxed text-white">
+                Thank you for your submission. {isCourseSubmission ? (
+                  <div className="w-full rounded-md mt-2 text-left text-base text-white">
                     <p>
                       If you have any questions or need help with your
                       application, please don’t hesitate to contact us:
@@ -589,22 +613,39 @@ export default function InternationalStudentApplication() {
                       </li>
                     </ul>
                   </div>
-                </CardDescription>
-              </div>
+                ):<div className="w-full rounded-md mt-2 text-left text-base text-white">
+                    <ul className="mt-3 list-none space-y-2">
+                      <li>
+                        📧 <strong>Email:</strong>{' '}
+                        <a
+                          href="mailto:admissions@watneycollege.ac.uk"
+                          className="underline"
+                        >
+                          admissions@watneycollege.ac.uk
+                        </a>
+                      </li>
+                      <li>
+                        ☎ <strong>Phone:</strong> +44 (0)20 1234 5678
+                      </li>
+                    </ul>
+                  </div> }
+                
+              </CardDescription>
             </div>
-
-            {/* Done Button */}
-            <Button
-              onClick={handleDashboardRedirect}
-              className="*: mt-4 w-full rounded-sm bg-white px-12 py-3 text-lg font-semibold text-watney transition hover:bg-white sm:w-auto"
-            >
-              Done
-            </Button>
           </div>
-        </Card>
-      </div>
-    );
-  }
+
+          {/* Done Button */}
+          <Button
+            onClick={handleDashboardRedirect}
+            className="*: mt-4 w-full rounded-sm bg-white px-12 py-3 text-lg font-semibold text-watney transition hover:bg-white sm:w-auto"
+          >
+            Done
+          </Button>
+        </div>
+      </Card>
+    </div>
+  );
+}
 
   return (
     <div className=" w-full ">

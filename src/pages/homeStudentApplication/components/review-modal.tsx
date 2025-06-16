@@ -85,10 +85,11 @@ export function ReviewModal({
   };
 
   // Helper to format field names
-  const formatFieldName = (name: string) => {
+ const formatFieldName = (name: string) => {
     return name
-      .replace(/([A-Z])/g, ' $1')
-      .replace(/^./, (str) => str.toUpperCase())
+      .replace(/(?<!^)([A-Z])(?=[a-z])/g, ' $1') // Split on camelCase uppercase
+      .replace(/(?<=[a-z])([A-Z])/g, ' $1') // Handle transitions like backToCamel
+      .replace(/^./, (str) => str.toUpperCase()) // Capitalize first letter
       .trim();
   };
 
@@ -320,14 +321,10 @@ export function ReviewModal({
             {/* Employment */}
             {renderSection('Employment', {
               isEmployed: getDataValue('isEmployed'),
-              currentlyEmployed: getDataValue(
-                'currentEmployment',
-                'currentlyEmployed'
-              ),
+              
               employer: getDataValue('currentEmployment', 'employer'),
               jobTitle: getDataValue('currentEmployment', 'jobTitle'),
               startDate: getDataValue('currentEmployment', 'startDate'),
-              endDate: getDataValue('currentEmployment', 'endDate'),
               employmentType: getDataValue(
                 'currentEmployment',
                 'employmentType'
@@ -358,26 +355,32 @@ export function ReviewModal({
 
             {/* Compliance */}
             {renderSection('Miscellienious', {
-              startDateInUK: getDataValue('startDateInUK'),
-              niNumber: getDataValue('niNumber'),
-              immigrationStatus: getDataValue('immigrationStatus'),
-              ltrCode: getDataValue('ltrCode'),
-              hearAboutUs: getDataValue('hearAboutUs'),
-              disability: getDataValue('disability'),
-              disabilityDetails: getDataValue('disabilityDetails'),
-              benefits: getDataValue('benefits'),
-              criminalConviction: getDataValue('criminalConviction'),
-              convictionDetails: getDataValue('convictionDetails'),
-              studentFinance: getDataValue('studentFinance')
-            })}
+  immigrationStatus: getDataValue('immigrationStatus'),
+  niNumber: getDataValue('niNumber'),
+  ltrCode: getDataValue('ltrCode'),
+  hearAboutUs: getDataValue('hearAboutUs'),
+  disability: getDataValue('disability'),
+  ...(getDataValue('disability') === 'Yes' && {
+    disabilityDetails: getDataValue('disabilityDetails'),
+  }),
+  studentFinance: getDataValue('studentFinance'),
+  criminalConviction: getDataValue('criminalConviction'),
+  ...(getDataValue('criminalConviction') === 'Yes' && {
+    convictionDetails: getDataValue('convictionDetails'),
+  }),
+})}
 
-            {renderSection('Funding Information', {
+             {renderSection('Funding Information', {
               fundingType: getDataValue('fundingType'),
-              grantDetails: getDataValue('grantDetails'),
-              fundingCompanyName: getDataValue('fundingCompanyName'),
-              fundingContactPerson: getDataValue('fundingContactPerson'),
-              fundingEmail: getDataValue('fundingEmail'),
-              fundingPhoneNumber: getDataValue('fundingPhoneNumber')
+              ...(getDataValue('fundingType') === 'Bursary/Grant' && {
+                grantDetails: getDataValue('grantDetails')
+              }),
+              ...(getDataValue('fundingType') === 'Employer-sponsored' && {
+                fundingCompanyName: getDataValue('fundingCompanyName'),
+                fundingContactPerson: getDataValue('fundingContactPerson'),
+                fundingEmail: getDataValue('fundingEmail'),
+                fundingPhoneNumber: getDataValue('fundingPhoneNumber')
+              })
             })}
             {/* Documents */}
             {renderSection('Documents', {

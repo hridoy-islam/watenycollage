@@ -802,7 +802,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
         <View style={{ marginBottom: 10 }}>
           <Text>
             I confirm that the information given on this form is true, complete
-            and accurate: {data.declaration ? 'Yes' : 'No'}
+            and accurate: {data.acceptTerms ? 'Yes' : 'No'}
           </Text>
         </View>
 

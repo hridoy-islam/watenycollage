@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,13 +15,8 @@ import { z } from 'zod';
 // Zod validation schema
 export const documentSchema = z.object({
   image: z.string().min(1, 'Image is required'),
-
-  photoId: z.array(z.string()).nonempty({
-    message: 'Photo ID is required'
-  }),
-  proofOfAddress: z.array(z.string()).nonempty({
-    message: 'Proof of address is required'
-  }),
+  photoId: z.array(z.string()).nonempty({ message: 'Photo ID is required' }),
+  proofOfAddress: z.array(z.string()).nonempty({ message: 'Proof of address is required' }),
   qualification: z.array(z.string()).optional(),
   workExperience: z.array(z.string()).optional(),
   personalStatement: z.array(z.string()).optional()
@@ -33,12 +28,14 @@ interface DocumentsStepProps {
   defaultValues?: Partial<DocumentFile>;
   onSaveAndContinue: (data: DocumentFile) => void;
   setCurrentStep: (step: number) => void;
+  onSave: (data: DocumentFile) => void;
 }
 
 export function DocumentsStep({
   defaultValues,
   onSaveAndContinue,
-  setCurrentStep
+  setCurrentStep,
+  onSave
 }: DocumentsStepProps) {
   const [documents, setDocuments] = useState<DocumentFile>({
     image: defaultValues?.image ?? '',
@@ -49,6 +46,12 @@ export function DocumentsStep({
     personalStatement: defaultValues?.personalStatement ?? []
   });
 
+  // Ref to always have the latest documents
+  const documentsRef = useRef<DocumentFile>(documents);
+  useEffect(() => {
+    documentsRef.current = documents;
+  }, [documents]);
+
   const [uploadState, setUploadState] = useState<{
     isOpen: boolean;
     field: keyof Omit<DocumentFile, 'image'> | 'image' | null;
@@ -57,9 +60,7 @@ export function DocumentsStep({
     field: null
   });
 
-  const [validationErrors, setValidationErrors] = useState<
-    Record<string, string>
-  >({});
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   const { user } = useSelector((state: any) => state.auth);
 
@@ -105,9 +106,7 @@ export function DocumentsStep({
     if (field === 'image') {
       const fileUrl = documents.image;
       if (fileUrl) {
-        const fileName = decodeURIComponent(
-          fileUrl.split('/').pop() || 'Photo-ID'
-        );
+        const fileName = decodeURIComponent(fileUrl.split('/').pop() || 'Photo-ID');
         return (
           <div className="mt-3 space-y-2">
             <div className="flex w-auto items-center justify-between rounded-lg border border-gray-200 bg-white p-3 transition-all hover:shadow-md">
@@ -198,30 +197,38 @@ export function DocumentsStep({
       setUploadState({ isOpen: false, field: null });
       return;
     }
+
     const fileUrl = uploadResponse.data.fileUrl;
-    if (field === 'image') {
-      setDocuments((prev) => ({
-        ...prev,
-        image: fileUrl
-      }));
-    } else {
-      setDocuments((prev) => ({
-        ...prev,
-        [field]: [...(prev[field] as string[]), fileUrl]
-      }));
-    }
+
+    setDocuments((prev) => {
+      if (field === 'image') {
+        return {
+          ...prev,
+          image: fileUrl
+        };
+      } else {
+        return {
+          ...prev,
+          [field]: [...(prev[field as keyof DocumentFile] as string[]), fileUrl]
+        };
+      }
+    });
+
+    setTimeout(() => {
+      onSave(documentsRef.current);
+    }, 0);
+
     setUploadState({ isOpen: false, field: null });
   };
 
   const documentTypes = [
     {
       id: 'image',
-      label: 'Photograpgh',
+      label: 'Photograph',
       required: true,
       instructions: 'Please upload a recent and formal photo of yourself.',
       formats: 'JPG, PNG',
       error: validationErrors.image,
-
       icon: FileText
     },
     {
@@ -244,7 +251,6 @@ export function DocumentsStep({
       error: validationErrors.proofOfAddress,
       icon: FileText
     },
-
     {
       id: 'workExperience',
       label: 'Work Experience Documents',
@@ -252,7 +258,6 @@ export function DocumentsStep({
       instructions: 'Upload relevant work experience documents',
       formats: 'PDF, JPG, PNG',
       uploadLabel: 'You can upload multiple files',
-
       icon: FileText
     },
     {
@@ -271,12 +276,9 @@ export function DocumentsStep({
         <CardHeader className="">
           <div className="space-y-4">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">
-                Document Upload
-              </h2>
+              <h2 className="text-2xl font-bold text-gray-900">Document Upload</h2>
               <p className="mt-1 text-gray-600">
-                Please upload all required documents to complete your
-                application
+                Please upload all required documents to complete your application
               </p>
             </div>
             <div className="rounded-lg border border-gray-200 bg-white p-4">
@@ -323,8 +325,8 @@ export function DocumentsStep({
             </div>
           </div>
         </CardHeader>
-        <CardContent className="p-6 ">
-          <div className="grid gap-4 md:grid-cols-2  ">
+        <CardContent className="p-6">
+          <div className="grid gap-4 md:grid-cols-2">
             {documentTypes.map(
               ({
                 id,
@@ -340,8 +342,8 @@ export function DocumentsStep({
                   id === 'image'
                     ? !!documents.image
                     : Array.isArray(documents[id as keyof DocumentFile]) &&
-                      (documents[id as keyof DocumentFile] as string[]).length >
-                        0;
+                      (documents[id as keyof DocumentFile] as string[]).length > 0;
+
                 return (
                   <div
                     key={id}
@@ -353,7 +355,7 @@ export function DocumentsStep({
                           : 'border-gray-100 bg-gray-50 hover:border-gray-200'
                     }`}
                   >
-                    <div className="p-6 ">
+                    <div className="p-6">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="mb-2 flex items-center space-x-3">

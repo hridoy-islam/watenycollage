@@ -20,6 +20,7 @@ import Select from 'react-select';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { CustomDatePicker } from '@/components/shared/CustomDatePicker';
+import Loader from '@/components/shared/loader';
 
 // Schema
 
@@ -46,7 +47,6 @@ const personalDetailsSchema = z
     maritalStatus: z
       .string()
       .min(1, { message: 'Please select marital status' }),
-    requireVisa: z.string().optional(), 
     applicationLocation: z.string().optional()
   })
   .superRefine((data, ctx) => {
@@ -61,16 +61,8 @@ const personalDetailsSchema = z
       });
     }
 
-    
     // If studentType is not 'eu', then require these fields
     if (data.studentType !== 'eu') {
-      if (!data.requireVisa || data.requireVisa.trim() === '') {
-        ctx.addIssue({
-          path: ['requireVisa'],
-          code: z.ZodIssueCode.custom,
-          message: 'Required Field'
-        });
-      }
       if (!data.applicationLocation || data.applicationLocation.trim() === '') {
         ctx.addIssue({
           path: ['applicationLocation'],
@@ -88,13 +80,15 @@ interface Props {
   onSaveAndContinue: (data: PersonalDetailsData) => void;
   onSave?: (data: PersonalDetailsData) => void;
   setCurrentStep: (step: number) => void;
+  loading: any;
 }
 
 export function PersonalDetailsStep({
   defaultValues,
   onSaveAndContinue,
   onSave,
-  setCurrentStep
+  setCurrentStep,
+  loading
 }: Props) {
   const form = useForm<PersonalDetailsData>({
     resolver: zodResolver(personalDetailsSchema),
@@ -111,7 +105,7 @@ export function PersonalDetailsStep({
       countryOfBirth: '',
       maritalStatus: '',
       countryOfDomicile: '',
-      requireVisa: '',
+
       applicationLocation: '',
       studentType: defaultValues?.studentType || '',
       ...defaultValues
@@ -181,417 +175,211 @@ export function PersonalDetailsStep({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        <CardContent className="space-y-6">
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    Title <span className="text-red-500">*</span>
-                  </FormLabel>
-                  <Controller
-                    name="title"
-                    control={form.control}
-                    render={({ field: { onChange, value } }) => (
-                      <Select
-                        options={titleOptions}
-                        value={titleOptions.find((opt) => opt.value === value)}
-                        onChange={(option) => onChange(option?.value)}
-                        className="react-select-container"
-                        classNamePrefix="react-select"
-                        placeholder="Select your formal title as it appears on official documents."
-                        styles={{
-                          placeholder: (provided) => ({
-                            ...provided,
-                            fontSize: '0.75rem',
-                            color: '#9CA3AF'
-                          })
-                        }}
-                        
-                      />
-                    )}
-                  />
-                  <p className="text-xs  text-gray-400">
-                    Example: Mr., Ms., Mrs., Dr., etc
-                  </p>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="firstName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    First Name <span className="text-red-500">*</span>
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      placeholder="Enter your given name as it appears in your passport or national ID."
-                      className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
-                    />
-                  </FormControl>
-                  <p className="text-xs  text-gray-400">Example: Ridoy</p>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="initial"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Middle Initial (Optional)</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      placeholder="If you have a middle name, enter only the first letter."
-                      className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
-                    />
-                  </FormControl>
-                  <p className="text-xs  text-gray-400">Example: H</p>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="lastName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    Last Name (Surname) <span className="text-red-500">*</span>
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      placeholder="If you have a middle name, enter only the first letter. Leave blank if not applicable."
-                      className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
-                    />
-                  </FormControl>
-                  <p className="text-xs  text-gray-400">Example: Islam</p>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="dateOfBirth"
-              render={({ field }) => {
-                const selectedDate = field.value ? new Date(field.value) : null;
-
-                return (
-                  <FormItem className="mt-2 flex flex-col">
-                    <FormLabel>
-                      Date of Birth (MM/DD/YYYY)
-                      <span className="text-red-500">*</span>
-                    </FormLabel>
-                    <FormControl>
-                      <CustomDatePicker
-                        selected={selectedDate}
-                        onChange={(date) => field.onChange(date)}
-                        placeholder="Enter your date of birth using the format DD/MM/YYYY."
-                        // disabled = {true}
-                      />
-                    </FormControl>
-                    <p className="mt-1 text-xs text-gray-400">
-                      Example: MM/DD/YYYY or 01/24/1995
-                    </p>
-                    <FormMessage />
-                  </FormItem>
-                );
-              }}
-            />
-
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    Email Address <span className="text-red-500">*</span>
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      type="email"
-                      {...field}
-                      placeholder="Enter a valid email address that you check regularly. All communication will be sent here."
-                      className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
-                      disabled
-                    />
-                  </FormControl>
-                  <p className="mt-1 text-xs text-gray-400">
-                    Example: jhondou@gmail.co
-                  </p>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    Phone Number <span className="text-red-500">*</span>
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      type="tel"
-                      {...field}
-                      placeholder="Include your country code if applying from outside the UK."
-                      className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
-                    />
-                  </FormControl>
-                  <p className="mt-1 text-xs text-gray-400">
-                    Example: +8801675792314 (for Bangladesh)
-                  </p>
-
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Gender */}
-            <FormField
-              control={form.control}
-              name="gender"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    Gender <span className="text-red-500">*</span>
-                  </FormLabel>
-                  <FormControl>
-                    <Select
-                      options={genderOptions}
-                      value={
-                        field.value
-                          ? genderOptions.find(
-                              (option) => option.value === field.value
-                            )
-                          : null
-                      }
-                      onChange={(selected) => field.onChange(selected?.value)}
-                      placeholder="Please select your gender."
-                      isClearable
-                      styles={{
-                        placeholder: (provided) => ({
-                          ...provided,
-                          fontSize: '0.75rem',
-                          color: '#9CA3AF'
-                        })
-                      }}
-                    />
-                  </FormControl>
-                  <p className="mt-1 text-xs text-gray-400">
-                    Example: Male, Female, Non-binary, Prefer not to say, Other
-                  </p>
-
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-        
-
-        
-            <FormField
-              control={form.control}
-              name="countryOfDomicile"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    Country Of Domicile <span className="text-red-500">*</span>
-                  </FormLabel>
-                  <FormControl>
-                    <Select
-                      options={countryOptions}
-                      value={
-                        field.value
-                          ? countryOptions.find(
-                              (option) => option.value === field.value
-                            )
-                          : null
-                      }
-                      onChange={(selectedOption) =>
-                        field.onChange(selectedOption?.value)
-                      }
-                      placeholder="Enter the country where you are legally resident."
-                      isClearable
-                      styles={{
-                        placeholder: (provided) => ({
-                          ...provided,
-                          fontSize: '0.75rem',
-                          color: '#9CA3AF'
-                        })
-                      }}
-                    />
-                  </FormControl>
-                  <p className="mt-1 text-xs text-gray-400">
-                    Example: Bangladesh
-                  </p>
-
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Ethnicity */}
-            <FormField
-              control={form.control}
-              name="ethnicity"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    Ethnicity <span className="text-red-500">*</span>
-                  </FormLabel>
-                  <FormControl>
-                    <Select
-                      options={ethnicityOptions}
-                      value={
-                        field.value
-                          ? ethnicityOptions.find(
-                              (option) => option.value === field.value
-                            )
-                          : null
-                      }
-                      onChange={(selected) => field.onChange(selected?.value)}
-                      placeholder="Select Ethnicity"
-                      isClearable
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Custom Ethnicity */}
-            {ethnicity === 'other' && (
-              <FormField
-                control={form.control}
-                name="customEthnicity"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Specify Ethnicity <span className="text-red-500">*</span>
-                    </FormLabel>
-                    <FormControl>
-                      <Textarea
-                        {...field}
-                        className="!placeholder:text-gray-500 p-1 text-sm  placeholder:text-xs placeholder:text-gray-500 border-gray-200"
-                        placeholder="This is collected for equal opportunity monitoring. It will not affect your application."
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
-
-            {/* Country of Birth */}
-            <FormField
-              control={form.control}
-              name="countryOfBirth"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    Country of Birth <span className="text-red-500">*</span>
-                  </FormLabel>
-                  <FormControl>
-                    <Select
-                      options={countryOptions}
-                      value={
-                        field.value
-                          ? countryOptions.find(
-                              (option) => option.value === field.value
-                            )
-                          : null
-                      }
-                      onChange={(selected) => field.onChange(selected?.value)}
-                      placeholder="Select the country where you were born."
-                      isClearable
-                      styles={{
-                        placeholder: (provided) => ({
-                          ...provided,
-                          fontSize: '0.75rem',
-                          color: '#9CA3AF'
-                        })
-                      }}
-                    />
-                  </FormControl>
-                  <p className="mt-1 text-xs text-gray-400">
-                    Example: Bangladesh
-                  </p>
-
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Marital Status */}
-            <FormField
-              control={form.control}
-              name="maritalStatus"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Marital Status</FormLabel>
-                  <FormControl>
-                    <Select
-                      options={maritalStatusOptions}
-                      value={
-                        field.value
-                          ? maritalStatusOptions.find(
-                              (option) => option.value === field.value
-                            )
-                          : null
-                      }
-                      onChange={(selected) => field.onChange(selected?.value)}
-                      placeholder="Select your current marital status."
-                      isClearable
-                      styles={{
-                        placeholder: (provided) => ({
-                          ...provided,
-                          fontSize: '0.75rem',
-                          color: '#9CA3AF'
-                        })
-                      }}
-                    />
-                  </FormControl>
-
-                  <p className="mt-1 text-xs text-gray-400">
-                    Options: Single, Married, Civil Partnership, Divorced,
-                    Widowed, Prefer not to say
-                  </p>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-          
-              <>
+        {loading ? (
+          <div className="flex h-40 items-center justify-center">
+            <Loader />
+          </div>
+        ) : (
+          <>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                 <FormField
                   control={form.control}
-                  name="requireVisa"
+                  name="title"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        Do you require a visa to come to the UK?{' '}
+                        Title <span className="text-red-500">*</span>
+                      </FormLabel>
+                      <Controller
+                        name="title"
+                        control={form.control}
+                        render={({ field: { onChange, value } }) => (
+                          <Select
+                            options={titleOptions}
+                            value={titleOptions.find(
+                              (opt) => opt.value === value
+                            )}
+                            onChange={(option) => onChange(option?.value)}
+                            className="react-select-container"
+                            classNamePrefix="react-select"
+                            placeholder="Select your formal title as it appears on official documents."
+                            styles={{
+                              placeholder: (provided) => ({
+                                ...provided,
+                                fontSize: '0.75rem',
+                                color: '#9CA3AF'
+                              })
+                            }}
+                          />
+                        )}
+                      />
+                      <p className="text-xs  text-gray-400">
+                        Example: Mr., Ms., Mrs., Dr., etc
+                      </p>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="firstName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        First Name <span className="text-red-500">*</span>
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          placeholder="Enter your given name as it appears in your passport or national ID."
+                          className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
+                        />
+                      </FormControl>
+                      <p className="text-xs  text-gray-400">Example: Ridoy</p>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="initial"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Middle Initial (Optional)</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          placeholder="If you have a middle name, enter only the first letter."
+                          className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
+                        />
+                      </FormControl>
+                      <p className="text-xs  text-gray-400">Example: H</p>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="lastName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Last Name (Surname){' '}
                         <span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>
+                        <Input
+                          {...field}
+                          placeholder="If you have a middle name, enter only the first letter. Leave blank if not applicable."
+                          className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
+                        />
+                      </FormControl>
+                      <p className="text-xs  text-gray-400">Example: Islam</p>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="dateOfBirth"
+                  render={({ field }) => {
+                    const selectedDate = field.value
+                      ? new Date(field.value)
+                      : null;
+
+                    return (
+                      <FormItem className="mt-2 flex flex-col">
+                        <FormLabel>
+                          Date of Birth (MM/DD/YYYY)
+                          <span className="text-red-500">*</span>
+                        </FormLabel>
+                        <FormControl>
+                          <CustomDatePicker
+                            selected={selectedDate}
+                            onChange={(date) => field.onChange(date)}
+                            placeholder="Enter your date of birth using the format DD/MM/YYYY."
+                            // disabled = {true}
+                          />
+                        </FormControl>
+                        <p className="mt-1 text-xs text-gray-400">
+                          Example: MM/DD/YYYY or 01/24/1995
+                        </p>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Email Address <span className="text-red-500">*</span>
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          type="email"
+                          {...field}
+                          placeholder="Enter a valid email address that you check regularly. All communication will be sent here."
+                          className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
+                          disabled
+                        />
+                      </FormControl>
+                      <p className="mt-1 text-xs text-gray-400">
+                        Example: jhondou@gmail.co
+                      </p>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Phone Number <span className="text-red-500">*</span>
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          type="tel"
+                          {...field}
+                          placeholder="Include your country code if applying from outside the UK."
+                          className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
+                        />
+                      </FormControl>
+                      <p className="mt-1 text-xs text-gray-400">
+                        Example: +8801675792314 (for Bangladesh)
+                      </p>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Gender */}
+                <FormField
+                  control={form.control}
+                  name="gender"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Gender <span className="text-red-500">*</span>
+                      </FormLabel>
+                      <FormControl>
                         <Select
-                          options={visaOptions}
+                          options={genderOptions}
                           value={
                             field.value
-                              ? visaOptions.find(
+                              ? genderOptions.find(
                                   (option) => option.value === field.value
                                 )
                               : null
@@ -599,7 +387,7 @@ export function PersonalDetailsStep({
                           onChange={(selected) =>
                             field.onChange(selected?.value)
                           }
-                          placeholder="Select yes or no"
+                          placeholder="Please select your gender."
                           isClearable
                           styles={{
                             placeholder: (provided) => ({
@@ -610,19 +398,121 @@ export function PersonalDetailsStep({
                           }}
                         />
                       </FormControl>
-                      <p className="mt-1 text-xs text-gray-400">Example: Yes</p>
+                      <p className="mt-1 text-xs text-gray-400">
+                        Example: Male, Female, Non-binary, Prefer not to say,
+                        Other
+                      </p>
+
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+
                 <FormField
                   control={form.control}
-                  name="applicationLocation"
+                  name="countryOfDomicile"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        From where are you making your application?{' '}
+                        Country Of Domicile{' '}
                         <span className="text-red-500">*</span>
+                      </FormLabel>
+                      <FormControl>
+                        <Select
+                          options={countryOptions}
+                          value={
+                            field.value
+                              ? countryOptions.find(
+                                  (option) => option.value === field.value
+                                )
+                              : null
+                          }
+                          onChange={(selectedOption) =>
+                            field.onChange(selectedOption?.value)
+                          }
+                          placeholder="Enter the country where you are legally resident."
+                          isClearable
+                          styles={{
+                            placeholder: (provided) => ({
+                              ...provided,
+                              fontSize: '0.75rem',
+                              color: '#9CA3AF'
+                            })
+                          }}
+                        />
+                      </FormControl>
+                      <p className="mt-1 text-xs text-gray-400">
+                        Example: Bangladesh
+                      </p>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Ethnicity */}
+                <FormField
+                  control={form.control}
+                  name="ethnicity"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Ethnicity <span className="text-red-500">*</span>
+                      </FormLabel>
+                      <FormControl>
+                        <Select
+                          options={ethnicityOptions}
+                          value={
+                            field.value
+                              ? ethnicityOptions.find(
+                                  (option) => option.value === field.value
+                                )
+                              : null
+                          }
+                          onChange={(selected) =>
+                            field.onChange(selected?.value)
+                          }
+                          placeholder="Select Ethnicity"
+                          isClearable
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Custom Ethnicity */}
+                {ethnicity === 'other' && (
+                  <FormField
+                    control={form.control}
+                    name="customEthnicity"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Specify Ethnicity{' '}
+                          <span className="text-red-500">*</span>
+                        </FormLabel>
+                        <FormControl>
+                          <Textarea
+                            {...field}
+                            className="!placeholder:text-gray-500 border-gray-200 p-1  text-sm placeholder:text-xs placeholder:text-gray-500"
+                            placeholder="This is collected for equal opportunity monitoring. It will not affect your application."
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+
+                {/* Country of Birth */}
+                <FormField
+                  control={form.control}
+                  name="countryOfBirth"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Country of Birth <span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>
                         <Select
@@ -637,7 +527,7 @@ export function PersonalDetailsStep({
                           onChange={(selected) =>
                             field.onChange(selected?.value)
                           }
-                          placeholder="Select the Country"
+                          placeholder="Select the country where you were born."
                           isClearable
                           styles={{
                             placeholder: (provided) => ({
@@ -649,17 +539,101 @@ export function PersonalDetailsStep({
                         />
                       </FormControl>
                       <p className="mt-1 text-xs text-gray-400">
-                        Example: Canada
+                        Example: Bangladesh
+                      </p>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Marital Status */}
+                <FormField
+                  control={form.control}
+                  name="maritalStatus"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Marital Status</FormLabel>
+                      <FormControl>
+                        <Select
+                          options={maritalStatusOptions}
+                          value={
+                            field.value
+                              ? maritalStatusOptions.find(
+                                  (option) => option.value === field.value
+                                )
+                              : null
+                          }
+                          onChange={(selected) =>
+                            field.onChange(selected?.value)
+                          }
+                          placeholder="Select your current marital status."
+                          isClearable
+                          styles={{
+                            placeholder: (provided) => ({
+                              ...provided,
+                              fontSize: '0.75rem',
+                              color: '#9CA3AF'
+                            })
+                          }}
+                        />
+                      </FormControl>
+
+                      <p className="mt-1 text-xs text-gray-400">
+                        Options: Single, Married, Civil Partnership, Divorced,
+                        Widowed, Prefer not to say
                       </p>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              </>
-        
-          </div>
-        </CardContent>
 
+                <>
+                  <FormField
+                    control={form.control}
+                    name="applicationLocation"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          From where are you making your application?{' '}
+                          <span className="text-red-500">*</span>
+                        </FormLabel>
+                        <FormControl>
+                          <Select
+                            options={countryOptions}
+                            value={
+                              field.value
+                                ? countryOptions.find(
+                                    (option) => option.value === field.value
+                                  )
+                                : null
+                            }
+                            onChange={(selected) =>
+                              field.onChange(selected?.value)
+                            }
+                            placeholder="Select the Country"
+                            isClearable
+                            styles={{
+                              placeholder: (provided) => ({
+                                ...provided,
+                                fontSize: '0.75rem',
+                                color: '#9CA3AF'
+                              })
+                            }}
+                          />
+                        </FormControl>
+                        <p className="mt-1 text-xs text-gray-400">
+                          Example: Canada
+                        </p>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </>
+              </div>
+            </CardContent>
+          </>
+        )}
         <div className="flex justify-end px-5">
           {/* <Button
             type="button"

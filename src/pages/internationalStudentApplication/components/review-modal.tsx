@@ -18,7 +18,12 @@ interface ReviewModalProps {
   userId?: string; // Add userId prop to fetch user data
 }
 
-export function ReviewModal({ open, onClose, formData, userId }: ReviewModalProps) {
+export function ReviewModal({
+  open,
+  onClose,
+  formData,
+  userId
+}: ReviewModalProps) {
   const [courseName, setCourseName] = useState<string>('');
   const [termName, setTermName] = useState<string>('');
   const [fetchData, setFetchData] = useState<any>(null);
@@ -80,8 +85,9 @@ export function ReviewModal({ open, onClose, formData, userId }: ReviewModalProp
   // Helper to format field names
   const formatFieldName = (name: string) => {
     return name
-      .replace(/([A-Z])/g, ' $1')
-      .replace(/^./, (str) => str.toUpperCase())
+      .replace(/(?<!^)([A-Z])(?=[a-z])/g, ' $1') // Split on camelCase uppercase
+      .replace(/(?<=[a-z])([A-Z])/g, ' $1') // Handle transitions like backToCamel
+      .replace(/^./, (str) => str.toUpperCase()) // Capitalize first letter
       .trim();
   };
 
@@ -112,7 +118,7 @@ export function ReviewModal({ open, onClose, formData, userId }: ReviewModalProp
                 rel="noopener noreferrer"
                 className="text-blue-600 hover:underline"
               >
-                Document 
+                Document
               </a>
             ))}
           </div>
@@ -172,7 +178,6 @@ export function ReviewModal({ open, onClose, formData, userId }: ReviewModalProp
 
     return value;
   };
-
 
   // Generic render section function
   const renderSection = (title: string, data: any, showTitle = true) => {
@@ -246,7 +251,7 @@ export function ReviewModal({ open, onClose, formData, userId }: ReviewModalProp
       </div>
     );
   };
-  
+
   const renderAddress = (address: any) => {
     if (!address) return 'Not provided';
     return `${address.line1}${address.line2 ? `, ${address.line2}` : ''}, ${address.city}, ${address.postCode}, ${address.country}`;
@@ -350,9 +355,6 @@ export function ReviewModal({ open, onClose, formData, userId }: ReviewModalProp
             })}
             {/* Education */}
             {renderSection('English Language Test', {
-              hasEnglishQualification: getDataValue('englishQualification')
-                ? 'Yes'
-                : 'No',
               ...(getDataValue('englishQualification') && {
                 englishTestType: getDataValue(
                   'englishQualification',
@@ -365,6 +367,10 @@ export function ReviewModal({ open, onClose, formData, userId }: ReviewModalProp
                 englishTestDate: getDataValue(
                   'englishQualification',
                   'englishTestDate'
+                ),
+                englishCertificate: getDataValue(
+                  'englishQualification',
+                  'englishCertificate'
                 )
               })
             })}
@@ -379,21 +385,18 @@ export function ReviewModal({ open, onClose, formData, userId }: ReviewModalProp
                     awardDate: entry.awardDate
                       ? new Date(entry.awardDate).toLocaleDateString()
                       : '',
-                    certificate: entry.certificate 
+                    certificate: entry.certificate
                   })}
                 </React.Fragment>
               ))}
             {/* Employment */}
             {renderSection('Employment', {
               isEmployed: getDataValue('isEmployed'),
-              currentlyEmployed: getDataValue(
-                'currentEmployment',
-                'currentlyEmployed'
-              ),
+
               employer: getDataValue('currentEmployment', 'employer'),
               jobTitle: getDataValue('currentEmployment', 'jobTitle'),
               startDate: getDataValue('currentEmployment', 'startDate'),
-              endDate: getDataValue('currentEmployment', 'endDate'),
+
               employmentType: getDataValue(
                 'currentEmployment',
                 'employmentType'
@@ -422,25 +425,30 @@ export function ReviewModal({ open, onClose, formData, userId }: ReviewModalProp
               )}
             {/* Compliance */}
             {renderSection('Miscellienious', {
-              disability: getDataValue('disability'),
-              disabilityDetails: getDataValue('disabilityDetails'),
-              benefits: getDataValue('benefits'),
-              criminalConviction: getDataValue('criminalConviction'),
-              convictionDetails: getDataValue('convictionDetails'),
-              studentFinance: getDataValue('studentFinance'),
-              hearAboutUs: getDataValue('hearAboutUs'),
               visaRequired: getDataValue('visaRequired'),
               enteredUKBefore: getDataValue('enteredUKBefore'),
               completedUKCourse: getDataValue('completedUKCourse'),
-              visaRefusal: getDataValue('visaRefusal')
+              hearAboutUs: getDataValue('hearAboutUs'),
+              visaRefusal: getDataValue('visaRefusal'),
+              ...(getDataValue('visaRefusal') && {
+                visaRefusalDetail: getDataValue('visaRefusalDetail')
+              }),
+              disability: getDataValue('disability'),
+              ...(getDataValue('disability') && {
+                disabilityDetails: getDataValue('disabilityDetails')
+              })
             })}
             {renderSection('Funding Information', {
               fundingType: getDataValue('fundingType'),
-              grantDetails: getDataValue('grantDetails'),
-              fundingCompanyName: getDataValue('fundingCompanyName'),
-              fundingContactPerson: getDataValue('fundingContactPerson'),
-              fundingEmail: getDataValue('fundingEmail'),
-              fundingPhoneNumber: getDataValue('fundingPhoneNumber')
+              ...(getDataValue('fundingType') === 'Bursary/Grant' && {
+                grantDetails: getDataValue('grantDetails')
+              }),
+              ...(getDataValue('fundingType') === 'Employer-sponsored' && {
+                fundingCompanyName: getDataValue('fundingCompanyName'),
+                fundingContactPerson: getDataValue('fundingContactPerson'),
+                fundingEmail: getDataValue('fundingEmail'),
+                fundingPhoneNumber: getDataValue('fundingPhoneNumber')
+              })
             })}
             {/* Documents */}
             {renderSection('Documents', {
@@ -449,7 +457,7 @@ export function ReviewModal({ open, onClose, formData, userId }: ReviewModalProp
               personalStatement: getDataValue('personalStatement') || [],
               bankStatement: getDataValue('bankStatement') || [],
               photoId: getDataValue('photoId') || [],
-              photograph: getDataValue('image') || "View Document"
+              photograph: getDataValue('image') || 'View Document'
             })}
           </div>
         </div>

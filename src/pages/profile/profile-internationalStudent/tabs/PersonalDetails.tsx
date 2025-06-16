@@ -482,40 +482,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
               )}
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Required visa to come to the UK?
-              </label>
-              {isEditing ? (
-                <Select
-                  id="requireVisa"
-                  options={visaOptions}
-                  value={visaOptions.find(
-                    (option) =>
-                      option.value.toLowerCase() ===
-                      localData?.requireVisa?.toLowerCase()
-                  )}
-                  onChange={(selectedOption) =>
-                    handleInputChange(
-                      'requireVisa',
-                      selectedOption?.value || ''
-                    )
-                  }
-                  className="react-select-container mt-1"
-                  classNamePrefix="react-select"
-                  placeholder="Select option"
-                  menuPortalTarget={document.body}
-                  menuPosition="fixed"
-                  styles={{
-                    menuPortal: (base) => ({ ...base, zIndex: 9999 })
-                  }}
-                />
-              ) : (
-                <div className="mt-1 text-gray-900">
-                  {capitalizeFirstLetter(localData?.requireVisa || '-')}
-                </div>
-              )}
-            </div>
+            
           </div>
         </div>
         <ImageUploader

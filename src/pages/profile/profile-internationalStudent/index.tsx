@@ -9,26 +9,32 @@ const InternationalStudentProfile: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('personalDetails');
   const { user } = useSelector((state: any) => state.auth);
   const [userData, setUserData] = useState<any>([]);
-const [refreshCounter, setRefreshCounter] = useState(0);
+  const [refreshCounter, setRefreshCounter] = useState(0);
+  const [loading, setLoading] = useState<boolean>(true);
+
+
   const fetchData = async () => {
     try {
+      setLoading(true);
       const response = await axiosInstance.get(`/users/${user._id}`);
       setUserData(response.data.data);
     } catch (error) {
       console.error('Error fetching user data:', error);
+     
+    }finally{
+       setLoading(false);
     }
   };
 
-useEffect(() => {
-  if (user?._id) {
-    fetchData();
-  }
-}, [user,refreshCounter]);
+  useEffect(() => {
+    if (user?._id) {
+      fetchData();
+    }
+  }, [user, refreshCounter]);
 
-const refreshData = () => {
-  setRefreshCounter((prev) => prev + 1);
-};
-
+  const refreshData = () => {
+    setRefreshCounter((prev) => prev + 1);
+  };
 
   return (
     <div className="min-h-full ">
@@ -41,7 +47,12 @@ const refreshData = () => {
           </div>
 
           <div className="flex-1 p-6">
-            <TabContent activeTab={activeTab} userData={userData} refreshData={refreshData} />
+            <TabContent
+              activeTab={activeTab}
+              userData={userData}
+              refreshData={refreshData}
+              loading={loading}
+            />
           </div>
         </div>
       </div>

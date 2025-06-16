@@ -1,6 +1,6 @@
 
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -35,12 +35,14 @@ interface DocumentsStepProps {
   defaultValues?: Partial<DocumentFile>;
   onSaveAndContinue: (data: DocumentFile) => void;
   setCurrentStep: (step: number) => void;
+  onSave
 }
 
 export function DocumentsStep({
   defaultValues,
   onSaveAndContinue,
-  setCurrentStep
+  setCurrentStep,
+  onSave
 }: DocumentsStepProps) {
   const [documents, setDocuments] = useState<DocumentFile>({
     image: defaultValues?.image ?? '',
@@ -50,6 +52,13 @@ export function DocumentsStep({
     bankStatement: defaultValues?.bankStatement ?? []
   });
 
+    // Ref to always have the latest documents
+    const documentsRef = useRef<DocumentFile>(documents);
+    useEffect(() => {
+      documentsRef.current = documents;
+    }, [documents]);
+  
+    
   const [uploadState, setUploadState] = useState<{
     isOpen: boolean;
     field: keyof Omit<DocumentFile, 'image'> | 'image' | null;
@@ -196,25 +205,35 @@ export function DocumentsStep({
   };
 
   const handleUploadComplete = (uploadResponse: any) => {
-    const { field } = uploadState;
-    if (!field || !uploadResponse?.success || !uploadResponse.data?.fileUrl) {
+      const { field } = uploadState;
+      if (!field || !uploadResponse?.success || !uploadResponse.data?.fileUrl) {
+        setUploadState({ isOpen: false, field: null });
+        return;
+      }
+  
+      const fileUrl = uploadResponse.data.fileUrl;
+  
+      setDocuments((prev) => {
+        if (field === 'image') {
+          return {
+            ...prev,
+            image: fileUrl
+          };
+        } else {
+          return {
+            ...prev,
+            [field]: [...(prev[field as keyof DocumentFile] as string[]), fileUrl]
+          };
+        }
+      });
+  
+      setTimeout(() => {
+        onSave(documentsRef.current);
+      }, 0);
+  
       setUploadState({ isOpen: false, field: null });
-      return;
-    }
-    const fileUrl = uploadResponse.data.fileUrl;
-    if (field === 'image') {
-      setDocuments((prev) => ({
-        ...prev,
-        image: fileUrl
-      }));
-    } else {
-      setDocuments((prev) => ({
-        ...prev,
-        [field]: [...(prev[field] as string[]), fileUrl]
-      }));
-    }
-    setUploadState({ isOpen: false, field: null });
-  };
+    };
+  
 
   const documentTypes = [
     {

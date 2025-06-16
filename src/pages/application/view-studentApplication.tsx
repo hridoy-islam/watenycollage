@@ -854,22 +854,7 @@ export default function ViewStudentApplicationPage() {
                             `workExperience[${index}]`
                           )
                       )}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
 
-              <Card>
-                <CardContent className="pt-6">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-1/3 text-left">Field</TableHead>
-                        <TableHead className="text-right">Value</TableHead>
-                        <TableHead className="w-10 text-right"></TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
                       {application?.studentType === 'eu' && (
                         <>
                           {application?.proofOfAddress?.map(
@@ -904,10 +889,14 @@ export default function ViewStudentApplicationPage() {
                             `personalStatement[${index}]`
                           )
                       )}
+
+
                     </TableBody>
                   </Table>
                 </CardContent>
               </Card>
+
+              
             </div>
           </TabsContent>
 
@@ -959,13 +948,12 @@ export default function ViewStudentApplicationPage() {
                             application?.currentEmployment?.responsibilities,
                             'currentEmployment.responsibilities'
                           )}
-
-                          {renderFieldRow(
-                            'Do you have previous employment history?',
-                            application?.hasPreviousEmployment,
-                            'hasPreviousEmployment'
-                          )}
                         </>
+                      )}
+                      {renderFieldRow(
+                        'Do you have previous employment history?',
+                        application?.hasPreviousEmployment,
+                        'hasPreviousEmployment'
                       )}
                     </TableBody>
                   </Table>
@@ -981,6 +969,7 @@ export default function ViewStudentApplicationPage() {
                             Previous Employment
                           </h3>
                           <div className="space-y-6">
+                            {/* Previous Employments */}
                             {application.previousEmployments.map(
                               (employment, index) => (
                                 <div key={index}>
@@ -990,6 +979,7 @@ export default function ViewStudentApplicationPage() {
                                     </h4>
                                     <Separator className="mx-4 flex-1" />
                                   </div>
+
                                   <Table>
                                     <TableBody>
                                       {renderFieldRow(
@@ -1022,24 +1012,36 @@ export default function ViewStudentApplicationPage() {
                                         employment.responsibilities,
                                         `previousEmployments.${index}.responsibilities`
                                       )}
-
-                                      {renderFieldRow(
-                                        'Has Employment Gaps',
-                                        application.hasEmploymentGaps,
-                                        'hasEmploymentGaps'
-                                      )}
-                                      {application.hasEmploymentGaps ===
-                                        'yes' &&
-                                        renderFieldRow(
-                                          'Employment Gaps Explanation',
-                                          application.employmentGapsExplanation,
-                                          'employmentGapsExplanation'
-                                        )}
                                     </TableBody>
                                   </Table>
                                 </div>
                               )
                             )}
+
+                            {/* Employment Gap Question (only once, after all previous employment) */}
+                            <div className="mt-6">
+                              <div className="mb-2 flex items-center">
+                                <h4 className="font-medium">
+                                  Employment Gap Details
+                                </h4>
+                                <Separator className="mx-4 flex-1" />
+                              </div>
+                              <Table>
+                                <TableBody>
+                                  {renderFieldRow(
+                                    'Has Employment Gaps',
+                                    application.hasEmploymentGaps,
+                                    'hasEmploymentGaps'
+                                  )}
+                                  {application.hasEmploymentGaps === 'yes' &&
+                                    renderFieldRow(
+                                      'Employment Gaps Explanation',
+                                      application.employmentGapsExplanation,
+                                      'employmentGapsExplanation'
+                                    )}
+                                </TableBody>
+                              </Table>
+                            </div>
                           </div>
                         </>
                       )}

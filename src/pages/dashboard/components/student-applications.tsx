@@ -273,11 +273,19 @@ export default function StudentApplicationsPage() {
               <TableBody>
                 {filteredApplications.map((app) => (
                   <TableRow key={app._id}>
-                    <TableCell className="font-medium">
+                    <TableCell className="font-medium cursor-pointer " onClick={() =>
+                          navigate(
+                            `/dashboard/student-application/${app.studentId?._id}`
+                          )
+                        }>
                       {app.studentId?.title} {app.studentId?.firstName}{' '}
                       {app.studentId?.initial} {app.studentId?.lastName}{' '}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className='cursor-pointer' onClick={() =>
+                          navigate(
+                            `/dashboard/student-application/${app.studentId?._id}`
+                          )
+                        }>
                       <Badge className="bg-watney text-white hover:bg-watney">
                         {app.studentId?.studentType === 'eu'
                           ? 'Home'
@@ -287,8 +295,16 @@ export default function StudentApplicationsPage() {
                             app.studentId?.studentType?.slice(1)}
                       </Badge>
                     </TableCell>
-                    <TableCell>{app.studentId?.email ?? 'N/A'}</TableCell>
-                    <TableCell>{app.courseId?.name ?? 'N/A'}</TableCell>
+                    <TableCell className='cursor-pointer' onClick={() =>
+                          navigate(
+                            `/dashboard/student-application/${app.studentId?._id}`
+                          )
+                        }>{app.studentId?.email ?? 'N/A'}</TableCell>
+                    <TableCell className='cursor-pointer' onClick={() =>
+                          navigate(
+                            `/dashboard/student-application/${app.studentId?._id}`
+                          )
+                        }>{app.courseId?.name ?? 'N/A'}</TableCell>
                     <TableCell className="text-center">
                       <Button
                         variant="ghost"
