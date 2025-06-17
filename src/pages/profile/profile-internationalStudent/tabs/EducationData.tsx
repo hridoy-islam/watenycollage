@@ -425,8 +425,8 @@ const EducationData = ({
                               ?.name || 'Uploaded File'}
                       </p>
                     )}
-                    {typeof localData.englishCertificate === 'string' &&
-                      localData.englishCertificate && (
+                    { 
+                      localData.englishQualification?.englishCertificate && (
                         <a
                           href={
                             localData.englishQualification?.englishCertificate
@@ -438,6 +438,27 @@ const EducationData = ({
                           View File
                         </a>
                       )}
+
+
+                      {/* {entry.certificate && (
+                        <p className="mt-2 text-sm text-gray-900">
+                          {decodeURIComponent(
+                            entry.certificate.split('/').pop() ||
+                              'Uploaded File'
+                          )}
+                        </p>
+                      )}
+
+                      {entry.certificate && (
+                        <a
+                          href={entry.certificate}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-1 inline-block text-xs text-blue-600 underline"
+                        >
+                          View File
+                        </a>
+                      )} */}
                   </div>
                 ) : (
                   <div className="mt-1 text-gray-900">

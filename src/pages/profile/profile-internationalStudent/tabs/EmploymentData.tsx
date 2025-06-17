@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import Select from 'react-select';
-
+import { CustomDatePicker } from '@/components/shared/CustomDatePicker';
 
 const EmploymentData = ({
   userData,
@@ -35,6 +35,11 @@ const EmploymentData = ({
     }
   };
 
+  const yesNoOptions = [
+    { value: 'yes', label: 'Yes' },
+    { value: 'no', label: 'No' }
+  ];
+
   const employmentOptions = [
     { value: 'Full-Time', label: 'Full-Time' },
     { value: 'Part-Time', label: 'Part-Time' },
@@ -61,40 +66,26 @@ const EmploymentData = ({
             Currently employed?
           </label>
           {isEditing ? (
-            <div className="flex space-x-4">
-              <div className="flex items-center">
-                <Input
-                  id="employed-yes"
-                  name="isEmployed"
-                  type="radio"
-                  className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                  checked={localData.isEmployed === 'yes'}
-                  onChange={() => handleInputChange('isEmployed', 'yes')}
-                />
-                <label
-                  htmlFor="employed-yes"
-                  className="ml-2 block text-sm text-gray-700"
-                >
-                  Yes
-                </label>
-              </div>
-              <div className="flex items-center">
-                <Input
-                  id="employed-no"
-                  name="isEmployed"
-                  type="radio"
-                  className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                  checked={localData.isEmployed === 'No'}
-                  onChange={() => handleInputChange('isEmployed', 'No')}
-                />
-                <label
-                  htmlFor="employed-no"
-                  className="ml-2 block text-sm text-gray-700"
-                >
-                  No
-                </label>
-              </div>
-            </div>
+            <Select
+              options={yesNoOptions}
+              value={yesNoOptions.find(
+                (opt) => opt.value === localData.isEmployed
+              )}
+              onChange={(selectedOption) =>
+                handleInputChange('isEmployed', selectedOption?.value || '')
+              }
+              placeholder="Select"
+              styles={{
+                control: (baseStyles, state) => ({
+                  ...baseStyles,
+                  borderColor: state.isFocused ? '#6366F1' : '#D1D5DB',
+                  boxShadow: state.isFocused ? '0 0 0 1px #6366F1' : undefined,
+                  '&:hover': {
+                    borderColor: state.isFocused ? '#6366F1' : '#9CA3AF'
+                  }
+                })
+              }}
+            />
           ) : (
             <div className="text-gray-900">{localData.isEmployed || '-'}</div>
           )}
@@ -157,16 +148,21 @@ const EmploymentData = ({
                     Start Date
                   </label>
                   {isEditing ? (
-                    <Input
-                      type="date"
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      defaultValue={localData.currentEmployment?.startDate}
-                      onChange={(e) =>
-                        handleInputChange('currentEmployment', {
-                          ...localData.currentEmployment,
-                          startDate: e.target.value
-                        })
+                    <CustomDatePicker
+                      selected={
+                        localData.currentEmployment?.startDate
+                          ? new Date(localData.currentEmployment.startDate)
+                          : null
                       }
+                      onChange={(date: Date | null) => {
+                        if (date) {
+                          handleInputChange('currentEmployment', {
+                            ...localData.currentEmployment,
+                            startDate: date.toISOString()
+                          });
+                        }
+                      }}
+                      placeholder="Start date"
                     />
                   ) : (
                     <div className="mt-1 text-gray-900">
@@ -258,44 +254,33 @@ const EmploymentData = ({
             Previous employment?
           </label>
           {isEditing ? (
-            <div className="flex space-x-4">
-              <div className="flex items-center">
-                <Input
-                  id="has-prev-yes"
-                  name="hasPreviousEmployment"
-                  type="radio"
-                  className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                  checked={localData.hasPreviousEmployment === 'yes'}
-                  onChange={() =>
-                    handleInputChange('hasPreviousEmployment', 'yes')
+            <Select
+              options={yesNoOptions}
+              value={yesNoOptions.find(
+                (opt) => opt.value === localData.hasPreviousEmployment
+              )}
+              onChange={(selectedOption) =>
+                handleInputChange(
+                  'hasPreviousEmployment',
+                  selectedOption?.value || ''
+                )
+              }
+              placeholder="Select"
+              styles={{
+                menu: (provided) => ({ ...provided, zIndex: 9999 }),
+                control: (provided, state) => ({
+                  ...provided,
+                  borderColor: state.isFocused
+                    ? '#4F46E5'
+                    : provided.borderColor,
+                  boxShadow: state.isFocused ? '0 0 0 1px #4F46E5' : 'none',
+                  '&:hover': {
+                    borderColor: state.isFocused ? '#4F46E5' : '#D1D5DB'
                   }
-                />
-                <label
-                  htmlFor="has-prev-yes"
-                  className="ml-2 block text-sm text-gray-700"
-                >
-                  Yes
-                </label>
-              </div>
-              <div className="flex items-center">
-                <Input
-                  id="has-prev-no"
-                  name="hasPreviousEmployment"
-                  type="radio"
-                  className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                  checked={localData.hasPreviousEmployment === 'No'}
-                  onChange={() =>
-                    handleInputChange('hasPreviousEmployment', 'No')
-                  }
-                />
-                <label
-                  htmlFor="has-prev-no"
-                  className="ml-2 block text-sm text-gray-700"
-                >
-                  No
-                </label>
-              </div>
-            </div>
+                })
+              }}
+              menuPortalTarget={document.body}
+            />
           ) : (
             <div className="text-gray-900">
               {localData.hasPreviousEmployment || '-'}
@@ -334,7 +319,6 @@ const EmploymentData = ({
                 </Button>
               )}
             </div>
-
             {localData.previousEmployments &&
             localData.previousEmployments.length > 0 ? (
               <div className="space-y-4">
@@ -345,7 +329,7 @@ const EmploymentData = ({
                   >
                     {isEditing && (
                       <button
-                        className="absolute right-2 top-0 text-red-600 bg-white p-2 rounded-md shadow-md hover:text-white hover:bg-red-600 "
+                        className="absolute right-2 top-0 rounded-md bg-white p-2 text-red-600 shadow-md hover:bg-red-600 hover:text-white"
                         title="Remove"
                         onClick={() =>
                           handleInputChange(
@@ -421,22 +405,25 @@ const EmploymentData = ({
                           Start Date
                         </label>
                         {isEditing ? (
-                          <Input
-                            type="date"
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                            value={job.startDate}
-                            onChange={(e) =>
-                              handleInputChange('previousEmployments', [
-                                ...localData.previousEmployments.slice(
-                                  0,
-                                  index
-                                ),
-                                { ...job, startDate: e.target.value },
-                                ...localData.previousEmployments.slice(
-                                  index + 1
-                                )
-                              ])
+                          <CustomDatePicker
+                            selected={
+                              job.startDate ? new Date(job.startDate) : null
                             }
+                            onChange={(date: Date | null) => {
+                              if (date) {
+                                handleInputChange('previousEmployments', [
+                                  ...localData.previousEmployments.slice(
+                                    0,
+                                    index
+                                  ),
+                                  { ...job, startDate: date.toISOString() },
+                                  ...localData.previousEmployments.slice(
+                                    index + 1
+                                  )
+                                ]);
+                              }
+                            }}
+                            placeholder="Start date"
                           />
                         ) : (
                           <div className="mt-1 text-gray-900">
@@ -451,22 +438,25 @@ const EmploymentData = ({
                           End Date
                         </label>
                         {isEditing ? (
-                          <Input
-                            type="date"
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                            value={job.endDate}
-                            onChange={(e) =>
-                              handleInputChange('previousEmployments', [
-                                ...localData.previousEmployments.slice(
-                                  0,
-                                  index
-                                ),
-                                { ...job, endDate: e.target.value },
-                                ...localData.previousEmployments.slice(
-                                  index + 1
-                                )
-                              ])
+                          <CustomDatePicker
+                            selected={
+                              job.endDate ? new Date(job.endDate) : null
                             }
+                            onChange={(date: Date | null) => {
+                              if (date) {
+                                handleInputChange('previousEmployments', [
+                                  ...localData.previousEmployments.slice(
+                                    0,
+                                    index
+                                  ),
+                                  { ...job, endDate: date.toISOString() },
+                                  ...localData.previousEmployments.slice(
+                                    index + 1
+                                  )
+                                ]);
+                              }
+                            }}
+                            placeholder="End date"
                           />
                         ) : (
                           <div className="mt-1 text-gray-900">
@@ -504,7 +494,6 @@ const EmploymentData = ({
                           </div>
                         )}
                       </div>
-
                       <div className="md:col-span-2">
                         <label className="block text-sm font-medium text-gray-700">
                           Main Responsibilities
@@ -545,76 +534,71 @@ const EmploymentData = ({
           </div>
         )}
 
-        {/* Employment Gaps */}
-        <div>
-          <label className="mb-2 block text-sm font-medium text-gray-700">
-            Gaps in my employment history?
-          </label>
-          {isEditing ? (
-            <div className="mb-4 flex space-x-4">
-              <div className="flex items-center">
-                <Input
-                  id="gaps-yes"
-                  name="hasEmploymentGaps"
-                  type="radio"
-                  className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                  checked={localData.hasEmploymentGaps === 'yes'}
-                  onChange={() => handleInputChange('hasEmploymentGaps', 'yes')}
-                />
-                <label
-                  htmlFor="gaps-yes"
-                  className="ml-2 block text-sm text-gray-700"
-                >
-                  Yes
-                </label>
+        {/* Employment Gaps - Only shown if hasPreviousEmployment is "yes" */}
+        {localData.hasPreviousEmployment === 'yes' && (
+          <div>
+            <label className="mb-2 block text-sm font-medium text-gray-700">
+              Gaps in my employment history?
+            </label>
+            {isEditing ? (
+              <Select
+                options={yesNoOptions}
+                value={yesNoOptions.find(
+                  (opt) => opt.value === localData.hasEmploymentGaps
+                )}
+                onChange={(selectedOption) =>
+                  handleInputChange(
+                    'hasEmploymentGaps',
+                    selectedOption?.value || ''
+                  )
+                }
+                placeholder="Select"
+                styles={{
+                  menu: (provided) => ({ ...provided, zIndex: 9999 }),
+                  control: (provided, state) => ({
+                    ...provided,
+                    borderColor: state.isFocused
+                      ? '#4F46E5'
+                      : provided.borderColor,
+                    boxShadow: state.isFocused ? '0 0 0 1px #4F46E5' : 'none',
+                    '&:hover': {
+                      borderColor: state.isFocused ? '#4F46E5' : '#D1D5DB'
+                    }
+                  })
+                }}
+                menuPortalTarget={document.body}
+              />
+            ) : (
+              <div className="mb-4 text-gray-900">
+                {localData.hasEmploymentGaps || '-'}
               </div>
-              <div className="flex items-center">
-                <Input
-                  id="gaps-no"
-                  name="hasEmploymentGaps"
-                  type="radio"
-                  className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                  checked={localData.hasEmploymentGaps === 'No'}
-                  onChange={() => handleInputChange('hasEmploymentGaps', 'No')}
-                />
-                <label
-                  htmlFor="gaps-no"
-                  className="ml-2 block text-sm text-gray-700"
-                >
-                  No
+            )}
+            {localData.hasEmploymentGaps === 'yes' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Gaps Details
                 </label>
+                {isEditing ? (
+                  <Textarea
+                    rows={3}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    defaultValue={localData.employmentGapsExplanation}
+                    onChange={(e) =>
+                      handleInputChange(
+                        'employmentGapsExplanation',
+                        e.target.value
+                      )
+                    }
+                  />
+                ) : (
+                  <div className="mt-1 text-gray-900">
+                    {localData.employmentGapsExplanation || '-'}
+                  </div>
+                )}
               </div>
-            </div>
-          ) : (
-            <div className="mb-4 text-gray-900">
-              {localData.hasEmploymentGaps || '-'}
-            </div>
-          )}
-          {localData.hasEmploymentGaps === 'yes' && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Gaps Details
-              </label>
-              {isEditing ? (
-                <textarea
-                  rows={3}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                  defaultValue={localData.employmentGapsExplanation}
-                  onChange={(e) =>
-                    handleInputChange(
-                      'employmentGapsExplanation',
-                      e.target.value
-                    )
-                  }
-                />
-              ) : (
-                <div className="mt-1 text-gray-900">
-                  {localData.employmentGapsExplanation || '-'}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
     </TabSection>
   );

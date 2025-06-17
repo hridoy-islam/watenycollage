@@ -736,11 +736,13 @@ export default function ViewStudentApplicationPage() {
                           application.criminalConviction,
                           'criminalConviction'
                         )}
-                        {renderFieldRow(
+
+                        {application.criminalConviction === 'yes' && renderFieldRow(
                           'Conviction Details',
                           application.convictionDetails,
                           'convictionDetails'
                         )}
+                        
                         {application?.studentType === 'eu' &&
                           renderFieldRow(
                             'Student Finance',

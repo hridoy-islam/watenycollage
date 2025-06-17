@@ -40,9 +40,9 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
     }
   };
 
-  const nationalityOptions = nationalities.map((nationality) => ({
-    label: nationality,
-    value: nationality.toLowerCase().replace(/\s/g, '-')
+    const nationalityOptions = nationalities.map((nationality) => ({
+    value: nationality,
+    label: nationality
   }));
 
   const countryOptions = countries.map((country) => ({
@@ -447,11 +447,11 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
               {isEditing ? (
                 <Select
                   id="nationality"
-                  options={countryOptions}
-                  value={countryOptions.find(
+                  options={nationalityOptions}
+                  value={nationalityOptions.find(
                     (option) =>
-                      option.value.toLowerCase() ===
-                      localData?.nationality?.toLowerCase()
+                      option.value ===
+                      localData?.nationality
                   )}
                   onChange={(selectedOption) =>
                     handleInputChange(

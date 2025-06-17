@@ -391,37 +391,52 @@ export function ReviewModal({
             {/* Employment */}
             {renderSection('Employment', {
               CurrentEmployment: getDataValue('isEmployed'),
-
-              employerName: getDataValue('currentEmployment', 'employer'),
-              jobTitle: getDataValue('currentEmployment', 'jobTitle'),
-              startDate: getDataValue('currentEmployment', 'startDate'),
-
-              employmentType: getDataValue(
-                'currentEmployment',
-                'employmentType'
-              ),
-              responsibilities: getDataValue(
-                'currentEmployment',
-                'responsibilities'
-              )
+              ...(getDataValue('isEmployed') === 'yes'
+                ? {
+                    employerName: getDataValue('currentEmployment', 'employer'),
+                    jobTitle: getDataValue('currentEmployment', 'jobTitle'),
+                    startDate: getDataValue('currentEmployment', 'startDate'),
+                    employmentType: getDataValue(
+                      'currentEmployment',
+                      'employmentType'
+                    ),
+                    responsibilities: getDataValue(
+                      'currentEmployment',
+                      'responsibilities'
+                    )
+                  }
+                : {}),
+              hasPreviousEmployment: getDataValue('hasPreviousEmployment')
             })}
-            {(getDataValue('previousEmployments') || []).length > 0 &&
-              getDataValue('previousEmployments').map(
-                (emp: any, index: number) => (
-                  <div
-                    key={`prevEmp-${index}`}
-                    className="mb-4 rounded-md border border-gray-200 bg-gray-50 p-4"
-                  >
-                    {renderSection(
-                      `Previous Employment #${index + 1}`,
-                      Object.fromEntries(
-                        Object.entries(emp).filter(([key]) => key !== '_id')
-                      ),
-                      true
-                    )}
-                  </div>
-                )
-              )}
+
+            {getDataValue('hasPreviousEmployment') === 'yes' && (
+              <div>
+                {(getDataValue('previousEmployments') || []).length > 0 ? (
+                  getDataValue('previousEmployments').map(
+                    (emp: any, index: number) => (
+                      <div
+                        key={`prevEmp-${index}`}
+                        className="mb-4 rounded-md border border-gray-200 bg-gray-50 p-4"
+                      >
+                        {renderSection(
+                          `Previous Employment #${index + 1}`,
+                          Object.fromEntries(
+                            Object.entries(emp).filter(([key]) => key !== '_id')
+                          ),
+                          true
+                        )}
+                      </div>
+                    )
+                  )
+                ) : (
+                  <p className="text-sm text-gray-500">
+                    No previous employment records found.
+                  </p>
+                )}
+              </div>
+            )}
+
+            
             {/* Compliance */}
             {(() => {
               const visaRefusal = getDataValue('visaRefusal') === 'yes';
