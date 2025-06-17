@@ -205,7 +205,7 @@ export function EducationStep({
         <CardDescription>
           Please provide your highest level of academic qualification. This
           information is mandatory and will help us assess your educational
-          background. You may add more than one qualification if applicable.
+          background. You may add more than one qualification if applicable. <span className='font-semibold'>(You can skip this step if you have no additional qualifications to add.)</span>
         </CardDescription>
       </CardHeader>
       <CardContent className="scroll mt-2 p-0 px-6">

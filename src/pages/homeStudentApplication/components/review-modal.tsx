@@ -85,7 +85,7 @@ export function ReviewModal({
   };
 
   // Helper to format field names
- const formatFieldName = (name: string) => {
+  const formatFieldName = (name: string) => {
     return name
       .replace(/(?<!^)([A-Z])(?=[a-z])/g, ' $1') // Split on camelCase uppercase
       .replace(/(?<=[a-z])([A-Z])/g, ' $1') // Handle transitions like backToCamel
@@ -321,7 +321,7 @@ export function ReviewModal({
             {/* Employment */}
             {renderSection('Employment', {
               isEmployed: getDataValue('isEmployed'),
-              
+
               employer: getDataValue('currentEmployment', 'employer'),
               jobTitle: getDataValue('currentEmployment', 'jobTitle'),
               startDate: getDataValue('currentEmployment', 'startDate'),
@@ -355,22 +355,22 @@ export function ReviewModal({
 
             {/* Compliance */}
             {renderSection('Miscellienious', {
-  immigrationStatus: getDataValue('immigrationStatus'),
-  niNumber: getDataValue('niNumber'),
-  ltrCode: getDataValue('ltrCode'),
-  hearAboutUs: getDataValue('hearAboutUs'),
-  disability: getDataValue('disability'),
-  ...(getDataValue('disability') === 'Yes' && {
-    disabilityDetails: getDataValue('disabilityDetails'),
-  }),
-  studentFinance: getDataValue('studentFinance'),
-  criminalConviction: getDataValue('criminalConviction'),
-  ...(getDataValue('criminalConviction') === 'Yes' && {
-    convictionDetails: getDataValue('convictionDetails'),
-  }),
-})}
+              immigrationStatus: getDataValue('immigrationStatus'),
+              niNumber: getDataValue('niNumber'),
+              ltrCode: getDataValue('ltrCode'),
+              hearAboutUs: getDataValue('hearAboutUs'),
+              disability: getDataValue('disability'),
+              ...(getDataValue('disability') === 'Yes' && {
+                disabilityDetails: getDataValue('disabilityDetails')
+              }),
+              studentFinance: getDataValue('studentFinance'),
+              criminalConviction: getDataValue('criminalConviction'),
+              ...(getDataValue('criminalConviction') === 'Yes' && {
+                convictionDetails: getDataValue('convictionDetails')
+              })
+            })}
 
-             {renderSection('Funding Information', {
+            {renderSection('Funding Information', {
               fundingType: getDataValue('fundingType'),
               ...(getDataValue('fundingType') === 'Bursary/Grant' && {
                 grantDetails: getDataValue('grantDetails')

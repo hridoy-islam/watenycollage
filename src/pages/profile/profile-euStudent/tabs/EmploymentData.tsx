@@ -7,7 +7,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import Select from 'react-select';
 
-
 const EmploymentData = ({
   userData,
   isEditing = false,
@@ -313,7 +312,7 @@ const EmploymentData = ({
               {isEditing && (
                 <Button
                   type="button"
-                  className="inline-flex items-center rounded-md border border-transparent bg-indigo-100 px-3 py-2 text-sm font-medium leading-4 text-indigo-700 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                  className="inline-flex items-center rounded-md border border-transparent bg-watney px-3 py-2 text-sm font-medium leading-4 text-white hover:bg-watney/90 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                   onClick={() =>
                     handleInputChange('previousEmployments', [
                       ...(localData.previousEmployments || []),
@@ -344,8 +343,8 @@ const EmploymentData = ({
                     className="relative rounded-lg border border-gray-200 bg-gray-50 p-4"
                   >
                     {isEditing && (
-                      <Button
-                        className="absolute right-2 top-2 text-gray-400 hover:text-red-500"
+                      <button
+                        className="absolute right-2 top-0 rounded-md bg-white p-2 text-red-600 shadow-md hover:bg-red-600 hover:text-white "
                         title="Remove"
                         onClick={() =>
                           handleInputChange(
@@ -357,7 +356,7 @@ const EmploymentData = ({
                         }
                       >
                         <Trash2 size={16} />
-                      </Button>
+                      </button>
                     )}
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                       <div>

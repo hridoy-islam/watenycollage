@@ -41,8 +41,10 @@ export default function InternationalStudentApplication() {
   const [parsedResume, setParsedResume] = useState<string | null>(null);
   const dispatch = useDispatch<AppDispatch>();
   let stepContent;
- const [loading, setLoading] = useState<boolean>(true);
-const location = useLocation()
+  const [loading, setLoading] = useState<boolean>(true);
+  const location = useLocation();
+  const [courseSubmitted, setCourseSubmitted] = useState(false);
+
   useEffect(() => {
     if (location.state?.parsedResume) {
       setParsedResume(location.state.parsedResume);
@@ -134,7 +136,7 @@ const location = useLocation()
 
   const fetchedData = async () => {
     try {
-      setLoading(true)
+      setLoading(true);
       const response = await axiosInstance.get(`/users/${user._id}`);
       const userData = response.data.data;
       setFetchData((prev) => ({
@@ -153,8 +155,8 @@ const location = useLocation()
       }));
     } catch (error) {
       console.error('Error fetching data:', error);
-    }finally{
-      setLoading(false)
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -268,17 +270,17 @@ const location = useLocation()
       console.error('Failed to update documents:', error);
     }
   };
-    const handleDocumentSave = async (data: any) => {
-      try {
-        setFormData((prev) => ({ ...prev, ...data }));
-        await axiosInstance.patch(`/users/${user._id}`, data);     
-      } catch (error: any) {
-        toast({
-          title: error?.response?.data?.message || 'Something went wrong.',
-          className: 'destructive border-none text-white'
-        });
-      }
-    };
+  const handleDocumentSave = async (data: any) => {
+    try {
+      setFormData((prev) => ({ ...prev, ...data }));
+      await axiosInstance.patch(`/users/${user._id}`, data);
+    } catch (error: any) {
+      toast({
+        title: error?.response?.data?.message || 'Something went wrong.',
+        className: 'destructive border-none text-white'
+      });
+    }
+  };
 
   const handleFundingInformationSaveAndContinue = async (data: any) => {
     try {
@@ -358,6 +360,7 @@ const location = useLocation()
 
         localStorage.removeItem('termId');
         localStorage.removeItem('courseId');
+        setCourseSubmitted(true);
       } catch (err: any) {
         console.error('Error submitting application course:', err);
         toast({
@@ -428,8 +431,6 @@ const location = useLocation()
     setFormSubmitted(true);
   };
 
-  console.log(formData);
-
   const renderStep = () => {
     // Normalize currentStep value to handle both number and { step, subStep }
     const stepValue =
@@ -444,7 +445,7 @@ const location = useLocation()
             onSaveAndContinue={handlePersonalDetailsSaveAndContinue}
             onSave={handlePersonalDetailsSave}
             setCurrentStep={setCurrentStep}
-            loading= {loading}
+            loading={loading}
           />
         );
 
@@ -506,7 +507,7 @@ const location = useLocation()
             defaultValues={{ ...fetchData, ...formData }}
             onSaveAndContinue={handleDocumentsSaveAndContinue}
             setCurrentStep={setCurrentStep}
-           onSave={handleDocumentSave}
+            onSave={handleDocumentSave}
           />
         );
       case 8:
@@ -567,33 +568,27 @@ const location = useLocation()
         );
     }
   };
-   if (formSubmitted) {
-  const courseId = localStorage.getItem('courseId');
-  const intakeId = localStorage.getItem('termId');
 
-  const isCourseSubmission = courseId && intakeId;
+  if (formSubmitted) {
+    const isCourseSubmission = courseSubmitted;
 
-  return (
-    <div className="flex items-center justify-center px-4">
-      <Card className="rounded-lg border bg-watney/90 p-24 shadow-lg">
-        <div className="flex flex-col items-center gap-6 text-center">
-          {/* Submission Icon */}
-          <div className="rounded-full bg-white p-8">
-            <Check size={84} className="text-watney" />
-          </div>
-
-          {/* Title & Description */}
-          <div className="flex items-center gap-4 text-center">
+    return (
+      <div className="flex items-center justify-center px-4">
+        <Card className="rounded-lg border bg-watney/90 p-24 shadow-lg">
+          <div className="flex flex-col items-center gap-6 text-center">
+            <div className="rounded-full bg-white p-8">
+              <Check size={84} className="text-watney" />
+            </div>
             <div>
               <CardTitle className="text-2xl font-semibold text-white">
                 {isCourseSubmission
                   ? 'Application Submitted Successfully'
-                  : 'Profile Data Submitted Successfully'}
+                  : 'Great job! You’ve completed your profile. You can now apply to any course instantly.'}
               </CardTitle>
-
               <CardDescription className="mt-2 text-base leading-relaxed text-white">
-                Thank you for your submission. {isCourseSubmission ? (
-                  <div className="w-full rounded-md mt-2 text-left text-base text-white">
+                Thank you for your submission.
+                {isCourseSubmission ? (
+                  <div className="mt-2 w-full rounded-md text-left text-base text-white">
                     <p>
                       If you have any questions or need help with your
                       application, please don’t hesitate to contact us:
@@ -613,7 +608,8 @@ const location = useLocation()
                       </li>
                     </ul>
                   </div>
-                ):<div className="w-full rounded-md mt-2 text-left text-base text-white">
+                ) : (
+                  <div className="mt-2 w-full rounded-md text-left text-base text-white">
                     <ul className="mt-3 list-none space-y-2">
                       <li>
                         📧 <strong>Email:</strong>{' '}
@@ -628,24 +624,21 @@ const location = useLocation()
                         ☎ <strong>Phone:</strong> +44 (0)20 1234 5678
                       </li>
                     </ul>
-                  </div> }
-                
+                  </div>
+                )}
               </CardDescription>
             </div>
+            <Button
+              onClick={handleDashboardRedirect}
+              className="mt-4 w-full rounded-sm bg-white px-12 py-3 text-lg font-semibold text-watney transition hover:bg-white sm:w-auto"
+            >
+              Done
+            </Button>
           </div>
-
-          {/* Done Button */}
-          <Button
-            onClick={handleDashboardRedirect}
-            className="*: mt-4 w-full rounded-sm bg-white px-12 py-3 text-lg font-semibold text-watney transition hover:bg-white sm:w-auto"
-          >
-            Done
-          </Button>
-        </div>
-      </Card>
-    </div>
-  );
-}
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className=" w-full ">

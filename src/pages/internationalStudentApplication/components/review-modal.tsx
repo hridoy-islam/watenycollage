@@ -353,13 +353,12 @@ export function ReviewModal({
               emergencyRelationship: getDataValue('emergencyRelationship'),
               emergencyAddress: getDataValue('emergencyAddress')
             })}
-            {/* Education */}
+    
             {renderSection('English Language Test', {
               ...(getDataValue('englishQualification') && {
-                englishTestType: getDataValue(
-                  'englishQualification',
-                  'englishTestType'
-                ),
+                englishTestType: (
+                  getDataValue('englishQualification', 'englishTestType') || ''
+                ).toUpperCase(),
                 englishTestScore: getDataValue(
                   'englishQualification',
                   'englishTestScore'
@@ -391,9 +390,9 @@ export function ReviewModal({
               ))}
             {/* Employment */}
             {renderSection('Employment', {
-              isEmployed: getDataValue('isEmployed'),
+              CurrentEmployment: getDataValue('isEmployed'),
 
-              employer: getDataValue('currentEmployment', 'employer'),
+              employerName: getDataValue('currentEmployment', 'employer'),
               jobTitle: getDataValue('currentEmployment', 'jobTitle'),
               startDate: getDataValue('currentEmployment', 'startDate'),
 
@@ -424,20 +423,24 @@ export function ReviewModal({
                 )
               )}
             {/* Compliance */}
-            {renderSection('Miscellienious', {
-              visaRequired: getDataValue('visaRequired'),
-              enteredUKBefore: getDataValue('enteredUKBefore'),
-              completedUKCourse: getDataValue('completedUKCourse'),
-              hearAboutUs: getDataValue('hearAboutUs'),
-              visaRefusal: getDataValue('visaRefusal'),
-              ...(getDataValue('visaRefusal') && {
-                visaRefusalDetail: getDataValue('visaRefusalDetail')
-              }),
-              disability: getDataValue('disability'),
-              ...(getDataValue('disability') && {
-                disabilityDetails: getDataValue('disabilityDetails')
-              })
-            })}
+            {(() => {
+              const visaRefusal = getDataValue('visaRefusal') === 'yes';
+              const disability = getDataValue('disability') === 'yes';
+              return renderSection('Miscellienious', {
+                visaRequired: getDataValue('visaRequired'),
+                enteredUKBefore: getDataValue('enteredUKBefore'),
+                completedUKCourse: getDataValue('completedUKCourse'),
+                hearAboutUs: getDataValue('hearAboutUs'),
+                visaRefusal: getDataValue('visaRefusal'),
+                ...(visaRefusal && {
+                  visaRefusalDetail: getDataValue('visaRefusalDetail')
+                }),
+                disability: getDataValue('disability'),
+                ...(disability && {
+                  disabilityDetails: getDataValue('disabilityDetails')
+                })
+              });
+            })()}
             {renderSection('Funding Information', {
               fundingType: getDataValue('fundingType'),
               ...(getDataValue('fundingType') === 'Bursary/Grant' && {

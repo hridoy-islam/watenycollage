@@ -504,11 +504,7 @@ export default function ViewStudentApplicationPage() {
 
                     {application?.studentType === 'international' && (
                       <>
-                        {renderFieldRow(
-                          'Do you require a visa to come to the UK?',
-                          application?.requireVisa,
-                          'requireVisa'
-                        )}
+                     
                         {renderFieldRow(
                           'From where are you making your application?',
                           application?.applicationLocation,

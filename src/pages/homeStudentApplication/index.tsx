@@ -41,8 +41,9 @@ export default function HomeStudentApplication() {
   const [parsedResume, setParsedResume] = useState<string | null>(null);
   const dispatch = useDispatch<AppDispatch>();
   let stepContent;
- const [loading, setLoading] = useState<boolean>(true);
-const location = useLocation()
+  const [loading, setLoading] = useState<boolean>(true);
+  const location = useLocation();
+  const [courseSubmitted, setCourseSubmitted] = useState(false);
 
   useEffect(() => {
     if (location.state?.parsedResume) {
@@ -121,7 +122,6 @@ const location = useLocation()
     residentialCountry: country
   };
 
-  
   const savedStudentType = localStorage.getItem('studentType');
   const savedCourseId = localStorage.getItem('courseId');
   const savedTermId = localStorage.getItem('termId');
@@ -130,20 +130,19 @@ const location = useLocation()
     setFormData((prev) => ({
       ...prev,
 
-      studentType: savedStudentType ,
-      
+      studentType: savedStudentType
     }));
   }, [savedCourseId, savedStudentType, savedTermId]);
 
   const fetchedData = async () => {
     try {
-      setLoading(true)
+      setLoading(true);
       const response = await axiosInstance.get(`/users/${user._id}`);
       const userData = response.data.data;
       setFetchData((prev) => ({
         ...prev,
         ...userData,
-        studentType: userData.studentType || savedStudentType,
+        studentType: userData.studentType || savedStudentType
       }));
       setFormData((prev) => ({
         ...prev,
@@ -156,8 +155,8 @@ const location = useLocation()
       }));
     } catch (error) {
       console.error('Error fetching data:', error);
-    }finally{
-      setLoading(false)
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -176,10 +175,9 @@ const location = useLocation()
       //   description: `Redirecting to step ${firstIncompleteStep} to complete required information.`
       // });
 
-      setCurrentStep(firstIncompleteStep );
+      setCurrentStep(firstIncompleteStep);
     }
   }, [fetchData]);
-
 
   const handleStepClick = (stepId: number) => {
     setCurrentStep(stepId);
@@ -272,9 +270,7 @@ const location = useLocation()
       console.error('Failed to update documents:', error);
     }
   };
-  const handleFundingInformationSaveAndContinue = async (
-    data: any
-  ) => {
+  const handleFundingInformationSaveAndContinue = async (data: any) => {
     try {
       setFormData((prev) => ({ ...prev, ...data }));
       await axiosInstance.patch(`/users/${user._id}`, data);
@@ -288,7 +284,7 @@ const location = useLocation()
   const handleDocumentSave = async (data: any) => {
     try {
       setFormData((prev) => ({ ...prev, ...data }));
-      await axiosInstance.patch(`/users/${user._id}`, data);     
+      await axiosInstance.patch(`/users/${user._id}`, data);
     } catch (error: any) {
       toast({
         title: error?.response?.data?.message || 'Something went wrong.',
@@ -353,7 +349,6 @@ const location = useLocation()
     setReviewModalOpen(true);
   };
 
-
   const submitApplicationCourse = async () => {
     if (savedCourseId && savedTermId && user?._id) {
       try {
@@ -365,6 +360,8 @@ const location = useLocation()
 
         localStorage.removeItem('termId');
         localStorage.removeItem('courseId');
+                setCourseSubmitted(true);
+
       } catch (err: any) {
         console.error('Error submitting application course:', err);
         toast({
@@ -380,8 +377,6 @@ const location = useLocation()
   useEffect(() => {
     submitApplicationCourse();
   }, []);
-
-
 
   const handleSubmit = async () => {
     // const requiredSteps = [1, 2, 3, 4, 5, 6, 7];
@@ -408,11 +403,8 @@ const location = useLocation()
     //   return;
     // }
 
-
-    
-    
     try {
-       dispatch(
+      dispatch(
         updateUserProfile({
           userId: user._id,
           profileData: {
@@ -424,12 +416,9 @@ const location = useLocation()
       );
 
       dispatch(updateAuthIsCompleted(true));
-      
 
-      
-    
       localStorage.removeItem('studentType');
-     
+
       toast({
         description: 'Applicaiton saved successfully.'
       });
@@ -442,7 +431,6 @@ const location = useLocation()
 
     setFormSubmitted(true);
   };
-
 
   const renderStep = () => {
     // Normalize currentStep value to handle both number and { step, subStep }
@@ -467,8 +455,7 @@ const location = useLocation()
           <AddressStep
             defaultValues={{
               ...fetchData,
-              ...formData,
-          
+              ...formData
             }}
             onSaveAndContinue={handleAddressSaveAndContinue}
             setCurrentStep={setCurrentStep}
@@ -489,8 +476,7 @@ const location = useLocation()
           <EducationStep
             defaultValues={{
               ...fetchData,
-              ...formData,
-             
+              ...formData
             }}
             onSaveAndContinue={handleEducationSaveAndContinue}
             setCurrentStep={setCurrentStep}
@@ -522,7 +508,7 @@ const location = useLocation()
             defaultValues={{ ...fetchData, ...formData }}
             onSaveAndContinue={handleDocumentsSaveAndContinue}
             setCurrentStep={setCurrentStep}
-             onSave={handleDocumentSave}
+            onSave={handleDocumentSave}
           />
         );
       case 8:
@@ -584,33 +570,26 @@ const location = useLocation()
     }
   };
 
- if (formSubmitted) {
-  const courseId = localStorage.getItem('courseId');
-  const intakeId = localStorage.getItem('termId');
+    if (formSubmitted) {
+    const isCourseSubmission = courseSubmitted;
 
-  const isCourseSubmission = courseId && intakeId;
-
- return (
-    <div className="flex items-center justify-center px-4">
-      <Card className="rounded-lg border bg-watney/90 p-24 shadow-lg">
-        <div className="flex flex-col items-center gap-6 text-center">
-          {/* Submission Icon */}
-          <div className="rounded-full bg-white p-8">
-            <Check size={84} className="text-watney" />
-          </div>
-
-          {/* Title & Description */}
-          <div className="flex items-center gap-4 text-center">
+    return (
+      <div className="flex items-center justify-center px-4">
+        <Card className="rounded-lg border bg-watney/90 p-24 shadow-lg">
+          <div className="flex flex-col items-center gap-6 text-center">
+            <div className="rounded-full bg-white p-8">
+              <Check size={84} className="text-watney" />
+            </div>
             <div>
               <CardTitle className="text-2xl font-semibold text-white">
                 {isCourseSubmission
                   ? 'Application Submitted Successfully'
-                  : 'Profile Data Submitted Successfully'}
+                  : 'Great job! You’ve completed your profile. You can now apply to any course instantly.'}
               </CardTitle>
-
               <CardDescription className="mt-2 text-base leading-relaxed text-white">
-                Thank you for your submission. {isCourseSubmission ? (
-                  <div className="w-full rounded-md mt-2 text-left text-base text-white">
+                Thank you for your submission.
+                {isCourseSubmission ? (
+                  <div className="mt-2 w-full rounded-md text-left text-base text-white">
                     <p>
                       If you have any questions or need help with your
                       application, please don’t hesitate to contact us:
@@ -630,7 +609,8 @@ const location = useLocation()
                       </li>
                     </ul>
                   </div>
-                ):<div className="w-full rounded-md mt-2 text-left text-base text-white">
+                ) : (
+                  <div className="mt-2 w-full rounded-md text-left text-base text-white">
                     <ul className="mt-3 list-none space-y-2">
                       <li>
                         📧 <strong>Email:</strong>{' '}
@@ -645,26 +625,22 @@ const location = useLocation()
                         ☎ <strong>Phone:</strong> +44 (0)20 1234 5678
                       </li>
                     </ul>
-                  </div> }
-                
+                  </div>
+                )}
               </CardDescription>
             </div>
+            <Button
+              onClick={handleDashboardRedirect}
+              className="mt-4 w-full rounded-sm bg-white px-12 py-3 text-lg font-semibold text-watney transition hover:bg-white sm:w-auto"
+            >
+              Done
+            </Button>
           </div>
+        </Card>
+      </div>
+    );
+  }
 
-          {/* Done Button */}
-          <Button
-            onClick={handleDashboardRedirect}
-            className="*: mt-4 w-full rounded-sm bg-white px-12 py-3 text-lg font-semibold text-watney transition hover:bg-white sm:w-auto"
-          >
-            Done
-          </Button>
-        </div>
-      </Card>
-    </div>
-  );
-}
-
-  
 
   return (
     <div className=" w-full ">

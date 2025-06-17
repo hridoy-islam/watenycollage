@@ -95,7 +95,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
     navigate(`/dashboard/course-application/${courseId}`);
   };
 
-  return (
+ return (
   <div className="flex-1 space-y-4">
     <Card>
       <CardHeader>
@@ -104,52 +104,49 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
       </CardHeader>
       <CardContent>
         {loading ? (
-         
           <div className="flex justify-center py-6">
-           <Loader/>
+            <Loader />
           </div>
         ) : allCourses.length > 0 ? (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Course Title</TableHead>
-                <TableHead className="text-right">Action</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {allCourses.map((course) => (
-                <TableRow key={course._id}>
-                  <TableCell className="font-medium">{course.name}</TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      size="sm"
-                      className="bg-watney text-white hover:bg-watney/90"
-                      onClick={() => handleApply(course._id)}
-                    >
-                      Take This Course
-                    </Button>
-                  </TableCell>
+          <>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Course Title</TableHead>
+                  <TableHead className="text-right">Action</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        ) : (
-          <TableRow>
-            <TableCell colSpan={2} className="text-center">
-              No available courses at the moment.
-            </TableCell>
-          </TableRow>
-        )}
+              </TableHeader>
+              <TableBody>
+                {allCourses.map((course) => (
+                  <TableRow key={course._id}>
+                    <TableCell className="font-medium">{course.name}</TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        size="sm"
+                        className="bg-watney text-white hover:bg-watney/90"
+                        onClick={() => handleApply(course._id)}
+                      >
+                        Take This Course
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
 
-        {/* Pagination */}
-        {!loading && (
-          <DataTablePagination
-            pageSize={entriesPerPage}
-            setPageSize={setEntriesPerPage}
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-          />
+            {/* Pagination only shown if there are courses */}
+            <DataTablePagination
+              pageSize={entriesPerPage}
+              setPageSize={setEntriesPerPage}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          </>
+        ) : (
+          <div className="text-center py-6">
+            No more courses available to apply. Please check again later.
+          </div>
         )}
       </CardContent>
     </Card>

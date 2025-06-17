@@ -102,8 +102,14 @@ export function TermsSubmitStep({
                   recognition process.
                 </p>
                 <p className="mb-2 text-sm">
-                  If you have any queries please contact us on
-                  support@example.co.uk or telephone +44(0)1234567890.
+                  If you have any queries please contact us on{' '}
+                  <a
+                    href="mailto:admission@watneycollege.co.uk"
+                    className="text-blue-600 underline"
+                  >
+                    admission@watneycollege.co.uk
+                  </a>{' '}
+                  or telephone +44 (0)208 004 6463.
                 </p>
 
                 <Separator className="my-4" />
@@ -186,8 +192,19 @@ export function TermsSubmitStep({
                     </FormControl>
                     <div className="space-y-1 leading-none">
                       <label className="cursor-pointer text-sm font-medium">
-                        I consent to the processing of my data as outlined
-                        above.
+                        I consent to Watney College processing my personal data
+                        for purposes related to my application, studies, health
+                        and safety, and compliance with College policies. This
+                        includes academic performance, learning support,
+                        disciplinary matters, CCTV usage, ID card photos, and
+                        data required by the Higher Education Statistics Agency
+                        (HESA) or other legitimate purposes. I consent to the
+                        disclosure of this data for academic references, further
+                        education, employment, council tax, or immigration
+                        matters, including verification with the UK Border
+                        Agency. I understand I can request a copy of my data and
+                        that details on HESA are available on the College’s
+                        intranet
                       </label>
                       <FormMessage />
                     </div>
@@ -217,9 +234,9 @@ export function TermsSubmitStep({
             </Button>
             <Button
               type="submit"
-              disabled={  !hasScrolledToBottom}
+              disabled={!hasScrolledToBottom}
               className={`${
-                 hasScrolledToBottom
+                hasScrolledToBottom
                   ? 'bg-green-600 hover:bg-green-700'
                   : 'cursor-not-allowed bg-green-600/50'
               } text-white`}
