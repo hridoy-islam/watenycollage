@@ -132,12 +132,17 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
   // Ensure formData is not undefined
   const data = formData || {};
   const totalPages = data.studentType === 'eu' ? 2 : 3;
-const PDFooter = ({ pageNumber, totalPages }: { pageNumber: number; totalPages: number }) => (
-  <Text style={styles.footer}>
-    Application Form Page {pageNumber} of {totalPages} - {getTodaysDate()}
-  </Text>
-);
-
+  const PDFooter = ({
+    pageNumber,
+    totalPages
+  }: {
+    pageNumber: number;
+    totalPages: number;
+  }) => (
+    <Text style={styles.footer}>
+      Application Form Page {pageNumber} of {totalPages} - {getTodaysDate()}
+    </Text>
+  );
 
   return (
     <Document>
@@ -547,249 +552,260 @@ const PDFooter = ({ pageNumber, totalPages }: { pageNumber: number; totalPages: 
             </View>
           </>
         )}
-        {data.studentType==='eu' &&<>
-        {/* Section D */}
-        <Text style={styles.sectionHeader}>
-          SECTION D: EMPLOYMENT INFORMATION (IF APPLICABLE)
-        </Text>
-        <View style={styles.table}>
-          <View style={styles.tableRow}>
-            <View style={[styles.tableColHeader, { width: '25%' }]}>
-              <Text>Nature of work/training</Text>
-            </View>
-            <View style={[styles.tableColHeader, { width: '25%' }]}>
-              <Text>Name of organisation</Text>
-            </View>
-            <View style={[styles.tableColHeader, { width: '15%' }]}>
-              <Text>Full-time or Part-time</Text>
-            </View>
-            <View style={[styles.tableColHeader, { width: '15%' }]}>
-              <Text>From (dd/mm/yyyy)</Text>
-            </View>
-            <View style={[styles.tableColHeader, { width: '20%' }]}>
-              <Text>To (dd/mm/yyyy)</Text>
-            </View>
-          </View>
-
-          {/* Employment Rows */}
-          {data.currentEmployment ||
-          (Array.isArray(data.previousEmployments) &&
-            data.previousEmployments.length > 0) ? (
-            <>
-              {/* Current Employment */}
-              {data.currentEmployment && (
-                <View style={styles.tableRow}>
-                  <View style={[styles.tableCol, { width: '25%' }]}>
-                    <Text>
-                      {capitalizeFirstLetter(
-                        safeGet(data.currentEmployment, 'jobTitle')
-                      )}
-                    </Text>
-                  </View>
-                  <View style={[styles.tableCol, { width: '25%' }]}>
-                    <Text>
-                      {capitalizeFirstLetter(
-                        safeGet(data.currentEmployment, 'employer')
-                      )}
-                    </Text>
-                  </View>
-                  <View style={[styles.tableCol, { width: '15%' }]}>
-                    <Text>
-                      {capitalizeFirstLetter(
-                        safeGet(data.currentEmployment, 'employmentType')
-                      )}
-                    </Text>
-                  </View>
-                  <View style={[styles.tableCol, { width: '15%' }]}>
-                    <Text>
-                      {formatDate(safeGet(data.currentEmployment, 'startDate'))}
-                    </Text>
-                  </View>
-                  <View style={[styles.tableCol, { width: '20%' }]}>
-                    <Text>Present</Text>
-                  </View>
+        {data.studentType === 'eu' && (
+          <>
+            {/* Section D */}
+            <Text style={styles.sectionHeader}>
+              SECTION D: EMPLOYMENT INFORMATION (IF APPLICABLE)
+            </Text>
+            <View style={styles.table}>
+              <View style={styles.tableRow}>
+                <View style={[styles.tableColHeader, { width: '25%' }]}>
+                  <Text>Nature of work/training</Text>
                 </View>
-              )}
-
-              {/* Previous Employments */}
-              {Array.isArray(data.previousEmployments) &&
-                data.previousEmployments.map((job: any, index: number) => (
-                  <View key={`prev-job-${index}`} style={styles.tableRow}>
-                    <View style={[styles.tableCol, { width: '25%' }]}>
-                      <Text>
-                        {capitalizeFirstLetter(safeGet(job, 'jobTitle'))}
-                      </Text>
-                    </View>
-                    <View style={[styles.tableCol, { width: '25%' }]}>
-                      <Text>
-                        {capitalizeFirstLetter(safeGet(job, 'employer'))}
-                      </Text>
-                    </View>
-                    <View style={[styles.tableCol, { width: '15%' }]}>
-                      <Text>
-                        {capitalizeFirstLetter(safeGet(job, 'employmentType'))}
-                      </Text>
-                    </View>
-                    <View style={[styles.tableCol, { width: '15%' }]}>
-                      <Text>{formatDate(safeGet(job, 'startDate'))}</Text>
-                    </View>
-                    <View style={[styles.tableCol, { width: '20%' }]}>
-                      <Text>{formatDate(safeGet(job, 'endDate'))}</Text>
-                    </View>
-                  </View>
-                ))}
-            </>
-          ) : (
-            Array.from({ length: 2 }).map((_, idx) => (
-              <View key={`empty-row-${idx}`} style={styles.tableRow}>
-                <View style={[styles.tableCol, { width: '25%' }]}>
-                  <Text>&nbsp;</Text>
+                <View style={[styles.tableColHeader, { width: '25%' }]}>
+                  <Text>Name of organisation</Text>
                 </View>
-                <View style={[styles.tableCol, { width: '25%' }]}>
-                  <Text>&nbsp;</Text>
+                <View style={[styles.tableColHeader, { width: '15%' }]}>
+                  <Text>Full-time or Part-time</Text>
                 </View>
-                <View style={[styles.tableCol, { width: '15%' }]}>
-                  <Text>&nbsp;</Text>
+                <View style={[styles.tableColHeader, { width: '15%' }]}>
+                  <Text>From (dd/mm/yyyy)</Text>
                 </View>
-                <View style={[styles.tableCol, { width: '15%' }]}>
-                  <Text>&nbsp;</Text>
-                </View>
-                <View style={[styles.tableCol, { width: '20%' }]}>
-                  <Text>&nbsp;</Text>
+                <View style={[styles.tableColHeader, { width: '20%' }]}>
+                  <Text>To (dd/mm/yyyy)</Text>
                 </View>
               </View>
-            ))
-          )}
-        </View>
-        </>}
-        
+
+              {/* Employment Rows */}
+              {data.currentEmployment ||
+              (Array.isArray(data.previousEmployments) &&
+                data.previousEmployments.length > 0) ? (
+                <>
+                  {/* Current Employment */}
+                  {data.currentEmployment && (
+                    <View style={styles.tableRow}>
+                      <View style={[styles.tableCol, { width: '25%' }]}>
+                        <Text>
+                          {capitalizeFirstLetter(
+                            safeGet(data.currentEmployment, 'jobTitle')
+                          )}
+                        </Text>
+                      </View>
+                      <View style={[styles.tableCol, { width: '25%' }]}>
+                        <Text>
+                          {capitalizeFirstLetter(
+                            safeGet(data.currentEmployment, 'employer')
+                          )}
+                        </Text>
+                      </View>
+                      <View style={[styles.tableCol, { width: '15%' }]}>
+                        <Text>
+                          {capitalizeFirstLetter(
+                            safeGet(data.currentEmployment, 'employmentType')
+                          )}
+                        </Text>
+                      </View>
+                      <View style={[styles.tableCol, { width: '15%' }]}>
+                        <Text>
+                          {formatDate(
+                            safeGet(data.currentEmployment, 'startDate')
+                          )}
+                        </Text>
+                      </View>
+                      <View style={[styles.tableCol, { width: '20%' }]}>
+                        <Text>Present</Text>
+                      </View>
+                    </View>
+                  )}
+
+                  {/* Previous Employments */}
+                  {Array.isArray(data.previousEmployments) &&
+                    data.previousEmployments.map((job: any, index: number) => (
+                      <View key={`prev-job-${index}`} style={styles.tableRow}>
+                        <View style={[styles.tableCol, { width: '25%' }]}>
+                          <Text>
+                            {capitalizeFirstLetter(safeGet(job, 'jobTitle'))}
+                          </Text>
+                        </View>
+                        <View style={[styles.tableCol, { width: '25%' }]}>
+                          <Text>
+                            {capitalizeFirstLetter(safeGet(job, 'employer'))}
+                          </Text>
+                        </View>
+                        <View style={[styles.tableCol, { width: '15%' }]}>
+                          <Text>
+                            {capitalizeFirstLetter(
+                              safeGet(job, 'employmentType')
+                            )}
+                          </Text>
+                        </View>
+                        <View style={[styles.tableCol, { width: '15%' }]}>
+                          <Text>{formatDate(safeGet(job, 'startDate'))}</Text>
+                        </View>
+                        <View style={[styles.tableCol, { width: '20%' }]}>
+                          <Text>{formatDate(safeGet(job, 'endDate'))}</Text>
+                        </View>
+                      </View>
+                    ))}
+                </>
+              ) : (
+                Array.from({ length: 2 }).map((_, idx) => (
+                  <View key={`empty-row-${idx}`} style={styles.tableRow}>
+                    <View style={[styles.tableCol, { width: '25%' }]}>
+                      <Text>&nbsp;</Text>
+                    </View>
+                    <View style={[styles.tableCol, { width: '25%' }]}>
+                      <Text>&nbsp;</Text>
+                    </View>
+                    <View style={[styles.tableCol, { width: '15%' }]}>
+                      <Text>&nbsp;</Text>
+                    </View>
+                    <View style={[styles.tableCol, { width: '15%' }]}>
+                      <Text>&nbsp;</Text>
+                    </View>
+                    <View style={[styles.tableCol, { width: '20%' }]}>
+                      <Text>&nbsp;</Text>
+                    </View>
+                  </View>
+                ))
+              )}
+            </View>
+          </>
+        )}
 
         <Text style={styles.footer}>
-  Application Form Page{' '}
-  <PDFooter pageNumber={1} totalPages={totalPages} /> - {getTodaysDate()}
-</Text>
+          Application Form Page{' '}
+          <PDFooter pageNumber={1} totalPages={totalPages} /> -{' '}
+          {getTodaysDate()}
+        </Text>
       </Page>
 
       {/* Page 2 */}
       <Page size="A4" style={styles.page}>
         {/* <Text style={styles.header}>WATNEY COLLEGE</Text> */}
-{data.studentType==='international' &&<>
-        {/* Section D */}
-        <Text style={styles.sectionHeader}>
-          SECTION D: EMPLOYMENT INFORMATION (IF APPLICABLE)
-        </Text>
-        <View style={styles.table}>
-          <View style={styles.tableRow}>
-            <View style={[styles.tableColHeader, { width: '25%' }]}>
-              <Text>Nature of work/training</Text>
-            </View>
-            <View style={[styles.tableColHeader, { width: '25%' }]}>
-              <Text>Name of organisation</Text>
-            </View>
-            <View style={[styles.tableColHeader, { width: '15%' }]}>
-              <Text>Full-time or Part-time</Text>
-            </View>
-            <View style={[styles.tableColHeader, { width: '15%' }]}>
-              <Text>From (dd/mm/yyyy)</Text>
-            </View>
-            <View style={[styles.tableColHeader, { width: '20%' }]}>
-              <Text>To (dd/mm/yyyy)</Text>
-            </View>
-          </View>
-
-          {/* Employment Rows */}
-          {data.currentEmployment ||
-          (Array.isArray(data.previousEmployments) &&
-            data.previousEmployments.length > 0) ? (
-            <>
-              {/* Current Employment */}
-              {data.currentEmployment && (
-                <View style={styles.tableRow}>
-                  <View style={[styles.tableCol, { width: '25%' }]}>
-                    <Text>
-                      {capitalizeFirstLetter(
-                        safeGet(data.currentEmployment, 'jobTitle')
-                      )}
-                    </Text>
-                  </View>
-                  <View style={[styles.tableCol, { width: '25%' }]}>
-                    <Text>
-                      {capitalizeFirstLetter(
-                        safeGet(data.currentEmployment, 'employer')
-                      )}
-                    </Text>
-                  </View>
-                  <View style={[styles.tableCol, { width: '15%' }]}>
-                    <Text>
-                      {capitalizeFirstLetter(
-                        safeGet(data.currentEmployment, 'employmentType')
-                      )}
-                    </Text>
-                  </View>
-                  <View style={[styles.tableCol, { width: '15%' }]}>
-                    <Text>
-                      {formatDate(safeGet(data.currentEmployment, 'startDate'))}
-                    </Text>
-                  </View>
-                  <View style={[styles.tableCol, { width: '20%' }]}>
-                    <Text>Present</Text>
-                  </View>
+        {data.studentType === 'international' && (
+          <>
+            {/* Section D */}
+            <Text style={styles.sectionHeader}>
+              SECTION D: EMPLOYMENT INFORMATION (IF APPLICABLE)
+            </Text>
+            <View style={styles.table}>
+              <View style={styles.tableRow}>
+                <View style={[styles.tableColHeader, { width: '25%' }]}>
+                  <Text>Nature of work/training</Text>
                 </View>
-              )}
-
-              {/* Previous Employments */}
-              {Array.isArray(data.previousEmployments) &&
-                data.previousEmployments.map((job: any, index: number) => (
-                  <View key={`prev-job-${index}`} style={styles.tableRow}>
-                    <View style={[styles.tableCol, { width: '25%' }]}>
-                      <Text>
-                        {capitalizeFirstLetter(safeGet(job, 'jobTitle'))}
-                      </Text>
-                    </View>
-                    <View style={[styles.tableCol, { width: '25%' }]}>
-                      <Text>
-                        {capitalizeFirstLetter(safeGet(job, 'employer'))}
-                      </Text>
-                    </View>
-                    <View style={[styles.tableCol, { width: '15%' }]}>
-                      <Text>
-                        {capitalizeFirstLetter(safeGet(job, 'employmentType'))}
-                      </Text>
-                    </View>
-                    <View style={[styles.tableCol, { width: '15%' }]}>
-                      <Text>{formatDate(safeGet(job, 'startDate'))}</Text>
-                    </View>
-                    <View style={[styles.tableCol, { width: '20%' }]}>
-                      <Text>{formatDate(safeGet(job, 'endDate'))}</Text>
-                    </View>
-                  </View>
-                ))}
-            </>
-          ) : (
-            Array.from({ length: 2 }).map((_, idx) => (
-              <View key={`empty-row-${idx}`} style={styles.tableRow}>
-                <View style={[styles.tableCol, { width: '25%' }]}>
-                  <Text>&nbsp;</Text>
+                <View style={[styles.tableColHeader, { width: '25%' }]}>
+                  <Text>Name of organisation</Text>
                 </View>
-                <View style={[styles.tableCol, { width: '25%' }]}>
-                  <Text>&nbsp;</Text>
+                <View style={[styles.tableColHeader, { width: '15%' }]}>
+                  <Text>Full-time or Part-time</Text>
                 </View>
-                <View style={[styles.tableCol, { width: '15%' }]}>
-                  <Text>&nbsp;</Text>
+                <View style={[styles.tableColHeader, { width: '15%' }]}>
+                  <Text>From (dd/mm/yyyy)</Text>
                 </View>
-                <View style={[styles.tableCol, { width: '15%' }]}>
-                  <Text>&nbsp;</Text>
-                </View>
-                <View style={[styles.tableCol, { width: '20%' }]}>
-                  <Text>&nbsp;</Text>
+                <View style={[styles.tableColHeader, { width: '20%' }]}>
+                  <Text>To (dd/mm/yyyy)</Text>
                 </View>
               </View>
-            ))
-          )}
-        </View>
-        </>}
-        
-        
+
+              {/* Employment Rows */}
+              {data.currentEmployment ||
+              (Array.isArray(data.previousEmployments) &&
+                data.previousEmployments.length > 0) ? (
+                <>
+                  {/* Current Employment */}
+                  {data.currentEmployment && (
+                    <View style={styles.tableRow}>
+                      <View style={[styles.tableCol, { width: '25%' }]}>
+                        <Text>
+                          {capitalizeFirstLetter(
+                            safeGet(data.currentEmployment, 'jobTitle')
+                          )}
+                        </Text>
+                      </View>
+                      <View style={[styles.tableCol, { width: '25%' }]}>
+                        <Text>
+                          {capitalizeFirstLetter(
+                            safeGet(data.currentEmployment, 'employer')
+                          )}
+                        </Text>
+                      </View>
+                      <View style={[styles.tableCol, { width: '15%' }]}>
+                        <Text>
+                          {capitalizeFirstLetter(
+                            safeGet(data.currentEmployment, 'employmentType')
+                          )}
+                        </Text>
+                      </View>
+                      <View style={[styles.tableCol, { width: '15%' }]}>
+                        <Text>
+                          {formatDate(
+                            safeGet(data.currentEmployment, 'startDate')
+                          )}
+                        </Text>
+                      </View>
+                      <View style={[styles.tableCol, { width: '20%' }]}>
+                        <Text>Present</Text>
+                      </View>
+                    </View>
+                  )}
+
+                  {/* Previous Employments */}
+                  {Array.isArray(data.previousEmployments) &&
+                    data.previousEmployments.map((job: any, index: number) => (
+                      <View key={`prev-job-${index}`} style={styles.tableRow}>
+                        <View style={[styles.tableCol, { width: '25%' }]}>
+                          <Text>
+                            {capitalizeFirstLetter(safeGet(job, 'jobTitle'))}
+                          </Text>
+                        </View>
+                        <View style={[styles.tableCol, { width: '25%' }]}>
+                          <Text>
+                            {capitalizeFirstLetter(safeGet(job, 'employer'))}
+                          </Text>
+                        </View>
+                        <View style={[styles.tableCol, { width: '15%' }]}>
+                          <Text>
+                            {capitalizeFirstLetter(
+                              safeGet(job, 'employmentType')
+                            )}
+                          </Text>
+                        </View>
+                        <View style={[styles.tableCol, { width: '15%' }]}>
+                          <Text>{formatDate(safeGet(job, 'startDate'))}</Text>
+                        </View>
+                        <View style={[styles.tableCol, { width: '20%' }]}>
+                          <Text>{formatDate(safeGet(job, 'endDate'))}</Text>
+                        </View>
+                      </View>
+                    ))}
+                </>
+              ) : (
+                Array.from({ length: 2 }).map((_, idx) => (
+                  <View key={`empty-row-${idx}`} style={styles.tableRow}>
+                    <View style={[styles.tableCol, { width: '25%' }]}>
+                      <Text>&nbsp;</Text>
+                    </View>
+                    <View style={[styles.tableCol, { width: '25%' }]}>
+                      <Text>&nbsp;</Text>
+                    </View>
+                    <View style={[styles.tableCol, { width: '15%' }]}>
+                      <Text>&nbsp;</Text>
+                    </View>
+                    <View style={[styles.tableCol, { width: '15%' }]}>
+                      <Text>&nbsp;</Text>
+                    </View>
+                    <View style={[styles.tableCol, { width: '20%' }]}>
+                      <Text>&nbsp;</Text>
+                    </View>
+                  </View>
+                ))
+              )}
+            </View>
+          </>
+        )}
+
         {/* Section E */}
         <Text style={styles.sectionHeader}>SECTION E: EMERGENCY CONTACT</Text>
         <View style={[styles.table, { marginBottom: 15 }]}>
@@ -932,130 +948,137 @@ const PDFooter = ({ pageNumber, totalPages }: { pageNumber: number; totalPages: 
             </Text>
           </Text>
         </View>
-        {data.studentType === 'eu' && <>
-        <Text style={styles.sectionHeader}>SECTION J: DATA PROTECTION</Text>
-        <View style={{ marginBottom: 0 }}>
-          <Text>
-            I consent to Watney College processing my personal data for purposes
-            related to my application, studies, health and safety, and
-            compliance with College policies. This includes academic
-            performance, learning support, disciplinary matters, CCTV usage, ID
-            card photos, and data required by the Higher Education Statistics
-            Agency (HESA) or other legitimate purposes. I consent to the
-            disclosure of this data for academic references, further education,
-            employment, council tax, or immigration matters, including
-            verification with the UK Border Agency. I understand I can request a
-            copy of my data and that details on HESA are available on the
-            College’s intranet:{' '}
-            <Text style={{ fontWeight: 'bold' }}>
-              {data.acceptDataProcessing ? 'Yes' : 'No'}
-            </Text>
-          </Text>
-        </View>
+        {data.studentType === 'eu' && (
+          <>
+            <Text style={styles.sectionHeader}>SECTION J: DATA PROTECTION</Text>
+            <View style={{ marginBottom: 0 }}>
+              <Text>
+                I consent to Watney College processing my personal data for
+                purposes related to my application, studies, health and safety,
+                and compliance with College policies. This includes academic
+                performance, learning support, disciplinary matters, CCTV usage,
+                ID card photos, and data required by the Higher Education
+                Statistics Agency (HESA) or other legitimate purposes. I consent
+                to the disclosure of this data for academic references, further
+                education, employment, council tax, or immigration matters,
+                including verification with the UK Border Agency. I understand I
+                can request a copy of my data and that details on HESA are
+                available on the College’s intranet:{' '}
+                <Text style={{ fontWeight: 'bold' }}>
+                  {data.acceptDataProcessing ? 'Yes' : 'No'}
+                </Text>
+              </Text>
+            </View>
 
-        {/* Signature */}
-        {/* Signature Table */}
-        <View style={[styles.table, { marginTop: 10, marginBottom: 20 }]}>
-          <View style={styles.tableRow}>
-            <View style={[styles.tableColHeader, { width: '70%' }]}>
-              <Text>Signature</Text>
+            {/* Signature */}
+            {/* Signature Table */}
+            <View style={[styles.table, { marginTop: 10, marginBottom: 20 }]}>
+              <View style={styles.tableRow}>
+                <View style={[styles.tableColHeader, { width: '70%' }]}>
+                  <Text>Signature</Text>
+                </View>
+                <View style={[styles.tableColHeader, { width: '30%' }]}>
+                  <Text>Date (dd/mm/yy)</Text>
+                </View>
+              </View>
+              <View style={[styles.tableRow, { minHeight: 25 }]}>
+                <View style={[styles.tableCol, { width: '70%' }]}>
+                  <Text>&nbsp;</Text>
+                </View>
+                <View style={[styles.tableCol, { width: '30%' }]}>
+                  <Text>&nbsp;</Text>
+                </View>
+              </View>
             </View>
-            <View style={[styles.tableColHeader, { width: '30%' }]}>
-              <Text>Date (dd/mm/yy)</Text>
-            </View>
-          </View>
-          <View style={[styles.tableRow, { minHeight: 25 }]}>
-            <View style={[styles.tableCol, { width: '70%' }]}>
-              <Text>&nbsp;</Text>
-            </View>
-            <View style={[styles.tableCol, { width: '30%' }]}>
-              <Text>&nbsp;</Text>
-            </View>
-          </View>
-        </View>
 
-        {/* Return address */}
-        <View style={styles.addressBlock}>
-          <Text>
-            Thank you for completing this form. Once completed, please return it
-            to the following address
-          </Text>
-          <Text style={{ fontWeight: 'bold', marginTop: 5 }}>
-            Watney College
-          </Text>
-          <Text>80-82 Nelson Street, London, E1 2DY</Text>
-          <Text>Email: admission@watneycollege.co.uk</Text>
-          <Text>Phone: +44 (0)208 004 6463</Text>
-        </View></>}
+            {/* Return address */}
+            <View style={styles.addressBlock}>
+              <Text>
+                Thank you for completing this form. Once completed, please
+                return it to the following address
+              </Text>
+              <Text style={{ fontWeight: 'bold', marginTop: 5 }}>
+                Watney College
+              </Text>
+              <Text>80-82 Nelson Street, London, E1 2DY</Text>
+              <Text>Email: admission@watneycollege.co.uk</Text>
+              <Text>Phone: +44 (0)208 004 6463</Text>
+            </View>
+          </>
+        )}
 
         <Text style={styles.footer}>
-  Application Form Page{' '}
-  <PDFooter pageNumber={1} totalPages={totalPages} /> - {getTodaysDate()}
-</Text>
+          Application Form Page{' '}
+          <PDFooter pageNumber={1} totalPages={totalPages} /> -{' '}
+          {getTodaysDate()}
+        </Text>
       </Page>
 
-      {/* Page 3 */}{data.studentType === 'internation' &&  <Page size="A4" style={styles.page}>
-        <Text style={styles.sectionHeader}>SECTION J: DATA PROTECTION</Text>
-        <View style={{ marginBottom: 10 }}>
-          <Text>
-            I consent to Watney College processing my personal data for purposes
-            related to my application, studies, health and safety, and
-            compliance with College policies. This includes academic
-            performance, learning support, disciplinary matters, CCTV usage, ID
-            card photos, and data required by the Higher Education Statistics
-            Agency (HESA) or other legitimate purposes. I consent to the
-            disclosure of this data for academic references, further education,
-            employment, council tax, or immigration matters, including
-            verification with the UK Border Agency. I understand I can request a
-            copy of my data and that details on HESA are available on the
-            College’s intranet:{' '}
-            <Text style={{ fontWeight: 'bold' }}>
-              {data.acceptDataProcessing ? 'Yes' : 'No'}
+      {/* Page 3 */}
+      {data.studentType === 'international' && (
+        <Page size="A4" style={styles.page}>
+          <Text style={styles.sectionHeader}>SECTION J: DATA PROTECTION</Text>
+          <View style={{ marginBottom: 10 }}>
+            <Text>
+              I consent to Watney College processing my personal data for
+              purposes related to my application, studies, health and safety,
+              and compliance with College policies. This includes academic
+              performance, learning support, disciplinary matters, CCTV usage,
+              ID card photos, and data required by the Higher Education
+              Statistics Agency (HESA) or other legitimate purposes. I consent
+              to the disclosure of this data for academic references, further
+              education, employment, council tax, or immigration matters,
+              including verification with the UK Border Agency. I understand I
+              can request a copy of my data and that details on HESA are
+              available on the College’s intranet:{' '}
+              <Text style={{ fontWeight: 'bold' }}>
+                {data.acceptDataProcessing ? 'Yes' : 'No'}
+              </Text>
             </Text>
-          </Text>
-        </View>
+          </View>
 
-        {/* Signature */}
-        {/* Signature Table */}
-        <View style={[styles.table, { marginTop: 30, marginBottom: 20 }]}>
-          <View style={styles.tableRow}>
-            <View style={[styles.tableColHeader, { width: '70%' }]}>
-              <Text>Signature</Text>
+          {/* Signature */}
+          {/* Signature Table */}
+          <View style={[styles.table, { marginTop: 30, marginBottom: 20 }]}>
+            <View style={styles.tableRow}>
+              <View style={[styles.tableColHeader, { width: '70%' }]}>
+                <Text>Signature</Text>
+              </View>
+              <View style={[styles.tableColHeader, { width: '30%' }]}>
+                <Text>Date (dd/mm/yy)</Text>
+              </View>
             </View>
-            <View style={[styles.tableColHeader, { width: '30%' }]}>
-              <Text>Date (dd/mm/yy)</Text>
+            <View style={[styles.tableRow, { minHeight: 50 }]}>
+              <View style={[styles.tableCol, { width: '70%' }]}>
+                <Text>&nbsp;</Text>
+              </View>
+              <View style={[styles.tableCol, { width: '30%' }]}>
+                <Text>&nbsp;</Text>
+              </View>
             </View>
           </View>
-          <View style={[styles.tableRow, { minHeight: 50 }]}>
-            <View style={[styles.tableCol, { width: '70%' }]}>
-              <Text>&nbsp;</Text>
-            </View>
-            <View style={[styles.tableCol, { width: '30%' }]}>
-              <Text>&nbsp;</Text>
-            </View>
+
+          {/* Return address */}
+          <View style={styles.addressBlock}>
+            <Text>
+              Thank you for completing this form. Once completed, please return
+              it to the following address
+            </Text>
+            <Text style={{ fontWeight: 'bold', marginTop: 5 }}>
+              Watney College
+            </Text>
+            <Text>80-82 Nelson Street, London, E1 2DY</Text>
+            <Text>Email: admission@watneycollege.co.uk</Text>
+            <Text>Phone: +44 (0)208 004 6463</Text>
           </View>
-        </View>
 
-        {/* Return address */}
-        <View style={styles.addressBlock}>
-          <Text>
-            Thank you for completing this form. Once completed, please return it
-            to the following address
+          <Text style={styles.footer}>
+            Application Form Page{' '}
+            <PDFooter pageNumber={1} totalPages={totalPages} /> -{' '}
+            {getTodaysDate()}
           </Text>
-          <Text style={{ fontWeight: 'bold', marginTop: 5 }}>
-            Watney College
-          </Text>
-          <Text>80-82 Nelson Street, London, E1 2DY</Text>
-          <Text>Email: admission@watneycollege.co.uk</Text>
-          <Text>Phone: +44 (0)208 004 6463</Text>
-        </View>
-
-        <Text style={styles.footer}>
-  Application Form Page{' '}
-  <PDFooter pageNumber={1} totalPages={totalPages} /> - {getTodaysDate()}
-</Text>
-      </Page> }
-     
+        </Page>
+      )}
     </Document>
   );
 };

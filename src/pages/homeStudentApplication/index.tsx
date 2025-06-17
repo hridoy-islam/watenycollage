@@ -589,7 +589,7 @@ export default function HomeStudentApplication() {
               <CardDescription className="mt-2 text-base leading-relaxed text-white">
                 Thank you for your submission.
                 {isCourseSubmission ? (
-                  <div className="mt-2 w-full rounded-md text-left text-base text-white">
+                  <div className="mt-2 w-full rounded-md text-center text-base text-white">
                     <p>
                       If you have any questions or need help with your
                       application, please don’t hesitate to contact us:
@@ -610,7 +610,7 @@ export default function HomeStudentApplication() {
                     </ul>
                   </div>
                 ) : (
-                  <div className="mt-2 w-full rounded-md text-left text-base text-white">
+                  <div className="mt-2 w-full rounded-md text-center text-base text-white">
                     <ul className="mt-3 list-none space-y-2">
                       <li>
                         📧 <strong>Email:</strong>{' '}
