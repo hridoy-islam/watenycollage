@@ -29,6 +29,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import moment from 'moment';
 import { useSelector } from 'react-redux';
+import Loader from '@/components/shared/loader';
 
 interface Course {
   _id: string;
@@ -43,9 +44,6 @@ interface Application {
   };
   status: string;
 }
-
-
-
 
 export default function CourseData() {
   const [applications, setApplications] = useState<Application[]>([]);
@@ -64,21 +62,21 @@ export default function CourseData() {
   const fetchData = async (page = 1, limit = 10) => {
     try {
       // Fetch applications
-      const appRes = await axiosInstance.get(`/application-course?studentId=${user._id}`, {
-        params: { page, limit }
-      });
+      const appRes = await axiosInstance.get(
+        `/application-course?studentId=${user._id}`,
+        {
+          params: { page, limit }
+        }
+      );
       const appData = appRes.data?.data || {};
       const applicationsList = Array.isArray(appData.result)
         ? appData.result
         : [];
       setTotalApplication(appData.meta?.total || 0);
 
-     
       const appliedCourseIds = new Set(
         applicationsList.map((app: Application) => app.courseId?._id)
       );
-
-     
 
       setApplications(applicationsList);
     } catch (error) {
@@ -89,9 +87,7 @@ export default function CourseData() {
   };
 
   useEffect(() => {
-    
     fetchData(currentPage, entriesPerPage);
-
   }, [currentPage, entriesPerPage]);
 
   const navigate = useNavigate();
@@ -154,75 +150,83 @@ export default function CourseData() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Course Name</TableHead>
-                <TableHead>Intake</TableHead>
-                <TableHead>Application Date</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Action</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {applications.length > 0 ? (
-                applications.map((application) => (
-                  <TableRow key={application._id}>
-                    <TableCell className="py-4 font-medium">
-                      {application?.courseId?.name || 'Unnamed Course'}
-                    </TableCell>
-                    <TableCell className="py-4">
-                      {application?.intakeId?.termName || 'N/A'}
-                    </TableCell>
-                    <TableCell>
-                      {moment(application?.createAt).format('MM-DD-YYYY')}
-                    </TableCell>
-                    <TableCell className="py-4">
-                      <Badge
-                        className={`text-white ${
-                          application?.status === 'applied'
-                            ? 'bg-blue-500'
-                            : application?.status === 'cancelled'
-                              ? 'bg-red-500'
-                              : application?.status === 'approved'
-                                ? 'bg-green-500'
-                                : 'bg-green-500'
-                        }`}
-                      >
-                        {application?.status || 'N/A'}
-                      </Badge>
-                    </TableCell>
-                    
-                    <TableCell className="text-right">
-                      {application?.status !== 'cancelled' && application?.status !== 'approved' && (
-                        <Button
-                          onClick={() => openDeleteModal(application._id)}
-                          className="border-none bg-destructive text-white hover:bg-destructive/90"
-                        >
-                          Cancel
-                        </Button>
-                      )}
-                    </TableCell>
+          {loading ? (
+            <div className="flex items-center justify-center py-10">
+              <Loader />
+            </div>
+          ) : (
+            <>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Course Name</TableHead>
+                    <TableHead>Intake</TableHead>
+                    <TableHead>Application Date</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Action</TableHead>
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={4} className="text-center">
-                    No applications found.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+                </TableHeader>
+                <TableBody>
+                  {applications.length > 0 ? (
+                    applications.map((application) => (
+                      <TableRow key={application._id}>
+                        <TableCell className="py-4 font-medium">
+                          {application?.courseId?.name || 'Unnamed Course'}
+                        </TableCell>
+                        <TableCell className="py-4">
+                          {application?.intakeId?.termName || 'N/A'}
+                        </TableCell>
+                        <TableCell>
+                          {moment(application?.createAt).format('MM-DD-YYYY')}
+                        </TableCell>
+                        <TableCell className="py-4">
+                          <Badge
+                            className={`text-white ${
+                              application.status === 'applied'
+                                ? 'bg-blue-500'
+                                : application.status === 'cancelled'
+                                  ? 'bg-red-500'
+                                  : application.status === 'approved'
+                                    ? 'bg-green-500'
+                                    : 'bg-green-500'
+                            }`}
+                          >
+                            {application.status || 'N/A'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {application.status !== 'cancelled' &&
+                            application.status !== 'approved' && (
+                              <Button
+                                onClick={() => openDeleteModal(application._id)}
+                                className="border-none bg-destructive text-white hover:bg-destructive/90"
+                              >
+                                Cancel
+                              </Button>
+                            )}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={5} className="py-6 text-center">
+                        No applications found.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
 
-          {applications.length > 0 && (
-            <DataTablePagination
-              pageSize={entriesPerPage}
-              setPageSize={setEntriesPerPage}
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-            />
+              {applications.length > 0 && (
+                <DataTablePagination
+                  pageSize={entriesPerPage}
+                  setPageSize={setEntriesPerPage}
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setCurrentPage}
+                />
+              )}
+            </>
           )}
         </CardContent>
       </Card>

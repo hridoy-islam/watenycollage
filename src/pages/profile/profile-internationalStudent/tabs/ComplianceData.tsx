@@ -107,7 +107,7 @@ const ComplianceData = ({
               <Select
                 options={visaOptions}
                 value={visaOptions.find(
-                  (option) => option.value === localData?.immigrationStatus
+                  (option) => option.value === localData?.visaRequired
                 )}
                 onChange={(selected) =>
                   handleInputChange('visaRequired', {
