@@ -227,7 +227,7 @@ export function DocumentsStep({
       label: 'Photograph',
       required: true,
       instructions: 'Please upload a recent and formal photo of yourself.',
-      formats: 'JPG, PNG',
+      formats: 'JPG, PNG, PDF',
       error: validationErrors.image,
       icon: FileText
     },

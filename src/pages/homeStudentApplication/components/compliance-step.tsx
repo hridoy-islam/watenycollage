@@ -107,11 +107,11 @@ export function ComplianceStep({
   ];
 
   const statusOptions = [
-    { value: 'uk-citizen', label: 'UK Citizen' },
+    { value: 'british-citizen', label: 'British Citizen' },
     { value: 'eu-settled', label: 'EU Settled Status' },
     { value: 'eu-pre-settled', label: 'EU Pre-Settled Status' },
-    { value: 'tier4', label: 'Tier 4 Student Visa' },
-    { value: 'tier2', label: 'Tier 2 Work Visa' },
+    { value: 'tier4-student-visa', label: 'Tier 4 Student Visa' },
+    { value: 'tier2-skilled-worker', label: ' Tier 2 Skilled worker' },
     { value: 'other', label: 'Other' }
   ];
 

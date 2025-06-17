@@ -241,7 +241,7 @@ console.log(loading)
       label: 'Personal Statement',
       required: false,
       instructions: 'Upload your personal statement',
-      formats: 'PDF, DOCX, TXT',
+      formats: 'PDF, DOCX, JPG, PNG',
       icon: FileText
     }
   ];

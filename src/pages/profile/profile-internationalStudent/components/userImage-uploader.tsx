@@ -23,7 +23,7 @@ export function ImageUploader({
   const [uploadError, setUploadError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const MAX_SIZE = 2 * 1024 * 1024; // 2MB
+  const MAX_SIZE = 5 * 1024 * 1024; // 2MB
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -162,10 +162,10 @@ export function ImageUploader({
               <div className="flex flex-col items-center gap-2 text-center">
                 <ImageIcon className="h-8 w-8 text-muted-foreground" />
                 <div className="text-sm font-medium">
-                  Drag & drop an image here, or click to select
+                  Click to select
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  PNG, JPG or GIF (max. 2MB)
+                  PNG, JPG or GIF (max. 5MB)
                 </div>
               </div>
             )}
