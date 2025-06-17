@@ -585,7 +585,7 @@ export function PersonalDetailsStep({
                   name="maritalStatus"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Marital Status</FormLabel>
+                      <FormLabel>Marital Status <span className="text-red-500">*</span></FormLabel>
                       <FormControl>
                         <Select
                           options={maritalStatusOptions}
