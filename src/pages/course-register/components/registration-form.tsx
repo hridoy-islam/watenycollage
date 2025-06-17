@@ -28,6 +28,11 @@ import axiosInstance from '@/lib/axios';
 import ReactSelect, { SingleValue } from 'react-select';
 import { nationalities } from '@/types';
 
+type OptionType = {
+  value: string;
+  label: string;
+};
+
 const registrationSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   firstName: z.string().min(1, 'First name is required').max(50),
@@ -115,6 +120,10 @@ export default function RegistrationForm({
       value: nation,
       label: nation
     }));
+  const titleOptions = ['Mr', 'Mrs', 'Miss', 'Ms', 'Dr', 'Prof'].map((title) => ({
+    value: title,
+    label: title
+  }));
 
   return (
     <Form {...form}>
@@ -122,32 +131,31 @@ export default function RegistrationForm({
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           {/* Title */}
           <FormField
-            control={form.control}
-            name="title"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Title *</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem className='mt-1'>
+                  <FormLabel className="block text-sm font-medium text-gray-700">
+                    Title <span className="text-red-500">*</span>
+                  </FormLabel>
                   <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select title" />
-                    </SelectTrigger>
+                    <ReactSelect
+                      options={titleOptions}
+                      value={titleOptions.find(
+                        (opt) => opt.value === field.value
+                      )}
+                      onChange={(option: SingleValue<OptionType>) =>
+                        field.onChange(option?.value)
+                      }
+                      placeholder="Select title"
+                      className="react-select-container"
+                      classNamePrefix="react-select"
+                    />
                   </FormControl>
-                  <SelectContent>
-                    {['Mr', 'Mrs', 'Miss', 'Ms', 'Dr', 'Prof'].map((item) => (
-                      <SelectItem key={item} value={item}>
-                        {item}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                  <FormMessage className="text-xs text-red-600" />
+                </FormItem>
+              )}
+            />
 
           {/* First Name */}
           <FormField
@@ -214,7 +222,7 @@ export default function RegistrationForm({
             control={form.control}
             name="nationality"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className='mt-1'>
                 <FormLabel className="block text-sm font-medium text-gray-700">
                   Nationality <span className="text-red-500">*</span>
                 </FormLabel>
