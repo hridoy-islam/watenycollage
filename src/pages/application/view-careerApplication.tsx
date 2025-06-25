@@ -678,13 +678,12 @@ export default function ViewCareerApplicationPage() {
                             application?.currentEmployment?.responsibilities,
                             'currentEmployment.responsibilities'
                           )}
-
-                          {renderFieldRow(
-                            'Do you have previous employment history?',
-                            application?.hasPreviousEmployment,
-                            'hasPreviousEmployment'
-                          )}
                         </>
+                      )}
+                      {renderFieldRow(
+                        'Do you have previous employment history?',
+                        application?.hasPreviousEmployment,
+                        'hasPreviousEmployment'
                       )}
                     </TableBody>
                   </Table>
@@ -700,6 +699,7 @@ export default function ViewCareerApplicationPage() {
                             Previous Employment
                           </h3>
                           <div className="space-y-6">
+                            {/* Previous Employments */}
                             {application.previousEmployments.map(
                               (employment, index) => (
                                 <div key={index}>
@@ -709,6 +709,7 @@ export default function ViewCareerApplicationPage() {
                                     </h4>
                                     <Separator className="mx-4 flex-1" />
                                   </div>
+
                                   <Table>
                                     <TableBody>
                                       {renderFieldRow(
@@ -741,24 +742,36 @@ export default function ViewCareerApplicationPage() {
                                         employment.responsibilities,
                                         `previousEmployments.${index}.responsibilities`
                                       )}
-
-                                      {renderFieldRow(
-                                        'Has Employment Gaps',
-                                        application.hasEmploymentGaps,
-                                        'hasEmploymentGaps'
-                                      )}
-                                      {application.hasEmploymentGaps ===
-                                        'yes' &&
-                                        renderFieldRow(
-                                          'Employment Gaps Explanation',
-                                          application.employmentGapsExplanation,
-                                          'employmentGapsExplanation'
-                                        )}
                                     </TableBody>
                                   </Table>
                                 </div>
                               )
                             )}
+
+                            {/* Employment Gap Question (only once, after all previous employment) */}
+                            <div className="mt-6">
+                              <div className="mb-2 flex items-center">
+                                <h4 className="font-medium">
+                                  Employment Gap Details
+                                </h4>
+                                <Separator className="mx-4 flex-1" />
+                              </div>
+                              <Table>
+                                <TableBody>
+                                  {renderFieldRow(
+                                    'Has Employment Gaps',
+                                    application.hasEmploymentGaps,
+                                    'hasEmploymentGaps'
+                                  )}
+                                  {application.hasEmploymentGaps === 'yes' &&
+                                    renderFieldRow(
+                                      'Employment Gaps Explanation',
+                                      application.employmentGapsExplanation,
+                                      'employmentGapsExplanation'
+                                    )}
+                                </TableBody>
+                              </Table>
+                            </div>
                           </div>
                         </>
                       )}
@@ -1051,10 +1064,19 @@ export default function ViewCareerApplicationPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
+
+                      <>
+                        {renderFieldRow(
+                        'Photograph',
+                        application?.image,
+                        'image'
+                      )}
+
+                      </>
                       {application?.proofOfAddress?.map(
                         (url: string, index: number) =>
                           renderFieldRow(
-                            `Proof Of Address `,
+                            `Proof Of Address`,
                             url,
                             `proofOfAddress[${index}]`
                           )
@@ -1063,38 +1085,16 @@ export default function ViewCareerApplicationPage() {
                       {application?.workExperience?.map(
                         (url: string, index: number) =>
                           renderFieldRow(
-                            `Work Experience File `,
+                            `Work Experience`,
                             url,
                             `workExperience[${index}]`
                           )
                       )}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="pt-6">
-                  <h3 className="mb-4 text-lg font-semibold">Documents</h3>
-
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-1/3 text-left">Field</TableHead>
-                        <TableHead className="text-right">Value</TableHead>
-                        <TableHead className="w-10 text-right"></TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {renderFieldRow(
-                        'Photograph',
-                        application?.image,
-                        'image'
-                      )}
+                    
                       {application?.bankStatement?.map(
                         (url: string, index: number) =>
                           renderFieldRow(
-                            `Bank Statement File `,
+                            `Bank Statement`,
                             url,
                             `bankStatement[${index}]`
                           )
@@ -1103,7 +1103,7 @@ export default function ViewCareerApplicationPage() {
                       {application?.personalStatement?.map(
                         (url: string, index: number) =>
                           renderFieldRow(
-                            `Personal Statement File `,
+                            `Personal Statement `,
                             url,
                             `personalStatement[${index}]`
                           )

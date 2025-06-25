@@ -504,7 +504,6 @@ export default function ViewStudentApplicationPage() {
 
                     {application?.studentType === 'international' && (
                       <>
-                     
                         {renderFieldRow(
                           'From where are you making your application?',
                           application?.applicationLocation,
@@ -737,12 +736,13 @@ export default function ViewStudentApplicationPage() {
                           'criminalConviction'
                         )}
 
-                        {application.criminalConviction === 'yes' && renderFieldRow(
-                          'Conviction Details',
-                          application.convictionDetails,
-                          'convictionDetails'
-                        )}
-                        
+                        {application.criminalConviction === 'yes' &&
+                          renderFieldRow(
+                            'Conviction Details',
+                            application.convictionDetails,
+                            'convictionDetails'
+                          )}
+
                         {application?.studentType === 'eu' &&
                           renderFieldRow(
                             'Student Finance',
@@ -818,6 +818,15 @@ export default function ViewStudentApplicationPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
+                      <>
+                        {application?.image &&
+                          renderFieldRow(
+                            'Photograph',
+                            application?.image,
+                            'image'
+                          )}
+                      </>
+
                       {application?.studentType === 'eu' && (
                         <>
                           {application?.photoId?.map(
@@ -836,7 +845,7 @@ export default function ViewStudentApplicationPage() {
                           {application?.passport?.map(
                             (url: string, index: number) =>
                               renderFieldRow(
-                                `Passport File `,
+                                `Passport `,
                                 url,
                                 `passport[${index}]`
                               )
@@ -847,7 +856,7 @@ export default function ViewStudentApplicationPage() {
                       {application?.workExperience?.map(
                         (url: string, index: number) =>
                           renderFieldRow(
-                            `Work Experience File `,
+                            `Work Experience `,
                             url,
                             `workExperience[${index}]`
                           )
@@ -887,14 +896,10 @@ export default function ViewStudentApplicationPage() {
                             `personalStatement[${index}]`
                           )
                       )}
-
-
                     </TableBody>
                   </Table>
                 </CardContent>
               </Card>
-
-              
             </div>
           </TabsContent>
 

@@ -1,5 +1,3 @@
-
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -17,7 +15,7 @@ import {
 } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import axiosInstance from '@/lib/axios'
+import axiosInstance from '@/lib/axios';
 import { AppDispatch } from '@/redux/store';
 import { updateAuthIsAuthorized } from '@/redux/features/authSlice';
 
@@ -84,8 +82,9 @@ const steps: React.ReactNode[] = [
         and contact number, email, address.
       </li>
       <li>
-        <strong>Documents:</strong> You have to upload your CV , Cover Letter and Proof of address
-        (e.g., utility bill, bank statement) dated within the last 3 months.
+        <strong>Documents:</strong> You have to upload your CV , Cover Letter
+        and Proof of address (e.g., utility bill, bank statement) dated within
+        the last 3 months.
       </li>
     </ul>
   </div>,
@@ -134,22 +133,18 @@ export default function CareerGuideline() {
   const [open, setOpen] = useState(true);
   const navigate = useNavigate();
   const { user } = useSelector((state: any) => state.auth);
- const applicationId = localStorage.getItem('applicationId');
+  const applicationId = localStorage.getItem('applicationId');
 
+  const dispatch = useDispatch<AppDispatch>();
 
- const dispatch = useDispatch<AppDispatch>();
-
-
- 
-  const handleNext = async() => {
+  const handleNext = async () => {
     if (step < steps.length - 1) {
       setStep(step + 1);
     } else {
-
-       await axiosInstance.patch(`/users/${user._id}`, {
-              authorized: true
-            });
-            dispatch(updateAuthIsAuthorized(true));
+      await axiosInstance.patch(`/users/${user._id}`, {
+        authorized: true
+      });
+      dispatch(updateAuthIsAuthorized(true));
       setOpen(false);
       if (user?.isCompleted && user?.role === 'applicant') {
         navigate(`/dashboard/job-application/${applicationId}`);
@@ -177,7 +172,19 @@ export default function CareerGuideline() {
             {steps[step]}
           </CardContent>
 
-          <CardFooter className="justify-end px-8 py-6">
+          <CardFooter className="justify-between px-8 py-6">
+            {step > 0 ? (
+              <Button
+                variant="outline"
+                onClick={() => setStep(step - 1)}
+                className="px-6 py-3 text-xl"
+              >
+                Back
+              </Button>
+            ) : (
+              <div />
+            )}
+
             <Button
               onClick={handleNext}
               className="bg-watney px-8 py-4 text-xl text-white hover:bg-watney/90"
