@@ -169,7 +169,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
         >
           {/* Left: Logo */}
           <View style={{ position: 'absolute', left: 0, top: -10 }}>
-            <Image style={styles.logo} src={logoPath} />
+            <Image style={styles.logo} src='/logo.png' />
           </View>
 
           {/* Right: Passport Photo */}
@@ -199,37 +199,35 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
           </View>
         </View>
 
-       <View
-  style={{
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    marginTop: -60,
-  }}
->
-  <View style={{ width: '70%' }}>
-    <View
-      style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 6,
-  
-        backgroundColor: '#fff',
-        
-      }}
-    >
-      {/* Label */}
-      <View style={{ width: '30%' }}>
-        <Text style={{ fontWeight: '600' }}>POST APPLIED FOR:</Text>
-      </View>
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'flex-start',
+            marginTop: -60
+          }}
+        >
+          <View style={{ width: '70%' }}>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                paddingVertical: 6,
 
-      {/* Value */}
-      <View style={{ width: '70%' }}>
-        <Text>{applicationJob?.jobId?.jobTitle}</Text>
-      </View>
-    </View>
-  </View>
-</View>
+                backgroundColor: '#fff'
+              }}
+            >
+              {/* Label */}
+              <View style={{ width: '30%' }}>
+                <Text style={{ fontWeight: '600' }}>POST APPLIED FOR:</Text>
+              </View>
 
+              {/* Value */}
+              <View style={{ width: '70%' }}>
+                <Text>{applicationJob?.jobId?.jobTitle}</Text>
+              </View>
+            </View>
+          </View>
+        </View>
 
         <Text style={styles.subSectionHeader}>PERSONAL DETAILS</Text>
 
