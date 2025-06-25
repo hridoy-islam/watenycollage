@@ -1,13 +1,14 @@
 import { User } from '../../types/user.types';
 
-export type TabType = 
+export type TabType =
   | 'personalDetails'
   | 'applicationData'
   | 'educationData'
   | 'employmentData'
   | 'disabilityData'
   | 'refereeData'
-  | 'documentData';
+  | 'documentData'
+  | 'emergencyContactData';
 
 export interface TabItemProps {
   id: TabType;
@@ -25,6 +26,5 @@ export interface TabListProps {
 export interface TabContentProps {
   activeTab: TabType;
   userData: User;
-  refreshData: any
+  refreshData: any;
 }
-

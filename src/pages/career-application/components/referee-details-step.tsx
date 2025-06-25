@@ -75,7 +75,7 @@ export function RefereeDetailsStep({
     onSaveAndContinue(data);
   };
    function handleBack() {
-    setCurrentStep(6);
+    setCurrentStep(7);
   }
 
   const renderRefereeFields = (
@@ -231,7 +231,7 @@ export function RefereeDetailsStep({
           Please provide two referees as part of the recruitment process. Referees must be able to speak to your skills, experience, and character, and must not be friends or relatives. 
         </p>
         <p className='text-sm text-gray-400 font-semibold'>
-          We may contact your referees, so please ensure their contact details are accurate and up to date.
+          We will contact your referees, so please ensure their contact details are accurate and up to date.
         </p>
       </CardHeader>
       <CardContent>

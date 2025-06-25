@@ -1,5 +1,3 @@
-
-
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -27,6 +25,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { CustomDatePicker } from '@/components/shared/CustomDatePicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import Select from 'react-select';
+import { Textarea } from '@/components/ui/textarea';
 
 const daysOfWeek = [
   'monday',
@@ -38,28 +37,55 @@ const daysOfWeek = [
   'sunday'
 ];
 
-const applicationDetailsSchema = z.object({
- 
-  availableFromDate: z.date({ required_error: 'Application date is required' }),
-  source: z.string().min(1, { message: 'Source is required' }),
-
-  availability: z
-    .object(
-      Object.fromEntries(daysOfWeek.map((day) => [day, z.boolean().optional()]))
-    )
-    .refine((data) => Object.values(data).some((val) => val), {
-      message: 'Please select at least one day of availability'
+const applicationDetailsSchema = z
+  .object({
+    availableFromDate: z.date({
+      required_error: 'Application date is required'
     }),
-  isStudent: z.boolean().refine((val) => val === true || val === false, {
-    message: 'Please select if you are a student'
-  }),
-  referralEmployee: z.string().optional(),
-  isUnderStatePensionAge: z
-    .boolean()
-    .refine((val) => val === true || val === false, {
-      message: 'Please indicate if you are under the state pension age'
+    source: z.string().min(1, { message: 'Source is required' }),
+
+    availability: z
+      .object(
+        Object.fromEntries(
+          daysOfWeek.map((day) => [day, z.boolean().optional()])
+        )
+      )
+      .refine((data) => Object.values(data).some((val) => val), {
+        message: 'Please select at least one day of availability'
+      }),
+    isStudent: z.boolean().refine((val) => val === true || val === false, {
+      message: 'Please select if you are a student'
+    }),
+    referralEmployee: z.string().optional(),
+    isUnderStatePensionAge: z
+      .boolean()
+      .refine((val) => val === true || val === false, {
+        message: 'Please indicate if you are under the state pension age'
+      }),
+    isOver18: z.boolean().refine((val) => val === true || val === false, {
+      message: 'Please confirm if you are aged 18 or over'
+    }),
+    isSubjectToImmigrationControl: z
+      .boolean()
+      .refine((val) => val === true || val === false, {
+        message: 'Please confirm if you are subject to immigration control'
+      }),
+    canWorkInUK: z.boolean().refine((val) => val === true || val === false, {
+      message: 'Please confirm if you are free to work in the UK'
     })
-});
+  })
+  .superRefine((data, ctx) => {
+    
+
+    // If source is "referral", referralEmployee must be provided
+    if (data.source === 'referral' && !data.referralEmployee) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Please provide the name of the referring employee',
+        path: ['referralEmployee']
+      });
+    }
+  });
 
 type ApplicationDetailsFormValues = z.infer<typeof applicationDetailsSchema>;
 
@@ -68,11 +94,10 @@ export function ApplicationDetailsStep({
   onSaveAndContinue,
   setCurrentStep
 }) {
-
   const form = useForm<ApplicationDetailsFormValues>({
     resolver: zodResolver(applicationDetailsSchema),
     defaultValues: {
-      availableFromDate: undefined ,
+      availableFromDate: undefined,
       source: '',
 
       availability: {
@@ -86,14 +111,23 @@ export function ApplicationDetailsStep({
       },
       isStudent: undefined,
       referralEmployee: '',
-      isUnderStatePensionAge: undefined
+      isUnderStatePensionAge: undefined,
+      isOver18: undefined,
+      isSubjectToImmigrationControl: undefined,
+      canWorkInUK: undefined,
+      
     },
     ...defaultValues
   });
 
   useEffect(() => {
     if (defaultValues) {
-      form.reset({...defaultValues, availableFromDate: defaultValues.availableFromDate? new Date(defaultValues.availableFromDate): undefined});
+      form.reset({
+        ...defaultValues,
+        availableFromDate: defaultValues.availableFromDate
+          ? new Date(defaultValues.availableFromDate)
+          : undefined
+      });
     }
   }, [defaultValues, form]);
 
@@ -109,7 +143,6 @@ export function ApplicationDetailsStep({
     { value: true, label: 'Yes' },
     { value: false, label: 'No' }
   ];
-
 
   // Watch source field to show referral input conditionally
   const sourceValue = form.watch('source');
@@ -136,8 +169,6 @@ export function ApplicationDetailsStep({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              
-
               <FormField
                 control={form.control}
                 name="availableFromDate"
@@ -157,6 +188,7 @@ export function ApplicationDetailsStep({
                           selected={selectedDate}
                           onChange={(date) => field.onChange(date)}
                           placeholder="When would you be available to start this role?"
+                          futureDate={false}
                         />
                       </FormControl>
                       <p className="text-xs  text-gray-400">
@@ -168,6 +200,95 @@ export function ApplicationDetailsStep({
                   );
                 }}
               />
+
+              <FormField
+                control={form.control}
+                name="isOver18"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Are you aged 18 or over?
+                      <span className="text-red-500">*</span>
+                    </FormLabel>
+                    <Select
+                      options={yesNoOptions}
+                      placeholder="Select Yes if you're aged 18 or over."
+                      isClearable
+                      value={
+                        yesNoOptions.find((opt) => opt.value === field.value) ||
+                        null
+                      }
+                      onChange={(option) =>
+                        field.onChange(option ? option.value : null)
+                      }
+                      className="text-sm"
+                    />
+                    <p className="text-xs  text-gray-400">Example: Yes</p>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Immigration Control */}
+              <FormField
+                control={form.control}
+                name="isSubjectToImmigrationControl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Are you subject to immigration control?
+                      <span className="text-red-500">*</span>
+                    </FormLabel>
+                    <Select
+                      options={yesNoOptions}
+                      placeholder="Select Yes if you're subject to immigration control."
+                      isClearable
+                      value={
+                        yesNoOptions.find((opt) => opt.value === field.value) ||
+                        null
+                      }
+                      onChange={(option) =>
+                        field.onChange(option ? option.value : null)
+                      }
+                      className="text-sm"
+                    />
+                    <p className="text-xs  text-gray-400">Example: Yes</p>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Can Work in UK */}
+              <FormField
+                control={form.control}
+                name="canWorkInUK"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Are you free to remain and take up employment in the UK?
+                      <span className="text-red-500">*</span>
+                    </FormLabel>
+                    <Select
+                      options={yesNoOptions}
+                      placeholder="Select Yes if you can legally work in the UK."
+                      isClearable
+                      value={
+                        yesNoOptions.find((opt) => opt.value === field.value) ||
+                        null
+                      }
+                      onChange={(option) =>
+                        field.onChange(option ? option.value : null)
+                      }
+                      className="text-sm"
+                    />
+                    <p className="text-xs  text-gray-400">Example: Yes</p>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              
+              
 
               <FormField
                 control={form.control}
@@ -208,30 +329,32 @@ export function ApplicationDetailsStep({
                   </FormItem>
                 )}
               />
+              {sourceValue === 'referral' && (
+                <FormField
+                  control={form.control}
+                  name="referralEmployee"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Referred by (Employee Name)
+                        <span className="text-red-500">*</span>
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          placeholder="Enter the employee name"
+                        />
+                      </FormControl>
+                      <p className="text-xs  text-gray-400">
+                        Example: Emma Watson
+                      </p>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
             </div>
-
-            {sourceValue === 'referral' && (
-              <FormField
-                control={form.control}
-                name="referralEmployee"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Referred by (Employee Name)
-                      <span className="text-red-500">*</span>
-                    </FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Enter the employee name" />
-                    </FormControl>
-                    <p className="text-xs  text-gray-400">
-                      Example: Emma Watson
-                    </p>
-
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
 
             {/* <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <FormField

@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import TabSection from '../TabSection';
 import { User } from '../../../types/user.types';
 import { Input } from '@/components/ui/input';
-
+import { emergencyContactRelationships } from '@/types';
+import Select from 'react-select';
 const EmergencyContactData = ({
   userData,
   isEditing = false,
@@ -20,7 +21,6 @@ const EmergencyContactData = ({
     }));
   };
 
-  
   useEffect(() => {
     setLocalData(userData);
   }, [userData]);
@@ -30,6 +30,11 @@ const EmergencyContactData = ({
       onSave(localData);
     }
   };
+
+  const relationshipOptions = emergencyContactRelationships.map((relation) => ({
+    value: relation,
+    label: relation
+  }));
 
   return (
     <TabSection
@@ -71,13 +76,38 @@ const EmergencyContactData = ({
               <label className="block text-sm font-medium text-gray-700">
                 Relationship
               </label>
+
               {isEditing ? (
-                <Input
-                  type="text"
-                  value={localData?.emergencyRelationship || ''}
-                  onChange={(e) =>
-                    handleInputChange('emergencyRelationship', e.target.value)
+                <Select
+                  options={relationshipOptions}
+                  value={
+                    relationshipOptions.find(
+                      (option) =>
+                        option.value === localData?.emergencyRelationship
+                    ) || null
                   }
+                  onChange={(selectedOption) =>
+                    handleInputChange(
+                      'emergencyRelationship',
+                      selectedOption?.value || ''
+                    )
+                  }
+                  className="mt-1"
+                  classNamePrefix="react-select"
+                  styles={{
+                    menu: (provided) => ({ ...provided, zIndex: 9999 }),
+                    control: (provided, state) => ({
+                      ...provided,
+                      borderColor: state.isFocused
+                        ? '#4F46E5'
+                        : provided.borderColor,
+                      boxShadow: state.isFocused ? '0 0 0 1px #4F46E5' : 'none',
+                      '&:hover': {
+                        borderColor: state.isFocused ? '#4F46E5' : '#4F46E5'
+                      }
+                    })
+                  }}
+                  menuPortalTarget={document.body}
                 />
               ) : (
                 <div className="mt-1 text-gray-900">

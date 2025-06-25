@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { ProfilePictureStep } from './components/profile-picture-step';
 import { PersonalDetailsStep } from './components/personal-details-step';
@@ -25,6 +24,7 @@ import {
 import { updateAuthIsCompleted } from '@/redux/features/authSlice';
 import { AppDispatch } from '@/redux/store';
 import { useLocation } from 'react-router-dom';
+import { EmergencyContact } from './components/emergencyContact';
 
 // Define form steps for career application
 const careerFormSteps = [
@@ -34,9 +34,10 @@ const careerFormSteps = [
   { id: 4, label: 'Education' },
   { id: 5, label: 'Employment' },
   { id: 6, label: 'Disability Info' },
-  { id: 7, label: 'Referee Details' },
-  { id: 8, label: 'Documents' },
-  { id: 9, label: 'Review & Submit' }
+  { id: 7, label: 'Emergency Contact' },
+  { id: 8, label: 'Referee Details' },
+  { id: 9, label: 'Documents' },
+  { id: 10, label: 'Review & Submit' }
 ];
 
 export default function CareerApplicationForm() {
@@ -53,14 +54,12 @@ export default function CareerApplicationForm() {
   const { user } = useSelector((state: any) => state.auth);
   const dispatch = useDispatch<AppDispatch>();
   const [parsedResume, setParsedResume] = useState<string | null>(null);
-const location = useLocation();
-const [refreshCounter, setRefreshCounter] = useState(0);
+  const location = useLocation();
+  const [refreshCounter, setRefreshCounter] = useState(0);
 
-
-const refreshData = () => {
-  setRefreshCounter((prev) => prev + 1);
-};
-
+  const refreshData = () => {
+    setRefreshCounter((prev) => prev + 1);
+  };
 
   useEffect(() => {
     if (location.state?.parsedResume) {
@@ -69,9 +68,6 @@ const refreshData = () => {
       window.history.replaceState({}, document.title);
     }
   }, [location.state]);
-
-
-
 
   const nameMatch = parsedResume?.match(
     /\b([A-Z][a-z]+(?:\s[A-Z][a-z]+)*)\s([A-Z][a-z]+)\b/
@@ -145,7 +141,7 @@ const refreshData = () => {
         dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined,
         phone: phoneNumber,
         passportNumber,
-        
+
         maritalStatus,
         nationality,
         ethnicity,
@@ -160,7 +156,7 @@ const refreshData = () => {
     }
   }, [parsedResume]);
 
-  console.log(formData,'FORM');
+  console.log(formData, 'FORM');
 
   const fetchedData = async () => {
     try {
@@ -285,13 +281,23 @@ const refreshData = () => {
       console.error('Failed to update disability info:', error);
     }
   };
-
-  const handleRefereeDetailsSaveAndContinue = async (data: any) => {
+  const handleEmergencySaveAndContinue = async (data: any) => {
     try {
       setFormData((prev) => ({ ...prev, ...data }));
       await axiosInstance.patch(`/users/${user._id}`, data);
       markStepAsCompleted(7);
       setCurrentStep(8);
+    } catch (error) {
+      console.error('Failed to update emergency contact:', error);
+    }
+  };
+
+  const handleRefereeDetailsSaveAndContinue = async (data: any) => {
+    try {
+      setFormData((prev) => ({ ...prev, ...data }));
+      await axiosInstance.patch(`/users/${user._id}`, data);
+      markStepAsCompleted(8);
+      setCurrentStep(9);
     } catch (error) {
       console.error('Failed to update referee details:', error);
     }
@@ -301,8 +307,8 @@ const refreshData = () => {
     try {
       setFormData((prev) => ({ ...prev, ...data }));
       await axiosInstance.patch(`/users/${user._id}`, data);
-      markStepAsCompleted(8);
-      setCurrentStep(9);
+      markStepAsCompleted(9);
+      setCurrentStep(10);
     } catch (error) {
       console.error('Failed to update documents:', error);
     }
@@ -455,13 +461,21 @@ const refreshData = () => {
         );
       case 7:
         return (
+          <EmergencyContact
+            defaultValues={{ ...fetchData, ...formData }}
+            onSaveAndContinue={handleEmergencySaveAndContinue}
+            setCurrentStep={setCurrentStep}
+          />
+        );
+      case 8:
+        return (
           <RefereeDetailsStep
             defaultValues={{ ...fetchData, ...formData }}
             onSaveAndContinue={handleRefereeDetailsSaveAndContinue}
             setCurrentStep={setCurrentStep}
           />
         );
-      case 8:
+      case 9:
         return (
           <DocumentStep
             defaultValues={{ ...fetchData, ...formData }}
@@ -469,7 +483,7 @@ const refreshData = () => {
             setCurrentStep={setCurrentStep}
           />
         );
-      case 9:
+      case 10:
         return (
           <ReviewStep
             defaultValues={{ ...fetchData, ...formData }}

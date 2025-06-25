@@ -93,7 +93,7 @@ export function DocumentStep({
 
   // Navigation handlers
   const handleBack = () => {
-    setCurrentStep(7);
+    setCurrentStep(8);
   };
 
   const handleSubmit = () => {

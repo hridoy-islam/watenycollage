@@ -355,6 +355,7 @@ export function EducationStep({
                     <CustomDatePicker
                       selected={selectedDate}
                       onChange={(date) => field.onChange(date)}
+                 
                     />
                   </FormControl>
                   <p className="text-xs text-gray-400">Example: 01/16/2022</p>

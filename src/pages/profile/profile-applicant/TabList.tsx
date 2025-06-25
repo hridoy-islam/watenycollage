@@ -32,6 +32,11 @@ const TabList: React.FC<TabListProps> = ({ activeTab, setActiveTab }) => {
   const tabs = [
     { id: 'personalDetails' as TabType, label: 'Personal Details', icon: <User size={20} /> },
     { id: 'applicationData' as TabType, label: 'Application Details', icon: <File size={20} /> },
+    {
+          id: 'emergencyContactData' as TabType,
+          label: 'Emergency Contact',
+          icon: <Phone size={20} />
+        },
     { id: 'educationData' as TabType, label: 'Education', icon: <BookOpen size={20} /> },
     { id: 'employmentData' as TabType, label: 'Employment', icon: <Briefcase size={20} /> },
     { id: 'disabilityData' as TabType, label: 'Disability', icon: <User2Icon size={20} /> },

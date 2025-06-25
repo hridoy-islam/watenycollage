@@ -295,6 +295,7 @@ export function PersonalDetailsStep({
                             onChange={(date) => field.onChange(date)}
                             placeholder="Enter your date of birth using the format DD/MM/YYYY."
                             // disabled={true}
+                       
                           />
                         </FormControl>
                         <p className="mt-1 text-xs text-gray-400">

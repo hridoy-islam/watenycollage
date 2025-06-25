@@ -389,6 +389,7 @@ export function EmploymentStep({
                                     selected={selectedDate}
                                     onChange={(date) => field.onChange(date)}
                                     placeholder="Employment Start Date"
+                                    
                                   />
                                 </FormControl>
                                 <p className="text-xs  text-gray-400">
@@ -586,6 +587,7 @@ export function EmploymentStep({
                                           field.onChange(date)
                                         }
                                         placeholder="Employment Start Date"
+                                         futureDate={true}
                                       />
                                     </FormControl>
                                     <p className="text-xs  text-gray-400">
@@ -620,6 +622,7 @@ export function EmploymentStep({
                                           field.onChange(date)
                                         }
                                         placeholder="Employment End Date"
+                                         futureDate={true}
                                       />
                                     </FormControl>
                                     <p className="mt-1 text-xs text-gray-400">

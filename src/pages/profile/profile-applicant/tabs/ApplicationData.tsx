@@ -39,7 +39,7 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
 
   // Source options
   const sourceOptions = [
-     { value: 'website', label: 'Company Website' },
+    { value: 'website', label: 'Company Website' },
     { value: 'referral', label: 'Referral' },
     { value: 'linkedin', label: 'LinkedIn' },
     { value: 'indeed', label: 'Indeed' },
@@ -117,27 +117,27 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
           )}
         </div>
 
-        {localData.source === 'referral' &&<div>
-          <label className="block text-sm font-medium text-gray-700">
-            Referral Employee
-          </label>
-          {isEditing ? (
-            <Input
-              type="text"
-              value={localData.referralEmployee || ''}
-              onChange={(e) =>
-                handleInputChange('referralEmployee', e.target.value)
-              }
-            />
-          ) : (
-            <div className="mt-1 text-gray-900">
-              {localData.referralEmployee || '-'}
-            </div>
-          )}
-        </div> }
-        
+        {localData.source === 'referral' && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Referral Employee
+            </label>
+            {isEditing ? (
+              <Input
+                type="text"
+                value={localData.referralEmployee || ''}
+                onChange={(e) =>
+                  handleInputChange('referralEmployee', e.target.value)
+                }
+              />
+            ) : (
+              <div className="mt-1 text-gray-900">
+                {localData.referralEmployee || '-'}
+              </div>
+            )}
+          </div>
+        )}
 
-  
         <div>
           <label className="block text-sm font-medium text-gray-700">
             Is Student?
@@ -184,6 +184,84 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
           ) : (
             <div className="mt-1 text-gray-900">
               {localData.isUnderStatePensionAge ? 'Yes' : 'No'}
+            </div>
+          )}
+        </div>
+
+        {/* Is Over 18? */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Are you aged 18 or over?
+            <span className="text-red-500">*</span>
+          </label>
+          {isEditing ? (
+            <Select
+              options={yesNoOptions}
+              value={yesNoOptions.find(
+                (opt) => opt.value === localData.isOver18
+              )}
+              onChange={(selected) =>
+                handleInputChange('isOver18', selected?.value || false)
+              }
+              className="react-select-container"
+              classNamePrefix="react-select"
+            />
+          ) : (
+            <div className="mt-1 text-gray-900">
+              {localData.isOver18 ? 'Yes' : 'No'}
+            </div>
+          )}
+        </div>
+
+        {/* Is Subject to Immigration Control? */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Are you subject to immigration control?
+            <span className="text-red-500">*</span>
+          </label>
+          {isEditing ? (
+            <Select
+              options={yesNoOptions}
+              value={yesNoOptions.find(
+                (opt) => opt.value === localData.isSubjectToImmigrationControl
+              )}
+              onChange={(selected) =>
+                handleInputChange(
+                  'isSubjectToImmigrationControl',
+                  selected?.value || false
+                )
+              }
+              className="react-select-container"
+              classNamePrefix="react-select"
+            />
+          ) : (
+            <div className="mt-1 text-gray-900">
+              {localData.isSubjectToImmigrationControl ? 'Yes' : 'No'}
+            </div>
+          )}
+        </div>
+
+        {/* Can Work in UK? */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Are you free to remain and take up employment in the UK?
+            <span className="text-red-500">*</span>
+          </label>
+          {isEditing ? (
+            <Select
+              options={yesNoOptions}
+              value={yesNoOptions.find(
+                (opt) => opt.value === localData.canWorkInUK
+              )}
+              onChange={(selected) =>
+                handleInputChange('canWorkInUK', selected?.value || false)
+              }
+              className="react-select-container"
+              classNamePrefix="react-select"
+            />
+          ) : (
+            <div className="mt-1 text-gray-900">
+              {localData.canWorkInUK ? 'Yes' : 'No'}
             </div>
           )}
         </div>

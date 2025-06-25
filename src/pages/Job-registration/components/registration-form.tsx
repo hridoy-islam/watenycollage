@@ -223,15 +223,20 @@ export default function RegistrationForm({
           <FormField
             control={form.control}
             name="dateOfBirth"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Date of Birth *</FormLabel>
-                <FormControl>
-                  <Input type="date" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            render={({ field }) => {
+              const today = new Date().toISOString().split('T')[0];
+              return (
+                <FormItem>
+                  <FormLabel className="block text-sm font-medium text-gray-700">
+                    Date of Birth <span className="text-red-500">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input type="date" max={today} {...field} />
+                  </FormControl>
+                  <FormMessage className="text-xs text-red-600" />
+                </FormItem>
+              );
+            }}
           />
         </div>
 

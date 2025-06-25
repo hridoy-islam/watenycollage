@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import moment from 'moment';
 import { z } from 'zod';
@@ -104,7 +103,7 @@ export function ReviewStep({
   const dataProcessingAccepted = form.watch('dataProcessingAccepted');
 
   function handleBack() {
-    setCurrentStep(8);
+    setCurrentStep(9);
   }
 
   const { watch } = form;
@@ -115,36 +114,36 @@ export function ReviewStep({
     return moment(date).format('DD/MM/YYYY');
   };
 
-   const formatValue = (value: any): string => {
-      if (value === null || value === undefined || value === '') {
-        return 'Not provided';
-      }
-      if (typeof value === 'boolean') {
-        return value ? 'Yes' : 'No';
-      }
-      if (
-        value instanceof Date ||
-        moment(value, moment.ISO_8601, true).isValid()
-      ) {
-        return moment(value).format('MM-DD-YYYY');
-      }
-      if (Array.isArray(value)) {
-        if (value.length === 0) return 'None';
-        if (value[0] instanceof File) return `${value.length} file(s) uploaded`;
-        return value.join(', ');
-      }
-      if (value instanceof File) {
-        return 'File uploaded';
-      }
-      if (typeof value === 'object') {
-        return JSON.stringify(value, null, 2);
-      }
-      // Convert to string and capitalize first letter
-      const str = String(value);
-      return str.charAt(0).toUpperCase() + str.slice(1);
-    };
-  
-const formatFieldName = (name: string) => {
+  const formatValue = (value: any): string => {
+    if (value === null || value === undefined || value === '') {
+      return 'Not provided';
+    }
+    if (typeof value === 'boolean') {
+      return value ? 'Yes' : 'No';
+    }
+    if (
+      value instanceof Date ||
+      moment(value, moment.ISO_8601, true).isValid()
+    ) {
+      return moment(value).format('MM-DD-YYYY');
+    }
+    if (Array.isArray(value)) {
+      if (value.length === 0) return 'None';
+      if (value[0] instanceof File) return `${value.length} file(s) uploaded`;
+      return value.join(', ');
+    }
+    if (value instanceof File) {
+      return 'File uploaded';
+    }
+    if (typeof value === 'object') {
+      return JSON.stringify(value, null, 2);
+    }
+    // Convert to string and capitalize first letter
+    const str = String(value);
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
+
+  const formatFieldName = (name: string) => {
     return name
       .replace(/([A-Z])/g, ' $1')
       .replace(/^./, (str) => str.toUpperCase())
@@ -246,13 +245,34 @@ const formatFieldName = (name: string) => {
         postalCountry: defaultValues.postalCountry
       })}
 
-      {renderSection('Application Details', {
-        availableFromDate: defaultValues.availableFromDate,
-        source: defaultValues.source,
-        isStudent: defaultValues.isStudent,
-        referralEmployee: defaultValues.referralEmployee,
-        isUnderStatePensionAge: defaultValues.isUnderStatePensionAge
+      {renderSection('Emergency Contact Information', {
+        emergencyFullName: defaultValues.emergencyFullName,
+        emergencyContactNumber: defaultValues.emergencyContactNumber,
+        emergencyEmail: defaultValues.emergencyEmail,
+        emergencyRelationship: defaultValues.emergencyRelationship,
+        emergencyAddress: defaultValues.emergencyAddress
       })}
+
+      {renderSection(
+        'Application Details',
+        Object.fromEntries(
+          Object.entries({
+            availableFromDate: defaultValues.availableFromDate,
+            source: defaultValues.source,
+            isStudent: defaultValues.isStudent,
+            referralEmployee:
+              defaultValues.source === 'referral'
+                ? defaultValues.referralEmployee
+                : undefined,
+            isUnderStatePensionAge: defaultValues.isUnderStatePensionAge,
+            isOver18: defaultValues.isOver18,
+            isSubjectToImmigrationControl:
+              defaultValues.isSubjectToImmigrationControl,
+            canWorkInUK: defaultValues.canWorkInUK
+            
+          }).filter(([_, value]) => value !== undefined)
+        )
+      )}
 
       {/* 🔥 New Section: Availability */}
       {renderSection('Availability', {
@@ -311,14 +331,12 @@ const formatFieldName = (name: string) => {
       })}
 
       {renderSection('Documents', {
-  cvResume: defaultValues.cvResume,
-  proofOfAddress: defaultValues.proofOfAddress,
+        cvResume: defaultValues.cvResume,
+        proofOfAddress: defaultValues.proofOfAddress,
 
-  workExperience: defaultValues.workExperience,
-  personalStatement: defaultValues.personalStatement
-})}
-
-
+        workExperience: defaultValues.workExperience,
+        personalStatement: defaultValues.personalStatement
+      })}
     </div>
   );
 

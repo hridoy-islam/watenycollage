@@ -154,7 +154,7 @@ return (
                       size="icon"
                       onClick={() =>
                         navigate(
-                          `/dashboard/career-application/${app.applicantId?._id}`
+                          `/dashboard/career-application/${app?._id}/${app.applicantId?._id}`
                         )
                       }
                     >

@@ -1,15 +1,21 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   const user = useSelector((state: any) => state.auth.user); // Get user from Redux state
+  const location = useLocation();
 
+  // Not logged in: redirect to login
   if (!user) {
-    // If there's no user, redirect to the login page
-    return <Navigate to="/" replace />;
+    return <Navigate to="/" state={{ from: location }} replace />;
   }
 
-  return children; // If user exists, render the children (dashboard)
+  // Logged in but not allowed (based on role)
+  if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
+    return <Navigate to="/404" replace />;
+  }
+
+  return children;
 };
 
 export default ProtectedRoute;

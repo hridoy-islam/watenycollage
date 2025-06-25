@@ -1,5 +1,3 @@
-
-
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -65,13 +63,18 @@ export const personalDetailsSchema = z
     isBritishCitizen: z.boolean().optional(),
     shareCode: z.string().optional(),
 
-
-      postalAddressLine1: z.string().min(1, { message: 'Address line 1 is required' }),
-      postalAddressLine2: z.string().optional(),
-      postalCity: z.string().min(1, { message: 'City is required' }),
-      postalPostCode: z.string().min(1, { message: 'Postal code is required' }),
-      postalCountry: z.string().min(1, { message: 'Country is required' })
-  
+    postalAddressLine1: z
+      .string()
+      .min(1, { message: 'Address line 1 is required' }),
+    postalAddressLine2: z.string().optional(),
+    postalCity: z.string().min(1, { message: 'City is required' }),
+    postalPostCode: z.string().min(1, { message: 'Postal code is required' }),
+    postalCountry: z.string().min(1, { message: 'Country is required' }),
+    prevPostalAddressLine1: z.string().optional(),
+    prevPostalAddressLine2: z.string().optional(),
+    prevPostalCity: z.string().optional(),
+    prevPostalPostCode: z.string().optional(),
+    prevPostalCountry: z.string().optional()
   })
   .superRefine((data, ctx) => {
     if (data.nationality !== 'British') {
@@ -122,7 +125,12 @@ export function PersonalDetailsStep({
       postalAddressLine2: '',
       postalCity: '',
       postalPostCode: '',
-      postalCountry: ''
+      postalCountry: '',
+      prevPostalAddressLine1: '',
+      prevPostalAddressLine2: '',
+      prevPostalCity: '',
+      prevPostalPostCode: '',
+      prevPostalCountry: ''
     }
   });
 
@@ -696,6 +704,142 @@ export function PersonalDetailsStep({
                         </FormLabel>
                         <Controller
                           name="postalCountry"
+                          control={form.control}
+                          render={({ field: { onChange, value } }) => (
+                            <Select
+                              options={countryOptions}
+                              value={countryOptions.find(
+                                (opt) => opt.value === value
+                              )}
+                              onChange={(option) => onChange(option?.value)}
+                              className="react-select-container"
+                              classNamePrefix="react-select"
+                              placeholder="Select the country corresponding to the above address"
+                              styles={{
+                                placeholder: (provided) => ({
+                                  ...provided,
+                                  fontSize: '0.75rem',
+                                  color: '#9CA3AF'
+                                })
+                              }}
+                            />
+                          )}
+                        />
+                        <p className="text-xs  text-gray-400">
+                          Example: London
+                        </p>
+
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <h1 className="text-xl font-semibold">Previous Address</h1>
+                  <h1 className="text-[14px] font-medium text-gray-400">
+                    If you have lived at your present address for less than 12
+                    months
+                  </h1>
+                </div>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <FormField
+                    control={form.control}
+                    name="prevPostalAddressLine1"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Address Line 1</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder="Enter the primary address (e.g., house number, street name)"
+                            className="!placeholder:text-gray-400 placeholder:text-xs placeholder:text-gray-400"
+                          />
+                        </FormControl>
+                        <p className="text-xs  text-gray-400">
+                          Example: 12B Parkview Road
+                        </p>
+
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="prevPostalAddressLine2"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Address Line 2</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder="Optional additional address info (e.g., apartment, unit)."
+                            className="!placeholder:text-gray-400 placeholder:text-xs placeholder:text-gray-400"
+                          />
+                        </FormControl>
+                        <p className="text-xs  text-gray-400">
+                          Example: Flat 3A
+                        </p>
+
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="prevPostalCity"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>City</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder=" Enter the name of your town or city"
+                            className="!placeholder:text-gray-400 placeholder:text-xs placeholder:text-gray-400"
+                          />
+                        </FormControl>
+                        <p className="text-xs  text-gray-400">
+                          Example: London
+                        </p>
+
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="prevPostalPostCode"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Postal Code</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder="Enter your area’s postal/ZIP code."
+                            className="!placeholder:text-gray-400 placeholder:text-xs placeholder:text-gray-400"
+                          />
+                        </FormControl>
+                        <p className="text-xs  text-gray-400">
+                          Example: SW1A 1AA
+                        </p>
+
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="prevPostalCountry"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Country</FormLabel>
+                        <Controller
+                          name="prevPostalCountry"
                           control={form.control}
                           render={({ field: { onChange, value } }) => (
                             <Select

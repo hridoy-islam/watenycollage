@@ -27,7 +27,8 @@ import {
   GraduationCap,
   MoveLeft,
   Copy,
-  File
+  File,
+  User2
 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -40,8 +41,9 @@ import { cn } from '@/lib/utils';
 import { useNavigate, useParams } from 'react-router-dom';
 import axiosInstace from '@/lib/axios';
 import moment from 'moment';
-import PDFGenerator from './components/PDFGenerator';
+
 import Loader from '@/components/shared/loader';
+import PDFGenerator from './components/PDFGeneratorCareer';
 
 // Type definition for application data
 type Application = {
@@ -157,7 +159,7 @@ type Application = {
 };
 
 export default function ViewCareerApplicationPage() {
-  const [application, setApplication] = useState<Application | null>(null);
+  const [application, setApplication] = useState<Application>();
   const [applicationJob, setApplicationJob] = useState<Application | null>(
     null
   );
@@ -166,13 +168,15 @@ export default function ViewCareerApplicationPage() {
   const [activeTab, setActiveTab] = useState('personal');
   const [copiedFields, setCopiedFields] = useState<Record<string, boolean>>({});
   const navigate = useNavigate();
-  const { id } = useParams();
+  const { id, userId } = useParams();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedJob, setSelectedJob] = useState<any>(null);
 
   useEffect(() => {
     const fetchApplication = async () => {
       try {
         setLoading(true);
-        const response = await axiosInstace.get(`/users/${id}`);
+        const response = await axiosInstace.get(`/users/${userId}`);
         setApplication(response.data.data);
         setLoading(false);
       } catch (err) {
@@ -189,10 +193,8 @@ export default function ViewCareerApplicationPage() {
     const fetchJob = async () => {
       try {
         setLoading(true);
-        const response = await axiosInstace.get(
-          `/application-job?applicantId=${id}`
-        );
-        setApplicationJob(response.data.data.result);
+        const response = await axiosInstace.get(`/application-job/${id}`);
+        setApplicationJob(response.data.data);
         setLoading(false);
       } catch (err) {
         setLoading(false);
@@ -366,8 +368,11 @@ export default function ViewCareerApplicationPage() {
         >
           <MoveLeft /> Back
         </Button>
-
-        <PDFGenerator application={application} />
+        <div className='font-semibold'>{applicationJob?.jobId?.jobTitle}</div>
+        <PDFGenerator
+          application={application}
+          applicationJob={applicationJob}
+        />
       </div>
       <div className=" p-4 pb-5">
         <Tabs
@@ -382,6 +387,13 @@ export default function ViewCareerApplicationPage() {
             >
               <User className="h-4 w-4" />
               <span className="hidden sm:inline">Personal</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="emergencyContact"
+              className="flex items-center gap-1 focus:bg-watney active:bg-watney data-[state=active]:bg-watney"
+            >
+              <User2 className="h-4 w-4" />
+              <span className="hidden sm:inline">Emergency Contact</span>
             </TabsTrigger>
             <TabsTrigger
               value="application"
@@ -427,13 +439,6 @@ export default function ViewCareerApplicationPage() {
               <span className="hidden sm:inline">Documents</span>
             </TabsTrigger>
 
-            <TabsTrigger
-              value="job"
-              className="flex items-center gap-1 focus:bg-watney active:bg-watney data-[state=active]:bg-watney"
-            >
-              <GraduationCap className="h-4 w-4" />
-              <span className="hidden sm:inline">Job Applied</span>
-            </TabsTrigger>
             <TabsTrigger
               value="terms"
               className="flex items-center gap-1 focus:bg-watney active:bg-watney data-[state=active]:bg-watney"
@@ -510,7 +515,7 @@ export default function ViewCareerApplicationPage() {
 
             {/* Second Card - Postal Address */}
             <Card className="w-[50%]">
-              <CardContent className="">
+              <CardContent>
                 <h3 className="mb-4 mt-4 text-lg font-semibold">
                   Postal Address
                 </h3>
@@ -529,8 +534,8 @@ export default function ViewCareerApplicationPage() {
                       'postalAddressLine1'
                     )}
                     {renderFieldRow(
-                      'Postal Address Line1',
-                      application?.postalAddressLine1,
+                      'Postal Address Line2',
+                      application?.postalAddressLine2,
                       'postalAddressLine2'
                     )}
                     {renderFieldRow(
@@ -547,6 +552,98 @@ export default function ViewCareerApplicationPage() {
                       'Postal Country',
                       application?.postalCountry,
                       'postalCountry'
+                    )}
+
+                    {(application?.prevPostalAddressLine1 ||
+                      application?.prevPostalAddressLine2 ||
+                      application?.prevPostalCity ||
+                      application?.prevPostalPostCode ||
+                      application?.prevPostalCountry) && (
+                      <>
+                        <tr>
+                          <td
+                            colSpan={3}
+                            className="pb-2 pt-6 text-left font-semibold text-gray-900"
+                          >
+                            Previous Address
+                          </td>
+                        </tr>
+                        {renderFieldRow(
+                          'Previous Address Line1',
+                          application?.prevPostalAddressLine1,
+                          'prevPostalAddressLine1'
+                        )}
+                        {renderFieldRow(
+                          'Previous Address Line2',
+                          application?.prevPostalAddressLine2,
+                          'prevPostalAddressLine2'
+                        )}
+                        {renderFieldRow(
+                          'Previous City',
+                          application?.prevPostalCity,
+                          'prevPostalCity'
+                        )}
+                        {renderFieldRow(
+                          'Previous Post Code',
+                          application?.prevPostalPostCode,
+                          'prevPostalPostCode'
+                        )}
+                        {renderFieldRow(
+                          'Previous Country',
+                          application?.prevPostalCountry,
+                          'prevPostalCountry'
+                        )}
+                      </>
+                    )}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent
+            value="emergencyContact"
+            className="flex w-full flex-row  justify-between gap-4"
+          >
+            {/* First Card */}
+            <Card className="w-[50%]">
+              <CardContent className="pt-6">
+                <h3 className="mb-4 text-lg font-semibold">
+                  Emergency Contact
+                </h3>
+
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-1/3 text-left">Field</TableHead>
+                      <TableHead className="text-right">Value</TableHead>
+                      <TableHead className="w-10 text-right"></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {renderFieldRow(
+                      'Full Name',
+                      application?.emergencyFullName,
+                      'emergencyFullName'
+                    )}
+                    {renderFieldRow(
+                      'Relationship',
+                      application?.emergencyRelationship,
+                      'emergencyRelationship'
+                    )}
+                    {renderFieldRow(
+                      'Emergency Contact Number',
+                      application?.emergencyContactNumber,
+                      'emergencyContactNumber'
+                    )}
+                    {renderFieldRow(
+                      'Emergency Email',
+                      application?.emergencyEmail,
+                      'emergencyEmail'
+                    )}
+                    {renderFieldRow(
+                      'Emergency Address',
+                      application?.emergencyAddress,
+                      'emergencyAddress'
                     )}
                   </TableBody>
                 </Table>
@@ -579,7 +676,9 @@ export default function ViewCareerApplicationPage() {
                       'availableFromDate'
                     )}
                     {renderFieldRow('Source', application?.source, 'source')}
-                    {application.source === 'referral' &&
+
+                    {/* Conditionally show Referral Employee if source is referral */}
+                    {application?.source === 'referral' &&
                       renderFieldRow(
                         'Referral Employee',
                         application?.referralEmployee,
@@ -596,6 +695,39 @@ export default function ViewCareerApplicationPage() {
                       application?.isUnderStatePensionAge ? 'Yes' : 'No',
                       'isUnderStatePensionAge'
                     )}
+                    {renderFieldRow(
+                      'Over 18',
+                      application?.isOver18 ? 'Yes' : 'No',
+                      'isOver18'
+                    )}
+                    {renderFieldRow(
+                      'Subject To Immigration Control',
+                      application?.isSubjectToImmigrationControl ? 'Yes' : 'No',
+                      'isSubjectToImmigrationControl'
+                    )}
+                    {renderFieldRow(
+                      'Can Work In UK',
+                      application?.canWorkInUK ? 'Yes' : 'No',
+                      'canWorkInUK'
+                    )}
+                    {renderFieldRow(
+                      'Has Team Member Relationship',
+                      application?.hasTeamMemberRelationship ? 'Yes' : 'No',
+                      'hasTeamMemberRelationship'
+                    )}
+                    {renderFieldRow(
+                      'Has Driving Licence',
+                      application?.hasDrivingLicence ? 'Yes' : 'No',
+                      'hasDrivingLicence'
+                    )}
+
+                    {/* Conditionally show driving convictions if hasDrivingLicence is true */}
+                    {application?.hasDrivingLicence &&
+                      renderFieldRow(
+                        'Driving Convictions',
+                        application?.drivingConvictions || '-',
+                        'drivingConvictions'
+                      )}
                   </TableBody>
                 </Table>
               </CardContent>
@@ -1064,14 +1196,12 @@ export default function ViewCareerApplicationPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-
                       <>
                         {renderFieldRow(
-                        'Photograph',
-                        application?.image,
-                        'image'
-                      )}
-
+                          'Photograph',
+                          application?.image,
+                          'image'
+                        )}
                       </>
                       {application?.proofOfAddress?.map(
                         (url: string, index: number) =>
@@ -1090,7 +1220,7 @@ export default function ViewCareerApplicationPage() {
                             `workExperience[${index}]`
                           )
                       )}
-                    
+
                       {application?.bankStatement?.map(
                         (url: string, index: number) =>
                           renderFieldRow(
@@ -1115,7 +1245,7 @@ export default function ViewCareerApplicationPage() {
             </div>
           </TabsContent>
 
-          <TabsContent value="job">
+          {/* <TabsContent value="job">
             <div className="-mt-1.5 grid grid-cols-1 gap-6 md:grid-cols-2">
               {applicationJob && applicationJob.length > 0 ? (
                 applicationJob.map((jobEntry, index) => (
@@ -1160,7 +1290,7 @@ export default function ViewCareerApplicationPage() {
                 </p>
               )}
             </div>
-          </TabsContent>
+          </TabsContent> */}
 
           <TabsContent value="terms">
             <Card className="-mt-1.5 w-full md:w-1/2">

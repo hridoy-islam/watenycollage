@@ -98,7 +98,7 @@ export function DisabilityInfoStep({
                 <FormItem className="py-2">
                   <div className="flex flex-row items-center space-x-3 space-y-0">
                     <FormLabel>
-                      Do you have a disability?{' '}
+                      Do you have any known disability?{' '}
                       <span className="text-red-500">*</span>
                     </FormLabel>
 

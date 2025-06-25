@@ -364,7 +364,7 @@ export function ComplianceStep({
                 render={({ field }) => (
                   <FormItem className="flex w-full flex-col">
                     <FormLabel>
-                      Do you have disability?{' '}
+                     Do you have any known disability?{' '}
                       <span className="text-red-500">*</span>
                     </FormLabel>
                     <FormControl>

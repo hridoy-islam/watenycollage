@@ -177,7 +177,7 @@ export default function CareerGuideline() {
               <Button
                 variant="outline"
                 onClick={() => setStep(step - 1)}
-                className="px-6 py-3 text-xl"
+                className="bg-watney px-8 py-4 text-xl text-white hover:bg-watney/90"
               >
                 Back
               </Button>

@@ -56,6 +56,8 @@ const TabContent: React.FC<TabContentProps> = ({ activeTab, userData,refreshData
         return <PersonalDetails {...commonProps} />;
       case 'applicationData':
         return <ApplicationData {...commonProps} />;
+         case 'emergencyContactData':
+        return <EmergencyContactData {...commonProps} />;
       case 'educationData':
         return <EducationData {...commonProps} />;
       case 'employmentData':

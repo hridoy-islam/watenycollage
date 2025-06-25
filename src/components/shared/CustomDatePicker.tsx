@@ -7,13 +7,16 @@ interface CustomDatePickerProps {
   onChange: (date: Date | null) => void;
   disabled?: boolean;
   placeholder?: string;
+     futureDate?: boolean;
 }
 
 export function CustomDatePicker({
   selected,
   onChange,
   disabled ,
-  placeholder = 'Select date'
+  placeholder = 'Select date',
+  futureDate = true 
+
 }: CustomDatePickerProps) {
   const years = Array.from(
     { length: 100 },
@@ -42,6 +45,7 @@ export function CustomDatePicker({
         dateFormat="MM/dd/yyyy"
         disabled={disabled}
         popperClassName="z-[1001]"
+        maxDate={futureDate ? new Date(): undefined  }
         portalId="root-portal"
         className="w-full"
         wrapperClassName="w-full block"
