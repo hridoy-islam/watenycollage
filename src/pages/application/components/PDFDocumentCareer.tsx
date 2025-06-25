@@ -86,6 +86,10 @@ const styles = StyleSheet.create({
     marginTop: -10,
     fontSize: 9,
     textAlign: 'center'
+  },
+  noBorderCol: {
+    padding: 5,
+    width: '30%'
   }
 });
 
@@ -170,7 +174,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
 
           {/* Right: Passport Photo */}
           {data?.image && (
-            <View style={{ position: 'absolute', right: 0, top: 0 }}>
+            <View style={{ position: 'absolute', right: 0, top: -20 }}>
               <Image
                 style={{
                   width: 80,
@@ -195,26 +199,37 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
           </View>
         </View>
 
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'flex-start',
-             marginTop: -60
-          }}
-        >
-          <View style={{ width: '70%' }}>
-            <View style={styles.table}>
-              <View style={styles.tableRow}>
-                <View style={[styles.tableCol, { width: '30%' }]}>
-                  <Text>POST APPLIED FOR</Text>
-                </View>
-                <View style={[styles.tableCol, { width: '70%' }]}>
-                  <Text>{applicationJob?.jobId?.jobTitle}</Text>
-                </View>
-              </View>
-            </View>
-          </View>
-        </View>
+       <View
+  style={{
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    marginTop: -60,
+  }}
+>
+  <View style={{ width: '70%' }}>
+    <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 6,
+  
+        backgroundColor: '#fff',
+        
+      }}
+    >
+      {/* Label */}
+      <View style={{ width: '30%' }}>
+        <Text style={{ fontWeight: '600' }}>POST APPLIED FOR:</Text>
+      </View>
+
+      {/* Value */}
+      <View style={{ width: '70%' }}>
+        <Text>{applicationJob?.jobId?.jobTitle}</Text>
+      </View>
+    </View>
+  </View>
+</View>
+
 
         <Text style={styles.subSectionHeader}>PERSONAL DETAILS</Text>
 
@@ -778,7 +793,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
         <View style={{ marginBottom: 10 }}>
           <Text>
             Do you have any known disability?{' '}
-            {capitalizeFirstLetter(data.hasDisability?"Yes":"No" )}
+            {capitalizeFirstLetter(data.hasDisability ? 'Yes' : 'No')}
           </Text>
         </View>
         <View style={{ border: '1px solid #000', minHeight: 30, padding: 5 }}>
