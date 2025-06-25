@@ -1,5 +1,3 @@
-
-
 import type React from 'react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -17,15 +15,12 @@ import {
   FormLabel,
   FormMessage
 } from '@/components/ui/form';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
+
 import axiosInstance from '@/lib/axios';
 import { nationalities } from '@/types';
+import ReactSelect from 'react-select';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 const registrationSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -76,21 +71,19 @@ export default function RegistrationForm({
       const response = await axiosInstance.post('/auth/signup', {
         ...values,
         name: `${values.title} ${values.firstName} ${values.initial} ${values.lastName}`,
-        role:'applicant',
+        role: 'applicant',
         isCompleted: false,
-    
-          title: values.title,
-          firstName: values.firstName,
-          initial: values.initial,
-          lastName: values.lastName,
-          nationality: values.nationality,
-          dateOfBirth: values.dateOfBirth
-        
+
+        title: values.title,
+        firstName: values.firstName,
+        initial: values.initial,
+        lastName: values.lastName,
+        nationality: values.nationality,
+        dateOfBirth: values.dateOfBirth
       });
 
       setFormSubmitted(true);
 
-   
       toast({
         title: 'Account Created',
         description: 'Your account was successfully created.'
@@ -108,8 +101,6 @@ export default function RegistrationForm({
     }
   };
 
-
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -121,23 +112,21 @@ export default function RegistrationForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Title *</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select title" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {['Mr', 'Mrs', 'Miss', 'Ms', 'Dr'].map((item) => (
-                      <SelectItem key={item} value={item}>
-                        {item}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <FormControl>
+                  <ReactSelect
+                    options={['Mr', 'Mrs', 'Miss', 'Ms', 'Dr'].map((item) => ({
+                      label: item,
+                      value: item
+                    }))}
+                    value={
+                      field.value
+                        ? { label: field.value, value: field.value }
+                        : null
+                    }
+                    onChange={(option) => field.onChange(option?.value)}
+                    placeholder="Select title"
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -210,23 +199,21 @@ export default function RegistrationForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Nationality *</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select nationality" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {nationalities.map((nation, index) => (
-                      <SelectItem key={index} value={nation}>
-                        {nation}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <FormControl>
+                  <ReactSelect
+                    options={nationalities.map((nation) => ({
+                      label: nation,
+                      value: nation
+                    }))}
+                    value={
+                      field.value
+                        ? { label: field.value, value: field.value }
+                        : null
+                    }
+                    onChange={(option) => field.onChange(option?.value)}
+                    placeholder="Select nationality"
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}

@@ -113,7 +113,7 @@ const EducationData = ({
         <div>
           <h3 className="mb-4 text-lg font-medium text-gray-900">Education</h3>
           {(localData.educationData || []).map((entry, index) => (
-            <div key={index} className="mb-6 rounded-md border p-4">
+            <div key={index} className="mb-6 rounded-md border border-gray-300 p-4">
               <h4 className="text-md mb-2 font-semibold text-gray-800">
                 Education {index + 1}
               </h4>

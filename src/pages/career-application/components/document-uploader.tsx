@@ -54,7 +54,7 @@ export function ImageUploader({
 
   const handleFile = (file: File) => {
     if (file.size > MAX_SIZE) {
-      alert('File size exceeds the 2MB limit.');
+      alert('File size exceeds the 5MB limit.');
       return;
     }
 
@@ -136,7 +136,7 @@ export function ImageUploader({
             <input
               ref={inputRef}
               type="file"
-              accept="image/*"
+     
               onChange={handleChange}
               className="absolute inset-0 cursor-pointer opacity-0"
             />
@@ -172,11 +172,9 @@ export function ImageUploader({
               <div className="flex flex-col items-center gap-2 text-center">
                 <ImageIcon className="h-8 w-8 text-muted-foreground" />
                 <div className="text-sm font-medium">
-                  Drag & drop here, or click to select
+              Click to select
                 </div>
-                <div className="text-xs text-muted-foreground">
-                  PNG, JPG or GIF (max. 5MB)
-                </div>
+              
               </div>
             )}
           </div>
@@ -185,7 +183,7 @@ export function ImageUploader({
 
           {selectedImage && !uploading && (
             <Button className="w-full" onClick={uploadImage}>
-              Upload Image
+              Upload Document
             </Button>
           )}
 

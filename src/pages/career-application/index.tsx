@@ -527,7 +527,7 @@ const refreshData = () => {
                   career application and will get back to you shortly. Stay
                   tuned!
                   {/* Support Section */}
-                  <div className=" mt-2 w-full rounded-md text-left text-base text-white ">
+                  <div className=" mt-2 w-full rounded-md text-center text-base text-white ">
                     <p>
                       If you have any questions or need help with your
                       application, please don’t hesitate to contact us:

@@ -241,7 +241,7 @@ export function EducationStep({
                   Date of Award (MM/DD/YYYY)
                   <span className="text-red-500">*</span>
                 </TableHead>
-                <TableHead>
+                <TableHead className='w-48'>
                   Certificate
                   <span className="text-red-500">*</span>
                 </TableHead>
@@ -250,13 +250,13 @@ export function EducationStep({
             </TableHeader>
             <TableBody>
               {fields.map((field, index) => (
-                <TableRow key={field.id}>
+                <TableRow key={field.id} >
                   <TableCell>
                     <FormField
                       control={form.control}
                       name={`educationData.${index}.qualification`}
                       render={({ field }) => (
-                        <FormItem className="mt-4">
+                        <FormItem className="">
                           <FormControl>
                             <Input
                               {...field}
@@ -341,7 +341,7 @@ export function EducationStep({
                       }}
                     />
                   </TableCell>
-                  <TableCell>
+                  <TableCell className='w-48'>
                     <FormItem className="mt-4 flex flex-col">
                       <Button
                         type="button"

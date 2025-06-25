@@ -83,6 +83,7 @@ const DisabilityData = ({
                   handleInputChange('disabilityDetails', e.target.value)
                 }
                 placeholder="Describe your disability"
+                   className='border-gray-300'
               />
             ) : (
               <div className="mt-1 text-gray-900">
@@ -138,6 +139,7 @@ const DisabilityData = ({
                   )
                 }
                 placeholder="Describe the needed adjustments"
+                className='border-gray-300'
               />
             ) : (
               <div className="mt-1 text-gray-900">
