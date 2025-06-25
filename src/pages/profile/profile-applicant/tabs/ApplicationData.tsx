@@ -65,7 +65,10 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
       <div className="space-y-8">
         {/* Available From Date */}
 
-        <div className="space-y-4">
+<div className='grid md:grid-cols-2 grid-cols-1 gap-4'>
+
+
+       
           {/* Extended Fields */}
           <div>
             <label className="block text-sm font-medium text-gray-700">
@@ -93,6 +96,8 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
               </div>
             )}
           </div>
+<div>
+
 
           {/* Source */}
           <label className="block text-sm font-medium text-gray-700">
@@ -115,8 +120,8 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
               {capitalizeFirstLetter(localData.source || '-')}
             </div>
           )}
-        </div>
-
+</div>
+      
         {localData.source === 'referral' && (
           <div>
             <label className="block text-sm font-medium text-gray-700">
@@ -264,6 +269,7 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
               {localData.canWorkInUK ? 'Yes' : 'No'}
             </div>
           )}
+        </div>
         </div>
 
         {/* Weekly Availability */}
