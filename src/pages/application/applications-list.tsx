@@ -13,7 +13,6 @@ import {
 import { useToast } from '@/components/ui/use-toast';
 import axiosInstance from '@/lib/axios';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
-import PDFGenerator from './components/PDFGenerator';
 import { DataTablePagination } from '@/components/shared/data-table-pagination';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -43,9 +42,7 @@ export default function ApplicationListPage() {
 
       let endpoint = '';
 
-      if (user?.role === 'student') {
-        endpoint = `/application-course?studentId=${user._id}`;
-      } else if (user?.role === 'applicant') {
+       if (user?.role === 'applicant') {
         endpoint = `/application-job?applicantId=${user._id}`;
       }
 

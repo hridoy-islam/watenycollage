@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ApplicantDashboard } from './rolewise-dashboard/applicant-dashboard';
-import { StudentDashboard } from './rolewise-dashboard/student-applicant';
 import { AdminDashboard } from './rolewise-dashboard/admin-dashboard';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -16,20 +15,12 @@ export default function DashboardPage() {
   useEffect(() => {
     if (user && user.isValided) {
       if (!user.authorized) {
-        if (user.role === 'student') {
-          navigate('/dashboard/student-guideline');
-        } else if (user.role === 'applicant') {
+         if (user.role === 'applicant') {
           navigate('/dashboard/career-guideline');
         }
       } else {
         if (!user.isCompleted) {
-          if (user.role === 'student') {
-            if (user.studentType == 'eu') {
-              navigate('/dashboard/eu/student-form');
-            } else {
-              navigate('/dashboard/international/student-form');
-            }
-          }
+          
           if (user.role === 'applicant') {
             navigate('/dashboard/career');
           }

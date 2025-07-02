@@ -9,28 +9,17 @@ import NotificationsPage from '@/pages/notification';
 import Otp from '@/pages/auth/otp';
 import NewPassword from '@/pages/new-password';
 import AdminLayout from '@/components/layout/admin-layout';
-import StudentApplication from '@/pages/homeStudentApplication';
-import ResumeUpload from '@/pages/uploadResume';
 import ApplicationListPage from '@/pages/application/applications-list';
-import NewApplicationListPage from '@/pages/application/newApplications-list';
 import CareerPage from '@/pages/career-application';
 import CareerResumeUpload from '@/pages/career-application/uploadResume/index';
-import CoursesPage from '@/pages/dashboard/components/course';
-import TermPage from '@/pages/dashboard/components/term';
-import CourseRegistration from '@/pages/course-register';
+
 import JobPage from '@/pages/dashboard/components/jobs';
 import JobApplication from '@/pages/Job-registration';
 import CareerGuideline from '@/pages/guideline/career-guideline';
-import CourseApplicationPage from '@/pages/dashboard-application/course-application';
 import JobApplicationPage from '@/pages/dashboard-application/job-application';
-import StudentGuideline from '@/pages/guideline/student-guideline';
-import ViewStudentApplicationPage from '@/pages/application/view-studentApplication';
 import ViewCareerApplicationPage from '@/pages/application/view-careerApplication';
-import StudentApplicationsPage from '@/pages/dashboard/components/student-applications';
 import CareerApplicationsPage from '@/pages/dashboard/components/jobs/job-applicant';
 
-import HomeStudentApplication from '@/pages/homeStudentApplication';
-import InternationalStudentApplication from '@/pages/internationalStudentApplication';
 
 const SignInPage = lazy(() => import('@/pages/auth/signin/index'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
@@ -45,7 +34,7 @@ export default function AppRouter() {
     path: '/dashboard',
     element: (
       <AdminLayout>
-        <ProtectedRoute allowedRoles={['admin', 'student', 'applicant']}>
+        <ProtectedRoute allowedRoles={['admin', 'applicant']}>
           <Suspense>
             <Outlet />
           </Suspense>
@@ -65,47 +54,23 @@ export default function AppRouter() {
         path: 'notifications',
         element: <NotificationsPage />
       },
-      {
-        path: 'eu/student-form',
-        element: withRole(<HomeStudentApplication />, ['admin', 'student']),
-        index: true
-      },
-      {
-        path: 'international/student-form',
-        element: withRole(<InternationalStudentApplication />, ['admin', 'student']),
-        index: true
-      },
+     
       {
         path: 'applications',
         element: withRole(<ApplicationListPage />, ['admin']),
         index: true
       },
-      {
-        path: 'course-application/:id',
-        element: withRole(<CourseApplicationPage />, ['admin', 'student'])
-      },
+      
       {
         path: 'job-application/:id',
         element: withRole(<JobApplicationPage />, ['admin', 'applicant'])
       },
-      {
-        path: 'student-application/:id',
-        element: withRole(<ViewStudentApplicationPage />, ['admin','student'])
-      },
+      
       {
         path: 'career-application/:id/:userId',
         element: withRole(<ViewCareerApplicationPage />, ['admin','applicant'])
       },
-      {
-        path: 'courses',
-        element: withRole(<CoursesPage />, ['admin','student']),
-        index: true
-      },
-      {
-        path: 'terms',
-        element: withRole(<TermPage />, ['admin','student']),
-        index: true
-      },
+      
       {
         path: 'jobs',
         element: withRole(<JobPage />, ['admin','applicant']),
@@ -131,16 +96,7 @@ export default function AppRouter() {
         element: withRole(<CareerGuideline />, ['admin','applicant']),
         index: true
       },
-      {
-        path: 'student-guideline',
-        element: withRole(<StudentGuideline />, ['student','admin']),
-        index: true
-      },
-      {
-        path: 'student-applications',
-        element: withRole(<StudentApplicationsPage />, ['admin','student']),
-        index: true
-      }
+      
     ]
   }
 ];
@@ -151,11 +107,7 @@ export default function AppRouter() {
     //   element: <StudentApplication />,
     //   index: true
     // },
-    {
-      path: 'courses/apply/:id',
-      element: <CourseRegistration />,
-      index: true
-    },
+    
     {
       path: 'jobs/apply/:id',
       element: <JobApplication />,
