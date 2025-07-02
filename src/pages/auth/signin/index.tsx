@@ -27,7 +27,7 @@ export default function SignInPage() {
           <div className="flex flex-row space-y-2 text-center items-center gap-4">
             <img src={logo} alt="logo" className='w-24 ' />
             <div className='border h-12'></div>
-            <h1 className="text-2xl font-semibold tracking-tight">Medicare</h1>
+            <h1 className="text-2xl font-semibold tracking-tight">Evercare</h1>
           </div>
           <h1 className='font-semibold text-2xl'>Login</h1>
           <UserAuthForm />
