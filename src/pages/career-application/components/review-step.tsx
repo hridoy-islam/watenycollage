@@ -333,7 +333,8 @@ export function ReviewStep({
       {renderSection('Documents', {
         cvResume: defaultValues.cvResume,
         proofOfAddress: defaultValues.proofOfAddress,
-
+        passport: defaultValues.passport,
+        immigrationDocument: defaultValues.immigrationDocument,
         workExperience: defaultValues.workExperience,
         personalStatement: defaultValues.personalStatement
       })}

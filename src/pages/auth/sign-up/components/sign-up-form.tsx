@@ -95,8 +95,8 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
       if (response?.data?.success) {
         localStorage.setItem('hasVisitedBefore', 'false');
         toast({
-          title: 'Account Created',
-          description: 'Your account was successfully created.'
+          title: 'Thank you',
+          description: 'Your account has been created.'
         });
         router.push('/');
       } else {

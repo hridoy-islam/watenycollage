@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -22,8 +22,12 @@ export const createDocumentSchema = (hasExistingResume = false) =>
     proofOfAddress: z.array(z.string()).nonempty({
       message: 'Proof of address is required'
     }),
+    passport: z.array(z.string()).nonempty({
+      message: 'Passport or ID is required'
+    }),
     workExperience: z.array(z.string()).optional(),
-    personalStatement: z.array(z.string()).optional()
+    personalStatement: z.array(z.string()).optional(),
+    immigrationDocument: z.array(z.string()).optional()
   });
 
 // 🧾 Type derived from schema
@@ -33,29 +37,54 @@ interface DocumentsStepProps {
   defaultValues?: Partial<DocumentFile>;
   onSaveAndContinue: (data: DocumentFile) => void;
   setCurrentStep: (step: number) => void;
+  onSave: () => void;
 }
 
 export function DocumentStep({
   defaultValues,
   onSaveAndContinue,
-  setCurrentStep
+  setCurrentStep,
+  onSave
 }: DocumentsStepProps) {
   // Check if resume already exists
   const hasExistingResume = !!defaultValues?.cvResume;
 
-  console.log(!!defaultValues?.cvResume,'cvresume')
 
   // Create dynamic schema based on existing data
   const documentSchema = createDocumentSchema(hasExistingResume);
 
   // Initialize state
-  const [documents, setDocuments] = useState<DocumentFile>({
-    image: defaultValues?.image ?? '',
-    proofOfAddress: defaultValues?.proofOfAddress ?? [],
-    cvResume: defaultValues?.cvResume ?? '',
-    workExperience: defaultValues?.workExperience ?? [],
-    personalStatement: defaultValues?.personalStatement ?? []
-  });
+const [documents, setDocuments] = useState<DocumentFile>({
+  image: '',
+  cvResume: '',
+  proofOfAddress: [],
+  passport: [],
+  workExperience: [],
+  personalStatement: [],
+  immigrationDocument: []
+});
+
+
+  useEffect(() => {
+  if (defaultValues) {
+    setDocuments({
+      image: defaultValues.image ?? '',
+      proofOfAddress: defaultValues?.proofOfAddress ?? [],
+      passport: defaultValues?.passport ?? [],
+      cvResume: defaultValues?.cvResume ?? '',
+      workExperience: defaultValues.workExperience ?? [],
+      personalStatement: defaultValues.personalStatement ?? []
+    });
+  }
+}, [defaultValues]);
+
+
+   const documentsRef = useRef<DocumentFile>(documents);
+    useEffect(() => {
+      documentsRef.current = documents;
+    }, [documents]);
+
+    
 
   const [uploadState, setUploadState] = useState<{
     isOpen: boolean;
@@ -113,8 +142,9 @@ export function DocumentStep({
   // Check if all required documents are uploaded
   const allDocumentsUploaded =
     // documents.image !== '' &&
-    (hasExistingResume || documents.cvResume) &&
-    documents.proofOfAddress.length > 0;
+    (documents.cvResume) &&
+    documents.proofOfAddress.length > 0 &&
+    documents.passport.length > 0;
 
   // Render uploaded files
   const renderUploadedFiles = (field: keyof DocumentFile) => {
@@ -275,56 +305,79 @@ export function DocumentStep({
       }));
     }
 
+     setTimeout(() => {
+      onSave(documentsRef.current);
+    }, 0);
+
     setUploadState({ isOpen: false, field: null });
   };
 
   const documentTypes = [
-  // {
-  //   id: 'image',
-  //   label: 'Photograph',
-  //   required: true,
-  //   instructions: 'Please upload a recent and formal photo of yourself.',
-  //   formats: 'JPG, PNG',
-  //   error: validationErrors.image,
-  //   icon: FileText
-  // },
-  {
-    id: 'cvResume',
-    label: 'Resume',
-    required: !hasExistingResume,
-    instructions: 'Upload your CV or Resume',
-    formats: 'PDF, JPG, PNG',
-    error: validationErrors.cvResume,
-    icon: FileText
-  },
-  {
-    id: 'proofOfAddress',
-    label: 'Proof of Address',
-    required: true,
-    instructions:
-      'Upload recent utility bill or bank statement showing your address',
-    formats: 'PDF, JPG, PNG',
-    error: validationErrors.proofOfAddress,
-    icon: FileText
-  },
-  {
-    id: 'workExperience',
-    label: 'Work Experience Documents',
-    required: false,
-    instructions: 'Upload relevant work experience documents',
-    formats: 'PDF, JPG, PNG',
-    uploadLabel: 'You can upload multiple files',
-    icon: FileText
-  },
-  {
-    id: 'personalStatement',
-    label: 'Personal Statement',
-    required: false,
-    instructions: 'Upload your personal statement',
-    formats: 'PDF, DOCX, TXT',
-    icon: FileText
-  }
-].filter(doc => hasExistingResume ? doc.id !== 'cvResume' : true);
+    // {
+    //   id: 'image',
+    //   label: 'Photograph',
+    //   required: true,
+    //   instructions: 'Please upload a recent and formal photo of yourself.',
+    //   formats: 'JPG, PNG',
+    //   error: validationErrors.image,
+    //   icon: FileText
+    // },
+    {
+      id: 'cvResume',
+      label: 'Resume',
+      required: true,
+      instructions: 'Upload your CV or Resume',
+      formats: 'PDF, JPG, PNG',
+      error: validationErrors.cvResume,
+      icon: FileText
+    },
+    {
+      id: 'proofOfAddress',
+      label: 'Proof of Address',
+      required: true,
+      instructions:
+        'Upload recent utility bill or bank statement showing your address',
+      formats: 'PDF, JPG, PNG',
+      error: validationErrors.proofOfAddress,
+      icon: FileText
+    },
+    {
+      id: 'passport',
+      label: 'Passport or UK ID',
+      required: true,
+      instructions:
+        'Please upload a clear copy of your valid passport, BRP, or UK driving licence',
+      formats: 'PDF, JPG, PNG',
+      error: validationErrors.proofOfAddress,
+      icon: FileText
+    },
+    {
+      id: 'immigrationDocument',
+      label: 'Immigration Documents',
+      required: false,
+      instructions: 'Upload any relevant visas, permits, or immigration-related documents.',
+      formats: 'PDF, JPG, PNG',
+      uploadLabel: 'You can upload multiple files',
+      icon: FileText
+    },
+    {
+      id: 'workExperience',
+      label: 'Work Experience Documents',
+      required: false,
+      instructions: 'Upload relevant work experience documents',
+      formats: 'PDF, JPG, PNG',
+      uploadLabel: 'You can upload multiple files',
+      icon: FileText
+    },
+    {
+      id: 'personalStatement',
+      label: 'Personal Statement',
+      required: false,
+      instructions: 'Upload your personal statement',
+      formats: 'PDF, DOCX, TXT',
+      icon: FileText
+    }
+  ];
 
   return (
     <div className="">
@@ -336,7 +389,8 @@ export function DocumentStep({
                 Document Upload
               </h2>
               <p className="mt-1 text-gray-600">
-                Please upload all required documents to complete your application
+                Please upload all required documents to complete your
+                application
               </p>
             </div>
             <div className="rounded-lg border border-gray-200 bg-white p-4">
@@ -350,15 +404,18 @@ export function DocumentStep({
                     Required Documents:
                   </p>
                   <ul className="space-y-1 text-sm text-gray-600">
-                    {!hasExistingResume && <li className="flex items-center">
+                    <li className="flex items-center">
                       <div className="mr-2 h-2 w-2 rounded-full bg-red-500"></div>
                       Resume
-                    </li>}
-                    
-                   
+                    </li>
+
                     <li className="flex items-center">
                       <div className="mr-2 h-2 w-2 rounded-full bg-red-500"></div>
                       Proof of address
+                    </li>
+                    <li className="flex items-center">
+                      <div className="mr-2 h-2 w-2 rounded-full bg-red-500"></div>
+                      Passport
                     </li>
                   </ul>
                 </div>
@@ -400,8 +457,8 @@ export function DocumentStep({
                     : id === 'cvResume'
                       ? !!documents.cvResume
                       : Array.isArray(documents[id as keyof DocumentFile]) &&
-                        (documents[id as keyof DocumentFile] as string[]).length >
-                          0;
+                        (documents[id as keyof DocumentFile] as string[])
+                          .length > 0;
 
                 return (
                   <div

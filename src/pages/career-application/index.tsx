@@ -303,6 +303,18 @@ export default function CareerApplicationForm() {
     }
   };
 
+    const handleDocumentSave = async (data: any) => {
+      try {
+        setFormData((prev) => ({ ...prev, ...data }));
+        await axiosInstance.patch(`/users/${user._id}`, data);
+      } catch (error: any) {
+        toast({
+          title: error?.response?.data?.message || 'Something went wrong.',
+          className: 'destructive border-none text-white'
+        });
+      }
+    };
+
   const handleDocumentsSaveAndContinue = async (data: any) => {
     try {
       setFormData((prev) => ({ ...prev, ...data }));
@@ -481,6 +493,7 @@ export default function CareerApplicationForm() {
             defaultValues={{ ...fetchData, ...formData }}
             onSaveAndContinue={handleDocumentsSaveAndContinue}
             setCurrentStep={setCurrentStep}
+             onSave={handleDocumentSave}
           />
         );
       case 10:

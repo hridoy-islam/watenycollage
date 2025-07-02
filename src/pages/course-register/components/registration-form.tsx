@@ -100,8 +100,8 @@ export default function RegistrationForm({
       // }
 
       toast({
-        title: 'Account Created',
-        description: 'Your account was successfully created.'
+        title: 'Thank you',
+        description: 'Your account has been created.'
       });
 
       if (onSuccess) {
