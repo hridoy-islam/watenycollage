@@ -20,8 +20,12 @@ export const documentSchema = z.object({
   proofOfAddress: z.array(z.string()).nonempty({
     message: 'Proof of address is required'
   }),
+  passport: z.array(z.string()).nonempty({
+    message: 'Passport or ID is required'
+  }),
   workExperience: z.array(z.string()).optional(),
-  personalStatement: z.array(z.string()).optional()
+  personalStatement: z.array(z.string()).optional(),
+    immigrationDocument: z.array(z.string()).optional()
 });
 
 export type DocumentFile = z.infer<typeof documentSchema>;
@@ -197,11 +201,11 @@ export default function DocumentData({
   };
 
   const documentTypes = [
-    {
+     {
       id: 'cvResume',
       label: 'Resume',
       required: true,
-      instructions: 'Upload a clear and up-to-date CV or resume.',
+      instructions: 'Upload your CV or Resume',
       formats: 'PDF, JPG, PNG',
       error: validationErrors.cvResume,
       icon: FileText
@@ -210,9 +214,29 @@ export default function DocumentData({
       id: 'proofOfAddress',
       label: 'Proof of Address',
       required: true,
-      instructions: 'Upload recent utility bill or bank statement showing your address',
+      instructions:
+        'Upload recent utility bill or bank statement showing your address',
       formats: 'PDF, JPG, PNG',
       error: validationErrors.proofOfAddress,
+      icon: FileText
+    },
+    {
+      id: 'passport',
+      label: 'Passport or UK ID',
+      required: true,
+      instructions:
+        'Please upload a clear copy of your valid passport, BRP, or UK driving licence',
+      formats: 'PDF, JPG, PNG',
+      error: validationErrors.proofOfAddress,
+      icon: FileText
+    },
+    {
+      id: 'immigrationDocument',
+      label: 'Immigration Documents',
+      required: false,
+      instructions: 'Upload any relevant visas, permits, or immigration-related documents.',
+      formats: 'PDF, JPG, PNG',
+      uploadLabel: 'You can upload multiple files',
       icon: FileText
     },
     {
@@ -221,8 +245,8 @@ export default function DocumentData({
       required: false,
       instructions: 'Upload relevant work experience documents',
       formats: 'PDF, JPG, PNG',
-      icon: FileText,
-      uploadLabel: 'You can upload multiple files'
+      uploadLabel: 'You can upload multiple files',
+      icon: FileText
     },
     {
       id: 'personalStatement',

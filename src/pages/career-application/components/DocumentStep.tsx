@@ -73,7 +73,8 @@ const [documents, setDocuments] = useState<DocumentFile>({
       passport: defaultValues?.passport ?? [],
       cvResume: defaultValues?.cvResume ?? '',
       workExperience: defaultValues.workExperience ?? [],
-      personalStatement: defaultValues.personalStatement ?? []
+      personalStatement: defaultValues.personalStatement ?? [],
+      immigrationDocument: defaultValues.immigrationDocument ?? []
     });
   }
 }, [defaultValues]);

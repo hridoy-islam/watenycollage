@@ -136,7 +136,7 @@ export function ImageUploader({
             <input
               ref={inputRef}
               type="file"
-              accept="image/*"
+              
               onChange={handleChange}
               className="absolute inset-0 cursor-pointer opacity-0"
             />
@@ -172,10 +172,10 @@ export function ImageUploader({
               <div className="flex flex-col items-center gap-2 text-center">
                 <ImageIcon className="h-8 w-8 text-muted-foreground" />
                 <div className="text-sm font-medium">
-                  Drag & drop here, or click to select
+                  click to select
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  PNG, JPG or GIF (max. 5MB)
+                  Maximum size 5MB
                 </div>
               </div>
             )}
