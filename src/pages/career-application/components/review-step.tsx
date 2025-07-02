@@ -143,12 +143,15 @@ export function ReviewStep({
     return str.charAt(0).toUpperCase() + str.slice(1);
   };
 
+  
   const formatFieldName = (name: string) => {
+      if (name === 'canWorkInUK') return 'Can Work In UK';
     return name
       .replace(/([A-Z])/g, ' $1')
       .replace(/^./, (str) => str.toUpperCase())
       .trim();
   };
+  
   const renderSection = (title: string, data: any, showTitle = true) => {
     if (!data) return null;
 
