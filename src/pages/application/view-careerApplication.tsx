@@ -710,24 +710,7 @@ export default function ViewCareerApplicationPage() {
                       application?.canWorkInUK ? 'Yes' : 'No',
                       'canWorkInUK'
                     )}
-                    {renderFieldRow(
-                      'Has Team Member Relationship',
-                      application?.hasTeamMemberRelationship ? 'Yes' : 'No',
-                      'hasTeamMemberRelationship'
-                    )}
-                    {renderFieldRow(
-                      'Has Driving Licence',
-                      application?.hasDrivingLicence ? 'Yes' : 'No',
-                      'hasDrivingLicence'
-                    )}
-
-                    {/* Conditionally show driving convictions if hasDrivingLicence is true */}
-                    {application?.hasDrivingLicence &&
-                      renderFieldRow(
-                        'Driving Convictions',
-                        application?.drivingConvictions || '-',
-                        'drivingConvictions'
-                      )}
+         
                   </TableBody>
                 </Table>
               </CardContent>

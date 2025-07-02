@@ -83,42 +83,27 @@ export function AdminDashboard() {
 
   const fetchData = async (page = 1, entriesPerPage = 10) => {
     try {
-      const [studentRes, careerRes, courseRes, termRes, jobRes] =
+      const [ careerRes, jobRes] =
         await Promise.all([
-          axiosInstance.get('/application-course', {
-            params: { page, limit: entriesPerPage }
-          }),
+          
           axiosInstance.get('/application-job', {
             params: { page, limit: entriesPerPage }
           }),
-          axiosInstance.get('/courses', {
-            params: { page, limit: entriesPerPage }
-          }),
-          axiosInstance.get('/terms', {
-            params: { page, limit: entriesPerPage }
-          }),
+         
           axiosInstance.get('/jobs', {
             params: { page, limit: entriesPerPage }
           })
         ]);
 
       // Set individual total pages
-      setStudentTotalPages(studentRes.data.data?.meta?.totalPage || 1);
       setCareerTotalPages(careerRes.data.data?.meta?.totalPage || 1);
-      setCourseTotalPages(courseRes.data.data?.meta?.totalPage || 1);
-      setTermTotalPages(termRes.data.data?.meta?.totalPage || 1);
+      
       setJobTotalPages(jobRes.data.data?.meta?.totalPage || 1);
-      settTotalStudent(studentRes.data.data?.meta?.total );
       setTotalApplicant(careerRes.data.data?.meta?.total );
-      setTotalCourse(courseRes.data.data?.meta?.total );
-      setTotalTerm(termRes.data.data?.meta?.total);
       setTotalJob(jobRes.data.data?.meta?.total);
 
       // Set data
-      setStudentApplications(studentRes.data.data?.result || []);
       setCareerApplications(careerRes.data.data?.result || []);
-      setCourses(courseRes.data.data?.result || []);
-      setTerms(termRes.data.data?.result || []);
       setJobs(jobRes.data.data?.result || []);
     } catch (error) {
       console.error('Error fetching data:', error);
