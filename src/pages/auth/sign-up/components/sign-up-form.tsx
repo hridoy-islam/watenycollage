@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
@@ -29,29 +28,17 @@ interface OptionType {
 
 interface SignUpFormProps extends HTMLAttributes<HTMLDivElement> {}
 
-const signUpSchema = z
-  .object({
-    title: z.string().min(1, 'Title is required'),
-    firstName: z.string().min(1, 'First name is required'),
-    lastName: z.string().min(1, 'Last name is required'),
-    initial: z.string().optional(),
-    email: z.string().email('Invalid email address'),
-    password: z.string().min(6, 'Password must be at least 6 characters'),
-    phone: z.string().min(7, 'Phone number is required'),
-    nationality: z.string().min(1, 'Nationality is required'),
-    dateOfBirth: z.string().min(1, 'Date of birth is required'),
-    role: z.string().min(1, 'Purpose of your visit is required'),
-    studentType: z.string().optional()
-  })
-  .superRefine((data, ctx) => {
-    if (data.role === 'student' && !data.studentType) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Student type is required for students',
-        path: ['studentType']
-      });
-    }
-  });
+const signUpSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().min(1, 'Last name is required'),
+  initial: z.string().optional(),
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+  phone: z.string().min(7, 'Phone number is required'),
+  nationality: z.string().min(1, 'Nationality is required'),
+  dateOfBirth: z.string().min(1, 'Date of birth is required'),
+});
 
 type SignUpFormValues = z.infer<typeof signUpSchema>;
 
@@ -72,13 +59,13 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
       phone: '',
       nationality: '',
       dateOfBirth: '',
-      role: '',
-      studentType: ''
+     
     }
   });
 
   const onSubmit = async (data: SignUpFormValues) => {
     try {
+      console.log('Form Data:', data);
       const response = await axiosInstance.post('/auth/signup', {
         ...data,
         name: `${data.title} ${data.firstName} ${data.initial} ${data.lastName}`,
@@ -88,8 +75,7 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
         lastName: data.lastName,
         nationality: data.nationality,
         dateOfBirth: data.dateOfBirth,
-        role: data.role,
-        studentType: data.studentType || undefined
+        role:'applicant'
       });
 
       if (response?.data?.success) {
@@ -141,7 +127,12 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
   return (
     <section>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 py-14">
+        <form
+          onSubmit={form.handleSubmit(onSubmit,  (errors) => {
+      console.log('Validation errors:', errors); // 🔍 Add this
+    })}
+          className="space-y-2 py-14"
+        >
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             {/* Title */}
             <FormField
@@ -272,7 +263,7 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
               control={form.control}
               name="dateOfBirth"
               render={({ field }) => {
-                const today = new Date().toISOString().split("T")[0];
+                const today = new Date().toISOString().split('T')[0];
                 return (
                   <FormItem>
                     <FormLabel className="block text-sm font-medium text-gray-700">
@@ -286,65 +277,6 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
                 );
               }}
             />
-
-            {/* Role */}
-            <FormField
-              control={form.control}
-              name="role"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="block text-sm font-medium text-gray-700">
-                   Choose Your Role 
-                    <span className="text-red-500">*</span>
-                  </FormLabel>
-                  <FormControl>
-                    <ReactSelect
-                      options={roleOptions}
-                      value={roleOptions.find(
-                        (opt) => opt.value === field.value
-                      )}
-                      onChange={(option: SingleValue<OptionType>) =>
-                        field.onChange(option?.value)
-                      }
-                      placeholder="Select an option"
-                      className="react-select-container"
-                      classNamePrefix="react-select"
-                    />
-                  </FormControl>
-                  <FormMessage className="text-xs text-red-600" />
-                </FormItem>
-              )}
-            />
-
-            {/* Student Type (Conditional) */}
-            {selectedRole === 'student' && (
-              <FormField
-                control={form.control}
-                name="studentType"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="block text-sm font-medium text-gray-700">
-                      Student Type <span className="text-red-500">*</span>
-                    </FormLabel>
-                    <FormControl>
-                      <ReactSelect
-                        options={studentTypeOptions}
-                        value={studentTypeOptions.find(
-                          (opt) => opt.value === field.value
-                        )}
-                        onChange={(option: SingleValue<OptionType>) =>
-                          field.onChange(option?.value)
-                        }
-                        placeholder="Select student type"
-                        className="react-select-container"
-                        classNamePrefix="react-select"
-                      />
-                    </FormControl>
-                    <FormMessage className="text-xs text-red-600" />
-                  </FormItem>
-                )}
-              />
-            )}
           </div>
 
           {/* Email & Password Row */}

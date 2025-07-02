@@ -32,12 +32,12 @@ export function TopNav() {
       <div className="flex items-center space-x-4">
         {isCompleted ? (
           <Link to="/dashboard" className="flex items-center space-x-4">
-            <img src={logo} className="w-12" />
+            <img src={logo} className="w-32" />
             <span className="text-lg font-semibold text-black"></span>
           </Link>
         ) : (
           <div className="flex items-center space-x-4">
-            <img src={logo} className="w-12" />
+            <img src={logo} className="w-32" />
             <span className="text-lg font-semibold text-black"></span>
           </div>
         )}

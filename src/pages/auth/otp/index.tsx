@@ -132,7 +132,7 @@ export default function Otp() {
             <div className="flex flex-col space-y-6 text-left">
               <div className="flex flex-row items-center gap-4 space-y-2 text-center">
                 <Link to="/">
-                  <img src={logo} alt="logo" className="w-12 " />
+                  <img src={logo} alt="logo" className="w-24 " />
                 </Link>
                 <div className="h-12 border"></div>
                 <h1 className="text-2xl font-semibold tracking-tight">

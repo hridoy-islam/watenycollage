@@ -25,9 +25,9 @@ export default function SignInPage() {
       <div className="flex h-full items-center p-4 lg:p-8 bg-gray-100 shadow-md">
         <Card className="mx-auto rounded-sm p-4 border border-gray-200 flex w-full flex-col justify-center space-y-4 sm:w-[350px]">
           <div className="flex flex-row space-y-2 text-center items-center gap-4">
-            <img src={logo} alt="logo" className='w-12 ' />
+            <img src={logo} alt="logo" className='w-24 ' />
             <div className='border h-12'></div>
-            <h1 className="text-2xl font-semibold tracking-tight">Watney College</h1>
+            <h1 className="text-2xl font-semibold tracking-tight">Cyberpeers</h1>
           </div>
           <h1 className='font-semibold text-2xl'>Login</h1>
           <UserAuthForm />

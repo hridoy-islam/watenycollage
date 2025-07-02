@@ -52,7 +52,7 @@ export default function SignUpPage() {
           <div className=" flex flex-col text-left">
             <div className="mb-4 flex items-center gap-4">
               <Link to="/">
-                <img src={logo} alt="logo" className="w-12" />
+                <img src={logo} alt="logo" className="w-24" />
               </Link>
               <div className="h-12 border-l border-gray-300"></div>
               <h1 className="text-xl font-semibold tracking-tight">
