@@ -1211,6 +1211,22 @@ export default function ViewCareerApplicationPage() {
                             `proofOfAddress[${index}]`
                           )
                       )}
+                      {application?.passport?.map(
+                        (url: string, index: number) =>
+                          renderFieldRow(
+                            `Passport Or ID`,
+                            url,
+                            `passport[${index}]`
+                          )
+                      )}
+                      {application?.immigrationDocument?.map(
+                        (url: string, index: number) =>
+                          renderFieldRow(
+                            `Immigration Status Document`,
+                            url,
+                            `immigrationDocument[${index}]`
+                          )
+                      )}
 
                       {application?.workExperience?.map(
                         (url: string, index: number) =>
