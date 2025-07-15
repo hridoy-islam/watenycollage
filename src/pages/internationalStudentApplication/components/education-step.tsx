@@ -480,12 +480,12 @@ export function EducationStep({
             <TableBody>
               {fields.map((field, index) => (
                 <TableRow key={field.id}>
-                  <TableCell>
+                  <TableCell className="align-top">
                     <FormField
                       control={form.control}
                       name={`educationData.${index}.qualification`}
                       render={({ field }) => (
-                        <FormItem className="mt-4">
+                        <FormItem className="">
                           <FormControl>
                             <Input
                               {...field}
@@ -493,15 +493,13 @@ export function EducationStep({
                               placeholder="Enter the name of the qualification"
                             />
                           </FormControl>
-                          <p className="text-xs text-gray-400">
-                            Example: Master of Business Administration (MBA)
-                          </p>
+                       
                           <FormMessage />
                         </FormItem>
                       )}
                     />
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="align-top">
                     <FormField
                       control={form.control}
                       name={`educationData.${index}.grade`}
@@ -521,12 +519,13 @@ export function EducationStep({
                       )}
                     />
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="align-top">
                     <FormField
                       control={form.control}
                       name={`educationData.${index}.institution`}
+                      
                       render={({ field }) => (
-                        <FormItem>
+                        <FormItem >
                           <FormControl>
                             <Input
                               {...field}
@@ -542,7 +541,7 @@ export function EducationStep({
                       )}
                     />
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="align-top">
                     <FormField
                       control={form.control}
                       name={`educationData.${index}.awardDate`}
@@ -551,7 +550,7 @@ export function EducationStep({
                           ? new Date(field.value)
                           : null;
                         return (
-                          <FormItem>
+                          <FormItem className="align-top">
                             <FormControl>
                               <CustomDatePicker
                                 selected={selectedDate}
@@ -567,12 +566,12 @@ export function EducationStep({
                       }}
                     />
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="align-top">
                     <FormField
                       control={form.control}
                       name={`educationData.${index}.certificate`}
                       render={({ field }) => (
-                        <FormItem className="mt-4 flex flex-col">
+                        <FormItem className=" flex flex-col">
                           <Button
                             type="button"
                             className="bg-watney text-white hover:bg-watney/90"
@@ -610,7 +609,7 @@ export function EducationStep({
                       )}
                     />
                   </TableCell>
-                  <TableCell>
+                  <TableCell >
                     <Button
                       type="button"
                       variant="ghost"
