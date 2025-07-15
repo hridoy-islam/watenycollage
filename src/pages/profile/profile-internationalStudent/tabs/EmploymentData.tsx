@@ -219,30 +219,7 @@ const EmploymentData = ({
                     </div>
                   )}
                 </div>
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Main Responsibilities
-                  </label>
-                  {isEditing ? (
-                    <Textarea
-                      rows={3}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      defaultValue={
-                        localData.currentEmployment?.responsibilities
-                      }
-                      onChange={(e) =>
-                        handleInputChange('currentEmployment', {
-                          ...localData.currentEmployment,
-                          responsibilities: e.target.value
-                        })
-                      }
-                    />
-                  ) : (
-                    <div className="mt-1 text-gray-900">
-                      {localData.currentEmployment?.responsibilities || '-'}
-                    </div>
-                  )}
-                </div>
+               
               </div>
             </div>
           </div>
@@ -307,9 +284,7 @@ const EmploymentData = ({
                         jobTitle: '',
                         startDate: '',
                         endDate: '',
-                        reasonForLeaving: '',
-                        responsibilities: '',
-                        contactPermission: ''
+                       
                       }
                     ])
                   }
@@ -466,62 +441,8 @@ const EmploymentData = ({
                           </div>
                         )}
                       </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                          Reason for Leaving
-                        </label>
-                        {isEditing ? (
-                          <Input
-                            type="text"
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                            value={job.reasonForLeaving}
-                            onChange={(e) =>
-                              handleInputChange('previousEmployments', [
-                                ...localData.previousEmployments.slice(
-                                  0,
-                                  index
-                                ),
-                                { ...job, reasonForLeaving: e.target.value },
-                                ...localData.previousEmployments.slice(
-                                  index + 1
-                                )
-                              ])
-                            }
-                          />
-                        ) : (
-                          <div className="mt-1 text-gray-900">
-                            {job.reasonForLeaving || '-'}
-                          </div>
-                        )}
-                      </div>
-                      <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-gray-700">
-                          Main Responsibilities
-                        </label>
-                        {isEditing ? (
-                          <Textarea
-                            rows={2}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                            value={job.responsibilities}
-                            onChange={(e) =>
-                              handleInputChange('previousEmployments', [
-                                ...localData.previousEmployments.slice(
-                                  0,
-                                  index
-                                ),
-                                { ...job, responsibilities: e.target.value },
-                                ...localData.previousEmployments.slice(
-                                  index + 1
-                                )
-                              ])
-                            }
-                          />
-                        ) : (
-                          <div className="mt-1 text-gray-900">
-                            {job.responsibilities || '-'}
-                          </div>
-                        )}
-                      </div>
+                      
+                     
                     </div>
                   </div>
                 ))}
@@ -534,71 +455,7 @@ const EmploymentData = ({
           </div>
         )}
 
-        {/* Employment Gaps - Only shown if hasPreviousEmployment is "yes" */}
-        {localData.hasPreviousEmployment === 'yes' && (
-          <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700">
-              Gaps in my employment history?
-            </label>
-            {isEditing ? (
-              <Select
-                options={yesNoOptions}
-                value={yesNoOptions.find(
-                  (opt) => opt.value === localData.hasEmploymentGaps
-                )}
-                onChange={(selectedOption) =>
-                  handleInputChange(
-                    'hasEmploymentGaps',
-                    selectedOption?.value || ''
-                  )
-                }
-                placeholder="Select"
-                styles={{
-                  menu: (provided) => ({ ...provided, zIndex: 9999 }),
-                  control: (provided, state) => ({
-                    ...provided,
-                    borderColor: state.isFocused
-                      ? '#4F46E5'
-                      : provided.borderColor,
-                    boxShadow: state.isFocused ? '0 0 0 1px #4F46E5' : 'none',
-                    '&:hover': {
-                      borderColor: state.isFocused ? '#4F46E5' : '#D1D5DB'
-                    }
-                  })
-                }}
-                menuPortalTarget={document.body}
-              />
-            ) : (
-              <div className="mb-4 text-gray-900">
-                {localData.hasEmploymentGaps || '-'}
-              </div>
-            )}
-            {localData.hasEmploymentGaps === 'yes' && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Gaps Details
-                </label>
-                {isEditing ? (
-                  <Textarea
-                    rows={3}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    defaultValue={localData.employmentGapsExplanation}
-                    onChange={(e) =>
-                      handleInputChange(
-                        'employmentGapsExplanation',
-                        e.target.value
-                      )
-                    }
-                  />
-                ) : (
-                  <div className="mt-1 text-gray-900">
-                    {localData.employmentGapsExplanation || '-'}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        )}
+       
       </div>
     </TabSection>
   );

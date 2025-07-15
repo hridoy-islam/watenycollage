@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Trash } from 'lucide-react';
+
 import axiosInstance from '@/lib/axios';
 import { DataTablePagination } from '@/components/shared/data-table-pagination';
 import { useToast } from '@/components/ui/use-toast';

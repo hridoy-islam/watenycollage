@@ -48,52 +48,32 @@ export function EducationStep({
   });
   const { user } = useSelector((state: any) => state.auth);
 
-  const educationEntrySchema = z.object({
-    institution: z.string().min(1, { message: 'Institution name is required' }),
-    grade: z.preprocess(
-      (val) => {
-        if (val === '' || val === null || val === undefined) return undefined;
-        const coercedValue = Number(val);
-        return isNaN(coercedValue) ? val : coercedValue;
-      },
-      z.union([
-        z.string(),
-        z
-          .number()
-          .min(1, { message: 'Grade must be at least 1' })
-          .max(100, { message: 'Grade cannot exceed 100' })
-      ])
-    ),
-    qualification: z
-      .string()
-      .min(1, { message: 'Qualification details are required' }),
-    awardDate: z.date({ required_error: 'Date of award is required' }),
-    certificate: z.any()
-          .refine(
-            (file) =>
-              file instanceof File ||
-              (typeof file === 'object' && file !== null && 'fileUrl' in file) ||
-              typeof file === 'string',
-            { message: 'Certificate is required' }
-          )
-  });
+const educationEntrySchema = z.object({
+  institution: z
+    .string()
+    .optional(),
+
+  grade: z.string()
+    .optional(),
+
+  qualification: z
+    .string()
+   
+    .optional(),
+
+  awardDate: z
+    .date({ required_error: 'Date of award is required' })
+    .optional(),
+
+  certificate: z
+    .any()
+    .optional(),
+});
 
   const createEducationSchema = () =>
     z.object({
       educationData: z
-        .array(educationEntrySchema)
-        .refine(
-          (data) =>
-            data.length === 0 ||
-            data.every(
-              (entry) =>
-                entry.institution && entry.qualification && entry.awardDate
-            ),
-          {
-            message:
-              'All education fields must be filled if any entry is provided'
-          }
-        )
+        .array(educationEntrySchema).optional(),
     });
 
   const educationSchema = createEducationSchema();
@@ -235,35 +215,35 @@ export function EducationStep({
             <TableHeader>
               <TableRow>
                 <TableHead>
-                  Qualifications <span className="text-red-500">*</span>
+                  Qualifications
                 </TableHead>
                 <TableHead>
-                  Grade <span className="text-red-500">*</span>
+                  Grade
                 </TableHead>
                 <TableHead className="min-w-[300px]">
                   Name of the Institution
-                  <span className="text-red-500">*</span>
+                 
                 </TableHead>
                 <TableHead>
                   Date of Award (MM/DD/YYYY)
-                  <span className="text-red-500">*</span>
+                 
                 </TableHead>
                 <TableHead>
                   Certificate
-                  <span className="text-red-500">*</span>
+                 
                 </TableHead>
                 <TableHead className="w-[80px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {fields.map((field, index) => (
-                <TableRow key={field.id}>
-                  <TableCell>
+                <TableRow key={field.id} className=''>
+                  <TableCell className='align-top'>
                     <FormField
                       control={form.control}
                       name={`educationData.${index}.qualification`}
                       render={({ field }) => (
-                        <FormItem className="mt-4">
+                        <FormItem className="">
                           <FormControl>
                             <Input
                               {...field}
@@ -272,15 +252,13 @@ export function EducationStep({
                               placeholder="Enter the name of the qualification"
                             />
                           </FormControl>
-                          <p className="text-xs text-gray-400">
-                            Example: Master of Business Administration (MBA)
-                          </p>
+                         
                           <FormMessage />
                         </FormItem>
                       )}
                     />
                   </TableCell>
-                  <TableCell>
+                  <TableCell  className='align-top'>
                     <FormField
                       control={form.control}
                       name={`educationData.${index}.grade`}
@@ -301,7 +279,7 @@ export function EducationStep({
                       )}
                     />
                   </TableCell>
-                  <TableCell>
+                  <TableCell  className='align-top'>
                     <FormField
                       control={form.control}
                       name={`educationData.${index}.institution`}
@@ -323,7 +301,7 @@ export function EducationStep({
                       )}
                     />
                   </TableCell>
-                  <TableCell>
+                  <TableCell  className='align-top'>
                     <FormField
                       control={form.control}
                       name={`educationData.${index}.awardDate`}
@@ -349,8 +327,8 @@ export function EducationStep({
                       }}
                     />
                   </TableCell>
-                  <TableCell>
-                    <FormItem className="mt-4 flex flex-col">
+                  <TableCell  className='align-top'>
+                    <FormItem className=" flex flex-col">
                       <Button
                         type="button"
                         className="bg-watney text-white hover:bg-watney/90"

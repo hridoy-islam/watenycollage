@@ -37,24 +37,7 @@ const ComplianceData = ({
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   };
 
- const visaOptions = [
-    { value: 'yes', label: 'Yes' },
-    { value: 'no', label: 'No' }
-  ];
-  const enteredUKOptions = [
-    { value: 'yes', label: 'Yes' },
-    { value: 'no', label: 'No' }
-  ];
 
-  const completedUKCourseOptions = [
-    { value: 'yes', label: 'Yes' },
-    { value: 'no', label: 'No' }
-  ];
-
-  const visaRefusalOptions = [
-    { value: 'yes', label: 'Yes' },
-    { value: 'no', label: 'No' }
-  ];
 
   const statusOptions = [
     { value: 'british-citizen', label: 'British Citizen' },
@@ -71,10 +54,7 @@ const ComplianceData = ({
     { value: 'prefer-not-to-say', label: 'Prefer not to say' }
   ];
 
-  const benefitsOptions = [
-    { value: 'yes', label: 'Yes' },
-    { value: 'no', label: 'No' }
-  ];
+
   const studentFinanceOptions = [
     { value: 'yes', label: 'Yes' },
     { value: 'no', label: 'No' }
@@ -100,7 +80,7 @@ const ComplianceData = ({
   
   return (
     <TabSection
-      title="Miscellaneous"
+      title="Additional Information"
       description=""
       userData={userData}
       isEditing={isEditing}

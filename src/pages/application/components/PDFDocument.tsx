@@ -294,10 +294,10 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
           </View>
           <View style={styles.tableRow}>
             <View style={[styles.tableCol, { width: '30%' }]}>
-              <Text>Country Of Domicile:</Text>
+              <Text>Country Of Residence:</Text>
             </View>
             <View style={[styles.tableCol, { width: '70%' }]}>
-              <Text>{capitalizeFirstLetter(data.countryOfDomicile || '')}</Text>
+              <Text>{capitalizeFirstLetter(data.countryOfResidence || '')}</Text>
             </View>
           </View>
           <View style={styles.tableRow}>

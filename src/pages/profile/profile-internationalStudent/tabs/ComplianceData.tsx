@@ -89,7 +89,7 @@ const ComplianceData = ({
 
   return (
     <TabSection
-      title="Miscellaneous"
+      title="Additional Information"
       description=""
       userData={userData}
       isEditing={isEditing}

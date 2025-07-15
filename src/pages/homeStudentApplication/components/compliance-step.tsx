@@ -136,7 +136,7 @@ export function ComplianceStep({
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <div>
           <CardContent>
-            <h2 className="mb-6 text-2xl font-semibold">Miscellienious</h2>
+            <h2 className="mb-6 text-2xl font-semibold">Additional Information</h2>
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <FormField

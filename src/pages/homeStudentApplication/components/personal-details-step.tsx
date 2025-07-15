@@ -35,9 +35,9 @@ const personalDetailsSchema = z
     email: z.string().email({ message: 'Invalid email address' }),
     phone: z.string().min(1, { message: 'Phone number is required' }),
     gender: z.string().min(1, { message: 'Please select a gender' }),
-    countryOfDomicile: z
+    countryOfResidence: z
       .string()
-      .min(1, { message: 'Please select Country of Domicile' }),
+      .min(1, { message: 'Please select Country of Residence' }),
     nationality: z
       .string()
       .min(1, { message: 'Please select your nationality' }),
@@ -97,7 +97,7 @@ export function PersonalDetailsStep({
       ethnicity: '',
       countryOfBirth: '',
       maritalStatus: '',
-      countryOfDomicile: '',
+      countryOfResidence: '',
       studentType: defaultValues?.studentType || '',
       ...defaultValues
     }
@@ -443,11 +443,11 @@ export function PersonalDetailsStep({
 
                 <FormField
                   control={form.control}
-                  name="countryOfDomicile"
+                  name="countryOfResidence"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        Country Of Domicile{' '}
+                       Country of Residence
                         <span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>

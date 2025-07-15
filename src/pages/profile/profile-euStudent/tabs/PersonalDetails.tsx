@@ -116,7 +116,11 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
                 />
               ) : (
                 <div className="flex h-full items-center justify-center bg-gray-100 text-gray-400">
-                  No Image
+                 <img
+                  src="/placeholder.png"
+                  alt="Profile"
+                  className="h-full w-full object-cover"
+                />
                 </div>
               )}
             </div>
@@ -384,20 +388,20 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Country Of Domicile
+                Country Of Residence
               </label>
               {isEditing ? (
                 <Select
-                  id="countryOfDomicile"
+                  id="countryOfResidence"
                   options={countryOptions}
                   value={countryOptions.find(
                     (option) =>
                       option.value.toLowerCase() ===
-                      localData?.countryOfBirth?.toLowerCase()
+                      localData?.countryOfResidence?.toLowerCase()
                   )}
                   onChange={(selectedOption) =>
                     handleInputChange(
-                      'countryOfDomicile',
+                      'countryOfResidence',
                       selectedOption?.value || ''
                     )
                   }

@@ -16,7 +16,7 @@ import { z } from 'zod';
 
 // Zod validation schema
 export const documentSchema = z.object({
-  image: z.string().min(1, 'Image is required'),
+  image: z.string(),
 
   passport: z.array(z.string()).nonempty({
     message: 'Passport is required'
@@ -109,7 +109,7 @@ export function DocumentsStep({
 
   // Check if all required documents have at least one file
   const allDocumentsUploaded =
-    documents.image !== '' &&
+    
     documents.passport.length > 0 &&
     documents.bankStatement.length > 0;
 
@@ -239,7 +239,7 @@ export function DocumentsStep({
     {
       id: 'image',
       label: 'Photograpgh',
-      required: true,
+      required: false,
       instructions: 'Please upload a recent and formal photo of yourself.',
       formats: 'JPG, PNG',
       error: validationErrors.image,
@@ -310,10 +310,7 @@ export function DocumentsStep({
                     Required Documents:
                   </p>
                   <ul className="space-y-1 text-sm text-gray-600">
-                    <li className="flex items-center">
-                      <div className="mr-2 h-2 w-2 rounded-full bg-red-500"></div>
-                      Photograpgh
-                    </li>
+                    
                     <li className="flex items-center">
                       <div className="mr-2 h-2 w-2 rounded-full bg-red-500"></div>
                       Passport or ID document
@@ -330,6 +327,10 @@ export function DocumentsStep({
                     Optional Documents:
                   </p>
                   <ul className="space-y-1 text-sm text-gray-600">
+                    <li className="flex items-center">
+                      <div className="mr-2 h-2 w-2 rounded-full bg-gray-400"></div>
+                      Photograpgh
+                    </li>
                     <li className="flex items-center">
                       <div className="mr-2 h-2 w-2 rounded-full bg-gray-400"></div>
                       Work experience documents

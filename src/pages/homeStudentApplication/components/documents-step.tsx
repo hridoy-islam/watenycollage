@@ -16,7 +16,9 @@ import { z } from 'zod';
 export const documentSchema = z.object({
   image: z.string().min(1, 'Image is required'),
   photoId: z.array(z.string()).nonempty({ message: 'Photo ID is required' }),
-  proofOfAddress: z.array(z.string()).nonempty({ message: 'Proof of address is required' }),
+  proofOfAddress: z
+    .array(z.string())
+    .nonempty({ message: 'Proof of address is required' }),
   qualification: z.array(z.string()).optional(),
   workExperience: z.array(z.string()).optional(),
   personalStatement: z.array(z.string()).optional()
@@ -60,7 +62,9 @@ export function DocumentsStep({
     field: null
   });
 
-  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [validationErrors, setValidationErrors] = useState<
+    Record<string, string>
+  >({});
 
   const { user } = useSelector((state: any) => state.auth);
 
@@ -98,15 +102,16 @@ export function DocumentsStep({
 
   // Check if all required documents have at least one file
   const allDocumentsUploaded =
-    documents.image !== '' &&
-    documents.photoId.length > 0 &&
-    documents.proofOfAddress.length > 0;
+    // documents.image !== '' &&
+    documents.photoId.length > 0 && documents.proofOfAddress.length > 0;
 
   const renderUploadedFiles = (field: keyof DocumentFile) => {
     if (field === 'image') {
       const fileUrl = documents.image;
       if (fileUrl) {
-        const fileName = decodeURIComponent(fileUrl.split('/').pop() || 'Photo-ID');
+        const fileName = decodeURIComponent(
+          fileUrl.split('/').pop() || 'Photo-ID'
+        );
         return (
           <div className="mt-3 space-y-2">
             <div className="flex w-auto items-center justify-between rounded-lg border border-gray-200 bg-white p-3 transition-all hover:shadow-md">
@@ -225,7 +230,7 @@ export function DocumentsStep({
     {
       id: 'image',
       label: 'Photograph',
-      required: true,
+      required: false,
       instructions: 'Please upload a recent and formal photo of yourself.',
       formats: 'JPG, PNG, PDF',
       error: validationErrors.image,
@@ -276,9 +281,12 @@ export function DocumentsStep({
         <CardHeader className="">
           <div className="space-y-4">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">Document Upload</h2>
+              <h2 className="text-2xl font-bold text-gray-900">
+                Document Upload
+              </h2>
               <p className="mt-1 text-gray-600">
-                Please upload all required documents to complete your application
+                Please upload all required documents to complete your
+                application
               </p>
             </div>
             <div className="rounded-lg border border-gray-200 bg-white p-4">
@@ -294,10 +302,6 @@ export function DocumentsStep({
                   <ul className="space-y-1 text-sm text-gray-600">
                     <li className="flex items-center">
                       <div className="mr-2 h-2 w-2 rounded-full bg-red-500"></div>
-                      Photograph
-                    </li>
-                    <li className="flex items-center">
-                      <div className="mr-2 h-2 w-2 rounded-full bg-red-500"></div>
                       Photo ID
                     </li>
                     <li className="flex items-center">
@@ -311,6 +315,10 @@ export function DocumentsStep({
                     Optional Documents:
                   </p>
                   <ul className="space-y-1 text-sm text-gray-600">
+                    <li className="flex items-center">
+                      <div className="mr-2 h-2 w-2 rounded-full bg-gray-400"></div>
+                      Photograph{' '}
+                    </li>
                     <li className="flex items-center">
                       <div className="mr-2 h-2 w-2 rounded-full bg-gray-400"></div>
                       Work experience documents
@@ -342,7 +350,8 @@ export function DocumentsStep({
                   id === 'image'
                     ? !!documents.image
                     : Array.isArray(documents[id as keyof DocumentFile]) &&
-                      (documents[id as keyof DocumentFile] as string[]).length > 0;
+                      (documents[id as keyof DocumentFile] as string[]).length >
+                        0;
 
                 return (
                   <div

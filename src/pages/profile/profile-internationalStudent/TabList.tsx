@@ -72,7 +72,7 @@ const TabList: React.FC<TabListProps> = ({ activeTab, setActiveTab }) => {
     },
     {
       id: 'complianceData' as TabType,
-      label: 'Miscellaneous',
+      label: 'Additional Information',
       icon: <FileCheck size={20} />
     },
     {
@@ -80,11 +80,11 @@ const TabList: React.FC<TabListProps> = ({ activeTab, setActiveTab }) => {
       label: 'Funding Information',
       icon: <BadgePoundSterling size={20} />
     },
-    {
-      id: 'courseData' as TabType,
-      label: 'Applied Courses',
-      icon: <BookCheck size={20} />
-    },
+    // {
+    //   id: 'courseData' as TabType,
+    //   label: 'Applied Courses',
+    //   icon: <BookCheck size={20} />
+    // },
 
     {
       id: 'documentData' as TabType,

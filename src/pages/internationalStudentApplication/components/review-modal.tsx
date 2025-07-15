@@ -92,7 +92,7 @@ export function ReviewModal({
   };
 
   // Helper to format values
-  const formatValue = (value: any): string | React.ReactNode => {
+  const formatValue = (value: any, key?: string): string => {
     if (value === null || value === undefined || value === '') {
       return 'Not provided';
     }
@@ -105,25 +105,10 @@ export function ReviewModal({
     ) {
       return moment(value).format('MM-DD-YYYY');
     }
+
+
     if (Array.isArray(value)) {
       if (value.length === 0) return 'None';
-      if (typeof value[0] === 'string' && value[0].startsWith('http')) {
-        return (
-          <div className="flex flex-col gap-1">
-            {value.map((url, index) => (
-              <a
-                key={index}
-                href={url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 hover:underline"
-              >
-                Document
-              </a>
-            ))}
-          </div>
-        );
-      }
       if (value[0] instanceof File) return `${value.length} file(s) uploaded`;
       return value.join(', ');
     }
@@ -133,7 +118,20 @@ export function ReviewModal({
     if (typeof value === 'object') {
       return JSON.stringify(value, null, 2);
     }
-    return String(value).charAt(0).toUpperCase() + String(value).slice(1);
+    // Convert to string and capitalize first letter
+    const str = String(value).trim();
+
+    
+    if (key === 'studentType') {
+    return str.toLowerCase() === 'eu' ? 'Home Student' : 'International';
+  }
+
+    // ✅ Check if it's an email and return lowercase
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (emailRegex.test(str)) {
+      return str.toLowerCase();
+    }
+    return str.charAt(0).toUpperCase() + str.slice(1);
   };
 
   const formatDocumentLinks = (value: any): any => {
@@ -226,7 +224,7 @@ export function ReviewModal({
       }
 
       // Standard value formatting
-      return [formatFieldName(key), formatValue(value)];
+      return [formatFieldName(key), formatValue(value,key)];
     });
 
     return (
@@ -298,7 +296,8 @@ export function ReviewModal({
               ethnicity: getDataValue('ethnicity'),
               studentType: getDataValue('studentType'),
               countryOfBirth: getDataValue('countryOfBirth'),
-              maritalStatus: getDataValue('maritalStatus')
+              maritalStatus: getDataValue('maritalStatus'),
+              countryOfResidence: getDataValue('countryOfResidence')
             })}
             {/* Address */}
             {renderSection('Residential Address', {
@@ -400,10 +399,7 @@ export function ReviewModal({
                       'currentEmployment',
                       'employmentType'
                     ),
-                    responsibilities: getDataValue(
-                      'currentEmployment',
-                      'responsibilities'
-                    )
+                    
                   }
                 : {}),
               hasPreviousEmployment: getDataValue('hasPreviousEmployment')
@@ -441,7 +437,7 @@ export function ReviewModal({
             {(() => {
               const visaRefusal = getDataValue('visaRefusal') === 'yes';
               const disability = getDataValue('disability') === 'yes';
-              return renderSection('Miscellienious', {
+              return renderSection('Additional Information', {
                 visaRequired: getDataValue('visaRequired'),
                 enteredUKBefore: getDataValue('enteredUKBefore'),
                 completedUKCourse: getDataValue('completedUKCourse'),

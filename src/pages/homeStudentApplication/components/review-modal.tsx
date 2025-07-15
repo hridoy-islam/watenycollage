@@ -94,7 +94,7 @@ export function ReviewModal({
   };
 
   // Helper to format values
-  const formatValue = (value: any): string => {
+  const formatValue = (value: any, key?: string): string => {
     if (value === null || value === undefined || value === '') {
       return 'Not provided';
     }
@@ -107,6 +107,8 @@ export function ReviewModal({
     ) {
       return moment(value).format('MM-DD-YYYY');
     }
+
+
     if (Array.isArray(value)) {
       if (value.length === 0) return 'None';
       if (value[0] instanceof File) return `${value.length} file(s) uploaded`;
@@ -119,7 +121,18 @@ export function ReviewModal({
       return JSON.stringify(value, null, 2);
     }
     // Convert to string and capitalize first letter
-    const str = String(value);
+    const str = String(value).trim();
+
+    
+    if (key === 'studentType') {
+    return str.toLowerCase() === 'eu' ? 'Home Student' : 'International';
+  }
+
+    // ✅ Check if it's an email and return lowercase
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (emailRegex.test(str)) {
+      return str.toLowerCase();
+    }
     return str.charAt(0).toUpperCase() + str.slice(1);
   };
 
@@ -170,7 +183,7 @@ export function ReviewModal({
       }
 
       // Standard value formatting
-      return [formatFieldName(key), formatValue(value)];
+      return [formatFieldName(key), formatValue(value,key)];
     });
 
     return (
@@ -243,7 +256,8 @@ export function ReviewModal({
               nationality: getDataValue('nationality'),
               studentType: getDataValue('studentType'),
               countryOfBirth: getDataValue('countryOfBirth'),
-              maritalStatus: getDataValue('maritalStatus')
+              maritalStatus: getDataValue('maritalStatus'),
+              countryOfResidence: getDataValue('countryOfResidence')
             })}
 
             {/* Address */}
@@ -330,10 +344,7 @@ export function ReviewModal({
                       'currentEmployment',
                       'employmentType'
                     ),
-                    responsibilities: getDataValue(
-                      'currentEmployment',
-                      'responsibilities'
-                    )
+                  
                   }
                 : {}),
               hasPreviousEmployment: getDataValue('hasPreviousEmployment')
@@ -367,7 +378,7 @@ export function ReviewModal({
             )}
 
             {/* Compliance */}
-            {renderSection('Miscellienious', {
+            {renderSection('Additional Information', {
               immigrationStatus: getDataValue('immigrationStatus'),
               niNumber: getDataValue('niNumber'),
               ltrCode: getDataValue('ltrCode'),

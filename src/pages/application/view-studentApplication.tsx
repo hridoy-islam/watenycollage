@@ -451,9 +451,9 @@ export default function ViewStudentApplicationPage() {
                     )}
                     {renderFieldRow('Phone', application?.phone, 'phone')}
                     {renderFieldRow(
-                      'Country Of Domicile',
-                      application?.countryOfDomicile,
-                      'countryOfDomicile'
+                      'Country Of Residence',
+                      application?.countryOfResidence,
+                      'countryOfResidence'
                     )}
                   </TableBody>
                 </Table>
