@@ -395,7 +395,7 @@ export default function ViewStudentApplicationPage() {
             {[
               { value: 'personal', label: 'Personal' },
               { value: 'address', label: 'Address' },
-              { value: 'other-information', label: 'Miscellaneous' },
+              { value: 'other-information', label: 'Additional' },
               { value: 'emergency', label: 'Emergency Contact' },
               { value: 'documents', label: 'Documents' },
               { value: 'employment', label: 'Employment' },
@@ -631,7 +631,7 @@ export default function ViewStudentApplicationPage() {
               <Card>
                 <CardContent className="pt-6">
                   <h3 className="mb-4 text-lg font-semibold">
-                    Other Information
+                    Additional Information
                   </h3>
                   <Table>
                     <TableHeader>

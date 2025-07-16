@@ -4,6 +4,7 @@ import { User } from '../../../types/user.types';
 import Select from 'react-select';
 import { Input } from '@/components/ui/input';
 import { CustomDatePicker } from '@/components/shared/CustomDatePicker';
+import { Textarea } from '@/components/ui/textarea';
 
 const ComplianceData = ({
   userData,
@@ -16,7 +17,7 @@ const ComplianceData = ({
 
   // Handle input changes for all fields
   const handleInputChange = (field: keyof User, value: any) => {
-    setLocalData(prev => ({
+    setLocalData((prev) => ({
       ...prev,
       [field]: value
     }));
@@ -37,8 +38,6 @@ const ComplianceData = ({
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   };
 
-
-
   const statusOptions = [
     { value: 'british-citizen', label: 'British Citizen' },
     { value: 'eu-settled', label: 'EU Settled Status' },
@@ -54,12 +53,10 @@ const ComplianceData = ({
     { value: 'prefer-not-to-say', label: 'Prefer not to say' }
   ];
 
-
   const studentFinanceOptions = [
     { value: 'yes', label: 'Yes' },
     { value: 'no', label: 'No' }
   ];
-
 
   const hearAboutUsOptions = [
     { label: 'Google Search', value: 'google' },
@@ -76,8 +73,6 @@ const ComplianceData = ({
     { label: 'Other', value: 'other' }
   ];
 
-
-  
   return (
     <TabSection
       title="Additional Information"
@@ -243,6 +238,20 @@ const ComplianceData = ({
                 }
                 className="react-select-container"
                 classNamePrefix="react-select"
+                styles={{
+                  menu: (provided) => ({ ...provided, zIndex: 9999 }),
+                  control: (provided, state) => ({
+                    ...provided,
+                    borderColor: state.isFocused
+                      ? '#4F46E5'
+                      : provided.borderColor,
+                    boxShadow: state.isFocused ? '0 0 0 1px #4F46E5' : 'none',
+                    '&:hover': {
+                      borderColor: state.isFocused ? '#4F46E5' : '#D1D5DB'
+                    }
+                  })
+                }}
+                menuPortalTarget={document.body}
               />
             ) : (
               <div className="mt-1 text-gray-900">
@@ -257,7 +266,7 @@ const ComplianceData = ({
                 Conviction details
               </label>
               {isEditing ? (
-                <textarea
+                <Textarea
                   rows={3}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                   value={localData?.convictionDetails || ''}
@@ -292,17 +301,19 @@ const ComplianceData = ({
                 className="react-select-container"
                 classNamePrefix="react-select"
                 styles={{
-    menu: (provided) => ({ ...provided, zIndex: 9999 }),
-    control: (provided, state) => ({
-      ...provided,
-      borderColor: state.isFocused ? '#4F46E5' : provided.borderColor,
-      boxShadow: state.isFocused ? '0 0 0 1px #4F46E5' : 'none',
-      '&:hover': {
-        borderColor: state.isFocused ? '#4F46E5' : '#D1D5DB'
-      }
-    })
-  }}
-  menuPortalTarget={document.body}
+                  menu: (provided) => ({ ...provided, zIndex: 9999 }),
+                  control: (provided, state) => ({
+                    ...provided,
+                    borderColor: state.isFocused
+                      ? '#4F46E5'
+                      : provided.borderColor,
+                    boxShadow: state.isFocused ? '0 0 0 1px #4F46E5' : 'none',
+                    '&:hover': {
+                      borderColor: state.isFocused ? '#4F46E5' : '#D1D5DB'
+                    }
+                  })
+                }}
+                menuPortalTarget={document.body}
               />
             ) : (
               <div className="mt-1 text-gray-900">
