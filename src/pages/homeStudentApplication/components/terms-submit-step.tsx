@@ -23,9 +23,7 @@ const termsSchema = z
     acceptDataProcessing: z.boolean().refine((val) => val === true, {
       message: 'You must consent to data processing to proceed'
     }),
-    criminalConviction: z.boolean({
-      required_error: 'Please select an option'
-    }),
+    criminalConviction: z.boolean().optional(),
     convictionDetails: z.string().optional()
   })
   .superRefine((data, ctx) => {
@@ -62,8 +60,8 @@ export function TermsSubmitStep({
     defaultValues: {
       acceptTerms: defaultValues?.acceptTerms || false,
       acceptDataProcessing: defaultValues?.acceptDataProcessing || false,
-            criminalConviction: defaultValues?.criminalConviction ?? false,
-      convictionDetails: defaultValues?.convictionDetails || '',
+      criminalConviction: defaultValues?.criminalConviction ?? false,
+      convictionDetails: defaultValues?.convictionDetails || ''
     }
   });
 

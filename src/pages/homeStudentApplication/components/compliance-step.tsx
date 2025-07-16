@@ -24,9 +24,7 @@ const complianceSchema = z
     disability: z.string().min(1, { message: 'Please select an option' }),
     disabilityDetails: z.string().optional(),
 
-    
-    studentFinance: z.string().min(1, { message: 'Please select an option' }),
-   
+    studentFinance: z.string().min(1, { message: 'Please select an option' })
   })
   .superRefine((data, ctx) => {
     // Check if disability is "yes" and if disabilityDetails is provided
@@ -38,8 +36,6 @@ const complianceSchema = z
         path: ['disabilityDetails']
       });
     }
-
-   
   });
 
 type ComplianceData = z.infer<typeof complianceSchema>;
@@ -112,13 +108,14 @@ export function ComplianceStep({
     { value: 'no', label: 'No' }
   ];
 
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <div>
           <CardContent>
-            <h2 className="mb-6 text-2xl font-semibold">Additional Information</h2>
+            <h2 className="mb-6 text-2xl font-semibold">
+              Additional Information
+            </h2>
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <FormField
@@ -234,41 +231,41 @@ export function ComplianceStep({
                   </FormItem>
                 )}
               />
-<FormField
-  control={form.control}
-  name="studentFinance"
-  render={({ field }) => (
-    <FormItem className="flex w-full flex-col">
-      <FormLabel>
-        Have you applied for Student Finance before?{' '}
-        <span className="text-red-500">*</span>
-      </FormLabel>
-      <FormControl>
-        <ReactSelect
-          options={studentFinanceOptions}
-          placeholder="Indicate if you have previously applied for UK student finance."
-          value={studentFinanceOptions.find(
-            (opt) => opt.value === field.value
-          )}
-          onChange={(option) => field.onChange(option?.value)}
-          className="react-select-container"
-          classNamePrefix="react-select"
-          styles={{
-            placeholder: (provided) => ({
-              ...provided,
-              fontSize: '0.75rem',
-              color: '#9CA3AF'
-            })
-          }}
-        />
-      </FormControl>
-      <p className="mt-1 text-xs text-gray-400">
-        Example: Yes / No
-      </p>
-      <FormMessage />
-    </FormItem>
-  )}
-/>
+              <FormField
+                control={form.control}
+                name="studentFinance"
+                render={({ field }) => (
+                  <FormItem className="flex w-full flex-col">
+                    <FormLabel>
+                      Have you applied for Student Finance before?{' '}
+                      <span className="text-red-500">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <ReactSelect
+                        options={studentFinanceOptions}
+                        placeholder="Indicate if you have previously applied for UK student finance."
+                        value={studentFinanceOptions.find(
+                          (opt) => opt.value === field.value
+                        )}
+                        onChange={(option) => field.onChange(option?.value)}
+                        className="react-select-container"
+                        classNamePrefix="react-select"
+                        styles={{
+                          placeholder: (provided) => ({
+                            ...provided,
+                            fontSize: '0.75rem',
+                            color: '#9CA3AF'
+                          })
+                        }}
+                      />
+                    </FormControl>
+                    <p className="mt-1 text-xs text-gray-400">
+                      Example: Yes / No
+                    </p>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <FormField
                 control={form.control}
@@ -334,9 +331,6 @@ export function ComplianceStep({
                   )}
                 />
               )}
-
-
-            
             </div>
           </CardContent>
         </div>
