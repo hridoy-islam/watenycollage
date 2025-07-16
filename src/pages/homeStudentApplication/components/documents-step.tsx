@@ -14,7 +14,7 @@ import { z } from 'zod';
 
 // Zod validation schema
 export const documentSchema = z.object({
-  image: z.string().min(1, 'Image is required'),
+  image: z.string().optional(),
   photoId: z.array(z.string()).nonempty({ message: 'Photo ID is required' }),
   proofOfAddress: z
     .array(z.string())

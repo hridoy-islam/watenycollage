@@ -13,15 +13,32 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 import { useEffect, useState, useRef } from 'react';
+import { Textarea } from '@/components/ui/textarea';
 
-const termsSchema = z.object({
-  acceptTerms: z.boolean().refine((val) => val === true, {
-    message: 'You must accept the terms and conditions to proceed'
-  }),
-  acceptDataProcessing: z.boolean().refine((val) => val === true, {
-    message: 'You must consent to data processing to proceed'
+const termsSchema = z
+  .object({
+    acceptTerms: z.boolean().refine((val) => val === true, {
+      message: 'You must accept the terms and conditions to proceed'
+    }),
+    acceptDataProcessing: z.boolean().refine((val) => val === true, {
+      message: 'You must consent to data processing to proceed'
+    }),
+    criminalConviction: z.boolean({
+      required_error: 'Please select an option'
+    }),
+    convictionDetails: z.string().optional()
   })
-});
+  .superRefine((data, ctx) => {
+    // Check if criminalConviction is "yes" and if convictionDetails is provided
+    if (data.criminalConviction === true && !data.convictionDetails?.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          'Conviction details are required when criminal conviction is "yes".',
+        path: ['convictionDetails']
+      });
+    }
+  });
 
 type TermsData = z.infer<typeof termsSchema>;
 
@@ -44,7 +61,9 @@ export function TermsSubmitStep({
     resolver: zodResolver(termsSchema),
     defaultValues: {
       acceptTerms: defaultValues?.acceptTerms || false,
-      acceptDataProcessing: defaultValues?.acceptDataProcessing || false
+      acceptDataProcessing: defaultValues?.acceptDataProcessing || false,
+            criminalConviction: defaultValues?.criminalConviction ?? false,
+      convictionDetails: defaultValues?.convictionDetails || '',
     }
   });
 
@@ -149,7 +168,50 @@ export function TermsSubmitStep({
                   data as outlined above.
                 </p>
               </div>
+              <FormField
+                control={form.control}
+                name="criminalConviction"
+                render={({ field }) => (
+                  <FormItem className="mb-2 flex flex-row items-start space-x-3 space-y-0">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <label className="cursor-pointer text-sm font-medium">
+                        Do you have any criminal conviction?
+                      </label>
+                      <FormMessage />
+                    </div>
+                  </FormItem>
+                )}
+              />
 
+              {/* Show conviction details textarea only if criminalConviction is true */}
+              {form.watch('criminalConviction') && (
+                <FormField
+                  control={form.control}
+                  name="convictionDetails"
+                  render={({ field }) => (
+                    <FormItem className="py-2">
+                      <label className="text-sm font-medium">
+                        Conviction Details
+                      </label>
+                      <FormControl>
+                        <Textarea
+                          {...field}
+                          className="w-[50%] resize-none rounded-md border border-gray-300  px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                          rows={4}
+                          placeholder="Please provide details about your conviction"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
               <FormField
                 control={form.control}
                 name="acceptTerms"

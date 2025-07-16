@@ -388,10 +388,10 @@ export function ReviewModal({
                 disabilityDetails: getDataValue('disabilityDetails')
               }),
               studentFinance: getDataValue('studentFinance'),
-              criminalConviction: getDataValue('criminalConviction'),
-              ...(getDataValue('criminalConviction') === 'Yes' && {
-                convictionDetails: getDataValue('convictionDetails')
-              })
+              // criminalConviction: getDataValue('criminalConviction'),
+              // ...(getDataValue('criminalConviction') === 'Yes' && {
+              //   convictionDetails: getDataValue('convictionDetails')
+              // })
             })}
 
             {renderSection('Funding Information', {

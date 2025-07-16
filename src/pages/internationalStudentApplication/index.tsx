@@ -586,7 +586,6 @@ export default function InternationalStudentApplication() {
                   : 'Great job! You’ve completed your profile. You can now apply to any course instantly.'}
               </CardTitle>
               <CardDescription className="mt-2 text-base leading-relaxed text-white">
-                Thank you for your submission.
                 {isCourseSubmission ? (
                   <div className="mt-2 w-full rounded-md text-center text-base text-white">
                     <p>

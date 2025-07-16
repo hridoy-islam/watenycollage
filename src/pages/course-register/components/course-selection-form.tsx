@@ -96,7 +96,7 @@ export default function CourseSelectionForm({
           ) : (
             // Show generic heading when no course is preselected
             <>
-              <h1 className="mb-2 text-3xl font-bold text-gray-900 md:text-4xl">
+              {/* <h1 className="mb-2 text-3xl font-bold text-gray-900 md:text-4xl">
                 Shape Your Future
                 <span className="mt-1 block bg-gradient-to-r from-watney to-blue-700 bg-clip-text text-transparent">
                   With World-Class Global Education Today
@@ -104,7 +104,7 @@ export default function CourseSelectionForm({
               </h1>
               <p className="mx-auto max-w-2xl text-base font-medium text-gray-600">
                 Transform your dreams into reality with our world-class programs
-              </p>
+              </p> */}
             </>
           )}
         </motion.div>

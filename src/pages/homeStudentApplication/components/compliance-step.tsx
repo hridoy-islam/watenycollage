@@ -24,12 +24,9 @@ const complianceSchema = z
     disability: z.string().min(1, { message: 'Please select an option' }),
     disabilityDetails: z.string().optional(),
 
-    criminalConviction: z.boolean({
-      required_error: 'Please select an option'
-    }),
-    convictionDetails: z.string().optional(),
-
-    studentFinance: z.string().min(1, { message: 'Please select an option' })
+    
+    studentFinance: z.string().min(1, { message: 'Please select an option' }),
+   
   })
   .superRefine((data, ctx) => {
     // Check if disability is "yes" and if disabilityDetails is provided
@@ -42,15 +39,7 @@ const complianceSchema = z
       });
     }
 
-    // Check if criminalConviction is "yes" and if convictionDetails is provided
-    if (data.criminalConviction === true && !data.convictionDetails?.trim()) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message:
-          'Conviction details are required when criminal conviction is "yes".',
-        path: ['convictionDetails']
-      });
-    }
+   
   });
 
 type ComplianceData = z.infer<typeof complianceSchema>;
@@ -69,14 +58,11 @@ export function ComplianceStep({
       disability: defaultValues?.disability || '',
       disabilityDetails: defaultValues?.disabilityDetails || '',
       hearAboutUs: defaultValues?.hearAboutUs || '',
-      criminalConviction: defaultValues?.criminalConviction ?? null,
-      convictionDetails: defaultValues?.convictionDetails || '',
       studentFinance: defaultValues?.studentFinance || ''
     }
   });
 
   const watchDisability = form.watch('disability');
-  const watchCriminalConviction = form.watch('criminalConviction');
 
   function onSubmit(data: ComplianceData) {
     onSaveAndContinue(data);
@@ -126,10 +112,6 @@ export function ComplianceStep({
     { value: 'no', label: 'No' }
   ];
 
-  const criminalConviction = [
-    { value: true, label: 'Yes' },
-    { value: false, label: 'No' }
-  ];
 
   return (
     <Form {...form}>
@@ -252,6 +234,41 @@ export function ComplianceStep({
                   </FormItem>
                 )}
               />
+<FormField
+  control={form.control}
+  name="studentFinance"
+  render={({ field }) => (
+    <FormItem className="flex w-full flex-col">
+      <FormLabel>
+        Have you applied for Student Finance before?{' '}
+        <span className="text-red-500">*</span>
+      </FormLabel>
+      <FormControl>
+        <ReactSelect
+          options={studentFinanceOptions}
+          placeholder="Indicate if you have previously applied for UK student finance."
+          value={studentFinanceOptions.find(
+            (opt) => opt.value === field.value
+          )}
+          onChange={(option) => field.onChange(option?.value)}
+          className="react-select-container"
+          classNamePrefix="react-select"
+          styles={{
+            placeholder: (provided) => ({
+              ...provided,
+              fontSize: '0.75rem',
+              color: '#9CA3AF'
+            })
+          }}
+        />
+      </FormControl>
+      <p className="mt-1 text-xs text-gray-400">
+        Example: Yes / No
+      </p>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
 
               <FormField
                 control={form.control}
@@ -318,106 +335,8 @@ export function ComplianceStep({
                 />
               )}
 
-              <FormField
-                control={form.control}
-                name="studentFinance"
-                render={({ field }) => (
-                  <FormItem className="flex w-full flex-col">
-                    <FormLabel>
-                      Have you applied for Student Finance before?{' '}
-                      <span className="text-red-500">*</span>
-                    </FormLabel>
-                    <FormControl>
-                      <ReactSelect
-                        options={studentFinanceOptions}
-                        placeholder="Indicate if you have previously applied for UK student finance."
-                        value={studentFinanceOptions.find(
-                          (opt) => opt.value === field.value
-                        )}
-                        onChange={(option) => field.onChange(option?.value)}
-                        className="react-select-container"
-                        classNamePrefix="react-select"
-                        styles={{
-                          placeholder: (provided) => ({
-                            ...provided,
-                            fontSize: '0.75rem',
-                            color: '#9CA3AF'
-                          })
-                        }}
-                      />
-                    </FormControl>
-                    <p className="mt-1 text-xs text-gray-400">
-                      Example: Yes / No
-                    </p>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
 
-              <FormField
-                control={form.control}
-                name="criminalConviction"
-                render={({ field }) => (
-                  <FormItem className="flex w-full flex-col">
-                    <FormLabel>
-                      Do you have any criminal conviction?{' '}
-                      <span className="text-red-500">*</span>
-                    </FormLabel>
-                    <FormControl>
-                      <ReactSelect
-                        options={criminalConviction}
-                        placeholder="Please disclose any relevant criminal convictions as per UK law."
-                        value={criminalConviction.find(
-                          (opt) => opt.value === field.value
-                        )}
-                        onChange={(option) => field.onChange(option?.value)}
-                        className="react-select-container"
-                        classNamePrefix="react-select"
-                        styles={{
-                          placeholder: (provided) => ({
-                            ...provided,
-                            fontSize: '0.75rem',
-                            color: '#9CA3AF'
-                          })
-                        }}
-                      />
-                    </FormControl>
-                    <p className="mt-1 text-xs text-gray-400">
-                      Example: Yes / No
-                    </p>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {watchCriminalConviction === true && (
-                <FormField
-                  control={form.control}
-                  name="convictionDetails"
-                  render={({ field }) => (
-                    <FormItem className="col-span-2 flex w-full flex-col">
-                      <FormLabel>
-                        If yes, Criminal Convictions details{' '}
-                        <span className="text-red-500">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Textarea
-                          {...field}
-                          placeholder="Please provide the details"
-                          className="!placeholder:text-gray-500  border-gray-200 placeholder:text-xs placeholder:text-gray-500 "
-                        />
-                      </FormControl>
-
-                      <p className="mt-1 text-xs text-gray-400">
-                        Example: Convicted of a driving offence in 2022,
-                        completed all legal requirements.
-                      </p>
-
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
+            
             </div>
           </CardContent>
         </div>
