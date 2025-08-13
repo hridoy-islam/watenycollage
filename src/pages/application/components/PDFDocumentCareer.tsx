@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
   },
 
   logo: {
-    width: 50,
+    width: 150,
     height: 60,
     marginBottom: 20,
     paddingBottom: 10
@@ -827,9 +827,9 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
             and accurate and that none of the information requested or other
             material information has been omitted. I accept that if it is
             discovered that I have supplied false, inaccurate or misleading
-            information, WATNEY COLLEGE reserves the right to cancel my
+            information, Cyberpeers reserves the right to cancel my
             application, withdraw its offer of a place or terminate attendance
-            at the College and I shall have no claim against WATNEY COLLEGE in
+            at the College and I shall have no claim against Cyberpeers in
             relation thereto:{' '}
             <Text style={{ fontWeight: 'bold' }}>
               {data.termsAccepted ? 'Yes' : 'No'}
@@ -840,7 +840,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
         <Text style={styles.sectionHeader}>DATA PROTECTION</Text>
         <View style={{ marginBottom: 10 }}>
           <Text>
-            I consent to Watney College processing my personal data for purposes
+            I consent to Cyberpeers processing my personal data for purposes
             related to my application, studies, health and safety, and
             compliance with College policies. This includes academic
             performance, learning support, disciplinary matters, CCTV usage, ID
@@ -885,7 +885,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
             to the following address
           </Text>
           <Text style={{ fontWeight: 'bold', marginTop: 5 }}>
-            Watney College
+            Cyberpeers
           </Text>
           <Text>80-82 Nelson Street, London, E1 2DY</Text>
           <Text>Email: admission@watneycollege.co.uk</Text>

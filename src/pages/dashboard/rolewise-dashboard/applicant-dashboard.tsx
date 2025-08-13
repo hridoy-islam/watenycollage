@@ -138,7 +138,7 @@ export function ApplicantDashboard({ user }: ApplicantDashboardProps) {
                     <TableHeader>
                       <TableRow>
                         <TableHead>Job Title</TableHead>
-                        <TableHead>Application Deadline</TableHead>
+                        <TableHead className='text-right'>Application Deadline</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -147,7 +147,7 @@ export function ApplicantDashboard({ user }: ApplicantDashboardProps) {
                           <TableCell className="font-medium">
                             {application.jobId?.jobTitle || 'Unnamed Job'}
                           </TableCell>
-                          <TableCell>
+                          <TableCell className='text-right'>
                             {application.jobId?.applicationDeadline
                               ? moment(
                                   application.jobId.applicationDeadline
@@ -158,13 +158,14 @@ export function ApplicantDashboard({ user }: ApplicantDashboardProps) {
                       ))}
                     </TableBody>
                   </Table>
-                  <DataTablePagination
+                  {applications.length>6 && <DataTablePagination
                     pageSize={entriesPerPage}
                     setPageSize={setEntriesPerPage}
                     currentPage={currentPage}
                     totalPages={totalPages}
                     onPageChange={setCurrentPage}
-                  />
+                  /> }
+                  
                 </>
               ) : (
                 <p className="py-4 text-center text-gray-500">

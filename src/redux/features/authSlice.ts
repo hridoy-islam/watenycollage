@@ -108,7 +108,7 @@ export const loginUser = createAsyncThunk<UserResponse, UserCredentials>(
 
     const response = await request.data;
 
-    localStorage.setItem('watney', JSON.stringify(response.data.accessToken));
+    localStorage.setItem('cyberpeers', JSON.stringify(response.data.accessToken));
     return response;
   }
 );
@@ -130,7 +130,7 @@ export const authWithFbORGoogle = createAsyncThunk<
     }
   );
   const response = await request.data;
-  localStorage.setItem('watney', JSON.stringify(response.data.accessToken));
+  localStorage.setItem('cyberpeers', JSON.stringify(response.data.accessToken));
   return response;
 });
 // forgot password
@@ -223,7 +223,7 @@ export const resendOtp = createAsyncThunk(
 );
 
 export const logout = createAsyncThunk<void>('user/logout', async () => {
-  localStorage.removeItem('watney');
+  localStorage.removeItem('cyberpeers');
 });
 
 const authSlice = createSlice({

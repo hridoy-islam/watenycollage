@@ -20,10 +20,10 @@ import { AppDispatch } from '@/redux/store';
 import { updateAuthIsAuthorized } from '@/redux/features/authSlice';
 
 const steps: React.ReactNode[] = [
-  // Step 1: Welcome to Watney College
+  // Step 1: Welcome to Cyberpeers
   <div key="step-1" className="space-y-4">
     <p className="text-2xl font-medium">
-      👋 <strong>Welcome to Careers at Watney College</strong> — a leading
+      👋 <strong>Welcome to Careers at Cyberpeers</strong> — a leading
       UK-based institution that values talent, diversity, and passion for
       education.
     </p>
@@ -116,7 +116,7 @@ const steps: React.ReactNode[] = [
   <div key="step-4" className="space-y-6 text-start">
     <h3 className="text-2xl font-semibold">🔐 Data Privacy & Support</h3>
     <p className="text-xl text-gray-700">
-      Watney College handles your data securely in compliance with UK GDPR. Your
+      Cyberpeers handles your data securely in compliance with UK GDPR. Your
       personal information will only be used for application purposes.
     </p>
 
@@ -177,7 +177,7 @@ export default function CareerGuideline() {
               <Button
                 variant="outline"
                 onClick={() => setStep(step - 1)}
-                className="bg-watney px-8 py-4 text-xl text-white hover:bg-watney/90"
+                className="bg-watney border-none px-8 py-4 text-xl text-white hover:bg-watney/90"
               >
                 Back
               </Button>
@@ -187,7 +187,7 @@ export default function CareerGuideline() {
 
             <Button
               onClick={handleNext}
-              className="bg-watney px-8 py-4 text-xl text-white hover:bg-watney/90"
+              className="bg-watney px-8 py-4 text-xl text-white hover:bg-watney/90 "
             >
               {step === steps.length - 1 ? 'Continue Application' : 'Next'}
             </Button>

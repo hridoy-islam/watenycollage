@@ -197,7 +197,6 @@ export function ReviewStep({
       // Standard value formatting
       return [formatFieldName(key), formatValue(value)];
     });
-
     return (
       <div className="mb-6">
         {showTitle && <h3 className="mb-2 text-lg font-semibold">{title}</h3>}
@@ -297,8 +296,9 @@ export function ReviewStep({
             })}
           </React.Fragment>
         ))}
-
-      {renderSection('Current Employment', defaultValues.currentEmployment)}
+        
+{defaultValues.isEmployed === "yes" && renderSection('Current Employment', defaultValues.currentEmployment)}
+      
       {defaultValues.previousEmployments &&
         defaultValues.previousEmployments.length > 0 && (
           <div>
@@ -316,10 +316,14 @@ export function ReviewStep({
             ))}
           </div>
         )}
-      {renderSection('Employment Gaps', {
-        hasEmploymentGaps: defaultValues.hasEmploymentGaps,
-        employmentGapsExplanation: defaultValues.employmentGapsExplanation
-      })}
+{defaultValues.previousEmployments &&
+ defaultValues.previousEmployments.length > 0 &&
+ renderSection('Employment Gaps', {
+   hasEmploymentGaps: defaultValues.hasEmploymentGaps,
+   employmentGapsExplanation: defaultValues.employmentGapsExplanation
+ })}
+
+    
 
       {renderSection('Reference 1', defaultValues.referee1)}
       {renderSection('Reference 2', defaultValues.referee2)}

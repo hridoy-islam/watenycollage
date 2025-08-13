@@ -15,7 +15,7 @@ import { useSelector } from 'react-redux';
 
 // Zod validation schema
 export const documentSchema = z.object({
-  cvResume: z.string().min(1, { message: 'Resume is required' }),
+  cvResume: z.string().optional(),
   image: z.string().optional(),
   proofOfAddress: z.array(z.string()).nonempty({
     message: 'Proof of address is required'
@@ -91,51 +91,60 @@ export default function DocumentData({
     onSave(documents);
   };
 
-  const renderUploadedFiles = (field: keyof DocumentFile) => {
-    if (field === 'image' || field === 'cvResume') {
-      const fileUrl = documents[field] as string;
-      if (fileUrl) {
-        const fileName = decodeURIComponent(fileUrl.split('/').pop() || 'Document');
-        return (
-          <div className="mt-3 space-y-2">
-            <div className="flex w-auto items-center justify-between rounded-lg border border-gray-200 bg-white p-3 transition-all hover:shadow-md">
-              <div className="flex items-center space-x-3">
-               
-                <div className="min-w-0 flex-1">
-                  <div className="flex min-w-0 flex-1 gap-2">
-                    <a
-                      href={fileUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center space-x-2 text-sm font-medium text-gray-900 transition-colors hover:text-watney/90"
-                    >
-                      <Button className="flex flex-row items-center gap-4 bg-watney text-white hover:bg-watney/90">
-                        View <ExternalLink className="h-3 w-3 flex-shrink-0" />
-                      </Button>
-                    </a>
-                  </div>
-                </div>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleRemoveFile(field, fileUrl)}
-                className="h-8 w-8 p-0 text-gray-400 hover:bg-red-50 hover:text-red-500"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        );
-      }
-      return null;
-    }
-
-    const value = documents[field];
-    if (Array.isArray(value) && value.length > 0) {
+const renderUploadedFiles = (field: keyof DocumentFile) => {
+  const fieldValue = documents[field];
+  
+  // Handle string fields (cvResume, image)
+  if (typeof fieldValue === 'string') {
+    if (!fieldValue) return null;
+    
+    try {
+      const fileName = decodeURIComponent(fieldValue.split('/').pop() || 'Document');
       return (
         <div className="mt-3 space-y-2">
-          {value.map((fileUrl, index) => {
+          <div className="flex w-auto items-center justify-between rounded-lg border border-gray-200 bg-white p-3 transition-all hover:shadow-md">
+            <div className="flex items-center space-x-3">
+              <div className="min-w-0 flex-1">
+                <div className="flex min-w-0 flex-1 gap-2">
+                  <a
+                    href={fieldValue}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center space-x-2 text-sm font-medium text-gray-900 transition-colors hover:text-watney/90"
+                  >
+                    <Button className="flex flex-row items-center gap-4 bg-watney text-white hover:bg-watney/90">
+                      View <ExternalLink className="h-3 w-3 flex-shrink-0" />
+                    </Button>
+                  </a>
+                </div>
+              </div>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleRemoveFile(field, fieldValue)}
+              className="h-8 w-8 p-0 text-gray-400 hover:bg-red-50 hover:text-red-500"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      );
+    } catch (e) {
+      console.error('Error processing file URL:', e);
+      return null;
+    }
+  }
+
+  // Handle array fields
+  if (Array.isArray(fieldValue)) {
+    const validUrls = fieldValue.filter(url => typeof url === 'string' && url.trim() !== '');
+    if (validUrls.length === 0) return null;
+
+    return (
+      <div className="mt-3 space-y-2">
+        {validUrls.map((fileUrl, index) => {
+          try {
             const fileName = decodeURIComponent(
               fileUrl.split('/').pop() || `File-${index}`
             );
@@ -168,37 +177,52 @@ export default function DocumentData({
                 </Button>
               </div>
             );
-          })}
-        </div>
-      );
-    }
-    return null;
-  };
+          } catch (e) {
+            console.error('Error processing file URL:', fileUrl, e);
+            return null;
+          }
+        })}
+      </div>
+    );
+  }
+
+  return null;
+};
 
   const openImageUploader = (field: keyof DocumentFile) => {
     setUploadState({ isOpen: true, field });
   };
 
-  const handleUploadComplete = (uploadResponse: any) => {
-    const { field } = uploadState;
-    if (!field || !uploadResponse?.success || !uploadResponse.data?.fileUrl) {
-      setUploadState({ isOpen: false, field: null });
-      return;
-    }
-    const fileUrl = uploadResponse.data.fileUrl;
-    if (typeof documents[field] === 'string') {
-      setDocuments((prev) => ({
+ const handleUploadComplete = (uploadResponse: any) => {
+  const { field } = uploadState;
+  if (!field || !uploadResponse?.success || !uploadResponse.data?.fileUrl) {
+    setUploadState({ isOpen: false, field: null });
+    return;
+  }
+
+  const fileUrl = uploadResponse.data.fileUrl;
+
+  setDocuments((prev) => {
+    const currentValue = prev[field];
+
+    // Handle cvResume and image as single string values
+    if (field === 'cvResume' || field === 'image') {
+      return {
         ...prev,
         [field]: fileUrl
-      }));
-    } else {
-      setDocuments((prev) => ({
-        ...prev,
-        [field]: [...(prev[field] as string[]), fileUrl]
-      }));
+      };
     }
-    setUploadState({ isOpen: false, field: null });
-  };
+
+    // All other fields are arrays
+    const currentArray = Array.isArray(currentValue) ? currentValue : [];
+    return {
+      ...prev,
+      [field]: [...currentArray, fileUrl]
+    };
+  });
+
+  setUploadState({ isOpen: false, field: null });
+};
 
   const documentTypes = [
      {
