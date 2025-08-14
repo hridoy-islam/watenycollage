@@ -17,6 +17,7 @@ export default function Otp() {
   const [error, setError] = useState('');
   const [resendCooldown, setResendCooldown] = useState(30);
   const [isCooldownActive, setIsCooldownActive] = useState(false);
+const [isLoading, setIsLoading] = useState(false);
 
   const dispatch = useDispatch<AppDispatch>();
   const inputRefs = useRef([]);
@@ -78,15 +79,17 @@ export default function Otp() {
     setOtp(digits);
   };
 
-  const handleOtpSubmit = async (e) => {
-    e.preventDefault();
-    const otpCode = otp.join('');
-    if (!email) router.push('/forgot-password');
-    const result: any = await dispatch(
-      validateRequestOtp({ email, otp: otpCode })
-    );
+ const handleOtpSubmit = async (e) => {
+  e.preventDefault();
+  if (otp.some(d => d === '')) return;
+
+  setIsLoading(true); // start loading
+  const otpCode = otp.join('');
+  if (!email) router.push('/forgot-password');
+
+  try {
+    const result: any = await dispatch(validateRequestOtp({ email, otp: otpCode }));
     if (result?.payload?.success) {
-      console.log(result?.payload?.data);
       const decoded = jwtDecode(result?.payload?.data?.resetToken);
       localStorage.setItem(
         'tp_user_data',
@@ -96,7 +99,14 @@ export default function Otp() {
     } else {
       setError('Invalid OTP');
     }
-  };
+  } catch (err) {
+    setError('Something went wrong. Please try again.');
+    console.error(err);
+  } finally {
+    setIsLoading(false); // stop loading
+  }
+};
+
 
   const handleResendOtp = async () => {
     try {
@@ -136,12 +146,12 @@ export default function Otp() {
                 </Link>
                 <div className="h-12 border"></div>
                 <h1 className="text-2xl font-semibold tracking-tight">
-                Verification Code
+                Verify Your Email
                 </h1>
               </div>
               
               <p className="text-sm text-muted-foreground">
-                Enter the verification code sent to your email.
+                Enter the OTP sent to your email to verify your account.
               </p>
               {error && <p className="text-sm text-red-500">{error}</p>}
 
@@ -170,12 +180,35 @@ export default function Otp() {
               </form>
 
               <Button
-                disabled={otp.some((digit) => digit === '')}
-                onClick={handleOtpSubmit}
-                className="mt-5 w-full text-white bg-watney hover:bg-watney/90 disabled:opacity-70 disabled:cursor-not-allowed"
-              >
-                Verify OTP
-              </Button>
+  disabled={otp.some((digit) => digit === '') || isLoading}
+  onClick={handleOtpSubmit}
+  className="mt-5 w-full text-white bg-watney hover:bg-watney/90 disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center"
+>
+  {isLoading ? (
+    <svg
+      className="mr-2 h-5 w-5 animate-spin text-white"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <circle
+        className="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        strokeWidth="4"
+      ></circle>
+      <path
+        className="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+      ></path>
+    </svg>
+  ) : null}
+  {isLoading ? 'Verifying...' : 'Verify OTP'}
+</Button>
+
 
               <div className="mt-4 flex items-center justify-center space-x-1 text-sm">
                 <span className="text-muted-foreground">

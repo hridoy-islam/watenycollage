@@ -19,6 +19,7 @@ import taskplan from '@/assets/imges/home/forget.png';
 import logo from '@/assets/imges/home/logo.png';
 import { Link } from 'react-router-dom';
 import { z } from 'zod';
+import { useState } from 'react';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Enter a valid email address' })
@@ -27,7 +28,8 @@ const formSchema = z.object({
 type UserFormValue = z.infer<typeof formSchema>;
 
 export default function ForgotPassword() {
-  const { loading, error } = useSelector((state: any) => state.auth);
+  const [loading, setLoading] = useState(false);
+  const { error } = useSelector((state: any) => state.auth);
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
   const defaultValues = {
@@ -40,11 +42,21 @@ export default function ForgotPassword() {
   });
 
   const onSubmit = async (data: UserFormValue) => {
-    const result: any = await dispatch(requestOtp(data));
-    if (result?.payload?.success) {
-      localStorage.setItem('tp_otp_email', data.email);
+    try {
+      setLoading(true); // start loading
+      const result: any = await dispatch(requestOtp(data));
 
-      router.push('/otp');
+      if (result?.payload?.success) {
+        localStorage.setItem('tp_otp_email', data.email);
+        router.push('/otp');
+      } else {
+        // handle failure case if needed
+        console.error('OTP request failed', result);
+      }
+    } catch (error) {
+      console.error('An error occurred while requesting OTP:', error);
+    } finally {
+      setLoading(false); // stop loading in any case
     }
   };
 
@@ -52,7 +64,7 @@ export default function ForgotPassword() {
     <>
       <div className="grid h-screen bg-gray-100 lg:px-0">
         <div className="flex  h-full items-center justify-center p-4 lg:p-8">
-          <div className="mx-auto flex w-full flex-col justify-centers space-y-4 sm:w-[680px] sm:p-8">
+          <div className="justify-centers mx-auto flex w-full flex-col space-y-4 sm:w-[680px] sm:p-8">
             <Card className="flex w-full flex-col justify-center space-y-4 border border-gray-200 p-4 ">
               <div className="mb-2 flex flex-col space-y-2 text-left">
                 <div className="flex flex-row items-center gap-4 space-y-2 text-center">
@@ -65,8 +77,9 @@ export default function ForgotPassword() {
                   </h1>
                 </div>
                 <p className="text-sm text-muted">
-                  Enter your registered email and <br /> we will send you a link
-                  to reset your password.
+                  Please enter your registered email address. <br />
+                  We will send a One-Time Password (OTP) to your email for
+                  verification.
                 </p>
                 <Form {...form}>
                   <form
@@ -95,10 +108,36 @@ export default function ForgotPassword() {
 
                     <Button
                       disabled={loading}
-                      className="ml-auto w-full bg-watney text-white hover:bg-watney"
+                      className="ml-auto flex w-full items-center justify-center gap-2 bg-watney text-white hover:bg-watney"
                       type="submit"
                     >
-                      Reset Password
+                      {loading ? (
+                        <>
+                          <svg
+                            className="h-5 w-5 animate-spin text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                            ></path>
+                          </svg>
+                          Sending...
+                        </>
+                      ) : (
+                        'Reset Password'
+                      )}
                     </Button>
                   </form>
                 </Form>
@@ -106,7 +145,7 @@ export default function ForgotPassword() {
               {/* <ForgotForm /> */}
               <p className="mt-4 px-8 text-center text-sm text-muted">
                 Back to{'  '}
-                <Link to="/login" className="underline underline-offset-4">
+                <Link to="/" className="underline underline-offset-4">
                   Sign In
                 </Link>
                 .
