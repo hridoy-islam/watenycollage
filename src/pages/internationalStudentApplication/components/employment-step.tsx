@@ -299,11 +299,11 @@ export function EmploymentStep({
                 <>
                   {/* Current Employment Section */}
                   {watchIsEmployed === 'yes' && (
-                    <div className="rounded-lg border border-gray-200  p-6 shadow-sm">
+                    <div className="rounded-lg border border-gray-200 p-2 md:p-4 shadow-sm">
                       <h3 className="mb-4 text-xl font-medium">
                         Current Employment
                       </h3>
-                      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                         {/* Employer Name */}
                         <FormField
                           name="currentEmployment.employer"
@@ -430,7 +430,7 @@ export function EmploymentStep({
                     </div>
                   )}
 
-                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                     <FormField
                       name="hasPreviousEmployment"
                       control={form.control}
@@ -478,9 +478,9 @@ export function EmploymentStep({
                       {fields.map((fieldItem, index) => (
                         <div
                           key={fieldItem.id}
-                          className="mb-6 rounded-md border border-gray-200 p-4 shadow-sm"
+                          className="mb-6 rounded-md border border-gray-200 p-4 md:p-6 shadow-sm"
                         >
-                          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                             {/* Employer */}
                             <FormField
                               name={`previousEmployments.${index}.employer`}

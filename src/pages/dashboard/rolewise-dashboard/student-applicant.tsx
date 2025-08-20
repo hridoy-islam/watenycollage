@@ -1,168 +1,3 @@
-// import { useEffect, useState } from 'react';
-// import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-// import {
-//   Card,
-//   CardContent,
-//   CardDescription,
-//   CardHeader,
-//   CardTitle
-// } from '@/components/ui/card';
-// import { Button } from '@/components/ui/button';
-// import {
-//   Table,
-//   TableBody,
-//   TableCell,
-//   TableHead,
-//   TableHeader,
-//   TableRow
-// } from '@/components/ui/table';
-// import { GraduationCap, BookOpen } from 'lucide-react';
-// import axiosInstance from '@/lib/axios';
-// import { DataTablePagination } from '@/components/shared/data-table-pagination';
-// import { useToast } from '@/components/ui/use-toast';
-// import { useNavigate } from 'react-router-dom';
-// import Loader from '@/components/shared/loader';
-
-// interface Course {
-//   _id: string;
-//   name: string;
-// }
-
-// interface Application {
-//   _id: string;
-//   courseId: Course;
-//   intakeId?: {
-//     termName: string;
-//   };
-//   status: string;
-// }
-
-// interface StudentDashboardProps {
-//   user: {
-//     _id: string;
-//     name: string;
-//     role: string;
-//   };
-// }
-
-// export function StudentDashboard({ user }: StudentDashboardProps) {
-//   const [allCourses, setAllCourses] = useState<Course[]>([]);
-//   const [loading, setLoading] = useState(true);
-//   const [currentPage, setCurrentPage] = useState(1);
-//   const [totalPages, setTotalPages] = useState(1);
-//   const [entriesPerPage, setEntriesPerPage] = useState(10);
-
-//   const fetchData = async (page = 1, limit = 10) => {
-//     try {
-//       const appRes = await axiosInstance.get(
-//         `/application-course?studentId=${user._id}`
-//       );
-//       const appData = appRes.data.data || {};
-//       const applicationsList = Array.isArray(appData.result)
-//         ? appData.result
-//         : [];
-
-//       const courseRes = await axiosInstance.get('/courses', {
-//         params: { page, limit }
-//       });
-//       const courseData = courseRes.data.data || {};
-//       const coursesList = Array.isArray(courseData.result)
-//         ? courseData.result
-//         : [];
-
-//       setTotalPages(appData.meta?.totalPage || 1);
-
-//       const appliedCourseIds = new Set(
-//         applicationsList.map((app: Application) => app.courseId?._id)
-//       );
-
-//       const filteredCourses = coursesList.filter(
-//         (course: Course) => !appliedCourseIds.has(course._id)
-//       );
-
-//       setAllCourses(filteredCourses);
-//     } catch (error) {
-//       console.error('Error fetching data:', error);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   useEffect(() => {
-//     fetchData(currentPage, entriesPerPage);
-//   }, [currentPage, entriesPerPage]);
-//   const navigate = useNavigate();
-
-//   const handleApply = async (courseId: string) => {
-//     navigate(`/dashboard/course-application/${courseId}`);
-//   };
-
-//   return (
-//     <div className="flex-1 space-y-4">
-//       <Card>
-//         <CardHeader>
-//           <CardTitle>Available Courses</CardTitle>
-//           <CardDescription>Browse and apply to new courses</CardDescription>
-//         </CardHeader>
-//         <CardContent>
-//           {loading ? (
-//             <div className="flex justify-center py-6">
-//               <Loader />
-//             </div>
-//           ) : allCourses.length > 0 ? (
-//             <>
-//               <Table>
-//                 <TableHeader>
-//                   <TableRow>
-//                     <TableHead>Course Title</TableHead>
-//                     <TableHead className="text-right">Action</TableHead>
-//                   </TableRow>
-//                 </TableHeader>
-//                 <TableBody>
-//                   {allCourses.map((course) => (
-//                     <TableRow key={course._id}>
-//                       <TableCell className="font-medium">
-//                         {course.name}
-//                       </TableCell>
-//                       <TableCell className="text-right">
-//                         <Button
-//                           size="sm"
-//                           className="bg-watney text-white hover:bg-watney/90"
-//                           onClick={() => handleApply(course._id)}
-//                         >
-//                           Take This Course
-//                         </Button>
-//                       </TableCell>
-//                     </TableRow>
-//                   ))}
-//                 </TableBody>
-//               </Table>
-
-//               {/* Pagination only shown if there are courses */}
-//               <DataTablePagination
-//                 pageSize={entriesPerPage}
-//                 setPageSize={setEntriesPerPage}
-//                 currentPage={currentPage}
-//                 totalPages={totalPages}
-//                 onPageChange={setCurrentPage}
-//               />
-//             </>
-//           ) : (
-//             <div className="py-6 text-center">
-//               No more courses available to apply. Please check again later.
-//             </div>
-//           )}
-//         </CardContent>
-//       </Card>
-//     </div>
-//   );
-// }
-
-
-
-
-
-
 
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -314,117 +149,187 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
   };
 
   return (
-    <div className="flex-1 space-y-4">
-      {/* Applied Courses Tab */}
-      <Card className="shadow-none">
-        <CardHeader>
-          <CardTitle>Your Course Applications</CardTitle>
-          <CardDescription>
-            Track the status of your course applications
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <div className="flex items-center justify-center py-10">
-              <Loader />
-            </div>
-          ) : (
-            <>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Course Name</TableHead>
-                    <TableHead>Intake</TableHead>
-                    <TableHead>Application Date</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Action</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {applications.length > 0 ? (
-                    applications.map((application) => (
-                      <TableRow key={application._id}>
-                        <TableCell className="py-4 font-medium">
-                          {application?.courseId?.name || 'Unnamed Course'}
-                        </TableCell>
-                        <TableCell className="py-4">
-                          {application?.intakeId?.termName || 'N/A'}
-                        </TableCell>
-                        <TableCell>
-                          {moment(application?.createAt).format('MM-DD-YYYY')}
-                        </TableCell>
-                        <TableCell className="py-4">
-                          <Badge
-                            className={`text-white ${
-                              application.status === 'applied'
-                                ? 'bg-blue-500'
-                                : application.status === 'cancelled'
-                                  ? 'bg-red-500'
-                                  : application.status === 'approved'
-                                    ? 'bg-green-500'
-                                    : 'bg-green-500'
-                            }`}
-                          >
-                            {application.status || 'N/A'}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {application.status !== 'cancelled' &&
-                            application.status !== 'approved' && (
-                              <Button
-                                onClick={() => openDeleteModal(application._id)}
-                                className="border-none bg-destructive text-white hover:bg-destructive/90"
-                              >
-                                Cancel
-                              </Button>
-                            )}
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={5} className="py-6 text-center">
-                        No applications found.
+   <div className="flex-1 space-y-4">
+  {/* Applied Courses Tab */}
+  <Card className="shadow-none">
+    <CardHeader>
+      <CardTitle>Your Course Applications</CardTitle>
+      <CardDescription>Track the status of your course applications</CardDescription>
+    </CardHeader>
+    <CardContent>
+      {loading ? (
+        <div className="flex items-center justify-center py-10">
+          <Loader />
+        </div>
+      ) : (
+        <>
+          {/* Desktop/Tablet View: Table */}
+          <div className="block max-md:hidden overflow-x-auto rounded-md border md:overflow-x-visible">
+            <Table className="min-w-full">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Course Name</TableHead>
+                  <TableHead>Intake</TableHead>
+                  <TableHead>Application Date</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Action</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {applications.length > 0 ? (
+                  applications.map((application) => (
+                    <TableRow key={application._id}>
+                      <TableCell className="py-3 font-medium sm:py-4">
+                        {application?.courseId?.name || 'Unnamed Course'}
+                      </TableCell>
+                      <TableCell className="py-3 sm:py-4">
+                        {application?.intakeId?.termName || 'N/A'}
+                      </TableCell>
+                      <TableCell className="py-3 sm:py-4">
+                        {moment(application.createdAt).format('MM-DD-YYYY')}
+                      </TableCell>
+                      <TableCell className="py-3 sm:py-4">
+                        <Badge
+                          className={`text-white ${
+                            application.status === 'applied'
+                              ? 'bg-blue-500'
+                              : application.status === 'cancelled'
+                                ? 'bg-red-500'
+                                : application.status === 'approved'
+                                  ? 'bg-green-500'
+                                  : 'bg-yellow-500'
+                          }`}
+                        >
+                          {application.status || 'N/A'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="py-3 text-right sm:py-4">
+                        {application.status !== 'cancelled' &&
+                          application.status !== 'approved' && (
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => openDeleteModal(application._id)}
+                              className="text-white hover:bg-destructive/90"
+                            >
+                              Cancel
+                            </Button>
+                          )}
                       </TableCell>
                     </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-
-              {applications.length > 0 && (
-                <DataTablePagination
-                  pageSize={entriesPerPage}
-                  setPageSize={setEntriesPerPage}
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  onPageChange={setCurrentPage}
-                />
-              )}
-            </>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Confirmation Modal */}
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Are you sure?</DialogTitle>
-          </DialogHeader>
-          <p className="text-gray-600">
-            Do you want to cancel this application? This action cannot be
-            undone.
-          </p>
-          <div className="mt-4 flex justify-end space-x-4">
-            <Button onClick={closeModal} variant="outline">
-              Close
-            </Button>
-            <Button onClick={handleDelete} variant="destructive">
-              Yes, Cancel Application
-            </Button>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={5} className="py-6 text-center text-sm text-gray-500">
+                      No applications found.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
           </div>
-        </DialogContent>
-      </Dialog>
-    </div>
+
+          {/* Mobile-First Stacked Cards (Alternative Layout) */}
+          <div className="space-y-4 md:hidden">
+            {applications.length > 0 ? (
+              applications.map((application) => (
+                <div
+                  key={application._id}
+                  className="rounded-lg border bg-white p-4 shadow-sm"
+                >
+                  <div className="space-y-2">
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-800">Course Name</h3>
+                      <p className="text-sm text-gray-600">
+                        {application?.courseId?.name || 'Unnamed Course'}
+                      </p>
+                    </div>
+
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-800">Intake</h3>
+                      <p className="text-sm text-gray-600">
+                        {application?.intakeId?.termName || 'N/A'}
+                      </p>
+                    </div>
+
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-800">Application Date</h3>
+                      <p className="text-sm text-gray-600">
+                        {moment(application.createdAt).format('MM-DD-YYYY')}
+                      </p>
+                    </div>
+
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-800">Status</h3>
+                      <Badge
+                        className={`text-white text-xs ${
+                          application.status === 'applied'
+                            ? 'bg-blue-500'
+                            : application.status === 'cancelled'
+                              ? 'bg-red-500'
+                              : application.status === 'approved'
+                                ? 'bg-green-500'
+                                : 'bg-yellow-500'
+                        }`}
+                      >
+                        {application.status || 'N/A'}
+                      </Badge>
+                    </div>
+
+                    {application.status !== 'cancelled' &&
+                      application.status !== 'approved' && (
+                        <div className="pt-2">
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            className="w-full text-white hover:bg-destructive/90"
+                            onClick={() => openDeleteModal(application._id)}
+                          >
+                            Cancel Application
+                          </Button>
+                        </div>
+                      )}
+                  </div>
+                </div>
+              ))
+            ) : null}
+          </div>
+
+          {/* Pagination */}
+          {applications.length > 0 && (
+            <div className="mt-6 flex flex-col-reverse items-center justify-between gap-4 sm:flex-row scale-75" >
+             
+              <DataTablePagination
+                pageSize={entriesPerPage}
+                setPageSize={setEntriesPerPage}
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
+            </div>
+          )}
+        </>
+      )}
+    </CardContent>
+  </Card>
+
+  {/* Confirmation Modal */}
+  <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+    <DialogContent>
+      <DialogHeader>
+        <DialogTitle>Are you sure?</DialogTitle>
+      </DialogHeader>
+      <p className="text-gray-600">Do you want to cancel this application? This action cannot be undone.</p>
+      <div className="mt-4 flex justify-end space-x-4">
+        <Button onClick={closeModal} variant="outline">
+          Close
+        </Button>
+        <Button onClick={handleDelete} variant="destructive">
+          Yes, Cancel Application
+        </Button>
+      </div>
+    </DialogContent>
+  </Dialog>
+</div>
   );
 }

@@ -190,7 +190,7 @@ export function TermsSubmitStep({
                         onCheckedChange={field.onChange}
                       />
                     </FormControl>
-                    <div className="space-y-1 leading-none">
+                    <div className=" leading-none">
                       <label className="cursor-pointer text-sm font-medium">
                         I consent to Watney College processing my personal data
                         for purposes related to my application, studies, health
@@ -214,35 +214,40 @@ export function TermsSubmitStep({
             </div>
           </CardContent>
         </div>
-        <div className="flex justify-between px-6 py-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleBack}
-            className="bg-watney text-white hover:bg-watney/90"
-          >
-            Back
-          </Button>
-          <div className="space-x-3">
+        <div className="px-6 py-4">
+          <div className="grid gap-3 sm:flex sm:justify-between">
+            {/* Back Button */}
             <Button
               type="button"
               variant="outline"
-              onClick={onReview}
-              className="bg-watney text-white hover:bg-watney/90"
+              onClick={handleBack}
+              className="w-full bg-watney text-white hover:bg-watney/90 sm:w-auto"
             >
-              Review Application
+              Back
             </Button>
-            <Button
-              type="submit"
-              disabled={!hasScrolledToBottom}
-              className={`${
-                hasScrolledToBottom
-                  ? 'bg-green-600 hover:bg-green-700'
-                  : 'cursor-not-allowed bg-green-600/50'
-              } text-white`}
-            >
-              Submit
-            </Button>
+
+            {/* Right side buttons */}
+            <div className="grid w-full gap-3 sm:flex sm:w-auto sm:space-x-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onReview}
+                className="w-full bg-watney text-white hover:bg-watney/90 sm:w-auto"
+              >
+                Review Application
+              </Button>
+              <Button
+                type="submit"
+                disabled={!hasScrolledToBottom}
+                className={`w-full sm:w-auto ${
+                  hasScrolledToBottom
+                    ? 'bg-green-600 hover:bg-green-700'
+                    : 'cursor-not-allowed bg-green-600/50'
+                } text-white`}
+              >
+                Submit
+              </Button>
+            </div>
           </div>
         </div>
       </form>

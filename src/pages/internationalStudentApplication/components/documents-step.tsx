@@ -1,5 +1,3 @@
-
-
 import { useEffect, useRef, useState } from 'react';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -35,7 +33,7 @@ interface DocumentsStepProps {
   defaultValues?: Partial<DocumentFile>;
   onSaveAndContinue: (data: DocumentFile) => void;
   setCurrentStep: (step: number) => void;
-  onSave
+  onSave;
 }
 
 export function DocumentsStep({
@@ -52,13 +50,12 @@ export function DocumentsStep({
     bankStatement: defaultValues?.bankStatement ?? []
   });
 
-    // Ref to always have the latest documents
-    const documentsRef = useRef<DocumentFile>(documents);
-    useEffect(() => {
-      documentsRef.current = documents;
-    }, [documents]);
-  
-    
+  // Ref to always have the latest documents
+  const documentsRef = useRef<DocumentFile>(documents);
+  useEffect(() => {
+    documentsRef.current = documents;
+  }, [documents]);
+
   const [uploadState, setUploadState] = useState<{
     isOpen: boolean;
     field: keyof Omit<DocumentFile, 'image'> | 'image' | null;
@@ -109,9 +106,7 @@ export function DocumentsStep({
 
   // Check if all required documents have at least one file
   const allDocumentsUploaded =
-    
-    documents.passport.length > 0 &&
-    documents.bankStatement.length > 0;
+    documents.passport.length > 0 && documents.bankStatement.length > 0;
 
   const renderUploadedFiles = (field: keyof DocumentFile) => {
     if (field === 'image') {
@@ -134,7 +129,14 @@ export function DocumentsStep({
                     rel="noopener noreferrer"
                     className="flex items-center space-x-2 text-sm font-medium text-gray-900 transition-colors hover:text-watney/90"
                   >
-                    <span className="truncate">{fileName}</span>
+                    <span className="truncate sm:hidden">
+                      {fileName.length > 20
+                        ? fileName.slice(0, 10) + '...'
+                        : fileName}
+                    </span>
+                    <span className="hidden truncate sm:inline">
+                      {fileName}
+                    </span>
                     <ExternalLink className="h-3 w-3 flex-shrink-0" />
                   </a>
                 </div>
@@ -178,7 +180,14 @@ export function DocumentsStep({
                       rel="noopener noreferrer"
                       className="flex items-center space-x-2 text-sm font-medium text-gray-900 transition-colors hover:text-watney/90"
                     >
-                      <span className="truncate">{fileName}</span>
+                      <span className="truncate sm:hidden">
+                        {fileName.length > 20
+                          ? fileName.slice(0, 10) + '...'
+                          : fileName}
+                      </span>
+                      <span className="hidden truncate sm:inline">
+                        {fileName}
+                      </span>
                       <ExternalLink className="h-3 w-3 flex-shrink-0" />
                     </a>
                   </div>
@@ -205,35 +214,34 @@ export function DocumentsStep({
   };
 
   const handleUploadComplete = (uploadResponse: any) => {
-      const { field } = uploadState;
-      if (!field || !uploadResponse?.success || !uploadResponse.data?.fileUrl) {
-        setUploadState({ isOpen: false, field: null });
-        return;
-      }
-  
-      const fileUrl = uploadResponse.data.fileUrl;
-  
-      setDocuments((prev) => {
-        if (field === 'image') {
-          return {
-            ...prev,
-            image: fileUrl
-          };
-        } else {
-          return {
-            ...prev,
-            [field]: [...(prev[field as keyof DocumentFile] as string[]), fileUrl]
-          };
-        }
-      });
-  
-      setTimeout(() => {
-        onSave(documentsRef.current);
-      }, 0);
-  
+    const { field } = uploadState;
+    if (!field || !uploadResponse?.success || !uploadResponse.data?.fileUrl) {
       setUploadState({ isOpen: false, field: null });
-    };
-  
+      return;
+    }
+
+    const fileUrl = uploadResponse.data.fileUrl;
+
+    setDocuments((prev) => {
+      if (field === 'image') {
+        return {
+          ...prev,
+          image: fileUrl
+        };
+      } else {
+        return {
+          ...prev,
+          [field]: [...(prev[field as keyof DocumentFile] as string[]), fileUrl]
+        };
+      }
+    });
+
+    setTimeout(() => {
+      onSave(documentsRef.current);
+    }, 0);
+
+    setUploadState({ isOpen: false, field: null });
+  };
 
   const documentTypes = [
     {
@@ -285,37 +293,35 @@ export function DocumentsStep({
   ];
 
   return (
-    <div className="">
+    <div>
       <Card className="border-0 shadow-none">
-        <CardHeader className="">
+        <CardHeader>
           <div className="space-y-4">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">
+              <h2 className="text-xl font-bold text-gray-900 sm:text-2xl">
                 Document Upload
               </h2>
-              <p className="mt-1 text-gray-600">
+              <p className="mt-1 text-sm text-gray-600 sm:text-base">
                 Please upload all required documents to complete your
                 application
               </p>
             </div>
 
-            <div className="rounded-lg border border-gray-200 bg-white p-4">
+            <div className="rounded-lg border border-gray-200 bg-white p-4 sm:p-6">
               <h3 className="mb-3 flex items-center font-semibold text-gray-900">
                 <CheckCircle className="mr-2 h-5 w-5 text-blue-600" />
                 Document Requirements
               </h3>
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <p className="mb-2 font-medium text-gray-700">
                     Required Documents:
                   </p>
                   <ul className="space-y-1 text-sm text-gray-600">
-                    
                     <li className="flex items-center">
                       <div className="mr-2 h-2 w-2 rounded-full bg-red-500"></div>
                       Passport or ID document
                     </li>
-
                     <li className="flex items-center">
                       <div className="mr-2 h-2 w-2 rounded-full bg-red-500"></div>
                       Bank statement
@@ -329,7 +335,7 @@ export function DocumentsStep({
                   <ul className="space-y-1 text-sm text-gray-600">
                     <li className="flex items-center">
                       <div className="mr-2 h-2 w-2 rounded-full bg-gray-400"></div>
-                      Photograpgh
+                      Photograph
                     </li>
                     <li className="flex items-center">
                       <div className="mr-2 h-2 w-2 rounded-full bg-gray-400"></div>
@@ -346,8 +352,9 @@ export function DocumentsStep({
           </div>
         </CardHeader>
 
-        <CardContent className="p-6">
-          <div className="grid grid-cols-2 gap-4 ">
+        <CardContent className="p-4 sm:p-6">
+          {/* Upload grid */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {documentTypes.map(
               ({
                 id,
@@ -369,22 +376,17 @@ export function DocumentsStep({
                     className={`rounded-xl border-2 transition-all ${
                       error
                         ? 'border-red-200 bg-red-50'
-                        : hasFiles
-                          ? 'border-gray-100 bg-gray-50 hover:border-gray-200'
-                          : 'border-gray-100 bg-gray-50 hover:border-gray-200'
+                        : 'border-gray-100 bg-gray-50 hover:border-gray-200'
                     }`}
                   >
-                    <div className="p-6">
-                      <div className="flex items-start justify-between">
+                    <div className="p-4 sm:p-6">
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                        {/* Left info */}
                         <div className="flex-1">
                           <div className="mb-2 flex items-center space-x-3">
                             <div
                               className={`rounded-lg p-2 ${
-                                error
-                                  ? 'bg-red-100'
-                                  : hasFiles
-                                    ? 'bg-gray-100'
-                                    : 'bg-gray-100'
+                                error ? 'bg-red-100' : 'bg-gray-100'
                               }`}
                             >
                               <Icon
@@ -398,13 +400,13 @@ export function DocumentsStep({
                               />
                             </div>
                             <div>
-                              <h3 className="flex items-center text-lg font-semibold text-gray-900">
+                              <h3 className="flex flex-wrap items-center text-base font-semibold text-gray-900 sm:text-lg">
                                 {label}
                                 {required && (
-                                  <span className="ml-2 text-red-500">*</span>
+                                  <span className="ml-1 text-red-500">*</span>
                                 )}
                                 {hasFiles && (
-                                  <CheckCircle className="ml-2 h-5 w-5 text-green-600" />
+                                  <CheckCircle className="ml-2 h-4 w-4 text-green-600 sm:h-5 sm:w-5" />
                                 )}
                               </h3>
                               <p className="text-sm text-gray-600">
@@ -428,12 +430,13 @@ export function DocumentsStep({
                           )}
                         </div>
 
+                        {/* Upload button */}
                         <Button
                           type="button"
                           onClick={() =>
                             openImageUploader(id as keyof DocumentFile)
                           }
-                          className="ml-4 flex items-center space-x-2 rounded-lg bg-watney px-6 py-2 text-white transition-colors  hover:bg-watney/90"
+                          className="flex w-full items-center justify-center space-x-2 rounded-lg bg-watney px-4 py-2 text-sm text-white transition-colors hover:bg-watney/90 sm:w-auto sm:px-6 sm:text-base"
                         >
                           <Upload className="h-4 w-4" />
                           <span>Upload</span>
@@ -449,12 +452,12 @@ export function DocumentsStep({
           </div>
 
           {/* Navigation Buttons */}
-          <div className="flex justify-between pt-8">
+          <div className="flex flex-col gap-3 pt-8 sm:flex-row sm:justify-between">
             <Button
               type="button"
               variant="outline"
               onClick={handleBack}
-              className="bg-watney text-white hover:bg-watney/90"
+              className="w-full bg-watney text-white hover:bg-watney/90 sm:w-auto"
             >
               Back
             </Button>
@@ -462,7 +465,7 @@ export function DocumentsStep({
               type="button"
               onClick={handleSubmit}
               disabled={!allDocumentsUploaded}
-              className="bg-watney text-white hover:bg-watney/90"
+              className="w-full bg-watney text-white hover:bg-watney/90 sm:w-auto"
             >
               Next
             </Button>

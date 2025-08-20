@@ -111,7 +111,7 @@ export function AddressStep({
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <div>
           <CardContent className="">
-            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 ">
+            <div className="grid grid-cols-1 gap-8 sm:grid-cols-1 md:grid-cols-2">
               {/* Residential Address Section */}
               <div className="mt-10 space-y-4">
                 <h2 className="text-xl font-semibold">Residential Address</h2>
@@ -161,7 +161,7 @@ export function AddressStep({
                   )}
                 />
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <FormField
                     control={form.control}
                     name="residentialCity"
@@ -333,7 +333,7 @@ export function AddressStep({
                   )}
                 />
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <FormField
                     control={form.control}
                     name="postalCity"

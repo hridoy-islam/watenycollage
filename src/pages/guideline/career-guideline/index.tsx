@@ -159,7 +159,7 @@ export default function CareerGuideline() {
       <DialogContent
         onInteractOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
-        className="h-[95vh] w-[95vw] max-w-none p-0"
+        className="h-[95vh] w-[95vw] max-w-5xl p-0 sm:h-auto sm:max-h-[90vh] overflow-auto"
       >
         <Card className="flex h-full flex-col border-none shadow-none">
           <CardHeader className="px-8 py-6">

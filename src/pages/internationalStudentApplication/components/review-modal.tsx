@@ -229,16 +229,16 @@ export function ReviewModal({
 
     return (
       <div className="mb-6">
-        {showTitle && <h3 className="mb-2 text-lg font-semibold">{title}</h3>}
-        <div className="rounded-md border border-gray-200 p-4">
+        {showTitle && <h3 className="mb-2 text-sm md:text-lg font-semibold">{title}</h3>}
+        <div className="rounded-md border border-gray-200 p-1 md:p-4">
           <table className="min-w-full divide-y divide-gray-200">
             <tbody className="divide-y divide-gray-200">
               {rows.map(([label, value], index) => (
                 <tr key={index}>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
+                  <td className="break-words px-2 md:px-6 py-4 text-sm font-medium text-gray-900">
                     {label}
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                  <td className="break-words px-2 md:px-6 py-4 text-sm text-gray-500">
                     {value}
                   </td>
                 </tr>
@@ -271,219 +271,219 @@ export function ReviewModal({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="flex h-[80vh] max-w-4xl flex-col gap-0 overflow-hidden p-0">
-        <DialogHeader className="p-6 pb-2">
-          <DialogTitle className="text-xl font-bold">
-            Application Summary
-          </DialogTitle>
-        </DialogHeader>
-        <div
-          className="flex-1 overflow-y-auto p-6"
-          style={{ maxHeight: 'calc(80vh - 120px)' }}
-        >
-          <div className="space-y-6">
-            {/* Personal Details */}
-            {renderSection('Personal Details', {
-              title: getDataValue('title'),
-              firstName: getDataValue('firstName'),
-              lastName: getDataValue('lastName'),
-              initial: getDataValue('initial'),
-              gender: getDataValue('gender'),
-              dateOfBirth: getDataValue('dateOfBirth'),
-              email: getDataValue('email'),
-              phone: getDataValue('phone'),
-              ethnicity: getDataValue('ethnicity'),
-              studentType: getDataValue('studentType'),
-              countryOfBirth: getDataValue('countryOfBirth'),
-              maritalStatus: getDataValue('maritalStatus'),
-              countryOfResidence: getDataValue('countryOfResidence')
-            })}
-            {/* Address */}
-            {renderSection('Residential Address', {
-              residentialAddressLine1:
-                getDataValue('residentialAddress', 'line1') ||
-                getDataValue('residentialAddressLine1'),
-              residentialAddressLine2:
-                getDataValue('residentialAddress', 'line2') ||
-                getDataValue('residentialAddressLine2'),
-              residentialCity:
-                getDataValue('residentialAddress', 'city') ||
-                getDataValue('residentialCity'),
-              residentialPostCode:
-                getDataValue('residentialAddress', 'postCode') ||
-                getDataValue('residentialPostCode'),
-              residentialCountry:
-                getDataValue('residentialAddress', 'country') ||
-                getDataValue('residentialCountry')
-            })}
-            {!getDataValue('sameAsResidential') &&
-              renderSection('Postal Address', {
-                postalAddressLine1:
-                  getDataValue('postalAddress', 'line1') ||
-                  getDataValue('postalAddressLine1'),
-                postalAddressLine2:
-                  getDataValue('postalAddress', 'line2') ||
-                  getDataValue('postalAddressLine2'),
-                postalCity:
-                  getDataValue('postalAddress', 'city') ||
-                  getDataValue('postalCity'),
-                postalPostCode:
-                  getDataValue('postalAddress', 'postCode') ||
-                  getDataValue('postalPostCode'),
-                postalCountry:
-                  getDataValue('postalAddress', 'country') ||
-                  getDataValue('postalCountry')
+  <Dialog open={open} onOpenChange={onClose}>
+  <DialogContent className="flex h-[80vh] max-w-full md:max-w-4xl flex-col gap-0 overflow-hidden p-0">
+    <DialogHeader className="p-2 md:p-6 pb-2">
+      <DialogTitle className="text-lg sm:text-xl font-bold">
+        Application Summary
+      </DialogTitle>
+    </DialogHeader>
+
+    <div
+      className="flex-1 overflow-y-auto p-4 sm:p-6"
+      style={{ maxHeight: 'calc(80vh - 120px)' }}
+    >
+      <div className="space-y-4 sm:space-y-6">
+        {/* Personal Details */}
+        {renderSection('Personal Details', {
+          title: getDataValue('title'),
+          firstName: getDataValue('firstName'),
+          lastName: getDataValue('lastName'),
+          initial: getDataValue('initial'),
+          gender: getDataValue('gender'),
+          dateOfBirth: getDataValue('dateOfBirth'),
+          email: getDataValue('email'),
+          phone: getDataValue('phone'),
+          ethnicity: getDataValue('ethnicity'),
+          studentType: getDataValue('studentType'),
+          countryOfBirth: getDataValue('countryOfBirth'),
+          maritalStatus: getDataValue('maritalStatus'),
+          countryOfResidence: getDataValue('countryOfResidence')
+        })}
+        {/* Address */}
+        {renderSection('Residential Address', {
+          residentialAddressLine1:
+            getDataValue('residentialAddress', 'line1') ||
+            getDataValue('residentialAddressLine1'),
+          residentialAddressLine2:
+            getDataValue('residentialAddress', 'line2') ||
+            getDataValue('residentialAddressLine2'),
+          residentialCity:
+            getDataValue('residentialAddress', 'city') ||
+            getDataValue('residentialCity'),
+          residentialPostCode:
+            getDataValue('residentialAddress', 'postCode') ||
+            getDataValue('residentialPostCode'),
+          residentialCountry:
+            getDataValue('residentialAddress', 'country') ||
+            getDataValue('residentialCountry')
+        })}
+        {!getDataValue('sameAsResidential') &&
+          renderSection('Postal Address', {
+            postalAddressLine1:
+              getDataValue('postalAddress', 'line1') ||
+              getDataValue('postalAddressLine1'),
+            postalAddressLine2:
+              getDataValue('postalAddress', 'line2') ||
+              getDataValue('postalAddressLine2'),
+            postalCity:
+              getDataValue('postalAddress', 'city') ||
+              getDataValue('postalCity'),
+            postalPostCode:
+              getDataValue('postalAddress', 'postCode') ||
+              getDataValue('postalPostCode'),
+            postalCountry:
+              getDataValue('postalAddress', 'country') ||
+              getDataValue('postalCountry')
+          })}
+        {/* Course Details */}
+        {formData?.courseDetailsData?.course &&
+        formData?.courseDetailsData?.intake
+          ? renderSection('Course Details', {
+              course: courseName || 'N/A',
+              intake: termName || 'N/A'
+            })
+          : null}
+        {/* Contact Information */}
+        {renderSection('Contact Information', {
+          emergencyFullName: getDataValue('emergencyFullName'),
+          emergencyContactNumber: getDataValue('emergencyContactNumber'),
+          emergencyEmail: getDataValue('emergencyEmail'),
+          emergencyRelationship: getDataValue('emergencyRelationship'),
+          emergencyAddress: getDataValue('emergencyAddress')
+        })}
+
+        {renderSection('English Language Test', {
+          ...(getDataValue('englishQualification') && {
+            englishTestType: (
+              getDataValue('englishQualification', 'englishTestType') || ''
+            ).toUpperCase(),
+            englishTestScore: getDataValue(
+              'englishQualification',
+              'englishTestScore'
+            ),
+            englishTestDate: getDataValue(
+              'englishQualification',
+              'englishTestDate'
+            ),
+            englishCertificate: getDataValue(
+              'englishQualification',
+              'englishCertificate'
+            )
+          })
+        })}
+        {/* Education Background */}
+        {(getDataValue('educationData') || []).length > 0 &&
+          getDataValue('educationData').map((entry: any, index: number) => (
+            <React.Fragment key={`education-entry-${index}`}>
+              {renderSection(`Education Background #${index + 1}`, {
+                institution: entry.institution || '',
+                qualification: entry.qualification || '',
+                grade: entry.grade || '',
+                awardDate: entry.awardDate
+                  ? new Date(entry.awardDate).toLocaleDateString()
+                  : '',
+                certificate: entry.certificate
               })}
-            {/* Course Details */}
-
-            {formData?.courseDetailsData?.course &&
-            formData?.courseDetailsData?.intake
-              ? renderSection('Course Details', {
-                  course: courseName || 'N/A',
-                  intake: termName || 'N/A'
-                })
-              : null}
-            {/* Contact Information */}
-            {renderSection('Contact Information', {
-              emergencyFullName: getDataValue('emergencyFullName'),
-              emergencyContactNumber: getDataValue('emergencyContactNumber'),
-              emergencyEmail: getDataValue('emergencyEmail'),
-              emergencyRelationship: getDataValue('emergencyRelationship'),
-              emergencyAddress: getDataValue('emergencyAddress')
-            })}
-    
-            {renderSection('English Language Test', {
-              ...(getDataValue('englishQualification') && {
-                englishTestType: (
-                  getDataValue('englishQualification', 'englishTestType') || ''
-                ).toUpperCase(),
-                englishTestScore: getDataValue(
-                  'englishQualification',
-                  'englishTestScore'
-                ),
-                englishTestDate: getDataValue(
-                  'englishQualification',
-                  'englishTestDate'
-                ),
-                englishCertificate: getDataValue(
-                  'englishQualification',
-                  'englishCertificate'
+            </React.Fragment>
+          ))}
+        {/* Employment */}
+        {renderSection('Employment', {
+          CurrentEmployment: getDataValue('isEmployed'),
+          ...(getDataValue('isEmployed') === 'yes'
+            ? {
+                employerName: getDataValue('currentEmployment', 'employer'),
+                jobTitle: getDataValue('currentEmployment', 'jobTitle'),
+                startDate: getDataValue('currentEmployment', 'startDate'),
+                employmentType: getDataValue(
+                  'currentEmployment',
+                  'employmentType'
                 )
-              })
-            })}
-            {/* Education Background */}
-            {(getDataValue('educationData') || []).length > 0 &&
-              getDataValue('educationData').map((entry: any, index: number) => (
-                <React.Fragment key={`education-entry-${index}`}>
-                  {renderSection(`Education Background #${index + 1}`, {
-                    institution: entry.institution || '',
-                    qualification: entry.qualification || '',
-                    grade: entry.grade || '',
-                    awardDate: entry.awardDate
-                      ? new Date(entry.awardDate).toLocaleDateString()
-                      : '',
-                    certificate: entry.certificate
-                  })}
-                </React.Fragment>
-              ))}
-            {/* Employment */}
-            {renderSection('Employment', {
-              CurrentEmployment: getDataValue('isEmployed'),
-              ...(getDataValue('isEmployed') === 'yes'
-                ? {
-                    employerName: getDataValue('currentEmployment', 'employer'),
-                    jobTitle: getDataValue('currentEmployment', 'jobTitle'),
-                    startDate: getDataValue('currentEmployment', 'startDate'),
-                    employmentType: getDataValue(
-                      'currentEmployment',
-                      'employmentType'
-                    ),
-                    
-                  }
-                : {}),
-              hasPreviousEmployment: getDataValue('hasPreviousEmployment')
-            })}
+              }
+            : {}),
+          hasPreviousEmployment: getDataValue('hasPreviousEmployment')
+        })}
 
-            {getDataValue('hasPreviousEmployment') === 'yes' && (
-              <div>
-                {(getDataValue('previousEmployments') || []).length > 0 ? (
-                  getDataValue('previousEmployments').map(
-                    (emp: any, index: number) => (
-                      <div
-                        key={`prevEmp-${index}`}
-                        className="mb-4 rounded-md border border-gray-200 bg-gray-50 p-4"
-                      >
-                        {renderSection(
-                          `Previous Employment #${index + 1}`,
-                          Object.fromEntries(
-                            Object.entries(emp).filter(([key]) => key !== '_id')
-                          ),
-                          true
-                        )}
-                      </div>
-                    )
-                  )
-                ) : (
-                  <p className="text-sm text-gray-500">
-                    No previous employment records found.
-                  </p>
-                )}
-              </div>
+        {getDataValue('hasPreviousEmployment') === 'yes' && (
+          <div>
+            {(getDataValue('previousEmployments') || []).length > 0 ? (
+              getDataValue('previousEmployments').map(
+                (emp: any, index: number) => (
+                  <div
+                    key={`prevEmp-${index}`}
+                    className="mb-4 rounded-md border border-gray-200 bg-gray-50 p-4"
+                  >
+                    {renderSection(
+                      `Previous Employment #${index + 1}`,
+                      Object.fromEntries(
+                        Object.entries(emp).filter(([key]) => key !== '_id')
+                      ),
+                      true
+                    )}
+                  </div>
+                )
+              )
+            ) : (
+              <p className="text-sm text-gray-500">
+                No previous employment records found.
+              </p>
             )}
-
-            
-            {/* Compliance */}
-            {(() => {
-              const visaRefusal = getDataValue('visaRefusal') === 'yes';
-              const disability = getDataValue('disability') === 'yes';
-              return renderSection('Additional Information', {
-                visaRequired: getDataValue('visaRequired'),
-                enteredUKBefore: getDataValue('enteredUKBefore'),
-                completedUKCourse: getDataValue('completedUKCourse'),
-                hearAboutUs: getDataValue('hearAboutUs'),
-                visaRefusal: getDataValue('visaRefusal'),
-                ...(visaRefusal && {
-                  visaRefusalDetail: getDataValue('visaRefusalDetail')
-                }),
-                disability: getDataValue('disability'),
-                ...(disability && {
-                  disabilityDetails: getDataValue('disabilityDetails')
-                })
-              });
-            })()}
-            {renderSection('Funding Information', {
-              fundingType: getDataValue('fundingType'),
-              ...(getDataValue('fundingType') === 'Bursary/Grant' && {
-                grantDetails: getDataValue('grantDetails')
-              }),
-              ...(getDataValue('fundingType') === 'Employer-sponsored' && {
-                fundingCompanyName: getDataValue('fundingCompanyName'),
-                fundingContactPerson: getDataValue('fundingContactPerson'),
-                fundingEmail: getDataValue('fundingEmail'),
-                fundingPhoneNumber: getDataValue('fundingPhoneNumber')
-              })
-            })}
-            {/* Documents */}
-            {renderSection('Documents', {
-              passport: getDataValue('passport') || [],
-              workExperience: getDataValue('workExperience') || [],
-              personalStatement: getDataValue('personalStatement') || [],
-              bankStatement: getDataValue('bankStatement') || [],
-              photoId: getDataValue('photoId') || [],
-              photograph: getDataValue('image') || 'View Document'
-            })}
           </div>
-        </div>
-        <div className="flex justify-end p-4">
-          <Button
-            onClick={onClose}
-            className="bg-watney text-white hover:bg-watney/90"
-          >
-            Close
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+        )}
+
+        {/* Compliance */}
+        {(() => {
+          const visaRefusal = getDataValue('visaRefusal') === 'yes';
+          const disability = getDataValue('disability') === 'yes';
+          return renderSection('Additional Information', {
+            visaRequired: getDataValue('visaRequired'),
+            enteredUKBefore: getDataValue('enteredUKBefore'),
+            completedUKCourse: getDataValue('completedUKCourse'),
+            hearAboutUs: getDataValue('hearAboutUs'),
+            visaRefusal: getDataValue('visaRefusal'),
+            ...(visaRefusal && {
+              visaRefusalDetail: getDataValue('visaRefusalDetail')
+            }),
+            disability: getDataValue('disability'),
+            ...(disability && {
+              disabilityDetails: getDataValue('disabilityDetails')
+            })
+          });
+        })()}
+        {renderSection('Funding Information', {
+          fundingType: getDataValue('fundingType'),
+          ...(getDataValue('fundingType') === 'Bursary/Grant' && {
+            grantDetails: getDataValue('grantDetails')
+          }),
+          ...(getDataValue('fundingType') === 'Employer-sponsored' && {
+            fundingCompanyName: getDataValue('fundingCompanyName'),
+            fundingContactPerson: getDataValue('fundingContactPerson'),
+            fundingEmail: getDataValue('fundingEmail'),
+            fundingPhoneNumber: getDataValue('fundingPhoneNumber')
+          })
+        })}
+        {/* Documents */}
+        {renderSection('Documents', {
+          passport: getDataValue('passport') || [],
+          workExperience: getDataValue('workExperience') || [],
+          personalStatement: getDataValue('personalStatement') || [],
+          bankStatement: getDataValue('bankStatement') || [],
+          photoId: getDataValue('photoId') || [],
+          photograph: getDataValue('image') || 'View Document'
+        })}
+      </div>
+    </div>
+
+    <div className="flex justify-end p-4">
+      <Button
+        onClick={onClose}
+        className="bg-watney text-white hover:bg-watney/90"
+      >
+        Close
+      </Button>
+    </div>
+  </DialogContent>
+</Dialog>
+
   );
 }

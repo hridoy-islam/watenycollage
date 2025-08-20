@@ -73,7 +73,8 @@ export function EducationStep({
       .string()
       .min(1, { message: 'Qualification details are required' }),
     awardDate: z.date({ required_error: 'Date of award is required' }),
-    certificate: z.any()
+    certificate: z
+      .any()
       .refine(
         (file) =>
           file instanceof File ||
@@ -355,7 +356,6 @@ export function EducationStep({
                     <CustomDatePicker
                       selected={selectedDate}
                       onChange={(date) => field.onChange(date)}
-                 
                     />
                   </FormControl>
                   <p className="text-xs text-gray-400">Example: 01/16/2022</p>
@@ -420,214 +420,375 @@ export function EducationStep({
     </div>
   );
 
-  const renderAcademicQualificationsStep = () => (
-    <div className="space-y-8">
-      <CardHeader>
-        <CardTitle className="text-2xl">Academic Qualification</CardTitle>
-        <CardDescription>
-          Please provide your highest level of academic qualification. This
-          information is mandatory and will help us assess your educational
-          background. You may add more than one qualification if applicable.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="scroll mt-2 p-0 px-6">
-        <div className="-mt-8">
-          {fields.length === 0 ? (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={addEducationEntry}
-              className="mb-4 bg-watney text-white hover:bg-watney/90"
-            >
-              Add Qualification
-            </Button>
-          ) : (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={addEducationEntry}
-              className="mb-4 bg-watney text-white hover:bg-watney/90"
-            >
-              Add More Qualification
-            </Button>
-          )}
-        </div>
+const renderAcademicQualificationsStep = () => (
+  <div className="space-y-8">
+    <CardHeader>
+      <CardTitle className="text-2xl">Academic Qualification</CardTitle>
+      <CardDescription>
+        Please provide your highest level of academic qualification. This
+        information is mandatory and will help us assess your educational
+        background. You may add more than one qualification if applicable.
+      </CardDescription>
+    </CardHeader>
 
-        {fields.length > 0 && (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>
-                  Qualifications <span className="text-red-500">*</span>
-                </TableHead>
-                <TableHead>
-                  Grade <span className="text-red-500">*</span>
-                </TableHead>
-                <TableHead className="min-w-[300px]">
-                  Name of the Institution{' '}
-                  <span className="text-red-500">*</span>
-                </TableHead>
-                <TableHead>
-                  Date of Award (MM/DD/YYYY){' '}
-                  <span className="text-red-500">*</span>
-                </TableHead>
-                <TableHead>
-                  Certificate <span className="text-red-500">*</span>
-                </TableHead>
-                <TableHead className="w-[80px]">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {fields.map((field, index) => (
-                <TableRow key={field.id}>
-                  <TableCell className="align-top">
-                    <FormField
-                      control={form.control}
-                      name={`educationData.${index}.qualification`}
-                      render={({ field }) => (
-                        <FormItem className="">
-                          <FormControl>
-                            <Input
-                              {...field}
-                              value={field.value || ''}
-                              placeholder="Enter the name of the qualification"
-                            />
-                          </FormControl>
-                       
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </TableCell>
-                  <TableCell className="align-top">
-                    <FormField
-                      control={form.control}
-                      name={`educationData.${index}.grade`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              placeholder="Provide your grade"
-                            />
-                          </FormControl>
-                          <p className="mt-1 text-xs text-gray-400">
-                            Example: 3.91
-                          </p>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </TableCell>
-                  <TableCell className="align-top">
-                    <FormField
-                      control={form.control}
-                      name={`educationData.${index}.institution`}
-                      
-                      render={({ field }) => (
-                        <FormItem >
-                          <FormControl>
-                            <Input
-                              {...field}
-                              value={field.value || ''}
-                              placeholder="Provide the full name of the university, college"
-                            />
-                          </FormControl>
-                          <p className="text-xs text-gray-400">
-                            Example: University of Manchester
-                          </p>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </TableCell>
-                  <TableCell className="align-top">
-                    <FormField
-                      control={form.control}
-                      name={`educationData.${index}.awardDate`}
-                      render={({ field }) => {
-                        const selectedDate = field.value
-                          ? new Date(field.value)
-                          : null;
-                        return (
-                          <FormItem className="align-top">
+    <CardContent className="mt-2 p-0 px-6">
+      <div className="-mt-8">
+        {fields.length === 0 ? (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={addEducationEntry}
+            className="mb-4 bg-watney text-white hover:bg-watney/90"
+          >
+            Add Qualification
+          </Button>
+        ) : (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={addEducationEntry}
+            className="mb-4 bg-watney text-white hover:bg-watney/90"
+          >
+            Add More Qualification
+          </Button>
+        )}
+      </div>
+
+      {fields.length > 0 && (
+        <>
+          {/* Desktop/Tablet View: Table */}
+          <div className="hidden md:block overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>
+                    Qualifications <span className="text-red-500">*</span>
+                  </TableHead>
+                  <TableHead>
+                    Grade <span className="text-red-500">*</span>
+                  </TableHead>
+                  <TableHead className="min-w-[300px]">
+                    Name of the Institution{' '}
+                    <span className="text-red-500">*</span>
+                  </TableHead>
+                  <TableHead>
+                    Date of Award (MM/DD/YYYY){' '}
+                    <span className="text-red-500">*</span>
+                  </TableHead>
+                  <TableHead>
+                    Certificate <span className="text-red-500">*</span>
+                  </TableHead>
+                  <TableHead className="w-[80px]">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {fields.map((field, index) => (
+                  <TableRow key={field.id}>
+                    <TableCell className="align-top">
+                      <FormField
+                        control={form.control}
+                        name={`educationData.${index}.qualification`}
+                        render={({ field: formField }) => (
+                          <FormItem>
                             <FormControl>
-                              <CustomDatePicker
-                                selected={selectedDate}
-                                onChange={(date) => field.onChange(date)}
+                              <Input
+                                {...formField}
+                                value={formField.value || ''}
+                                placeholder="Enter qualification"
                               />
                             </FormControl>
-                            <p className="text-xs text-gray-400">
-                              Example: 01/16/2022
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </TableCell>
+                    <TableCell className="align-top">
+                      <FormField
+                        control={form.control}
+                        name={`educationData.${index}.grade`}
+                        render={({ field: formField }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input
+                                {...formField}
+                                placeholder="Grade (e.g., 3.91)"
+                              />
+                            </FormControl>
+                            <p className="mt-1 text-xs text-gray-400">
+                              Example: 3.91
                             </p>
                             <FormMessage />
                           </FormItem>
-                        );
-                      }}
-                    />
-                  </TableCell>
-                  <TableCell className="align-top">
-                    <FormField
-                      control={form.control}
-                      name={`educationData.${index}.certificate`}
-                      render={({ field }) => (
-                        <FormItem className=" flex flex-col">
-                          <Button
-                            type="button"
-                            className="bg-watney text-white hover:bg-watney/90"
-                            onClick={() =>
-                              setUploadState({
-                                isOpen: true,
-                                field: field.name
-                              })
-                            }
-                          >
-                            Upload Certificate
-                          </Button>
-                          <p className="text-xs text-gray-500">
-                            Accepted formats: PDF, JPG, PNG. Max size 5MB.
-                          </p>
-
-                          {field.value && (
-                            <>
-                              {/* <p className="mt-1 text-sm">
-            {decodeURIComponent(field.value.split('/').pop() || 'Uploaded File')}
-          </p> */}
+                        )}
+                      />
+                    </TableCell>
+                    <TableCell className="align-top min-w-[300px]">
+                      <FormField
+                        control={form.control}
+                        name={`educationData.${index}.institution`}
+                        render={({ field: formField }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input
+                                {...formField}
+                                value={formField.value || ''}
+                                placeholder="Institution name"
+                              />
+                            </FormControl>
+                            <p className="text-xs text-gray-400">
+                              Example: University of Manchester
+                            </p>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </TableCell>
+                    <TableCell className="align-top">
+                      <FormField
+                        control={form.control}
+                        name={`educationData.${index}.awardDate`}
+                        render={({ field: formField }) => {
+                          const selectedDate = formField.value
+                            ? new Date(formField.value)
+                            : null;
+                          return (
+                            <FormItem>
+                              <FormControl>
+                                <CustomDatePicker
+                                  selected={selectedDate}
+                                  onChange={(date) => formField.onChange(date)}
+                                />
+                              </FormControl>
+                              <p className="text-xs text-gray-400">
+                                Example: 01/16/2022
+                              </p>
+                              <FormMessage />
+                            </FormItem>
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell className="align-top">
+                      <FormField
+                        control={form.control}
+                        name={`educationData.${index}.certificate`}
+                        render={({ field: formField }) => (
+                          <FormItem className="flex flex-col">
+                            <Button
+                              type="button"
+                              className="bg-watney text-white hover:bg-watney/90 text-xs py-1"
+                              onClick={() =>
+                                setUploadState({
+                                  isOpen: true,
+                                  field: formField.name
+                                })
+                              }
+                            >
+                              Upload Certificate
+                            </Button>
+                            <p className="text-xs text-gray-500 mt-1">
+                              PDF, JPG, PNG (≤5MB)
+                            </p>
+                            {formField.value && (
                               <a
-                                href={field.value}
+                                href={formField.value}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="mt-1 text-xs text-blue-600 underline"
                               >
                                 View File
                               </a>
-                            </>
-                          )}
+                            )}
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => remove(index)}
+                        className="text-red-500 hover:bg-red-500 hover:text-white"
+                      >
+                        Remove
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
 
+          {/* Mobile View: Stacked Cards */}
+          <div className="md:hidden space-y-6">
+            {fields.map((field, index) => (
+              <div
+                key={field.id}
+                className=" rounded-lg border border-gray-300 p-2 bg-white shadow-sm space-y-4"
+              >
+                {/* Qualification */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Qualification <span className="text-red-500">*</span>
+                  </label>
+                  <FormField
+                    control={form.control}
+                    name={`educationData.${index}.qualification`}
+                    render={({ field: formField }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            {...formField}
+                            value={formField.value || ''}
+                            placeholder="Enter qualification"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* Grade */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Grade <span className="text-red-500">*</span>
+                  </label>
+                  <FormField
+                    control={form.control}
+                    name={`educationData.${index}.grade`}
+                    render={({ field: formField }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input {...formField} placeholder="e.g., 3.91" />
+                        </FormControl>
+                        <p className="text-xs text-gray-400">Example: 3.91</p>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* Institution */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Institution <span className="text-red-500">*</span>
+                  </label>
+                  <FormField
+                    control={form.control}
+                    name={`educationData.${index}.institution`}
+                    render={({ field: formField }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            {...formField}
+                            value={formField.value || ''}
+                            placeholder="University name"
+                          />
+                        </FormControl>
+                        <p className="text-xs text-gray-400">
+                          Example: University of Manchester
+                        </p>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* Award Date */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Date of Award <span className="text-red-500">*</span>
+                  </label>
+                  <FormField
+                    control={form.control}
+                    name={`educationData.${index}.awardDate`}
+                    render={({ field: formField }) => {
+                      const selectedDate = formField.value
+                        ? new Date(formField.value)
+                        : null;
+                      return (
+                        <FormItem>
+                          <FormControl>
+                            <CustomDatePicker
+                              selected={selectedDate}
+                              onChange={(date) => formField.onChange(date)}
+                              className="w-full"
+                            />
+                          </FormControl>
+                          <p className="text-xs text-gray-400">
+                            Example: 01/16/2022
+                          </p>
                           <FormMessage />
                         </FormItem>
-                      )}
-                    />
-                  </TableCell>
-                  <TableCell >
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => remove(index)}
-                      className="text-red-500 hover:bg-red-500 hover:text-white"
-                    >
-                      Remove
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        )}
-      </CardContent>
-    </div>
-  );
+                      );
+                    }}
+                  />
+                </div>
+
+                {/* Certificate Upload */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Certificate <span className="text-red-500">*</span>
+                  </label>
+                  <FormField
+                    control={form.control}
+                    name={`educationData.${index}.certificate`}
+                    render={({ field: formField }) => (
+                      <FormItem className="flex flex-col">
+                        <Button
+                          type="button"
+                          className="bg-watney text-white hover:bg-watney/90 text-xs py-1"
+                          onClick={() =>
+                            setUploadState({
+                              isOpen: true,
+                              field: formField.name
+                            })
+                          }
+                        >
+                          Upload Certificate
+                        </Button>
+                        <p className="text-xs text-gray-500 mt-1">
+                          PDF, JPG, PNG (≤5MB)
+                        </p>
+                        {formField.value && (
+                          <a
+                            href={formField.value}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-1 text-xs text-blue-600 underline"
+                          >
+                            View File
+                          </a>
+                        )}
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* Remove Button */}
+                <div className="pt-2">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => remove(index)}
+                    className="text-red-500 hover:bg-red-50 hover:text-red-700 text-sm w-full"
+                  >
+                    Remove Qualification
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </CardContent>
+  </div>
+);
 
   return (
     <Card className="border-none shadow-none">
@@ -650,9 +811,9 @@ export function EducationStep({
               onClick={handleNext}
               className="bg-watney text-white hover:bg-watney/90"
               disabled={
-    form.formState.isSubmitting ||
-    (currentPage !== 1 && educationData?.length === 0)
-  }
+                form.formState.isSubmitting ||
+                (currentPage !== 1 && educationData?.length === 0)
+              }
             >
               Next
             </Button>

@@ -200,7 +200,7 @@ export function TermsSubmitStep({
                       <FormControl>
                         <Textarea
                           {...field}
-                          className="w-[50%] resize-none rounded-md border border-gray-300  px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                          className="md:w-[50%] resize-none rounded-md border border-gray-300  px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring"
                           rows={4}
                           placeholder="Please provide details about your conviction"
                         />
@@ -274,35 +274,40 @@ export function TermsSubmitStep({
             </div>
           </CardContent>
         </div>
-        <div className="flex justify-between px-6 py-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleBack}
-            className="bg-watney text-white hover:bg-watney/90"
-          >
-            Back
-          </Button>
-          <div className="space-x-3">
+        <div className="px-6 py-4">
+          <div className="grid gap-3 sm:flex sm:justify-between">
+            {/* Back Button */}
             <Button
               type="button"
               variant="outline"
-              onClick={onReview}
-              className="bg-watney text-white hover:bg-watney/90"
+              onClick={handleBack}
+              className="w-full bg-watney text-white hover:bg-watney/90 sm:w-auto"
             >
-              Review Application
+              Back
             </Button>
-            <Button
-              type="submit"
-              disabled={!hasScrolledToBottom}
-              className={`${
-                hasScrolledToBottom
-                  ? 'bg-green-600 hover:bg-green-700'
-                  : 'cursor-not-allowed bg-green-600/50'
-              } text-white`}
-            >
-              Submit
-            </Button>
+
+            {/* Right side buttons */}
+            <div className="grid w-full gap-3 sm:flex sm:w-auto sm:space-x-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onReview}
+                className="w-full bg-watney text-white hover:bg-watney/90 sm:w-auto"
+              >
+                Review Application
+              </Button>
+              <Button
+                type="submit"
+                disabled={!hasScrolledToBottom}
+                className={`w-full sm:w-auto ${
+                  hasScrolledToBottom
+                    ? 'bg-green-600 hover:bg-green-700'
+                    : 'cursor-not-allowed bg-green-600/50'
+                } text-white`}
+              >
+                Submit
+              </Button>
+            </div>
           </div>
         </div>
       </form>

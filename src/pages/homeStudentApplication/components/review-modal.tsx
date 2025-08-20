@@ -188,16 +188,16 @@ export function ReviewModal({
 
     return (
       <div className="mb-6">
-        {showTitle && <h3 className="mb-2 text-lg font-semibold">{title}</h3>}
-        <div className="rounded-md border border-gray-200 p-4">
+        {showTitle && <h3 className="mb-2 text-sm md:text-lg font-semibold">{title}</h3>}
+        <div className="rounded-md border border-gray-200 p-1 md:p-4">
           <table className="min-w-full divide-y divide-gray-200">
             <tbody className="divide-y divide-gray-200">
               {rows.map(([label, value], index) => (
                 <tr key={index}>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
+                  <td className="break-words px-2 md:px-6 py-4 text-sm font-medium text-gray-900">
                     {label}
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                  <td className="break-words px-2 md:px-6 py-4 text-sm text-gray-500">
                     {value}
                   </td>
                 </tr>

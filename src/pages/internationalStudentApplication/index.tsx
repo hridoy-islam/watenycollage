@@ -574,13 +574,13 @@ export default function InternationalStudentApplication() {
 
     return (
       <div className="flex items-center justify-center px-4">
-        <Card className="rounded-lg border bg-watney/90 p-24 shadow-lg">
+        <Card className="rounded-lg border bg-watney/90 p-14 md:p-24 shadow-lg">
           <div className="flex flex-col items-center gap-6 text-center">
             <div className="rounded-full bg-white p-8">
               <Check size={84} className="text-watney" />
             </div>
             <div>
-              <CardTitle className="text-2xl font-semibold text-white">
+              <CardTitle className="text-lg md:text-2xl font-semibold text-white">
                 {isCourseSubmission
                   ? 'Application Submitted Successfully'
                   : 'Great job! You’ve completed your profile.'}

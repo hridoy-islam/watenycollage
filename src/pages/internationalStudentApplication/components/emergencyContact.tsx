@@ -96,7 +96,7 @@ export function EmergencyContact({
                   </p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid sm:gap-6 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
                     name="emergencyFullName"
