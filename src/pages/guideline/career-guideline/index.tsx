@@ -23,9 +23,8 @@ const steps: React.ReactNode[] = [
   // Step 1: Welcome to Cyberpeers
   <div key="step-1" className="space-y-4">
     <p className="text-2xl font-medium">
-      👋 <strong>Welcome to Careers at Cyberpeers</strong> — a leading
-      UK-based institution that values talent, diversity, and passion for
-      education.
+      👋 <strong>Welcome to Careers at Cyberpeers</strong> — a leading UK-based
+      institution that values talent, diversity, and passion for education.
     </p>
     <p className="text-xl">
       Thank you for your interest in joining our team. Before you proceed with
@@ -159,25 +158,28 @@ export default function CareerGuideline() {
       <DialogContent
         onInteractOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
-        className="h-[95vh] w-[95vw] max-w-none p-0"
+        className="h-[95vh] w-[95vw] max-w-5xl overflow-auto p-0 sm:h-auto sm:max-h-[90vh]"
       >
         <Card className="flex h-full flex-col border-none shadow-none">
-          <CardHeader className="px-8 py-6">
-            <CardTitle className="text-3xl font-bold">
+          {/* Header */}
+          <CardHeader className="px-4 py-4 text-center sm:px-8 sm:py-6 sm:text-left">
+            <CardTitle className="text-2xl font-bold sm:text-3xl">
               Career Application Guidelines
             </CardTitle>
           </CardHeader>
 
-          <CardContent className="flex-1 overflow-y-auto px-8 py-6 text-gray-700">
+          {/* Content */}
+          <CardContent className="flex-1 overflow-y-auto px-4 py-4 text-sm leading-relaxed text-gray-700 sm:px-8 sm:py-6 sm:text-base">
             {steps[step]}
           </CardContent>
 
-          <CardFooter className="justify-between px-8 py-6">
+          {/* Footer */}
+          <CardFooter className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:justify-between sm:px-8 sm:py-6">
             {step > 0 ? (
               <Button
                 variant="outline"
                 onClick={() => setStep(step - 1)}
-                className="bg-watney border-none px-8 py-4 text-xl text-white hover:bg-watney/90"
+                className="w-full bg-watney px-6 py-3 text-base text-white hover:bg-watney/90 sm:w-auto sm:px-8 sm:py-4 sm:text-xl"
               >
                 Back
               </Button>
@@ -187,7 +189,7 @@ export default function CareerGuideline() {
 
             <Button
               onClick={handleNext}
-              className="bg-watney px-8 py-4 text-xl text-white hover:bg-watney/90 "
+              className="w-full bg-watney px-6 py-3 text-base text-white hover:bg-watney/90 sm:w-auto sm:px-8 sm:py-4 sm:text-xl"
             >
               {step === steps.length - 1 ? 'Continue Application' : 'Next'}
             </Button>

@@ -24,7 +24,6 @@ import {
   DialogTitle
 } from '@/components/ui/dialog';
 
-import StudentApplication from '@/pages/studentApplication';
 import { Briefcase, Calendar, MoveLeft } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import RegistrationForm from './components/registration-form';

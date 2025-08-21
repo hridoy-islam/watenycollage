@@ -77,7 +77,7 @@ export function EmergencyContact({
     label: country
   }));
 
-  return (
+   return (
     <div className='bg-white py-6 rounded-lg'>
 
    
@@ -99,7 +99,7 @@ export function EmergencyContact({
                   </p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
                     name="emergencyFullName"

@@ -134,29 +134,29 @@ export default function CareerApplicationForm() {
   const residentialPostCode = postCode || '';
   const residentialCountry = country || '';
 
-  useEffect(() => {
-    if (parsedResume) {
-      setFormData((prev) => ({
-        ...prev,
-        dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined,
-        phone: phoneNumber,
-        passportNumber,
+  // useEffect(() => {
+  //   if (parsedResume) {
+  //     setFormData((prev) => ({
+  //       ...prev,
+  //       dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined,
+  //       phone: phoneNumber,
+  //       passportNumber,
 
-        maritalStatus,
-        nationality,
-        ethnicity,
-        countryOfBirth,
+  //       maritalStatus,
+  //       nationality,
+  //       ethnicity,
+  //       countryOfBirth,
 
-        postalAddressLine1: residentialAddressLine1,
-        postalAddressLine2: residentialAddressLine2,
-        postalCity: residentialCity,
-        postalPostCode: residentialPostCode,
-        postalCountry: residentialCountry
-      }));
-    }
-  }, [parsedResume]);
+  //       postalAddressLine1: residentialAddressLine1,
+  //       postalAddressLine2: residentialAddressLine2,
+  //       postalCity: residentialCity,
+  //       postalPostCode: residentialPostCode,
+  //       postalCountry: residentialCountry
+  //     }));
+  //   }
+  // }, [parsedResume]);
 
-  console.log(formData, 'FORM');
+  // console.log(formData, 'FORM');
 
   const fetchedData = async () => {
     try {
@@ -563,14 +563,14 @@ export default function CareerApplicationForm() {
                       <li>
                         📧 <strong>Email:</strong>{' '}
                         <a
-                          href="mailto:admissions@watneycollege.ac.uk"
+                          href="mailto:contact@cyberpeers.co.uk"
                           className="underline"
                         >
-                          admissions@watneycollege.ac.uk
+                          contact@cyberpeers.co.uk
                         </a>
                       </li>
                       <li>
-                        ☎ <strong>Phone:</strong> +44 (0)20 1234 5678
+                        ☎ <strong>Phone:</strong> +447914829155
                       </li>
                     </ul>
                   </div>
@@ -591,7 +591,7 @@ export default function CareerApplicationForm() {
   }
 
   return (
-    <div className=" mx-auto p-6">
+    <div className=" mx-auto md:p-4">
       {/* <h1 className="text-2xl font-bold text-center mb-8">Career Application</h1> */}
       {/* <StepIndicator currentStep={currentStep} totalSteps={totalSteps} /> */}
       <div className="">{renderStep()}</div>

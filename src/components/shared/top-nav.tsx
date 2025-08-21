@@ -63,9 +63,9 @@ export function TopNav() {
             if (isCompleted) navigate('/dashboard/profile');
           }}
         >
-          <span className="text-sm font-semibold text-black">{user?.name}</span>
+          <span className="text-sm font-semibold text-black max-md:hidden">{user?.name}</span>
           <div className="text-[12px] gap-4 cursor-pointer flex flex-row items-center font-medium text-black">
-            <span>{user?.email}</span>
+            <span className='max-md:hidden'>{user?.email}</span>
             <span className='text-watney'>My Profile</span>
           </div>
         </div>
@@ -75,7 +75,7 @@ export function TopNav() {
         >
           <div className="flex flex-row items-center justify-center gap-1 rounded-md p-2">
             <LogOut className="h-4 w-4" />
-            <span className="font-semibold">Log out</span>
+            <span className="font-semibold max-md:hidden">Log out</span>
           </div>
         </Button>
       </div>

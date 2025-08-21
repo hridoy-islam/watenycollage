@@ -148,7 +148,7 @@ const [documents, setDocuments] = useState<DocumentFile>({
     documents.passport.length > 0;
 
   // Render uploaded files
-  const renderUploadedFiles = (field: keyof DocumentFile) => {
+const renderUploadedFiles = (field: keyof DocumentFile) => {
     if (field === 'image') {
       const fileUrl = documents.image;
       if (fileUrl) {
@@ -209,7 +209,14 @@ const [documents, setDocuments] = useState<DocumentFile>({
                     rel="noopener noreferrer"
                     className="flex items-center space-x-2 text-sm font-medium text-gray-900 transition-colors hover:text-watney/90"
                   >
-                    <span className="truncate">{fileName}</span>
+                      <span className="truncate sm:hidden">
+                        {fileName.length > 20
+                          ? fileName.slice(0, 10) + '...'
+                          : fileName}
+                      </span>
+                      <span className="hidden truncate sm:inline">
+                        {fileName}
+                      </span>
                     <ExternalLink className="h-3 w-3 flex-shrink-0" />
                   </a>
                 </div>
@@ -253,7 +260,14 @@ const [documents, setDocuments] = useState<DocumentFile>({
                       rel="noopener noreferrer"
                       className="flex items-center space-x-2 text-sm font-medium text-gray-900 transition-colors hover:text-watney/90"
                     >
-                      <span className="truncate">{fileName}</span>
+                       <span className="truncate sm:hidden">
+                        {fileName.length > 20
+                          ? fileName.slice(0, 10) + '...'
+                          : fileName}
+                      </span>
+                      <span className="hidden truncate sm:inline">
+                        {fileName}
+                      </span>
                       <ExternalLink className="h-3 w-3 flex-shrink-0" />
                     </a>
                   </div>
@@ -381,7 +395,7 @@ const [documents, setDocuments] = useState<DocumentFile>({
   ];
 
   return (
-    <div className="">
+     <div className="w-full">
       <Card className="border-0 shadow-none">
         <CardHeader className="">
           <div className="space-y-4">
@@ -439,140 +453,135 @@ const [documents, setDocuments] = useState<DocumentFile>({
             </div>
           </div>
         </CardHeader>
-        <CardContent className="p-6">
-          <div className="grid gap-4 md:grid-cols-2">
-            {documentTypes.map(
-              ({
-                id,
-                label,
-                required,
-                instructions,
-                formats,
-                error,
-                icon: Icon,
-                uploadLabel
-              }) => {
-                const hasFiles =
-                  id === 'image'
-                    ? !!documents.image
-                    : id === 'cvResume'
-                      ? !!documents.cvResume
+       <CardContent className=" pt-4">
+            <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
+              {documentTypes.map(
+                ({ id, label, required, instructions, formats, error, icon: Icon, uploadLabel }) => {
+                  const hasFiles =
+                    id === 'image'
+                      ? !!documents.image
                       : Array.isArray(documents[id as keyof DocumentFile]) &&
-                        (documents[id as keyof DocumentFile] as string[])
-                          .length > 0;
-
-                return (
-                  <div
-                    key={id}
-                    className={`rounded-xl border-2 transition-all ${
-                      error
-                        ? 'border-red-200 bg-red-50'
-                        : hasFiles
-                          ? 'border-gray-100 bg-gray-50 hover:border-gray-200'
+                        (documents[id as keyof DocumentFile] as string[]).length > 0;
+      
+                  return (
+                    <div
+                      key={id}
+                      className={`rounded-xl border transition-colors duration-200 ${
+                        error
+                          ? 'border-red-200 bg-red-50'
                           : 'border-gray-100 bg-gray-50 hover:border-gray-200'
-                    }`}
-                  >
-                    <div className="p-6">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="mb-2 flex items-center space-x-3">
-                            <div
-                              className={`rounded-lg p-2 ${
-                                error
-                                  ? 'bg-red-100'
-                                  : hasFiles
-                                    ? 'bg-gray-100'
-                                    : 'bg-gray-100'
-                              }`}
-                            >
-                              <Icon
-                                className={`h-5 w-5 ${
-                                  error
-                                    ? 'text-red-600'
-                                    : hasFiles
-                                      ? 'text-green-600'
-                                      : 'text-gray-600'
+                      }`}
+                    >
+                      <div className="p-4 sm:p-6">
+                        {/* Upload Item Header */}
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                          {/* Info Section */}
+                          <div className="flex-1">
+                            <div className="flex items-start space-x-3">
+                              {/* Icon Badge */}
+                              <div
+                                className={`mt-1 rounded-lg p-2 ${
+                                  error ? 'bg-red-100' : 'bg-gray-100'
                                 }`}
-                              />
+                              >
+                                <Icon
+                                  className={`h-5 w-5 ${
+                                    error
+                                      ? 'text-red-600'
+                                      : hasFiles
+                                        ? 'text-green-600'
+                                        : 'text-gray-600'
+                                  }`}
+                                />
+                              </div>
+      
+                              {/* Text Content */}
+                              <div>
+                                <h3 className="flex flex-wrap items-center gap-y-1 text-sm font-semibold text-gray-900 sm:text-base">
+                                  {label}
+                                  {required && (
+                                    <span className="ml-1.5 text-red-500">*</span>
+                                  )}
+                                  {hasFiles && (
+                                    <CheckCircle className="ml-2 h-4 w-4 text-green-600" />
+                                  )}
+                                </h3>
+                                <p className="mt-1 text-xs text-gray-600 sm:text-sm">
+                                  {instructions}
+                                </p>
+                                <p className="mt-1 text-xs text-gray-500">
+                                  Accepted formats: {formats}
+                                </p>
+                                <p className="mt-1 text-xs font-semibold text-gray-800">
+                                  {uploadLabel}
+                                </p>
+                              </div>
                             </div>
-                            <div>
-                              <h3 className="flex items-center text-lg font-semibold text-gray-900">
-                                {label}
-                                {required && (
-                                  <span className="ml-2 text-red-500">*</span>
-                                )}
-                                {hasFiles && (
-                                  <CheckCircle className="ml-2 h-5 w-5 text-green-600" />
-                                )}
-                              </h3>
-                              <p className="text-sm text-gray-600">
-                                {instructions}
-                              </p>
-                              <p className="mt-1 text-xs text-gray-500">
-                                Accepted formats: {formats}
-                              </p>
-                              <p className="mt-1 text-xs font-semibold text-gray-800">
-                                {uploadLabel}
-                              </p>
-                            </div>
+      
+                            {/* Error Message */}
+                            {error && (
+                              <div className="mt-3 rounded-lg border border-red-200 bg-red-100 px-3 py-2">
+                                <p className="text-xs font-medium text-red-700 sm:text-sm">
+                                  {error}
+                                </p>
+                              </div>
+                            )}
                           </div>
-                          {error && (
-                            <div className="mt-2 rounded-lg border border-red-200 bg-red-100 p-3">
-                              <p className="text-sm font-medium text-red-700">
-                                {error}
-                              </p>
-                            </div>
-                          )}
+      
+                          {/* Upload Button */}
+                          <Button
+                            type="button"
+                            onClick={() =>
+                              openImageUploader(id as keyof DocumentFile)
+                            }
+                            className="mt-2 w-full self-start rounded-lg bg-watney px-4 py-2 text-xs font-medium text-white transition hover:bg-watney/90 focus:ring-2 focus:ring-watney/40 sm:mt-0 sm:w-auto sm:px-6 sm:text-sm"
+                          >
+                            <span className="flex items-center gap-1.5">
+                              <Upload className="h-4 w-4" />
+                              Upload
+                            </span>
+                          </Button>
                         </div>
-                        <Button
-                          type="button"
-                          onClick={() =>
-                            openImageUploader(id as keyof DocumentFile)
-                          }
-                          className="ml-4 flex items-center space-x-2 rounded-lg bg-watney px-6 py-2 text-white transition-colors hover:bg-watney/90"
-                        >
-                          <Upload className="h-4 w-4" />
-                          <span>Upload</span>
-                        </Button>
+      
+                        {/* Render Uploaded Files */}
+                        {renderUploadedFiles(id as keyof DocumentFile)}
                       </div>
-                      {renderUploadedFiles(id as keyof DocumentFile)}
                     </div>
-                  </div>
-                );
+                  );
+                }
+              )}
+            </div>
+      
+            {/* Navigation Buttons */}
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-between">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleBack}
+                className="w-full justify-center bg-watney text-white hover:bg-watney/90 sm:w-auto"
+              >
+                Back
+              </Button>
+              <Button
+                type="button"
+                onClick={handleSubmit}
+                disabled={!allDocumentsUploaded}
+                className="w-full justify-center bg-watney text-white hover:bg-watney/90 sm:w-auto"
+              >
+                Next
+              </Button>
+            </div>
+      
+            {/* Image Uploader Modal */}
+            <ImageUploader
+              open={uploadState.isOpen}
+              onOpenChange={(isOpen) =>
+                setUploadState((prev) => ({ ...prev, isOpen }))
               }
-            )}
-          </div>
-
-          {/* Navigation Buttons */}
-          <div className="flex justify-between pt-8">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleBack}
-              className="bg-watney text-white hover:bg-watney/90"
-            >
-              Back
-            </Button>
-            <Button
-              type="button"
-              onClick={handleSubmit}
-              disabled={!allDocumentsUploaded}
-              className="bg-watney text-white hover:bg-watney/90"
-            >
-              Next
-            </Button>
-          </div>
-
-          {/* Image Uploader Modal */}
-          <ImageUploader
-            open={uploadState.isOpen}
-            onOpenChange={(isOpen) =>
-              setUploadState((prev) => ({ ...prev, isOpen }))
-            }
-            onUploadComplete={handleUploadComplete}
-            entityId={user?._id}
-          />
-        </CardContent>
+              onUploadComplete={handleUploadComplete}
+              entityId={user?._id}
+            />
+          </CardContent>
       </Card>
     </div>
   );
