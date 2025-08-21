@@ -60,7 +60,6 @@ export const personalDetailsSchema = z
       .min(1, { message: 'Country of residence is required' }),
     hasNationalInsuranceNumber: z.boolean().optional(),
     nationalInsuranceNumber: z.string().optional(),
-    isBritishCitizen: z.boolean().optional(),
     shareCode: z.string().optional(),
 
     postalAddressLine1: z
@@ -77,14 +76,8 @@ export const personalDetailsSchema = z
     prevPostalCountry: z.string().optional()
   })
   .superRefine((data, ctx) => {
-    if (data.nationality !== 'British') {
-      // if (typeof data.isBritishCitizen !== 'boolean') {
-      //   ctx.addIssue({
-      //     path: ['isBritishCitizen'],
-      //     code: z.ZodIssueCode.custom,
-      //     message: 'This field is required if not British'
-      //   });
-      // }
+    if (data.nationality !== 'british') {
+      
 
       if (!data.shareCode || data.shareCode.trim() === '') {
         ctx.addIssue({
@@ -155,7 +148,6 @@ export function PersonalDetailsStep({
   const handleBack = () => {
     setCurrentStep(1);
   };
-  const watchIsBritish = form.watch('isBritishCitizen');
 
   // const handleSkip = () => {
   //   if (currentStep === 3) {

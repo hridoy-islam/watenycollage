@@ -161,38 +161,42 @@ export default function CareerGuideline() {
         onEscapeKeyDown={(e) => e.preventDefault()}
         className="h-[95vh] w-[95vw] max-w-5xl p-0 sm:h-auto sm:max-h-[90vh] overflow-auto"
       >
-        <Card className="flex h-full flex-col border-none shadow-none">
-          <CardHeader className="px-8 py-6">
-            <CardTitle className="text-3xl font-bold">
-              Career Application Guidelines
-            </CardTitle>
-          </CardHeader>
+       <Card className="flex h-full flex-col border-none shadow-none">
+  {/* Header */}
+  <CardHeader className="px-4 py-4 sm:px-8 sm:py-6 text-center sm:text-left">
+    <CardTitle className="text-2xl sm:text-3xl font-bold">
+      Career Application Guidelines
+    </CardTitle>
+  </CardHeader>
 
-          <CardContent className="flex-1 overflow-y-auto px-8 py-6 text-gray-700">
-            {steps[step]}
-          </CardContent>
+  {/* Content */}
+  <CardContent className="flex-1 overflow-y-auto px-4 py-4 sm:px-8 sm:py-6 text-gray-700 text-sm sm:text-base leading-relaxed">
+    {steps[step]}
+  </CardContent>
 
-          <CardFooter className="justify-between px-8 py-6">
-            {step > 0 ? (
-              <Button
-                variant="outline"
-                onClick={() => setStep(step - 1)}
-                className="bg-watney px-8 py-4 text-xl text-white hover:bg-watney/90"
-              >
-                Back
-              </Button>
-            ) : (
-              <div />
-            )}
+  {/* Footer */}
+  <CardFooter className="flex flex-col gap-3 sm:flex-row sm:justify-between px-4 py-4 sm:px-8 sm:py-6">
+    {step > 0 ? (
+      <Button
+        variant="outline"
+        onClick={() => setStep(step - 1)}
+        className="w-full sm:w-auto bg-watney px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-xl text-white hover:bg-watney/90"
+      >
+        Back
+      </Button>
+    ) : (
+      <div />
+    )}
 
-            <Button
-              onClick={handleNext}
-              className="bg-watney px-8 py-4 text-xl text-white hover:bg-watney/90"
-            >
-              {step === steps.length - 1 ? 'Continue Application' : 'Next'}
-            </Button>
-          </CardFooter>
-        </Card>
+    <Button
+      onClick={handleNext}
+      className="w-full sm:w-auto bg-watney px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-xl text-white hover:bg-watney/90"
+    >
+      {step === steps.length - 1 ? 'Continue Application' : 'Next'}
+    </Button>
+  </CardFooter>
+</Card>
+
       </DialogContent>
     </Dialog>
   );
