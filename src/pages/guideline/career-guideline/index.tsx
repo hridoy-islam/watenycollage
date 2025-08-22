@@ -20,10 +20,10 @@ import { AppDispatch } from '@/redux/store';
 import { updateAuthIsAuthorized } from '@/redux/features/authSlice';
 
 const steps: React.ReactNode[] = [
-  // Step 1: Welcome to Watney College
+  // Step 1: Welcome to Care Square
   <div key="step-1" className="space-y-4">
     <p className="text-2xl font-medium">
-      👋 <strong>Welcome to Careers at Watney College</strong> — a leading
+      👋 <strong>Welcome to Careers at Care Square</strong> — a leading
       UK-based institution that values talent, diversity, and passion for
       education.
     </p>
@@ -116,7 +116,7 @@ const steps: React.ReactNode[] = [
   <div key="step-4" className="space-y-6 text-start">
     <h3 className="text-2xl font-semibold">🔐 Data Privacy & Support</h3>
     <p className="text-xl text-gray-700">
-      Watney College handles your data securely in compliance with UK GDPR. Your
+      Care Square handles your data securely in compliance with UK GDPR. Your
       personal information will only be used for application purposes.
     </p>
 
@@ -155,44 +155,48 @@ export default function CareerGuideline() {
   };
 
   return (
-    <Dialog open={open}>
+   <Dialog open={open}>
       <DialogContent
         onInteractOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
-        className="h-[95vh] w-[95vw] max-w-none p-0"
+        className="h-[95vh] w-[95vw] max-w-5xl p-0 sm:h-auto sm:max-h-[90vh] overflow-auto"
       >
-        <Card className="flex h-full flex-col border-none shadow-none">
-          <CardHeader className="px-8 py-6">
-            <CardTitle className="text-3xl font-bold">
-              Career Application Guidelines
-            </CardTitle>
-          </CardHeader>
+       <Card className="flex h-full flex-col border-none shadow-none">
+  {/* Header */}
+  <CardHeader className="px-4 py-4 sm:px-8 sm:py-6 text-center sm:text-left">
+    <CardTitle className="text-2xl sm:text-3xl font-bold">
+      Career Application Guidelines
+    </CardTitle>
+  </CardHeader>
 
-          <CardContent className="flex-1 overflow-y-auto px-8 py-6 text-gray-700">
-            {steps[step]}
-          </CardContent>
+  {/* Content */}
+  <CardContent className="flex-1 overflow-y-auto px-4 py-4 sm:px-8 sm:py-6 text-gray-700 text-sm sm:text-base leading-relaxed">
+    {steps[step]}
+  </CardContent>
 
-          <CardFooter className="justify-between px-8 py-6">
-            {step > 0 ? (
-              <Button
-                variant="outline"
-                onClick={() => setStep(step - 1)}
-                className="bg-watney px-8 py-4 text-xl text-white hover:bg-watney/90"
-              >
-                Back
-              </Button>
-            ) : (
-              <div />
-            )}
+  {/* Footer */}
+  <CardFooter className="flex flex-col gap-3 sm:flex-row sm:justify-between px-4 py-4 sm:px-8 sm:py-6">
+    {step > 0 ? (
+      <Button
+        variant="outline"
+        onClick={() => setStep(step - 1)}
+        className="w-full sm:w-auto bg-watney px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-xl text-white hover:bg-watney/90"
+      >
+        Back
+      </Button>
+    ) : (
+      <div />
+    )}
 
-            <Button
-              onClick={handleNext}
-              className="bg-watney px-8 py-4 text-xl text-white hover:bg-watney/90"
-            >
-              {step === steps.length - 1 ? 'Continue Application' : 'Next'}
-            </Button>
-          </CardFooter>
-        </Card>
+    <Button
+      onClick={handleNext}
+      className="w-full sm:w-auto bg-watney px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-xl text-white hover:bg-watney/90"
+    >
+      {step === steps.length - 1 ? 'Continue Application' : 'Next'}
+    </Button>
+  </CardFooter>
+</Card>
+
       </DialogContent>
     </Dialog>
   );
