@@ -7,7 +7,7 @@ const CareerResumeUpload: React.FC = () => {
   const [resume, setResume] = useState<File | null>(null);
   const navigate = useNavigate();
   const { user } = useSelector((state: any) => state.auth);
-
+  const [loading, setLoading] = useState(false);
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       setResume(e.target.files[0]);
@@ -23,34 +23,35 @@ const CareerResumeUpload: React.FC = () => {
   };
 
   const handleContinue = async () => {
-    if (resume) {
-      const formData = new FormData();
-      formData.append('entityId', user._id); // Add your entityId here
-      formData.append('file_type', 'resumeDoc'); // Add your file type
-      formData.append('file', resume);
+    if (!resume) return;
+    setLoading(true);
 
-      try {
-        const response = await axiosInstance.post('/documents', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        });
+    const formData = new FormData();
+    formData.append('entityId', user._id);
+    formData.append('file_type', 'resumeDoc');
+    formData.append('file', resume);
 
-        const textContent = response.data?.data?.fileContent;
-        const fileUrl = response.data?.data?.fileUrl;
+    try {
+      const response = await axiosInstance.post('/documents', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
 
-        await axiosInstance.patch(`/users/${user._id}`, {
-          cvResume: fileUrl
-        });
+      const textContent = response.data?.data?.fileContent;
+      const fileUrl = response.data?.data?.fileUrl;
 
-        navigate('/dashboard/career-application', {
-          state: { parsedResume: textContent }
-        });
-      } catch (error) {
-        console.error('Error uploading resume:', error);
-      }
-    } else {
-      console.warn('No resume file selected');
+      await axiosInstance.patch(`/users/${user._id}`, {
+        cvResume: fileUrl
+      });
+
+      navigate('/dashboard/career-application', {
+        state: { parsedResume: textContent }
+      });
+    } catch (error) {
+      console.error('Error uploading resume:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -103,10 +104,36 @@ const CareerResumeUpload: React.FC = () => {
         <div className="space-y-2">
           <button
             onClick={handleContinue}
-            disabled={!resume}
-            className="hover:bg-watney-dark w-full rounded-xl bg-watney px-4 py-2 font-medium text-white transition disabled:opacity-50"
+            disabled={!resume || loading}
+            className="hover:bg-watney-dark flex w-full items-center justify-center gap-2 rounded-xl bg-watney px-4 py-2 font-medium text-white transition disabled:opacity-50"
           >
-            Continue
+            {loading ? (
+              <>
+                <svg
+                  className="h-5 w-5 animate-spin text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                  ></path>
+                </svg>
+                <span>Uploading...</span>
+              </>
+            ) : (
+              'Continue'
+            )}
           </button>
 
           <button
