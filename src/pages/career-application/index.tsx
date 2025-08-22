@@ -134,29 +134,29 @@ export default function CareerApplicationForm() {
   const residentialPostCode = postCode || '';
   const residentialCountry = country || '';
 
-  useEffect(() => {
-    if (parsedResume) {
-      setFormData((prev) => ({
-        ...prev,
-        dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined,
-        phone: phoneNumber,
-        passportNumber,
+  // useEffect(() => {
+  //   if (parsedResume) {
+  //     setFormData((prev) => ({
+  //       ...prev,
+  //       dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined,
+  //       phone: phoneNumber,
+  //       passportNumber,
 
-        maritalStatus,
-        nationality,
-        ethnicity,
-        countryOfBirth,
+  //       maritalStatus,
+  //       nationality,
+  //       ethnicity,
+  //       countryOfBirth,
 
-        postalAddressLine1: residentialAddressLine1,
-        postalAddressLine2: residentialAddressLine2,
-        postalCity: residentialCity,
-        postalPostCode: residentialPostCode,
-        postalCountry: residentialCountry
-      }));
-    }
-  }, [parsedResume]);
+  //       postalAddressLine1: residentialAddressLine1,
+  //       postalAddressLine2: residentialAddressLine2,
+  //       postalCity: residentialCity,
+  //       postalPostCode: residentialPostCode,
+  //       postalCountry: residentialCountry
+  //     }));
+  //   }
+  // }, [parsedResume]);
 
-  console.log(formData, 'FORM');
+  // console.log(formData, 'FORM');
 
   const fetchedData = async () => {
     try {
@@ -589,9 +589,8 @@ export default function CareerApplicationForm() {
       </div>
     );
   }
-
   return (
-    <div className=" mx-auto p-6">
+    <div className=" mx-auto md:p-4">
       {/* <h1 className="text-2xl font-bold text-center mb-8">Career Application</h1> */}
       {/* <StepIndicator currentStep={currentStep} totalSteps={totalSteps} /> */}
       <div className="">{renderStep()}</div>

@@ -145,98 +145,91 @@ export default function JobApplicationPage() {
     );
   }
 
-  return (
-    <div className="mx-auto">
-      {/* Job Info Card */}
-      <div className="mb-8 rounded-lg border border-gray-200 bg-white p-8 shadow-xl">
-        <div className="flex flex-col md:flex-row md:items-start md:justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">{job.jobTitle}</h1>
+    return (
+    <div className="mx-auto w-full  ">
+  {/* Job Info Card */}
+  <div className="mb-8 rounded-lg border border-gray-200 bg-white p-6 sm:p-8 shadow-xl">
+    <div className="flex flex-col md:flex-row md:items-start md:justify-between md:gap-4">
+      <div className="flex-1">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{job.jobTitle}</h1>
 
-            {/* Application Deadline - displayed inline with job title */}
-            <div className="mt-2 inline-flex items-center rounded-full bg-watney/10 px-4 py-1 text-sm text-watney">
-              <span>
-                Deadline:{' '}
-                {moment(job.applicationDeadline).format('MMM Do, YYYY')}
-              </span>
-            </div>
-          </div>
-          {user.role === 'admin' ? (
-            <Button
-              variant="outline"
-              onClick={() => navigate('/dashboard/jobs')}
-              className="y mt-4 bg-watney text-white hover:bg-watney/90"
-            >
-              <MoveLeft />
-              Back
-            </Button>
-          ) : (
-            <Button
-              variant="outline"
-              onClick={() => navigate('/dashboard')}
-              className="y mt-4 bg-watney text-white hover:bg-watney/90"
-            >
-              <MoveLeft />
-              Back to Dashboard
-            </Button>
-          )}
+        {/* Application Deadline */}
+        <div className="mt-2 inline-flex items-center rounded-full bg-watney/10 px-3 py-1 text-xs sm:text-sm text-watney">
+          <span>
+            Deadline: {moment(job.applicationDeadline).format('MMM Do, YYYY')}
+          </span>
         </div>
+      </div>
 
-        {/* Rich HTML description */}
-        <div
-          className="prose mt-6 max-w-none text-gray-600"
-          dangerouslySetInnerHTML={{
-            __html:
-              job.jobDetail ||
-              '<p>No description available for this position.</p>'
-          }}
-        ></div>
-        {user.role !== 'admin' && (
-          <div className="mt-10 rounded-lg border border-gray-100 bg-gray-50 p-6 shadow-sm">
-            <div className="mb-6 flex flex-col items-start gap-2 border-b pb-4">
-              <h2 className="text-xl font-semibold text-gray-800">Apply Now</h2>
-              <p className="text-sm text-gray-500">
-                Submit your application below to apply for this position.
-              </p>
-            </div>
-
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-6"
-              >
-                <FormField
-                  control={form.control}
-                  name="jobId"
-                  render={({ field }) => <input type="hidden" {...field} />}
-                />
-                {}
-                <div className="flex flex-row items-center gap-4">
-                  <p className="text-center text-gray-600 sm:text-left">
-                    Ready to apply? Click the button below to submit your
-                    application.
-                  </p>
-
-                  <Button
-                    type="submit"
-                    disabled={submitting}
-                    className="flex items-center gap-2 bg-watney px-6 text-white transition-colors duration-200 hover:bg-watney/90"
-                  >
-                    {submitting ? (
-                      <>
-                        <BlinkingDots size="small" color="bg-white" />
-                      </>
-                    ) : (
-                      <>Apply Now</>
-                    )}
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          </div>
+      {/* Back Button */}
+      <div className="mt-4 md:mt-0 flex-shrink-0">
+        {user.role === 'admin' ? (
+          <Button
+            variant="outline"
+            onClick={() => navigate('/dashboard/jobs')}
+            className="flex items-center gap-2 bg-watney text-white hover:bg-watney/90 px-4 py-2 text-sm sm:text-base"
+          >
+            <MoveLeft />
+            Back
+          </Button>
+        ) : (
+          <Button
+            variant="outline"
+            onClick={() => navigate('/dashboard')}
+            className="flex items-center gap-2 bg-watney text-white hover:bg-watney/90 px-4 py-2 text-sm sm:text-base"
+          >
+            <MoveLeft />
+            Back to Dashboard
+          </Button>
         )}
-        {/* Application Form Section */}
       </div>
     </div>
+
+    {/* Job Description */}
+    <div
+      className="prose mt-6 max-w-full text-gray-600"
+      dangerouslySetInnerHTML={{
+        __html: job.jobDetail || '<p>No description available for this position.</p>'
+      }}
+    ></div>
+
+    {/* Application Form for Non-Admins */}
+    {user.role !== 'admin' && (
+      <div className="mt-10 rounded-lg border border-gray-100 bg-gray-50 p-4 sm:p-6 shadow-sm">
+        <div className="mb-6 flex flex-col items-start gap-2 border-b pb-4">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-800">Apply Now</h2>
+          <p className="text-xs sm:text-sm text-gray-500">
+            Submit your application below to apply for this position.
+          </p>
+        </div>
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
+            <FormField
+              control={form.control}
+              name="jobId"
+              render={({ field }) => <input type="hidden" {...field} />}
+            />
+
+            <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4">
+              <p className="text-center sm:text-left text-gray-600 mb-2 sm:mb-0">
+                Ready to apply? Click the button below to submit your application.
+              </p>
+
+              <Button
+                type="submit"
+                disabled={submitting}
+                className="flex items-center justify-center gap-2 bg-watney px-6 py-2 text-white transition-colors duration-200 hover:bg-watney/90"
+              >
+                {submitting ? <BlinkingDots size="small" color="bg-white" /> : 'Apply Now'}
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </div>
+    )}
+  </div>
+</div>
+
   );
 }

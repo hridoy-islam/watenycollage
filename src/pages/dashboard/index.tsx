@@ -74,8 +74,8 @@ export default function DashboardPage() {
     switch (user.role) {
       case 'applicant':
         return <ApplicantDashboard user={user} />;
-      case 'student':
-        return <StudentDashboard user={user} />;
+      // case 'student':
+      //   return <StudentDashboard user={user} />;
       case 'admin':
         return <AdminDashboard />;
       default:

@@ -77,7 +77,7 @@ export const personalDetailsSchema = z
     prevPostalCountry: z.string().optional()
   })
   .superRefine((data, ctx) => {
-    if (data.nationality !== 'British') {
+    if (data.nationality !== 'british') {
       // if (typeof data.isBritishCitizen !== 'boolean') {
       //   ctx.addIssue({
       //     path: ['isBritishCitizen'],
