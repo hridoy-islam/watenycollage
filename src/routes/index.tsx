@@ -15,10 +15,10 @@ import ApplicationListPage from '@/pages/application/applications-list';
 import NewApplicationListPage from '@/pages/application/newApplications-list';
 import CareerPage from '@/pages/career-application';
 import CareerResumeUpload from '@/pages/career-application/uploadResume/index';
-import CoursesPage from '@/pages/dashboard/components/course';
-import TermPage from '@/pages/dashboard/components/term';
+import CoursesPage from '@/pages/course';
+import TermPage from '@/pages/term';
 import CourseRegistration from '@/pages/course-register';
-import JobPage from '@/pages/dashboard/components/jobs';
+import JobPage from '@/pages/jobs';
 import JobApplication from '@/pages/Job-registration';
 import CareerGuideline from '@/pages/guideline/career-guideline';
 import CourseApplicationPage from '@/pages/dashboard-application/course-application';
@@ -27,10 +27,12 @@ import StudentGuideline from '@/pages/guideline/student-guideline';
 import ViewStudentApplicationPage from '@/pages/application/view-studentApplication';
 import ViewCareerApplicationPage from '@/pages/application/view-careerApplication';
 import StudentApplicationsPage from '@/pages/dashboard/components/student-applications';
-import CareerApplicationsPage from '@/pages/dashboard/components/jobs/job-applicant';
+import CareerApplicationsPage from '@/pages/jobs/job-applicant';
 
 import HomeStudentApplication from '@/pages/homeStudentApplication';
 import InternationalStudentApplication from '@/pages/internationalStudentApplication';
+import { TemplatePage } from '@/pages/template';
+import StudentMailPage from '@/pages/studentMail';
 
 const SignInPage = lazy(() => import('@/pages/auth/signin/index'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
@@ -139,6 +141,16 @@ export default function AppRouter() {
       {
         path: 'student-applications',
         element: withRole(<StudentApplicationsPage />, ['admin','student']),
+        index: true
+      },
+      {
+        path: 'student-application/:id/mails',
+        element: withRole(<StudentMailPage />, ['admin',]),
+        index: true
+      },
+      {
+        path: 'template',
+        element: withRole(<TemplatePage />, ['admin',]),
         index: true
       }
     ]

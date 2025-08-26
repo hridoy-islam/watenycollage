@@ -9,7 +9,7 @@ import {
   TableRow
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Eye, MoveLeft, Search } from 'lucide-react';
+import { Eye, Mail, MoveLeft, Search } from 'lucide-react';
 import { DataTablePagination } from '@/components/shared/data-table-pagination';
 import { useNavigate } from 'react-router-dom';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
@@ -305,7 +305,19 @@ export default function StudentApplicationsPage() {
                             `/dashboard/student-application/${app.studentId?._id}`
                           )
                         }>{app.courseId?.name ?? 'N/A'}</TableCell>
-                    <TableCell className="text-center">
+                    <TableCell className="text-center flex flex-row gap-2">
+                      <Button
+                        variant="ghost"
+                        className="border-none bg-watney text-white hover:bg-watney/90"
+                        size="icon"
+                        onClick={() =>
+                          navigate(
+                            `/dashboard/student-application/${app.studentId?._id}/mails`
+                          )
+                        }
+                      >
+                        <Mail  className="h-4 w-4" />
+                      </Button>
                       <Button
                         variant="ghost"
                         className="border-none bg-watney text-white hover:bg-watney/90"

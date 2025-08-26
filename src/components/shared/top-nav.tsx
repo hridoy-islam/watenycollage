@@ -25,6 +25,7 @@ export function TopNav() {
     { path: '/dashboard/courses', label: 'Course' },
     { path: '/dashboard/terms', label: 'Term' },
     { path: '/dashboard/jobs', label: 'Job' },
+    { path: '/dashboard/template', label: 'Template' },
   ];
 
   return (
