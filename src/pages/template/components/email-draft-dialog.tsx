@@ -34,17 +34,11 @@ const AVAILABLE_VARIABLES = [
   'dob',
   'email',
   'countryOfBirth',
-  'countryOfDomicile',
   'nationality',
   'dateOfBirth',
-  'niNumber',
   'admin',
   'adminEmail'
 ];
-
-
-
-
 
 export function EmailDraftDialog({
   open,
@@ -81,7 +75,7 @@ export function EmailDraftDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-h-max sm:max-w-max overflow-y-auto">
+      <DialogContent className="overflow-y-auto sm:max-h-max sm:max-w-max">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">
             {initialData ? 'Edit Email Template' : 'Create New Email Template'}
@@ -115,9 +109,7 @@ export function EmailDraftDialog({
 
             {/* Variable Reference */}
             <div className="space-y-1">
-              <p className="text-sm font-medium">
-                Available Variables:
-              </p>
+              <p className="text-sm font-medium">Available Variables:</p>
               <div className="flex flex-wrap gap-2 text-xs text-gray-600">
                 {AVAILABLE_VARIABLES.map((v) => (
                   <span key={v} className="rounded bg-gray-100 px-2 py-1">
@@ -131,17 +123,14 @@ export function EmailDraftDialog({
             <FormField
               control={form.control}
               name="body"
-          
               render={({ field }) => (
-                <FormItem     className="pb-12">
+                <FormItem className="pb-12">
                   <FormLabel>Email Body</FormLabel>
                   <FormControl>
-                    <ReactQuill
-                      theme="snow"
-                      value={field.value}
+                    <textarea
+                     value={field.value}
                       onChange={field.onChange}
-                      className="h-[250px]"
-                      placeholder="Write your email body here..."
+                      className="h-[250px] w-full rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
                     />
                   </FormControl>
                   <FormMessage />

@@ -31,8 +31,8 @@ import CareerApplicationsPage from '@/pages/jobs/job-applicant';
 
 import HomeStudentApplication from '@/pages/homeStudentApplication';
 import InternationalStudentApplication from '@/pages/internationalStudentApplication';
-import { TemplatePage } from '@/pages/template';
 import StudentMailPage from '@/pages/studentMail';
+import TemplatePage from '@/pages/template';
 
 const SignInPage = lazy(() => import('@/pages/auth/signin/index'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));

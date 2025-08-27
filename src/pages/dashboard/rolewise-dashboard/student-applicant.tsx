@@ -44,6 +44,7 @@ interface Application {
     termName: string;
   };
   status: string;
+  createdAt: string
 }
 
 
@@ -297,7 +298,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
 
           {/* Pagination */}
           {applications.length > 0 && (
-            <div className="mt-6 flex flex-col-reverse items-center justify-between gap-4 sm:flex-row scale-75" >
+            <div className="mt-6 flex flex-col-reverse items-center justify-between gap-4 md:flex-row max-md:scale-75" >
              
               <DataTablePagination
                 pageSize={entriesPerPage}
