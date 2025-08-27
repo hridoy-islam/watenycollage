@@ -1,4 +1,4 @@
-import { Document, Page, Text, View, StyleSheet, pdf } from "@react-pdf/renderer"
+import { Document, Page, Text, View, StyleSheet, pdf, Image } from "@react-pdf/renderer"
 import moment from "moment"
 
 // Mock data to replace variables
@@ -34,11 +34,10 @@ const MOCK_DATA = {
   adminEmail: 'info@watneycollege.co.uk',
   applicationLocation: 'Online Portal',
   courseName: 'Exam Preparation Courses',
-   intake:'September 2025',
+  intake:'September 2025',
   applicationStatus:'applied',
   applicationDate:'2025-05-15'
-
-};
+}
 
 // PDF styles
 const styles = StyleSheet.create({
@@ -51,6 +50,16 @@ const styles = StyleSheet.create({
     margin: 10,
     padding: 10,
     flexGrow: 1,
+  },
+  logoContainer: {
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    
+  },
+  logo: {
+    width: 60,
+    height: 60,
   },
   title: {
     fontSize: 18,
@@ -93,11 +102,17 @@ const replaceVariables = (text: string): string => {
 const EmailPDF = ({ subject, body }: { subject: string; body: string }) => (
   <Document>
     <Page size="A4" style={styles.page}>
+      {/* Logo Top Right */}
+      <View style={styles.logoContainer}>
+        <Image src="/logo.png" style={styles.logo} />
+      </View>
+
       <View style={styles.section}>
         {/* <Text style={styles.title}>Email Template</Text> */}
         {/* <Text style={styles.subject}>Subject: {replaceVariables(subject)}</Text> */}
         <Text style={styles.body}>{replaceVariables(body)}</Text>
       </View>
+
       {/* <Text style={styles.footer}>
         Generated on {moment().format("DD MMM, YYYY")} at {moment().format("HH:mm")}
       </Text> */}

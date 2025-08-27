@@ -30,7 +30,8 @@ import {
   Text,
   View,
   StyleSheet,
-  pdf
+  pdf,
+  Image 
 } from '@react-pdf/renderer';
 
 // Types
@@ -96,6 +97,16 @@ const styles = StyleSheet.create({
     padding: 10,
     flexGrow: 1
   },
+  logoContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'flex-end', 
+    
+  },
+  logo: {
+    width: 60, 
+    height: 60,
+  },
   title: {
     fontSize: 24,
     marginBottom: 20,
@@ -117,6 +128,11 @@ const styles = StyleSheet.create({
 const EmailPDFDocument = ({ body }: { body: string }) => (
   <Document>
     <Page size="A4" style={styles.page}>
+      {/* Logo Top Right */}
+      <View style={styles.logoContainer}>
+        <Image src="/logo.png" style={styles.logo} />
+      </View>
+
       <View style={styles.section}>
         <Text style={styles.body}>{body}</Text>
       </View>
