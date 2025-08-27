@@ -291,7 +291,9 @@ function StudentMailPage() {
     // First, replace all AVAILABLE_VARIABLES from studentData
     AVAILABLE_VARIABLES.forEach((variable) => {
       let value = studentData?.[variable] || '';
-
+  if (variable === 'dateOfBirth' && value) {
+      value = moment(value).format('DD MMM, YYYY');
+    }
       // Override admin variables
       if (variable === 'admin') value = 'Watney College';
       if (variable === 'adminEmail') value = 'info@watneycollege.co.uk';
