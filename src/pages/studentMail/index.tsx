@@ -78,7 +78,11 @@ const AVAILABLE_VARIABLES = [
   'emergencyRelationship',
   'admin',
   'adminEmail',
-  'applicationLocation'
+  'applicationLocation',
+  'courseName',
+  'intake',
+  'applicationStatus',
+  'applicationDate'
 ];
 
 const styles = StyleSheet.create({
@@ -140,7 +144,7 @@ function StudentMailPage() {
     body?: string;
     draft?: string;
   }>({});
-  const { id, courseId } = useParams();
+  const { id, applicationId } = useParams();
   const user = useSelector((state: any) => state.auth?.user);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -239,7 +243,7 @@ function StudentMailPage() {
       issuedBy: user._id,
       subject,
       body,
-      ...(courseId && { courseId })
+      ...(applicationId && { applicationId })
     };
 
     setSending(true);
@@ -288,12 +292,23 @@ function StudentMailPage() {
   const replaceVariables = async (text: string, studentData: any) => {
     let replacedText = text;
 
-    // First, replace all AVAILABLE_VARIABLES from studentData
-    AVAILABLE_VARIABLES.forEach((variable) => {
+    // Create a copy of AVAILABLE_VARIABLES excluding course-related variables
+    const basicVariables = AVAILABLE_VARIABLES.filter(
+      (variable) =>
+        ![
+          'courseName',
+          'intake',
+          'applicationStatus',
+          'applicationDate'
+        ].includes(variable)
+    );
+
+    // First, replace basic AVAILABLE_VARIABLES from studentData (excluding course variables)
+    basicVariables.forEach((variable) => {
       let value = studentData?.[variable] || '';
-  if (variable === 'dateOfBirth' && value) {
-      value = moment(value).format('DD MMM, YYYY');
-    }
+      if (variable === 'dateOfBirth' && value) {
+        value = moment(value).format('DD MMM, YYYY');
+      }
       // Override admin variables
       if (variable === 'admin') value = 'Watney College';
       if (variable === 'adminEmail') value = 'info@watneycollege.co.uk';
@@ -302,25 +317,53 @@ function StudentMailPage() {
       replacedText = replacedText.replace(regex, value);
     });
 
-    // Replace courseName if courseId exists
-    if (courseId) {
+    // Then handle course-related variables separately
+    if (applicationId) {
       try {
-        const courseRes = await axiosInstance.get(`/courses/${courseId}`);
-        const courseName = courseRes.data.data.name || '';
-        replacedText = replacedText.replace(/\[courseName\]/g, courseName);
+        const courseRes = await axiosInstance.get(
+          `/application-course/${applicationId}`
+        );
+
+        const data = courseRes.data.data;
+
+        const courseName = data?.courseId?.name || '';
+        const intake = data?.intakeId?.termName || '';
+        const applicationStatus = data?.status || '';
+        const applicationDate = data?.createdAt
+          ? moment(data.createdAt).format('DD MMM, YYYY')
+          : '';
+
+        console.log('Replacing course variables:', {
+          courseName,
+          intake,
+          applicationStatus,
+          applicationDate
+        });
+
+        replacedText = replacedText
+          .replace(/\[courseName\]/g, courseName)
+          .replace(/\[intake\]/g, intake)
+          .replace(/\[applicationStatus\]/g, applicationStatus)
+          .replace(/\[applicationDate\]/g, applicationDate);
+
+        console.log('Text after course replacement:', replacedText);
       } catch (error) {
         console.error('Failed to fetch course info:', error);
-        replacedText = replacedText.replace(/\[courseName\]/g, '');
       }
+    } else {
+      console.log(
+        'No applicationId, replacing course variables with empty strings'
+      );
     }
 
+    console.log('Final replaced text:', replacedText);
     return replacedText;
   };
 
   const handleDownloadPdf = async () => {
-    if (!selectedPdfDraft || !studentData) {
+    if (!selectedPdfDraft || !studentData || !studentName) {
       toast({
-        title: 'Please select a template',
+        title: 'Please select a template and ensure data is loaded.',
         className: 'bg-destructive border-none text-white'
       });
       return;
@@ -328,25 +371,22 @@ function StudentMailPage() {
 
     setGeneratingPdf(true);
     try {
-      // Replace variables in subject and body
-      const replacedSubject = await replaceVariables(
-        selectedPdfDraft.subject,
-        studentData
-      );
+      // ✅ Replace variables
       const replacedBody = await replaceVariables(
         selectedPdfDraft.body,
         studentData
       );
 
-      // Create PDF with replaced content
+      // ✅ Use replacedBody, not the original
       const doc = <EmailPDFDocument body={replacedBody} />;
+
       const asPdf = pdf(doc);
       const blob = await asPdf.toBlob();
 
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `${studentName}_${replacedSubject.replace(/[^a-z0-9]/gi, '_')}.pdf`;
+      link.download = `${studentName}_${selectedPdfDraft.subject.replace(/[^a-z0-9]/gi, '_')}.pdf`;
       link.click();
       URL.revokeObjectURL(url);
 
@@ -445,18 +485,17 @@ function StudentMailPage() {
               </TableBody>
             </Table>
 
-            {emailLogs.length>6 &&
-            <div className="mt-4">
-              <DataTablePagination
-                pageSize={entriesPerPage}
-                setPageSize={setEntriesPerPage}
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={setCurrentPage}
-              />
-            </div>
-
-            }
+            {emailLogs.length > 6 && (
+              <div className="mt-4">
+                <DataTablePagination
+                  pageSize={entriesPerPage}
+                  setPageSize={setEntriesPerPage}
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setCurrentPage}
+                />
+              </div>
+            )}
           </>
         ) : (
           <p className="py-6 text-center text-gray-500">

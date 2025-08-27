@@ -29,6 +29,10 @@ const formSchema = z.object({
 });
 
 const AVAILABLE_VARIABLES = [
+  'courseName',
+  'intake',
+  'applicationStatus',
+  'applicationDate',
   'name',
   'title',
   'firstName',
@@ -58,9 +62,7 @@ const AVAILABLE_VARIABLES = [
   'emergencyRelationship',
   'admin',
   'adminEmail',
-  'applicationLocation',
-  'courseName',
-  
+  'applicationLocation'
 ];
 
 // Example values for each variable (for demonstration)
@@ -95,7 +97,10 @@ const EXAMPLE_VALUES = {
   admin: 'Watney College',
   adminEmail: 'info@watneycollege.co.uk',
   applicationLocation: 'Online Portal',
-  courseName:'Exam Preparation Courses'
+  courseName: 'Exam Preparation Courses',
+  intake: 'September 2025',
+  applicationStatus: 'applied',
+  applicationDate: '2025-05-15'
 };
 
 export function EmailDraftDialog({
@@ -161,10 +166,15 @@ export function EmailDraftDialog({
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="grid grid-cols-1 gap-6 md:grid-cols-5">
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="grid grid-cols-1 gap-6 md:grid-cols-5"
+          >
             {/* Left Side - Variables with Examples */}
             <div className="md:col-span-2">
-              <h3 className="mb-3 text-sm font-semibold text-gray-700">Available Variables</h3>
+              <h3 className="mb-3 text-sm font-semibold text-gray-700">
+                Available Variables
+              </h3>
               <div className="max-h-80 overflow-y-auto rounded-md border border-gray-200 bg-gray-50 p-3">
                 <ul className="space-y-2">
                   {AVAILABLE_VARIABLES.map((v) => (
@@ -173,7 +183,7 @@ export function EmailDraftDialog({
                       className="flex flex-col rounded bg-white p-3 shadow-sm "
                     >
                       <div className="flex items-center justify-between">
-                        <code className="text-xs font-mono text-blue-700">{`[${v}]`}</code>
+                        <code className="font-mono text-xs text-blue-700">{`[${v}]`}</code>
                         <Button
                           type="button"
                           variant="default"
@@ -183,7 +193,10 @@ export function EmailDraftDialog({
                           aria-label={`Copy [${v}]`}
                         >
                           {copiedVar === v ? (
-                            <span className="text-xs text-green-600" aria-label="Copied!">
+                            <span
+                              className="text-xs text-green-600"
+                              aria-label="Copied!"
+                            >
                               ✓
                             </span>
                           ) : (
@@ -194,19 +207,27 @@ export function EmailDraftDialog({
 
                       {/* Example Value */}
                       <span className="mt-1 text-xs text-gray-600">
-                        Example: <span className="font-mono text-gray-800">{EXAMPLE_VALUES[v]}</span>
+                        Example:{' '}
+                        <span className="font-mono text-gray-800">
+                          {EXAMPLE_VALUES[v]}
+                        </span>
                       </span>
                     </li>
                   ))}
                 </ul>
               </div>
               <p className="mt-2 text-xs text-gray-500">
-                Click <Copy className="inline h-3 w-3 align-text-top" /> to copy a variable like <code className="rounded bg-gray-200 px-1 text-xs">[firstName]</code>. Paste it into body.
+                Click <Copy className="inline h-3 w-3 align-text-top" /> to copy
+                a variable like{' '}
+                <code className="rounded bg-gray-200 px-1 text-xs">
+                  [firstName]
+                </code>
+                . Paste it into body.
               </p>
             </div>
 
             {/* Right Side - Form */}
-            <div className="md:col-span-3 space-y-4">
+            <div className="space-y-4 md:col-span-3">
               {/* Subject */}
               <FormField
                 control={form.control}
@@ -215,10 +236,7 @@ export function EmailDraftDialog({
                   <FormItem>
                     <FormLabel>Subject</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="Enter email subject"
-                        {...field}
-                      />
+                      <Input placeholder="Enter email subject" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

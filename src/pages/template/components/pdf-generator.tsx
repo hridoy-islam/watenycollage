@@ -34,6 +34,10 @@ const MOCK_DATA = {
   adminEmail: 'info@watneycollege.co.uk',
   applicationLocation: 'Online Portal',
   courseName: 'Exam Preparation Courses',
+   intake:'September 2025',
+  applicationStatus:'applied',
+  applicationDate:'2025-05-15'
+
 };
 
 // PDF styles
@@ -94,9 +98,9 @@ const EmailPDF = ({ subject, body }: { subject: string; body: string }) => (
         {/* <Text style={styles.subject}>Subject: {replaceVariables(subject)}</Text> */}
         <Text style={styles.body}>{replaceVariables(body)}</Text>
       </View>
-      <Text style={styles.footer}>
+      {/* <Text style={styles.footer}>
         Generated on {moment().format("DD MMM, YYYY")} at {moment().format("HH:mm")}
-      </Text>
+      </Text> */}
     </Page>
   </Document>
 )

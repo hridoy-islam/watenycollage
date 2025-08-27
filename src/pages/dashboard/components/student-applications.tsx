@@ -273,19 +273,25 @@ export default function StudentApplicationsPage() {
               <TableBody>
                 {filteredApplications.map((app) => (
                   <TableRow key={app._id}>
-                    <TableCell className="font-medium cursor-pointer " onClick={() =>
-                          navigate(
-                            `/dashboard/student-application/${app.studentId?._id}`
-                          )
-                        }>
+                    <TableCell
+                      className="cursor-pointer font-medium "
+                      onClick={() =>
+                        navigate(
+                          `/dashboard/student-application/${app.studentId?._id}`
+                        )
+                      }
+                    >
                       {app.studentId?.title} {app.studentId?.firstName}{' '}
                       {app.studentId?.initial} {app.studentId?.lastName}{' '}
                     </TableCell>
-                    <TableCell className='cursor-pointer' onClick={() =>
-                          navigate(
-                            `/dashboard/student-application/${app.studentId?._id}`
-                          )
-                        }>
+                    <TableCell
+                      className="cursor-pointer"
+                      onClick={() =>
+                        navigate(
+                          `/dashboard/student-application/${app.studentId?._id}`
+                        )
+                      }
+                    >
                       <Badge className="bg-watney text-white hover:bg-watney">
                         {app.studentId?.studentType === 'eu'
                           ? 'Home'
@@ -295,28 +301,38 @@ export default function StudentApplicationsPage() {
                             app.studentId?.studentType?.slice(1)}
                       </Badge>
                     </TableCell>
-                    <TableCell className='cursor-pointer' onClick={() =>
-                          navigate(
-                            `/dashboard/student-application/${app.studentId?._id}`
-                          )
-                        }>{app.studentId?.email ?? 'N/A'}</TableCell>
-                    <TableCell className='cursor-pointer' onClick={() =>
-                          navigate(
-                            `/dashboard/student-application/${app.studentId?._id}`
-                          )
-                        }>{app.courseId?.name ?? 'N/A'}</TableCell>
-                    <TableCell className="text-center flex flex-row gap-2">
+                    <TableCell
+                      className="cursor-pointer"
+                      onClick={() =>
+                        navigate(
+                          `/dashboard/student-application/${app.studentId?._id}`
+                        )
+                      }
+                    >
+                      {app.studentId?.email ?? 'N/A'}
+                    </TableCell>
+                    <TableCell
+                      className="cursor-pointer"
+                      onClick={() =>
+                        navigate(
+                          `/dashboard/student-application/${app.studentId?._id}`
+                        )
+                      }
+                    >
+                      {app.courseId?.name ?? 'N/A'}
+                    </TableCell>
+                    <TableCell className="flex flex-row gap-2 text-center">
                       <Button
                         variant="ghost"
                         className="border-none bg-watney text-white hover:bg-watney/90"
                         size="icon"
                         onClick={() =>
                           navigate(
-                            `/dashboard/student-application/${app.studentId?._id}/${app?.courseId?._id}/mails`
+                            `/dashboard/student-application/${app.studentId?._id}/${app?._id}/mails`
                           )
                         }
                       >
-                        <Mail  className="h-4 w-4" />
+                        <Mail className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="ghost"
@@ -324,7 +340,7 @@ export default function StudentApplicationsPage() {
                         size="icon"
                         onClick={() =>
                           navigate(
-                            `/dashboard/student-application/${app.studentId}`
+                            `/dashboard/student-application/${app.studentId?._id}`
                           )
                         }
                       >

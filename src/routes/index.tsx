@@ -144,7 +144,7 @@ export default function AppRouter() {
         index: true
       },
       {
-        path: 'student-application/:id/:courseId/mails',
+        path: 'student-application/:id/:applicationId/mails',
         element: withRole(<StudentMailPage />, ['admin',]),
         index: true
       },
