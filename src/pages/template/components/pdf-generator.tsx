@@ -3,15 +3,38 @@ import moment from "moment"
 
 // Mock data to replace variables
 const MOCK_DATA = {
-  name: "John Smith",
-  dob: moment("1990-05-15").format("DD MMM, YYYY"),
-  email: "john.smith@example.com",
-  countryOfBirth: "United States",
-  nationality: "American",
-  dateOfBirth: moment("1990-05-15").format("DD MMM, YYYY"),
-  admin: "Watney",
-  adminEmail: "info@watneycollege.co.uk",
-}
+  name: 'Jane Doe',
+  title: 'Ms',
+  firstName: 'Jane',
+  lastName: 'Doe',
+  phone: '+1 (555) 123-4567',
+  dateOfBirth: moment('1990-05-15').format('DD MMM, YYYY'),
+  email: 'jane.doe@example.com',
+  countryOfBirth: 'United States',
+  nationality: 'American',
+  countryOfResidence: 'Canada',
+  ethnicity: 'Hispanic',
+  gender: 'Female',
+  postalAddressLine1: '123 Main St',
+  postalAddressLine2: 'Apt 4B',
+  postalCity: 'New York',
+  postalCountry: 'USA',
+  postalPostCode: '10001',
+  residentialAddressLine1: '456 Oak Ave',
+  residentialAddressLine2: '',
+  residentialCity: 'Toronto',
+  residentialCountry: 'Canada',
+  residentialPostCode: 'M5V 3L9',
+  emergencyAddress: '789 Pine Rd, Vancouver, CA',
+  emergencyContactNumber: '+1 (555) 987-6543',
+  emergencyEmail: 'emergency.contact@example.com',
+  emergencyFullName: 'John Smith',
+  emergencyRelationship: 'Brother',
+  admin: 'Watney College',
+  adminEmail: 'info@watneycollege.co.uk',
+  applicationLocation: 'Online Portal',
+  courseName: 'Exam Preparation Courses',
+};
 
 // PDF styles
 const styles = StyleSheet.create({
@@ -68,7 +91,7 @@ const EmailPDF = ({ subject, body }: { subject: string; body: string }) => (
     <Page size="A4" style={styles.page}>
       <View style={styles.section}>
         {/* <Text style={styles.title}>Email Template</Text> */}
-        <Text style={styles.subject}>Subject: {replaceVariables(subject)}</Text>
+        {/* <Text style={styles.subject}>Subject: {replaceVariables(subject)}</Text> */}
         <Text style={styles.body}>{replaceVariables(body)}</Text>
       </View>
       <Text style={styles.footer}>

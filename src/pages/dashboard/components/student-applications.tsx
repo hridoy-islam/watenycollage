@@ -312,7 +312,7 @@ export default function StudentApplicationsPage() {
                         size="icon"
                         onClick={() =>
                           navigate(
-                            `/dashboard/student-application/${app.studentId?._id}/mails`
+                            `/dashboard/student-application/${app.studentId?._id}/${app?.courseId?._id}/mails`
                           )
                         }
                       >
@@ -324,7 +324,7 @@ export default function StudentApplicationsPage() {
                         size="icon"
                         onClick={() =>
                           navigate(
-                            `/dashboard/student-application/${app.studentId?._id}`
+                            `/dashboard/student-application/${app.studentId}`
                           )
                         }
                       >

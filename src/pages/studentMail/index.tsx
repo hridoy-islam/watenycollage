@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Table,
   TableBody,
@@ -17,13 +17,21 @@ import {
 } from '@/components/ui/dialog';
 import Select from 'react-select';
 import { useNavigate, useParams } from 'react-router-dom';
-import { MoveLeft, Plus } from 'lucide-react';
+import { MoveLeft, Plus, Download } from 'lucide-react';
 import axiosInstance from '@/lib/axios';
 import { useSelector } from 'react-redux';
 import moment from 'moment';
 import { DataTablePagination } from '@/components/shared/data-table-pagination';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
 import { useToast } from '@/components/ui/use-toast';
+import {
+  Document,
+  Page,
+  Text,
+  View,
+  StyleSheet,
+  pdf
+} from '@react-pdf/renderer';
 
 // Types
 interface EmailDraft {
@@ -42,38 +50,105 @@ interface EmailLog {
 
 const AVAILABLE_VARIABLES = [
   'name',
-  'dob',
+  'title',
+  'firstName',
+  'lastName',
+  'phone',
   'email',
   'countryOfBirth',
   'nationality',
+  'countryOfResidence',
   'dateOfBirth',
+  'ethnicity',
+  'gender',
+  'postalAddressLine1',
+  'postalAddressLine2',
+  'postalCity',
+  'postalCountry',
+  'postalPostCode',
+  'residentialAddressLine1',
+  'residentialAddressLine2',
+  'residentialCity',
+  'residentialCountry',
+  'residentialPostCode',
+  'emergencyAddress',
+  'emergencyContactNumber',
+  'emergencyEmail',
+  'emergencyFullName',
+  'emergencyRelationship',
   'admin',
-  'adminEmail'
+  'adminEmail',
+  'applicationLocation'
 ];
+
+const styles = StyleSheet.create({
+  page: {
+    flexDirection: 'column',
+    backgroundColor: '#FFFFFF',
+    padding: 30
+  },
+  section: {
+    margin: 10,
+    padding: 10,
+    flexGrow: 1
+  },
+  title: {
+    fontSize: 24,
+    marginBottom: 20,
+    textAlign: 'center',
+    fontWeight: 'bold'
+  },
+  subject: {
+    fontSize: 18,
+    marginBottom: 15,
+    fontWeight: 'bold'
+  },
+  body: {
+    fontSize: 12,
+    lineHeight: 1.5,
+    textAlign: 'justify'
+  }
+});
+
+const EmailPDFDocument = ({ body }: { body: string }) => (
+  <Document>
+    <Page size="A4" style={styles.page}>
+      <View style={styles.section}>
+        <Text style={styles.body}>{body}</Text>
+      </View>
+    </Page>
+  </Document>
+);
 
 function StudentMailPage() {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const [pdfOpen, setPdfOpen] = useState(false);
   const [emailLogs, setEmailLogs] = useState<EmailLog[]>([]);
   const [emailDrafts, setEmailDrafts] = useState<EmailDraft[]>([]);
   const [selectedDraft, setSelectedDraft] = useState<EmailDraft | null>(null);
+  const [selectedPdfDraft, setSelectedPdfDraft] = useState<EmailDraft | null>(
+    null
+  );
   const [subject, setSubject] = useState('');
   const [body, setBody] = useState('');
   const [loadingLogs, setLoadingLogs] = useState(true);
-  const [sending, setSending] = useState(false); // ✅ sending state
+  const [sending, setSending] = useState(false);
+  const [generatingPdf, setGeneratingPdf] = useState(false);
   const [errors, setErrors] = useState<{
     subject?: string;
     body?: string;
     draft?: string;
   }>({});
-  const { id } = useParams();
+  const { id, courseId } = useParams();
   const user = useSelector((state: any) => state.auth?.user);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState('');
   const [studentName, setStudentName] = useState<string>('');
-  const { toast } = useToast()
+  const [studentData, setStudentData] = useState<any>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!id) return;
@@ -82,6 +157,7 @@ function StudentMailPage() {
       try {
         const res = await axiosInstance.get(`/users/${id}`);
         setStudentName(res.data.data.name || 'Unknown');
+        setStudentData(res.data.data);
       } catch (error) {
         console.error('Failed to fetch student info:', error);
       }
@@ -102,7 +178,6 @@ function StudentMailPage() {
     fetchDrafts();
   }, []);
 
-  // Fetch email logs
   const fetchEmailLogs = async (page, entriesPerPage, searchTerm = '') => {
     if (!id) return;
     setLoadingLogs(true);
@@ -151,7 +226,6 @@ function StudentMailPage() {
   };
 
   const handleSendEmail = async () => {
-    // validation
     const newErrors: typeof errors = {};
     if (!selectedDraft) newErrors.draft = 'Template is required';
     if (!subject.trim()) newErrors.subject = 'Subject is required';
@@ -164,7 +238,8 @@ function StudentMailPage() {
       userId: id,
       issuedBy: user._id,
       subject,
-      body
+      body,
+      ...(courseId && { courseId })
     };
 
     setSending(true);
@@ -180,33 +255,114 @@ function StudentMailPage() {
           status: 'pending'
         };
 
-
         toast({
-        title: 'Email Sent successfully',
-        className: 'bg-watney border-none text-white'
-      });
+          title: 'Email Sent successfully',
+          className: 'bg-watney border-none text-white'
+        });
         setEmailLogs((prev) => [newLog, ...prev]);
 
-        // ✅ clear form after send
         setSelectedDraft(null);
         setSubject('');
         setBody('');
         setErrors({});
         setOpen(false);
 
-        // ✅ refetch after 5s
         setTimeout(() => {
           fetchEmailLogs(currentPage, entriesPerPage);
         }, 5000);
       }
-    } catch (error:any) {
-       toast({
-        title: error.response?.data?.message || error.message || 'Failed to send email',
+    } catch (error: any) {
+      toast({
+        title:
+          error.response?.data?.message ||
+          error.message ||
+          'Failed to send email',
         className: 'bg-destructive border-none text-white'
       });
       console.error('Error sending email:', error);
     } finally {
       setSending(false);
+    }
+  };
+
+  const replaceVariables = async (text: string, studentData: any) => {
+    let replacedText = text;
+
+    // First, replace all AVAILABLE_VARIABLES from studentData
+    AVAILABLE_VARIABLES.forEach((variable) => {
+      let value = studentData?.[variable] || '';
+
+      // Override admin variables
+      if (variable === 'admin') value = 'Watney College';
+      if (variable === 'adminEmail') value = 'info@watneycollege.co.uk';
+
+      const regex = new RegExp(`\\[${variable}\\]`, 'g');
+      replacedText = replacedText.replace(regex, value);
+    });
+
+    // Replace courseName if courseId exists
+    if (courseId) {
+      try {
+        const courseRes = await axiosInstance.get(`/courses/${courseId}`);
+        const courseName = courseRes.data.data.name || '';
+        replacedText = replacedText.replace(/\[courseName\]/g, courseName);
+      } catch (error) {
+        console.error('Failed to fetch course info:', error);
+        replacedText = replacedText.replace(/\[courseName\]/g, '');
+      }
+    }
+
+    return replacedText;
+  };
+
+  const handleDownloadPdf = async () => {
+    if (!selectedPdfDraft || !studentData) {
+      toast({
+        title: 'Please select a template',
+        className: 'bg-destructive border-none text-white'
+      });
+      return;
+    }
+
+    setGeneratingPdf(true);
+    try {
+      // Replace variables in subject and body
+      const replacedSubject = await replaceVariables(
+        selectedPdfDraft.subject,
+        studentData
+      );
+      const replacedBody = await replaceVariables(
+        selectedPdfDraft.body,
+        studentData
+      );
+
+      // Create PDF with replaced content
+      const doc = <EmailPDFDocument body={replacedBody} />;
+      const asPdf = pdf(doc);
+      const blob = await asPdf.toBlob();
+
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${studentName}_${replacedSubject.replace(/[^a-z0-9]/gi, '_')}.pdf`;
+      link.click();
+      URL.revokeObjectURL(url);
+
+      toast({
+        title: 'PDF downloaded successfully',
+        className: 'bg-watney border-none text-white'
+      });
+
+      setPdfOpen(false);
+      setSelectedPdfDraft(null);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      toast({
+        title: 'Failed to generate PDF',
+        className: 'bg-destructive border-none text-white'
+      });
+    } finally {
+      setGeneratingPdf(false);
     }
   };
 
@@ -235,6 +391,14 @@ function StudentMailPage() {
           >
             <Plus className="mr-2 h-4 w-4" />
             Send Email
+          </Button>
+          <Button
+            onClick={() => setPdfOpen(true)}
+            size="sm"
+            className="bg-watney text-white hover:bg-watney/90"
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Download PDF
           </Button>
         </div>
       </div>
@@ -278,7 +442,8 @@ function StudentMailPage() {
                 ))}
               </TableBody>
             </Table>
-            {/* ✅ pagination */}
+
+            {emailLogs.length>6 &&
             <div className="mt-4">
               <DataTablePagination
                 pageSize={entriesPerPage}
@@ -288,6 +453,8 @@ function StudentMailPage() {
                 onPageChange={setCurrentPage}
               />
             </div>
+
+            }
           </>
         ) : (
           <p className="py-6 text-center text-gray-500">
@@ -296,7 +463,6 @@ function StudentMailPage() {
         )}
       </div>
 
-      {/* Send Email Dialog */}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-h-screen overflow-y-auto sm:max-h-[95vh] sm:max-w-5xl">
           <DialogHeader>
@@ -335,26 +501,13 @@ function StudentMailPage() {
               )}
             </div>
 
-            {/* Variables */}
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-gray-700">
-                Available Variables:
-              </p>
-              <div className="flex flex-wrap gap-2 text-xs text-gray-600">
-                {AVAILABLE_VARIABLES.map((v) => (
-                  <span key={v} className="rounded bg-gray-100 px-2 py-1">
-                    {`[${v}]`}
-                  </span>
-                ))}
-              </div>
-            </div>
-
             <div>
               <label className="mb-1 block font-medium">Body</label>
               <textarea
                 value={body}
                 onChange={(e) => setBody(e.target.value)}
                 className="h-[250px] w-full rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
+                disabled
               />
               {errors.body && (
                 <p className="mt-1 text-sm text-red-500">{errors.body}</p>
@@ -364,11 +517,91 @@ function StudentMailPage() {
 
           <DialogFooter className="mt-6 flex justify-end">
             <Button
+              variant="default"
+              className="bg-black text-white hover:bg-black/90"
+              onClick={() => {
+                setSelectedDraft(null);
+                setSubject('');
+                setBody('');
+                setErrors({});
+                setOpen(false);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
               onClick={handleSendEmail}
               className="bg-watney text-white hover:bg-watney/90"
               disabled={sending}
             >
               {sending ? 'Sending...' : 'Send Email'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={pdfOpen} onOpenChange={setPdfOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Download Email as PDF</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <label className="mb-1 block font-medium">Select Template</label>
+              <Select
+                options={templateOptions}
+                value={
+                  selectedPdfDraft
+                    ? {
+                        value: selectedPdfDraft._id,
+                        label: selectedPdfDraft.subject
+                      }
+                    : null
+                }
+                onChange={(selectedOption) => {
+                  if (!selectedOption) return;
+                  const draft = emailDrafts.find(
+                    (d) => d._id === selectedOption.value
+                  );
+                  if (draft) {
+                    setSelectedPdfDraft(draft);
+                  }
+                }}
+                placeholder="Choose a template..."
+                isClearable
+              />
+            </div>
+
+            {/* {selectedPdfDraft && (
+              <div className="rounded-md bg-gray-50 p-3">
+                <p className="text-sm text-gray-600">
+                  <strong>Subject:</strong> {selectedPdfDraft.subject}
+                </p>
+                <p className="mt-2 text-sm text-gray-600">
+                  <strong>Preview:</strong>{' '}
+                  {selectedPdfDraft.body.substring(0, 100)}...
+                </p>
+              </div>
+            )} */}
+          </div>
+
+          <DialogFooter className="mt-6 flex justify-end">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setPdfOpen(false);
+                setSelectedPdfDraft(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleDownloadPdf}
+              className="bg-watney text-white hover:bg-watney/90"
+              disabled={generatingPdf || !selectedPdfDraft}
+            >
+              {generatingPdf ? 'Generating...' : 'Download PDF'}
             </Button>
           </DialogFooter>
         </DialogContent>

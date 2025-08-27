@@ -1,9 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import { Copy } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -31,14 +30,73 @@ const formSchema = z.object({
 
 const AVAILABLE_VARIABLES = [
   'name',
-  'dob',
+  'title',
+  'firstName',
+  'lastName',
+  'phone',
   'email',
   'countryOfBirth',
   'nationality',
+  'countryOfResidence',
   'dateOfBirth',
+  'ethnicity',
+  'gender',
+  'postalAddressLine1',
+  'postalAddressLine2',
+  'postalCity',
+  'postalCountry',
+  'postalPostCode',
+  'residentialAddressLine1',
+  'residentialAddressLine2',
+  'residentialCity',
+  'residentialCountry',
+  'residentialPostCode',
+  'emergencyAddress',
+  'emergencyContactNumber',
+  'emergencyEmail',
+  'emergencyFullName',
+  'emergencyRelationship',
   'admin',
-  'adminEmail'
+  'adminEmail',
+  'applicationLocation',
+  'courseName',
+  
 ];
+
+// Example values for each variable (for demonstration)
+const EXAMPLE_VALUES = {
+  name: 'Jane Doe',
+  title: 'Ms',
+  firstName: 'Jane',
+  lastName: 'Doe',
+  phone: '+1 (555) 123-4567',
+  email: 'jane.doe@example.com',
+  countryOfBirth: 'United States',
+  nationality: 'American',
+  countryOfResidence: 'Canada',
+  dateOfBirth: '1990-05-15',
+  ethnicity: 'Hispanic',
+  gender: 'Female',
+  postalAddressLine1: '123 Main St',
+  postalAddressLine2: 'Apt 4B',
+  postalCity: 'New York',
+  postalCountry: 'USA',
+  postalPostCode: '10001',
+  residentialAddressLine1: '456 Oak Ave',
+  residentialAddressLine2: '',
+  residentialCity: 'Toronto',
+  residentialCountry: 'Canada',
+  residentialPostCode: 'M5V 3L9',
+  emergencyAddress: '789 Pine Rd, Vancouver, CA',
+  emergencyContactNumber: '+1 (555) 987-6543',
+  emergencyEmail: 'emergency.contact@example.com',
+  emergencyFullName: 'John Smith',
+  emergencyRelationship: 'Brother',
+  admin: 'Watney College',
+  adminEmail: 'info@watneycollege.co.uk',
+  applicationLocation: 'Online Portal',
+  courseName:'Exam Preparation Courses'
+};
 
 export function EmailDraftDialog({
   open,
@@ -53,6 +111,8 @@ export function EmailDraftDialog({
       body: ''
     }
   });
+
+  const [copiedVar, setCopiedVar] = useState(null); // Track which variable was copied
 
   useEffect(() => {
     if (initialData) {
@@ -73,79 +133,127 @@ export function EmailDraftDialog({
     onOpenChange(false);
   };
 
+  const handleCopy = (variable) => {
+    const varWithBrackets = `[${variable}]`;
+    navigator.clipboard
+      .writeText(varWithBrackets)
+      .then(() => {
+        setCopiedVar(variable);
+        setTimeout(() => setCopiedVar(null), 1500); // Reset after 1.5s
+      })
+      .catch((err) => {
+        console.error('Failed to copy: ', err);
+      });
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="overflow-y-auto sm:max-h-max sm:max-w-max">
+      <DialogContent className="overflow-y-auto sm:max-h-screen sm:max-w-6xl">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">
             {initialData ? 'Edit Email Template' : 'Create New Email Template'}
           </DialogTitle>
           <DialogDescription>
             {initialData
-              ? 'Edit your email Template below.'
-              : 'Create a new email Template. You can send it later.'}
+              ? 'Edit your email template below.'
+              : 'Create a new email template. Use the variables on the left to personalize content.'}
           </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-4"
-          >
-            {/* Subject */}
-            <FormField
-              control={form.control}
-              name="subject"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Subject</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter email subject" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="grid grid-cols-1 gap-6 md:grid-cols-5">
+            {/* Left Side - Variables with Examples */}
+            <div className="md:col-span-2">
+              <h3 className="mb-3 text-sm font-semibold text-gray-700">Available Variables</h3>
+              <div className="max-h-80 overflow-y-auto rounded-md border border-gray-200 bg-gray-50 p-3">
+                <ul className="space-y-2">
+                  {AVAILABLE_VARIABLES.map((v) => (
+                    <li
+                      key={v}
+                      className="flex flex-col rounded bg-white p-3 shadow-sm "
+                    >
+                      <div className="flex items-center justify-between">
+                        <code className="text-xs font-mono text-blue-700">{`[${v}]`}</code>
+                        <Button
+                          type="button"
+                          variant="default"
+                          size="icon"
+                          className="h-6 w-6 p-0 text-gray-500 hover:text-blue-600"
+                          onClick={() => handleCopy(v)}
+                          aria-label={`Copy [${v}]`}
+                        >
+                          {copiedVar === v ? (
+                            <span className="text-xs text-green-600" aria-label="Copied!">
+                              ✓
+                            </span>
+                          ) : (
+                            <Copy className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
 
-            {/* Variable Reference */}
-            <div className="space-y-1">
-              <p className="text-sm font-medium">Available Variables:</p>
-              <div className="flex flex-wrap gap-2 text-xs text-gray-600">
-                {AVAILABLE_VARIABLES.map((v) => (
-                  <span key={v} className="rounded bg-gray-100 px-2 py-1">
-                    {`[${v}]`}
-                  </span>
-                ))}
+                      {/* Example Value */}
+                      <span className="mt-1 text-xs text-gray-600">
+                        Example: <span className="font-mono text-gray-800">{EXAMPLE_VALUES[v]}</span>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
               </div>
+              <p className="mt-2 text-xs text-gray-500">
+                Click <Copy className="inline h-3 w-3 align-text-top" /> to copy a variable like <code className="rounded bg-gray-200 px-1 text-xs">[firstName]</code>. Paste it into body.
+              </p>
             </div>
 
-            {/* Body with React Quill */}
-            <FormField
-              control={form.control}
-              name="body"
-              render={({ field }) => (
-                <FormItem className="pb-12">
-                  <FormLabel>Email Body</FormLabel>
-                  <FormControl>
-                    <textarea
-                     value={field.value}
-                      onChange={field.onChange}
-                      className="h-[250px] w-full rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {/* Right Side - Form */}
+            <div className="md:col-span-3 space-y-4">
+              {/* Subject */}
+              <FormField
+                control={form.control}
+                name="subject"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Subject</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Enter email subject"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <DialogFooter>
-              <Button
-                type="submit"
-                className="bg-watney text-white hover:bg-watney/90"
-              >
-                {initialData ? 'Update Template' : 'Save Template'}
-              </Button>
-            </DialogFooter>
+              {/* Body */}
+              <FormField
+                control={form.control}
+                name="body"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email Body</FormLabel>
+                    <FormControl>
+                      <textarea
+                        value={field.value}
+                        onChange={field.onChange}
+                        className="h-60 w-full resize-none rounded-md border border-gray-300 p-3 focus:border-blue-500 focus:outline-none"
+                        placeholder="Write your email content. You can paste variables like [firstName] here."
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <DialogFooter>
+                <Button
+                  type="submit"
+                  className="bg-watney text-white hover:bg-watney/90"
+                >
+                  {initialData ? 'Update Template' : 'Save Template'}
+                </Button>
+              </DialogFooter>
+            </div>
           </form>
         </Form>
       </DialogContent>
