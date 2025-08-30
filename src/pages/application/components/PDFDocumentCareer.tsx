@@ -169,7 +169,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
         >
           {/* Left: Logo */}
           <View style={{ position: 'absolute', left: 0, top: -10 }}>
-            <Image style={styles.logo} src='/logo.png' />
+            <Image style={styles.logo} src="/logo.png" />
           </View>
 
           {/* Right: Passport Photo */}
@@ -827,10 +827,9 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
             and accurate and that none of the information requested or other
             material information has been omitted. I accept that if it is
             discovered that I have supplied false, inaccurate or misleading
-            information, Cyberpeers reserves the right to cancel my
-            application, withdraw its offer of a place or terminate attendance
-            at the College and I shall have no claim against Cyberpeers in
-            relation thereto:{' '}
+            information, Cyberpeers reserves the right to cancel my application,
+            withdraw its offer of a place or terminate attendance at the College
+            and I shall have no claim against Cyberpeers in relation thereto:{' '}
             <Text style={{ fontWeight: 'bold' }}>
               {data.termsAccepted ? 'Yes' : 'No'}
             </Text>
@@ -884,12 +883,10 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
             Thank you for completing this form. Once completed, please return it
             to the following address
           </Text>
-          <Text style={{ fontWeight: 'bold', marginTop: 5 }}>
-            Cyberpeers
-          </Text>
-          <Text>80-82 Nelson Street, London, E1 2DY</Text>
-          <Text>Email: admission@watneycollege.co.uk</Text>
-          <Text>Phone: +44 (0)208 004 6463</Text>
+          <Text style={{ fontWeight: 'bold', marginTop: 5 }}>Cyberpeers</Text>
+          <Text>61 Huntsman Road, Ilford, IG6 3SX, London.United Kingdom</Text>
+          <Text>Email: contact@cyberpeers.co.uk</Text>
+          <Text>Phone: +447914829155</Text>
         </View>
 
         <Text style={styles.footer}>

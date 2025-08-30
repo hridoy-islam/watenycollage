@@ -303,17 +303,17 @@ export default function CareerApplicationForm() {
     }
   };
 
-    const handleDocumentSave = async (data: any) => {
-      try {
-        setFormData((prev) => ({ ...prev, ...data }));
-        await axiosInstance.patch(`/users/${user._id}`, data);
-      } catch (error: any) {
-        toast({
-          title: error?.response?.data?.message || 'Something went wrong.',
-          className: 'destructive border-none text-white'
-        });
-      }
-    };
+  const handleDocumentSave = async (data: any) => {
+    try {
+      setFormData((prev) => ({ ...prev, ...data }));
+      await axiosInstance.patch(`/users/${user._id}`, data);
+    } catch (error: any) {
+      toast({
+        title: error?.response?.data?.message || 'Something went wrong.',
+        className: 'destructive border-none text-white'
+      });
+    }
+  };
 
   const handleDocumentsSaveAndContinue = async (data: any) => {
     try {
@@ -493,7 +493,7 @@ export default function CareerApplicationForm() {
             defaultValues={{ ...fetchData, ...formData }}
             onSaveAndContinue={handleDocumentsSaveAndContinue}
             setCurrentStep={setCurrentStep}
-             onSave={handleDocumentSave}
+            onSave={handleDocumentSave}
           />
         );
       case 10:
@@ -570,7 +570,9 @@ export default function CareerApplicationForm() {
                         </a>
                       </li>
                       <li>
-                        ☎ <strong>Phone:</strong> +447914829155
+                        <strong>Phone:</strong> +447914829155
+                        <strong>Address:</strong>61 Huntsman Road, Ilford, IG6
+                        3SX, London. United Kingdom
                       </li>
                     </ul>
                   </div>
