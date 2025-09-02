@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, Pen, MoveLeft, Check } from 'lucide-react';
+import { Plus, Pen, MoveLeft, Check, Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import {
@@ -39,20 +39,14 @@ import Select from 'react-select';
 import { Clipboard } from 'lucide-react';
 
 // Types
-interface Course {
-  _id: string;
-  name: string;
-}
 
 interface CourseCode {
-  _id: string;
-  course: Course;
+  course: string;
   courseCode: string;
-  status: number;
 }
 
 const courseCodeSchema = z.object({
-  courseId: z.string().min(1, 'Course is required'),
+  course: z.string().min(1, 'Course is required'),
   courseCode: z.string().min(1, 'Course code is required')
 });
 
@@ -60,14 +54,14 @@ type CourseCodeFormValues = z.infer<typeof courseCodeSchema>;
 
 export default function CourseCodePage() {
   const [courseCodes, setCourseCodes] = useState<CourseCode[]>([]);
-  const [courses, setCourses] = useState<Course[]>([]);
+  const [courses, setCourses] = useState([]);
   const [initialLoading, setInitialLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingCode, setEditingCode] = useState<CourseCode | null>(null);
   const { toast } = useToast();
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [entriesPerPage, setEntriesPerPage] = useState(10);
+  const [entriesPerPage, setEntriesPerPage] = useState(100);
   const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [triggerSearch, setTriggerSearch] = useState(false);
@@ -78,14 +72,20 @@ export default function CourseCodePage() {
   const fetchData = async (
     page = 1,
     limit = 10,
-    courseId?: string,
+    course?: string,
     search?: string
   ) => {
     try {
       setInitialLoading(true);
       const params: any = { page, limit };
-      if (courseId) params.course = courseId;
-      if (search) params.courseCode = search;
+
+      if (course) params.course = course;
+
+      // 👇 allow search for both name & code
+      if (search) {
+        params.search = search; // unified search param
+        // or use params.course = search; params.courseCode = search;
+      }
 
       const response = await axiosInstance.get('/course-code', { params });
       setCourseCodes(response.data.data.result);
@@ -101,31 +101,15 @@ export default function CourseCodePage() {
     }
   };
 
-  // Fetch all courses for dropdown
-  const fetchCourses = async () => {
-    try {
-      const response = await axiosInstance.get('/courses', {
-        params: { limit: 'all' }
-      });
-      setCourses(response.data.data.result);
-    } catch (error) {
-      console.error('Error fetching courses:', error);
-      toast({
-        title: 'Failed to load courses',
-        className: 'bg-red-500 text-white'
-      });
-    }
-  };
-
   // Handle form submission (add/edit)
   const form = useForm<CourseCodeFormValues>({
     resolver: zodResolver(courseCodeSchema),
-    defaultValues: { courseId: '', courseCode: '' }
+    defaultValues: { course: '', courseCode: '' }
   });
 
   const onSubmit = async (data: CourseCodeFormValues) => {
     try {
-      const payload = { course: data.courseId, courseCode: data.courseCode };
+      const payload = { course: data.course, courseCode: data.courseCode };
       let response;
 
       if (editingCode) {
@@ -161,39 +145,19 @@ export default function CourseCodePage() {
     }
   };
 
-  // Handle status toggle
-  const handleStatusChange = async (id: string, status: boolean) => {
-    try {
-      await axiosInstance.patch(`/course-code/${id}`, {
-        status: status ? 1 : 0
-      });
-      toast({ title: 'Status updated', className: 'bg-watney text-white' });
-      fetchData(
-        currentPage,
-        entriesPerPage,
-        selectedCourse || undefined,
-        searchTerm
-      );
-    } catch (error) {
-      console.error('Error updating status:', error);
-      toast({
-        title: 'Failed to update status',
-        className: 'bg-red-500 text-white'
-      });
-    }
-  };
+ 
 
   // Open dialog for edit
   const handleEdit = (code: CourseCode) => {
     setEditingCode(code);
-    form.reset({ courseId: code.course._id, courseCode: code.courseCode });
+    form.reset({ course: code.course, courseCode: code.courseCode });
     setDialogOpen(true);
   };
 
   // Reset form when dialog opens
   useEffect(() => {
     if (dialogOpen && !editingCode) {
-      form.reset({ courseId: '', courseCode: '' });
+      form.reset({ course: '', courseCode: '' });
     }
   }, [dialogOpen, editingCode, form]);
 
@@ -207,12 +171,7 @@ export default function CourseCodePage() {
     );
   }, [currentPage, entriesPerPage, selectedCourse, triggerSearch]);
 
-  // Course filter handler
-  const handleCourseFilter = (option: any) => {
-    setSelectedCourse(option?.value || null);
-    setCurrentPage(1);
-  };
-
+ 
   // Trigger search button click
   const handleSearchClick = () => {
     setTriggerSearch((prev) => !prev);
@@ -220,12 +179,12 @@ export default function CourseCodePage() {
   };
 
   // Course options for react-select
-  const courseOptions = courses.map((c) => ({ value: c._id, label: c.name }));
   const handleCopy = (code: string) => {
-    navigator.clipboard.writeText(code);
-    setCopiedCode(code);
-    setTimeout(() => setCopiedCode(null), 1000); // revert after 1 second
-  };
+  const formattedCode = `[courseCode="${code}"]`;
+  navigator.clipboard.writeText(formattedCode);
+  setCopiedCode(code);
+  setTimeout(() => setCopiedCode(null), 1000);
+};
 
   return (
     <div className="space-y-3">
@@ -234,25 +193,13 @@ export default function CourseCodePage() {
         <div className="flex flex-row items-center gap-4">
           <h1 className="text-2xl font-semibold">Course Codes</h1>
 
-          {/* Course Filter */}
-          <Select
-            options={courseOptions}
-            value={
-              courseOptions.find((opt) => opt.value === selectedCourse) || null
-            }
-            onChange={handleCourseFilter}
-            placeholder="Filter by course"
-            className="min-w-[250px]"
-            isClearable
-          />
-
           {/* Search by Course Code */}
           <div className="flex gap-2">
             <Input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search by course code"
+              placeholder="Search by course name and course code"
               className="h-9 min-w-[200px]"
             />
             <Button
@@ -304,14 +251,13 @@ export default function CourseCodePage() {
               <TableRow>
                 <TableHead>Course Name</TableHead>
                 <TableHead>Course Code</TableHead>
-                <TableHead className="w-32 text-center">Status</TableHead>
                 <TableHead className="w-32 text-center">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {courseCodes.map((code) => (
-                <TableRow key={code._id}>
-                  <TableCell>{code?.course?.name}</TableCell>
+                <TableRow key={code?._id}>
+                  <TableCell>{code?.course}</TableCell>
                   <TableCell className="flex items-center gap-2">
                     {code.courseCode}
                     <Button
@@ -322,21 +268,12 @@ export default function CourseCodePage() {
                       {copiedCode === code.courseCode ? (
                         <Check className="h-4 w-4 text-green-500" />
                       ) : (
-                        <Clipboard className="h-4 w-4" />
+                        <Copy className="h-4 w-4" />
                       )}
                     </Button>
                   </TableCell>
 
-                  <TableCell className="text-center">
-                    <Switch
-                      checked={code.status === 1}
-                      onCheckedChange={(checked) =>
-                        handleStatusChange(code._id, checked)
-                      }
-                      className="mx-auto"
-                    />
-                  </TableCell>
-                  <TableCell className="flex flex-row items-center justify-center gap-4">
+                  <TableCell className="items-end text-right">
                     <Button
                       variant="ghost"
                       className="bg-watney text-white hover:bg-watney/90"
@@ -382,26 +319,16 @@ export default function CourseCodePage() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
                 control={form.control}
-                name="courseId"
+                name="course"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Course</FormLabel>
-                    <Controller
-                      name="courseId"
-                      control={form.control}
-                      render={({ field }) => (
-                        <Select
-                          options={courseOptions}
-                          value={courseOptions.find(
-                            (opt) => opt.value === field.value
-                          )}
-                          onChange={(selected) =>
-                            field.onChange(selected?.value)
-                          }
-                          placeholder="Select a course"
-                        />
-                      )}
-                    />
+                    <FormLabel>Course Name </FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder="Enter course name (e.g., Computer Science)"
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}

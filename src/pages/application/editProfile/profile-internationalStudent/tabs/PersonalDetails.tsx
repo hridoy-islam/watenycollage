@@ -404,7 +404,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
                   value={countryOptions.find(
                     (option) =>
                       option.value.toLowerCase() ===
-                      localData?.countryOfBirth?.toLowerCase()
+                      localData?.countryOfResidence?.toLowerCase()
                   )}
                   onChange={(selectedOption) =>
                     handleInputChange(

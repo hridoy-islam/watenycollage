@@ -25,7 +25,7 @@ export default function ApplicationListPage() {
   const [initialLoading, setInitialLoading] = useState(true); // New state for initial loading
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [entriesPerPage, setEntriesPerPage] = useState(10);
+  const [entriesPerPage, setEntriesPerPage] = useState(100);
   const { toast } = useToast();
   const { user } = useSelector((state: any) => state.auth);
 

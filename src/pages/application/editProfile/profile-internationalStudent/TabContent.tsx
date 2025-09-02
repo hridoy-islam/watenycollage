@@ -68,20 +68,20 @@ const TabContent: React.FC<TabContentProps> = ({
         return <PersonalDetails {...commonProps} />;
       case 'addressData':
         return <AddressData {...commonProps} />;
+        case 'complianceData':
+          return <ComplianceData {...commonProps} />;
       case 'emergencyContactData':
         return <EmergencyContactData {...commonProps} />;
+        case 'documentData':
+          return <DocumentData {...commonProps} />;
+      case 'employmentData':
+          return <EmploymentData {...commonProps} />;
       case 'educationData':
         return <EducationData {...commonProps} />;
-      case 'employmentData':
-        return <EmploymentData {...commonProps} />;
-      case 'complianceData':
-        return <ComplianceData {...commonProps} />;
       case 'fundingData':
         return <FundingData {...commonProps} />;
       case 'courseData':
         return <CourseData {...commonProps} />;
-      case 'documentData':
-        return <DocumentData {...commonProps} />;
       default:
         return <div>Select a tab to view content</div>;
     }

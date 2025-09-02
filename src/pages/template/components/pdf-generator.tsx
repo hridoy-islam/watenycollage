@@ -1,45 +1,45 @@
 import { Document, Page, Text, View, StyleSheet, pdf, Image } from "@react-pdf/renderer"
 import moment from "moment"
 
-// Mock data to replace variables
-const MOCK_DATA = {
-  name: 'Jane Doe',
-  title: 'Ms',
-  firstName: 'Jane',
-  lastName: 'Doe',
-  phone: '+1 (555) 123-4567',
-  dateOfBirth: moment('1990-05-15').format('DD MMM, YYYY'),
-  email: 'jane.doe@example.com',
-  countryOfBirth: 'United States',
-  nationality: 'American',
-  countryOfResidence: 'Canada',
-  ethnicity: 'Hispanic',
-  gender: 'Female',
-  postalAddressLine1: '123 Main St',
-  postalAddressLine2: 'Apt 4B',
-  postalCity: 'New York',
-  postalCountry: 'USA',
-  postalPostCode: '10001',
-  residentialAddressLine1: '456 Oak Ave',
-  residentialAddressLine2: '',
-  residentialCity: 'Toronto',
-  residentialCountry: 'Canada',
-  residentialPostCode: 'M5V 3L9',
-  emergencyAddress: '789 Pine Rd, Vancouver, CA',
-  emergencyContactNumber: '+1 (555) 987-6543',
-  emergencyEmail: 'emergency.contact@example.com',
-  emergencyFullName: 'John Smith',
-  emergencyRelationship: 'Brother',
-  admin: 'Watney College',
-  adminEmail: 'info@watneycollege.co.uk',
-  applicationLocation: 'Online Portal',
-  courseName: 'Exam Preparation Courses',
-  intake:'September 2025',
-  applicationStatus:'applied',
-  applicationDate:'2025-05-15',
-  'signature id="1"': 'John Doe Signature',
-  'courseCode="1"': 'Computer Science',
-  todayDate: '2025-06-01'
+// Mock data to replace variables and placeholders
+const MOCK_DATA: Record<string, string> = {
+  name: "Jane Doe",
+  title: "Ms",
+  firstName: "Jane",
+  lastName: "Doe",
+  phone: "+1 (555) 123-4567",
+  dateOfBirth: moment("1990-05-15").format("DD MMM, YYYY"),
+  email: "jane.doe@example.com",
+  countryOfBirth: "United States",
+  nationality: "American",
+  countryOfResidence: "Canada",
+  ethnicity: "Hispanic",
+  gender: "Female",
+  postalAddressLine1: "123 Main St",
+  postalAddressLine2: "Apt 4B",
+  postalCity: "New York",
+  postalCountry: "USA",
+  postalPostCode: "10001",
+  residentialAddressLine1: "456 Oak Ave",
+  residentialAddressLine2: "",
+  residentialCity: "Toronto",
+  residentialCountry: "Canada",
+  residentialPostCode: "M5V 3L9",
+  emergencyAddress: "789 Pine Rd, Vancouver, CA",
+  emergencyContactNumber: "+1 (555) 987-6543",
+  emergencyEmail: "emergency.contact@example.com",
+  emergencyFullName: "John Smith",
+  emergencyRelationship: "Brother",
+  admin: "Watney College",
+  adminEmail: "info@watneycollege.co.uk",
+  applicationLocation: "Online Portal",
+  courseName: "Exam Preparation Courses",
+  intake: "September 2025",
+  applicationStatus: "applied",
+  applicationDate: "2025-05-15",
+  'signature id="1"': "/demosign.png", // 👈 will be rendered as an Image
+  'courseCode="1"': "Computer Science",
+  todayDate: moment().format("DD MMM, YYYY"),
 }
 
 // PDF styles
@@ -58,20 +58,11 @@ const styles = StyleSheet.create({
     width: "100%",
     flexDirection: "row",
     justifyContent: "flex-start",
-    
-    
   },
   logo: {
     width: 50,
     height: 50,
-    marginLeft:20
-    
-  },
-  title: {
-    fontSize: 18,
-    marginBottom: 20,
-    fontWeight: "bold",
-    textAlign: "center",
+    marginLeft: 20,
   },
   subject: {
     fontSize: 16,
@@ -82,46 +73,90 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 1.5,
     textAlign: "justify",
+    marginBottom: 6,
   },
-  footer: {
-    position: "absolute",
-    bottom: 30,
-    left: 30,
-    right: 30,
-    textAlign: "center",
-    fontSize: 10,
-    color: "#666666",
+  signature: {
+    width: 120,
+    height: 60,
+    marginVertical: 5,
+    objectFit: "contain",
   },
 })
 
-// Replace variables in text with mock data
-const replaceVariables = (text: string): string => {
-  let replacedText = text
-  Object.entries(MOCK_DATA).forEach(([key, value]) => {
-    const regex = new RegExp(`\\[${key}\\]`, "g")
-    replacedText = replacedText.replace(regex, value)
+// Function to render body text with placeholders
+const renderBody = (body: string) => {
+  const lines = body.split("\n")
+
+  return lines.map((line, i) => {
+    const placeholderRegex = /\[([^\]]+)\]/g
+    const parts: JSX.Element[] = []
+    let lastIndex = 0
+    let match
+
+    while ((match = placeholderRegex.exec(line)) !== null) {
+      const key = match[1]
+      const value = MOCK_DATA[key]
+
+      // Add plain text before the placeholder
+      if (match.index > lastIndex) {
+        parts.push(
+          <Text key={`${i}-text-${lastIndex}`} style={styles.body}>
+            {line.slice(lastIndex, match.index)}
+          </Text>
+        )
+      }
+
+      if (value) {
+        if (key.startsWith("signature")) {
+          // Render signature as its own block
+          parts.push(<Image key={`${i}-${key}`} src={value} style={styles.signature} />)
+        } else if (value.match(/\.(png|jpg|jpeg|gif|webp)$/i)) {
+          // Render other images
+          parts.push(<Image key={`${i}-${key}`} src={value} style={styles.signature} />)
+        } else {
+          // Render normal text replacement
+          parts.push(
+            <Text key={`${i}-${key}`} style={styles.body}>
+              {value}
+            </Text>
+          )
+        }
+      }
+
+      lastIndex = match.index + match[0].length
+    }
+
+    // Add any remaining text after last placeholder
+    if (lastIndex < line.length) {
+      parts.push(
+        <Text key={`${i}-text-end`} style={styles.body}>
+          {line.slice(lastIndex)}
+        </Text>
+      )
+    }
+
+    // Return a container View instead of wrapping in a single Text
+    return (
+      <View key={i} style={{ marginBottom: 6, flexDirection: "column" }}>
+        {parts}
+      </View>
+    )
   })
-  return replacedText
 }
 
 // PDF Document component
 const EmailPDF = ({ subject, body }: { subject: string; body: string }) => (
   <Document>
     <Page size="A4" style={styles.page}>
-      {/* Logo Top Right */}
+      {/* Logo Top Left */}
       <View style={styles.logoContainer}>
         <Image src="/logo.png" style={styles.logo} />
       </View>
 
       <View style={styles.section}>
-        {/* <Text style={styles.title}>Email Template</Text> */}
-        {/* <Text style={styles.subject}>Subject: {replaceVariables(subject)}</Text> */}
-        <Text style={styles.body}>{replaceVariables(body)}</Text>
+        {/* <Text style={styles.subject}>Subject: {subject}</Text> */}
+        {renderBody(body)}
       </View>
-
-      {/* <Text style={styles.footer}>
-        Generated on {moment().format("DD MMM, YYYY")} at {moment().format("HH:mm")}
-      </Text> */}
     </Page>
   </Document>
 )

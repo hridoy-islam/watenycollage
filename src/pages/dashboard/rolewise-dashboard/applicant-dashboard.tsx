@@ -46,7 +46,7 @@ interface ApplicantDashboardProps {
 
 export function ApplicantDashboard({ user }: ApplicantDashboardProps) {
   const [applications, setApplications] = useState<Application[]>([]);
-  const [totalApplication, setTotalApplication] = useState(10);
+  const [totalApplication, setTotalApplication] = useState(100);
   const [allJobs, setAllJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -54,7 +54,7 @@ export function ApplicantDashboard({ user }: ApplicantDashboardProps) {
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [entriesPerPage, setEntriesPerPage] = useState(10);
+  const [entriesPerPage, setEntriesPerPage] = useState(100);
 
   const fetchData = async (page = 1, limit = 10) => {
     try {

@@ -202,7 +202,7 @@ function StudentMailPage() {
   const user = useSelector((state: any) => state.auth?.user);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [entriesPerPage, setEntriesPerPage] = useState(10);
+  const [entriesPerPage, setEntriesPerPage] = useState(100);
   const [searchTerm, setSearchTerm] = useState('');
   const [studentName, setStudentName] = useState<string>('');
   const [studentData, setStudentData] = useState<any>(null);
@@ -410,7 +410,7 @@ function StudentMailPage() {
         const res = await axiosInstance.get(
           `/course-code?courseCode=${courseCode}`
         );
-        const courseName = res.data.data?.result[0]?.course?.name;
+        const courseName = res.data.data?.result[0]?.course;
         return {
           placeholder,
           replacement: courseName

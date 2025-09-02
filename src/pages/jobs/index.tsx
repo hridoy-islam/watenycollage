@@ -29,7 +29,7 @@ export default function JobPage() {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [entriesPerPage, setEntriesPerPage] = useState(10);
+  const [entriesPerPage, setEntriesPerPage] = useState(100);
 
   const fetchData = async (page, entriesPerPage, searchTerm = '') => {
     try {

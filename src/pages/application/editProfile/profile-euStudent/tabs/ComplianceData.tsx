@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import TabSection from '../TabSection';
-import { User } from '../../../types/user.types';
 import Select from 'react-select';
 import { Input } from '@/components/ui/input';
 import { CustomDatePicker } from '@/components/shared/CustomDatePicker';
@@ -13,10 +12,10 @@ const ComplianceData = ({
   onCancel,
   onEdit
 }) => {
-  const [localData, setLocalData] = useState<User>(userData);
+  const [localData, setLocalData] = useState(userData);
 
   // Handle input changes for all fields
-  const handleInputChange = (field: keyof User, value: any) => {
+  const handleInputChange = (field: keyof any, value: any) => {
     setLocalData((prev) => ({
       ...prev,
       [field]: value

@@ -67,7 +67,7 @@ const AddressData: React.FC<AddressDataProps> = ({
   return (
     <TabSection
       title="Address Information"
-      description="Your residential and postal addresses"
+      description=""
       userData={userData}
       isEditing={isEditing}
       onSave={handleSave}

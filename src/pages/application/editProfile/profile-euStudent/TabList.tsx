@@ -9,7 +9,7 @@ import {
 import { TabListProps, TabItemProps, TabType } from './types';
 
 // Individual tab item component
-const TabItem: React.FC<TabItemProps> = ({ id, label, icon, isActive, onClick }) => {
+const TabItem: React.FC<TabItemProps> = ({ id, label, icon, isActive, onClick, }) => {
   return (
     <button
       type="button"
@@ -27,7 +27,7 @@ const TabItem: React.FC<TabItemProps> = ({ id, label, icon, isActive, onClick })
   );
 };
 
-const TabList: React.FC<TabListProps> = ({ activeTab, setActiveTab }) => {
+const TabList: React.FC<TabListProps> = ({ activeTab, setActiveTab ,userData }) => {
   // Define tab data
   const tabs = [
     {
@@ -41,14 +41,20 @@ const TabList: React.FC<TabListProps> = ({ activeTab, setActiveTab }) => {
       icon: <MapPin size={20} />
     },
     {
+      id: 'complianceData' as TabType,
+      label: 'Additional Information',
+      icon: <FileCheck size={20} />
+    },
+    {
       id: 'emergencyContactData' as TabType,
       label: 'Emergency Contact',
       icon: <Phone size={20} />
     },
+      
     {
-      id: 'educationData' as TabType,
-      label: 'Education',
-      icon: <BookOpen size={20} />
+      id: 'documentData' as TabType,
+      label: 'Documents',
+      icon: <File size={20} />
     },
     {
       id: 'employmentData' as TabType,
@@ -56,9 +62,9 @@ const TabList: React.FC<TabListProps> = ({ activeTab, setActiveTab }) => {
       icon: <Briefcase size={20} />
     },
     {
-      id: 'complianceData' as TabType,
-      label: 'Additional Information',
-      icon: <FileCheck size={20} />
+      id: 'educationData' as TabType,
+      label: 'Education',
+      icon: <BookOpen size={20} />
     },
     {
       id: 'fundingData' as TabType,
@@ -70,19 +76,13 @@ const TabList: React.FC<TabListProps> = ({ activeTab, setActiveTab }) => {
     //   label: 'Applied Courses',
     //   icon: <BookCheck size={20} />
     // },
-    
-    {
-      id: 'documentData' as TabType,
-      label: 'Documents',
-      icon: <File size={20} />
-    }
+  
   ];
 
   return (
     <div className="py-2">
       <div className="px-4 py-4 border-b border-gray-200">
-        <h2 className="text-lg font-medium text-gray-800">Profile Sections</h2>
-        <p className="mt-1 text-sm text-gray-500">Manage your profile information</p>
+        <h2 className="text-md font-semibold text-gray-800">{userData?.name}</h2>
       </div>
       <nav className="mt-2">
         {tabs.map(tab => (

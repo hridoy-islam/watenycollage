@@ -50,7 +50,7 @@ export default function CourseData() {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [entriesPerPage, setEntriesPerPage] = useState(10);
+  const [entriesPerPage, setEntriesPerPage] = useState(100);
   const { toast } = useToast();
   const [totalApplication, setTotalApplication] = useState(0);
   const [selectedApplicationId, setSelectedApplicationId] = useState<

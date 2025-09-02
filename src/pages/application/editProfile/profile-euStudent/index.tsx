@@ -44,7 +44,7 @@ const [refreshCounter, setRefreshCounter] = useState(0);
 
         <div className="flex flex-col overflow-hidden rounded-xl bg-white shadow-md md:flex-row">
           <div className=" border-gray-200 bg-gray-50 md:border-r">
-            <TabList activeTab={activeTab} setActiveTab={setActiveTab} />
+            <TabList activeTab={activeTab} setActiveTab={setActiveTab} userData={userData}/>
           </div>
 
           <div className="flex-1 p-6">

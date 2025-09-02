@@ -100,9 +100,9 @@ const EXAMPLE_VALUES = {
   intake: 'January 2026',
   applicationStatus: 'pending',
   applicationDate: '2025-09-01',
-  'signature id="1"': 'John Doe Signature',
-  'courseCode="1"': 'Computer Science',
-  todayDate: '2025-06-01'
+  'signature id="1"': '[signature id="1"] Represents the signature with ID 1',
+  'courseCode="1"': '[courseCode="ENG1231"]',
+  todayDate: '2025-06-01 Represents the current date'
 };
 
 const DYNAMIC_VARIABLES = ['signature id="1"', 'courseCode="1"'];

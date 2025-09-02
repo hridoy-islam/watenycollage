@@ -42,64 +42,62 @@ const TabItem: React.FC<TabItemProps> = ({
   );
 };
 
-const TabList: React.FC<TabListProps> = ({ activeTab, setActiveTab }) => {
+const TabList: React.FC<TabListProps> = ({ activeTab, setActiveTab,userData }) => {
   // Define tab data
   const tabs = [
-    {
-      id: 'personalDetails' as TabType,
-      label: 'Personal Details',
-      icon: <User size={20} />
-    },
-    {
-      id: 'addressData' as TabType,
-      label: 'Address',
-      icon: <MapPin size={20} />
-    },
-    {
-      id: 'emergencyContactData' as TabType,
-      label: 'Emergency Contact',
-      icon: <Phone size={20} />
-    },
-    {
-      id: 'educationData' as TabType,
-      label: 'Education',
-      icon: <BookOpen size={20} />
-    },
-    {
-      id: 'employmentData' as TabType,
-      label: 'Employment',
-      icon: <Briefcase size={20} />
-    },
-    {
-      id: 'complianceData' as TabType,
-      label: 'Additional Information',
-      icon: <FileCheck size={20} />
-    },
-    {
-      id: 'fundingData' as TabType,
-      label: 'Funding Information',
-      icon: <BadgePoundSterling size={20} />
-    },
-    // {
-    //   id: 'courseData' as TabType,
-    //   label: 'Applied Courses',
-    //   icon: <BookCheck size={20} />
-    // },
-
-    {
-      id: 'documentData' as TabType,
-      label: 'Documents',
-      icon: <File size={20} />
-    }
-  ];
-
+      {
+        id: 'personalDetails' as TabType,
+        label: 'Personal Details',
+        icon: <User size={20} />
+      },
+      {
+        id: 'addressData' as TabType,
+        label: 'Address',
+        icon: <MapPin size={20} />
+      },
+      {
+        id: 'complianceData' as TabType,
+        label: 'Additional Information',
+        icon: <FileCheck size={20} />
+      },
+      {
+        id: 'emergencyContactData' as TabType,
+        label: 'Emergency Contact',
+        icon: <Phone size={20} />
+      },
+        
+      {
+        id: 'documentData' as TabType,
+        label: 'Documents',
+        icon: <File size={20} />
+      },
+      {
+        id: 'employmentData' as TabType,
+        label: 'Employment',
+        icon: <Briefcase size={20} />
+      },
+      {
+        id: 'educationData' as TabType,
+        label: 'Education',
+        icon: <BookOpen size={20} />
+      },
+      {
+        id: 'fundingData' as TabType,
+        label: 'Funding Information',
+        icon: <BadgePoundSterling size={20} />
+      },
+      // {
+      //   id: 'courseData' as TabType,
+      //   label: 'Applied Courses',
+      //   icon: <BookCheck size={20} />
+      // },
+    
+    ];
   return (
     <div className="py-2">
       <div className="border-b border-gray-200 px-4 py-4">
-        <h2 className="text-lg font-medium text-gray-800">Profile Sections</h2>
-        <p className="mt-1 text-sm text-gray-500">
-          Manage your profile information
-        </p>
+        <h2 className="text-md font-semibold text-gray-800">{userData?.name}</h2>
+
       </div>
       <nav className="mt-2">
         {tabs.map((tab) => (

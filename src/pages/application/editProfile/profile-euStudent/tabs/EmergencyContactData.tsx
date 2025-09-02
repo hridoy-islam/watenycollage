@@ -34,7 +34,7 @@ const EmergencyContactData = ({
   return (
     <TabSection
       title="Emergency Contact"
-      description="Contact information in case of emergency"
+      description=""
       userData={userData}
       isEditing={isEditing}
       onSave={handleSave}

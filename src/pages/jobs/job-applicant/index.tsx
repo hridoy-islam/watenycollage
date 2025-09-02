@@ -40,7 +40,7 @@ export default function CareerApplicationsPage() {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [entriesPerPage, setEntriesPerPage] = useState(10);
+  const [entriesPerPage, setEntriesPerPage] = useState(100);
   const {id} = useParams();
   const navigate = useNavigate();
 

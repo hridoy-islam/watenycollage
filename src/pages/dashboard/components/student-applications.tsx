@@ -46,7 +46,7 @@ export default function StudentApplicationsPage() {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [entriesPerPage, setEntriesPerPage] = useState(10);
+  const [entriesPerPage, setEntriesPerPage] = useState(100);
   const [searchQuery, setSearchQuery] = useState('');
   const [courses, setCourses] = useState<CourseOption[]>([]);
   const [terms, setTerms] = useState<CourseOption[]>([]);

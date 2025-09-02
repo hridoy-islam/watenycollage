@@ -96,7 +96,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
   return (
     <TabSection
       title="Personal Details"
-      description="Your basic personal information"
+      description=""
       userData={userData}
       isEditing={isEditing}
       onSave={handleSave}

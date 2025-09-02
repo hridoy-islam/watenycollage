@@ -22,6 +22,7 @@ export interface TabItemProps {
 export interface TabListProps {
   activeTab: TabType;
   setActiveTab: (tab: TabType) => void;
+  userData?: any;
 }
 
 export interface TabContentProps {
