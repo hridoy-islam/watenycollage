@@ -1,11 +1,31 @@
 import React, { useEffect, useState } from 'react';
 import { Plus, Pen, MoveLeft, Clipboard, Check, Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { useNavigate } from 'react-router-dom';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter
+} from '@/components/ui/dialog';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
+} from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -24,7 +44,7 @@ interface Signature {
 
 const signatureSchema = z.object({
   name: z.string().min(1, 'Signature name is required'),
-  documentUrl: z.string().optional(),
+  documentUrl: z.string().optional()
 });
 
 type SignatureFormValues = z.infer<typeof signatureSchema>;
@@ -33,7 +53,9 @@ export default function SignaturePage() {
   const [signatures, setSignatures] = useState<Signature[]>([]);
   const [initialLoading, setInitialLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingSignature, setEditingSignature] = useState<Signature | null>(null);
+  const [editingSignature, setEditingSignature] = useState<Signature | null>(
+    null
+  );
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -94,7 +116,9 @@ export default function SignaturePage() {
   const handleRemoveFile = () => {
     setUploadFile(null);
     setPreviewUrl(null);
-    const fileInput = document.getElementById('signature-upload') as HTMLInputElement;
+    const fileInput = document.getElementById(
+      'signature-upload'
+    ) as HTMLInputElement;
     if (fileInput) fileInput.value = '';
   };
 
@@ -116,9 +140,13 @@ export default function SignaturePage() {
         formData.append('file_type', 'signatureDoc');
         formData.append('file', uploadFile);
 
-        const documentResponse = await axiosInstance.post('/documents', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        const documentResponse = await axiosInstance.post(
+          '/documents',
+          formData,
+          {
+            headers: { 'Content-Type': 'multipart/form-data' }
+          }
+        );
 
         fileUrl = documentResponse.data?.data?.fileUrl;
       }
@@ -127,9 +155,15 @@ export default function SignaturePage() {
       let response;
 
       if (editingSignature) {
-        response = await axiosInstance.patch(`/signature/${editingSignature._id}`, signatureData);
+        response = await axiosInstance.patch(
+          `/signature/${editingSignature._id}`,
+          signatureData
+        );
       } else {
-        const maxId = signatures.reduce((max, sig) => Math.max(max, sig.signatureId), 0);
+        const maxId = signatures.reduce(
+          (max, sig) => Math.max(max, sig.signatureId),
+          0
+        );
         response = await axiosInstance.post('/signature', {
           ...signatureData,
           signatureId: maxId + 1
@@ -151,12 +185,12 @@ export default function SignaturePage() {
     }
   };
 
-const handleCopy = (id: number) => {
-  const formatted = `[signature id="${id}"]`;
-  navigator.clipboard.writeText(formatted);
-  setCopiedId(id);
-  setTimeout(() => setCopiedId(null), 1000);
-};
+  const handleCopy = (id: number) => {
+    const formatted = `[signature id="${id}"]`;
+    navigator.clipboard.writeText(formatted);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 1000);
+  };
 
   return (
     <div className="space-y-3">
@@ -194,7 +228,9 @@ const handleCopy = (id: number) => {
             <BlinkingDots size="large" color="bg-watney" />
           </div>
         ) : signatures.length === 0 ? (
-          <div className="flex justify-center py-6 text-gray-500">No signatures found.</div>
+          <div className="flex justify-center py-6 text-gray-500">
+            No signatures found.
+          </div>
         ) : (
           <Table>
             <TableHeader>
@@ -209,22 +245,21 @@ const handleCopy = (id: number) => {
               {signatures.map((sig) => (
                 <TableRow key={sig._id}>
                   <TableCell>{sig.name}</TableCell>
-                 <TableCell className="flex items-center gap-2">
-  <span className="font-mono text-sm">{`[signature id="${sig.signatureId}"]`}</span>
-  <Button
-    variant="ghost"
-    size="icon"
-    className="p-1"
-    onClick={() => handleCopy(sig.signatureId)}
-  >
-    {copiedId === sig.signatureId ? (
-      <Check className="h-4 w-4 text-green-500" />
-    ) : (
-      <Copy className="h-4 w-4" />
-    )}
-  </Button>
-</TableCell>
-
+                  <TableCell className="flex items-center gap-2">
+                    <span className="font-mono text-sm">{`[signature id="${sig.signatureId}"]`}</span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="p-1"
+                      onClick={() => handleCopy(sig.signatureId)}
+                    >
+                      {copiedId === sig.signatureId ? (
+                        <Check className="h-4 w-4 text-green-500" />
+                      ) : (
+                        <Copy className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </TableCell>
 
                   <TableCell>
                     {sig.documentUrl ? (
@@ -288,7 +323,9 @@ const handleCopy = (id: number) => {
       >
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>{editingSignature ? 'Edit Signature' : 'Add New Signature'}</DialogTitle>
+            <DialogTitle>
+              {editingSignature ? 'Edit Signature' : 'Add New Signature'}
+            </DialogTitle>
           </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -309,7 +346,8 @@ const handleCopy = (id: number) => {
               <div>
                 <FormLabel>Upload Signature Document</FormLabel>
                 <p className="mb-2 text-xs text-gray-500">
-                  Upload a PNG, JPG, or PDF file (recommended: transparent PNG for best results)
+                  Upload a PNG, JPG, or PDF file (recommended: transparent PNG
+                  for best results)
                 </p>
 
                 {!uploadFile && !previewUrl ? (
@@ -401,8 +439,10 @@ const handleCopy = (id: number) => {
                       </svg>
                       {editingSignature ? 'Updating...' : 'Saving...'}
                     </>
+                  ) : editingSignature ? (
+                    'Update'
                   ) : (
-                    editingSignature ? 'Update' : 'Save'
+                    'Save'
                   )}
                 </Button>
               </DialogFooter>

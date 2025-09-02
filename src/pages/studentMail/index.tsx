@@ -79,7 +79,6 @@ const AVAILABLE_VARIABLES = [
   'emergencyRelationship',
   'admin',
   'adminEmail',
-  'applicationLocation',
   'courseName',
   'intake',
   'applicationStatus',
@@ -93,11 +92,12 @@ const styles = StyleSheet.create({
   page: {
     flexDirection: 'column',
     backgroundColor: '#FFFFFF',
-    padding: 30
+    paddingVertical:20,
+    paddingHorizontal:30
   },
   section: {
-    margin: 10,
-    padding: 10,
+    margin: 0,
+    padding: 0,
     flexGrow: 1
   },
   logoContainer: {
@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
   logo: {
     width: 50,
     height: 50,
-    marginLeft: 20
+    marginBottom:10
   },
   title: {
     fontSize: 24,
@@ -122,10 +122,14 @@ const styles = StyleSheet.create({
     fontWeight: 'bold'
   },
   body: {
-    fontSize: 12,
-    lineHeight: 1.5,
+    fontSize: 11,
+    lineHeight: 1.4,
     textAlign: 'justify'
-  }
+  },
+   paragraph: {
+    marginBottom: 0, // consistent spacing between paragraphs
+  },
+  
 });
 
 const EmailPDFDocument = ({ body }: { body: string }) => {
@@ -145,10 +149,10 @@ const EmailPDFDocument = ({ body }: { body: string }) => {
     const after = text.slice(imageUrlMatch.index! + url.length).trim();
 
     return (
-      <View key={index} style={{ flexDirection: 'column', marginBottom: 5 }}>
+      <View key={index} style={{ flexDirection: 'column', marginBottom: 0 }}>
         {before ? <Text style={styles.body}>{before}</Text> : null}
         <Image
-          style={{ width: 100, height: 60, objectFit: 'contain', marginBottom: -20 }}
+          style={{ width: 100, height: 60, objectFit: 'contain', marginTop: -7, marginBottom: -7 }}
           src={url}
         />
         {after ? <Text style={styles.body}>{after}</Text> : null}
@@ -158,10 +162,10 @@ const EmailPDFDocument = ({ body }: { body: string }) => {
 
   // Preserve empty lines
   if (text.trim() === '') {
-    return <Text key={index} style={{ marginBottom: 5 }}>{'\n'}</Text>;
+    return <Text key={index} style={{ marginBottom: -5 }}>{'\n'}</Text>;
   }
 
-  return <Text key={index} style={[styles.body, { marginBottom: 5 }]}>{text}</Text>;
+  return <Text key={index} style={[styles.body, { marginBottom: 1 }]}>{text}</Text>;
 };
 
   return (
@@ -344,101 +348,104 @@ function StudentMailPage() {
       setSending(false);
     }
   };
+const replaceVariables = async (text: string, studentData: any, ) => {
+  let replacedText = text;
 
-  const replaceVariables = async (text: string, studentData: any) => {
-    let replacedText = text;
+  // 1. Replace basic variables (excluding course-related)
+  const basicVariables = AVAILABLE_VARIABLES.filter(
+    (variable) => !['courseName', 'intake', 'applicationStatus', 'applicationDate'].includes(variable)
+  );
 
-    // 1. Replace basic AVAILABLE_VARIABLES
-    AVAILABLE_VARIABLES.forEach((variable) => {
-      let value = studentData?.[variable] || '';
-      if (
-        (variable === 'dateOfBirth' || variable === 'applicationDate') &&
-        value
-      ) {
-        value = moment(value).format('DD MMM, YYYY');
-      }
-      if (variable === 'todayDate') {
-        value = moment().format('DD MMM, YYYY');
-      }
-
-      // Admin overrides
-      if (variable === 'admin') value = 'Watney College';
-      if (variable === 'adminEmail') value = 'info@watneycollege.co.uk';
-
-      const regex = new RegExp(`\\[${variable}\\]`, 'g');
-      replacedText = replacedText.replace(regex, value);
-    });
-
-    // 2. Replace [todayDate] directly
-    replacedText = replacedText.replace(
-      /\[todayDate\]/g,
-      moment().format('DD MMM, YYYY')
-    );
-
-    // 3. Handle [signature id="1"] tags
-    const signatureRegex = /\[signature\s+id=["'](\d+)["']\]/g;
-    const signatureMatches = [...replacedText.matchAll(signatureRegex)];
-
-    const signaturePromises = signatureMatches.map(async (match) => {
-      const signatureId = match[1];
-      const placeholder = match[0]; // Use the full match as placeholder
-
-      try {
-        const res = await axiosInstance.get(
-          `/signature?signatureId=${signatureId}`
-        );
-        const url = res.data.data?.result[0]?.documentUrl;
-        return {
-          placeholder,
-          replacement: url
-        };
-      } catch (error) {
-        return {
-          placeholder,
-          replacement: '[Signature]'
-        };
-      }
-    });
-
-    // 4. Handle [courseCode="LEVEL25"] tags
-    const courseCodeRegex = /\[courseCode=["']([^"']+)["']\]/g;
-    const courseCodeMatches = [...replacedText.matchAll(courseCodeRegex)];
-
-    const courseCodePromises = courseCodeMatches.map(async (match) => {
-      const courseCode = match[1];
-      const placeholder = match[0]; // Use the full match as placeholder
-
-      try {
-        const res = await axiosInstance.get(
-          `/course-code?courseCode=${courseCode}`
-        );
-        const courseName = res.data.data?.result[0]?.course;
-        return {
-          placeholder,
-          replacement: courseName
-        };
-      } catch (error) {
-        return {
-          placeholder,
-          replacement: courseCode
-        };
-      }
-    });
-
-    // 5. Wait for all async replacements and apply them
-    const allPromises = [...signaturePromises, ...courseCodePromises];
-
-    if (allPromises.length > 0) {
-      const replacements = await Promise.all(allPromises);
-
-      // Apply all replacements to the text
-      replacements.forEach(({ placeholder, replacement }) => {
-        replacedText = replacedText.replace(placeholder, replacement);
-      });
+  basicVariables.forEach((variable) => {
+    let value = studentData?.[variable] || '';
+    if (variable === 'dateOfBirth' && value) {
+      value = moment(value).format('DD MMM, YYYY');
     }
+    // Admin overrides
+    if (variable === 'admin') value = 'Watney College';
+    if (variable === 'adminEmail') value = 'info@watneycollege.co.uk';
 
-    return replacedText;
-  };
+    replacedText = replacedText.replace(new RegExp(`\\[${variable}\\]`, 'g'), value);
+  });
+
+  // 2. Replace [todayDate] directly
+  replacedText = replacedText.replace(/\[todayDate\]/g, moment().format('DD MMM, YYYY'));
+
+  // 3. Handle course-related variables
+  if (applicationId) {
+    try {
+      const courseRes = await axiosInstance.get(`/application-course/${applicationId}`);
+      const data = courseRes.data.data;
+
+      const courseName = data?.courseId?.name || '';
+      const intake = data?.intakeId?.termName || '';
+      const applicationStatus = data?.status || '';
+      const applicationDate = data?.createdAt ? moment(data.createdAt).format('DD MMM, YYYY') : '';
+
+      replacedText = replacedText
+        .replace(/\[courseName\]/g, courseName)
+        .replace(/\[intake\]/g, intake)
+        .replace(/\[applicationStatus\]/g, applicationStatus)
+        .replace(/\[applicationDate\]/g, applicationDate);
+
+    } catch (error) {
+      console.error('Failed to fetch course info:', error);
+    }
+  } else {
+    // No applicationId: replace with empty string
+    replacedText = replacedText
+      .replace(/\[courseName\]/g, '')
+      .replace(/\[intake\]/g, '')
+      .replace(/\[applicationStatus\]/g, '')
+      .replace(/\[applicationDate\]/g, '');
+  }
+
+  // 4. Handle [signature id="1"] tags
+  const signatureRegex = /\[signature\s+id=["'](\d+)["']\]/g;
+  const signatureMatches = [...replacedText.matchAll(signatureRegex)];
+
+  const signaturePromises = signatureMatches.map(async (match) => {
+    const signatureId = match[1];
+    const placeholder = match[0];
+
+    try {
+      const res = await axiosInstance.get(`/signature?signatureId=${signatureId}`);
+      const url = res.data.data?.result[0]?.documentUrl;
+      return { placeholder, replacement: url };
+    } catch (error) {
+      return { placeholder, replacement: '[Signature]' };
+    }
+  });
+
+  // 5. Handle [courseCode="LEVEL25"] tags
+  const courseCodeRegex = /\[courseCode=["']([^"']+)["']\]/g;
+  const courseCodeMatches = [...replacedText.matchAll(courseCodeRegex)];
+
+  const courseCodePromises = courseCodeMatches.map(async (match) => {
+    const courseCode = match[1];
+    const placeholder = match[0];
+
+    try {
+      const res = await axiosInstance.get(`/course-code?courseCode=${courseCode}`);
+      const courseName = res.data.data?.result[0]?.course;
+      return { placeholder, replacement: courseName };
+    } catch (error) {
+      return { placeholder, replacement: courseCode };
+    }
+  });
+
+  // 6. Wait for all async replacements
+  const allPromises = [...signaturePromises, ...courseCodePromises];
+  if (allPromises.length > 0) {
+    const replacements = await Promise.all(allPromises);
+    replacements.forEach(({ placeholder, replacement }) => {
+      replacedText = replacedText.replace(placeholder, replacement);
+    });
+  }
+
+  return replacedText;
+};
+
   const handleDownloadPdf = async () => {
     if (!selectedPdfDraft || !studentData || !studentName) {
       toast({

@@ -63,7 +63,6 @@ const AVAILABLE_VARIABLES = [
   'emergencyRelationship',
   'admin',
   'adminEmail',
-  'applicationLocation'
 ];
 const EXAMPLE_VALUES = {
   name: 'John Doe',
@@ -95,7 +94,6 @@ const EXAMPLE_VALUES = {
   emergencyRelationship: 'Sister',
   admin: 'Example College',
   adminEmail: 'info@examplecollege.ac.uk',
-  applicationLocation: 'Online Portal',
   courseName: 'Computer Science Masters',
   intake: 'January 2026',
   applicationStatus: 'pending',
