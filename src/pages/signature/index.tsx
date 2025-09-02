@@ -209,21 +209,23 @@ const handleCopy = (id: number) => {
               {signatures.map((sig) => (
                 <TableRow key={sig._id}>
                   <TableCell>{sig.name}</TableCell>
-                  <TableCell className="flex items-center gap-2">
-                    <span className="font-mono text-sm">{sig.signatureId}</span>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleCopy(sig.signatureId)}
-                      className="p-1"
-                    >
-                      {copiedId === sig.signatureId ? (
-                        <Check className="h-4 w-4 text-green-500" />
-                      ) : (
-                        <Copy className="h-4 w-4" />
-                      )}
-                    </Button>
-                  </TableCell>
+                 <TableCell className="flex items-center gap-2">
+  <span className="font-mono text-sm">{`[signature id="${sig.signatureId}"]`}</span>
+  <Button
+    variant="ghost"
+    size="icon"
+    className="p-1"
+    onClick={() => handleCopy(sig.signatureId)}
+  >
+    {copiedId === sig.signatureId ? (
+      <Check className="h-4 w-4 text-green-500" />
+    ) : (
+      <Copy className="h-4 w-4" />
+    )}
+  </Button>
+</TableCell>
+
+
                   <TableCell>
                     {sig.documentUrl ? (
                       <a

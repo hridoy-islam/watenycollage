@@ -133,34 +133,36 @@ const EmailPDFDocument = ({ body }: { body: string }) => {
   const lines = body.split('\n');
 
   // Helper to process each line: detect image URLs or placeholders
-  const renderNode = (text: string, index: number) => {
-    const trimmed = text.trim();
+ const renderNode = (text: string, index: number) => {
+  // Match image URL
+  const imageUrlMatch = text.match(
+    /(https?:\/\/.*\.(?:png|jpg|jpeg|gif|webp))(?:\s|$)/i
+  );
 
-    // Match image URL (simple heuristic: ends with image extension)
-    const imageUrlMatch = trimmed.match(
-      /(https?:\/\/.*\.(?:png|jpg|jpeg|gif|webp))(?:\s|$)/i
+  if (imageUrlMatch) {
+    const url = imageUrlMatch[1];
+    const before = text.slice(0, imageUrlMatch.index);
+    const after = text.slice(imageUrlMatch.index! + url.length).trim();
+
+    return (
+      <View key={index} style={{ flexDirection: 'column', marginBottom: 5 }}>
+        {before ? <Text style={styles.body}>{before}</Text> : null}
+        <Image
+          style={{ width: 100, height: 60, objectFit: 'contain', marginBottom: -20 }}
+          src={url}
+        />
+        {after ? <Text style={styles.body}>{after}</Text> : null}
+      </View>
     );
+  }
 
-    if (imageUrlMatch) {
-      const url = imageUrlMatch[1];
-      const before = text.slice(0, imageUrlMatch.index);
-      const after = text.slice(imageUrlMatch.index! + url.length).trim();
+  // Preserve empty lines
+  if (text.trim() === '') {
+    return <Text key={index} style={{ marginBottom: 5 }}>{'\n'}</Text>;
+  }
 
-      return (
-        <View key={index} style={{ flexDirection: 'column',  }}>
-          {before ? <Text style={styles.body}>{before}</Text> : null}
-          <Image
-            style={{ width: 120, height: 60, marginTop: 5, objectFit: 'contain' }}
-            src={url}
-          />
-          {after ? <Text style={styles.body}>{after}</Text> : null}
-        </View>
-      );
-    }
-
-    // Default: render as text
-    return <Text key={index} style={styles.body}>{trimmed}</Text>;
-  };
+  return <Text key={index} style={[styles.body, { marginBottom: 5 }]}>{text}</Text>;
+};
 
   return (
     <Document>
