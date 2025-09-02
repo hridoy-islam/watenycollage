@@ -31,7 +31,7 @@ import {
   View,
   StyleSheet,
   pdf,
-  Image 
+  Image
 } from '@react-pdf/renderer';
 
 // Types
@@ -83,8 +83,11 @@ const AVAILABLE_VARIABLES = [
   'courseName',
   'intake',
   'applicationStatus',
-  'applicationDate'
+  'applicationDate',
+  'todayDate'
 ];
+
+const DYNAMIC_VARIABLES = ['signature id="1"', 'courseCode="1"'];
 
 const styles = StyleSheet.create({
   page: {
@@ -100,12 +103,12 @@ const styles = StyleSheet.create({
   logoContainer: {
     width: '100%',
     flexDirection: 'row',
-    justifyContent: 'flex-end', 
-    
+    justifyContent: 'flex-start'
   },
   logo: {
-    width: 60, 
-    height: 60,
+    width: 50,
+    height: 50,
+    marginLeft: 20
   },
   title: {
     fontSize: 24,
@@ -125,20 +128,55 @@ const styles = StyleSheet.create({
   }
 });
 
-const EmailPDFDocument = ({ body }: { body: string }) => (
-  <Document>
-    <Page size="A4" style={styles.page}>
-      {/* Logo Top Right */}
-      <View style={styles.logoContainer}>
-        <Image src="/logo.png" style={styles.logo} />
-      </View>
+const EmailPDFDocument = ({ body }: { body: string }) => {
+  // Split body by line breaks
+  const lines = body.split('\n');
 
-      <View style={styles.section}>
-        <Text style={styles.body}>{body}</Text>
-      </View>
-    </Page>
-  </Document>
-);
+  // Helper to process each line: detect image URLs or placeholders
+  const renderNode = (text: string, index: number) => {
+    const trimmed = text.trim();
+
+    // Match image URL (simple heuristic: ends with image extension)
+    const imageUrlMatch = trimmed.match(
+      /(https?:\/\/.*\.(?:png|jpg|jpeg|gif|webp))(?:\s|$)/i
+    );
+
+    if (imageUrlMatch) {
+      const url = imageUrlMatch[1];
+      const before = text.slice(0, imageUrlMatch.index);
+      const after = text.slice(imageUrlMatch.index! + url.length).trim();
+
+      return (
+        <View key={index} style={{ flexDirection: 'column',  }}>
+          {before ? <Text style={styles.body}>{before}</Text> : null}
+          <Image
+            style={{ width: 120, height: 60, marginTop: 5, objectFit: 'contain' }}
+            src={url}
+          />
+          {after ? <Text style={styles.body}>{after}</Text> : null}
+        </View>
+      );
+    }
+
+    // Default: render as text
+    return <Text key={index} style={styles.body}>{trimmed}</Text>;
+  };
+
+  return (
+    <Document>
+      <Page size="A4" style={styles.page}>
+        {/* Logo Top Right */}
+        <View style={styles.logoContainer}>
+          <Image src="/logo.png" style={styles.logo} />
+        </View>
+
+        <View style={styles.section}>
+          {lines.map((line, i) => renderNode(line, i))}
+        </View>
+      </Page>
+    </Document>
+  );
+};
 
 function StudentMailPage() {
   const navigate = useNavigate();
@@ -308,24 +346,20 @@ function StudentMailPage() {
   const replaceVariables = async (text: string, studentData: any) => {
     let replacedText = text;
 
-    // Create a copy of AVAILABLE_VARIABLES excluding course-related variables
-    const basicVariables = AVAILABLE_VARIABLES.filter(
-      (variable) =>
-        ![
-          'courseName',
-          'intake',
-          'applicationStatus',
-          'applicationDate'
-        ].includes(variable)
-    );
-
-    // First, replace basic AVAILABLE_VARIABLES from studentData (excluding course variables)
-    basicVariables.forEach((variable) => {
+    // 1. Replace basic AVAILABLE_VARIABLES
+    AVAILABLE_VARIABLES.forEach((variable) => {
       let value = studentData?.[variable] || '';
-      if (variable === 'dateOfBirth' && value) {
+      if (
+        (variable === 'dateOfBirth' || variable === 'applicationDate') &&
+        value
+      ) {
         value = moment(value).format('DD MMM, YYYY');
       }
-      // Override admin variables
+      if (variable === 'todayDate') {
+        value = moment().format('DD MMM, YYYY');
+      }
+
+      // Admin overrides
       if (variable === 'admin') value = 'Watney College';
       if (variable === 'adminEmail') value = 'info@watneycollege.co.uk';
 
@@ -333,49 +367,76 @@ function StudentMailPage() {
       replacedText = replacedText.replace(regex, value);
     });
 
-    // Then handle course-related variables separately
-    if (applicationId) {
+    // 2. Replace [todayDate] directly
+    replacedText = replacedText.replace(
+      /\[todayDate\]/g,
+      moment().format('DD MMM, YYYY')
+    );
+
+    // 3. Handle [signature id="1"] tags
+    const signatureRegex = /\[signature\s+id=["'](\d+)["']\]/g;
+    const signatureMatches = [...replacedText.matchAll(signatureRegex)];
+
+    const signaturePromises = signatureMatches.map(async (match) => {
+      const signatureId = match[1];
+      const placeholder = match[0]; // Use the full match as placeholder
+
       try {
-        const courseRes = await axiosInstance.get(
-          `/application-course/${applicationId}`
+        const res = await axiosInstance.get(
+          `/signature?signatureId=${signatureId}`
         );
-
-        const data = courseRes.data.data;
-
-        const courseName = data?.courseId?.name || '';
-        const intake = data?.intakeId?.termName || '';
-        const applicationStatus = data?.status || '';
-        const applicationDate = data?.createdAt
-          ? moment(data.createdAt).format('DD MMM, YYYY')
-          : '';
-
-        console.log('Replacing course variables:', {
-          courseName,
-          intake,
-          applicationStatus,
-          applicationDate
-        });
-
-        replacedText = replacedText
-          .replace(/\[courseName\]/g, courseName)
-          .replace(/\[intake\]/g, intake)
-          .replace(/\[applicationStatus\]/g, applicationStatus)
-          .replace(/\[applicationDate\]/g, applicationDate);
-
-        console.log('Text after course replacement:', replacedText);
+        const url = res.data.data?.result[0]?.documentUrl;
+        return {
+          placeholder,
+          replacement: url
+        };
       } catch (error) {
-        console.error('Failed to fetch course info:', error);
+        return {
+          placeholder,
+          replacement: '[Signature]'
+        };
       }
-    } else {
-      console.log(
-        'No applicationId, replacing course variables with empty strings'
-      );
+    });
+
+    // 4. Handle [courseCode="LEVEL25"] tags
+    const courseCodeRegex = /\[courseCode=["']([^"']+)["']\]/g;
+    const courseCodeMatches = [...replacedText.matchAll(courseCodeRegex)];
+
+    const courseCodePromises = courseCodeMatches.map(async (match) => {
+      const courseCode = match[1];
+      const placeholder = match[0]; // Use the full match as placeholder
+
+      try {
+        const res = await axiosInstance.get(
+          `/course-code?courseCode=${courseCode}`
+        );
+        const courseName = res.data.data?.result[0]?.course?.name;
+        return {
+          placeholder,
+          replacement: courseName
+        };
+      } catch (error) {
+        return {
+          placeholder,
+          replacement: courseCode
+        };
+      }
+    });
+
+    // 5. Wait for all async replacements and apply them
+    const allPromises = [...signaturePromises, ...courseCodePromises];
+
+    if (allPromises.length > 0) {
+      const replacements = await Promise.all(allPromises);
+
+      // Apply all replacements to the text
+      replacements.forEach(({ placeholder, replacement }) => {
+        replacedText = replacedText.replace(placeholder, replacement);
+      });
     }
 
-    console.log('Final replaced text:', replacedText);
     return replacedText;
   };
-
   const handleDownloadPdf = async () => {
     if (!selectedPdfDraft || !studentData || !studentName) {
       toast({

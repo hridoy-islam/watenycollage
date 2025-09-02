@@ -383,7 +383,24 @@ export default function ViewStudentApplicationPage() {
           </div>
         </div>
 
-        <PDFGenerator application={application} />
+        <div className="flex flex-row items-center gap-4 ">
+          <Button
+            className="bg-watney text-white hover:bg-watney/90"
+            onClick={() => {
+              if (application?.role === 'student') {
+                if (application.studentType === 'eu') {
+                  navigate('edit/eu');
+                } else if (application.studentType === 'international') {
+                  navigate('edit/international');
+                }
+              }
+            }}
+          >
+            Edit
+          </Button>
+
+          <PDFGenerator application={application} />
+        </div>
       </div>
       <div className=" p-4 pb-5">
         <Tabs

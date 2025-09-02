@@ -50,10 +50,24 @@ export function EmergencyContact({
       emergencyAddress: defaultValues?.emergencyAddress || ''
     }
   });
+const capitalizeWords = (str: string | undefined): string => {
+  if (!str) return '';
+  return str
+    .trim()
+    .toLowerCase()
+    .split(/\s+/)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+ function onSubmit(data: ContactData) {
+  const formattedData: ContactData = {
+    ...data,
+    emergencyFullName: capitalizeWords(data.emergencyFullName),
+    emergencyAddress: capitalizeWords(data.emergencyAddress),
+  };
 
-  function onSubmit(data: ContactData) {
-    onSaveAndContinue(data);
-  }
+  onSaveAndContinue(formattedData);
+}
 
   function handleBack() {
     setCurrentStep(2);

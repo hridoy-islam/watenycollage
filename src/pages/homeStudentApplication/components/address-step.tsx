@@ -85,9 +85,37 @@ export function AddressStep({
     }
   };
 
-  function onSubmit(data: AddressData) {
-    onSaveAndContinue(data);
-  }
+  const capitalizeWords = (str: string | undefined): string => {
+  if (!str) return '';
+  return str
+    .trim()
+    .toLowerCase()
+    .split(/\s+/)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
+// Convert post code to uppercase and clean extra spaces
+const formatPostCode = (str: string | undefined): string => {
+  if (!str) return '';
+  return str.trim().toUpperCase();
+};
+
+function onSubmit(data: AddressData) {
+  const formattedData: AddressData = {
+    ...data,
+    residentialAddressLine1: capitalizeWords(data.residentialAddressLine1),
+    residentialAddressLine2: capitalizeWords(data.residentialAddressLine2),
+    residentialCity: capitalizeWords(data.residentialCity),
+    residentialPostCode: formatPostCode(data.residentialPostCode),
+    postalAddressLine1: capitalizeWords(data.postalAddressLine1),
+    postalAddressLine2: capitalizeWords(data.postalAddressLine2),
+    postalCity: capitalizeWords(data.postalCity),
+    postalPostCode: formatPostCode(data.postalPostCode)
+  };
+
+  onSaveAndContinue(formattedData);
+}
 
   function handleBack() {
     setCurrentStep(1);

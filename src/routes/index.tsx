@@ -33,6 +33,11 @@ import HomeStudentApplication from '@/pages/homeStudentApplication';
 import InternationalStudentApplication from '@/pages/internationalStudentApplication';
 import StudentMailPage from '@/pages/studentMail';
 import TemplatePage from '@/pages/template';
+import CourseCodePage from '@/pages/course-code';
+import SignaturePage from '@/pages/signature';
+import InternationalStudentProfile from '@/pages/application/editProfile/profile-internationalStudent';
+import EuStudentProfile from '@/pages/application/editProfile/profile-euStudent';
+import ApplicantEditProfile from '@/pages/application/editProfile/profile-applicant';
 
 const SignInPage = lazy(() => import('@/pages/auth/signin/index'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
@@ -95,8 +100,20 @@ export default function AppRouter() {
         element: withRole(<ViewStudentApplicationPage />, ['admin','student'])
       },
       {
+        path: 'student-application/:id/edit/eu',
+        element: withRole(<EuStudentProfile />, ['admin','student'])
+      },
+      {
+        path: 'student-application/:id/edit/international',
+        element: withRole(<InternationalStudentProfile />, ['admin','student'])
+      },
+      {
         path: 'career-application/:id/:userId',
         element: withRole(<ViewCareerApplicationPage />, ['admin','applicant'])
+      },
+      {
+        path: 'career-application/:id/:userId/edit',
+        element: withRole(<ApplicantEditProfile />, ['admin','applicant'])
       },
       {
         path: 'courses',
@@ -151,6 +168,16 @@ export default function AppRouter() {
       {
         path: 'template',
         element: withRole(<TemplatePage />, ['admin',]),
+        index: true
+      },
+      {
+        path: 'course-code',
+        element: withRole(<CourseCodePage />, ['admin',]),
+        index: true
+      },
+      {
+        path: 'signature',
+        element: withRole(<SignaturePage />, ['admin',]),
         index: true
       }
     ]

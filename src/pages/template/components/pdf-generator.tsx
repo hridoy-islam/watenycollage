@@ -36,7 +36,10 @@ const MOCK_DATA = {
   courseName: 'Exam Preparation Courses',
   intake:'September 2025',
   applicationStatus:'applied',
-  applicationDate:'2025-05-15'
+  applicationDate:'2025-05-15',
+  'signature id="1"': 'John Doe Signature',
+  'courseCode="1"': 'Computer Science',
+  todayDate: '2025-06-01'
 }
 
 // PDF styles
@@ -54,12 +57,15 @@ const styles = StyleSheet.create({
   logoContainer: {
     width: "100%",
     flexDirection: "row",
-    justifyContent: "flex-end",
+    justifyContent: "flex-start",
+    
     
   },
   logo: {
-    width: 60,
-    height: 60,
+    width: 50,
+    height: 50,
+    marginLeft:20
+    
   },
   title: {
     fontSize: 18,

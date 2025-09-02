@@ -69,10 +69,29 @@ export function RefereeDetailsStep({
   }
 });
 
+const capitalizeWords = (str: string | undefined): string => {
+  if (!str) return '';
+  return str
+    .trim()
+    .toLowerCase()
+    .split(/\s+/)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
 
-  const onSubmit = (data: RefereeFormValues) => {
-    console.log(data)
-    onSaveAndContinue(data);
+    const onSubmit = (data: RefereeFormValues) => {
+    const formattedData = {
+      referee1: {
+        ...data.referee1,
+       
+        address: capitalizeWords(data.referee1.address)
+      },
+      referee2: {
+        ...data.referee2,
+        address: capitalizeWords(data.referee2.address)
+      }
+    };
+    onSaveAndContinue(formattedData);
   };
    function handleBack() {
     setCurrentStep(7);

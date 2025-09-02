@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { Copy } from 'lucide-react';
+import { Copy, Search } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -29,6 +29,7 @@ const formSchema = z.object({
 });
 
 const AVAILABLE_VARIABLES = [
+  'todayDate',
   'courseName',
   'intake',
   'applicationStatus',
@@ -64,44 +65,47 @@ const AVAILABLE_VARIABLES = [
   'adminEmail',
   'applicationLocation'
 ];
-
-// Example values for each variable (for demonstration)
 const EXAMPLE_VALUES = {
-  name: 'Jane Doe',
-  title: 'Ms',
-  firstName: 'Jane',
+  name: 'John Doe',
+  title: 'Mr',
+  firstName: 'John',
   lastName: 'Doe',
-  phone: '+1 (555) 123-4567',
-  email: 'jane.doe@example.com',
-  countryOfBirth: 'United States',
-  nationality: 'American',
-  countryOfResidence: 'Canada',
-  dateOfBirth: '1990-05-15',
-  ethnicity: 'Hispanic',
-  gender: 'Female',
-  postalAddressLine1: '123 Main St',
-  postalAddressLine2: 'Apt 4B',
-  postalCity: 'New York',
-  postalCountry: 'USA',
-  postalPostCode: '10001',
-  residentialAddressLine1: '456 Oak Ave',
+  phone: '+44 7700 900123',
+  email: 'john.doe@example.com',
+  countryOfBirth: 'UK',
+  nationality: 'British',
+  countryOfResidence: 'UK',
+  dateOfBirth: '1992-08-21',
+  ethnicity: 'Caucasian',
+  gender: 'Male',
+  postalAddressLine1: '221B Baker Street',
+  postalAddressLine2: '',
+  postalCity: 'London',
+  postalCountry: 'UK',
+  postalPostCode: 'NW1 6XE',
+  residentialAddressLine1: '10 Downing St',
   residentialAddressLine2: '',
-  residentialCity: 'Toronto',
-  residentialCountry: 'Canada',
-  residentialPostCode: 'M5V 3L9',
-  emergencyAddress: '789 Pine Rd, Vancouver, CA',
-  emergencyContactNumber: '+1 (555) 987-6543',
+  residentialCity: 'London',
+  residentialCountry: 'UK',
+  residentialPostCode: 'SW1A 2AA',
+  emergencyAddress: '5 Fleet Street, London, UK',
+  emergencyContactNumber: '+44 7700 900456',
   emergencyEmail: 'emergency.contact@example.com',
-  emergencyFullName: 'John Smith',
-  emergencyRelationship: 'Brother',
-  admin: 'Watney College',
-  adminEmail: 'info@watneycollege.co.uk',
+  emergencyFullName: 'Jane Doe',
+  emergencyRelationship: 'Sister',
+  admin: 'Example College',
+  adminEmail: 'info@examplecollege.ac.uk',
   applicationLocation: 'Online Portal',
-  courseName: 'Exam Preparation Courses',
-  intake: 'September 2025',
-  applicationStatus: 'applied',
-  applicationDate: '2025-05-15'
+  courseName: 'Computer Science Masters',
+  intake: 'January 2026',
+  applicationStatus: 'pending',
+  applicationDate: '2025-09-01',
+  'signature id="1"': 'John Doe Signature',
+  'courseCode="1"': 'Computer Science',
+  todayDate: '2025-06-01'
 };
+
+const DYNAMIC_VARIABLES = ['signature id="1"', 'courseCode="1"'];
 
 export function EmailDraftDialog({
   open,
@@ -111,49 +115,45 @@ export function EmailDraftDialog({
 }) {
   const form = useForm({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      subject: '',
-      body: ''
-    }
+    defaultValues: { subject: '', body: '' }
   });
 
-  const [copiedVar, setCopiedVar] = useState(null); // Track which variable was copied
+  const [copiedVar, setCopiedVar] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState(''); // <-- Search state
 
   useEffect(() => {
     if (initialData) {
-      form.reset({
-        subject: initialData.subject,
-        body: initialData.body
-      });
+      form.reset({ subject: initialData.subject, body: initialData.body });
     } else {
-      form.reset({
-        subject: '',
-        body: ''
-      });
+      form.reset({ subject: '', body: '' });
     }
   }, [initialData, form]);
 
-  const handleSubmit = (data) => {
+  const handleSubmit = (data: any) => {
     onSubmit(data);
     onOpenChange(false);
   };
 
-  const handleCopy = (variable) => {
-    const varWithBrackets = `[${variable}]`;
+  const handleCopy = (variable: string) => {
+    const varText = `[${variable}]`;
     navigator.clipboard
-      .writeText(varWithBrackets)
+      .writeText(varText)
       .then(() => {
         setCopiedVar(variable);
-        setTimeout(() => setCopiedVar(null), 1500); // Reset after 1.5s
+        setTimeout(() => setCopiedVar(null), 1500);
       })
-      .catch((err) => {
-        console.error('Failed to copy: ', err);
-      });
+      .catch(console.error);
   };
+
+  // Filter variables based on search query (case-insensitive)
+  const filteredVariables = [
+    ...AVAILABLE_VARIABLES,
+    ...DYNAMIC_VARIABLES
+  ].filter((v) => v.toLowerCase().includes(searchQuery.toLowerCase()));
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="overflow-y-auto sm:max-h-screen sm:max-w-6xl">
+      <DialogContent className="overflow-y-auto sm:min-h-[96vh] sm:min-w-[96vw]">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">
             {initialData ? 'Edit Email Template' : 'Create New Email Template'}
@@ -170,17 +170,30 @@ export function EmailDraftDialog({
             onSubmit={form.handleSubmit(handleSubmit)}
             className="grid grid-cols-1 gap-6 md:grid-cols-5"
           >
-            {/* Left Side - Variables with Examples */}
+            {/* Left Panel: Variables */}
             <div className="md:col-span-2">
               <h3 className="mb-3 text-sm font-semibold text-gray-700">
                 Available Variables
               </h3>
-              <div className="max-h-80 overflow-y-auto rounded-md border border-gray-200 bg-gray-50 p-3">
+
+              {/* Search Input */}
+              <div className="mb-3 flex items-center gap-2">
+                <Search className="h-4 w-4 text-gray-400" />
+                <Input
+                  type="text"
+                  placeholder="Search variables..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full"
+                />
+              </div>
+
+              <div className="max-h-[70vh] overflow-y-auto rounded-md border border-gray-200 bg-gray-50 p-3">
                 <ul className="space-y-2">
-                  {AVAILABLE_VARIABLES.map((v) => (
+                  {filteredVariables.map((v, idx) => (
                     <li
-                      key={v}
-                      className="flex flex-col rounded bg-white p-3 shadow-sm "
+                      key={`${v}-${idx}`}
+                      className="flex flex-col rounded bg-white p-3 shadow-sm"
                     >
                       <div className="flex items-center justify-between">
                         <code className="font-mono text-xs text-blue-700">{`[${v}]`}</code>
@@ -190,45 +203,30 @@ export function EmailDraftDialog({
                           size="icon"
                           className="h-6 w-6 p-0 text-gray-500 hover:text-blue-600"
                           onClick={() => handleCopy(v)}
-                          aria-label={`Copy [${v}]`}
                         >
                           {copiedVar === v ? (
-                            <span
-                              className="text-xs text-green-600"
-                              aria-label="Copied!"
-                            >
-                              ✓
-                            </span>
+                            <span className="text-xs text-green-600">✓</span>
                           ) : (
                             <Copy className="h-4 w-4" />
                           )}
                         </Button>
                       </div>
-
-                      {/* Example Value */}
-                      <span className="mt-1 text-xs text-gray-600">
-                        Example:{' '}
-                        <span className="font-mono text-gray-800">
-                          {EXAMPLE_VALUES[v]}
+                      {EXAMPLE_VALUES[v] && (
+                        <span className="mt-1 text-xs text-gray-600">
+                          Example:{' '}
+                          <span className="font-mono text-gray-800">
+                            {EXAMPLE_VALUES[v]}
+                          </span>
                         </span>
-                      </span>
+                      )}
                     </li>
                   ))}
                 </ul>
               </div>
-              <p className="mt-2 text-xs text-gray-500">
-                Click <Copy className="inline h-3 w-3 align-text-top" /> to copy
-                a variable like{' '}
-                <code className="rounded bg-gray-200 px-1 text-xs">
-                  [firstName]
-                </code>
-                . Paste it into body.
-              </p>
             </div>
 
-            {/* Right Side - Form */}
+            {/* Right Panel: Form */}
             <div className="space-y-4 md:col-span-3">
-              {/* Subject */}
               <FormField
                 control={form.control}
                 name="subject"
@@ -243,7 +241,6 @@ export function EmailDraftDialog({
                 )}
               />
 
-              {/* Body */}
               <FormField
                 control={form.control}
                 name="body"
@@ -254,8 +251,8 @@ export function EmailDraftDialog({
                       <textarea
                         value={field.value}
                         onChange={field.onChange}
-                        className="h-60 w-full resize-none rounded-md border border-gray-300 p-3 focus:border-blue-500 focus:outline-none"
-                        placeholder="Write your email content. You can paste variables like [firstName] here."
+                        className="min-h-[60vh] w-full resize-none rounded-md border border-gray-300 p-3 focus:border-blue-500 focus:outline-none"
+                        placeholder="Write your email content. Paste variables like [firstName] or [signature id='1']."
                       />
                     </FormControl>
                     <FormMessage />
@@ -263,7 +260,14 @@ export function EmailDraftDialog({
                 )}
               />
 
-              <DialogFooter>
+              <DialogFooter className="flex justify-between">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => onOpenChange(false)}
+                >
+                  Cancel
+                </Button>
                 <Button
                   type="submit"
                   className="bg-watney text-white hover:bg-watney/90"

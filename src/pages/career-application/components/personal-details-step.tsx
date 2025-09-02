@@ -45,6 +45,18 @@ const yesNoOptions = [
   { value: false, label: 'No' }
 ];
 
+
+// Helper to capitalize each word in a string
+const capitalizeWords = (str: string | undefined): string => {
+  if (!str) return '';
+  return str
+    .toLowerCase()
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
+
 export const personalDetailsSchema = z
   .object({
     title: z.string().min(1, { message: 'Title is required' }),
@@ -142,7 +154,26 @@ export function PersonalDetailsStep({
   }, [defaultValues, form]);
 
   const onSubmit = (data: PersonalDetailsFormValues) => {
-    onSaveAndContinue(data);
+    const formattedData = {
+    ...data,
+    // Ensure postal code is uppercase
+    postalPostCode: data.postalPostCode?.toUpperCase().trim(),
+    prevPostalPostCode: data.prevPostalPostCode?.toUpperCase().trim(),
+
+    // Capitalize address fields: each word's first letter uppercase
+    postalAddressLine1: capitalizeWords(data.postalAddressLine1),
+    postalAddressLine2: capitalizeWords(data.postalAddressLine2),
+    postalCity: capitalizeWords(data.postalCity),
+    prevPostalAddressLine1: capitalizeWords(data.prevPostalAddressLine1),
+    prevPostalAddressLine2: capitalizeWords(data.prevPostalAddressLine2),
+    prevPostalCity: capitalizeWords(data.prevPostalCity),
+
+    // Also format nationality and country fields if needed
+    postalCountry: data.postalCountry,
+    prevPostalCountry: data.prevPostalCountry,
+  };
+
+  onSaveAndContinue(formattedData);
   };
 
   const handleBack = () => {

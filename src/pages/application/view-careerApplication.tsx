@@ -368,11 +368,22 @@ export default function ViewCareerApplicationPage() {
         >
           <MoveLeft /> Back
         </Button>
-        <div className='font-semibold'>{applicationJob?.jobId?.jobTitle}</div>
+        <div className="font-semibold">{applicationJob?.jobId?.jobTitle}</div>
+<div className='flex flex-row gap-2'>
+
+        <Button
+          className="bg-watney text-white hover:bg-watney/90"
+          onClick={() => {
+            navigate('edit');
+          }}
+          >
+          Edit
+        </Button>
         <PDFGenerator
           application={application}
           applicationJob={applicationJob}
         />
+          </div>
       </div>
       <div className=" p-4 pb-5">
         <Tabs
@@ -710,7 +721,6 @@ export default function ViewCareerApplicationPage() {
                       application?.canWorkInUK ? 'Yes' : 'No',
                       'canWorkInUK'
                     )}
-                 
                   </TableBody>
                 </Table>
               </CardContent>

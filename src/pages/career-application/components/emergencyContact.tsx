@@ -50,9 +50,23 @@ export function EmergencyContact({
       emergencyAddress: defaultValues?.emergencyAddress || ''
     }
   });
+  const capitalizeWords = (str: string | undefined): string => {
+  if (!str) return '';
+  return str
+    .trim()
+    .toLowerCase()
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
 
   function onSubmit(data: ContactData) {
-    onSaveAndContinue(data);
+    const formattedData = {
+      ...data,
+      emergencyAddress: capitalizeWords(data.emergencyAddress),
+    };
+    onSaveAndContinue(formattedData);
   }
 
   function handleBack() {
