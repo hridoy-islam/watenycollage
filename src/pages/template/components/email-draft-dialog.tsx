@@ -63,6 +63,7 @@ const AVAILABLE_VARIABLES = [
   'emergencyRelationship',
   'admin',
   'adminEmail',
+  'studentId'
 ];
 const EXAMPLE_VALUES = {
   name: 'John Doe',
@@ -100,7 +101,8 @@ const EXAMPLE_VALUES = {
   applicationDate: '2025-09-01',
   'courseCode="ENG23"': '[courseCode="ENG231"] Represents the course with code ENG23',
   'signature id="1"': '[signature id="1"] Represents the signature with ID 1',
-  todayDate: '2025-06-01 Represents the current date'
+  todayDate: '2025-06-01 Represents the current date',
+  studentId:'WC250603001'
 };
 
 const DYNAMIC_VARIABLES = ['signature id="1"', 'courseCode="ENG23"'];

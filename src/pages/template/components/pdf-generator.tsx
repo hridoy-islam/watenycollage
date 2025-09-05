@@ -40,6 +40,7 @@ const MOCK_DATA: Record<string, string> = {
   'signature id="1"': "/demosign.png", // 👈 will be rendered as an Image
   'courseCode="1"': "Computer Science",
   todayDate: moment().format("DD MMM, YYYY"),
+  studentId:'WC250603001'
 }
 
 // PDF styles

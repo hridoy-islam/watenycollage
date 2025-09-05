@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, Pen, MoveLeft } from 'lucide-react';
+import { Plus, Pen, MoveLeft, Check, Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import {
@@ -29,6 +29,7 @@ export default function CoursesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(100);
+  const [copiedId, setCopiedId] = useState(null);
 
   const fetchData = async (page, entriesPerPage, searchTerm = '') => {
     try {
@@ -135,6 +136,16 @@ export default function CoursesPage() {
       }
     );
   };
+
+  
+  const handleCopy = (id) => {
+    const formatted = `[courseCode="${id}"]`;
+    navigator.clipboard.writeText(formatted);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 1000);
+  };
+
+
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
@@ -190,6 +201,7 @@ export default function CoursesPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>Course Code</TableHead>
                 <TableHead>Course Name</TableHead>
                 <TableHead className="w-32 text-center">Status</TableHead>
                 <TableHead className="w-32 text-center">Actions</TableHead>
@@ -198,6 +210,29 @@ export default function CoursesPage() {
             <TableBody>
               {courses.map((course) => (
                 <TableRow key={course._id}>
+                       <TableCell className="font-medium items-center ">
+                    <div className='flex items-center'>
+
+                    {course?.courseCode ? (
+                      <span className=" text-md">{course?.courseCode}</span>
+                    ) : (
+                      '-'
+                    )}
+                     {/* {course?.courseCode &&
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="p-1"
+                      onClick={() => handleCopy(course?.courseCode)}
+                      >
+                      {copiedId === course?.courseCode ? (
+                        <Check className="h-4 w-4 text-green-500" />
+                      ) : (
+                        <Copy className="h-4 w-4" />
+                      )}
+                    </Button>} */}
+                      </div>
+                  </TableCell>
                   <TableCell className="flex items-center gap-2">
                     <span>{course.name}</span>
                     <Button
@@ -234,6 +269,7 @@ export default function CoursesPage() {
                       </svg>
                     </Button>
                   </TableCell>
+             
                   <TableCell className="text-center">
                     <Switch
                       checked={course.status == 1}

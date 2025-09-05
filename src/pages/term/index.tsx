@@ -154,7 +154,7 @@ export default function TermPage() {
             onClick={() => setDialogOpen(true)}
           >
             <Plus className="mr-2 h-4 w-4" />
-            New job
+            New Term
           </Button>
         </div>
       </div>

@@ -27,6 +27,7 @@ interface StudentApplication {
     initial?: string;
     lastName?: string;
   };
+  refId?: string;
   courseId?: {
     _id?: string;
     name?: string;
@@ -150,6 +151,22 @@ export default function StudentApplicationsPage() {
     setCurrentPage(1);
   };
 
+
+  // Add this at the top of your component
+const handleSearch = () => {
+  if (!searchQuery) {
+    // If search is empty, reset to all applications
+    setFilteredApplications(applications);
+    return;
+  }
+
+  const filtered = applications.filter((app) =>
+    app.refId?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+  setFilteredApplications(filtered);
+};
+
+
   return (
     <div className="space-y-6">
       {/* Header with Search & Back Button */}
@@ -211,7 +228,7 @@ export default function StudentApplicationsPage() {
               options={terms}
               value={selectedTerm}
               onChange={handleTermChange}
-              placeholder="Filter student by course"
+              placeholder="Filter student by term"
               isClearable
               className="text-sm"
               styles={{
@@ -263,6 +280,7 @@ export default function StudentApplicationsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>Student ID</TableHead>
                   <TableHead>Student Name</TableHead>
                   <TableHead>Student Type</TableHead>
                   <TableHead>Email</TableHead>
@@ -273,6 +291,16 @@ export default function StudentApplicationsPage() {
               <TableBody>
                 {filteredApplications.map((app) => (
                   <TableRow key={app._id}>
+                    <TableCell
+                      className="cursor-pointer font-medium "
+                      onClick={() =>
+                        navigate(
+                          `/dashboard/student-application/${app.studentId?._id}`
+                        )
+                      }
+                    >
+                      {app?.refId || '-'}
+                    </TableCell>
                     <TableCell
                       className="cursor-pointer font-medium "
                       onClick={() =>

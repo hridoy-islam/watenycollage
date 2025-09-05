@@ -83,7 +83,8 @@ const AVAILABLE_VARIABLES = [
   'intake',
   'applicationStatus',
   'applicationDate',
-  'todayDate'
+  'todayDate',
+  'studentId'
 ];
 
 const DYNAMIC_VARIABLES = ['signature id="1"', 'courseCode="1"'];
@@ -372,7 +373,8 @@ function StudentMailPage() {
           'intake',
           'applicationStatus',
           'applicationDate',
-          'todayDate'
+          'todayDate',
+          'studentId'
         ].includes(variable)
     );
 
@@ -406,6 +408,7 @@ function StudentMailPage() {
         const data = courseRes.data.data;
 
         const courseName = data?.courseId?.name || '';
+        const studentId =data?.refId || '';
         const intake = data?.intakeId?.termName || '';
         const applicationStatus = data?.status || '';
         const applicationDate = data?.createdAt
@@ -414,6 +417,7 @@ function StudentMailPage() {
 
         replacedText = replacedText
           .replace(/\[courseName\]/g, courseName)
+          .replace(/\[studentId\]/g, studentId)
           .replace(/\[intake\]/g, intake)
           .replace(/\[applicationStatus\]/g, applicationStatus)
           .replace(/\[applicationDate\]/g, applicationDate);
@@ -424,6 +428,7 @@ function StudentMailPage() {
       // No applicationId: replace with empty string
       replacedText = replacedText
         .replace(/\[courseName\]/g, '')
+        .replace(/\[studentId\]/g, '')
         .replace(/\[intake\]/g, '')
         .replace(/\[applicationStatus\]/g, '')
         .replace(/\[applicationDate\]/g, '');
@@ -458,9 +463,9 @@ function StudentMailPage() {
 
       try {
         const res = await axiosInstance.get(
-          `/course-code?courseCode=${courseCode}`
+          `/courses?courseCode=${courseCode}`
         );
-        const courseName = res.data.data?.result[0]?.course;
+        const courseName = res.data.data?.result[0]?.name;
         return { placeholder, replacement: courseName };
       } catch (error) {
         return { placeholder, replacement: courseCode };

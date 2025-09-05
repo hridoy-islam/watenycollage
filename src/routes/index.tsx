@@ -33,7 +33,6 @@ import HomeStudentApplication from '@/pages/homeStudentApplication';
 import InternationalStudentApplication from '@/pages/internationalStudentApplication';
 import StudentMailPage from '@/pages/studentMail';
 import TemplatePage from '@/pages/template';
-import CourseCodePage from '@/pages/course-code';
 import SignaturePage from '@/pages/signature';
 import InternationalStudentProfile from '@/pages/application/editProfile/profile-internationalStudent';
 import EuStudentProfile from '@/pages/application/editProfile/profile-euStudent';
@@ -168,11 +167,6 @@ export default function AppRouter() {
       {
         path: 'template',
         element: withRole(<TemplatePage />, ['admin',]),
-        index: true
-      },
-      {
-        path: 'course-code',
-        element: withRole(<CourseCodePage />, ['admin',]),
         index: true
       },
       {

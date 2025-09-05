@@ -12,21 +12,24 @@ export function CourseDialog({
   initialData 
 }) {
   const [name, setName] = useState("")
+  const [courseCode, setCourseCode] = useState("")
   
   useEffect(() => {
       setName(initialData?.name || "");
+      setCourseCode(initialData?.courseCode || "");
     }, [initialData]);
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    onSubmit({ name })
+    onSubmit({ name, courseCode })
     onOpenChange(false)
     setName("")
+    setCourseCode("")
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[40vw]">
         <DialogHeader>
           <DialogTitle>{initialData ? "Edit" : "Add"} Course</DialogTitle>
         </DialogHeader>
@@ -39,6 +42,17 @@ export function CourseDialog({
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="courseCode">
+              Course Code <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="courseCode"
+              value={courseCode}
+              onChange={(e) => setCourseCode(e.target.value)}
               required
             />
           </div>
