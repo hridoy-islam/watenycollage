@@ -75,7 +75,7 @@ export function DisabilityInfoStep({
   }
 
    function handleBack() {
-    setCurrentStep(5);
+    setCurrentStep(9);
   }
 
   return (

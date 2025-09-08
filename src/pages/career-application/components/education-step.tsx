@@ -38,7 +38,6 @@ export function EducationStep({
   defaultValues,
   onSaveAndContinue,
   setCurrentStep,
-  setCurrentSubStep
 }) {
   const [currentPage, setCurrentPage] = useState(1);
   // Track upload context (which field initiated the upload)

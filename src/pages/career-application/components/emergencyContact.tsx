@@ -56,7 +56,7 @@ export function EmergencyContact({
   }
 
   function handleBack() {
-    setCurrentStep(6);
+    setCurrentStep(9);
   }
 
   useEffect(() => {
@@ -90,7 +90,7 @@ export function EmergencyContact({
               <div className="space-y-4">
                 <div className="flex flex-col items-start">
                   <h2 className="text-xl font-semibold">
-                    Emergency Contact / Next of Kin
+                    Next of Kin
                   </h2>
                   <p className="text-md">
                     Please provide the details of someone we can contact in case

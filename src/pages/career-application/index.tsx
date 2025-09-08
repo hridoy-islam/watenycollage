@@ -25,6 +25,11 @@ import { updateAuthIsCompleted } from '@/redux/features/authSlice';
 import { AppDispatch } from '@/redux/store';
 import { useLocation } from 'react-router-dom';
 import { EmergencyContact } from './components/emergencyContact';
+import { TrainingStep } from './components/training-step';
+import { ExperienceStep } from './components/ExperienceStep';
+import { EthnicityStep } from './components/EthnicityStep';
+import { PostEmployementStep } from './components/postEmployementStep';
+import { PaymentStep } from './components/paymentStep';
 
 // Define form steps for career application
 const careerFormSteps = [
@@ -260,7 +265,8 @@ export default function CareerApplicationForm() {
     }
   };
 
-  const handleEmploymentSaveAndContinue = async (data: any) => {
+
+  const handleTrainingSaveAndContinue = async (data: any) => {
     try {
       setFormData((prev) => ({ ...prev, ...data }));
       await axiosInstance.patch(`/users/${user._id}`, data);
@@ -270,57 +276,100 @@ export default function CareerApplicationForm() {
       console.error('Failed to update employment details:', error);
     }
   };
-
-  const handleDisabilityInfoSaveAndContinue = async (data: any) => {
+    const handleEmploymentSaveAndContinue = async (data: any) => {
     try {
       setFormData((prev) => ({ ...prev, ...data }));
       await axiosInstance.patch(`/users/${user._id}`, data);
       markStepAsCompleted(6);
       setCurrentStep(7);
     } catch (error) {
-      console.error('Failed to update disability info:', error);
+      console.error('Failed to update employment details:', error);
     }
   };
-  const handleEmergencySaveAndContinue = async (data: any) => {
+
+    const handleRefereeDetailsSaveAndContinue = async (data: any) => {
     try {
       setFormData((prev) => ({ ...prev, ...data }));
       await axiosInstance.patch(`/users/${user._id}`, data);
       markStepAsCompleted(7);
       setCurrentStep(8);
     } catch (error) {
-      console.error('Failed to update emergency contact:', error);
+      console.error('Failed to update referee details:', error);
     }
   };
-
-  const handleRefereeDetailsSaveAndContinue = async (data: any) => {
+  const handleExperianceSaveAndContinue = async (data: any) => {
     try {
       setFormData((prev) => ({ ...prev, ...data }));
       await axiosInstance.patch(`/users/${user._id}`, data);
       markStepAsCompleted(8);
       setCurrentStep(9);
     } catch (error) {
-      console.error('Failed to update referee details:', error);
+      console.error('Failed to update employment details:', error);
     }
   };
 
-    const handleDocumentSave = async (data: any) => {
-      try {
-        setFormData((prev) => ({ ...prev, ...data }));
-        await axiosInstance.patch(`/users/${user._id}`, data);
-      } catch (error: any) {
-        toast({
-          title: error?.response?.data?.message || 'Something went wrong.',
-          className: 'destructive border-none text-white'
-        });
-      }
-    };
-
-  const handleDocumentsSaveAndContinue = async (data: any) => {
+  const handleEthnicitySaveAndContinue = async (data: any) => {
     try {
       setFormData((prev) => ({ ...prev, ...data }));
       await axiosInstance.patch(`/users/${user._id}`, data);
       markStepAsCompleted(9);
       setCurrentStep(10);
+    } catch (error) {
+      console.error('Failed to update disability info:', error);
+    }
+  };
+  const handleDisabilityInfoSaveAndContinue = async (data: any) => {
+    try {
+      setFormData((prev) => ({ ...prev, ...data }));
+      await axiosInstance.patch(`/users/${user._id}`, data);
+      markStepAsCompleted(10);
+      setCurrentStep(11);
+    } catch (error) {
+      console.error('Failed to update disability info:', error);
+    }
+  };
+
+
+
+
+  const handleDocumentSave = async (data: any) => {
+    try {
+      setFormData((prev) => ({ ...prev, ...data }));
+      await axiosInstance.patch(`/users/${user._id}`, data);
+    } catch (error: any) {
+      toast({
+        title: error?.response?.data?.message || 'Something went wrong.',
+        className: 'destructive border-none text-white'
+      });
+    }
+  };
+
+  const handleDocumentsSaveAndContinue = async (data: any) => {
+    try {
+      setFormData((prev) => ({ ...prev, ...data }));
+      await axiosInstance.patch(`/users/${user._id}`, data);
+      markStepAsCompleted(11);
+      setCurrentStep(12);
+    } catch (error) {
+      console.error('Failed to update documents:', error);
+    }
+  };
+  const handlePostEmployementSaveAndContinue = async (data: any) => {
+    try {
+      setFormData((prev) => ({ ...prev, ...data }));
+      await axiosInstance.patch(`/users/${user._id}`, data);
+      markStepAsCompleted(12);
+      setCurrentStep(13);
+    } catch (error) {
+      console.error('Failed to update documents:', error);
+    }
+  };
+  const handlePayrollSaveAndContinue = async (data: any) => {
+    try {
+      setFormData((prev) => ({ ...prev, ...data }));
+      await axiosInstance.patch(`/users/${user._id}`, data);
+      markStepAsCompleted(13);
+      setCurrentStep(14);
     } catch (error) {
       console.error('Failed to update documents:', error);
     }
@@ -338,7 +387,7 @@ export default function CareerApplicationForm() {
 
   const handleReviewClick = () => {
     // Check if all required steps are completed before showing the review
-    const requiredSteps = [1, 2, 3, 4, 5, 6, 7, 8]; // All steps except the final Review & Submit
+    const requiredSteps = [1, 2, 3, 4, 5, 6, 7, 8,9,10,11,12,13]; // All steps except the final Review & Submit
     const missingSteps = requiredSteps.filter(
       (step) => !completedSteps.includes(step)
     );
@@ -455,7 +504,15 @@ export default function CareerApplicationForm() {
             setCurrentStep={setCurrentStep}
           />
         );
-      case 5:
+         case 5:
+        return (
+          <TrainingStep
+            defaultValues={{ ...fetchData, ...formData }}
+            onSaveAndContinue={handleTrainingSaveAndContinue}
+            setCurrentStep={setCurrentStep}
+          />
+        );
+      case 6:
         return (
           <EmploymentStep
             defaultValues={{ ...fetchData, ...formData }}
@@ -463,23 +520,7 @@ export default function CareerApplicationForm() {
             setCurrentStep={setCurrentStep}
           />
         );
-      case 6:
-        return (
-          <DisabilityInfoStep
-            defaultValues={{ ...fetchData, ...formData }}
-            onSaveAndContinue={handleDisabilityInfoSaveAndContinue}
-            setCurrentStep={setCurrentStep}
-          />
-        );
-      case 7:
-        return (
-          <EmergencyContact
-            defaultValues={{ ...fetchData, ...formData }}
-            onSaveAndContinue={handleEmergencySaveAndContinue}
-            setCurrentStep={setCurrentStep}
-          />
-        );
-      case 8:
+     case 7:
         return (
           <RefereeDetailsStep
             defaultValues={{ ...fetchData, ...formData }}
@@ -487,16 +528,66 @@ export default function CareerApplicationForm() {
             setCurrentStep={setCurrentStep}
           />
         );
-      case 9:
+      case 8:
+        return (
+          <ExperienceStep
+            defaultValues={{ ...fetchData, ...formData }}
+            onSaveAndContinue={handleExperianceSaveAndContinue}
+            setCurrentStep={setCurrentStep}
+          />
+        );
+         case 9:
+        return (
+          <EthnicityStep
+            defaultValues={{ ...fetchData, ...formData }}
+            onSaveAndContinue={handleEthnicitySaveAndContinue}
+            setCurrentStep={setCurrentStep}
+          />
+        );
+      case 10:
+        return (
+          <DisabilityInfoStep
+            defaultValues={{ ...fetchData, ...formData }}
+            onSaveAndContinue={handleDisabilityInfoSaveAndContinue}
+            setCurrentStep={setCurrentStep}
+          />
+        );
+      // case 10:
+      //   return (
+      //     <EmergencyContact
+      //       defaultValues={{ ...fetchData, ...formData }}
+      //       onSaveAndContinue={handleEmergencySaveAndContinue}
+      //       setCurrentStep={setCurrentStep}
+      //     />
+      //   );
+      
+      case 11:
         return (
           <DocumentStep
             defaultValues={{ ...fetchData, ...formData }}
             onSaveAndContinue={handleDocumentsSaveAndContinue}
             setCurrentStep={setCurrentStep}
-             onSave={handleDocumentSave}
+            onSave={handleDocumentSave}
           />
         );
-      case 10:
+      case 12:
+        return (
+          <PostEmployementStep
+            defaultValues={{ ...fetchData, ...formData }}
+            onSaveAndContinue={handlePostEmployementSaveAndContinue}
+            setCurrentStep={setCurrentStep}
+
+          />
+        );
+      case 13:
+        return (
+          <PaymentStep
+            defaultValues={{ ...fetchData, ...formData }}
+            onSaveAndContinue={handlePayrollSaveAndContinue}
+            setCurrentStep={setCurrentStep}
+          />
+        );
+      case 14:
         return (
           <ReviewStep
             defaultValues={{ ...fetchData, ...formData }}

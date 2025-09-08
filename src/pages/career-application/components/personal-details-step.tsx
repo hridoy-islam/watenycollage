@@ -23,7 +23,11 @@ import type { TCareer } from '@/types/career';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import Select from 'react-select';
-import { countries, nationalities } from '@/types';
+import {
+  countries,
+  emergencyContactRelationships,
+  nationalities
+} from '@/types';
 import 'react-datepicker/dist/react-datepicker.css';
 import { format, getMonth, getYear, parse } from 'date-fns';
 import { CustomDatePicker } from '@/components/shared/CustomDatePicker';
@@ -70,11 +74,17 @@ export const personalDetailsSchema = z
     postalCity: z.string().min(1, { message: 'City is required' }),
     postalPostCode: z.string().min(1, { message: 'Postal code is required' }),
     postalCountry: z.string().min(1, { message: 'Country is required' }),
-    prevPostalAddressLine1: z.string().optional(),
-    prevPostalAddressLine2: z.string().optional(),
-    prevPostalCity: z.string().optional(),
-    prevPostalPostCode: z.string().optional(),
-    prevPostalCountry: z.string().optional()
+    emergencyContactNumber: z
+      .string()
+      .min(1, { message: 'Emergency contact number is required' }),
+    emergencyEmail: z
+      .string()
+      .email({ message: 'Please enter a valid email address' }),
+    emergencyFullName: z.string().min(1, { message: 'Full name is required' }),
+    emergencyRelationship: z
+      .string()
+      .min(1, { message: 'Relationship is required' }),
+    emergencyAddress: z.string().min(1, { message: 'Address is required' })
   })
   .superRefine((data, ctx) => {
     if (data.nationality !== 'british') {
@@ -120,17 +130,17 @@ export function PersonalDetailsStep({
       nationalInsuranceNumber: '',
       isBritishCitizen: undefined,
       shareCode: '',
-
       postalAddressLine1: '',
       postalAddressLine2: '',
       postalCity: '',
       postalPostCode: '',
       postalCountry: '',
-      prevPostalAddressLine1: '',
-      prevPostalAddressLine2: '',
-      prevPostalCity: '',
-      prevPostalPostCode: '',
-      prevPostalCountry: ''
+      emergencyContactNumber: '',
+      emergencyEmail: '',
+      emergencyFullName: '',
+      emergencyRelationship: '',
+      emergencyAddress: ''
+
     }
   });
 
@@ -143,7 +153,12 @@ export function PersonalDetailsStep({
           : undefined,
         nationality: defaultValues.nationality
           ? defaultValues.nationality.toLowerCase().replace(/\s/g, '-')
-          : ''
+          : '',
+        emergencyContactNumber: defaultValues?.emergencyContactNumber || '',
+        emergencyEmail: defaultValues?.emergencyEmail || '',
+        emergencyFullName: defaultValues?.emergencyFullName || '',
+        emergencyRelationship: defaultValues?.emergencyRelationship || '',
+        emergencyAddress: defaultValues?.emergencyAddress || ''
       });
     }
   }, [defaultValues, form]);
@@ -189,7 +204,10 @@ export function PersonalDetailsStep({
   }));
 
   console.log(defaultValues, 'defaultValues in personal details step');
-
+  const relationshipOptions = emergencyContactRelationships.map((relation) => ({
+    value: relation,
+    label: relation
+  }));
   const watchNationality = form.watch('nationality');
 
   return (
@@ -736,31 +754,27 @@ export function PersonalDetailsStep({
                 </div>
               </div>
               <div className="space-y-4">
-                <div>
-                  <h1 className="text-xl font-semibold">Previous Address</h1>
-                  <h1 className="text-[14px] font-medium text-gray-400">
-                    If you have lived at your present address for less than 12
-                    months
-                  </h1>
-                </div>
+                <h1 className="text-xl font-semibold">Next of Kin</h1>
+
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <FormField
                     control={form.control}
-                    name="prevPostalAddressLine1"
+                    name="emergencyFullName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Address Line 1</FormLabel>
+                        <FormLabel>
+                          Full Name <span className="text-red-500">*</span>
+                        </FormLabel>
                         <FormControl>
                           <Input
                             {...field}
-                            placeholder="Enter the primary address (e.g., house number, street name)"
-                            className="!placeholder:text-gray-400 placeholder:text-xs placeholder:text-gray-400"
+                            placeholder="Enter the full name of your emergency contact"
+                            className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
                           />
                         </FormControl>
-                        <p className="text-xs  text-gray-400">
-                          Example: 12B Parkview Road
+                        <p className="mt-1 text-xs text-gray-400">
+                          Example: Jane Doe
                         </p>
-
                         <FormMessage />
                       </FormItem>
                     )}
@@ -768,21 +782,22 @@ export function PersonalDetailsStep({
 
                   <FormField
                     control={form.control}
-                    name="prevPostalAddressLine2"
+                    name="emergencyContactNumber"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Address Line 2</FormLabel>
+                        <FormLabel>
+                          Contact Number <span className="text-red-500">*</span>
+                        </FormLabel>
                         <FormControl>
                           <Input
                             {...field}
-                            placeholder="Optional additional address info (e.g., apartment, unit)."
-                            className="!placeholder:text-gray-400 placeholder:text-xs placeholder:text-gray-400"
+                            placeholder="Enter a phone number where this person can be reached in an emergency"
+                            className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
                           />
                         </FormControl>
-                        <p className="text-xs  text-gray-400">
-                          Example: Flat 3A
+                        <p className="mt-1 text-xs text-gray-400">
+                          Example: +44 7700 900123
                         </p>
-
                         <FormMessage />
                       </FormItem>
                     )}
@@ -790,21 +805,23 @@ export function PersonalDetailsStep({
 
                   <FormField
                     control={form.control}
-                    name="prevPostalCity"
+                    name="emergencyEmail"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>City</FormLabel>
+                        <FormLabel>
+                          Email <span className="text-red-500">*</span>
+                        </FormLabel>
                         <FormControl>
                           <Input
+                            type="email"
                             {...field}
-                            placeholder=" Enter the name of your town or city"
-                            className="!placeholder:text-gray-400 placeholder:text-xs placeholder:text-gray-400"
+                            placeholder="Provide an email address for non-urgent communication"
+                            className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
                           />
                         </FormControl>
-                        <p className="text-xs  text-gray-400">
-                          Example: London
+                        <p className="mt-1 text-xs text-gray-400">
+                          Example: jane.doe@example.com
                         </p>
-
                         <FormMessage />
                       </FormItem>
                     )}
@@ -812,59 +829,64 @@ export function PersonalDetailsStep({
 
                   <FormField
                     control={form.control}
-                    name="prevPostalPostCode"
+                    name="emergencyRelationship"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Postal Code</FormLabel>
+                        <FormLabel>
+                          Relationship <span className="text-red-500">*</span>
+                        </FormLabel>
                         <FormControl>
-                          <Input
-                            {...field}
-                            placeholder="Enter your area’s postal/ZIP code."
-                            className="!placeholder:text-gray-400 placeholder:text-xs placeholder:text-gray-400"
+                          <Select
+                            options={relationshipOptions}
+                            value={
+                              field.value
+                                ? relationshipOptions.find(
+                                    (option) => option.value === field.value
+                                  )
+                                : null
+                            }
+                            onChange={(selected) =>
+                              field.onChange(selected?.value)
+                            }
+                            placeholder="Select your relationship with this person"
+                            isClearable
+                            styles={{
+                              placeholder: (provided) => ({
+                                ...provided,
+                                fontSize: '0.75rem',
+                                color: '#9CA3AF'
+                              })
+                            }}
                           />
                         </FormControl>
-                        <p className="text-xs  text-gray-400">
-                          Example: SW1A 1AA
+                        <p className="mt-1 text-xs text-gray-400">
+                          Example: Parent
                         </p>
-
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-
                   <FormField
                     control={form.control}
-                    name="prevPostalCountry"
+                    name="emergencyAddress"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Country</FormLabel>
-                        <Controller
-                          name="prevPostalCountry"
-                          control={form.control}
-                          render={({ field: { onChange, value } }) => (
-                            <Select
-                              options={countryOptions}
-                              value={countryOptions.find(
-                                (opt) => opt.value === value
-                              )}
-                              onChange={(option) => onChange(option?.value)}
-                              className="react-select-container"
-                              classNamePrefix="react-select"
-                              placeholder="Select the country corresponding to the above address"
-                              styles={{
-                                placeholder: (provided) => ({
-                                  ...provided,
-                                  fontSize: '0.75rem',
-                                  color: '#9CA3AF'
-                                })
-                              }}
-                            />
-                          )}
-                        />
-                        <p className="text-xs  text-gray-400">
-                          Example: London
-                        </p>
+                        <FormLabel>
+                          Address <span className="text-red-500">*</span>
+                        </FormLabel>
 
+                        <FormControl>
+                          <Input
+                            type="text"
+                            {...field}
+                            placeholder="Enter the full address of your emergency contact"
+                            className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
+                          />
+                        </FormControl>
+                        <p className="mt-1 text-xs text-gray-400">
+                          Example: 12 High Street, Bristol, BS1 4ST, United
+                          Kingdom
+                        </p>
                         <FormMessage />
                       </FormItem>
                     )}

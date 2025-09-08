@@ -26,6 +26,7 @@ import { CustomDatePicker } from '@/components/shared/CustomDatePicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import Select from 'react-select';
 import { Textarea } from '@/components/ui/textarea';
+import { languages } from '@/types';
 
 const daysOfWeek = [
   'monday',
@@ -72,11 +73,53 @@ const applicationDetailsSchema = z
       }),
     canWorkInUK: z.boolean().refine((val) => val === true || val === false, {
       message: 'Please confirm if you are free to work in the UK'
-    })
+    }),
+    competentInOtherLanguage: z.boolean(),
+    otherLanguages: z.array(z.string()).optional(),
+    drivingLicense: z.boolean(),
+    licenseNumber: z.string().optional(),
+    carOwner: z.boolean(),
+    travelAreas: z.string().min(1, { message: 'Please specify travel areas' }),
+    solelyForEverycare: z.boolean(),
+    otherEmployers: z.string().optional(),
+    professionalBody: z.boolean(),
+    professionalBodyDetails: z.string().optional()
   })
   .superRefine((data, ctx) => {
-    
+    if (
+      data.competentInOtherLanguage &&
+      (!data.otherLanguages || data.otherLanguages.length === 0)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Please select at least one language',
+        path: ['otherLanguages']
+      });
+    }
 
+    if (data.drivingLicense && !data.licenseNumber) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Please provide your driving license number',
+        path: ['licenseNumber']
+      });
+    }
+
+    if (!data.solelyForEverycare && !data.otherEmployers) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Please provide other employer(s)',
+        path: ['otherEmployers']
+      });
+    }
+
+    if (data.professionalBody && !data.professionalBodyDetails) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Please provide details of your professional body',
+        path: ['professionalBodyDetails']
+      });
+    }
     // If source is "referral", referralEmployee must be provided
     if (data.source === 'referral' && !data.referralEmployee) {
       ctx.addIssue({
@@ -115,7 +158,16 @@ export function ApplicationDetailsStep({
       isOver18: undefined,
       isSubjectToImmigrationControl: undefined,
       canWorkInUK: undefined,
-      
+      competentInOtherLanguage: undefined,
+      otherLanguages: [],
+      drivingLicense: undefined,
+      licenseNumber: '',
+      carOwner: undefined,
+      travelAreas: '',
+      solelyForEverycare: undefined,
+      otherEmployers: '',
+      professionalBody: undefined,
+      professionalBodyDetails: ''
     },
     ...defaultValues
   });
@@ -191,16 +243,279 @@ export function ApplicationDetailsStep({
                           futureDate={false}
                         />
                       </FormControl>
-                      <p className="text-xs  text-gray-400">
+                      <p className="text-xs text-gray-400">
                         Example: 01/06/2025
                       </p>
-
                       <FormMessage />
                     </FormItem>
                   );
                 }}
               />
+              <FormField
+                control={form.control}
+                name="competentInOtherLanguage"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Are you competent in another language?
+                      <span className="text-red-500">*</span>
+                    </FormLabel>
+                    <Select
+                      options={yesNoOptions}
+                      placeholder="Select Yes or No"
+                      isClearable
+                      value={
+                        yesNoOptions.find((opt) => opt.value === field.value) ||
+                        undefined
+                      }
+                      onChange={(option) =>
+                        field.onChange(option ? option.value : undefined)
+                      }
+                      className="text-sm"
+                    />
+                    <p className="text-xs text-gray-400">Example: Yes</p>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
+              {/* Show multi-select if Yes */}
+              {form.watch('competentInOtherLanguage') === true && (
+                <FormField
+                  control={form.control}
+                  name="otherLanguages"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Select the languages  <span className="text-red-500">*</span></FormLabel>
+                      <Controller
+                        control={form.control}
+                        name="otherLanguages"
+                        render={({ field }) => (
+                          <Select
+                            {...field}
+                            isMulti
+                             options={languages.map((lang) => ({
+              value: lang,
+              label: lang,
+            }))}
+                            placeholder="Choose languages"
+                            onChange={(selected) =>
+                              field.onChange(
+                                selected?.map((opt) => opt.value) || []
+                              )
+                            }
+                            value={field.value?.map((val) => ({
+                              value: val,
+                              label: val.charAt(0).toUpperCase() + val.slice(1)
+                            }))}
+                            className="text-sm"
+                          />
+                        )}
+                      />
+                      <p className="text-xs text-gray-400">
+                        Example: English, Bengali
+                      </p>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
+              {/* Driving License */}
+              <FormField
+                control={form.control}
+                name="drivingLicense"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Do you hold a driving license? <span className="text-red-500">*</span></FormLabel>
+                    <Select
+                      options={yesNoOptions}
+                      placeholder="Select Yes or No"
+                      isClearable
+                      value={
+                        yesNoOptions.find((opt) => opt.value === field.value) ||
+                        null
+                      }
+                      onChange={(option) =>
+                        field.onChange(option ? option.value : null)
+                      }
+                      className="text-sm"
+                    />
+                    <p className="text-xs text-gray-400">Example: Yes</p>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {form.watch('drivingLicense') && (
+                <FormField
+                  control={form.control}
+                  name="licenseNumber"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>License Number  <span className="text-red-500">*</span></FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Enter license number" />
+                      </FormControl>
+                      <p className="text-xs text-gray-400">
+                        Example: ABC123456D
+                      </p>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
+              {/* Car Owner */}
+              <FormField
+                control={form.control}
+                name="carOwner"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Do you own a car? <span className="text-red-500">*</span>
+                    </FormLabel>
+                    <Select
+                      options={yesNoOptions}
+                      placeholder="Select Yes or No"
+                      isClearable
+                      value={
+                        yesNoOptions.find((opt) => opt.value === field.value) ||
+                        null
+                      }
+                      onChange={(option) =>
+                        field.onChange(option ? option.value : null)
+                      }
+                      className="text-sm"
+                    />
+                    <p className="text-xs text-gray-400">Example: Yes</p>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Travel Areas */}
+              <FormField
+                control={form.control}
+                name="travelAreas"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      What areas are you prepared to travel to?
+                      <span className="text-red-500">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Textarea className='border-gray-300' {...field} placeholder="List areas..." />
+                    </FormControl>
+                    <p className="text-xs text-gray-400">
+                      Example: London, Manchester, Birmingham
+                    </p>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Solely for Everycare */}
+              <FormField
+                control={form.control}
+                name="solelyForEverycare"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Will you be working solely for Everycare?
+                      <span className="text-red-500">*</span>
+                    </FormLabel>
+                    <Select
+                      options={yesNoOptions}
+                      placeholder="Select Yes or No"
+                      isClearable
+                      value={
+                        yesNoOptions.find((opt) => opt.value === field.value) ||
+                        null
+                      }
+                      onChange={(option) =>
+                        field.onChange(option ? option.value : null)
+                      }
+                      className="text-sm"
+                    />
+                    <p className="text-xs text-gray-400">Example: Yes</p>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Show employer textarea if No */}
+              {form.watch('solelyForEverycare') === false && (
+                <FormField
+                  control={form.control}
+                  name="otherEmployers"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Who else do you work for? <span className="text-red-500">*</span></FormLabel>
+                      <FormControl>
+                        <Textarea
+                          {...field}
+                          placeholder="Enter employer names"
+                          className='border-gray-300'
+                        />
+                      </FormControl>
+                      <p className="text-xs text-gray-400">
+                        Example: NHS Trust, Local Care Agency
+                      </p>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
+              {/* Professional Body */}
+              <FormField
+                control={form.control}
+                name="professionalBody"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Are you a member of a professional body?
+                       <span className="text-red-500">*</span>
+                    </FormLabel>
+                    <Select
+                      options={yesNoOptions}
+                      placeholder="Select Yes or No"
+                      isClearable
+                      value={
+                        yesNoOptions.find((opt) => opt.value === field.value) ||
+                        null
+                      }
+                      onChange={(option) =>
+                        field.onChange(option ? option.value : null)
+                      }
+                      className="text-sm"
+                    />
+                    <p className="text-xs text-gray-400">Example: Yes</p>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {form.watch('professionalBody') && (
+                <FormField
+                  control={form.control}
+                  name="professionalBodyDetails"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Please provide details  <span className="text-red-500">*</span></FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          placeholder="Enter professional body details"
+                        />
+                      </FormControl>
+                      <p className="text-xs text-gray-400">
+                        Example: Royal College of Nursing (RCN)
+                      </p>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
               <FormField
                 control={form.control}
                 name="isOver18"
@@ -223,7 +538,7 @@ export function ApplicationDetailsStep({
                       }
                       className="text-sm"
                     />
-                    <p className="text-xs  text-gray-400">Example: Yes</p>
+                    <p className="text-xs text-gray-400">Example: Yes</p>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -252,7 +567,7 @@ export function ApplicationDetailsStep({
                       }
                       className="text-sm"
                     />
-                    <p className="text-xs  text-gray-400">Example: Yes</p>
+                    <p className="text-xs text-gray-400">Example: Yes</p>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -281,14 +596,11 @@ export function ApplicationDetailsStep({
                       }
                       className="text-sm"
                     />
-                    <p className="text-xs  text-gray-400">Example: Yes</p>
+                    <p className="text-xs text-gray-400">Example: Yes</p>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
-              
-              
 
               <FormField
                 control={form.control}
@@ -321,8 +633,7 @@ export function ApplicationDetailsStep({
                     />
 
                     <p className="text-xs text-gray-400">
-                      Example: Job board, referral, social media, company
-                      website, other
+                      Example: Indeed, Referral, LinkedIn
                     </p>
 
                     <FormMessage />
@@ -345,49 +656,15 @@ export function ApplicationDetailsStep({
                           placeholder="Enter the employee name"
                         />
                       </FormControl>
-                      <p className="text-xs  text-gray-400">
+                      <p className="text-xs text-gray-400">
                         Example: Emma Watson
                       </p>
-
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               )}
             </div>
-
-            {/* <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <FormField
-                control={form.control}
-                name="salaryExpectation"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Salary Expectation (£)</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        placeholder="Salary expectation"
-                        type="text"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="maxHoursPerWeek"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>How many hours can you work?</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Max hours" type="number" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div> */}
 
             <FormField
               control={form.control}
@@ -426,7 +703,7 @@ export function ApplicationDetailsStep({
                     </Button>
                   </div>
                   <p className="pb-2 text-xs text-gray-400">
-                    Select all the days you are available to work.
+                    Example: Monday, Wednesday, Saturday
                   </p>
 
                   {/* Days Checkboxes */}
@@ -488,7 +765,7 @@ export function ApplicationDetailsStep({
                       className="text-sm"
                     />
 
-                    <p className="text-xs text-gray-400">Example: Yes / No</p>
+                    <p className="text-xs text-gray-400">Example: Yes</p>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -520,43 +797,12 @@ export function ApplicationDetailsStep({
                       className="text-sm"
                     />
 
-                    <p className="text-xs text-gray-400">Example: Yes / No</p>
+                    <p className="text-xs text-gray-400">Example: Yes</p>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
-            {/* 
-            <FormField
-              control={form.control}
-              name="isBritishCitizen"
-              render={({ field }) => (
-                <FormItem className="space-y-3">
-                  <FormLabel>Citizenship Status</FormLabel>
-                  <div className="flex flex-col gap-2">
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        checked={field.value === true}
-                        onCheckedChange={() => field.onChange(true)}
-                      />
-                      <FormLabel className="font-normal">
-                        I am a British citizen
-                      </FormLabel>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        checked={field.value === false}
-                        onCheckedChange={() => field.onChange(false)}
-                      />
-                      <FormLabel className="font-normal">
-                        I am not a British citizen
-                      </FormLabel>
-                    </div>
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            /> */}
 
             <div className="flex justify-between">
               <Button

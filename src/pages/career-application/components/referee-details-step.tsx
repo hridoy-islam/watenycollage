@@ -1,5 +1,3 @@
-
-
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -15,237 +13,224 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 
-
-// Types
-type Relationship = 'Line Manager' | 'Colleague' | 'Friend' | 'Other';
-
+// Referee schema (simplified)
 const refereeSchema = z.object({
   name: z.string().min(1, 'Name is required'),
+  position: z.string().min(1, 'Position is required'),
+  relationship: z.string().min(1, 'Relationship is required'),
   organisation: z.string().min(1, 'Organisation is required'),
   address: z.string().min(1, 'Address is required'),
-  relationship: z.string().min(1, 'Relationship is required'),
-  otherRelationship: z.string().optional(),
-  email: z.string().email('Invalid email address'),
-  phone: z.string().min(1, 'Phone number is required')
+  tel: z.string().min(1, 'Tel number is required'),
+  fax: z.string().optional(),
+  email: z.string().email('Invalid email address')
 });
 
+// Updated schema for 3 referees
 const refereeDetailsSchema = z.object({
-  referee1: refereeSchema,
-  referee2: refereeSchema
+  professionalReferee1: refereeSchema,
+  professionalReferee2: refereeSchema,
+  personalReferee: refereeSchema
 });
 
 export type RefereeFormValues = z.infer<typeof refereeDetailsSchema>;
-
 
 export function RefereeDetailsStep({
   defaultValues,
   onSaveAndContinue,
   setCurrentStep
 }) {
-
-
-
   const form = useForm<RefereeFormValues>({
-  resolver: zodResolver(refereeDetailsSchema),
-  defaultValues: {
-    referee1: {
-      name: defaultValues?.referee1?.name ?? '',
-      organisation: defaultValues?.referee1?.organisation ?? '',
-      address: defaultValues?.referee1?.address ?? '',
-      relationship: defaultValues?.referee1?.relationship ?? '',
-      otherRelationship: defaultValues?.referee1?.otherRelationship ?? '',
-      email: defaultValues?.referee1?.email ?? '',
-      phone: defaultValues?.referee1?.phone ?? '',
-    },
-    referee2: {
-      name: defaultValues?.referee2?.name ?? '',
-      organisation: defaultValues?.referee2?.organisation ?? '',
-      address: defaultValues?.referee2?.address ?? '',
-      relationship: defaultValues?.referee2?.relationship ?? '',
-      otherRelationship: defaultValues?.referee2?.otherRelationship ?? '',
-      email: defaultValues?.referee2?.email ?? '',
-      phone: defaultValues?.referee2?.phone ?? '',
+    resolver: zodResolver(refereeDetailsSchema),
+    defaultValues: {
+      professionalReferee1: defaultValues?.professionalReferee1 ?? {
+        name: '', position: '', relationship: '', organisation: '', address: '', tel: '', fax: '', email: ''
+      },
+      professionalReferee2: defaultValues?.professionalReferee2 ?? {
+        name: '', position: '', relationship: '', organisation: '', address: '', tel: '', fax: '', email: ''
+      },
+      personalReferee: defaultValues?.personalReferee ?? {
+        name: '', position: '', relationship: '', organisation: '', address: '', tel: '', fax: '', email: ''
+      }
     }
-  }
-});
-
+  });
 
   const onSubmit = (data: RefereeFormValues) => {
-    console.log(data)
+    console.log(data);
     onSaveAndContinue(data);
   };
-   function handleBack() {
-    setCurrentStep(7);
+
+  function handleBack() {
+    setCurrentStep(6);
   }
 
   const renderRefereeFields = (
-    refKey: 'referee1' | 'referee2',
+    refKey: keyof RefereeFormValues,
     title: string,
     description: string
-  ) => (
-    <div className="space-y-4">
-      <h3 className="text-lg font-semibold">{title} <span className="text-red-500">*</span></h3>
-      <p className="text-sm text-gray-600">{description}</p>
+  ) => {
+    return (
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">{title} <span className="text-red-500">*</span></h3>
+        <p className="text-sm text-gray-600">{description}</p>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {/* Name */}
-        <FormField
-          control={form.control}
-          name={`${refKey}.name`}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Full Name <span className="text-red-500">*</span></FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  placeholder="Enter the full name of the referee."
-                  className="placeholder:text-xs placeholder:text-gray-400"
-                />
-              </FormControl>
-              <p className="mt-2 text-xs text-gray-400">Example: Sarah Johnson</p>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {/* Name */}
+          <FormField
+            control={form.control}
+            name={`${refKey}.name`}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Name <span className="text-red-500">*</span></FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Sarah Johnson" />
+                </FormControl>
+                <p className="text-xs text-gray-400">Example: Sarah Johnson</p>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        {/* Organisation */}
-        <FormField
-          control={form.control}
-          name={`${refKey}.organisation`}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Company / Institution <span className="text-red-500">*</span></FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  placeholder="Enter organisation name"
-                  className="placeholder:text-xs placeholder:text-gray-400"
-                />
-              </FormControl>
-              <p className="mt-2 text-xs text-gray-400">
-                Example: ABC Health Services Ltd.
-              </p>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          {/* Position */}
+          <FormField
+            control={form.control}
+            name={`${refKey}.position`}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Position <span className="text-red-500">*</span></FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Senior Manager" />
+                </FormControl>
+                <p className="text-xs text-gray-400">Example: Senior Manager</p>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        {/* Address */}
-        <FormField
-          control={form.control}
-          name={`${refKey}.address`}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Address <span className="text-red-500">*</span></FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  placeholder="Provide the company or business address."
-                  className="placeholder:text-xs placeholder:text-gray-400"
-                />
-              </FormControl>
-              <p className="mt-2 text-xs text-gray-400">
-                Example: 123 High Street, London, W1A 1AA
-              </p>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          {/* Relationship (now input instead of select) */}
+          <FormField
+            control={form.control}
+            name={`${refKey}.relationship`}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Relationship to you <span className="text-red-500">*</span></FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Line Manager, Colleague, Friend" />
+                </FormControl>
+                <p className="text-xs text-gray-400">Example: Line Manager</p>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        {/* Relationship */}
-        <FormField
-          control={form.control}
-          name={`${refKey}.relationship`}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Relationship <span className="text-red-500">*</span></FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  placeholder="Kindly indicate your relationship with the person mentioned."
-                  className="!placeholder:text-gray-400   placeholder:text-xs  placeholder:text-gray-400"
-                />
-              </FormControl>
-              <p className="mt-2 text-xs text-gray-400">
-                  Example: Line Manager at XYZ Ltd.
-                </p>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          {/* Organisation */}
+          <FormField
+            control={form.control}
+            name={`${refKey}.organisation`}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Organisation <span className="text-red-500">*</span></FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="ABC Health Services Ltd." />
+                </FormControl>
+                <p className="text-xs text-gray-400">Example: ABC Health Services Ltd.</p>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
+          {/* Address */}
+          <FormField
+            control={form.control}
+            name={`${refKey}.address`}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Address <span className="text-red-500">*</span></FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="123 High Street, London, W1A 1AA" />
+                </FormControl>
+                <p className="text-xs text-gray-400">Example: 123 High Street, London, W1A 1AA</p>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        {/* Email */}
-        <FormField
-          control={form.control}
-          name={`${refKey}.email`}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email Address <span className="text-red-500">*</span></FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  type="email"
-                  placeholder="Email address"
-                  className="placeholder:text-xs placeholder:text-gray-400"
-                />
-              </FormControl>
-              <p className="mt-2 text-xs text-gray-400">
-                Example: s.johnson@abcservices.com
-              </p>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          {/* Tel */}
+          <FormField
+            control={form.control}
+            name={`${refKey}.tel`}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Tel No. (NOT Mobile) <span className="text-red-500">*</span></FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="+44 20 1234 5678" />
+                </FormControl>
+                <p className="text-xs text-gray-400">Example: +44 20 1234 5678</p>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        {/* Phone */}
-        <FormField
-          control={form.control}
-          name={`${refKey}.phone`}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Phone Number <span className="text-red-500">*</span></FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  placeholder="+Include country code"
-                  className="placeholder:text-xs placeholder:text-gray-400"
-                />
-              </FormControl>
-              <p className="mt-2 text-xs text-gray-400">
-                Example: +44 7911 123456
-              </p>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          {/* FAX */}
+          <FormField
+            control={form.control}
+            name={`${refKey}.fax`}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>FAX No.</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="+44 20 1234 5679" />
+                </FormControl>
+                <p className="text-xs text-gray-400">Example: +44 20 1234 5679</p>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Email */}
+          <FormField
+            control={form.control}
+            name={`${refKey}.email`}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email Address <span className="text-red-500">*</span></FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="s.johnson@abcservices.com" type="email" />
+                </FormControl>
+                <p className="text-xs text-gray-400">Example: s.johnson@abcservices.com</p>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <Card className="border-none shadow-none">
       <CardHeader>
         <h2 className="text-xl font-semibold">Reference Details</h2>
         <p className="text-sm text-gray-400">
-          Please provide two referees as part of the recruitment process. Referees must be able to speak to your skills, experience, and character, and must not be friends or relatives. 
-        </p>
-        <p className='text-sm text-gray-400 font-semibold'>
-          We will contact your referees, so please ensure their contact details are accurate and up to date.
+          Please provide the names and addresses of three referees. Two of these must be your current and most recent employers. Referees must not be family members.
         </p>
       </CardHeader>
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             {renderRefereeFields(
-              'referee1',
-              'Professional Reference',
-              'A former supervisor, manager, or employer who can verify your work experience, responsibilities, and conduct.'
+              'professionalReferee1',
+              'Professional Reference 1',
+              'Your current or most recent employer. Must be a senior line manager.'
             )}
             {renderRefereeFields(
-              'referee2',
-              'Academic or Personal Reference',
-              'An academic mentor, lecturer, or professional who has known you in a formal, non-personal capacity.'
+              'professionalReferee2',
+              'Professional Reference 2',
+              'Your previous employer. Must be a senior line manager.'
+            )}
+            {renderRefereeFields(
+              'personalReferee',
+              'Personal Reference',
+              'A personal referee who knows you and can speak to your character. Must not be a family member.'
             )}
 
             <div className="flex justify-between pt-4">
@@ -257,10 +242,7 @@ export function RefereeDetailsStep({
               >
                 Back
               </Button>
-              <Button
-                type="submit"
-                className="bg-watney text-white hover:bg-watney/90"
-              >
+              <Button type="submit" className="bg-watney text-white hover:bg-watney/90">
                 Next
               </Button>
             </div>
