@@ -148,9 +148,6 @@ const medicalHistorySchema = z.object({
   consentMedicalDeclaration: z.boolean().refine((val) => val === true, {
     message: 'Required'
   }),
-  consentDataProtection: z.boolean().refine((val) => val === true, {
-    message: 'Required'
-  }),
   consentVaccination: z.boolean().refine((val) => val === true, {
     message: 'Required'
   }),
@@ -233,7 +230,6 @@ export function PostEmployementStep({
       inocTetanus: false,
       testedHIV: false,
       consentMedicalDeclaration: false,
-      consentDataProtection: false,
       consentVaccination: false,
       consentTerminationClause: false,
       ...defaultValues
@@ -830,28 +826,7 @@ export function PostEmployementStep({
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="consentDataProtection"
-                  render={({ field }) => (
-                    <FormItem className="flex items-start space-x-3 space-y-0">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <div className="space-y-1 leading-none">
-                        <FormLabel>
-                          I consent that this information may be held and
-                          processed by Everycare Romford under the Data
-                          Protection Act 1998.
-                        </FormLabel>
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+               
 
                 <FormField
                   control={form.control}

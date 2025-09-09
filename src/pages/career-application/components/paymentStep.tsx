@@ -52,7 +52,7 @@ const paymentSchema = z.object({
   accountNumber: z.string().min(1, 'Account Number is required'),
   sortCode: z.string().min(1, 'Sort code is required'),
   bankName: z.string().min(1, 'Bank name is required'),
-  branchName: z.string().min(1, 'Branch name is required'), // Made required since UI shows * 
+  branchName: z.string().optional(), // Made required since UI shows * 
   buildingSocietyRollNo: z.string().optional()
 }).superRefine((data, ctx) => {
   // If "Other" is selected, require otherJobRole
@@ -280,7 +280,7 @@ export function PaymentStep({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        Branch Name <span className="text-red-500">*</span>
+                        Branch Name
                       </FormLabel>
                       <FormControl>
                         <Input {...field} placeholder="Oxford Street Branch" />
