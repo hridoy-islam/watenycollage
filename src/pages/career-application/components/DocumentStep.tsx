@@ -49,7 +49,7 @@ export const createDocumentSchema = (
   z.object({
   cvResume: z.string().optional(),
   idDocuments: z.array(z.string()).optional(),
-  passportPhotos: z.array(z.string()).optional(),
+  image: z.string().optional(),
   utilityBills: z.array(z.string()).optional(),
   bankStatement: z.array(z.string()).optional(),
   proofOfNI: z.array(z.string()).optional(),
@@ -81,8 +81,8 @@ export function DocumentStep({
 
   const [documents, setDocuments] = useState({
     cvResume: '',
+    image:'',
     idDocuments: [],
-    passportPhotos: [],
     utilityBills: [],
     bankStatement: [],
     proofOfNI: [],
@@ -94,7 +94,7 @@ export function DocumentStep({
       setDocuments({
         cvResume: defaultValues?.cvResume ?? '',
         idDocuments: defaultValues?.idDocuments ?? [],
-        passportPhotos: defaultValues?.passportPhotos ?? [],
+        image: defaultValues?.image ?? '',
         utilityBills: defaultValues?.utilityBills ?? [],
         bankStatement: defaultValues?.bankStatement ?? [],
         proofOfNI: defaultValues?.proofOfNI ?? [],
@@ -118,6 +118,8 @@ export function DocumentStep({
 
   const handleRemoveFile = (field: keyof DocumentFile, fileName: string) => {
     if (field === 'cvResume') {
+      setDocuments((prev) => ({ ...prev, cvResume: undefined }));
+    } else if (field === 'image') {
       setDocuments((prev) => ({ ...prev, cvResume: undefined }));
     } else {
       setDocuments((prev) => ({
@@ -146,7 +148,7 @@ export function DocumentStep({
   const allDocumentsUploaded =
     documents.cvResume &&
     documents.idDocuments.length >= 2 &&
-    documents.passportPhotos.length >= 2 &&
+    documents.image &&
     documents.utilityBills.length > 0 &&
     documents.bankStatement.length > 0 &&
     documents.proofOfNI.length > 0
@@ -211,9 +213,11 @@ export function DocumentStep({
 
     const fileUrl = uploadResponse.data.fileUrl;
 
-    if (field === 'cvResume') {
+    if (field === 'cvResume' ) {
       setDocuments((prev) => ({ ...prev, cvResume: fileUrl }));
-    } else {
+    }else if(field === 'image' ) {
+      setDocuments((prev) => ({ ...prev, image: fileUrl }));
+    }  else {
       setDocuments((prev) => ({
         ...prev,
         [field]: [...(prev[field] as string[]), fileUrl]
@@ -234,7 +238,7 @@ export function DocumentStep({
   }> = [
     { id: 'cvResume', label: 'CV/Resume', required: true, instructions: 'Upload your CV or Resume', formats: 'PDF, DOC, DOCX' },
     { id: 'idDocuments', label: 'Two Forms of ID', required: true, instructions: 'Passport, Birth Certificate, Driver’s Licence or Marriage Certificate', formats: 'PDF, JPG, PNG' },
-    { id: 'passportPhotos', label: 'Photograph', required: true, instructions: 'Recent passport-size photos', formats: 'JPG, PNG' },
+    { id: 'image', label: 'Photograph', required: true, instructions: 'Recent passport-size photos', formats: 'JPG, PNG' },
     { id: 'utilityBills', label: 'Utility Bills', required: true, instructions: 'Not older than 3 months', formats: 'PDF, JPG, PNG' },
     { id: 'bankStatement', label: 'Bank Statement', required: true, instructions: 'Address must correspond with utility bill', formats: 'PDF, JPG, PNG' },
     { id: 'proofOfNI', label: 'Proof of National Insurance', required: true, instructions: 'N.I Card, P45, etc.', formats: 'PDF, JPG, PNG' },
@@ -252,7 +256,7 @@ export function DocumentStep({
           <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
             {documentTypes.map(({ id, label, required, instructions, formats, uploadLabel }) => {
               const hasFiles =
-                id === 'cvResume'
+                id === 'cvResume'|| id ==='image'
                   ? !!documents.cvResume
                   : Array.isArray(documents[id]) && (documents[id] as string[]).length > 0;
 
@@ -295,7 +299,7 @@ export function DocumentStep({
               Back
             </Button>
             <Button type="button" onClick={handleSubmit}
-            //  disabled={!allDocumentsUploaded}
+             disabled={!allDocumentsUploaded}
               className="w-full justify-center bg-watney text-white hover:bg-watney/90 sm:w-auto">
               Next
             </Button>
