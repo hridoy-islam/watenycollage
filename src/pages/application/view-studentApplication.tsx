@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -11,31 +10,27 @@ import {
   TableRow
 } from '@/components/ui/table';
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogTrigger,
+  DialogClose
+} from '@/components/ui/dialog';
+import {
   AlertCircle,
   Check,
-  ClipboardCopy,
-  FileText,
-  Home,
-  Info,
-  Loader2,
-  User,
-  Phone,
-  Briefcase,
-  BookOpen,
-  FileCheck,
-  Shield,
-  GraduationCap,
+
   MoveLeft,
   Copy,
-  File
+  
 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { format, set } from 'date-fns';
-import { toast } from 'sonner';
+
 import { cn } from '@/lib/utils';
 import { useNavigate, useParams } from 'react-router-dom';
 import axiosInstace from '@/lib/axios';
@@ -44,6 +39,8 @@ import PDFGenerator from './components/PDFGenerator';
 import Loader from '@/components/shared/loader';
 import axiosInstance from '@/lib/axios';
 import { useToast } from '@/components/ui/use-toast';
+import Select from 'react-select';
+import { Label } from '@/components/ui/label';
 
 // Type definition for application data
 type Application = {
@@ -169,6 +166,25 @@ export default function ViewStudentApplicationPage() {
   const navigate = useNavigate();
   const { id } = useParams();
   const { toast } = useToast();
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState<{
+    value: string;
+    label: string;
+  } | null>(null);
+  const [selectedIntake, setSelectedIntake] = useState<{
+    value: string;
+    label: string;
+  } | null>(null);
+  const [courses, setCourses] = useState<
+    Array<{ value: string; label: string }>
+  >([]);
+  const [intakes, setIntakes] = useState<
+    Array<{ value: string; label: string }>
+  >([]);
+  const [isFetchingData, setIsFetchingData] = useState(false);
+  const [currentEditingCourseId, setCurrentEditingCourseId] = useState<
+    string | null
+  >(null); // To track which course is being edited
 
   useEffect(() => {
     const fetchApplication = async () => {
@@ -191,7 +207,7 @@ export default function ViewStudentApplicationPage() {
     try {
       setLoading(true);
       const response = await axiosInstace.get(
-        `/application-course?studentId=${id}`
+        `/application-course?studentId=${id}&limit=all`
       );
       setApplicationCourse(response.data.data.result);
       setLoading(false);
@@ -201,9 +217,100 @@ export default function ViewStudentApplicationPage() {
       console.error('Error fetching application:', err);
     }
   };
+
+  const fetchCoursesAndIntakes = async () => {
+    setIsFetchingData(true);
+    try {
+      const [coursesRes, intakesRes] = await Promise.all([
+        axiosInstace.get('/courses?limit=all'),
+        axiosInstace.get('/terms?limit=all')
+      ]);
+
+      // Transform API data to react-select format { value, label }
+      const courseOptions = (coursesRes.data.data.result || []).map(
+        (course) => ({
+          value: course._id,
+          label: `${course.name}`
+        })
+      );
+      const intakeOptions = (intakesRes.data.data.result || []).map(
+        (intake) => ({
+          value: intake._id,
+          label: intake.termName
+        })
+      );
+
+      setCourses(courseOptions);
+      setIntakes(intakeOptions);
+    } catch (err) {
+      console.error('Error fetching courses or intakes:', err);
+      toast({
+        title: 'Failed to load course or intake data.',
+        className: 'bg-destructive text-white border-none'
+      });
+    } finally {
+      setIsFetchingData(false);
+    }
+  };
   useEffect(() => {
     fetchCourse();
+    fetchCoursesAndIntakes();
   }, []);
+
+  // Effect to reset form when dialog closes
+  useEffect(() => {
+    if (!isEditDialogOpen) {
+      setSelectedCourse(null);
+      setSelectedIntake(null);
+    }
+  }, [isEditDialogOpen]);
+
+  // --- HANDLE EDIT BUTTON CLICK ---
+  const handleEditClick = async (courseEntry: any) => {
+    setCurrentEditingCourseId(courseEntry._id);
+
+    // Open the dialog immediately so user sees something is happening
+    setIsEditDialogOpen(true);
+
+    // NOW find the matching options using the (now hopefully populated) courses/intakes arrays
+    const currentCourseOption =
+      courses.find((opt) => opt.value === courseEntry.courseId?._id) || null;
+    const currentIntakeOption =
+      intakes.find((opt) => opt.value === courseEntry.intakeId?._id) || null;
+
+    setSelectedCourse(currentCourseOption);
+    setSelectedIntake(currentIntakeOption);
+  };
+
+  // --- HANDLE FORM SUBMISSION ---
+  const handleUpdateCourse = async () => {
+    if (!currentEditingCourseId) {
+      toast({
+        title: 'No course selected for update.',
+        className: 'bg-destructive text-white border-none'
+      });
+      return;
+    }
+
+    try {
+      await axiosInstance.patch(
+        `/application-course/${currentEditingCourseId}`,
+        {
+          courseId: selectedCourse?.value,
+          intakeId: selectedIntake?.value
+        }
+      );
+      toast({ title: 'Course details updated successfully!' });
+      setIsEditDialogOpen(false);
+      fetchCourse(); // Refresh the course list
+    } catch (error) {
+      console.error('Error updating course:', error);
+      toast({
+        title: 'Failed to update course details.',
+        className: 'bg-destructive text-white border-none'
+      });
+    }
+  };
 
   const copyToClipboard = (value: string, field: string) => {
     navigator.clipboard.writeText(value).then(
@@ -1194,37 +1301,132 @@ export default function ViewStudentApplicationPage() {
                         <h3 className="mb-4 text-lg font-semibold">
                           Course {index + 1}
                         </h3>
+                        <div className="flex  gap-4">
+                          <Dialog
+                            open={isEditDialogOpen}
+                            onOpenChange={setIsEditDialogOpen}
+                          >
+                            <DialogTrigger asChild>
+                              <Button
+                                className="mb-4 bg-black text-white hover:bg-black/80"
+                                variant="default"
+                                size="sm"
+                                onClick={() => handleEditClick(courseEntry)}
+                              >
+                                Edit
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-auto">
+                              <DialogHeader>
+                                <DialogTitle>Edit Course Details</DialogTitle>
+                              </DialogHeader>
 
-                        <Button
-                          className="mb-4 bg-watney text-white hover:bg-watney/90"
-                          variant="default"
-                          size="sm"
-                          disabled={courseEntry.status === 'approved'}
-                          onClick={async () => {
-                            try {
-                              await axiosInstance.patch(
-                                `/application-course/${courseEntry._id}`,
-                                {
-                                  status: 'approved'
-                                }
-                              );
+                              <div className="py-6">
+                                <div className="mb-4 flex flex-row items-center gap-4">
+                                  <Label
+                                    htmlFor="course"
+                                    className="text-left"
+                                  >
+                                    Course
+                                  </Label>
+                                  <div className='w-full'>
+                                    <Select
+                                      id="course"
+                                      value={selectedCourse}
+                                      onChange={(option) =>
+                                        setSelectedCourse(option)
+                                      }
+                                      options={courses}
+                                      isLoading={isFetchingData}
+                                      placeholder="Select a course..."
+                                      isClearable={false}
+                                      isSearchable
+                                      className="react-select-container"
+                                      classNamePrefix="react-select"
+                                    />
+                                  </div>
+                                </div>
 
-                              toast({ title: 'Course approved successfully!' });
-                              fetchCourse();
-                            } catch (error) {
-                              console.error('Error approving course:', error);
-                              toast({
-                                title: 'Failed to approve course.',
-                                className:
-                                  'bg-destructive text-white border-none'
-                              });
-                            }
-                          }}
-                        >
-                          {courseEntry.status === 'approved'
-                            ? 'Approved'
-                            : 'Approve'}
-                        </Button>
+                                <div className=" flex flex-row  items-center gap-4">
+                                  <Label
+                                    htmlFor="intake"
+                                    className="text-left"
+                                  >
+                                    Intake
+                                  </Label>
+                                  <div className='w-full' >
+                                    <Select
+                                      id="intake"
+                                      value={selectedIntake}
+                                      onChange={(option) =>
+                                        setSelectedIntake(option)
+                                      }
+                                      options={intakes}
+                                      isLoading={isFetchingData}
+                                      placeholder="Select an intake..."
+                                      isClearable={false}
+                                      isSearchable
+                                      className="react-select-container"
+                                      classNamePrefix="react-select"
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+
+                              <DialogFooter className="flex justify-end gap-2">
+                                <DialogClose asChild>
+                                  <Button variant="outline">Cancel</Button>
+                                </DialogClose>
+                                <Button
+                                  type="submit"
+                                  onClick={handleUpdateCourse}
+                                  disabled={
+                                    !selectedCourse ||
+                                    !selectedIntake ||
+                                    isFetchingData
+                                  }
+
+                                  className='bg-watney text-white hover:bg-watney/90'
+                                >
+                                  Save Changes
+                                </Button>
+                              </DialogFooter>
+                            </DialogContent>
+                          </Dialog>
+
+                          <Button
+                            className="mb-4 bg-watney text-white hover:bg-watney/90"
+                            variant="default"
+                            size="sm"
+                            disabled={courseEntry.status === 'approved'}
+                            onClick={async () => {
+                              try {
+                                await axiosInstance.patch(
+                                  `/application-course/${courseEntry._id}`,
+                                  {
+                                    status: 'approved'
+                                  }
+                                );
+
+                                toast({
+                                  title: 'Course approved successfully!'
+                                });
+                                fetchCourse();
+                              } catch (error) {
+                                console.error('Error approving course:', error);
+                                toast({
+                                  title: 'Failed to approve course.',
+                                  className:
+                                    'bg-destructive text-white border-none'
+                                });
+                              }
+                            }}
+                          >
+                            {courseEntry.status === 'approved'
+                              ? 'Approved'
+                              : 'Approve'}
+                          </Button>
+                        </div>
                       </div>
 
                       <Table>

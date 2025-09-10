@@ -266,7 +266,9 @@ const [documents, setDocuments] = useState<DocumentFile>({
                           : fileName}
                       </span>
                       <span className="hidden truncate sm:inline">
-                        {fileName}
+                        {fileName.length > 25
+                          ? fileName.slice(0, 15) + '...'
+                          : fileName}
                       </span>
                       <ExternalLink className="h-3 w-3 flex-shrink-0" />
                     </a>
