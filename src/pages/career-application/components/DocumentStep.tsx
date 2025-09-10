@@ -12,7 +12,6 @@ import { ImageUploader } from './document-uploader';
 import { useSelector } from 'react-redux';
 import { z } from 'zod';
 
-
 export const createDocumentSchema = (
   hasExistingResume = false,
   nationality?: string
@@ -47,14 +46,14 @@ export const createDocumentSchema = (
   //   })
   // });
   z.object({
-  cvResume: z.string().optional(),
-  idDocuments: z.array(z.string()).optional(),
-  image: z.string().optional(),
-  utilityBills: z.array(z.string()).optional(),
-  bankStatement: z.array(z.string()).optional(),
-  proofOfNI: z.array(z.string()).optional(),
-  immigrationDocument: z.array(z.string()).optional(),
-});
+    cvResume: z.string().optional(),
+    idDocuments: z.array(z.string()).optional(),
+    image: z.string().optional(),
+    utilityBills: z.array(z.string()).optional(),
+    bankStatement: z.array(z.string()).optional(),
+    proofOfNI: z.array(z.string()).optional(),
+    immigrationDocument: z.array(z.string()).optional()
+  });
 
 // 🧾 Type derived from schema
 export type DocumentFile = z.infer<ReturnType<typeof createDocumentSchema>>;
@@ -81,12 +80,12 @@ export function DocumentStep({
 
   const [documents, setDocuments] = useState({
     cvResume: '',
-    image:'',
+    image: '',
     idDocuments: [],
     utilityBills: [],
     bankStatement: [],
     proofOfNI: [],
-    immigrationDocument: [],
+    immigrationDocument: []
   });
 
   useEffect(() => {
@@ -98,7 +97,7 @@ export function DocumentStep({
         utilityBills: defaultValues?.utilityBills ?? [],
         bankStatement: defaultValues?.bankStatement ?? [],
         proofOfNI: defaultValues?.proofOfNI ?? [],
-        immigrationDocument: defaultValues?.immigrationDocument ?? [],
+        immigrationDocument: defaultValues?.immigrationDocument ?? []
       });
     }
   }, [defaultValues]);
@@ -113,7 +112,9 @@ export function DocumentStep({
     field: keyof DocumentFile | null;
   }>({ isOpen: false, field: null });
 
-  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [validationErrors, setValidationErrors] = useState<
+    Record<string, string>
+  >({});
   const { user } = useSelector((state: any) => state.auth);
 
   const handleRemoveFile = (field: keyof DocumentFile, fileName: string) => {
@@ -151,9 +152,9 @@ export function DocumentStep({
     documents.image &&
     documents.utilityBills.length > 0 &&
     documents.bankStatement.length > 0 &&
-    documents.proofOfNI.length > 0
-  
-    // (defaultValues?.nationality === 'british' || documents.immigrationDocument.length > 0);
+    documents.proofOfNI.length > 0;
+
+  // (defaultValues?.nationality === 'british' || documents.immigrationDocument.length > 0);
 
   const renderUploadedFiles = (field: keyof DocumentFile) => {
     const value = documents[field] as string | string[];
@@ -164,7 +165,9 @@ export function DocumentStep({
     return (
       <div className="mt-3 space-y-2">
         {files.map((fileUrl, index) => {
-          const fileName = decodeURIComponent(fileUrl.split('/').pop() || `File-${index}`);
+          const fileName = decodeURIComponent(
+            fileUrl.split('/').pop() || `File-${index}`
+          );
           return (
             <div
               key={`${fileUrl}-${index}`}
@@ -181,8 +184,16 @@ export function DocumentStep({
                     rel="noopener noreferrer"
                     className="flex items-center space-x-2 text-sm font-medium text-gray-900 transition-colors hover:text-watney/90"
                   >
-                    <span className="truncate sm:hidden">{fileName}</span>
-                    <span className="hidden truncate sm:inline">{fileName}</span>
+                    <span className="truncate sm:hidden">
+                      {fileName.length > 20
+                        ? fileName.slice(0, 10) + '...'
+                        : fileName}
+                    </span>
+                    <span className="hidden truncate sm:inline">
+                      {fileName.length > 35
+                        ? fileName.slice(0, 30) + '...'
+                        : fileName}
+                    </span>
                     <ExternalLink className="h-3 w-3 flex-shrink-0" />
                   </a>
                 </div>
@@ -202,7 +213,8 @@ export function DocumentStep({
     );
   };
 
-  const openImageUploader = (field: keyof DocumentFile) => setUploadState({ isOpen: true, field });
+  const openImageUploader = (field: keyof DocumentFile) =>
+    setUploadState({ isOpen: true, field });
 
   const handleUploadComplete = (uploadResponse: any) => {
     const { field } = uploadState;
@@ -213,11 +225,11 @@ export function DocumentStep({
 
     const fileUrl = uploadResponse.data.fileUrl;
 
-    if (field === 'cvResume' ) {
+    if (field === 'cvResume') {
       setDocuments((prev) => ({ ...prev, cvResume: fileUrl }));
-    }else if(field === 'image' ) {
+    } else if (field === 'image') {
       setDocuments((prev) => ({ ...prev, image: fileUrl }));
-    }  else {
+    } else {
       setDocuments((prev) => ({
         ...prev,
         [field]: [...(prev[field] as string[]), fileUrl]
@@ -236,13 +248,56 @@ export function DocumentStep({
     formats: string;
     uploadLabel?: string;
   }> = [
-    { id: 'cvResume', label: 'CV/Resume', required: true, instructions: 'Upload your CV or Resume', formats: 'PDF, DOC, DOCX' },
-    { id: 'idDocuments', label: 'Two Forms of ID', required: true, instructions: 'Passport, Birth Certificate, Driver’s Licence or Marriage Certificate', formats: 'PDF, JPG, PNG' },
-    { id: 'image', label: 'Photograph', required: true, instructions: 'Recent passport-size photos', formats: 'JPG, PNG' },
-    { id: 'utilityBills', label: 'Utility Bills', required: true, instructions: 'Not older than 3 months', formats: 'PDF, JPG, PNG' },
-    { id: 'bankStatement', label: 'Bank Statement', required: true, instructions: 'Address must correspond with utility bill', formats: 'PDF, JPG, PNG' },
-    { id: 'proofOfNI', label: 'Proof of National Insurance', required: true, instructions: 'N.I Card, P45, etc.', formats: 'PDF, JPG, PNG' },
-    { id: 'immigrationDocument', label: 'Immigration Details / Work Permit', required: false, instructions: 'Upload if applicable', formats: 'PDF, JPG, PNG' },
+    {
+      id: 'cvResume',
+      label: 'CV/Resume',
+      required: true,
+      instructions: 'Upload your CV or Resume',
+      formats: 'PDF, DOC, DOCX'
+    },
+    {
+      id: 'idDocuments',
+      label: 'Two Forms of ID',
+      required: true,
+      instructions:
+        'You must upload two forms of identification (e.g., Passport, Birth Certificate, Driver’s Licence, or Marriage Certificate).',
+      formats: 'PDF, JPG, PNG'
+    },
+    {
+      id: 'image',
+      label: 'Photograph',
+      required: true,
+      instructions: 'Recent passport-size photos',
+      formats: 'JPG, PNG'
+    },
+    {
+      id: 'utilityBills',
+      label: 'Utility Bills',
+      required: true,
+      instructions: 'Not older than 3 months',
+      formats: 'PDF, JPG, PNG'
+    },
+    {
+      id: 'bankStatement',
+      label: 'Bank Statement',
+      required: true,
+      instructions: 'Address must correspond with utility bill',
+      formats: 'PDF, JPG, PNG'
+    },
+    {
+      id: 'proofOfNI',
+      label: 'Proof of National Insurance',
+      required: true,
+      instructions: 'N.I Card, P45, etc.',
+      formats: 'PDF, JPG, PNG'
+    },
+    {
+      id: 'immigrationDocument',
+      label: 'Immigration Details / Work Permit',
+      required: false,
+      instructions: 'Upload if applicable',
+      formats: 'PDF, JPG, PNG'
+    }
   ];
 
   return (
@@ -250,64 +305,95 @@ export function DocumentStep({
       <Card className="border-0 shadow-none">
         <CardHeader>
           <h2 className="text-2xl font-bold text-gray-900">Document Upload</h2>
-          <p className="mt-1 text-gray-600">Please upload all required documents to complete your application</p>
+          <p className="mt-1 text-gray-600">
+            Please upload all required documents to complete your application
+          </p>
         </CardHeader>
         <CardContent className="pt-4">
           <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
-            {documentTypes.map(({ id, label, required, instructions, formats, uploadLabel }) => {
-              const hasFiles =
-                id === 'cvResume'|| id ==='image'
-                  ? !!documents.cvResume
-                  : Array.isArray(documents[id]) && (documents[id] as string[]).length > 0;
+            {documentTypes.map(
+              ({ id, label, required, instructions, formats, uploadLabel }) => {
+                const hasFiles =
+                  id === 'cvResume' || id === 'image'
+                    ? !!documents.cvResume
+                    : Array.isArray(documents[id]) &&
+                      (documents[id] as string[]).length > 0;
 
-              return (
-                <div key={id} className={`rounded-xl border transition-colors duration-200 ${hasFiles ? 'border-green-400' : 'border-gray-100'} bg-gray-50`}>
-                  <div className="p-4 sm:p-6">
-                    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-start space-x-3">
-                          <div className="mt-1 rounded-lg p-2 bg-gray-100">
-                            <FileText className={`h-5 w-5 ${hasFiles ? 'text-green-600' : 'text-gray-600'}`} />
+                return (
+                  <div
+                    key={id}
+                    className={`rounded-xl border transition-colors duration-200 ${hasFiles ? 'border-green-400' : 'border-gray-100'} bg-gray-50`}
+                  >
+                    <div className="p-4 sm:p-6">
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-start space-x-3">
+                            <div className="mt-1 rounded-lg bg-gray-100 p-2">
+                              <FileText
+                                className={`h-5 w-5 ${hasFiles ? 'text-green-600' : 'text-gray-600'}`}
+                              />
+                            </div>
+                            <div>
+                              <h3 className="flex items-center text-sm font-semibold text-gray-900 sm:text-base">
+                                {label}{' '}
+                                {required && (
+                                  <span className="ml-1 text-red-500">*</span>
+                                )}
+                                {hasFiles && (
+                                  <CheckCircle className="ml-2 h-4 w-4 text-green-600" />
+                                )}
+                              </h3>
+                              <p className="mt-1 text-xs text-gray-600 sm:text-sm">
+                                {instructions}
+                              </p>
+                              <p className="mt-1 text-xs text-gray-500">
+                                Accepted formats: {formats}
+                              </p>
+                            </div>
                           </div>
-                          <div>
-                            <h3 className="flex items-center text-sm font-semibold text-gray-900 sm:text-base">
-                              {label} {required && <span className="ml-1 text-red-500">*</span>}
-                              {hasFiles && <CheckCircle className="ml-2 h-4 w-4 text-green-600" />}
-                            </h3>
-                            <p className="mt-1 text-xs text-gray-600 sm:text-sm">{instructions}</p>
-                            <p className="mt-1 text-xs text-gray-500">Accepted formats: {formats}</p>
-                          </div>
+                          {renderUploadedFiles(id)}
                         </div>
-                        {renderUploadedFiles(id)}
+                        <Button
+                          type="button"
+                          onClick={() => openImageUploader(id)}
+                          className="mt-2 w-full self-start rounded-lg bg-watney px-4 py-2 text-xs font-medium text-white hover:bg-watney/90 sm:mt-0 sm:w-auto sm:px-6 sm:text-sm"
+                        >
+                          <span className="flex items-center gap-1.5">
+                            <Upload className="h-4 w-4" /> Upload
+                          </span>
+                        </Button>
                       </div>
-                      <Button
-                        type="button"
-                        onClick={() => openImageUploader(id)}
-                        className="mt-2 w-full self-start rounded-lg bg-watney px-4 py-2 text-xs font-medium text-white hover:bg-watney/90 sm:mt-0 sm:w-auto sm:px-6 sm:text-sm"
-                      >
-                        <span className="flex items-center gap-1.5"><Upload className="h-4 w-4" /> Upload</span>
-                      </Button>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              }
+            )}
           </div>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-between">
-            <Button type="button" variant="outline" onClick={handleBack} className="w-full justify-center bg-watney text-white hover:bg-watney/90 sm:w-auto">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleBack}
+              className="w-full justify-center bg-watney text-white hover:bg-watney/90 sm:w-auto"
+            >
               Back
             </Button>
-            <Button type="button" onClick={handleSubmit}
-             disabled={!allDocumentsUploaded}
-              className="w-full justify-center bg-watney text-white hover:bg-watney/90 sm:w-auto">
+            <Button
+              type="button"
+              onClick={handleSubmit}
+              disabled={!allDocumentsUploaded}
+              className="w-full justify-center bg-watney text-white hover:bg-watney/90 sm:w-auto"
+            >
               Next
             </Button>
           </div>
 
           <ImageUploader
             open={uploadState.isOpen}
-            onOpenChange={(isOpen) => setUploadState((prev) => ({ ...prev, isOpen }))}
+            onOpenChange={(isOpen) =>
+              setUploadState((prev) => ({ ...prev, isOpen }))
+            }
             onUploadComplete={handleUploadComplete}
             entityId={user?._id}
           />

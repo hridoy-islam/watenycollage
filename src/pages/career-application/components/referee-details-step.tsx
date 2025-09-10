@@ -211,7 +211,7 @@ export function RefereeDetailsStep({
       <CardHeader>
         <h2 className="text-xl font-semibold">Reference Details</h2>
         <p className="text-sm text-gray-400">
-          Please provide the names and addresses of three referees. Two of these must be your current and most recent employers. Referees must not be family members.
+          Please give the names and addresses of three referees. Two of these must be your current and most recent employers. If this period of employment was for less than three month you will require a further referee from your next previous employer for whom you worked for a minimum of three months. A referee from your employment must be a senior line manager who knows you. Referees must not be family members.
         </p>
       </CardHeader>
       <CardContent>
@@ -219,17 +219,17 @@ export function RefereeDetailsStep({
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             {renderRefereeFields(
               'professionalReferee1',
-              'Professional Reference 1',
+              'Reference 1',
               'Your current or most recent employer. Must be a senior line manager.'
             )}
             {renderRefereeFields(
               'professionalReferee2',
-              'Professional Reference 2',
+              'Reference 2',
               'Your previous employer. Must be a senior line manager.'
             )}
             {renderRefereeFields(
               'personalReferee',
-              'Personal Reference',
+              'Reference 3',
               'A personal referee who knows you and can speak to your character. Must not be a family member.'
             )}
 

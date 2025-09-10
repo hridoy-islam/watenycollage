@@ -657,11 +657,11 @@ export default function CareerApplicationForm() {
                           href="mailto:admissions@watneycollege.ac.uk"
                           className="underline"
                         >
-                          admissions@watneycollege.ac.uk
+                          info@everycare.co.uk
                         </a>
                       </li>
                       <li>
-                        ☎ <strong>Phone:</strong> +44 (0)20 1234 5678
+                        ☎ <strong>Phone:</strong> +442920455300
                       </li>
                     </ul>
                   </div>

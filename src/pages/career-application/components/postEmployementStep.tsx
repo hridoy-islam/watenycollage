@@ -164,77 +164,76 @@ export function PostEmployementStep({
   onSaveAndContinue,
   setCurrentStep
 }) {
-  const form = useForm<MedicalHistoryFormValues>({
-    resolver: zodResolver(medicalHistorySchema),
-    defaultValues: {
-      // All booleans default to false
-      firstName: defaultValues.firstName || '',
-      lastName: defaultValues.lastName || '',
-      dateOfBirth: defaultValues.dateOfBirth
-        ? new Date(defaultValues.dateOfBirth)
-        : undefined,
-      jobRole: defaultValues.jobRole || '',
-      sex: defaultValues.sex || undefined,
-     
-      advisedMedicalWorkRestriction: false,
-      undueFatigue: false,
-      bronchitis: false,
-      breathlessness: false,
-      allergies: false,
-      pneumonia: false,
-      hayFever: false,
-      shortnessOfBreath: false,
-      jundice: false,
-      stomachProblems: false,
-      stomachUlcer: false,
-      hernias: false,
-      bowelProblem: false,
-      diabetesMellitus: false,
-      nervousDisorder: false,
-      dizziness: false,
-      earProblems: false,
-      hearingDefect: false,
-      epilepsy: false,
-      eyeProblems: false,
-      ppeAllergy: false,
-      rheumaticFever: false,
-      highBloodPressure: false,
-      lowBloodPressure: false,
-      palpitations: false,
-      heartAttack: false,
-      angina: false,
-      asthma: false,
-      chronicLungProblems: false,
-      stroke: false,
-      heartMurmur: false,
-      backProblems: false,
-      jointProblems: false,
-      swollenLegs: false,
-      varicoseVeins: false,
-      rheumatism: false,
-      migraine: false,
-      drugReaction: false,
-      visionCorrection: false,
-      skinConditions: false,
-      alcoholHealthProblems: false,
-      recentIllHealth: false,
-      attendingClinic: false,
-      hadChickenPox: false,
-      otherCommunicableDisease: false,
-      inocDiphtheria: false,
-      inocHepatitisB: false,
-      inocTuberculosis: false,
-      inocRubella: false,
-      inocVaricella: false,
-      inocPolio: false,
-      inocTetanus: false,
-      testedHIV: false,
-      consentMedicalDeclaration: false,
-      consentVaccination: false,
-      consentTerminationClause: false,
-      ...defaultValues
-    }
-  });
+const form = useForm<MedicalHistoryFormValues>({
+  resolver: zodResolver(medicalHistorySchema),
+  defaultValues: {
+    firstName: defaultValues.firstName || '',
+    lastName: defaultValues.lastName || '',
+    dateOfBirth: defaultValues.dateOfBirth ? new Date(defaultValues.dateOfBirth) : undefined,
+    jobRole: defaultValues.jobRole || '',
+    sex: defaultValues.sex || undefined,
+
+    advisedMedicalWorkRestriction: defaultValues.advisedMedicalWorkRestriction || undefined,
+    undueFatigue: defaultValues.undueFatigue || undefined,
+    bronchitis: defaultValues.bronchitis || undefined,
+    breathlessness: defaultValues.breathlessness || undefined,
+    allergies: defaultValues.allergies || undefined,
+    pneumonia: defaultValues.pneumonia || undefined,
+    hayFever: defaultValues.hayFever || undefined,
+    shortnessOfBreath: defaultValues.shortnessOfBreath || undefined,
+    jundice: defaultValues.jundice || undefined,
+    stomachProblems: defaultValues.stomachProblems || undefined,
+    stomachUlcer: defaultValues.stomachUlcer || undefined,
+    hernias: defaultValues.hernias || undefined,
+    bowelProblem: defaultValues.bowelProblem || undefined,
+    diabetesMellitus: defaultValues.diabetesMellitus || undefined,
+    nervousDisorder: defaultValues.nervousDisorder || undefined,
+    dizziness: defaultValues.dizziness || undefined,
+    earProblems: defaultValues.earProblems || undefined,
+    hearingDefect: defaultValues.hearingDefect || undefined,
+    epilepsy: defaultValues.epilepsy || undefined,
+    eyeProblems: defaultValues.eyeProblems || undefined,
+    ppeAllergy: defaultValues.ppeAllergy || undefined,
+    rheumaticFever: defaultValues.rheumaticFever || undefined,
+    highBloodPressure: defaultValues.highBloodPressure || undefined,
+    lowBloodPressure: defaultValues.lowBloodPressure || undefined,
+    palpitations: defaultValues.palpitations || undefined,
+    heartAttack: defaultValues.heartAttack || undefined,
+    angina: defaultValues.angina || undefined,
+    asthma: defaultValues.asthma || undefined,
+    chronicLungProblems: defaultValues.chronicLungProblems || undefined,
+    stroke: defaultValues.stroke || undefined,
+    heartMurmur: defaultValues.heartMurmur || undefined,
+    backProblems: defaultValues.backProblems || undefined,
+    jointProblems: defaultValues.jointProblems || undefined,
+    swollenLegs: defaultValues.swollenLegs || undefined,
+    varicoseVeins: defaultValues.varicoseVeins || undefined,
+    rheumatism: defaultValues.rheumatism || undefined,
+    migraine: defaultValues.migraine || undefined,
+    drugReaction: defaultValues.drugReaction || undefined,
+    visionCorrection: defaultValues.visionCorrection || undefined,
+    skinConditions: defaultValues.skinConditions || undefined,
+    alcoholHealthProblems: defaultValues.alcoholHealthProblems || undefined,
+    recentIllHealth: defaultValues.recentIllHealth || undefined,
+    attendingClinic: defaultValues.attendingClinic || undefined,
+    hadChickenPox: defaultValues.hadChickenPox || undefined,
+    otherCommunicableDisease: defaultValues.otherCommunicableDisease || undefined,
+    inocDiphtheria: defaultValues.inocDiphtheria || undefined,
+    inocHepatitisB: defaultValues.inocHepatitisB || undefined,
+    inocTuberculosis: defaultValues.inocTuberculosis || undefined,
+    inocRubella: defaultValues.inocRubella || undefined,
+    inocVaricella: defaultValues.inocVaricella || undefined,
+    inocPolio: defaultValues.inocPolio || undefined,
+    inocTetanus: defaultValues.inocTetanus || undefined,
+    testedHIV: defaultValues.testedHIV || undefined,
+    consentMedicalDeclaration: defaultValues.consentMedicalDeclaration || undefined,
+    consentVaccination: defaultValues.consentVaccination || undefined,
+    consentTerminationClause: defaultValues.consentTerminationClause || undefined,
+
+    ...defaultValues, // keep other non-boolean fields
+  }
+});
+
 
   useEffect(() => {
     if (defaultValues) {
@@ -255,52 +254,81 @@ export function PostEmployementStep({
     setCurrentStep(11);
   };
 
-  // --- HELPER: Render checkbox with optional comment ---
-  const renderCheckboxField = (
-    name: keyof MedicalHistoryFormValues,
-    label: string,
-    commentName?: keyof MedicalHistoryFormValues
-  ) => (
-    <div className="grid grid-cols-1 items-center gap-4 border-b border-gray-100 py-2 sm:grid-cols-3">
-      <FormLabel className="font-medium">{label}</FormLabel>
+const renderCheckboxField = (
+  name: keyof MedicalHistoryFormValues,
+  label: string,
+  commentName?: keyof MedicalHistoryFormValues
+) => (
+  <div className="grid grid-cols-1 items-start gap-4 border-b border-gray-100 py-3 sm:grid-cols-3">
+    {/* Question */}
+    <FormLabel className="font-medium self-center">{label}</FormLabel>
+
+    {/* Yes/No Checkboxes using shadcn/ui */}
+    <FormField
+      control={form.control}
+      name={name}
+      render={({ field }) => (
+        <FormItem className="flex items-center space-x-6">
+          {/* Yes Option */}
+          <div className="flex items-center space-x-2 mt-2">
+            <Checkbox
+              checked={field.value === true}
+              onCheckedChange={() => field.onChange(true)}
+              id={`${String(name)}-yes`}
+            />
+            <label
+              htmlFor={`${String(name)}-yes`}
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              Yes
+            </label>
+          </div>
+
+          {/* No Option */}
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              checked={field.value === false}
+              onCheckedChange={() => field.onChange(false)}
+              id={`${String(name)}-no`}
+            />
+            <label
+              htmlFor={`${String(name)}-no`}
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              No
+            </label>
+          </div>
+
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+
+    {/* Conditional Comment Field */}
+    {commentName && (
       <FormField
         control={form.control}
-        name={name}
+        name={commentName}
         render={({ field }) => (
-          <FormItem className="flex items-center space-x-2">
+          <FormItem>
             <FormControl>
-              <Checkbox
-                checked={field.value}
-                onCheckedChange={field.onChange}
+              <Textarea
+                {...field}
+                placeholder="Details (if Yes)..."
+                className="w-full border-gray-300"
+                disabled={form.watch(name) !== true} // Only enabled if "Yes"
               />
             </FormControl>
             <FormMessage />
           </FormItem>
         )}
       />
-      {commentName && (
-        <FormField
-          control={form.control}
-          name={commentName}
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <Textarea
-                  {...field}
-                  placeholder="Details..."
-                  className="w-full border-gray-300"
-                  disabled={!form.watch(name)}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      )}
-      {!commentName && <div></div>} {/* Placeholder for alignment */}
-    </div>
-  );
+    )}
 
+    {/* Placeholder for alignment */}
+    {!commentName && <div></div>}
+  </div>
+);
   const renderSection = (title: string, children: React.ReactNode) => (
     <div className="space-y-4">
       <h3 className="border-b pb-2 text-lg font-semibold">{title}</h3>
