@@ -78,6 +78,7 @@ export default function RegistrationForm({
         firstName: values.firstName,
         initial: values.initial,
         lastName: values.lastName,
+        email: values.email.toLowerCase(),
         nationality: values.nationality,
         dateOfBirth: values.dateOfBirth
       });

@@ -34,8 +34,9 @@ export default function LoginForm() {
   const handleLoginSubmit = async (values: z.infer<typeof loginSchema>) => {
     try {
 
-      console.log(values)
-      const response = await dispatch(loginUser(values))
+         const normalizedData = { ...values, email: values.email.toLowerCase() };
+
+      const response = await dispatch(loginUser(normalizedData))
       const result = response.payload
 
       if (!result?.success) {

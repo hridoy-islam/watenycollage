@@ -44,10 +44,11 @@ export default function ForgotPassword() {
   const onSubmit = async (data: UserFormValue) => {
     try {
       setLoading(true); // start loading
-      const result: any = await dispatch(requestOtp(data));
+      const normalizedData = { ...data, email: data.email.toLowerCase() };
+      const result: any = await dispatch(requestOtp(normalizedData));
 
       if (result?.payload?.success) {
-        localStorage.setItem('tp_otp_email', data.email);
+        localStorage.setItem('tp_otp_email', data.email.toLowerCase());
         router.push('/otp');
       } else {
         // handle failure case if needed
