@@ -9,12 +9,20 @@ import {
   TableRow
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Briefcase, Eye, MoveLeft } from 'lucide-react';
+import { Briefcase, ClipboardPenLine, Eye, MoveLeft } from 'lucide-react';
 import moment from 'moment';
 import { DataTablePagination } from '@/components/shared/data-table-pagination';
 import { useNavigate, useParams } from 'react-router-dom';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
 import { Input } from '@/components/ui/input';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+
 
 interface CareerApplication {
   _id: string;
@@ -147,20 +155,57 @@ return (
                   </TableCell>
                   <TableCell>{app.applicantId?.email ?? 'N/A'}</TableCell>
                   <TableCell>{app.jobId?.jobTitle ?? 'N/A'}</TableCell>
-                  <TableCell className="text-center">
-                    <Button
-                      variant="ghost"
-                      className="bg-watney hover:bg-watney/90 text-white border-none"
-                      size="icon"
-                      onClick={() =>
-                        navigate(
-                          `/dashboard/career-application/${app?._id}/${app.applicantId?._id}`
-                        )
-                      }
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                  </TableCell>
+
+
+<TableCell className="text-center">
+  <div className="flex flex-row gap-4">
+    {/* Interview Button */}
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="ghost"
+            className="bg-watney hover:bg-watney/90 text-white border-none"
+            size="icon"
+            onClick={() =>
+              navigate(
+                `/dashboard/career-application/${app?._id}/${app.applicantId?._id}/interview`
+              )
+            }
+          >
+            <ClipboardPenLine className="h-4 w-4" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Interview</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+
+    {/* View Details Button */}
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="ghost"
+            className="bg-watney hover:bg-watney/90 text-white border-none"
+            size="icon"
+            onClick={() =>
+              navigate(
+                `/dashboard/career-application/${app?._id}/${app.applicantId?._id}`
+              )
+            }
+          >
+            <Eye className="h-4 w-4" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>View Details</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  </div>
+</TableCell>
                 </TableRow>
               ))}
             </TableBody>

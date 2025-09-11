@@ -19,6 +19,7 @@ import CareerGuideline from '@/pages/guideline/career-guideline';
 import JobApplicationPage from '@/pages/dashboard-application/job-application';
 import ViewCareerApplicationPage from '@/pages/application/view-careerApplication';
 import CareerApplicationsPage from '@/pages/dashboard/components/jobs/job-applicant';
+import InterviewPage from '@/pages/interview';
 
 
 const SignInPage = lazy(() => import('@/pages/auth/signin/index'));
@@ -69,6 +70,11 @@ export default function AppRouter() {
       {
         path: 'career-application/:id/:userId',
         element: withRole(<ViewCareerApplicationPage />, ['admin','applicant'])
+      },
+      
+      {
+        path: 'career-application/:id/:userId/interview',
+        element: withRole(<InterviewPage />, ['admin'])
       },
       
       {
