@@ -55,7 +55,6 @@ export function RefereeDetailsStep({
   });
 
   const onSubmit = (data: RefereeFormValues) => {
-    console.log(data);
     onSaveAndContinue(data);
   };
 

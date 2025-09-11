@@ -96,7 +96,7 @@ export default function CareerApplicationsPage() {
 
 
 return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       {/* Header with Search + Back Button */}
       <div className="flex items-center justify-between">
         <div className="flex flex-row items-center gap-4">
