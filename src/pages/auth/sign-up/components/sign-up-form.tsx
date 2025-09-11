@@ -37,7 +37,7 @@ const signUpSchema = z.object({
   password: z.string().min(6, 'Password must be at least 6 characters'),
   phone: z.string().min(7, 'Phone number is required'),
   nationality: z.string().min(1, 'Nationality is required'),
-  dateOfBirth: z.string().min(1, 'Date of birth is required'),
+  dateOfBirth: z.string().min(1, 'Date of birth is required')
 });
 
 type SignUpFormValues = z.infer<typeof signUpSchema>;
@@ -58,14 +58,12 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
       password: '',
       phone: '',
       nationality: '',
-      dateOfBirth: '',
-     
+      dateOfBirth: ''
     }
   });
 
   const onSubmit = async (data: SignUpFormValues) => {
     try {
-      console.log('Form Data:', data);
       const response = await axiosInstance.post('/auth/signup', {
         ...data,
         name: `${data.title} ${data.firstName} ${data.initial} ${data.lastName}`,
@@ -73,9 +71,11 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
         firstName: data.firstName,
         initial: data.initial,
         lastName: data.lastName,
+        email: data.email.toLowerCase(),
+
         nationality: data.nationality,
         dateOfBirth: data.dateOfBirth,
-        role:'applicant'
+        role: 'applicant'
       });
 
       if (response?.data?.success) {
@@ -128,9 +128,9 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
     <section>
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(onSubmit,  (errors) => {
-      console.log('Validation errors:', errors); // 🔍 Add this
-    })}
+          onSubmit={form.handleSubmit(onSubmit, (errors) => {
+            console.log('Validation errors:', errors); // 🔍 Add this
+          })}
           className="space-y-2 py-14"
         >
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">

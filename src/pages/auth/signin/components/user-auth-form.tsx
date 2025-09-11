@@ -61,7 +61,11 @@ export default function UserAuthForm() {
   });
 
   const onSubmit = async (data: UserFormValue) => {
-    const result: any = await dispatch(loginUser(data));
+    const normalizedData = {
+    ...data,
+    email: data.email.toLowerCase(),
+  };
+    const result: any = await dispatch(loginUser(normalizedData));
     if (result?.payload?.success) {
       router.push('/dashboard');
     }
