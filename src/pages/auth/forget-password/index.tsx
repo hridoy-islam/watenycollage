@@ -44,7 +44,7 @@ export default function ForgotPassword() {
 
     const result: any = await dispatch(requestOtp(normalizedData));
     if (result?.payload?.success) {
-      localStorage.setItem('tp_otp_email', data.email);
+      localStorage.setItem('tp_otp_email', data.email.toLowerCase());
 
       router.push('/otp');
     }
