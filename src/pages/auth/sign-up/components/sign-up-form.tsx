@@ -87,6 +87,7 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
         initial: data.initial,
         lastName: data.lastName,
         nationality: data.nationality,
+        email: data.email.toLowerCase(),
         dateOfBirth: data.dateOfBirth,
         role: data.role,
         studentType: data.studentType || undefined
