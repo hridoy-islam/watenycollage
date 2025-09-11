@@ -65,7 +65,6 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
 
   const onSubmit = async (data: SignUpFormValues) => {
     try {
-      console.log('Form Data:', data);
       const response = await axiosInstance.post('/auth/signup', {
         ...data,
         name: `${data.title} ${data.firstName} ${data.initial} ${data.lastName}`,

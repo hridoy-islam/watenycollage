@@ -110,7 +110,6 @@ const [isLoading, setIsLoading] = useState(false);
 
   const handleResendOtp = async () => {
     try {
-      console.log('Resending OTP to', email);
       // TODO: Replace this with your actual resend OTP logic
       await dispatch(resendOtp({ email }));
       setResendCooldown(30);

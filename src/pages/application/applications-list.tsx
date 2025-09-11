@@ -84,7 +84,6 @@ export default function ApplicationListPage() {
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   };
 
-  console.log(applications);
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
