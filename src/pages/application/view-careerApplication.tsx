@@ -267,12 +267,13 @@ export default function ViewCareerApplicationPage() {
       typeof value === 'string' &&
       /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 
-    const displayValue = isUrl
+     const displayValue = isUrl
       ? null
       : isEmail
         ? value.toLowerCase()
-        : formatValue(value);
-
+        : typeof value === 'string' && /^\d+$/.test(value)
+          ? value
+          : formatValue(value);
     return (
       <TableRow key={fieldPath} className="hover:bg-muted/10">
         <TableCell className="text-left align-middle font-medium">
