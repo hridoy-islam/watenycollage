@@ -271,7 +271,9 @@ export default function ViewCareerApplicationPage() {
       ? null
       : isEmail
         ? value.toLowerCase()
-        : formatValue(value);
+        : typeof value === 'string' && /^\d+$/.test(value)
+          ? value
+          : formatValue(value);
 
     return (
       <TableRow key={fieldPath} className="hover:bg-muted/10">
@@ -368,7 +370,7 @@ export default function ViewCareerApplicationPage() {
         >
           <MoveLeft /> Back
         </Button>
-        <div className='font-semibold'>{applicationJob?.jobId?.jobTitle}</div>
+        <div className="font-semibold">{applicationJob?.jobId?.jobTitle}</div>
         <PDFGenerator
           application={application}
           applicationJob={applicationJob}
@@ -710,7 +712,6 @@ export default function ViewCareerApplicationPage() {
                       application?.canWorkInUK ? 'Yes' : 'No',
                       'canWorkInUK'
                     )}
-                  
                   </TableBody>
                 </Table>
               </CardContent>
