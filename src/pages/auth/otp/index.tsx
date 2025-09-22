@@ -1,49 +1,50 @@
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 // import { resendOtp, validateRequestOtp } from '@/redux/features/authSlice';
-import { AppDispatch } from '@/redux/store';
-import { useRouter } from '@/routes/hooks';
-import { jwtDecode } from 'jwt-decode';
-import { useEffect, useRef, useState } from 'react';
-import { useDispatch } from 'react-redux';
-import watney from '@/assets/imges/home/watney.jpg';
-import logo from '@/assets/imges/home/logo.png';
+import { AppDispatch } from "@/redux/store";
+import { useRouter } from "@/routes/hooks";
+import { jwtDecode } from "jwt-decode";
+import { useEffect, useRef, useState } from "react";
+import { useDispatch } from "react-redux";
+import watney from "@/assets/imges/home/watney.jpg";
+import logo from "@/assets/imges/home/logo.png";
 
-import { Link } from 'react-router-dom';
-import { resendOtp, validateRequestOtp } from '@/redux/features/authSlice';
+import { Link } from "react-router-dom";
+import { resendOtp, validateRequestOtp } from "@/redux/features/authSlice";
 
 export default function Otp() {
-  const [otp, setOtp] = useState(Array(4).fill(''));
-  const [error, setError] = useState('');
+  const [otp, setOtp] = useState(Array(4).fill(""));
+  const [error, setError] = useState("");
   const [resendCooldown, setResendCooldown] = useState(30);
   const [isCooldownActive, setIsCooldownActive] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const dispatch = useDispatch<AppDispatch>();
   const inputRefs = useRef([]);
   const router = useRouter();
-  const email = localStorage.getItem('tp_otp_email');
+  const email = localStorage.getItem("tp_otp_email");
 
   const handleKeyDown = (e) => {
     const index = inputRefs.current.indexOf(e.target);
 
     if (
       !/^[0-9]{1}$/.test(e.key) &&
-      e.key !== 'Backspace' &&
-      e.key !== 'Delete' &&
-      e.key !== 'Tab' &&
+      e.key !== "Backspace" &&
+      e.key !== "Delete" &&
+      e.key !== "Tab" &&
       !e.metaKey
     ) {
       e.preventDefault();
     }
 
-    if (e.key === 'Backspace' || e.key === 'Delete') {
+    if (e.key === "Backspace" || e.key === "Delete") {
       setOtp((prevOtp) => {
         const updatedOtp = [...prevOtp];
-        updatedOtp[index] = '';
+        updatedOtp[index] = "";
         return updatedOtp;
       });
 
-      if (e.key === 'Backspace' && index > 0) {
+      if (e.key === "Backspace" && index > 0) {
         inputRefs.current[index - 1].focus();
       }
     }
@@ -56,7 +57,7 @@ export default function Otp() {
       setOtp((prevOtp) => [
         ...prevOtp.slice(0, index),
         target.value,
-        ...prevOtp.slice(index + 1)
+        ...prevOtp.slice(index + 1),
       ]);
       if (index < otp.length - 1) {
         inputRefs.current[index + 1].focus();
@@ -70,44 +71,56 @@ export default function Otp() {
 
   const handlePaste = (e) => {
     e.preventDefault();
-    const text = e.clipboardData.getData('text');
+    const text = e.clipboardData.getData("text");
     if (!new RegExp(`^[0-9]{${otp.length}}$`).test(text)) {
       return;
     }
-    const digits = text.split('');
+    const digits = text.split("");
     setOtp(digits);
   };
 
   const handleOtpSubmit = async (e) => {
     e.preventDefault();
-    const otpCode = otp.join('');
-    if (!email) router.push('/forgot-password');
-    const result: any = await dispatch(
-      validateRequestOtp({ email, otp: otpCode })
-    );
-    if (result?.payload?.success) {
-      console.log(result?.payload?.data);
-      const decoded = jwtDecode(result?.payload?.data?.resetToken);
-      localStorage.setItem(
-        'tp_user_data',
-        JSON.stringify({ ...decoded, token: result?.payload?.data?.resetToken })
+    if (otp.some((d) => d === "")) return;
+
+    setIsLoading(true); // start loading
+    const otpCode = otp.join("");
+    if (!email) router.push("/forgot-password");
+
+    try {
+      const result: any = await dispatch(
+        validateRequestOtp({ email, otp: otpCode })
       );
-      router.push('/new-password');
-    } else {
-      setError('Invalid OTP');
+      if (result?.payload?.success) {
+        const decoded = jwtDecode(result?.payload?.data?.resetToken);
+        localStorage.setItem(
+          "tp_user_data",
+          JSON.stringify({
+            ...decoded,
+            token: result?.payload?.data?.resetToken,
+          })
+        );
+        router.push("/new-password");
+      } else {
+        setError("Invalid OTP");
+      }
+    } catch (err) {
+      setError("Something went wrong. Please try again.");
+      console.error(err);
+    } finally {
+      setIsLoading(false); // stop loading
     }
   };
 
   const handleResendOtp = async () => {
     try {
-      console.log('Resending OTP to', email);
       // TODO: Replace this with your actual resend OTP logic
       await dispatch(resendOtp({ email }));
       setResendCooldown(30);
       setIsCooldownActive(true);
     } catch (err) {
       console.error(err);
-      setError('Failed to resend OTP. Please try again.');
+      setError("Failed to resend OTP. Please try again.");
     }
   };
 
@@ -136,12 +149,12 @@ export default function Otp() {
                 </Link>
                 <div className="h-12 border"></div>
                 <h1 className="text-2xl font-semibold tracking-tight">
-                Verification Code
+                  Verify Your Email
                 </h1>
               </div>
-              
+
               <p className="text-sm text-muted-foreground">
-                Enter the verification code sent to your email.
+                Enter the OTP sent to your email to verify your account.
               </p>
               {error && <p className="text-sm text-red-500">{error}</p>}
 
@@ -170,11 +183,33 @@ export default function Otp() {
               </form>
 
               <Button
-                disabled={otp.some((digit) => digit === '')}
+                disabled={otp.some((digit) => digit === "") || isLoading}
                 onClick={handleOtpSubmit}
-                className="mt-5 w-full text-white bg-watney hover:bg-watney/90 disabled:opacity-70 disabled:cursor-not-allowed"
+                className="mt-5 w-full text-white bg-watney hover:bg-watney/90 disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center"
               >
-                Verify OTP
+                {isLoading ? (
+                  <svg
+                    className="mr-2 h-5 w-5 animate-spin text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                ) : null}
+                {isLoading ? "Verifying..." : "Verify OTP"}
               </Button>
 
               <div className="mt-4 flex items-center justify-center space-x-1 text-sm">
@@ -182,7 +217,11 @@ export default function Otp() {
                   Didn't receive the code?
                 </span>
                 <button
-                  className={`font-medium text-black ${isCooldownActive ? 'cursor-not-allowed opacity-70' : 'hover:text-black/90'}`}
+                  className={`font-medium text-black ${
+                    isCooldownActive
+                      ? "cursor-not-allowed opacity-70"
+                      : "hover:text-black/90"
+                  }`}
                   onClick={handleResendOtp}
                   disabled={isCooldownActive}
                   type="button"

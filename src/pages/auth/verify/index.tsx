@@ -94,10 +94,10 @@ export default function VerifyPage({ user }) {
 
 
   const handleResendOtp = async () => {
+    setResendCooldown(30);
+    setIsCooldownActive(true);
     try {
       await dispatch(resendOtp({ email: user?.email }));
-      setResendCooldown(30);
-      setIsCooldownActive(true);
     } catch (err) {
       setError('Failed to resend OTP. Please try again.');
     }

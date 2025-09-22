@@ -12,44 +12,18 @@ import { ImageUploader } from './document-uploader';
 import { useSelector } from 'react-redux';
 import { z } from 'zod';
 
+// ✅ Updated Schema — Added proofOfAddress1 & proofOfAddress2, kept utilityBills
 export const createDocumentSchema = (
   hasExistingResume = false,
   nationality?: string
 ) =>
-  // z.object({
-  //   cvResume: hasExistingResume
-  //     ? z.string().optional()
-  //     : z.string().min(1, 'CV/Resume is required'),
-  //   idDocuments: z.array(z.string()).nonempty({
-  //     message: 'Two forms of ID are required'
-  //   }),
-  //   passportPhotos: z.array(z.string()).nonempty({
-  //     message: 'Two passport photographs are required'
-  //   }),
-  //   utilityBills: z.array(z.string()).nonempty({
-  //     message: 'Utility bills are required'
-  //   }),
-  //   bankStatement: z.array(z.string()).nonempty({
-  //     message: 'Bank statement is required'
-  //   }),
-  //   proofOfNI: z.array(z.string()).nonempty({
-  //     message: 'Proof of National Insurance is required'
-  //   }),
-  //   immigrationDocument:
-  //     nationality === 'british'
-  //       ? z.array(z.string()).optional()
-  //       : z.array(z.string()).nonempty({
-  //           message: 'Immigration Details / Work Permit is required'
-  //         }),
-  //   trainingCertificates: z.array(z.string()).nonempty({
-  //     message: 'Training Certificates & Qualifications are required'
-  //   })
-  // });
   z.object({
     cvResume: z.string().optional(),
     idDocuments: z.array(z.string()).optional(),
     image: z.string().optional(),
     utilityBills: z.array(z.string()).optional(),
+    proofOfAddress1: z.string().optional(), // ✅ New
+    proofOfAddress2: z.string().optional(), // ✅ New
     bankStatement: z.array(z.string()).optional(),
     proofOfNI: z.array(z.string()).optional(),
     immigrationDocument: z.array(z.string()).optional()
@@ -83,6 +57,8 @@ export function DocumentStep({
     image: '',
     idDocuments: [],
     utilityBills: [],
+    proofOfAddress1: '', // ✅ New
+    proofOfAddress2: '', // ✅ New
     bankStatement: [],
     proofOfNI: [],
     immigrationDocument: []
@@ -95,6 +71,8 @@ export function DocumentStep({
         idDocuments: defaultValues?.idDocuments ?? [],
         image: defaultValues?.image ?? '',
         utilityBills: defaultValues?.utilityBills ?? [],
+        proofOfAddress1: defaultValues?.proofOfAddress1 ?? '',
+        proofOfAddress2: defaultValues?.proofOfAddress2 ?? '',
         bankStatement: defaultValues?.bankStatement ?? [],
         proofOfNI: defaultValues?.proofOfNI ?? [],
         immigrationDocument: defaultValues?.immigrationDocument ?? []
@@ -118,11 +96,16 @@ export function DocumentStep({
   const { user } = useSelector((state: any) => state.auth);
 
   const handleRemoveFile = (field: keyof DocumentFile, fileName: string) => {
-    if (field === 'cvResume') {
-      setDocuments((prev) => ({ ...prev, cvResume: undefined }));
-    } else if (field === 'image') {
-      setDocuments((prev) => ({ ...prev, cvResume: undefined }));
+    // Handle single-file fields
+    if (
+      field === 'cvResume' ||
+      field === 'image' ||
+      field === 'proofOfAddress1' ||
+      field === 'proofOfAddress2'
+    ) {
+      setDocuments((prev) => ({ ...prev, [field]: '' }));
     } else {
+      // Handle array fields
       setDocuments((prev) => ({
         ...prev,
         [field]: (prev[field] as string[]).filter((file) => file !== fileName)
@@ -146,18 +129,22 @@ export function DocumentStep({
     onSaveAndContinue(validationResult.data);
   };
 
+  const isBritish = defaultValues?.nationality === 'british';
+
   const allDocumentsUploaded =
     documents.cvResume &&
-    documents.idDocuments.length >= 2 &&
+    documents.idDocuments.length > 0 &&
     documents.image &&
     documents.utilityBills.length > 0 &&
+    documents.proofOfAddress1 && // ✅ Required
+    documents.proofOfAddress2 && // ✅ Required
     documents.bankStatement.length > 0 &&
-    documents.proofOfNI.length > 0;
-
-  // (defaultValues?.nationality === 'british' || documents.immigrationDocument.length > 0);
+    documents.proofOfNI.length > 0 
+    // &&
+    // (isBritish ? true : documents.immigrationDocument.length > 0);
 
   const renderUploadedFiles = (field: keyof DocumentFile) => {
-    const value = documents[field] as string | string[];
+    const value = documents[field];
     if (!value) return null;
 
     const files = Array.isArray(value) ? value : [value];
@@ -225,11 +212,16 @@ export function DocumentStep({
 
     const fileUrl = uploadResponse.data.fileUrl;
 
-    if (field === 'cvResume') {
-      setDocuments((prev) => ({ ...prev, cvResume: fileUrl }));
-    } else if (field === 'image') {
-      setDocuments((prev) => ({ ...prev, image: fileUrl }));
+    // Handle single-file fields
+    if (
+      field === 'cvResume' ||
+      field === 'image' ||
+      field === 'proofOfAddress1' ||
+      field === 'proofOfAddress2'
+    ) {
+      setDocuments((prev) => ({ ...prev, [field]: fileUrl }));
     } else {
+      // Handle array fields
       setDocuments((prev) => ({
         ...prev,
         [field]: [...(prev[field] as string[]), fileUrl]
@@ -240,13 +232,13 @@ export function DocumentStep({
     setUploadState({ isOpen: false, field: null });
   };
 
+  // ✅ Added two new entries for proofOfAddress1 and proofOfAddress2
   const documentTypes: Array<{
     id: keyof DocumentFile;
     label: string;
     required: boolean;
     instructions: string;
     formats: string;
-    uploadLabel?: string;
   }> = [
     {
       id: 'cvResume',
@@ -257,10 +249,10 @@ export function DocumentStep({
     },
     {
       id: 'idDocuments',
-      label: 'Two Forms of ID',
+      label: 'Proof of ID',
       required: true,
       instructions:
-        'You must upload two forms of identification (e.g., Passport, Birth Certificate, Driver’s Licence, or Marriage Certificate).',
+        'e.g., Passport, Birth Certificate, Driver’s Licence, or Marriage Certificate',
       formats: 'PDF, JPG, PNG'
     },
     {
@@ -271,10 +263,24 @@ export function DocumentStep({
       formats: 'JPG, PNG'
     },
     {
+      id: 'proofOfAddress1', // ✅ New
+      label: 'Proof of Address 1',
+      required: true,
+      instructions: 'First document proving your current address',
+      formats: 'PDF, JPG, PNG'
+    },
+    {
       id: 'utilityBills',
       label: 'Utility Bills',
       required: true,
       instructions: 'Not older than 3 months',
+      formats: 'PDF, JPG, PNG'
+    },
+    {
+      id: 'proofOfAddress2', // ✅ New
+      label: 'Proof of Address 2',
+      required: true,
+      instructions: 'Second document proving your current address',
       formats: 'PDF, JPG, PNG'
     },
     {
@@ -286,7 +292,7 @@ export function DocumentStep({
     },
     {
       id: 'proofOfNI',
-      label: 'Proof of National Insurance',
+      label: 'National Insurance',
       required: true,
       instructions: 'N.I Card, P45, etc.',
       formats: 'PDF, JPG, PNG'
@@ -294,7 +300,8 @@ export function DocumentStep({
     {
       id: 'immigrationDocument',
       label: 'Immigration Details / Work Permit',
-      required: false,
+      // required: defaultValues?.nationality !== 'british',
+      required:false,
       instructions: 'Upload if applicable',
       formats: 'PDF, JPG, PNG'
     }
@@ -312,12 +319,14 @@ export function DocumentStep({
         <CardContent className="pt-4">
           <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
             {documentTypes.map(
-              ({ id, label, required, instructions, formats, uploadLabel }) => {
+              ({ id, label, required, instructions, formats }) => {
+                const value = documents[id];
                 const hasFiles =
-                  id === 'cvResume' || id === 'image'
-                    ? !!documents.cvResume
-                    : Array.isArray(documents[id]) &&
-                      (documents[id] as string[]).length > 0;
+                  typeof value === 'string'
+                    ? !!value
+                    : Array.isArray(value)
+                      ? value.length > 0
+                      : false;
 
                 return (
                   <div

@@ -140,7 +140,6 @@ export function PersonalDetailsStep({
       emergencyFullName: '',
       emergencyRelationship: '',
       emergencyAddress: ''
-
     }
   });
 
@@ -591,28 +590,36 @@ export function PersonalDetailsStep({
 
                   // </div>
 
-                  <div className="space-y-2">
-                    <FormLabel>Please give your Share Code:</FormLabel>
-                    <FormField
-                      control={form.control}
-                      name="shareCode"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              placeholder="Enter the 6-character code shared with you"
-                              className="!placeholder:text-gray-400 placeholder:text-xs placeholder:text-gray-400"
-                            />
-                          </FormControl>
-                          <p className="text-xs text-gray-400">
-                            Example: 5J7K9Q
-                          </p>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                  <FormField
+                    control={form.control}
+                    name="shareCode"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Please give your Share Code:</FormLabel>
+
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder="Enter the 6-character code"
+                            onChange={(e) => {
+                              let value = e.target.value
+                                .toUpperCase()
+                                .replace(/[^A-Z0-9]/g, '');
+                              // Insert dash every 2 characters
+                              value = value.match(/.{1,2}/g)?.join('-') || '';
+                              field.onChange(value);
+                            }}
+                            value={field.value}
+                            className="!placeholder:text-gray-400 placeholder:text-xs placeholder:text-gray-400"
+                          />
+                        </FormControl>
+                       <p className="text-xs text-gray-500">
+  Required for international applicants. Example: <span className="font-semibold text-gray-700">AB-12-CD</span>
+</p>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 )}
               </div>
               <div className="space-y-4">

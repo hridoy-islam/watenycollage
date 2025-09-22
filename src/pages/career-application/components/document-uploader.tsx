@@ -150,9 +150,11 @@ export function ImageUploader({
                     onError={() => setImageError(true)}
                   />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-muted">
-                    <FileIcon className="h-12 w-12 text-muted-foreground" />
-                  </div>
+                 <div className="flex flex-col items-center justify-center w-full h-full border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 ">
+  <FileIcon className="h-32 w-32 text-gray-400 " />
+  
+</div>
+
                 )}
 
                 <Button
@@ -182,8 +184,8 @@ export function ImageUploader({
           {uploadError && <p className="text-red-600">{uploadError}</p>}
 
           {selectedImage && !uploading && (
-            <Button className="w-full" onClick={uploadImage}>
-              Upload Document
+            <Button className="w-full bg-green-500 text-white hover:bg-green-500/90"  onClick={uploadImage}>
+              Upload
             </Button>
           )}
 

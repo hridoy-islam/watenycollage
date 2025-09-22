@@ -638,7 +638,7 @@ export default function CareerApplicationForm() {
             <div className="flex items-center gap-4 text-center">
               <div>
                 <CardTitle className="text-2xl font-semibold text-white">
-                  Career Application Submitted Successfully
+                  Your Application Submitted Successfully
                 </CardTitle>
                 <CardDescription className="mt-2 text-base leading-relaxed text-white">
                   Thank you for your submission. Our team has received your

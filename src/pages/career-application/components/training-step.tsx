@@ -45,65 +45,59 @@ export function TrainingStep({
   });
   const { user } = useSelector((state: any) => state.auth);
 
-const trainingEntrySchema = z.object({
-  name: z.string().optional(),
-  address: z.string().optional(),
-  from: z.date().nullable(),
-  to: z.date().nullable(),
-  qualification: z.any().optional()
-}).superRefine((data, ctx) => {
-  const hasAnyValue =
-    data.name?.trim() ||
-    data.address?.trim() ||
-    data.from ||
-    data.to ||
-    data.qualification;
+  // ✅ Updated Schema
+  const trainingEntrySchema = z.object({
+    trainingName: z.string().optional(),
+    awardingBody: z.string().optional(),
+    completionDate: z.date().nullable(),
+    certificate: z.any().optional()
+  }).superRefine((data, ctx) => {
+    const hasAnyValue =
+      data.trainingName?.trim() ||
+      data.awardingBody?.trim() ||
+      data.completionDate ||
+      data.certificate;
 
-  if (!hasAnyValue) return; // empty row is fine
+    if (!hasAnyValue) return; // empty row is fine
 
-  if (!data.name?.trim()) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['name'], message: 'Required' });
-  }
-  if (!data.address?.trim()) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['address'], message: 'Required' });
-  }
-  if (!data.from) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['from'], message: 'Required' });
-  }
-  if (!data.to) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['to'], message: 'Required' });
-  }
-  if (!data.qualification) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['qualification'], message: 'Required' });
-  }
-});
+    if (!data.trainingName?.trim()) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['trainingName'], message: 'Required' });
+    }
+    if (!data.awardingBody?.trim()) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['awardingBody'], message: 'Required' });
+    }
+    if (!data.completionDate) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['completionDate'], message: 'Required' });
+    }
+    if (!data.certificate) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['certificate'], message: 'Required' });
+    }
+  });
 
   const trainingSchema = z.object({
     trainingData: z.array(trainingEntrySchema)
   });
 
-  // Transform default values to ensure dates are Date objects
+  // ✅ Transform default values for new fields
   const transformDefaultValues = (values) => {
     if (!values) {
       return {
         trainingData: [
           {
-            name: '',
-            address: '',
-            from: null,
-            to: null,
-            qualification: undefined
+            trainingName: '',
+            awardingBody: '',
+            completionDate: null,
+            certificate: undefined
           }
         ]
       };
     }
     return {
       trainingData: (values.trainingData || []).map((entry) => ({
-        name: entry.name || '',
-        address: entry.address || '',
-        from: entry.from ? new Date(entry.from) : null,
-        to: entry.to ? new Date(entry.to) : null,
-        qualification: entry.qualification || undefined
+        trainingName: entry.trainingName || '',
+        awardingBody: entry.awardingBody || '',
+        completionDate: entry.completionDate ? new Date(entry.completionDate) : null,
+        certificate: entry.certificate || undefined
       }))
     };
   };
@@ -131,11 +125,10 @@ const trainingEntrySchema = z.object({
 
   const addTrainingEntry = () => {
     append({
-      name: '',
-      address: '',
-      from: null,
-      to: null,
-      qualification: undefined
+      trainingName: '',
+      awardingBody: '',
+      completionDate: null,
+      certificate: undefined
     });
   };
 
@@ -179,7 +172,7 @@ const trainingEntrySchema = z.object({
   const renderTrainingHistoryStep = () => (
     <div className="space-y-8">
       <CardHeader>
-        <CardTitle className="text-2xl"> Professional Training & Qualifications (Starting with most recent)</CardTitle>
+        <CardTitle className="text-2xl">Professional Training & Qualifications (Starting with most recent)</CardTitle>
         <CardDescription>
           Please provide details of any formal training you have completed. This
           section is optional, but if you fill in any field in a row, all fields
@@ -218,19 +211,18 @@ const trainingEntrySchema = z.object({
                 <TableHeader>
                   <TableRow>
                     <TableHead>
-                      Name of Training Body{' '}
+                      Training Name{' '}
                       <span className="hidden text-red-500 group-[.filled]:inline">
                         *
                       </span>
                     </TableHead>
                     <TableHead>
-                      Address{' '}
+                      Awarding Body{' '}
                       <span className="hidden text-red-500 group-[.filled]:inline">
                         *
                       </span>
                     </TableHead>
-                    <TableHead>From Date</TableHead>
-                    <TableHead>To Date</TableHead>
+                    <TableHead>Completion Date</TableHead>
                     <TableHead>Certificate</TableHead>
                     <TableHead className="w-[80px]">Actions</TableHead>
                   </TableRow>
@@ -238,11 +230,10 @@ const trainingEntrySchema = z.object({
                 <TableBody>
                   {fields.map((field, index) => {
                     const isRowFilled =
-                      form.getValues(`trainingData.${index}.name`)?.trim() ||
-                      form.getValues(`trainingData.${index}.address`)?.trim() ||
-                      form.getValues(`trainingData.${index}.from`) ||
-                      form.getValues(`trainingData.${index}.to`) ||
-                      form.getValues(`trainingData.${index}.qualification`);
+                      form.getValues(`trainingData.${index}.trainingName`)?.trim() ||
+                      form.getValues(`trainingData.${index}.awardingBody`)?.trim() ||
+                      form.getValues(`trainingData.${index}.completionDate`) ||
+                      form.getValues(`trainingData.${index}.certificate`);
 
                     return (
                       <TableRow
@@ -252,18 +243,18 @@ const trainingEntrySchema = z.object({
                         <TableCell className="align-top">
                           <FormField
                             control={form.control}
-                            name={`trainingData.${index}.name`}
+                            name={`trainingData.${index}.trainingName`}
                             render={({ field: formField }) => (
                               <FormItem>
                                 <FormControl>
                                   <Input
                                     {...formField}
                                     value={formField.value || ''}
-                                    placeholder="Training body name"
+                                    placeholder="Training name"
                                   />
                                 </FormControl>
                                 <p className="text-xs text-gray-400">
-                                  Example: Red Cross Training Center
+                                  Example: First Aid Certification
                                 </p>
                                 <FormMessage />
                               </FormItem>
@@ -273,18 +264,18 @@ const trainingEntrySchema = z.object({
                         <TableCell className="align-top">
                           <FormField
                             control={form.control}
-                            name={`trainingData.${index}.address`}
+                            name={`trainingData.${index}.awardingBody`}
                             render={({ field: formField }) => (
                               <FormItem>
                                 <FormControl>
                                   <Input
                                     {...formField}
                                     value={formField.value || ''}
-                                    placeholder="Full address"
+                                    placeholder="Awarding body"
                                   />
                                 </FormControl>
                                 <p className="text-xs text-gray-400">
-                                  Example: 123 Main St, London, SW1A 1AA
+                                  Example: Red Cross
                                 </p>
                                 <FormMessage />
                               </FormItem>
@@ -294,7 +285,7 @@ const trainingEntrySchema = z.object({
                         <TableCell className="align-top">
                           <FormField
                             control={form.control}
-                            name={`trainingData.${index}.from`}
+                            name={`trainingData.${index}.completionDate`}
                             render={({ field: formField }) => {
                               const selectedDate = formField.value
                                 ? new Date(formField.value)
@@ -311,7 +302,7 @@ const trainingEntrySchema = z.object({
                                     />
                                   </FormControl>
                                   <p className="text-xs text-gray-400">
-                                    Example: 03/15/2023
+                                    Example: 06/15/2023
                                   </p>
                                   <FormMessage />
                                 </FormItem>
@@ -322,35 +313,7 @@ const trainingEntrySchema = z.object({
                         <TableCell className="align-top">
                           <FormField
                             control={form.control}
-                            name={`trainingData.${index}.to`}
-                            render={({ field: formField }) => {
-                              const selectedDate = formField.value
-                                ? new Date(formField.value)
-                                : null;
-                              return (
-                                <FormItem>
-                                  <FormControl>
-                                    <CustomDatePicker
-                                      selected={selectedDate}
-                                      onChange={(date) =>
-                                        formField.onChange(date)
-                                      }
-                                      placeholderText="MM/DD/YYYY"
-                                    />
-                                  </FormControl>
-                                  <p className="text-xs text-gray-400">
-                                    Example: 06/20/2023
-                                  </p>
-                                  <FormMessage />
-                                </FormItem>
-                              );
-                            }}
-                          />
-                        </TableCell>
-                        <TableCell className="align-top">
-                          <FormField
-                            control={form.control}
-                            name={`trainingData.${index}.qualification`}
+                            name={`trainingData.${index}.certificate`}
                             render={({ field: formField }) => (
                               <FormItem className="flex flex-col">
                                 <Button
@@ -405,37 +368,36 @@ const trainingEntrySchema = z.object({
             <div className="space-y-6 md:hidden">
               {fields.map((field, index) => {
                 const isRowFilled =
-                  form.getValues(`trainingData.${index}.name`)?.trim() ||
-                  form.getValues(`trainingData.${index}.address`)?.trim() ||
-                  form.getValues(`trainingData.${index}.from`) ||
-                  form.getValues(`trainingData.${index}.to`) ||
-                  form.getValues(`trainingData.${index}.qualification`);
+                  form.getValues(`trainingData.${index}.trainingName`)?.trim() ||
+                  form.getValues(`trainingData.${index}.awardingBody`)?.trim() ||
+                  form.getValues(`trainingData.${index}.completionDate`) ||
+                  form.getValues(`trainingData.${index}.certificate`);
 
                 return (
                   <div
                     key={field.id}
                     className="space-y-4 rounded-lg border border-gray-300 bg-white p-2"
                   >
-                    {/* Name */}
+                    {/* Training Name */}
                     <div>
                       <label className="mb-1 block text-sm font-medium text-gray-700">
-                        Name of Training Body{' '}
+                        Training Name{' '}
                         {isRowFilled && <span className="text-red-500">*</span>}
                       </label>
                       <FormField
                         control={form.control}
-                        name={`trainingData.${index}.name`}
+                        name={`trainingData.${index}.trainingName`}
                         render={({ field: formField }) => (
                           <FormItem>
                             <FormControl>
                               <Input
                                 {...formField}
                                 value={formField.value || ''}
-                                placeholder="Training body name"
+                                placeholder="Training name"
                               />
                             </FormControl>
                             <p className="text-xs text-gray-400">
-                              Example: Red Cross Training Center
+                              Example: First Aid Certification
                             </p>
                             <FormMessage />
                           </FormItem>
@@ -443,26 +405,26 @@ const trainingEntrySchema = z.object({
                       />
                     </div>
 
-                    {/* Address */}
+                    {/* Awarding Body */}
                     <div>
                       <label className="mb-1 block text-sm font-medium text-gray-700">
-                        Address{' '}
+                        Awarding Body{' '}
                         {isRowFilled && <span className="text-red-500">*</span>}
                       </label>
                       <FormField
                         control={form.control}
-                        name={`trainingData.${index}.address`}
+                        name={`trainingData.${index}.awardingBody`}
                         render={({ field: formField }) => (
                           <FormItem>
                             <FormControl>
                               <Input
                                 {...formField}
                                 value={formField.value || ''}
-                                placeholder="Full address"
+                                placeholder="Awarding body"
                               />
                             </FormControl>
                             <p className="text-xs text-gray-400">
-                              Example: 123 Main St, London, SW1A 1AA
+                              Example: Red Cross
                             </p>
                             <FormMessage />
                           </FormItem>
@@ -470,15 +432,15 @@ const trainingEntrySchema = z.object({
                       />
                     </div>
 
-                    {/* From Date */}
+                    {/* Completion Date */}
                     <div>
                       <label className="mb-1 block text-sm font-medium text-gray-700">
-                        From Date{' '}
+                        Completion Date{' '}
                         {isRowFilled && <span className="text-red-500">*</span>}
                       </label>
                       <FormField
                         control={form.control}
-                        name={`trainingData.${index}.from`}
+                        name={`trainingData.${index}.completionDate`}
                         render={({ field: formField }) => {
                           const selectedDate = formField.value
                             ? new Date(formField.value)
@@ -494,40 +456,7 @@ const trainingEntrySchema = z.object({
                                 />
                               </FormControl>
                               <p className="text-xs text-gray-400">
-                                Example: 03/15/2023
-                              </p>
-                              <FormMessage />
-                            </FormItem>
-                          );
-                        }}
-                      />
-                    </div>
-
-                    {/* To Date */}
-                    <div>
-                      <label className="mb-1 block text-sm font-medium text-gray-700">
-                        To Date{' '}
-                        {isRowFilled && <span className="text-red-500">*</span>}
-                      </label>
-                      <FormField
-                        control={form.control}
-                        name={`trainingData.${index}.to`}
-                        render={({ field: formField }) => {
-                          const selectedDate = formField.value
-                            ? new Date(formField.value)
-                            : null;
-                          return (
-                            <FormItem>
-                              <FormControl>
-                                <CustomDatePicker
-                                  selected={selectedDate}
-                                  onChange={(date) => formField.onChange(date)}
-                                  placeholderText="MM/DD/YYYY"
-                                  className="w-full"
-                                />
-                              </FormControl>
-                              <p className="text-xs text-gray-400">
-                                Example: 06/20/2023
+                                Example: 06/15/2023
                               </p>
                               <FormMessage />
                             </FormItem>
@@ -544,7 +473,7 @@ const trainingEntrySchema = z.object({
                       </label>
                       <FormField
                         control={form.control}
-                        name={`trainingData.${index}.qualification`}
+                        name={`trainingData.${index}.certificate`}
                         render={({ field: formField }) => (
                           <FormItem className="flex flex-col">
                             <Button

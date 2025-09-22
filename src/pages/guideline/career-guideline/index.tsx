@@ -55,7 +55,7 @@ const steps: React.ReactNode[] = [
         <strong>Personal Details:</strong> Title, First Name, Middle
         Name(Initial), Last Name, Date of birth, Gender, Country Of Residence
         and also your current residential address, including Address Line1,
-        Address Line 2, City, Post code, Country.
+        Address Line 2, City, Post code, Country. <span  className='font-semibold'>If you are an International Worker, please share your Sharecode</span>
       </li>
       <li>
         <strong>Application Details:</strong> Provide the of your availablility
@@ -120,7 +120,7 @@ const steps: React.ReactNode[] = [
       personal information will only be used for application purposes.
     </p>
 
-    <p className="mb-2 mt-6 text-3xl font-bold">🎓 Ready to Apply?</p>
+    <p className="mb-2 mt-6 text-3xl font-bold">📄 Ready to Apply?</p>
     <p className="text-xl text-gray-700">
       By clicking "Continue Application” you agree to provide honest and
       accurate information.
