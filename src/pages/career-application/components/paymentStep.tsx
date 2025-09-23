@@ -42,13 +42,7 @@ const jobRoleValues = jobRoleOptions.map(opt => opt.value) as [
 
 // Schema for bank/payment details
 const paymentSchema = z.object({
-  name: z.string().min(1, 'Full name is required'),
-  houseNumberOrName: z.string().min(1, 'House number or name is required'),
-  postCode: z.string().min(1, 'Post code is required'),
-  jobRole: z.enum(jobRoleValues, {
-    errorMap: () => ({ message: 'Please select a job role' })
-  }),
-  otherJobRole: z.string().optional(),
+ 
   accountNumber: z.string().min(1, 'Account Number is required'),
   sortCode: z.string().min(1, 'Sort code is required'),
   bankName: z.string().min(1, 'Bank name is required'),
@@ -71,16 +65,13 @@ export type PaymentFormValues = z.infer<typeof paymentSchema>;
 export function PaymentStep({
   defaultValues,
   onSaveAndContinue,
-  setCurrentStep
+  setCurrentStep,
+  setSubstep
 }) {
   const form = useForm<PaymentFormValues>({
     resolver: zodResolver(paymentSchema),
     defaultValues: {
-      name: defaultValues?.name || '',
-      houseNumberOrName: defaultValues?.houseNumberOrName || '',
-      postCode: defaultValues?.postCode || '',
-      jobRole: defaultValues?.jobRole || '',
-      otherJobRole: defaultValues?.otherJobRole || '',
+      
       accountNumber: defaultValues?.accountNumber || '',
       sortCode: defaultValues?.sortCode || '',
       bankName: defaultValues?.bankName || '',
@@ -89,7 +80,6 @@ export function PaymentStep({
     }
   });
 
-  const selectedJobRole = form.watch('jobRole');
 
   const onSubmit = (data: PaymentFormValues) => {
     onSaveAndContinue(data);
@@ -97,6 +87,7 @@ export function PaymentStep({
 
   const handleBack = () => {
     setCurrentStep(12); // Adjust step number as needed
+    setSubstep(9)
   };
 
   return (
@@ -111,108 +102,10 @@ export function PaymentStep({
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* Personal Info */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Full Name <span className="text-red-500">*</span>
-                    </FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Jane Smith" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="houseNumberOrName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      House Number/Name <span className="text-red-500">*</span>
-                    </FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="123" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="postCode"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Post Code <span className="text-red-500">*</span>
-                    </FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="W1A 1AA" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Job Role */}
-              <FormField
-                control={form.control}
-                name="jobRole"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Job Role <span className="text-red-500">*</span>
-                    </FormLabel>
-                    <FormControl>
-                      <Select
-                        options={jobRoleOptions}
-                        value={jobRoleOptions.find(
-                          (option) => option.value === field.value
-                        ) || null}
-                        onChange={(option) =>
-                          field.onChange(option?.value || '')
-                        }
-                        placeholder="Select job role..."
-                        isClearable={false}
-                        className="react-select-container"
-                        classNamePrefix="react-select"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Other Job Role (conditional) */}
-              {selectedJobRole === 'Other' && (
-                <FormField
-                  control={form.control}
-                  name="otherJobRole"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Specify Other Job Role{' '}
-                        <span className="text-red-500">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="e.g., Team Lead" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-            </div>
+           
 
             {/* Bank Details */}
-            <div className="mt-6 space-y-4">
+            <div className="space-y-4">
               <h3 className="text-lg font-semibold">
                 Bank/Building Society Details
               </h3>

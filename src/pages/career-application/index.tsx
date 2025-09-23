@@ -47,6 +47,7 @@ const careerFormSteps = [
 
 export default function CareerApplicationForm() {
   const [currentStep, setCurrentStep] = useState(1);
+  const [subStep, setSubstep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [formData, setFormData] = useState<Partial<TCareer>>({
     status: 'applied'
@@ -343,15 +344,27 @@ export default function CareerApplicationForm() {
       });
     }
   };
-
+  
   const handleDocumentsSaveAndContinue = async (data: any) => {
     try {
       setFormData((prev) => ({ ...prev, ...data }));
       await axiosInstance.patch(`/users/${user._id}`, data);
       markStepAsCompleted(11);
       setCurrentStep(12);
+      setSubstep(1)
     } catch (error) {
       console.error('Failed to update documents:', error);
+    }
+  };
+  const handlePostEmployementSave = async (data: any) => {
+    try {
+      setFormData((prev) => ({ ...prev, ...data }));
+      await axiosInstance.patch(`/users/${user._id}`, data);
+    } catch (error: any) {
+      toast({
+        title: error?.response?.data?.message || 'Something went wrong.',
+        className: 'destructive border-none text-white'
+      });
     }
   };
   const handlePostEmployementSaveAndContinue = async (data: any) => {
@@ -576,6 +589,9 @@ export default function CareerApplicationForm() {
             defaultValues={{ ...fetchData, ...formData }}
             onSaveAndContinue={handlePostEmployementSaveAndContinue}
             setCurrentStep={setCurrentStep}
+                        onSave={handlePostEmployementSave}
+                       subStep={subStep}
+
 
           />
         );
@@ -585,6 +601,7 @@ export default function CareerApplicationForm() {
             defaultValues={{ ...fetchData, ...formData }}
             onSaveAndContinue={handlePayrollSaveAndContinue}
             setCurrentStep={setCurrentStep}
+            setSubstep={setSubstep}
           />
         );
       case 14:
