@@ -1,47 +1,13 @@
 import { Card } from '@/components/ui/card';
 import { Link, useNavigate } from 'react-router-dom';
 import { SignUpForm } from './components/sign-up-form';
-import watney from '@/assets/imges/home/watney.jpg';
 import logo from '@/assets/imges/home/logo.png';
-import { useEffect, useState } from 'react';
-import axiosInstance from "@/lib/axios"
+
 
 
 
 export default function SignUpPage() {
 
-    const navigate = useNavigate();
-  
-    const [course, setCourse] = useState<any>(null);
-    const [term, setTerm] = useState<any>(null);
-    const [courseId, setCourseId] = useState<string | null>(null);
-    const [termId, setTermId] = useState<string | null>(null);
-  
-    useEffect(() => {
-      const cId = localStorage.getItem('courseId');
-      const tId = localStorage.getItem('termId');
-  
-      setCourseId(cId);
-      setTermId(tId);
-  
-      const fetchData = async () => {
-        try {
-          if (cId) {
-            const res = await axiosInstance.get(`/courses/${cId}`);
-            setCourse(res.data.data);
-          }
-  
-          if (tId) {
-            const res = await axiosInstance.get(`/terms/${tId}`);
-            setTerm(res.data.data);
-          }
-        } catch (err) {
-          console.error('Error fetching course or term:', err);
-        }
-      };
-  
-      fetchData();
-    }, []);
   
 
     

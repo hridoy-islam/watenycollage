@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Eye, EyeOff } from 'lucide-react';
@@ -20,6 +20,8 @@ import { Button } from '@/components/ui/button';
 import type { HTMLAttributes } from 'react';
 import ReactSelect, { SingleValue } from 'react-select';
 import { nationalities } from '@/types';
+import { OtpVerification } from './otp-verification';
+import { VerificationSuccess } from './verification-success';
 
 interface OptionType {
   value: string;
@@ -42,8 +44,14 @@ const signUpSchema = z.object({
 
 type SignUpFormValues = z.infer<typeof signUpSchema>;
 
+type SignUpStep = 'form' | 'otp' | 'success';
+
 export function SignUpForm({ className, ...props }: SignUpFormProps) {
   const [showPassword, setShowPassword] = useState(false);
+  const [currentStep, setCurrentStep] = useState<SignUpStep>('form');
+  const [userData, setUserData] = useState<SignUpFormValues | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+const [isOtpVerifying, setIsOtpVerifying] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
 
@@ -62,49 +70,76 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
     }
   });
 
-  const onSubmit = async (data: SignUpFormValues) => {
+  const handleFormSubmit = async (data: SignUpFormValues) => {
+    setIsSubmitting(true);
     try {
-      const response = await axiosInstance.post('/auth/signup', {
-        ...data,
-        name: `${data.title} ${data.firstName} ${data.initial} ${data.lastName}`,
-        title: data.title,
-        firstName: data.firstName,
-        initial: data.initial,
-        lastName: data.lastName,
+      // Store user data for later use
+      setUserData(data);
+
+      // Generate OTP (4-digit)
+      const otp = Math.floor(1000 + Math.random() * 9000).toString();
+
+      // Save for verification later
+      localStorage.setItem('signup_otp', otp);
+      localStorage.setItem('signup_email', data.email);
+      localStorage.setItem('signup_otp_timestamp', Date.now().toString());
+
+      const response = await axiosInstance.post('/auth/pre-register', {
         email: data.email.toLowerCase(),
-
-        nationality: data.nationality,
-        dateOfBirth: data.dateOfBirth,
-        role: 'applicant'
+        firstName: data.firstName,
+        otp
       });
-
-      if (response?.data?.success) {
-        localStorage.setItem('hasVisitedBefore', 'false');
-        toast({
-          title: 'Thank you',
-          description: 'Your account has been created.'
-        });
-        router.push('/');
-      } else {
-        toast({
-          title: 'Registration Failed',
-          description: response.data.message || 'Unexpected error occurred.',
-          variant: 'destructive'
-        });
-      }
+      setCurrentStep('otp');
     } catch (err: any) {
       toast({
         title: 'Server Error',
         description: err.response?.data?.message || 'Please try again later.',
         variant: 'destructive'
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const selectedRole = useWatch({
-    control: form.control,
-    name: 'role'
-  });
+ const handleOtpVerificationSuccess = async () => {
+  if (!userData) return;
+
+  try {
+    setIsOtpVerifying(true); // show verifying on OTP button
+
+    // Final registration API call
+    const response = await axiosInstance.post('/auth/signup', {
+      ...userData,
+      name: `${userData.title} ${userData.firstName} ${userData.initial} ${userData.lastName}`.trim(),
+      email: userData.email.toLowerCase(),
+      role: 'applicant',
+      isValided: true
+    });
+
+    if (response?.data?.success) {
+      setCurrentStep('success');
+    }
+  } catch (err: any) {
+    toast({
+      title: 'Registration Failed',
+      description: 'Please try again.',
+      variant: 'destructive'
+    });
+    setCurrentStep('form');
+  } finally {
+    setIsOtpVerifying(false); // hide verifying
+  }
+};
+  const handleLogout = () => {
+    // Clear any stored data
+    localStorage.removeItem('signup_otp');
+    localStorage.removeItem('signup_otp_timestamp');
+    localStorage.removeItem('signup_email');
+
+    setUserData(null);
+    setCurrentStep('form');
+    form.reset();
+  };
 
   // Utility to convert strings to options
   const getOptions = (values: string[]) =>
@@ -115,23 +150,33 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
     value: nation,
     label: nation
   }));
-  const roleOptions = [
-    { value: 'student', label: 'Student' },
-    { value: 'applicant', label: 'Job Applicant' }
-  ];
-  const studentTypeOptions = [
-    { value: 'eu', label: 'Home Student' },
-    { value: 'international', label: 'Overseas' }
-  ];
 
   return (
-    <section>
+    <section className="relative">
+      {/* OTP Verification Overlay */}
+      {currentStep === 'otp' && userData && (
+        <OtpVerification
+          email={userData.email}
+          firstName={userData.firstName}
+          onVerificationSuccess={handleOtpVerificationSuccess}
+          onLogout={handleLogout}
+          isVerifying={isOtpVerifying}
+        />
+      )}
+
+      {/* Success Overlay */}
+      {currentStep === 'success' && userData && (
+        <VerificationSuccess email={userData.email} />
+      )}
+
+      {/* Registration Form */}
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(onSubmit, (errors) => {
-            console.log('Validation errors:', errors); // 🔍 Add this
-          })}
-          className="space-y-2 py-14"
+          onSubmit={form.handleSubmit(handleFormSubmit)}
+          className={cn(
+            'space-y-2 py-14',
+            currentStep !== 'form' && 'pointer-events-none opacity-50'
+          )}
         >
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             {/* Title */}
@@ -347,9 +392,10 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
           <div className="pt-4">
             <Button
               type="submit"
+              disabled={isSubmitting}
               className="h-12 w-full rounded-md bg-watney font-medium text-white shadow-sm transition-colors hover:bg-watney/90"
             >
-              Create Account
+              {isSubmitting ? 'Creating Account...' : 'Create Account'}
             </Button>
           </div>
         </form>
