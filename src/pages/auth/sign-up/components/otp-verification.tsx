@@ -164,14 +164,11 @@ const handleOtpSubmit = async (e: React.FormEvent) => {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-100 p-4 lg:p-8">
       <div className="w-full max-w-6xl">
         <Card className="flex w-full flex-col justify-center overflow-y-auto rounded-sm border border-gray-200 p-6">
-          <div className=" flex flex-col text-left">
+          <div className=" flex flex-col text-center ">
             <div className="mb-4 flex items-center gap-4">
-              <img src={logo} alt="logo" className="w-24" />
+              <img src={logo} alt="logo" className="w-32" />
 
-              <div className="h-12 border-l border-gray-300"></div>
-              <h1 className="text-xl font-semibold tracking-tight">
-                VERIFY YOUR EMAIL ADDRESS
-              </h1>
+              
             </div>
           </div>
           <div className="flex w-full flex-col items-center space-y-6 text-center">

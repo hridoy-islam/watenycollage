@@ -91,11 +91,10 @@ const [isOtpVerifying, setIsOtpVerifying] = useState(false);
       });
       setCurrentStep('otp');
     } catch (err: any) {
-      toast({
-        title: 'Server Error',
-        description: err.response?.data?.message || 'Please try again later.',
-        variant: 'destructive'
-      });
+       form.setError('email', {
+      type: 'server',
+      message: err.response?.data?.message || 'Something went wrong'
+    });
     } finally {
       setIsSubmitting(false);
     }

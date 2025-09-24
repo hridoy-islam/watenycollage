@@ -14,16 +14,16 @@ export function VerificationSuccess({ email }: VerificationSuccessProps) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-100 p-4 lg:p-8">
   <div className="w-full max-w-6xl">
     <Card className="flex w-full flex-col justify-start overflow-y-auto rounded-sm border border-gray-200 p-6">
-        <div className=" flex flex-col text-left">
+        <div className=" flex flex-col text-center items-center">
             <div className="mb-4 flex items-center gap-4">
-              <img src={logo} alt="logo" className="w-24" />
+              <img src={logo} alt="logo" className="w-32" />
 
               
             </div>
           </div>
       <div className="flex flex-col text-center  items-center space-y-4">
         {/* Icon */}
-        <CheckCircle className="h-16 w-16 text-green-500 mx-auto lg:mx-0" />
+        {/* <CheckCircle className="h-16 w-16 text-green-500 mx-auto lg:mx-0" /> */}
 
         {/* Header */}
         <h2 className="text-xl font-semibold text-gray-900">
@@ -36,7 +36,7 @@ export function VerificationSuccess({ email }: VerificationSuccessProps) {
             Your email has been successfully verified and your account is now active.
           </p>
           <p className="text-sm font-medium text-gray-900">
-            Welcome! You can now log in using your credentials.
+            Welcome! You can log in using your email and password.
           </p>
         </div>
 
