@@ -37,6 +37,7 @@ import SignaturePage from '@/pages/signature';
 import InternationalStudentProfile from '@/pages/application/editProfile/profile-internationalStudent';
 import EuStudentProfile from '@/pages/application/editProfile/profile-euStudent';
 import ApplicantEditProfile from '@/pages/application/editProfile/profile-applicant';
+import AssignmentPage from '@/pages/assignment';
 
 const SignInPage = lazy(() => import('@/pages/auth/signin/index'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
@@ -157,6 +158,11 @@ export default function AppRouter() {
       {
         path: 'student-applications',
         element: withRole(<StudentApplicationsPage />, ['admin','student']),
+        index: true
+      },
+      {
+        path: 'student-applications/:id/assignment',
+        element: withRole(<AssignmentPage />, ['admin','student']),
         index: true
       },
       {

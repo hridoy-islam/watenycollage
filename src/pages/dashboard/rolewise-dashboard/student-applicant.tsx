@@ -68,7 +68,6 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
     string | null
   >(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
   const fetchData = async (page = 1, limit = 10) => {
     try {
       // Fetch applications
@@ -165,7 +164,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
       ) : (
         <>
           {/* Desktop/Tablet View: Table */}
-          <div className="block max-md:hidden overflow-x-auto rounded-md border md:overflow-x-visible">
+          <div className="block max-md:hidden overflow-x-auto rounded-md border border-gray-300 md:overflow-x-visible">
             <Table className="min-w-full">
               <TableHeader>
                 <TableRow>
@@ -205,7 +204,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                         </Badge>
                       </TableCell>
                       <TableCell className="py-3 text-right sm:py-4">
-                        {application.status !== 'cancelled' &&
+                        {/* {application.status !== 'cancelled' &&
                           application.status !== 'approved' && (
                             <Button
                               size="sm"
@@ -215,7 +214,17 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                             >
                               Cancel
                             </Button>
-                          )}
+                          )} */}
+
+
+                           <Button
+                              size="sm"
+                              variant="default"
+                              onClick={() => navigate(`/dashboard/student-applications/${application._id}/assignment`)}
+                              className="text-white bg-watney hover:bg-watney/90"
+                            >
+                              Submit Assignment
+                            </Button>
                       </TableCell>
                     </TableRow>
                   ))
@@ -277,7 +286,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                       </Badge>
                     </div>
 
-                    {application.status !== 'cancelled' &&
+                    {/* {application.status !== 'cancelled' &&
                       application.status !== 'approved' && (
                         <div className="pt-2">
                           <Button
@@ -289,7 +298,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                             Cancel Application
                           </Button>
                         </div>
-                      )}
+                      )} */}
                   </div>
                 </div>
               ))
@@ -315,7 +324,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
   </Card>
 
   {/* Confirmation Modal */}
-  <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+  {/* <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
     <DialogContent>
       <DialogHeader>
         <DialogTitle>Are you sure?</DialogTitle>
@@ -330,7 +339,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
         </Button>
       </div>
     </DialogContent>
-  </Dialog>
+  </Dialog> */}
 </div>
   );
 }

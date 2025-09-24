@@ -9,12 +9,18 @@ import {
   TableRow
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Eye, Mail, MoveLeft, Search } from 'lucide-react';
+import { Eye, FileIcon, FileX2, Mail, MoveLeft, Search } from 'lucide-react';
 import { DataTablePagination } from '@/components/shared/data-table-pagination';
 import { useNavigate } from 'react-router-dom';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
 import Select from 'react-select';
 import { Badge } from '@/components/ui/badge';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/ui/tooltip';
 
 interface StudentApplication {
   _id: string;
@@ -151,21 +157,19 @@ export default function StudentApplicationsPage() {
     setCurrentPage(1);
   };
 
-
   // Add this at the top of your component
-const handleSearch = () => {
-  if (!searchQuery) {
-    // If search is empty, reset to all applications
-    setFilteredApplications(applications);
-    return;
-  }
+  const handleSearch = () => {
+    if (!searchQuery) {
+      // If search is empty, reset to all applications
+      setFilteredApplications(applications);
+      return;
+    }
 
-  const filtered = applications.filter((app) =>
-    app.refId?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-  setFilteredApplications(filtered);
-};
-
+    const filtered = applications.filter((app) =>
+      app.refId?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setFilteredApplications(filtered);
+  };
 
   return (
     <div className="space-y-6">
@@ -350,30 +354,70 @@ const handleSearch = () => {
                       {app.courseId?.name ?? 'N/A'}
                     </TableCell>
                     <TableCell className="flex flex-row gap-2 text-center">
-                      <Button
-                        variant="ghost"
-                        className="border-none bg-watney text-white hover:bg-watney/90"
-                        size="icon"
-                        onClick={() =>
-                          navigate(
-                            `/dashboard/student-application/${app.studentId?._id}/${app?._id}/mails`
-                          )
-                        }
-                      >
-                        <Mail className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        className="border-none bg-watney text-white hover:bg-watney/90"
-                        size="icon"
-                        onClick={() =>
-                          navigate(
-                            `/dashboard/student-application/${app.studentId?._id}`
-                          )
-                        }
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
+                      <TooltipProvider>
+                        {/* Assignment Button */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              className="border-none bg-watney text-white hover:bg-watney/90"
+                              size="icon"
+                              onClick={() =>
+                                navigate(
+                                  `/dashboard/student-applications/${app?._id}/assignment`
+                                )
+                              }
+                            >
+                              <FileIcon className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Assignment</p>
+                          </TooltipContent>
+                        </Tooltip>
+
+                        {/* Mail Button */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              className="border-none bg-watney text-white hover:bg-watney/90"
+                              size="icon"
+                              onClick={() =>
+                                navigate(
+                                  `/dashboard/student-application/${app.studentId?._id}/${app?._id}/mails`
+                                )
+                              }
+                            >
+                              <Mail className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Mail</p>
+                          </TooltipContent>
+                        </Tooltip>
+
+                        {/* Applicant Details Button */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              className="border-none bg-watney text-white hover:bg-watney/90"
+                              size="icon"
+                              onClick={() =>
+                                navigate(
+                                  `/dashboard/student-application/${app.studentId?._id}`
+                                )
+                              }
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Applicant Details</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </TableCell>
                   </TableRow>
                 ))}
