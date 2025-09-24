@@ -11,13 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle
-} from '@/components/ui/card';
+
 import {
   Table,
   TableBody,
@@ -26,7 +20,6 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
 import {
   Plus,
   FileText,
@@ -81,7 +74,9 @@ function AssignmentPage() {
     fileName: ''
   });
 
-  const MAX_FILE_SIZE = 1 * 1024 * 1024; // 5MB
+  const [applicant, setApplicant] = useState(null);
+
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
   // Fetch assignments
   const fetchAssignments = async (page = 1, limit = 100) => {
@@ -110,6 +105,21 @@ function AssignmentPage() {
       setLoading(false);
     }
   };
+
+const fetchApplicant = async () => {
+    try {
+      const res = await axiosInstance.get(`/application-course/${applicationId}`);
+      setApplicant(res.data.data);
+    } catch (err) {
+      console.error('Failed to fetch applicant:', err);
+      toast({
+        title: 'Error',
+        description: 'Failed to fetch applicant data.',
+        variant: 'destructive'
+      });
+    }
+  };
+
 
   // Handle file selection and upload
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -261,6 +271,7 @@ function AssignmentPage() {
   useEffect(() => {
     if (applicationId) {
       fetchAssignments(currentPage, entriesPerPage);
+      fetchApplicant()
     }
   }, [applicationId]);
 
@@ -429,7 +440,7 @@ function AssignmentPage() {
           <h1 className="flex items-center font-semibold">
             <FileText className="mr-2 h-5 w-5" />
             {user.role === 'admin'
-              ? `${assignments[0]?.studentId?.title ?? ''} ${assignments[0]?.studentId?.firstName ?? ''} ${assignments[0]?.studentId?.initial ?? ''} ${assignments[0]?.studentId?.lastName ?? ''}'s Submissions`
+              ? `${applicant?.studentId?.title ?? ''} ${applicant?.studentId?.firstName ?? ''} ${applicant?.studentId?.initial ?? ''} ${applicant?.studentId?.lastName ?? ''}'s Submissions`
               : 'Your Submissions'}
           </h1>
         </div>
