@@ -1,5 +1,16 @@
 import { useEffect, useState } from 'react';
-import { Plus, Pen, MoveLeft, Check, Copy } from 'lucide-react';
+import {
+  Plus,
+  Pen,
+  MoveLeft,
+  Check,
+  Copy,
+  FileQuestion,
+  FileJson,
+  FileBadge,
+  File,
+  FileText
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import {
@@ -17,6 +28,12 @@ import { Input } from '@/components/ui/input';
 import { DataTablePagination } from '@/components/shared/data-table-pagination';
 import { CourseDialog } from './components/course-dialog';
 import { useNavigate } from 'react-router-dom';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/ui/tooltip';
 
 export default function CoursesPage() {
   const [courses, setCourses] = useState<any>([]);
@@ -112,6 +129,9 @@ export default function CoursesPage() {
     setEditingCourse(course);
     setDialogOpen(true);
   };
+  const handleUnit = (course) => {
+    navigate(`${course._id}/unit`)
+  };
 
   useEffect(() => {
     fetchData(currentPage, entriesPerPage); // Refresh data
@@ -137,14 +157,12 @@ export default function CoursesPage() {
     );
   };
 
-  
   const handleCopy = (id) => {
     const formatted = `[courseCode="${id}"]`;
     navigator.clipboard.writeText(formatted);
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 1000);
   };
-
 
   return (
     <div className="space-y-3">
@@ -210,15 +228,14 @@ export default function CoursesPage() {
             <TableBody>
               {courses.map((course) => (
                 <TableRow key={course._id}>
-                       <TableCell className="font-medium items-center ">
-                    <div className='flex items-center'>
-
-                    {course?.courseCode ? (
-                      <span className=" text-md">{course?.courseCode}</span>
-                    ) : (
-                      '-'
-                    )}
-                     {/* {course?.courseCode &&
+                  <TableCell className="items-center font-medium ">
+                    <div className="flex items-center">
+                      {course?.courseCode ? (
+                        <span className=" text-md">{course?.courseCode}</span>
+                      ) : (
+                        '-'
+                      )}
+                      {/* {course?.courseCode &&
                     <Button
                       variant="ghost"
                       size="icon"
@@ -231,7 +248,7 @@ export default function CoursesPage() {
                         <Copy className="h-4 w-4" />
                       )}
                     </Button>} */}
-                      </div>
+                    </div>
                   </TableCell>
                   <TableCell className="flex items-center gap-2">
                     <span>{course.name}</span>
@@ -269,7 +286,7 @@ export default function CoursesPage() {
                       </svg>
                     </Button>
                   </TableCell>
-             
+
                   <TableCell className="text-center">
                     <Switch
                       checked={course.status == 1}
@@ -279,15 +296,40 @@ export default function CoursesPage() {
                       className="mx-auto"
                     />
                   </TableCell>
-                  <TableCell className="text-center">
-                    <Button
-                      variant="ghost"
-                      className="border-none bg-watney text-white hover:bg-watney/90"
-                      size="icon"
-                      onClick={() => handleEdit(course)}
-                    >
-                      <Pen className="h-4 w-4" />
-                    </Button>
+                  <TableCell className="space-x-3 text-center">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            className="border-none bg-watney text-white hover:bg-watney/90"
+                            size="icon"
+                            onClick={() => handleUnit(course)}
+                          >
+                            <FileText className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Unit</p>
+                        </TooltipContent>
+                      </Tooltip>
+
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            className="border-none bg-watney text-white hover:bg-watney/90"
+                            size="icon"
+                            onClick={() => handleEdit(course)}
+                          >
+                            <Pen className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Edit</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </TableCell>
                 </TableRow>
               ))}

@@ -38,6 +38,9 @@ import InternationalStudentProfile from '@/pages/application/editProfile/profile
 import EuStudentProfile from '@/pages/application/editProfile/profile-euStudent';
 import ApplicantEditProfile from '@/pages/application/editProfile/profile-applicant';
 import AssignmentPage from '@/pages/assignment';
+import CourseUnitPage from '@/pages/courseUnit';
+import CourseModule from '@/pages/courseUnit/courseResource';
+import CourseResource from '@/pages/courseUnit/courseResource';
 
 const SignInPage = lazy(() => import('@/pages/auth/signin/index'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
@@ -118,6 +121,16 @@ export default function AppRouter() {
       {
         path: 'courses',
         element: withRole(<CoursesPage />, ['admin','student']),
+        index: true
+      },
+      {
+        path: 'courses/:id/unit',
+        element: withRole(<CourseUnitPage />, ['admin','student']),
+        index: true
+      },
+      {
+        path: 'courses/:id/unit/:unitId',
+        element: withRole(<CourseResource />, ['admin','student']),
         index: true
       },
       {
