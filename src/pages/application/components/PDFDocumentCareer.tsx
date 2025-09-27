@@ -884,9 +884,9 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
             to the following address
           </Text>
           <Text style={{ fontWeight: 'bold', marginTop: 5 }}>Cyberpeers</Text>
-          <Text>61 Huntsman Road, Ilford, IG6 3SX, London.United Kingdom</Text>
+          <Text>9 Town Quay, Barking IG11 7BZ, United Kingdom</Text>
           <Text>Email: contact@cyberpeers.co.uk</Text>
-          <Text>Phone: +447914829155</Text>
+          <Text>Phone: +44 (0) 20 8090 4860</Text>
         </View>
 
         <Text style={styles.footer}>
