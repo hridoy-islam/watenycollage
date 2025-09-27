@@ -570,7 +570,7 @@ export default function CareerApplicationForm() {
                         </a>
                       </li>
                       <li>
-                        <strong>Phone:</strong> +44 (0) 20 8090 4860
+                        <strong>Phone:</strong> +44 020 8090 4806
                         <strong>Address:</strong>9 Town Quay, Barking IG11 7BZ, United Kingdom
                       </li>
                     </ul>
