@@ -353,9 +353,9 @@ function CourseUnitPage() {
                     <TableHead>Level</TableHead>
                     <TableHead>GLS</TableHead>
                     <TableHead>Credit</TableHead>
-                    {user?.role !== 'student' && (
+                   
                       <TableHead className="text-right">Actions</TableHead>
-                    )}
+                  
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -366,7 +366,6 @@ function CourseUnitPage() {
                       <TableCell>{unit.level}</TableCell>
                       <TableCell>{unit.gls}</TableCell>
                       <TableCell>{unit.credit}</TableCell>
-                      {user?.role !== 'student' && (
                         <TableCell className="items-end space-x-2 text-right">
                           <TooltipProvider>
                             <Tooltip>
@@ -376,16 +375,17 @@ function CourseUnitPage() {
                                   variant="default"
                                   onClick={() => handleModule(unit)}
                                   className="bg-watney text-white hover:bg-watney/90"
-                                >
+                                  >
                                   <FileText className="h-4 w-4" />
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent>
-                                <p>Modules</p>
+                                <p>Course Resources</p>
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
 
+                                  {user?.role !== 'student' && (
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
@@ -403,8 +403,8 @@ function CourseUnitPage() {
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
+                          )}
                         </TableCell>
-                      )}
                     </TableRow>
                   ))}
                 </TableBody>

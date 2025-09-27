@@ -46,5 +46,45 @@ export const mockResources: Resource[] = [
     title: 'React Hooks Implementation',
     deadline: '2025-02-15T23:59:59Z',
     createdAt: '2025-01-10T10:00:00Z'
+  },
+  {
+    id: '7',
+    type: 'learning-outcome',
+    learningOutcomes: 'Communication and Assistive Technology',
+    createdAt: '2025-01-12T08:00:00Z',
+    assessmentCriteria: [
+      {
+        id: 'lo-1',
+        parentId: '7',
+        description: 'Understand communication needs and factors affecting them'
+      },
+      {
+        id: 'lo-2',
+        parentId: '7',
+        description:
+          'Understand how to support the use of assistive technology to enhance communication'
+      },
+      {
+        id: 'lo-3',
+        parentId: '7',
+
+        description: 'Understand the principles of effective communication'
+      },
+      {
+        id: 'lo-3',
+        parentId: '7',
+        description: 'Understand the principles of effective communication'
+      },{
+        id: 'lo-4',
+        parentId: '7',
+        description:
+          'Understand how to support the use of assistive technology to enhance communication'
+      },
+      {
+        id: 'lo-5',
+        parentId: '7',
+        description: 'Understand the principles of effective communication'
+      }
+    ]
   }
 ];

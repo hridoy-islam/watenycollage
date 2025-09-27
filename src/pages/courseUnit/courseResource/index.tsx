@@ -17,7 +17,7 @@ import {
   UploadState,
   ResourceType,
   ContentType
-} from './types';
+} from './components/types';
 import { useToast } from '@/components/ui/use-toast';
 import { mockResources } from './components/mockData';
 import { allowedFileTypes, MAX_FILE_SIZE } from './components/utils';
@@ -25,21 +25,28 @@ import ResourceTypeSelector from './components/ResourceTypeSelector';
 import ResourceForm from './components/ResourceForm';
 import ResourceList from './components/ResourceList';
 import axiosInstance from '@/lib/axios';
+import { useSelector } from 'react-redux';
 
 function CourseModule() {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { id, unitId } = useParams();
+  const { unitId } = useParams();
+  const user = useSelector((state: any) => state.auth.user); // Get user from Redux state
+  const isAdmin = user?.role === 'admin';
   const [resources, setResources] = useState<Resource[]>(mockResources);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [selectedResourceType, setSelectedResourceType] =
     useState<ResourceType | null>(null);
   const [editingResource, setEditingResource] = useState<Resource | null>(null);
+
   const [formData, setFormData] = useState<FormData>({
     title: '',
     content: '',
-    deadline: new Date()
+    deadline: null,
+    learningOutcomes: '',
+    assessmentCriteria: []
   });
+
   const [uploadState, setUploadState] = useState<UploadState>({
     selectedDocument: null,
     fileName: null
@@ -52,14 +59,12 @@ function CourseModule() {
   const [courseName, setCourseName] = useState<string>('');
   const [unitTitle, setUnitTitle] = useState<string>('');
 
+  // Fetch course and unit info
   const fetchCourseAndUnit = async () => {
     try {
-      // Fetch unit info
       const unitRes = await axiosInstance.get(`/course-unit/${unitId}`);
-      setUnitTitle(unitRes.data.data.title);
-
-      // Fetch course info
-      setCourseName(unitRes?.data?.data.courseId?.name);
+      setUnitTitle(unitRes.data.data.title || '');
+      setCourseName(unitRes.data.data.courseId?.name || '');
     } catch (error) {
       console.error('Error fetching course/unit:', error);
       toast({
@@ -70,7 +75,7 @@ function CourseModule() {
     }
   };
 
-  // Initialize form when editing
+  // Initialize form when editing or when unit changes
   useEffect(() => {
     if (editingResource) {
       setFormData({
@@ -78,7 +83,9 @@ function CourseModule() {
         content: editingResource.content || '',
         deadline: editingResource.deadline
           ? new Date(editingResource.deadline)
-          : new Date()
+          : null,
+        learningOutcomes: editingResource.learningOutcomes || '',
+        assessmentCriteria: editingResource.assessmentCriteria || []
       });
       setUploadState({
         selectedDocument: editingResource.fileUrl || null,
@@ -87,9 +94,8 @@ function CourseModule() {
       setContentType(editingResource.content ? 'text' : 'upload');
       setSelectedResourceType(editingResource.type);
     }
-
     fetchCourseAndUnit();
-  }, [editingResource]);
+  }, [editingResource, unitId]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -163,75 +169,18 @@ function CourseModule() {
   const handleResourceTypeSelect = (type: ResourceType) => {
     setEditingResource(null);
     setSelectedResourceType(type);
-    setFormData({ title: '', content: '', deadline: new Date() });
+    setFormData({
+      title: '',
+      content: '',
+      deadline: null,
+      learningOutcomes: '',
+      assessmentCriteria: []
+    });
     setUploadState({ selectedDocument: null, fileName: null });
     setContentType('text');
   };
 
   const validateAndSaveResource = () => {
-    if (selectedResourceType === 'introduction') {
-      if (!formData.content) {
-        toast({
-          title: 'Content required',
-          description: 'Please enter some content for the introduction.',
-          variant: 'destructive'
-        });
-        return;
-      }
-
-      if (
-        !editingResource &&
-        resources.some((r) => r.type === 'introduction')
-      ) {
-        toast({
-          title: 'Introduction exists',
-          description: 'Only one introduction is allowed per course.',
-          variant: 'destructive'
-        });
-        return;
-      }
-    }
-
-    if (selectedResourceType !== 'introduction' && !formData.title) {
-      toast({
-        title: 'Title required',
-        description: 'Please enter a title for this resource.',
-        variant: 'destructive'
-      });
-      return;
-    }
-
-    if (selectedResourceType === 'assignment') {
-      if (!formData.deadline) {
-        toast({
-          title: 'Deadline required',
-          description: 'Please set a deadline for the assignment.',
-          variant: 'destructive'
-        });
-        return;
-      }
-    }
-
-    if (selectedResourceType !== 'assignment') {
-      if (contentType === 'text' && !formData.content) {
-        toast({
-          title: 'Content required',
-          description: 'Please enter some content.',
-          variant: 'destructive'
-        });
-        return;
-      }
-
-      if (contentType === 'upload' && !uploadState.selectedDocument) {
-        toast({
-          title: 'File required',
-          description: 'Please upload a file.',
-          variant: 'destructive'
-        });
-        return;
-      }
-    }
-
     const newResource: Resource = {
       id: editingResource?.id || Date.now().toString(),
       type: selectedResourceType!,
@@ -242,9 +191,11 @@ function CourseModule() {
         contentType === 'upload' ? uploadState.selectedDocument : undefined,
       fileName: contentType === 'upload' ? uploadState.fileName : undefined,
       deadline:
-        selectedResourceType === 'assignment'
+        selectedResourceType === 'assignment' && formData.deadline
           ? formData.deadline.toISOString()
           : undefined,
+      learningOutcomes: formData.learningOutcomes,
+      assessmentCriteria: formData.assessmentCriteria,
       createdAt: editingResource?.createdAt || new Date().toISOString()
     };
 
@@ -271,7 +222,13 @@ function CourseModule() {
     setIsCreateDialogOpen(false);
     setSelectedResourceType(null);
     setEditingResource(null);
-    setFormData({ title: '', content: '', deadline: new Date() });
+    setFormData({
+      title: '',
+      content: '',
+      deadline: null,
+      learningOutcomes: '',
+      assessmentCriteria: []
+    });
     setUploadState({ selectedDocument: null, fileName: null });
     setContentType('text');
   };
@@ -316,19 +273,19 @@ function CourseModule() {
               open={isCreateDialogOpen}
               onOpenChange={(open) => {
                 setIsCreateDialogOpen(open);
-                if (!open) {
-                  resetForm();
-                }
+                if (!open) resetForm();
               }}
             >
               <DialogTrigger asChild>
-                <Button
-                  size="sm"
-                  className="bg-watney text-white shadow-lg hover:bg-watney/90"
-                >
-                  <Plus className="mr-2 h-5 w-5" />
-                  Add Resource
-                </Button>
+                {isAdmin && (
+                  <Button
+                    size="sm"
+                    className="bg-watney text-white shadow-lg hover:bg-watney/90"
+                  >
+                    <Plus className="mr-2 h-5 w-5" />
+                    Add Resource
+                  </Button>
+                )}
               </DialogTrigger>
 
               <DialogContent className="z-[9999] max-h-[90vh] max-w-4xl overflow-y-auto">

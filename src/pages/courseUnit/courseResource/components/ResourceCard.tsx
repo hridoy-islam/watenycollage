@@ -14,9 +14,10 @@ import {
   AccordionItem,
   AccordionTrigger
 } from '@/components/ui/accordion';
-import { GraduationCap, BookOpen, BookA as BookAIcon, FileText, Clock, Pencil, Trash2 } from 'lucide-react';
+import { GraduationCap, BookOpen, BookA as BookAIcon, FileText, Clock, Pencil, Trash2, Target } from 'lucide-react';
 import moment from 'moment';
 import { Resource } from './types';
+import { useSelector } from 'react-redux';
 
 interface ResourceCardProps {
   resource: Resource;
@@ -29,6 +30,9 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
   onEdit,
   onDelete
 }) => {
+  const user = useSelector((state: any) => state.auth.user); // Get user from Redux state
+  const isAdmin = user?.role === 'admin';
+
   const getResourceTypeIcon = (type: string) => {
     switch (type) {
       case 'introduction':
@@ -76,24 +80,27 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
                 <CardTitle>Course Introduction</CardTitle>
               </div>
             </div>
-            <div className="flex gap-2">
-              <Button
-                variant="default"
-                size="icon"
-                onClick={() => onEdit(resource)}
-          className="text-watney hover:text-watney/90"
-              >
-                <Pencil className="h-4 w-4" />
-              </Button>
-              {/* <Button
-                variant="default"
-                size="icon"
-                onClick={() => onDelete(resource.id)}
-                className="text-red-600 hover:text-red-800"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button> */}
-            </div>
+            {isAdmin && (
+              <div className="flex gap-2">
+                <Button
+                  variant="default"
+                  size="icon"
+                  onClick={() => onEdit(resource)}
+                  className="text-watney hover:text-watney/90"
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+                {/* Uncomment if you want to allow admin to delete introduction */}
+                {/* <Button
+                  variant="default"
+                  size="icon"
+                  onClick={() => onDelete(resource.id)}
+                  className="text-red-600 hover:text-red-800"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button> */}
+              </div>
+            )}
           </div>
         </CardHeader>
         <CardContent>
@@ -108,45 +115,121 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
     );
   }
 
+  if (resource.type === 'learning-outcome') {
+    return (
+      <AccordionItem key={resource.id} value={resource.id}>
+        <AccordionTrigger className="hover:no-underline py-2 px-4">
+          <div className="flex w-full items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Badge className="bg-indigo-500 p-2 text-white">
+                <Target className="h-4 w-4" />
+              </Badge>
+              <span className="font-medium">
+                {resource.learningOutcomes || ''}
+              </span>
+            </div>
+            {isAdmin && (
+              <div className="flex gap-2">
+                <Button
+                  variant="default"
+                  size="icon"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEdit(resource);
+                  }}
+                  className="text-watney hover:text-watney/90"
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="default"
+                  size="icon"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(resource.id);
+                  }}
+                  className="text-red-600 hover:text-red-800"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+          </div>
+        </AccordionTrigger>
+        <AccordionContent className="pt-4 pb-4 px-4">
+          {resource.description && (
+            <div
+              className="ql-snow mb-4 text-slate-700"
+              dangerouslySetInnerHTML={{ __html: resource.description }}
+            />
+          )}
+
+          {resource.assessmentCriteria && resource.assessmentCriteria.length > 0 ? (
+            <div className="space-y-4">
+              {resource.assessmentCriteria.map((lo, index) => (
+                <div key={lo.id} className="rounded-md bg-slate-50 p-4 border border-slate-200">
+                  <div className="flex items-start gap-3">
+                    <span className="font-medium text-slate-700 mt-0.5 flex-shrink-0">
+                      {index + 1}.
+                    </span>
+                    <div className="flex-1 ql-snow text-slate-800">
+                      {lo.description ? (
+                        <div dangerouslySetInnerHTML={{ __html: lo.description }} />
+                      ) : (
+                        <span className="text-slate-500 italic">No description</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-slate-500 italic">No learning outcomes defined.</p>
+          )}
+        </AccordionContent>
+      </AccordionItem>
+    );
+  }
+
   if (resource.type === 'assignment') {
-  return (
-    <div className="flex items-center justify-between rounded-lg border border-gray-300 p-2">
-      {/* Left Side */}
-      <div className="flex items-center gap-3 flex-1">
-        <Badge className={`${getResourceTypeColor(resource.type)} p-2 text-white`}>
-          {getResourceTypeIcon(resource.type)}
-        </Badge>
-        <h3 className="font-medium">{resource.title}</h3>
-        <div className="flex items-center text-sm text-slate-600">
-          <Clock className="ml-3 mr-1 h-4 w-4" />
-          <span>Due: {formatDeadline(resource.deadline!)}</span>
+    return (
+      <div className="flex items-center justify-between rounded-lg border border-gray-300 p-2">
+        <div className="flex items-center gap-3 flex-1">
+          <Badge className={`${getResourceTypeColor(resource.type)} p-2 text-white`}>
+            {getResourceTypeIcon(resource.type)}
+          </Badge>
+          <h3 className="font-medium">{resource.title}</h3>
+          <div className="flex items-center text-sm text-slate-600">
+            <Clock className="ml-3 mr-1 h-4 w-4" />
+            <span>Due: {formatDeadline(resource.deadline!)}</span>
+          </div>
         </div>
+
+        {isAdmin && (
+          <div className="flex gap-2">
+            <Button
+              variant="default"
+              size="icon"
+              onClick={() => onEdit(resource)}
+              className="text-watney hover:text-watney/90"
+            >
+              <Pencil className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="default"
+              size="icon"
+              onClick={() => onDelete(resource.id)}
+              className="text-red-600 hover:text-red-800"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
       </div>
+    );
+  }
 
-      {/* Right Side (buttons) */}
-      <div className="flex gap-2">
-        <Button
-          variant="default"
-          size="icon"
-          onClick={() => onEdit(resource)}
-          className="text-watney hover:text-watney/90"
-        >
-          <Pencil className="h-4 w-4" />
-        </Button>
-        <Button
-          variant="default"
-          size="icon"
-          onClick={() => onDelete(resource.id)}
-          className="text-red-600 hover:text-red-800"
-        >
-          <Trash2 className="h-4 w-4" />
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-
+  // Default: study-guide, lecture, etc.
   return (
     <AccordionItem key={resource.id} value={resource.id}>
       <AccordionTrigger className="hover:no-underline py-2">
@@ -159,30 +242,32 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
             </Badge>
             <span className="font-medium">{resource.title}</span>
           </div>
-          <div className="flex gap-2">
-            <Button
-              variant="default"
-              size="icon"
-              onClick={(e) => {
-                e.stopPropagation();
-                onEdit(resource);
-              }}
-              className="text-watney hover:text-watney/90"
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="default"
-              size="icon"
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete(resource.id);
-              }}
-              className="text-red-600 hover:text-red-800"
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
+          {isAdmin && (
+            <div className="flex gap-2">
+              <Button
+                variant="default"
+                size="icon"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit(resource);
+                }}
+                className="text-watney hover:text-watney/90"
+              >
+                <Pencil className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="default"
+                size="icon"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(resource.id);
+                }}
+                className="text-red-600 hover:text-red-800"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
         </div>
       </AccordionTrigger>
       <AccordionContent className="pt-4">

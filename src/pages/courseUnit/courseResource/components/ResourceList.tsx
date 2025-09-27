@@ -7,7 +7,13 @@ import {
   CardTitle
 } from '@/components/ui/card';
 import { Accordion } from '@/components/ui/accordion';
-import { GraduationCap, BookOpen, BookA as BookAIcon, FileText } from 'lucide-react';
+import {
+  GraduationCap,
+  BookOpen,
+  BookA as BookAIcon,
+  FileText,
+  Target
+} from 'lucide-react';
 import ResourceCard from './ResourceCard';
 import { Resource } from './types';
 
@@ -22,10 +28,13 @@ const ResourceList: React.FC<ResourceListProps> = ({
   onEditResource,
   onDeleteResource
 }) => {
-  const introductionResource = resources.find(r => r.type === 'introduction');
-  const studyGuides = resources.filter(r => r.type === 'study-guide');
-  const lectures = resources.filter(r => r.type === 'lecture');
-  const assignments = resources.filter(r => r.type === 'assignment');
+  const introductionResource = resources.find((r) => r.type === 'introduction');
+  const studyGuides = resources.filter((r) => r.type === 'study-guide');
+  const lectures = resources.filter((r) => r.type === 'lecture');
+  const assignments = resources.filter((r) => r.type === 'assignment');
+  const learningOutcomes = resources.filter(
+    (r) => r.type === 'learning-outcome'
+  );
 
   return (
     <div className="space-y-2">
@@ -38,6 +47,37 @@ const ResourceList: React.FC<ResourceListProps> = ({
         />
       )}
 
+{/* Learning Outcomes Section */}
+{learningOutcomes.length > 0 && (
+  <Card className="shadow-lg">
+    <CardHeader>
+      <div className="flex items-center gap-3">
+        <div className="rounded-lg bg-indigo-100 p-2">
+          <Target className="h-6 w-6 text-indigo-600" />
+        </div>
+        <div>
+          <CardTitle>Learning Outcomes</CardTitle>
+          <CardDescription>
+            {learningOutcomes.length} unit{learningOutcomes.length > 1 ? 's' : ''} defined
+          </CardDescription>
+        </div>
+      </div>
+    </CardHeader>
+    <CardContent>
+      <Accordion type="multiple" className="w-full">
+        {learningOutcomes.map((loResource) => (
+          <ResourceCard
+            key={loResource.id}
+            resource={loResource}
+            onEdit={onEditResource}
+            onDelete={onDeleteResource}
+          />
+        ))}
+      </Accordion>
+    </CardContent>
+  </Card>
+)}
+
       {/* Study Guides Section */}
       {studyGuides.length > 0 && (
         <Card className="shadow-lg">
@@ -49,7 +89,8 @@ const ResourceList: React.FC<ResourceListProps> = ({
               <div>
                 <CardTitle>Study Guides</CardTitle>
                 <CardDescription>
-                  {studyGuides.length} guide{studyGuides.length > 1 ? 's' : ''} available
+                  {studyGuides.length} guide{studyGuides.length > 1 ? 's' : ''}{' '}
+                  available
                 </CardDescription>
               </div>
             </div>
@@ -80,7 +121,8 @@ const ResourceList: React.FC<ResourceListProps> = ({
               <div>
                 <CardTitle>Lectures</CardTitle>
                 <CardDescription>
-                  {lectures.length} lecture{lectures.length > 1 ? 's' : ''} available
+                  {lectures.length} lecture{lectures.length > 1 ? 's' : ''}{' '}
+                  available
                 </CardDescription>
               </div>
             </div>
@@ -111,7 +153,8 @@ const ResourceList: React.FC<ResourceListProps> = ({
               <div>
                 <CardTitle>Assignments</CardTitle>
                 <CardDescription>
-                  {assignments.length} assignment{assignments.length > 1 ? 's' : ''} available
+                  {assignments.length} assignment
+                  {assignments.length > 1 ? 's' : ''} available
                 </CardDescription>
               </div>
             </div>

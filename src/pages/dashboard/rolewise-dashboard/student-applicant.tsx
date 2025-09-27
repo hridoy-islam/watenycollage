@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 
@@ -31,7 +30,13 @@ import { Badge } from '@/components/ui/badge';
 import moment from 'moment';
 import { useSelector } from 'react-redux';
 import Loader from '@/components/shared/loader';
-
+import { FileText } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/ui/tooltip';
 interface Course {
   _id: string;
   name: string;
@@ -44,9 +49,8 @@ interface Application {
     termName: string;
   };
   status: string;
-  createdAt: string
+  createdAt: string;
 }
-
 
 interface StudentDashboardProps {
   user: {
@@ -57,7 +61,7 @@ interface StudentDashboardProps {
 }
 
 export function StudentDashboard({ user }: StudentDashboardProps) {
-    const [applications, setApplications] = useState<Application[]>([]);
+  const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -149,62 +153,64 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
   };
 
   return (
-   <div className="flex-1 space-y-4">
-  {/* Applied Courses Tab */}
-  <Card className="shadow-none">
-    <CardHeader>
-      <CardTitle>Your Course Applications</CardTitle>
-      <CardDescription>Track the status of your course applications</CardDescription>
-    </CardHeader>
-    <CardContent>
-      {loading ? (
-        <div className="flex items-center justify-center py-10">
-          <Loader />
-        </div>
-      ) : (
-        <>
-          {/* Desktop/Tablet View: Table */}
-          <div className="block max-md:hidden overflow-x-auto rounded-md border border-gray-300 md:overflow-x-visible">
-            <Table className="min-w-full">
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Course Name</TableHead>
-                  <TableHead>Intake</TableHead>
-                  <TableHead>Application Date</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Action</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {applications.length > 0 ? (
-                  applications.map((application) => (
-                    <TableRow key={application._id}>
-                      <TableCell className="py-3 font-medium sm:py-4">
-                        {application?.courseId?.name || 'Unnamed Course'}
-                      </TableCell>
-                      <TableCell className="py-3 sm:py-4">
-                        {application?.intakeId?.termName || 'N/A'}
-                      </TableCell>
-                      <TableCell className="py-3 sm:py-4">
-                        {moment(application.createdAt).format('MM-DD-YYYY')}
-                      </TableCell>
-                      <TableCell className="py-3 sm:py-4">
-                        <Badge
-                          className={`text-white ${
-                            application.status === 'applied'
-                              ? 'bg-blue-500'
-                              : application.status === 'cancelled'
-                                ? 'bg-red-500'
-                                : application.status === 'approved'
-                                  ? 'bg-green-500'
-                                  : 'bg-yellow-500'
-                          }`}
-                        >
-                          {application.status || 'N/A'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="py-3 text-right sm:py-4">
-                        {/* {application.status !== 'cancelled' &&
+    <div className="flex-1 space-y-4">
+      {/* Applied Courses Tab */}
+      <Card className="shadow-none">
+        <CardHeader>
+          <CardTitle>Your Course Applications</CardTitle>
+          <CardDescription>
+            Track the status of your course applications
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="flex items-center justify-center py-10">
+              <Loader />
+            </div>
+          ) : (
+            <>
+              {/* Desktop/Tablet View: Table */}
+              <div className="block overflow-x-auto rounded-md border border-gray-300 max-md:hidden md:overflow-x-visible">
+                <Table className="min-w-full">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Course Name</TableHead>
+                      <TableHead>Intake</TableHead>
+                      <TableHead>Application Date</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Action</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {applications.length > 0 ? (
+                      applications.map((application) => (
+                        <TableRow key={application._id}>
+                          <TableCell className="py-3 font-medium sm:py-4">
+                            {application?.courseId?.name || 'Unnamed Course'}
+                          </TableCell>
+                          <TableCell className="py-3 sm:py-4">
+                            {application?.intakeId?.termName || 'N/A'}
+                          </TableCell>
+                          <TableCell className="py-3 sm:py-4">
+                            {moment(application.createdAt).format('MM-DD-YYYY')}
+                          </TableCell>
+                          <TableCell className="py-3 sm:py-4">
+                            <Badge
+                              className={`text-white ${
+                                application.status === 'applied'
+                                  ? 'bg-blue-500'
+                                  : application.status === 'cancelled'
+                                    ? 'bg-red-500'
+                                    : application.status === 'approved'
+                                      ? 'bg-green-500'
+                                      : 'bg-yellow-500'
+                              }`}
+                            >
+                              {application.status || 'N/A'}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="py-3 text-right sm:py-4">
+                            {/* {application.status !== 'cancelled' &&
                           application.status !== 'approved' && (
                             <Button
                               size="sm"
@@ -215,78 +221,128 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                               Cancel
                             </Button>
                           )} */}
+                            <div className="flex flex-row items-center justify-end gap-2">
+                              <TooltipProvider>
+                                <div className="flex items-center gap-2">
+                                  {/* Unit Button */}
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button
+                                        size="sm"
+                                        variant="default"
+                                        onClick={() =>
+                                          navigate(
+                                            `/dashboard/courses/${application.courseId._id}/unit`
+                                          )
+                                        }
+                                        className="bg-watney text-white hover:bg-watney/90"
+                                      >
+                                        <FileText className="h-4 w-4" />
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>View Course Units</p>
+                                    </TooltipContent>
+                                  </Tooltip>
 
+                                  {/* Assignment Button */}
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button
+                                        size="sm"
+                                        variant="default"
+                                        onClick={() =>
+                                          navigate(
+                                            `/dashboard/student-applications/${application._id}/assignment`
+                                          )
+                                        }
+                                        className="bg-watney text-white hover:bg-watney/90"
+                                      >
+                                        Submit Assignment
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>Assignment Submission</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </div>
+                              </TooltipProvider>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell
+                          colSpan={5}
+                          className="py-6 text-center text-sm text-gray-500"
+                        >
+                          No applications found.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
 
-                           <Button
-                              size="sm"
-                              variant="default"
-                              onClick={() => navigate(`/dashboard/student-applications/${application._id}/assignment`)}
-                              className="text-white bg-watney hover:bg-watney/90"
-                            >
-                              Submit Assignment
-                            </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={5} className="py-6 text-center text-sm text-gray-500">
-                      No applications found.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-
-          {/* Mobile-First Stacked Cards (Alternative Layout) */}
-          <div className="space-y-4 md:hidden">
-            {applications.length > 0 ? (
-              applications.map((application) => (
-                <div
-                  key={application._id}
-                  className="rounded-lg border bg-white p-4 shadow-sm"
-                >
-                  <div className="space-y-2">
-                    <div>
-                      <h3 className="text-sm font-semibold text-gray-800">Course Name</h3>
-                      <p className="text-sm text-gray-600">
-                        {application?.courseId?.name || 'Unnamed Course'}
-                      </p>
-                    </div>
-
-                    <div>
-                      <h3 className="text-sm font-semibold text-gray-800">Intake</h3>
-                      <p className="text-sm text-gray-600">
-                        {application?.intakeId?.termName || 'N/A'}
-                      </p>
-                    </div>
-
-                    <div>
-                      <h3 className="text-sm font-semibold text-gray-800">Application Date</h3>
-                      <p className="text-sm text-gray-600">
-                        {moment(application.createdAt).format('MM-DD-YYYY')}
-                      </p>
-                    </div>
-
-                    <div>
-                      <h3 className="text-sm font-semibold text-gray-800">Status</h3>
-                      <Badge
-                        className={`text-white text-xs ${
-                          application.status === 'applied'
-                            ? 'bg-blue-500'
-                            : application.status === 'cancelled'
-                              ? 'bg-red-500'
-                              : application.status === 'approved'
-                                ? 'bg-green-500'
-                                : 'bg-yellow-500'
-                        }`}
+              {/* Mobile-First Stacked Cards (Alternative Layout) */}
+              <div className="space-y-4 md:hidden">
+                {applications.length > 0
+                  ? applications.map((application) => (
+                      <div
+                        key={application._id}
+                        className="rounded-lg border bg-white p-4 shadow-sm"
                       >
-                        {application.status || 'N/A'}
-                      </Badge>
-                    </div>
+                        <div className="space-y-2">
+                          <div>
+                            <h3 className="text-sm font-semibold text-gray-800">
+                              Course Name
+                            </h3>
+                            <p className="text-sm text-gray-600">
+                              {application?.courseId?.name || 'Unnamed Course'}
+                            </p>
+                          </div>
 
-                    {/* {application.status !== 'cancelled' &&
+                          <div>
+                            <h3 className="text-sm font-semibold text-gray-800">
+                              Intake
+                            </h3>
+                            <p className="text-sm text-gray-600">
+                              {application?.intakeId?.termName || 'N/A'}
+                            </p>
+                          </div>
+
+                          <div>
+                            <h3 className="text-sm font-semibold text-gray-800">
+                              Application Date
+                            </h3>
+                            <p className="text-sm text-gray-600">
+                              {moment(application.createdAt).format(
+                                'MM-DD-YYYY'
+                              )}
+                            </p>
+                          </div>
+
+                          <div>
+                            <h3 className="text-sm font-semibold text-gray-800">
+                              Status
+                            </h3>
+                            <Badge
+                              className={`text-xs text-white ${
+                                application.status === 'applied'
+                                  ? 'bg-blue-500'
+                                  : application.status === 'cancelled'
+                                    ? 'bg-red-500'
+                                    : application.status === 'approved'
+                                      ? 'bg-green-500'
+                                      : 'bg-yellow-500'
+                              }`}
+                            >
+                              {application.status || 'N/A'}
+                            </Badge>
+                          </div>
+
+                          {/* {application.status !== 'cancelled' &&
                       application.status !== 'approved' && (
                         <div className="pt-2">
                           <Button
@@ -299,32 +355,31 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                           </Button>
                         </div>
                       )} */}
-                  </div>
+                        </div>
+                      </div>
+                    ))
+                  : null}
+              </div>
+
+              {/* Pagination */}
+              {applications.length > 0 && (
+                <div className="mt-6 flex flex-col-reverse items-center justify-between gap-4 max-md:scale-75 md:flex-row">
+                  <DataTablePagination
+                    pageSize={entriesPerPage}
+                    setPageSize={setEntriesPerPage}
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                  />
                 </div>
-              ))
-            ) : null}
-          </div>
-
-          {/* Pagination */}
-          {applications.length > 0 && (
-            <div className="mt-6 flex flex-col-reverse items-center justify-between gap-4 md:flex-row max-md:scale-75" >
-             
-              <DataTablePagination
-                pageSize={entriesPerPage}
-                setPageSize={setEntriesPerPage}
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={setCurrentPage}
-              />
-            </div>
+              )}
+            </>
           )}
-        </>
-      )}
-    </CardContent>
-  </Card>
+        </CardContent>
+      </Card>
 
-  {/* Confirmation Modal */}
-  {/* <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+      {/* Confirmation Modal */}
+      {/* <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
     <DialogContent>
       <DialogHeader>
         <DialogTitle>Are you sure?</DialogTitle>
@@ -340,6 +395,6 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
       </div>
     </DialogContent>
   </Dialog> */}
-</div>
+    </div>
   );
 }
