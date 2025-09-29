@@ -353,9 +353,8 @@ function CourseUnitPage() {
                     <TableHead>Level</TableHead>
                     <TableHead>GLS</TableHead>
                     <TableHead>Credit</TableHead>
-                   
-                      <TableHead className="text-right">Actions</TableHead>
-                  
+
+                    <TableHead className="text-right">Details</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -366,35 +365,38 @@ function CourseUnitPage() {
                       <TableCell>{unit.level}</TableCell>
                       <TableCell>{unit.gls}</TableCell>
                       <TableCell>{unit.credit}</TableCell>
-                        <TableCell className="items-end space-x-2 text-right">
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  size="icon"
-                                  variant="default"
-                                  onClick={() => handleModule(unit)}
-                                  className="bg-watney text-white hover:bg-watney/90"
-                                  >
-                                  <FileText className="h-4 w-4" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Course Resources</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
+                      <TableCell className="items-end space-x-2 text-left">
+                        <div className='flex justify-end gap-2'>
 
-                                  {user?.role !== 'student' && (
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="default"
+                                onClick={() => handleModule(unit)}
+                                className="flex flex-row items-center gap-2 bg-watney text-white hover:bg-watney/90"
+                                >
+                                <FileText className="h-4 w-4" />
+                                View Details
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Details</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+
+                        {user?.role !== 'student' && (
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <Button
-                                  size="icon"
+                                  size="sm"
                                   variant="default"
                                   onClick={() => openEditDialog(unit)}
                                   className="bg-watney text-white hover:bg-watney/90"
-                                >
+                                  >
                                   <Pen className="h-4 w-4" />
                                 </Button>
                               </TooltipTrigger>
@@ -403,8 +405,9 @@ function CourseUnitPage() {
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
-                          )}
-                        </TableCell>
+                        )}
+                        </div>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

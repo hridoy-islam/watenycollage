@@ -20,7 +20,6 @@ import {
   Resource,
   LearningOutcomeItem
 } from './types';
-import { mockResources } from './mockData';
 
 interface ResourceFormProps {
   selectedResourceType: ResourceType;
@@ -55,17 +54,19 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
   onSave,
   onCancel,
   editingResource,
-  allResources = mockResources,
+  allResources,
   selectedParentId,
   setSelectedParentId
 }) => {
-  const [editingCriterionId, setEditingCriterionId] = useState<string | null>(null);
+  const [editingCriterionId, setEditingCriterionId] = useState<string | null>(
+    null
+  );
   const [newCriterion, setNewCriterion] = useState<LearningOutcomeItem>({
-    id: '',
-    parentId: '',
+    
     description: ''
   });
-  const [showAssessmentCriteriaForm, setShowAssessmentCriteriaForm] = useState(false);
+  const [showAssessmentCriteriaForm, setShowAssessmentCriteriaForm] =
+    useState(false);
 
   const quillModules = {
     toolbar: [
@@ -81,7 +82,11 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
     children
   }: {
     children: React.ReactNode;
-  }) => <div style={{ position: 'absolute', zIndex: 9999 }}>{children}</div>;
+  }) => (
+    <div style={{ position: 'absolute', zIndex: 9999, left: 200 }}>
+      {children}
+    </div>
+  );
 
   // ===== FORM RENDERERS =====
 
@@ -159,7 +164,7 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
   );
 
   const renderAssignmentForm = () => (
-    <div className="space-y-6">
+    <div className="space-y-6 h-[20vh]">
       <div>
         <Label htmlFor="assignment-title">Assignment Title</Label>
         <Input
@@ -186,8 +191,9 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
             showMonthDropdown
             showYearDropdown
             dropdownMode="select"
+            wrapperClassName="w-full"
             isClearable
-            popperModifiers={[{ name: 'offset', options: { offset: [0, 10] } }]}
+            popperModifiers={[{ name: 'offset', options: { offset: [0, 40] } }]}
             popperContainer={DatepickerPopperContainer}
           />
         </div>
@@ -196,13 +202,13 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
   );
 
   const renderCreateLearningOutcomeForm = () => {
-    if (!Array.isArray(allResources)) {
-      return (
-        <div className="rounded-md bg-red-50 p-3 text-red-700">
-          Error: Resources could not be loaded.
-        </div>
-      );
-    }
+    // if (!Array.isArray(allResources)) {
+    //   return (
+    //     <div className="rounded-md bg-red-50 p-3 text-red-700">
+    //       Error: Resources could not be loaded.
+    //     </div>
+    //   );
+    // }
 
     return (
       <div className="space-y-6">
@@ -214,7 +220,10 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
             placeholder="Enter learning outcome title..."
             value={formData.learningOutcomes || ''}
             onChange={(e) =>
-              setFormData((prev) => ({ ...prev, learningOutcomes: e.target.value }))
+              setFormData((prev) => ({
+                ...prev,
+                learningOutcomes: e.target.value
+              }))
             }
             className="mt-2"
           />
@@ -223,7 +232,9 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
         {/* Assessment Criteria Section */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <Label>Assessment Criteria ({formData.assessmentCriteria?.length || 0})</Label>
+            <Label>
+              Assessment Criteria ({formData.assessmentCriteria?.length || 0})
+            </Label>
             {!showAssessmentCriteriaForm && (
               <Button
                 type="button"
@@ -232,7 +243,7 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
                 onClick={() => {
                   setShowAssessmentCriteriaForm(true);
                   setEditingCriterionId(null);
-                  setNewCriterion({ id: '', parentId: '', description: '' });
+                  setNewCriterion({ parentId: '', description: '' });
                 }}
                 className="flex items-center gap-2"
               >
@@ -260,7 +271,7 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
                 </div>
               </div>
 
-              <div className="flex gap-3 justify-end">
+              <div className="flex justify-end gap-3">
                 <Button
                   type="button"
                   variant="outline"
@@ -288,17 +299,22 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
           {formData.assessmentCriteria?.length > 0 && (
             <div className="space-y-3">
               {formData.assessmentCriteria.map((item, index) => (
-                <div key={item.id} className="flex items-center justify-between p-3 bg-white border rounded-lg">
+                <div
+                  key={item._id}
+                  className="flex items-center justify-between rounded-lg border bg-white p-3"
+                >
                   <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="font-medium text-slate-700">{index + 1}.</span>
+                    <div className="mb-2 flex items-center gap-2">
+                      <span className="font-medium text-slate-700">
+                        {index + 1}.
+                      </span>
                     </div>
                     <div
                       className="ql-snow text-slate-800"
                       dangerouslySetInnerHTML={{ __html: item.description }}
                     />
                   </div>
-                  <div className="flex gap-1 ml-4">
+                  <div className="ml-4 flex gap-1">
                     <Button
                       variant="ghost"
                       size="sm"
@@ -309,7 +325,7 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleRemoveCriterion(item.id)}
+                      onClick={() => handleRemoveCriterion(item._id)}
                     >
                       <Trash2 className="h-4 w-4 text-red-500" />
                     </Button>
@@ -329,7 +345,7 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
 
   // Helper functions
   const handleEditCriterion = (item: LearningOutcomeItem) => {
-    setEditingCriterionId(item.id);
+    setEditingCriterionId(item._id);
     setNewCriterion({ ...item });
     setShowAssessmentCriteriaForm(true);
   };
@@ -337,7 +353,8 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
   const handleRemoveCriterion = (id: string) => {
     setFormData((prev) => ({
       ...prev,
-      assessmentCriteria: prev.assessmentCriteria?.filter((item) => item.id !== id) || [],
+      assessmentCriteria:
+        prev.assessmentCriteria?.filter((item) => item._id !== id) || []
     }));
   };
 
@@ -352,14 +369,15 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
     if (editingCriterionId) {
       setFormData((prev) => ({
         ...prev,
-        assessmentCriteria: prev.assessmentCriteria?.map((item) =>
-          item.id === editingCriterionId ? criterionToAdd : item
-        ) || [],
+        assessmentCriteria:
+          prev.assessmentCriteria?.map((item) =>
+            item._id === editingCriterionId ? criterionToAdd : item
+          ) || []
       }));
     } else {
       setFormData((prev) => ({
         ...prev,
-        assessmentCriteria: [...(prev.assessmentCriteria || []), criterionToAdd],
+        assessmentCriteria: [...(prev.assessmentCriteria || []), criterionToAdd]
       }));
     }
 
@@ -387,6 +405,30 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
   // Always show action buttons for learning-outcome (since we removed the selector)
   const shouldShowActionButtons = true;
 
+  const isFormValid = (() => {
+    switch (selectedResourceType) {
+      case 'study-guide':
+      case 'lecture':
+        return (
+          formData.title?.trim() &&
+          (contentType === 'text'
+            ? formData.content?.trim()
+            : uploadState.selectedDocument)
+        );
+      case 'assignment':
+        return formData.title?.trim() && !!formData.deadline;
+      case 'learning-outcome':
+        return (
+          formData.learningOutcomes?.trim() &&
+          formData.assessmentCriteria?.length > 0
+        );
+      case 'introduction':
+        return formData.content?.trim();
+      default:
+        return false;
+    }
+  })();
+
   return (
     <div className="space-y-6 py-4">
       {renderFormContent()}
@@ -399,6 +441,7 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
           </Button>
           <Button
             onClick={onSave}
+            disabled={!isFormValid}
             className="bg-watney text-white hover:bg-watney/90"
           >
             {editingResource ? 'Update Resource' : 'Create Resource'}

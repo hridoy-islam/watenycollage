@@ -297,20 +297,23 @@ export default function CoursesPage() {
                     />
                   </TableCell>
                   <TableCell className="space-x-3 text-center">
+                    <div className='flex flex-row items-center gap-2'>
+
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Button
                             variant="ghost"
-                            className="border-none bg-watney text-white hover:bg-watney/90"
-                            size="icon"
+                            className="border-none bg-watney text-white hover:bg-watney/90 flex "
+                            size="sm"
                             onClick={() => handleUnit(course)}
-                          >
-                            <FileText className="h-4 w-4" />
+                            >
+                            <FileText className="h-4 w-4 mr-2" />
+                            Units
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p>Unit</p>
+                          <p>Units</p>
                         </TooltipContent>
                       </Tooltip>
 
@@ -318,11 +321,12 @@ export default function CoursesPage() {
                         <TooltipTrigger asChild>
                           <Button
                             variant="ghost"
-                            className="border-none bg-watney text-white hover:bg-watney/90"
-                            size="icon"
+                            className="border-none bg-watney text-white hover:bg-watney/90 space-x-2"
+                            size="sm"
                             onClick={() => handleEdit(course)}
-                          >
-                            <Pen className="h-4 w-4" />
+                            >
+                            <Pen className="h-4 w-4 mr-2" />
+                            Edit
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent>
@@ -330,6 +334,7 @@ export default function CoursesPage() {
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
+                            </div>
                   </TableCell>
                 </TableRow>
               ))}

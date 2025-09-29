@@ -12,8 +12,6 @@ export type ContentType = 'text' | 'upload';
 export type LearningOutcomeFormType = 'learning-outcome' | 'assessment-criteria';
 
 export interface LearningOutcomeItem {
-  id: string;
-  parentId: string; // references the Resource.id
   description: string;
 }
 
@@ -26,14 +24,13 @@ export interface FormData {
 }
 
 export interface Resource {
-  id: string;
+  _id: string;
   type: ResourceType;
   title?: string;
   content?: string;
   fileUrl?: string;
   fileName?: string;
   deadline?: string;
-  createdAt: string;
   learningOutcomes?: string;
   description?: string;
   assessmentCriteria?: LearningOutcomeItem[];
@@ -42,4 +39,22 @@ export interface Resource {
 export interface UploadState {
   selectedDocument: string | null;
   fileName: string | null;
+}
+
+export interface Assignment {
+  applicationId: string;
+  studentId: string;
+  assignmentName: string;
+  document: string;
+  unitId: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+// New interface for course unit materials without assignments
+export interface CourseUnitMaterial {
+  introduction: Resource;          
+  studyGuides: Resource[];          
+  lectures: Resource[];             
+  learningOutcomes: Resource[];    
 }

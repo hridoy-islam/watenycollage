@@ -6,50 +6,52 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger
+  DialogTrigger,
 } from '@/components/ui/dialog';
 import { Plus, GraduationCap, MoveLeft } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
-
+import moment from 'moment';
 import {
   Resource,
-  FormData,
   UploadState,
   ResourceType,
-  ContentType
+  ContentType,
 } from './components/types';
 import { useToast } from '@/components/ui/use-toast';
-import { mockResources } from './components/mockData';
 import { allowedFileTypes, MAX_FILE_SIZE } from './components/utils';
 import ResourceTypeSelector from './components/ResourceTypeSelector';
 import ResourceForm from './components/ResourceForm';
 import ResourceList from './components/ResourceList';
 import axiosInstance from '@/lib/axios';
 import { useSelector } from 'react-redux';
+import { BlinkingDots } from '@/components/shared/blinking-dots';
 
 function CourseModule() {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { unitId } = useParams();
-  const user = useSelector((state: any) => state.auth.user); // Get user from Redux state
+  const { id, unitId } = useParams();
+  const user = useSelector((state: any) => state.auth.user);
   const isAdmin = user?.role === 'admin';
-  const [resources, setResources] = useState<Resource[]>(mockResources);
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [selectedResourceType, setSelectedResourceType] =
-    useState<ResourceType | null>(null);
-  const [editingResource, setEditingResource] = useState<Resource | null>(null);
+  const isStudent = user?.role === 'student';
 
-  const [formData, setFormData] = useState<FormData>({
+  const [resources, setResources] = useState<Resource[]>([]);
+  const [studentSubmissions, setStudentSubmissions] = useState<Record<string, any>>({});
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [selectedResourceType, setSelectedResourceType] = useState<ResourceType | null>(null);
+  const [editingResource, setEditingResource] = useState<Resource | null>(null);
+  const [loading, setLoading] = useState(true); 
+
+  const [formData, setFormData] = useState({
     title: '',
     content: '',
-    deadline: null,
+    deadline: undefined,
     learningOutcomes: '',
-    assessmentCriteria: []
+    assessmentCriteria: [],
   });
 
   const [uploadState, setUploadState] = useState<UploadState>({
     selectedDocument: null,
-    fileName: null
+    fileName: null,
   });
   const [uploadingFile, setUploadingFile] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -59,44 +61,138 @@ function CourseModule() {
   const [courseName, setCourseName] = useState<string>('');
   const [unitTitle, setUnitTitle] = useState<string>('');
 
-  // Fetch course and unit info
-  const fetchCourseAndUnit = async () => {
+  // ✅ Optimized: Fetch all data in parallel
+  const fetchData = async () => {
+    if (!unitId) return;
+    
     try {
-      const unitRes = await axiosInstance.get(`/course-unit/${unitId}`);
+      setLoading(true);
+      
+      // Parallel API calls
+      const requests = [
+        axiosInstance.get(`/course-unit/${unitId}`),
+        axiosInstance.get(`/unit-material?unitId=${unitId}&limit=all`)
+      ];
+      
+      // Add student submissions request if student
+      if (isStudent && user?._id) {
+        requests.push(
+          axiosInstance.get(`/assignment?studentId=${user._id}&unitId=${unitId}`)
+        );
+      }
+
+      const responses = await Promise.all(requests);
+      
+      // Process course/unit info
+      const unitRes = responses[0];
       setUnitTitle(unitRes.data.data.title || '');
       setCourseName(unitRes.data.data.courseId?.name || '');
+      
+      // Process resources
+      const materialRes = responses[1];
+      const material = materialRes.data.data.result[0];
+      const mappedResources: Resource[] = [];
+
+      if (material) {
+        if (material.introduction) {
+          mappedResources.push({
+            _id: material._id,
+            type: 'introduction',
+            content: material.introduction.content || '',
+            title: undefined,
+            unitId,
+          });
+        }
+
+        const typeMap: Record<string, ResourceType> = {
+          studyGuides: 'study-guide',
+          lectures: 'lecture',
+          learningOutcomes: 'learning-outcome',
+          assignments: 'assignment',
+        };
+
+        Object.entries(typeMap).forEach(([key, resourceType]) => {
+          const items = material[key] || [];
+          items.forEach((item: any) => {
+            mappedResources.push({
+              _id: item._id,
+              type: resourceType,
+              title: item.title || '',
+              deadline: item.deadline || undefined,
+              content: item.content || '',
+              fileUrl: item.fileUrl?.trim() || '',
+              fileName: item.fileName?.trim() || '',
+              learningOutcomes: item.learningOutcomes || '',
+              assessmentCriteria:
+                item.assessmentCriteria?.map((ao: any) => ({
+                  _id: ao._id,
+                  description: ao.description,
+                })) || [],
+              unitId,
+            });
+          });
+        });
+      }
+
+      setResources(mappedResources);
+      
+      // Process student submissions (if applicable)
+      if (isStudent && responses[2]) {
+        const submissions = responses[2].data.data.result || [];
+        const grouped = {};
+        submissions.forEach((sub) => {
+          grouped[sub.assignmentName] = sub;
+        });
+        setStudentSubmissions(grouped);
+      }
     } catch (error) {
-      console.error('Error fetching course/unit:', error);
+      console.error('Error fetching data:', error);
       toast({
         title: 'Error',
-        description: 'Failed to fetch course or unit information.',
-        variant: 'destructive'
+        description: 'Failed to load course data.',
+        variant: 'destructive',
       });
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Initialize form when editing or when unit changes
+  useEffect(() => {
+    if (unitId) {
+      fetchData();
+    }
+  }, [unitId, isStudent, user?._id]);
+
+  // Initialize form when editing
   useEffect(() => {
     if (editingResource) {
       setFormData({
         title: editingResource.title || '',
         content: editingResource.content || '',
-        deadline: editingResource.deadline
-          ? new Date(editingResource.deadline)
-          : null,
+        deadline: editingResource.deadline || null,
         learningOutcomes: editingResource.learningOutcomes || '',
-        assessmentCriteria: editingResource.assessmentCriteria || []
+        assessmentCriteria: editingResource.assessmentCriteria || [],
       });
       setUploadState({
         selectedDocument: editingResource.fileUrl || null,
-        fileName: editingResource.fileName || null
+        fileName: editingResource.fileName || null,
       });
       setContentType(editingResource.content ? 'text' : 'upload');
       setSelectedResourceType(editingResource.type);
+    } else {
+      setFormData({
+        title: '',
+        content: '',
+        deadline: null,
+        learningOutcomes: '',
+        assessmentCriteria: [],
+      });
+      setUploadState({ selectedDocument: null, fileName: null });
+      setContentType('text');
     }
-    fetchCourseAndUnit();
-  }, [editingResource, unitId]);
+  }, [editingResource]);
 
+  // ✅ File upload handler (unchanged)
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -109,56 +205,70 @@ function CourseModule() {
       toast({
         title: 'File too large',
         description: 'File must be less than 5MB.',
-        variant: 'destructive'
+        variant: 'destructive',
       });
       setUploadingFile(false);
       return;
     }
 
-    const isValidType = allowedFileTypes.some((type) =>
-      file.type.startsWith(type)
-    );
+    const allowedTypes = [
+      'image/',
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    ];
+    const isValidType = allowedTypes.some((type) => file.type.startsWith(type));
     if (!isValidType) {
       toast({
         title: 'Invalid file type',
-        description:
-          'Please upload an image, PDF, Word document, or video file.',
-        variant: 'destructive'
+        description: 'Please upload an image, PDF, or Word document.',
+        variant: 'destructive',
       });
       setUploadingFile(false);
       return;
     }
 
     try {
-      const interval = setInterval(() => {
-        setUploadProgress((prev) => {
-          if (prev >= 100) {
-            clearInterval(interval);
-            return 100;
+      const formData = new FormData();
+      formData.append('entityId', user?._id);
+      formData.append('file_type', 'resource');
+      formData.append('file', file);
+
+      const response = await axiosInstance.post('/documents', formData, {
+        onUploadProgress: (progressEvent) => {
+          if (progressEvent.total) {
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            );
+            setUploadProgress(percentCompleted);
           }
-          return prev + 10;
+        },
+      });
+
+      if (
+        response.status === 200 &&
+        response.data?.success &&
+        response.data.data?.fileUrl
+      ) {
+        const fileUrl = response.data.data.fileUrl.trim();
+        setUploadState({
+          selectedDocument: fileUrl,
+          fileName: file.name,
         });
-      }, 200);
-
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      const mockFileUrl = `/documents/${file.name}`;
-      setUploadState({
-        selectedDocument: mockFileUrl,
-        fileName: file.name
-      });
-
-      toast({
-        title: 'Success',
-        description: 'Document uploaded successfully!'
-      });
+        toast({
+          title: 'Success',
+          description: 'Document uploaded successfully!',
+        });
+      } else {
+        throw new Error('Upload failed: Invalid API response');
+      }
     } catch (error) {
       console.error('Upload error:', error);
       setUploadError('Failed to upload document. Please try again.');
       toast({
         title: 'Upload failed',
         description: 'Could not upload your document.',
-        variant: 'destructive'
+        variant: 'destructive',
       });
     } finally {
       setUploadingFile(false);
@@ -172,50 +282,12 @@ function CourseModule() {
     setFormData({
       title: '',
       content: '',
-      deadline: null,
+      deadline: undefined,
       learningOutcomes: '',
-      assessmentCriteria: []
+      assessmentCriteria: [],
     });
     setUploadState({ selectedDocument: null, fileName: null });
     setContentType('text');
-  };
-
-  const validateAndSaveResource = () => {
-    const newResource: Resource = {
-      id: editingResource?.id || Date.now().toString(),
-      type: selectedResourceType!,
-      title:
-        selectedResourceType === 'introduction' ? undefined : formData.title,
-      content: contentType === 'text' ? formData.content : undefined,
-      fileUrl:
-        contentType === 'upload' ? uploadState.selectedDocument : undefined,
-      fileName: contentType === 'upload' ? uploadState.fileName : undefined,
-      deadline:
-        selectedResourceType === 'assignment' && formData.deadline
-          ? formData.deadline.toISOString()
-          : undefined,
-      learningOutcomes: formData.learningOutcomes,
-      assessmentCriteria: formData.assessmentCriteria,
-      createdAt: editingResource?.createdAt || new Date().toISOString()
-    };
-
-    if (editingResource) {
-      setResources((prev) =>
-        prev.map((r) => (r.id === editingResource.id ? newResource : r))
-      );
-      toast({
-        title: 'Success',
-        description: 'Resource updated successfully!'
-      });
-    } else {
-      setResources((prev) => [...prev, newResource]);
-      toast({
-        title: 'Success',
-        description: 'Resource created successfully!'
-      });
-    }
-
-    resetForm();
   };
 
   const resetForm = () => {
@@ -225,135 +297,321 @@ function CourseModule() {
     setFormData({
       title: '',
       content: '',
-      deadline: null,
+      deadline: undefined,
       learningOutcomes: '',
-      assessmentCriteria: []
+      assessmentCriteria: [],
     });
     setUploadState({ selectedDocument: null, fileName: null });
     setContentType('text');
   };
 
-  const handleDeleteResource = (id: string) => {
-    setResources((prev) => prev.filter((resource) => resource.id !== id));
-    toast({
-      title: 'Resource deleted',
-      description: 'The resource has been removed successfully.'
-    });
+  const validateAndSaveResource = async () => {
+    if (!id || !unitId) {
+      toast({
+        title: 'Error',
+        description: 'Course ID or Unit ID is missing.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // === Handle Assignment Definition (Admin only) ===
+    if (selectedResourceType === 'assignment') {
+      if (!isAdmin) {
+        toast({
+          title: 'Access Denied',
+          description: 'Only instructors can create assignments.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      if (!formData.title?.trim()) {
+        toast({
+          title: 'Error',
+          description: 'Assignment title is required.',
+          variant: 'destructive',
+        });
+        return;
+      }
+      if (!formData.deadline) {
+        toast({
+          title: 'Error',
+          description: 'Deadline is required.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      try {
+        let existingMaterial: any = null;
+        try {
+          const res = await axiosInstance.get(`/unit-material?unitId=${unitId}&limit=1`);
+          existingMaterial = res.data.data.result[0] || null;
+        } catch (err) {
+          // OK if not exists
+        }
+
+        const newAssignment = {
+          title: formData.title.trim(),
+          deadline: formData.deadline,
+          type: 'assignment',
+        };
+
+        const payload: any = {
+          courseId: id,
+          unitId,
+        };
+
+        let currentAssignments = existingMaterial?.assignments || [];
+
+        if (editingResource) {
+          currentAssignments = currentAssignments.map((item: any) =>
+            item._id === editingResource._id
+              ? { ...newAssignment, _id: item._id }
+              : item
+          );
+        } else {
+          currentAssignments = [...currentAssignments, newAssignment];
+        }
+
+        payload.assignments = currentAssignments;
+
+        if (existingMaterial) {
+          await axiosInstance.patch(`/unit-material/${existingMaterial._id}`, payload);
+          toast({ title: 'Assignment updated successfully!' });
+        } else {
+          await axiosInstance.post('/unit-material', payload);
+          toast({ title: 'Assignment created successfully!' });
+        }
+
+        fetchData(); // ✅ Refresh all data
+        resetForm();
+        return;
+      } catch (error) {
+        console.error('Save assignment definition error:', error);
+        toast({
+          title: 'Failed to save assignment.',
+          variant: 'destructive',
+        });
+        return;
+      }
+    }
+
+    // === Handle other unit-material resources ===
+    if (!isAdmin) {
+      toast({
+        title: 'Access Denied',
+        description: 'Only instructors can create this type of resource.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      let existingMaterial: any = null;
+      try {
+        const res = await axiosInstance.get(`/unit-material?unitId=${unitId}&limit=1`);
+        existingMaterial = res.data.data.result[0] || null;
+      } catch (err) {
+        // OK
+      }
+
+      const payload: any = { courseId: id, unitId };
+
+      if (selectedResourceType === 'introduction') {
+        payload.introduction = {
+          type: 'introduction',
+          content: formData.content || '',
+        };
+      } else {
+        const fieldMap: Record<
+          Exclude<ResourceType, 'introduction' | 'assignment'>,
+          string
+        > = {
+          'study-guide': 'studyGuides',
+          lecture: 'lectures',
+          'learning-outcome': 'learningOutcomes',
+        };
+
+        const targetField = fieldMap[
+          selectedResourceType as Exclude<ResourceType, 'introduction' | 'assignment'>
+        ];
+
+        if (!targetField) {
+          throw new Error(`Unsupported resource type: ${selectedResourceType}`);
+        }
+
+        const newResource: any = {
+          type: selectedResourceType,
+          title: formData.title || undefined,
+          content: contentType === 'text' ? formData.content : undefined,
+          learningOutcomes: formData.learningOutcomes || undefined,
+          assessmentCriteria:
+            formData.assessmentCriteria.length > 0
+              ? formData.assessmentCriteria
+              : undefined,
+        };
+
+        if (contentType === 'upload' && uploadState.selectedDocument) {
+          newResource.fileUrl = uploadState.selectedDocument;
+          newResource.fileName = uploadState.fileName;
+        }
+
+        let currentArray: any[] = existingMaterial?.[targetField] || [];
+
+        if (editingResource) {
+          currentArray = currentArray.map((item: any) =>
+            item._id === editingResource._id
+              ? { ...newResource, _id: item._id }
+              : item
+          );
+        } else {
+          currentArray = [...currentArray, newResource];
+        }
+
+        payload[targetField] = currentArray;
+      }
+
+      if (existingMaterial) {
+        await axiosInstance.patch(`/unit-material/${existingMaterial._id}`, payload);
+      } else {
+        await axiosInstance.post('/unit-material', payload);
+      }
+
+      toast({ title: editingResource ? 'Resource updated!' : 'Resource created!' });
+      fetchData(); // ✅ Refresh all data
+      resetForm();
+    } catch (error) {
+      console.error('Save resource error:', error);
+      toast({
+        title: 'Failed to save resource.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleDeleteResource = async (id: string) => {
+    const resource = resources.find((r) => r._id === id);
+    if (!resource) return;
+
+    try {
+      // Deletion logic here if needed
+    } catch (error) {
+      console.error('Delete error:', error);
+      toast({
+        title: 'Failed to delete resource.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleEditResource = (resource: Resource) => {
     setEditingResource(resource);
+    setSelectedResourceType(resource.type);
     setIsCreateDialogOpen(true);
   };
 
   const introductionExists = resources.some((r) => r.type === 'introduction');
 
+  const formatDate = (date: Date | string | undefined): string => {
+    if (!date) return '';
+    return moment(date).format('DD MMM, YYYY');
+  };
+
+  // ✅ Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="flex justify-center py-6">
+            <BlinkingDots size="large" color="bg-watney" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen">
       <div className="space-y-2">
-        {/* Header */}
         <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-          <div className="flex flex-row items-center justify-between">
-            <h1 className="text-lg font-semibold text-slate-900">
-              <span className="text-blue-600">{courseName}</span>
-              <span className="mx-2 text-slate-400">/</span>
-              <span className="text-slate-700">{unitTitle}</span>
-            </h1>
-          </div>
-          <div className="flex flex-row items-center justify-end gap-4">
-            <Button
-              className="w-full justify-center bg-watney text-white hover:bg-watney/90 sm:w-auto"
-              onClick={() => navigate(-1)}
-              size="sm"
-            >
-              <MoveLeft className="mr-2 h-4 w-4" />
-              Back
+          <h1 className="text-sm font-semibold text-slate-900">
+            Course Name: <span className="text-slate-700 font-medium">{courseName}</span> <br />
+            Unit Name: <span className="text-slate-700 font-medium">{unitTitle}</span>
+          </h1>
+          <div className="flex gap-4">
+            <Button onClick={() => navigate(-1)} size="sm" className='bg-watney text-white hover:bg-watney/90'>
+              <MoveLeft className="mr-2 h-4 w-4" /> Back
             </Button>
-            <Dialog
-              open={isCreateDialogOpen}
-              onOpenChange={(open) => {
-                setIsCreateDialogOpen(open);
-                if (!open) resetForm();
-              }}
-            >
-              <DialogTrigger asChild>
-                {isAdmin && (
-                  <Button
-                    size="sm"
-                    className="bg-watney text-white shadow-lg hover:bg-watney/90"
-                  >
-                    <Plus className="mr-2 h-5 w-5" />
-                    Add Resource
+
+            {/* Admin: Full resource creation */}
+            {isAdmin && (
+              <Dialog
+                open={isCreateDialogOpen}
+                onOpenChange={(open) => {
+                  setIsCreateDialogOpen(open);
+                  if (!open) resetForm();
+                }}
+              >
+                <DialogTrigger asChild>
+                  <Button size="sm" className="bg-watney text-white hover:bg-watney/90">
+                    <Plus className="mr-2 h-5 w-5" /> Add Resource
                   </Button>
-                )}
-              </DialogTrigger>
-
-              <DialogContent className="z-[9999] max-h-[90vh] max-w-4xl overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle className="text-2xl">
-                    {editingResource ? 'Edit Resource' : 'Create New Resource'}
-                  </DialogTitle>
-                </DialogHeader>
-
-                {!selectedResourceType ? (
-                  <ResourceTypeSelector
-                    onSelect={handleResourceTypeSelect}
-                    hasIntroduction={introductionExists}
-                    editingResource={!!editingResource}
-                  />
-                ) : (
-                  <ResourceForm
-                    selectedResourceType={selectedResourceType}
-                    formData={formData}
-                    setFormData={setFormData}
-                    contentType={contentType}
-                    setContentType={setContentType}
-                    uploadState={uploadState}
-                    uploadingFile={uploadingFile}
-                    uploadProgress={uploadProgress}
-                    uploadError={uploadError}
-                    onFileChange={handleFileChange}
-                    onSave={validateAndSaveResource}
-                    onCancel={resetForm}
-                    editingResource={!!editingResource}
-                  />
-                )}
-              </DialogContent>
-            </Dialog>
+                </DialogTrigger>
+                <DialogContent className="z-[9999] max-h-[90vh] max-w-4xl overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle className="text-2xl">
+                      {editingResource ? 'Edit Resource' : 'Create New Resource'}
+                    </DialogTitle>
+                  </DialogHeader>
+                  {!selectedResourceType ? (
+                    <ResourceTypeSelector
+                      onSelect={handleResourceTypeSelect}
+                      hasIntroduction={introductionExists}
+                      editingResource={!!editingResource}
+                    />
+                  ) : (
+                    <ResourceForm
+                      selectedResourceType={selectedResourceType}
+                      formData={formData}
+                      setFormData={setFormData}
+                      contentType={contentType}
+                      setContentType={setContentType}
+                      uploadState={uploadState}
+                      uploadingFile={uploadingFile}
+                      uploadProgress={uploadProgress}
+                      uploadError={uploadError}
+                      onFileChange={handleFileChange}
+                      onSave={validateAndSaveResource}
+                      onCancel={resetForm}
+                      editingResource={!!editingResource}
+                    />
+                  )}
+                </DialogContent>
+              </Dialog>
+            )}
           </div>
         </div>
 
-        {/* Content Sections */}
         {resources.length > 0 ? (
           <ResourceList
             resources={resources}
+            studentSubmissions={studentSubmissions}
             onEditResource={handleEditResource}
             onDeleteResource={handleDeleteResource}
+            formatDate={formatDate}
           />
         ) : (
           <Card className="shadow-lg">
             <CardContent className="p-12 text-center">
               <GraduationCap className="mx-auto mb-4 h-16 w-16 text-slate-300" />
-              <h3 className="mb-2 text-xl font-semibold text-slate-900">
-                No Resources Yet
-              </h3>
+              <h3 className="mb-2 text-xl font-semibold">No Resources Yet</h3>
               <p className="mb-6 text-slate-600">
-                Get started by creating your first course resource.
+                {isAdmin
+                  ? 'Get started by creating your first course resource.'
+                  : 'No assignments available yet.'}
               </p>
-              <Dialog
-                open={isCreateDialogOpen}
-                onOpenChange={setIsCreateDialogOpen}
-              >
-                <DialogTrigger asChild>
-                  <Button
-                    size="lg"
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700"
-                  >
-                    <Plus className="mr-2 h-5 w-5" />
-                    Create Your First Resource
-                  </Button>
-                </DialogTrigger>
-              </Dialog>
             </CardContent>
           </Card>
         )}

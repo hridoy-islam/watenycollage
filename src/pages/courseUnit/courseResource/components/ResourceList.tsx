@@ -19,12 +19,14 @@ import { Resource } from './types';
 
 interface ResourceListProps {
   resources: Resource[];
+  studentSubmissions?: Record<string, any>; // ✅ Add this
   onEditResource: (resource: Resource) => void;
   onDeleteResource: (id: string) => void;
 }
 
 const ResourceList: React.FC<ResourceListProps> = ({
   resources,
+  studentSubmissions = {}, // ✅ Default to empty object
   onEditResource,
   onDeleteResource
 }) => {
@@ -42,41 +44,43 @@ const ResourceList: React.FC<ResourceListProps> = ({
       {introductionResource && (
         <ResourceCard
           resource={introductionResource}
+          studentSubmission={undefined} // Introduction doesn't have submissions
           onEdit={onEditResource}
           onDelete={onDeleteResource}
         />
       )}
 
-{/* Learning Outcomes Section */}
-{learningOutcomes.length > 0 && (
-  <Card className="shadow-lg">
-    <CardHeader>
-      <div className="flex items-center gap-3">
-        <div className="rounded-lg bg-indigo-100 p-2">
-          <Target className="h-6 w-6 text-indigo-600" />
-        </div>
-        <div>
-          <CardTitle>Learning Outcomes</CardTitle>
-          <CardDescription>
-            {learningOutcomes.length} unit{learningOutcomes.length > 1 ? 's' : ''} defined
-          </CardDescription>
-        </div>
-      </div>
-    </CardHeader>
-    <CardContent>
-      <Accordion type="multiple" className="w-full">
-        {learningOutcomes.map((loResource) => (
-          <ResourceCard
-            key={loResource.id}
-            resource={loResource}
-            onEdit={onEditResource}
-            onDelete={onDeleteResource}
-          />
-        ))}
-      </Accordion>
-    </CardContent>
-  </Card>
-)}
+      {/* Learning Outcomes Section */}
+      {learningOutcomes.length > 0 && (
+        <Card className="shadow-lg">
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="rounded-lg bg-indigo-100 p-2">
+                <Target className="h-6 w-6 text-indigo-600" />
+              </div>
+              <div>
+                <CardTitle>Learning Outcomes</CardTitle>
+                <CardDescription>
+                  {learningOutcomes.length} unit{learningOutcomes.length > 1 ? 's' : ''} defined
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <Accordion type="multiple" className="w-full">
+              {learningOutcomes.map((loResource) => (
+                <ResourceCard
+                  key={loResource._id}
+                  resource={loResource}
+                  studentSubmission={undefined} // Learning outcomes don't have submissions
+                  onEdit={onEditResource}
+                  onDelete={onDeleteResource}
+                />
+              ))}
+            </Accordion>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Study Guides Section */}
       {studyGuides.length > 0 && (
@@ -89,8 +93,7 @@ const ResourceList: React.FC<ResourceListProps> = ({
               <div>
                 <CardTitle>Study Guides</CardTitle>
                 <CardDescription>
-                  {studyGuides.length} guide{studyGuides.length > 1 ? 's' : ''}{' '}
-                  available
+                  {studyGuides.length} guide{studyGuides.length > 1 ? 's' : ''} available
                 </CardDescription>
               </div>
             </div>
@@ -99,8 +102,9 @@ const ResourceList: React.FC<ResourceListProps> = ({
             <Accordion type="multiple" className="w-full">
               {studyGuides.map((guide) => (
                 <ResourceCard
-                  key={guide.id}
+                  key={guide._id}
                   resource={guide}
+                  studentSubmission={undefined} // Study guides don't have submissions
                   onEdit={onEditResource}
                   onDelete={onDeleteResource}
                 />
@@ -121,8 +125,7 @@ const ResourceList: React.FC<ResourceListProps> = ({
               <div>
                 <CardTitle>Lectures</CardTitle>
                 <CardDescription>
-                  {lectures.length} lecture{lectures.length > 1 ? 's' : ''}{' '}
-                  available
+                  {lectures.length} lecture{lectures.length > 1 ? 's' : ''} available
                 </CardDescription>
               </div>
             </div>
@@ -131,8 +134,9 @@ const ResourceList: React.FC<ResourceListProps> = ({
             <Accordion type="multiple" className="w-full">
               {lectures.map((lecture) => (
                 <ResourceCard
-                  key={lecture.id}
+                  key={lecture._id}
                   resource={lecture}
+                  studentSubmission={undefined} // Lectures don't have submissions
                   onEdit={onEditResource}
                   onDelete={onDeleteResource}
                 />
@@ -153,8 +157,7 @@ const ResourceList: React.FC<ResourceListProps> = ({
               <div>
                 <CardTitle>Assignments</CardTitle>
                 <CardDescription>
-                  {assignments.length} assignment
-                  {assignments.length > 1 ? 's' : ''} available
+                  {assignments.length} assignment{assignments.length > 1 ? 's' : ''} available
                 </CardDescription>
               </div>
             </div>
@@ -163,8 +166,9 @@ const ResourceList: React.FC<ResourceListProps> = ({
             <div className="space-y-4">
               {assignments.map((assignment) => (
                 <ResourceCard
-                  key={assignment.id}
+                  key={assignment._id}
                   resource={assignment}
+                  studentSubmission={studentSubmissions[assignment.title]} // ✅ Critical: Match by title
                   onEdit={onEditResource}
                   onDelete={onDeleteResource}
                 />

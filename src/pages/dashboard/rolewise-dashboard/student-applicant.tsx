@@ -178,7 +178,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                       <TableHead>Intake</TableHead>
                       <TableHead>Application Date</TableHead>
                       <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Action</TableHead>
+                      <TableHead className="text-right">Course Details</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -235,36 +235,18 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                                             `/dashboard/courses/${application.courseId._id}/unit`
                                           )
                                         }
-                                        className="bg-watney text-white hover:bg-watney/90"
+                                        className="bg-watney text-white hover:bg-watney/90 flex flex-row gap-2 items-center"
                                       >
                                         <FileText className="h-4 w-4" />
+                                        View Details
                                       </Button>
                                     </TooltipTrigger>
                                     <TooltipContent>
-                                      <p>View Course Units</p>
+                                      <p>View Details</p>
                                     </TooltipContent>
                                   </Tooltip>
 
-                                  {/* Assignment Button */}
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <Button
-                                        size="sm"
-                                        variant="default"
-                                        onClick={() =>
-                                          navigate(
-                                            `/dashboard/student-applications/${application._id}/assignment`
-                                          )
-                                        }
-                                        className="bg-watney text-white hover:bg-watney/90"
-                                      >
-                                        Submit Assignment
-                                      </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                      <p>Assignment Submission</p>
-                                    </TooltipContent>
-                                  </Tooltip>
+                                  
                                 </div>
                               </TooltipProvider>
                             </div>
