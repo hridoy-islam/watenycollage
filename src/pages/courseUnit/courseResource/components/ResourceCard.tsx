@@ -43,7 +43,9 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger
+  DialogTrigger,
+  DialogFooter,
+  DialogClose
 } from '@/components/ui/dialog';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -55,14 +57,14 @@ interface UploadState {
 
 interface ResourceCardProps {
   resource: Resource;
-  studentSubmission?: any; // ✅ Add this for submission tracking
+  studentSubmission?: any;
   onEdit: (resource: Resource) => void;
   onDelete: (id: string) => void;
 }
 
 const ResourceCard: React.FC<ResourceCardProps> = ({
   resource,
-  studentSubmission, // ✅ Receive submission status
+  studentSubmission,
   onEdit,
   onDelete
 }) => {
@@ -89,6 +91,9 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
     studentSubmission || null
   );
 
+  // 🔥 Delete confirmation dialog state
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
   const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
   // Fetch applicationId when dialog opens (for student)
@@ -96,7 +101,6 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
     if (dialogOpen && isStudent && user?._id && id) {
       const fetchApplicationId = async () => {
         try {
-          // ✅ Fixed: Use unitId instead of courseId for application lookup
           const res = await axiosInstance.get(
             `/application-course?studentId=${user._id}&courseId=${id}`
           );
@@ -123,7 +127,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
       };
       fetchApplicationId();
     }
-  }, [dialogOpen, isStudent, user?._id, unitId, toast]); // ✅ Use unitId
+  }, [dialogOpen, isStudent, user?._id, id, toast]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -142,9 +146,6 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
       setUploadingFile(false);
       return;
     }
-
-    
-    
 
     try {
       const formData = new FormData();
@@ -228,13 +229,11 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
         description: 'Assignment submitted successfully!'
       });
 
-      // ✅ Update local submission state
       setLocalSubmission({
         document: uploadState.selectedDocument,
         createdAt: new Date().toISOString()
       });
 
-      // Reset upload state & close dialog
       setUploadState({ selectedDocument: null, fileName: null });
       setDialogOpen(false);
     } catch (error) {
@@ -304,14 +303,45 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
 
         <div className="flex items-center gap-3">
           {isAdmin && (
-            <Button
-              variant="default"
-              size="icon"
-              onClick={() => onEdit(resource)}
-              className="text-watney hover:text-watney/90"
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="default"
+                size="icon"
+                onClick={() => onEdit(resource)}
+                className="text-watney hover:text-watney/90"
+              >
+                <Pencil className="h-4 w-4" />
+              </Button>
+              <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="destructive" size="icon">
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Confirm Deletion</DialogTitle>
+                    <DialogDescription>
+                      Are you sure you want to delete this assignment? This action cannot be undone.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <DialogFooter>
+                    <DialogClose asChild>
+                      <Button variant="outline">Cancel</Button>
+                    </DialogClose>
+                    <Button
+                      variant="destructive"
+                      onClick={() => {
+                        onDelete(resource._id);
+                        setDeleteDialogOpen(false);
+                      }}
+                    >
+                      Delete
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
           )}
 
           {isStudent && (
@@ -349,7 +379,6 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
                   </Button>
                 </div>
               ) : (
-                // ✅ Show submit button
                 <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                   <DialogTrigger asChild>
                     <Button
@@ -476,7 +505,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
     );
   }
 
-  // === Other resource types (introduction, lecture, etc.) ===
+  // === Introduction Card ===
   if (resource.type === 'introduction') {
     return (
       <Card className="shadow-lg">
@@ -489,14 +518,45 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
               <CardTitle>Introduction</CardTitle>
             </div>
             {isAdmin && (
-              <Button
-                variant="default"
-                size="icon"
-                onClick={() => onEdit(resource)}
-                className="text-watney hover:text-watney/90"
-              >
-                <Pencil className="h-4 w-4" />
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  variant="default"
+                  size="icon"
+                  onClick={() => onEdit(resource)}
+                  className="text-watney hover:text-watney/90"
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+                <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="destructive" size="icon">
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Confirm Deletion</DialogTitle>
+                      <DialogDescription>
+                        Are you sure you want to delete this introduction? This action cannot be undone.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                      <DialogClose asChild>
+                        <Button variant="outline">Cancel</Button>
+                      </DialogClose>
+                      <Button
+                        variant="destructive"
+                        onClick={() => {
+                          onDelete(resource._id);
+                          setDeleteDialogOpen(false);
+                        }}
+                      >
+                        Delete
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </div>
             )}
           </div>
         </CardHeader>
@@ -510,6 +570,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
     );
   }
 
+  // === Learning Outcome ===
   if (resource.type === 'learning-outcome') {
     return (
       <AccordionItem key={resource._id} value={resource._id}>
@@ -524,17 +585,48 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
               </span>
             </div>
             {isAdmin && (
-              <Button
-                variant="default"
-                size="icon"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onEdit(resource);
-                }}
-                className="text-watney hover:text-watney/90"
-              >
-                <Pencil className="h-4 w-4" />
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  variant="default"
+                  size="icon"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEdit(resource);
+                  }}
+                  className="text-watney hover:text-watney/90"
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+                <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="destructive" size="icon" onClick={(e) => e.stopPropagation()}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Confirm Deletion</DialogTitle>
+                      <DialogDescription>
+                        Are you sure you want to delete this learning outcome? This action cannot be undone.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                      <DialogClose asChild>
+                        <Button variant="outline">Cancel</Button>
+                      </DialogClose>
+                      <Button
+                        variant="destructive"
+                        onClick={() => {
+                          onDelete(resource._id);
+                          setDeleteDialogOpen(false);
+                        }}
+                      >
+                        Delete
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </div>
             )}
           </div>
         </AccordionTrigger>
@@ -577,7 +669,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
     );
   }
 
-  // Default: study-guide, lecture
+  // === Default: study-guide, lecture ===
   return (
     <AccordionItem key={resource._id} value={resource._id}>
       <AccordionTrigger className="py-2 hover:no-underline">
@@ -591,17 +683,52 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
             <span className="font-medium">{resource.title}</span>
           </div>
           {isAdmin && (
-            <Button
-              variant="default"
-              size="icon"
-              onClick={(e) => {
-                e.stopPropagation();
-                onEdit(resource);
-              }}
-              className="text-watney hover:text-watney/90"
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="default"
+                size="icon"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit(resource);
+                }}
+                className="text-watney hover:text-watney/90"
+              >
+                <Pencil className="h-4 w-4" />
+              </Button>
+              <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button
+                    variant="destructive"
+                    size="icon"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Confirm Deletion</DialogTitle>
+                    <DialogDescription>
+                      Are you sure you want to delete this resource? This action cannot be undone.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <DialogFooter>
+                    <DialogClose asChild>
+                      <Button variant="outline">Cancel</Button>
+                    </DialogClose>
+                    <Button
+                      variant="destructive"
+                      onClick={() => {
+                        onDelete(resource._id);
+                        setDeleteDialogOpen(false);
+                      }}
+                    >
+                      Delete
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
           )}
         </div>
       </AccordionTrigger>

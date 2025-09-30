@@ -6,7 +6,9 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger
+  DialogTrigger,
+  DialogDescription,
+  DialogFooter
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -18,7 +20,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
-import { Plus, FileText, MoveLeft, Pen } from 'lucide-react';
+import { Plus, FileText, MoveLeft, Pen, Trash2 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useSelector } from 'react-redux';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
@@ -54,6 +56,8 @@ function CourseUnitPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [currentUnitId, setCurrentUnitId] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [unitToDelete, setUnitToDelete] = useState<CourseUnit | null>(null);
 
   // Form state
   const [unitReference, setUnitReference] = useState('');
@@ -71,7 +75,6 @@ function CourseUnitPage() {
   const [totalPages, setTotalPages] = useState(1);
 
   // Fetch course name and units
-
   const fetchData = async (
     page: number = 1,
     entriesPerPage: number = 100,
@@ -111,6 +114,7 @@ function CourseUnitPage() {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     if (courseId) {
       fetchData();
@@ -139,6 +143,12 @@ function CourseUnitPage() {
     setGls(unit.gls);
     setCredit(unit.credit);
     setDialogOpen(true);
+  };
+
+  // Open delete confirmation dialog
+  const openDeleteDialog = (unit: CourseUnit) => {
+    setUnitToDelete(unit);
+    setDeleteDialogOpen(true);
   };
 
   // Submit form (create or update)
@@ -201,7 +211,26 @@ function CourseUnitPage() {
     }
   };
 
-  const handleModule = (unit) => {
+  // Handle delete confirmation
+  const handleDelete = async () => {
+    if (!unitToDelete) return;
+
+    try {
+      await axiosInstance.delete(`/course-unit/${unitToDelete._id}`);
+      toast({ title: 'Unit deleted successfully!' });
+      fetchData();
+      setDeleteDialogOpen(false);
+    } catch (error) {
+      console.error('Delete error:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to delete unit.',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const handleModule = (unit: CourseUnit) => {
     navigate(`${unit._id}`);
   };
 
@@ -329,6 +358,37 @@ function CourseUnitPage() {
         </Dialog>
       </div>
 
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Are you sure?</DialogTitle>
+            <DialogDescription>
+              This action cannot be undone. This will permanently delete the unit{' '}
+              <span className="font-semibold">
+                "{unitToDelete?.title}"
+              </span>{' '}
+              and remove all associated data.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Units Table */}
       <div className="rounded-lg bg-white p-6 shadow-md">
         {loading ? (
@@ -353,8 +413,7 @@ function CourseUnitPage() {
                     <TableHead>Level</TableHead>
                     <TableHead>GLS</TableHead>
                     <TableHead>Credit</TableHead>
-
-                    <TableHead className="text-right">Details</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -365,47 +424,66 @@ function CourseUnitPage() {
                       <TableCell>{unit.level}</TableCell>
                       <TableCell>{unit.gls}</TableCell>
                       <TableCell>{unit.credit}</TableCell>
-                      <TableCell className="items-end space-x-2 text-left">
-                        <div className='flex justify-end gap-2'>
-
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                size="sm"
-                                variant="default"
-                                onClick={() => handleModule(unit)}
-                                className="flex flex-row items-center gap-2 bg-watney text-white hover:bg-watney/90"
-                                >
-                                <FileText className="h-4 w-4" />
-                                View Details
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Details</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-
-                        {user?.role !== 'student' && (
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <Button
                                   size="sm"
                                   variant="default"
-                                  onClick={() => openEditDialog(unit)}
-                                  className="bg-watney text-white hover:bg-watney/90"
-                                  >
-                                  <Pen className="h-4 w-4" />
+                                  onClick={() => handleModule(unit)}
+                                  className="flex flex-row items-center gap-2 bg-watney text-white hover:bg-watney/90"
+                                >
+                                  <FileText className="h-4 w-4" />
+                                  View Details
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent>
-                                <p>Edit</p>
+                                <p>Details</p>
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
-                        )}
+
+                          {user?.role !== 'student' && (
+                            <>
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      size="sm"
+                                      variant="default"
+                                      onClick={() => openEditDialog(unit)}
+                                      className="bg-watney text-white hover:bg-watney/90"
+                                    >
+                                      <Pen className="h-4 w-4" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Edit</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      size="sm"
+                                      variant="destructive"
+                                      onClick={() => openDeleteDialog(unit)}
+                                      className="bg-red-600 hover:bg-red-700"
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Delete</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            </>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>

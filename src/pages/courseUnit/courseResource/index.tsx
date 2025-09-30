@@ -60,6 +60,7 @@ function CourseModule() {
 
   const [courseName, setCourseName] = useState<string>('');
   const [unitTitle, setUnitTitle] = useState<string>('');
+  const [unitMaterial, setUnitMaterial] = useState<string>({});
 
   // ✅ Optimized: Fetch all data in parallel
   const fetchData = async () => {
@@ -92,7 +93,7 @@ function CourseModule() {
       const materialRes = responses[1];
       const material = materialRes.data.data.result[0];
       const mappedResources: Resource[] = [];
-
+setUnitMaterial(material || {});
       if (material) {
         if (material.introduction) {
           mappedResources.push({
@@ -475,20 +476,49 @@ function CourseModule() {
     }
   };
 
-  const handleDeleteResource = async (id: string) => {
-    const resource = resources.find((r) => r._id === id);
-    if (!resource) return;
+const handleDeleteResource = async (id: string) => {
+  const resource = resources.find((r) => r._id === id);
+  if (!resource) return;
 
-    try {
-      // Deletion logic here if needed
-    } catch (error) {
-      console.error('Delete error:', error);
+  try {
+    // Determine which section the resource belongs to
+    let updatePayload: any = {};
+
+    if (resource.type === 'introduction') {
+      // Set introduction to null or remove it
+      updatePayload.introduction = null;
+    } else if (resource.type === 'study-guide') {
+      updatePayload.$pull = { studyGuides: { _id: id } };
+    } else if (resource.type === 'lecture') {
+      updatePayload.$pull = { lectures: { _id: id } };
+    } else if (resource.type === 'learning-outcome') {
+      updatePayload.$pull = { learningOutcomes: { _id: id } };
+    } else if (resource.type === 'assignment') {
+      updatePayload.$pull = { assignments: { _id: id } };
+    } else {
       toast({
-        title: 'Failed to delete resource.',
+        title: 'Unsupported resource type',
         variant: 'destructive',
       });
+      return;
     }
-  };
+
+    const response = await axiosInstance.patch(`/unit-material/${unitMaterial?._id}`, updatePayload);
+
+    if (response.status === 200) {
+      toast({
+        title: 'Resource deleted successfully',
+      });
+      setResources(resources.filter(r => r._id !== id));
+    }
+  } catch (error: any) {
+    toast({
+      title: 'Failed to delete resource',
+      description: error?.response?.data?.message || error.message || 'Please try again.',
+      variant: 'destructive',
+    });
+  }
+};
 
   const handleEditResource = (resource: Resource) => {
     setEditingResource(resource);

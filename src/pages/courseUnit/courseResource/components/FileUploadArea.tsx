@@ -64,7 +64,7 @@ const FileUploadArea: React.FC<FileUploadAreaProps> = ({
               Upload Document
             </Button>
             <p className="mt-2 text-sm text-slate-500">
-              PDF, DOC, DOCX, Images, Videos up to 5MB
+              Maximum Size 5MB
             </p>
           </div>
         </div>
