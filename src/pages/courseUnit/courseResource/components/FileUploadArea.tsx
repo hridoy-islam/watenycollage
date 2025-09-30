@@ -25,7 +25,6 @@ const FileUploadArea: React.FC<FileUploadAreaProps> = ({
     <div className="rounded-lg border-2 border-dashed border-slate-300 p-8 text-center">
       <input
         type="file"
-        accept="image/*,application/pdf,.doc,.docx,video/*,audio/*"
         onChange={onFileChange}
         className="hidden"
         ref={fileInputRef}

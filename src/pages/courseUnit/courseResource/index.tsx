@@ -211,22 +211,6 @@ function CourseModule() {
       return;
     }
 
-    const allowedTypes = [
-      'image/',
-      'application/pdf',
-      'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    ];
-    const isValidType = allowedTypes.some((type) => file.type.startsWith(type));
-    if (!isValidType) {
-      toast({
-        title: 'Invalid file type',
-        description: 'Please upload an image, PDF, or Word document.',
-        variant: 'destructive',
-      });
-      setUploadingFile(false);
-      return;
-    }
 
     try {
       const formData = new FormData();
