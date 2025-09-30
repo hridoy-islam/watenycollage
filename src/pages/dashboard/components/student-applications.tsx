@@ -9,7 +9,16 @@ import {
   TableRow
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Eye, FileIcon, FileX2, Mail, MoveLeft, Search } from 'lucide-react';
+import {
+  Eye,
+  FileIcon,
+  FileX2,
+  Mail,
+  MoveLeft,
+  MoreHorizontal,
+  CheckCircle,
+  XCircle
+} from 'lucide-react';
 import { DataTablePagination } from '@/components/shared/data-table-pagination';
 import { useNavigate } from 'react-router-dom';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
@@ -21,6 +30,13 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/ui/tooltip';
+import clsx from 'clsx';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
 
 interface StudentApplication {
   _id: string;
@@ -32,12 +48,14 @@ interface StudentApplication {
     firstName?: string;
     initial?: string;
     lastName?: string;
+    studentType?: string;
   };
   refId?: string;
   courseId?: {
     _id?: string;
     name?: string;
   };
+  status?: 'applied' | 'approved' | 'cancelled';
 }
 
 interface CourseOption {
@@ -61,6 +79,7 @@ export default function StudentApplicationsPage() {
     null
   );
   const [selectedTerm, setSelectedTerm] = useState<CourseOption | null>(null);
+  const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
 
   const fetchData = async (
     page = 1,
@@ -91,7 +110,7 @@ export default function StudentApplicationsPage() {
       });
       const data = res.data.data.result || [];
       setApplications(data);
-      setFilteredApplications(data); // Initially show all
+      setFilteredApplications(data);
       setTotalPages(res.data.data.meta.totalPage || 1);
     } catch (error) {
       console.error('Error fetching student applications:', error);
@@ -113,6 +132,7 @@ export default function StudentApplicationsPage() {
       console.error('Error fetching courses:', error);
     }
   };
+
   const fetchTerms = async () => {
     try {
       const res = await axiosInstance.get('/terms?status=1&limit=all');
@@ -140,36 +160,57 @@ export default function StudentApplicationsPage() {
 
   const navigate = useNavigate();
 
-  // Combine full name parts into one searchable string
-  const getStudentName = (student: StudentApplication['studentId']) => {
-    return `${student?.title || ''} ${student?.firstName || ''} ${
-      student?.initial || ''
-    } ${student?.lastName || ''}`.toLowerCase();
-  };
-
-  // Handle course filter change
   const handleCourseChange = (selectedOption: CourseOption | null) => {
     setSelectedCourse(selectedOption);
     setCurrentPage(1);
   };
+
   const handleTermChange = (selectedOption: CourseOption | null) => {
     setSelectedTerm(selectedOption);
     setCurrentPage(1);
   };
 
-  // Add this at the top of your component
-  const handleSearch = () => {
-    if (!searchQuery) {
-      // If search is empty, reset to all applications
-      setFilteredApplications(applications);
-      return;
-    }
+const updateApplicationStatus = async (
+  applicationId: string,
+  status: "approved" | "cancelled"
+) => {
+  // 1. Optimistically update UI immediately
+  setApplications((prev) =>
+    prev.map((app) =>
+      app._id === applicationId ? { ...app, status } : app
+    )
+  );
+  setFilteredApplications((prev) =>
+    prev.map((app) =>
+      app._id === applicationId ? { ...app, status } : app
+    )
+  );
 
-    const filtered = applications.filter((app) =>
-      app.refId?.toLowerCase().includes(searchQuery.toLowerCase())
+  setUpdatingStatus(applicationId);
+
+  try {
+    // 2. Fire API call in background
+    await axiosInstance.patch(`/application-course/${applicationId}`, {
+      status,
+    });
+  } catch (error) {
+    console.error("Error updating application status:", error);
+
+    // 3. Rollback if request fails
+    setApplications((prev) =>
+      prev.map((app) =>
+        app._id === applicationId ? { ...app, status: "applied" } : app
+      )
     );
-    setFilteredApplications(filtered);
-  };
+    setFilteredApplications((prev) =>
+      prev.map((app) =>
+        app._id === applicationId ? { ...app, status: "applied" } : app
+      )
+    );
+  } finally {
+    setUpdatingStatus(null);
+  }
+};
 
   return (
     <div className="space-y-6">
@@ -179,22 +220,6 @@ export default function StudentApplicationsPage() {
           <h2 className="whitespace-nowrap text-xl font-bold">
             Student Applications
           </h2>
-          {/* <div className="flex flex-row items-center gap-4">
-            <Input
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="h-8 w-[300px]"
-              placeholder="Search by Student name, email, course"
-            />
-            <Button
-              size="sm"
-              className="w-[100px] bg-watney text-white hover:bg-watney"
-              onClick={handleSearch}
-            >
-              <Search className="mr-2 h-4 w-4" />
-              Search
-            </Button>
-          </div> */}
           <div className="w-[250px]">
             <Select
               options={courses}
@@ -289,6 +314,7 @@ export default function StudentApplicationsPage() {
                   <TableHead>Student Type</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Course</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead className="w-32 text-center">Action</TableHead>
                 </TableRow>
               </TableHeader>
@@ -296,7 +322,7 @@ export default function StudentApplicationsPage() {
                 {filteredApplications.map((app) => (
                   <TableRow key={app._id}>
                     <TableCell
-                      className="cursor-pointer font-medium "
+                      className="cursor-pointer font-medium"
                       onClick={() =>
                         navigate(
                           `/dashboard/student-application/${app.studentId?._id}`
@@ -306,7 +332,7 @@ export default function StudentApplicationsPage() {
                       {app?.refId || '-'}
                     </TableCell>
                     <TableCell
-                      className="cursor-pointer font-medium "
+                      className="cursor-pointer font-medium"
                       onClick={() =>
                         navigate(
                           `/dashboard/student-application/${app.studentId?._id}`
@@ -314,7 +340,7 @@ export default function StudentApplicationsPage() {
                       }
                     >
                       {app.studentId?.title} {app.studentId?.firstName}{' '}
-                      {app.studentId?.initial} {app.studentId?.lastName}{' '}
+                      {app.studentId?.initial} {app.studentId?.lastName}
                     </TableCell>
                     <TableCell
                       className="cursor-pointer"
@@ -353,71 +379,89 @@ export default function StudentApplicationsPage() {
                     >
                       {app.courseId?.name ?? 'N/A'}
                     </TableCell>
-                    <TableCell className="flex flex-row gap-2 text-center">
-                      <TooltipProvider>
-                        {/* Assignment Button */}
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              className="border-none bg-watney text-white hover:bg-watney/90"
-                              size="icon"
-                              onClick={() =>
-                                navigate(
-                                  `/dashboard/student-applications/${app?._id}/assignment/${app.studentId?._id}`
-                                )
-                              }
-                            >
-                              <FileIcon className="h-4 w-4" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Assignment</p>
-                          </TooltipContent>
-                        </Tooltip>
-
-                        {/* Mail Button */}
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              className="border-none bg-watney text-white hover:bg-watney/90"
-                              size="icon"
-                              onClick={() =>
-                                navigate(
-                                  `/dashboard/student-application/${app.studentId?._id}/${app?._id}/mails`
-                                )
-                              }
-                            >
-                              <Mail className="h-4 w-4" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Mail</p>
-                          </TooltipContent>
-                        </Tooltip>
-
-                        {/* Applicant Details Button */}
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              className="border-none bg-watney text-white hover:bg-watney/90"
-                              size="icon"
-                              onClick={() =>
-                                navigate(
-                                  `/dashboard/student-application/${app.studentId?._id}`
-                                )
-                              }
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Applicant Details</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+                    <TableCell>
+                      <Badge
+                        className={clsx(
+                          'capitalize',
+                          app?.status === 'applied' && 'bg-blue-500 text-white',
+                          app?.status === 'approved' &&
+                            'bg-green-500 text-white',
+                          app?.status === 'cancelled' && 'bg-red-500 text-white'
+                        )}
+                      >
+                        {app?.status === 'approved'
+                          ? 'Enrolled'
+                          : app?.status === 'cancelled'
+                            ? 'Rejected'
+                            : app?.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            className="h-8 w-8 p-0"
+                            disabled={updatingStatus === app._id}
+                          >
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className='bg-white text-black border-gray-300 '>
+                          <DropdownMenuItem
+                            onClick={() =>
+                              navigate(
+                                `/dashboard/student-applications/${app?._id}/assignment/${app.studentId?._id}`
+                              )
+                            }
+                          >
+                            <FileIcon className="mr-2 h-4 w-4" />
+                            Assignment
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() =>
+                              navigate(
+                                `/dashboard/student-application/${app.studentId?._id}/${app?._id}/mails`
+                              )
+                            }
+                          >
+                            <Mail className="mr-2 h-4 w-4" />
+                            Mail
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() =>
+                              navigate(
+                                `/dashboard/student-application/${app.studentId?._id}`
+                              )
+                            }
+                          >
+                            <Eye className="mr-2 h-4 w-4" />
+                            Applicant Details
+                          </DropdownMenuItem>
+                          {app.status === 'applied' && (
+                            <>
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  updateApplicationStatus(app._id, 'approved')
+                                }
+                                disabled={updatingStatus === app._id}
+                              >
+                                <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
+                                Approve Course
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  updateApplicationStatus(app._id, 'cancelled')
+                                }
+                                disabled={updatingStatus === app._id}
+                              >
+                                <XCircle className="mr-2 h-4 w-4 text-red-500" />
+                                Reject Course
+                              </DropdownMenuItem>
+                            </>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 ))}

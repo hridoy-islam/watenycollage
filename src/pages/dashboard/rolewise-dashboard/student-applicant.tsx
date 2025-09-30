@@ -37,6 +37,7 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/ui/tooltip';
+import clsx from 'clsx';
 interface Course {
   _id: string;
   name: string;
@@ -157,10 +158,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
       {/* Applied Courses Tab */}
       <Card className="shadow-none">
         <CardHeader>
-          <CardTitle>Your Course Applications</CardTitle>
-          <CardDescription>
-            Track the status of your course applications
-          </CardDescription>
+          <CardTitle>Your Courses</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -178,7 +176,9 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                       <TableHead>Intake</TableHead>
                       <TableHead>Application Date</TableHead>
                       <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Course Details</TableHead>
+                      <TableHead className="text-right">
+                        Course Details
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -196,35 +196,27 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                           </TableCell>
                           <TableCell className="py-3 sm:py-4">
                             <Badge
-                              className={`text-white ${
-                                application.status === 'applied'
-                                  ? 'bg-blue-500'
-                                  : application.status === 'cancelled'
-                                    ? 'bg-red-500'
-                                    : application.status === 'approved'
-                                      ? 'bg-green-500'
-                                      : 'bg-yellow-500'
-                              }`}
+                              className={clsx(
+                                'capitalize text-white',
+                                application.status === 'applied' &&
+                                  'bg-blue-500',
+                                application.status === 'approved' &&
+                                  'bg-green-500',
+                                application.status === 'cancelled' &&
+                                  'bg-red-500'
+                              )}
                             >
-                              {application.status || 'N/A'}
+                              {application.status === 'approved'
+                                ? 'Enrolled'
+                                : application.status === 'cancelled'
+                                  ? 'Rejected'
+                                  : application.status}
                             </Badge>
                           </TableCell>
                           <TableCell className="py-3 text-right sm:py-4">
-                            {/* {application.status !== 'cancelled' &&
-                          application.status !== 'approved' && (
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              onClick={() => openDeleteModal(application._id)}
-                              className="text-white hover:bg-destructive/90"
-                            >
-                              Cancel
-                            </Button>
-                          )} */}
                             <div className="flex flex-row items-center justify-end gap-2">
-                              <TooltipProvider>
-                                <div className="flex items-center gap-2">
-                                  {/* Unit Button */}
+                              {application.status === 'approved' && (
+                                <TooltipProvider>
                                   <Tooltip>
                                     <TooltipTrigger asChild>
                                       <Button
@@ -235,7 +227,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                                             `/dashboard/courses/${application.courseId._id}/unit`
                                           )
                                         }
-                                        className="bg-watney text-white hover:bg-watney/90 flex flex-row gap-2 items-center"
+                                        className="flex flex-row items-center gap-2 bg-watney text-white hover:bg-watney/90"
                                       >
                                         <FileText className="h-4 w-4" />
                                         View Details
@@ -245,10 +237,8 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                                       <p>View Details</p>
                                     </TooltipContent>
                                   </Tooltip>
-
-                                  
-                                </div>
-                              </TooltipProvider>
+                                </TooltipProvider>
+                              )}
                             </div>
                           </TableCell>
                         </TableRow>
@@ -324,19 +314,24 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                             </Badge>
                           </div>
 
-                          {/* {application.status !== 'cancelled' &&
-                      application.status !== 'approved' && (
-                        <div className="pt-2">
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            className="w-full text-white hover:bg-destructive/90"
-                            onClick={() => openDeleteModal(application._id)}
-                          >
-                            Cancel Application
-                          </Button>
-                        </div>
-                      )} */}
+                          {/* Only show "View Details" if approved */}
+                          {application.status === 'approved' && (
+                            <div className="pt-2">
+                              <Button
+                                size="sm"
+                                variant="default"
+                                onClick={() =>
+                                  navigate(
+                                    `/dashboard/courses/${application.courseId._id}/unit`
+                                  )
+                                }
+                                className="flex w-full flex-row items-center justify-center gap-2 bg-watney text-white hover:bg-watney/90"
+                              >
+                                <FileText className="h-4 w-4" />
+                                View Details
+                              </Button>
+                            </div>
+                          )}
                         </div>
                       </div>
                     ))
@@ -344,7 +339,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
               </div>
 
               {/* Pagination */}
-              {applications.length > 0 && (
+              {applications.length > 8 && (
                 <div className="mt-6 flex flex-col-reverse items-center justify-between gap-4 max-md:scale-75 md:flex-row">
                   <DataTablePagination
                     pageSize={entriesPerPage}

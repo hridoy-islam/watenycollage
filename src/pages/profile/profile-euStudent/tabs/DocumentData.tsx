@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -37,7 +36,7 @@ interface DocumentDataProps {
   onSave: (documents: DocumentFile) => void;
   onCancel: () => void;
   onEdit: () => void;
-  loading
+  loading;
 }
 
 export default function DocumentData({
@@ -57,10 +56,11 @@ export default function DocumentData({
     field: null
   });
   const { user } = useSelector((state: any) => state.auth);
-console.log(loading)
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string>
   >({});
+
+  const isAdmin = user.role === 'admin';
 
   const handleRemoveFile = (field: keyof DocumentFile, fileName: string) => {
     if (field === 'image') {
@@ -68,8 +68,7 @@ console.log(loading)
         ...prev,
         image: ''
       }));
-    }
-    else {
+    } else {
       setDocuments((prev) => ({
         ...prev,
         [field]: (prev[field] as string[]).filter((file) => file !== fileName)
@@ -234,7 +233,7 @@ console.log(loading)
       instructions: 'Upload relevant work experience documents',
       formats: 'PDF, JPG, PNG',
       icon: FileText,
-       uploadLabel: 'You can upload multiple files',
+      uploadLabel: 'You can upload multiple files'
     },
     {
       id: 'personalStatement',
@@ -252,15 +251,11 @@ console.log(loading)
         <CardHeader className="">
           <div className="space-y-4">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">
-                Document 
-              </h2>
-              
+              <h2 className="text-2xl font-bold text-gray-900">Document</h2>
             </div>
           </div>
         </CardHeader>
         <CardContent className="p-6">
-         
           {loading ? (
             <Loader />
           ) : (
@@ -348,16 +343,18 @@ console.log(loading)
                                 </div>
                               )}
                             </div>
-                            <Button
-                              type="button"
-                              onClick={() =>
-                                openImageUploader(id as keyof DocumentFile)
-                              }
-                              className="ml-4 flex items-center space-x-2 rounded-lg bg-watney px-6 py-2 text-white transition-colors hover:bg-watney/90"
-                            >
-                              <Upload className="h-4 w-4" />
-                              <span>Upload</span>
-                            </Button>
+                            {isAdmin && (
+                              <Button
+                                type="button"
+                                onClick={() =>
+                                  openImageUploader(id as keyof DocumentFile)
+                                }
+                                className="ml-4 flex items-center space-x-2 rounded-lg bg-watney px-6 py-2 text-white transition-colors hover:bg-watney/90"
+                              >
+                                <Upload className="h-4 w-4" />
+                                <span>Upload</span>
+                              </Button>
+                            )}
                           </div>
                           {renderUploadedFiles(id as keyof DocumentFile)}
                         </div>

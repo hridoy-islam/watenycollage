@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,7 +24,7 @@ export const documentSchema = z.object({
   }),
   workExperience: z.array(z.string()).optional(),
   personalStatement: z.array(z.string()).optional(),
-    immigrationDocument: z.array(z.string()).optional()
+  immigrationDocument: z.array(z.string()).optional()
 });
 
 export type DocumentFile = z.infer<typeof documentSchema>;
@@ -54,6 +53,8 @@ export default function DocumentData({
     field: null
   });
   const { user } = useSelector((state: any) => state.auth);
+
+  const isAdmin = user.role === 'admin';
 
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string>
@@ -95,12 +96,13 @@ export default function DocumentData({
     if (field === 'image' || field === 'cvResume') {
       const fileUrl = documents[field] as string;
       if (fileUrl) {
-        const fileName = decodeURIComponent(fileUrl.split('/').pop() || 'Document');
+        const fileName = decodeURIComponent(
+          fileUrl.split('/').pop() || 'Document'
+        );
         return (
           <div className="mt-3 space-y-2">
             <div className="flex w-auto items-center justify-between rounded-lg border border-gray-200 bg-white p-3 transition-all hover:shadow-md">
               <div className="flex items-center space-x-3">
-               
                 <div className="min-w-0 flex-1">
                   <div className="flex min-w-0 flex-1 gap-2">
                     <a
@@ -201,7 +203,7 @@ export default function DocumentData({
   };
 
   const documentTypes = [
-     {
+    {
       id: 'cvResume',
       label: 'Resume',
       required: true,
@@ -234,7 +236,8 @@ export default function DocumentData({
       id: 'immigrationDocument',
       label: 'Immigration Documents',
       required: false,
-      instructions: 'Upload any relevant visas, permits, or immigration-related documents.',
+      instructions:
+        'Upload any relevant visas, permits, or immigration-related documents.',
       formats: 'PDF, JPG, PNG',
       uploadLabel: 'You can upload multiple files',
       icon: FileText
@@ -269,7 +272,7 @@ export default function DocumentData({
           </div>
         </CardHeader>
         <CardContent className="p-6">
-          <div className="gap-4 grid md:grid-cols-2 grid-cols-1 ">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 ">
             {documentTypes.map(
               ({
                 id,
@@ -285,7 +288,8 @@ export default function DocumentData({
                   typeof documents[id as keyof DocumentFile] === 'string'
                     ? (documents[id as keyof DocumentFile] as string).length > 0
                     : Array.isArray(documents[id as keyof DocumentFile]) &&
-                      (documents[id as keyof DocumentFile] as string[]).length > 0;
+                      (documents[id as keyof DocumentFile] as string[]).length >
+                        0;
                 return (
                   <div
                     key={id}
@@ -293,8 +297,8 @@ export default function DocumentData({
                       error
                         ? 'border-red-200 bg-red-50'
                         : hasFiles
-                        ? 'border-gray-100 bg-gray-50 hover:border-gray-200'
-                        : 'border-gray-100 bg-gray-50 hover:border-gray-200'
+                          ? 'border-gray-100 bg-gray-50 hover:border-gray-200'
+                          : 'border-gray-100 bg-gray-50 hover:border-gray-200'
                     }`}
                   >
                     <div className="p-6">
@@ -306,8 +310,8 @@ export default function DocumentData({
                                 error
                                   ? 'bg-red-100'
                                   : hasFiles
-                                  ? 'bg-gray-100'
-                                  : 'bg-gray-100'
+                                    ? 'bg-gray-100'
+                                    : 'bg-gray-100'
                               }`}
                             >
                               <Icon
@@ -315,8 +319,8 @@ export default function DocumentData({
                                   error
                                     ? 'text-red-600'
                                     : hasFiles
-                                    ? 'text-green-600'
-                                    : 'text-gray-600'
+                                      ? 'text-green-600'
+                                      : 'text-gray-600'
                                 }`}
                               />
                             </div>
@@ -330,12 +334,14 @@ export default function DocumentData({
                                   <CheckCircle className="ml-2 h-5 w-5 text-green-600" />
                                 )}
                               </h3>
-                              <p className="text-sm text-gray-600">{instructions}</p>
+                              <p className="text-sm text-gray-600">
+                                {instructions}
+                              </p>
                               <p className="mt-1 text-xs text-gray-500">
                                 Accepted formats: {formats}
                               </p>
                               {uploadLabel && (
-                                <p className="mt-1 text-xs text-gray-800 font-semibold">
+                                <p className="mt-1 text-xs font-semibold text-gray-800">
                                   {uploadLabel}
                                 </p>
                               )}
@@ -349,14 +355,18 @@ export default function DocumentData({
                             </div>
                           )}
                         </div>
-                        <Button
-                          type="button"
-                          onClick={() => openImageUploader(id as keyof DocumentFile)}
-                          className="ml-4 flex items-center space-x-2 rounded-lg bg-watney px-6 py-2 text-white transition-colors hover:bg-watney/90"
-                        >
-                          <Upload className="h-4 w-4" />
-                          <span>Upload</span>
-                        </Button>
+                        {isAdmin && (
+                          <Button
+                            type="button"
+                            onClick={() =>
+                              openImageUploader(id as keyof DocumentFile)
+                            }
+                            className="ml-4 flex items-center space-x-2 rounded-lg bg-watney px-6 py-2 text-white transition-colors hover:bg-watney/90"
+                          >
+                            <Upload className="h-4 w-4" />
+                            <span>Upload</span>
+                          </Button>
+                        )}
                       </div>
                       {renderUploadedFiles(id as keyof DocumentFile)}
                     </div>

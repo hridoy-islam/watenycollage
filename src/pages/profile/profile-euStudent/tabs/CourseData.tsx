@@ -30,6 +30,7 @@ import { Badge } from '@/components/ui/badge';
 import moment from 'moment';
 import { useSelector } from 'react-redux';
 import Loader from '@/components/shared/loader';
+import { FileText } from 'lucide-react';
 
 interface Course {
   _id: string;
@@ -63,7 +64,7 @@ export default function CourseData() {
     try {
       // Fetch applications
       const appRes = await axiosInstance.get(
-        `/application-course?studentId=${user._id}`,
+        `/application-course?studentId=${user._id}&status=approved`,
         {
           params: { page, limit }
         }
@@ -92,66 +93,18 @@ export default function CourseData() {
 
   const navigate = useNavigate();
 
-  const handleApply = async (courseId: string) => {
-    navigate(`/dashboard/course-application/${courseId}`);
-  };
-
-  const openDeleteModal = (applicationId: string) => {
-    setSelectedApplicationId(applicationId);
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setSelectedApplicationId(null);
-  };
-
-  const handleDelete = async () => {
-    if (!selectedApplicationId) return;
-
-    try {
-      const response = await axiosInstance.patch(
-        `/application-course/${selectedApplicationId}`,
-        {
-          status: 'cancelled'
-        }
-      );
-
-      if (response.status === 200) {
-        setApplications((prevApplications) =>
-          prevApplications.map((app) =>
-            app._id === selectedApplicationId
-              ? { ...app, status: 'cancelled' }
-              : app
-          )
-        );
-        toast({
-          title: 'Your application has been Cancelled.'
-        });
-        closeModal();
-      }
-    } catch (error) {
-      console.error('Error deleting application:', error);
-      toast({
-        title: 'There was an error to withdraw the application.',
-        className: 'bg-destructive text-white boder-none'
-      });
-    }
-  };
 
   return (
-    <div className="flex-1 space-y-4">
+    <div className="flex-1 space-y-2">
       {/* Applied Courses Tab */}
-      <Card className="shadow-none">
+      <Card className="shadow-none ">
         <CardHeader>
-          <CardTitle>Your Course Applications</CardTitle>
-          <CardDescription>
-            Track the status of your course applications
-          </CardDescription>
+          <CardTitle>Your Courses </CardTitle>
+          
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="flex items-center justify-center py-10">
+            <div className="flex items-center justify-center py-4">
               <Loader />
             </div>
           ) : (
@@ -162,7 +115,6 @@ export default function CourseData() {
                     <TableHead>Course Name</TableHead>
                     <TableHead>Intake</TableHead>
                     <TableHead>Application Date</TableHead>
-                    <TableHead>Status</TableHead>
                     <TableHead className="text-right">Action</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -179,31 +131,21 @@ export default function CourseData() {
                         <TableCell>
                           {moment(application?.createAt).format('MM-DD-YYYY')}
                         </TableCell>
-                        <TableCell className="py-4">
-                          <Badge
-                            className={`text-white ${
-                              application.status === 'applied'
-                                ? 'bg-blue-500'
-                                : application.status === 'cancelled'
-                                  ? 'bg-red-500'
-                                  : application.status === 'approved'
-                                    ? 'bg-green-500'
-                                    : 'bg-green-500'
-                            }`}
-                          >
-                            {application.status || 'N/A'}
-                          </Badge>
-                        </TableCell>
+                        
                         <TableCell className="text-right">
-                          {application.status !== 'cancelled' &&
-                            application.status !== 'approved' && (
-                              <Button
-                                onClick={() => openDeleteModal(application._id)}
-                                className="border-none bg-destructive text-white hover:bg-destructive/90"
+                            <Button
+                                size="sm"
+                                variant="default"
+                                onClick={() =>
+                                  navigate(
+                                    `/dashboard/courses/${application.courseId._id}/unit`
+                                  )
+                                }
+                                className="flex w-full flex-row items-center justify-center gap-2 bg-watney text-white hover:bg-watney/90"
                               >
-                                Cancel
+                                <FileText className="h-4 w-4" />
+                                View Details
                               </Button>
-                            )}
                         </TableCell>
                       </TableRow>
                     ))
@@ -217,7 +159,7 @@ export default function CourseData() {
                 </TableBody>
               </Table>
 
-              {applications.length > 0 && (
+              {applications.length > 10 && (
                 <DataTablePagination
                   pageSize={entriesPerPage}
                   setPageSize={setEntriesPerPage}
@@ -231,26 +173,7 @@ export default function CourseData() {
         </CardContent>
       </Card>
 
-      {/* Confirmation Modal */}
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Are you sure?</DialogTitle>
-          </DialogHeader>
-          <p className="text-gray-600">
-            Do you want to cancel this application? This action cannot be
-            undone.
-          </p>
-          <div className="mt-4 flex justify-end space-x-4">
-            <Button onClick={closeModal} variant="outline">
-              Close
-            </Button>
-            <Button onClick={handleDelete} variant="destructive">
-              Yes, Cancel Application
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      
     </div>
   );
 }

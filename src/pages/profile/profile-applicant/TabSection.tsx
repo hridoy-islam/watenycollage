@@ -1,5 +1,6 @@
 import React from 'react';
 import { Edit2, Save, X } from 'lucide-react';
+import { useSelector } from 'react-redux';
 
 const TabSection = ({
   title,
@@ -11,6 +12,10 @@ const TabSection = ({
   onCancel,
   onEdit
 }) => {
+  const { user } = useSelector((state: any) => state.auth);
+
+  // Only allow editing if user is admin
+  const canEdit = user?.role === 'admin';
 
   return (
     <section className="animate-fadeIn">
@@ -27,7 +32,7 @@ const TabSection = ({
             <>
               <button
                 onClick={onSave}
-                className="inline-flex items-center rounded-md border border-transparent bg-watney px-3 py-2 text-sm font-medium leading-4 text-white transition-colors hover:bg-watney0 focus:outline-none focus:ring-2 focus:ring-watney focus:ring-offset-2"
+                className="inline-flex items-center rounded-md border border-transparent bg-watney px-3 py-2 text-sm font-medium leading-4 text-white transition-colors hover:bg-watney/90 focus:outline-none focus:ring-2 focus:ring-watney focus:ring-offset-2"
               >
                 <Save size={16} className="mr-1" />
                 Save
@@ -41,26 +46,30 @@ const TabSection = ({
               </button>
             </>
           ) : (
-            <button
-              onClick={onEdit}
-              className="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-watney focus:ring-offset-2"
-            >
-              <Edit2 size={16} className="mr-1" />
-              Edit
-            </button>
+            canEdit && (
+              <button
+                onClick={onEdit}
+                className="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-watney focus:ring-offset-2"
+              >
+                <Edit2 size={16} className="mr-1" />
+                Edit
+              </button>
+            )
           )}
         </div>
       </div>
 
       <div
-        className={`overflow-hidden rounded-lg bg-white transition-all duration-300 ${isEditing ? 'ring-2 ring-watney' : 'border border-gray-200'}`}
+        className={`overflow-hidden rounded-lg bg-white transition-all duration-300 ${
+          isEditing ? 'ring-2 ring-watney' : 'border border-gray-200'
+        }`}
       >
         <div className="px-6 py-5">
-          {React.Children.map(children, child => {
+          {React.Children.map(children, (child) => {
             if (React.isValidElement(child)) {
-              return React.cloneElement(child as React.ReactElement<any>, { 
+              return React.cloneElement(child as React.ReactElement<any>, {
                 isEditing,
-                userData 
+                userData,
               });
             }
             return child;

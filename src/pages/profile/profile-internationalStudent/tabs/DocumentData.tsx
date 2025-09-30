@@ -61,6 +61,7 @@ export default function DocumentData({
   >({});
 
   const { user } = useSelector((state: any) => state.auth);
+  const isAdmin = user.role === 'admin';
 
   const handleRemoveFile = (field: keyof DocumentFile, fileName: string) => {
     if (field === 'photoId') {
@@ -265,7 +266,6 @@ export default function DocumentData({
           </div>
         </CardHeader>
         <CardContent className="p-6">
-         
           {loading ? (
             <Loader />
           ) : (
@@ -353,16 +353,18 @@ export default function DocumentData({
                                 </div>
                               )}
                             </div>
-                            <Button
-                              type="button"
-                              onClick={() =>
-                                openImageUploader(id as keyof DocumentFile)
-                              }
-                              className="ml-4 flex items-center space-x-2 rounded-lg bg-watney px-6 py-2 text-white transition-colors hover:bg-watney/90"
-                            >
-                              <Upload className="h-4 w-4" />
-                              <span>Upload</span>
-                            </Button>
+                            {isAdmin && (
+                              <Button
+                                type="button"
+                                onClick={() =>
+                                  openImageUploader(id as keyof DocumentFile)
+                                }
+                                className="ml-4 flex items-center space-x-2 rounded-lg bg-watney px-6 py-2 text-white transition-colors hover:bg-watney/90"
+                              >
+                                <Upload className="h-4 w-4" />
+                                <span>Upload</span>
+                              </Button>
+                            )}
                           </div>
                           {renderUploadedFiles(id as keyof DocumentFile)}
                         </div>
