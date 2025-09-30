@@ -364,7 +364,7 @@ export default function StudentApplicationsPage() {
                               size="icon"
                               onClick={() =>
                                 navigate(
-                                  `/dashboard/student-applications/${app?._id}/assignment`
+                                  `/dashboard/student-applications/${app?._id}/assignment/${app.studentId?._id}`
                                 )
                               }
                             >

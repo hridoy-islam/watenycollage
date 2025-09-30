@@ -38,6 +38,17 @@ const ResourceTypeSelector: React.FC<ResourceTypeSelectorProps> = ({
       disabled: hasIntroduction && !editingResource
     },
     {
+      type: 'learning-outcome' as ResourceType,
+      icon: Target,
+      title: 'Learning Outcomes',
+      description:
+        'Define learning outcomes and assessment criteria for the unit',
+      bgColor: 'bg-indigo-100',
+      iconColor: 'text-indigo-600',
+      hoverColor: 'hover:border-indigo-500',
+      disabled: false
+    },
+    {
       type: 'study-guide' as ResourceType,
       icon: BookOpen,
       title: 'Study Guides',
@@ -67,17 +78,7 @@ const ResourceTypeSelector: React.FC<ResourceTypeSelectorProps> = ({
       hoverColor: 'hover:border-orange-500',
       disabled: false
     },
-    {
-      type: 'learning-outcome' as ResourceType,
-      icon: Target,
-      title: 'Learning Outcomes',
-      description:
-        'Define learning outcomes and assessment criteria for the unit',
-      bgColor: 'bg-indigo-100',
-      iconColor: 'text-indigo-600',
-      hoverColor: 'hover:border-indigo-500',
-      disabled: false
-    }
+    
   ];
 
   return (
@@ -100,7 +101,7 @@ const ResourceTypeSelector: React.FC<ResourceTypeSelectorProps> = ({
             }`}
             onClick={() => !disabled && onSelect(type)}
           >
-            <CardHeader className="text-center">
+            <CardHeader className="text-center ">
               <div
                 className={`mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full ${bgColor}`}
               >

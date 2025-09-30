@@ -174,7 +174,7 @@ export default function AppRouter() {
         index: true
       },
       {
-        path: 'student-applications/:id/assignment',
+        path: 'student-applications/:id/assignment/:studentId',
         element: withRole(<AssignmentPage />, ['admin','student']),
         index: true
       },

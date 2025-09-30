@@ -60,7 +60,7 @@ interface ApplicationCourse {
 }
 
 function AssignmentPage() {
-  const { id: applicationId } = useParams<{ id: string }>();
+  const { id: applicationId, studentId } = useParams();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -69,6 +69,7 @@ function AssignmentPage() {
   const [courseUnits, setCourseUnits] = useState<CourseUnit[]>([]);
   const [assignmentsByUnit, setAssignmentsByUnit] = useState<Record<string, Assignment[]>>({});
   const [loading, setLoading] = useState(true);
+  const [studentName, setStudentName] = useState<string>('');
 
 
   // Fetch applicant and course units
@@ -78,7 +79,8 @@ function AssignmentPage() {
       const appRes = await axiosInstance.get(`/application-course/${applicationId}`);
       const appData = appRes.data.data;
       setApplicant(appData);
-
+ const res = await axiosInstance.get(`/users/${studentId}`);
+        setStudentName(res.data.data.name || 'Unknown');
       // Fetch course units
       const unitsRes = await axiosInstance.get(`/course-unit`, {
         params: { courseId: appData.courseId._id, limit:'all' },
@@ -118,7 +120,7 @@ function AssignmentPage() {
     <div className="">
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Assignment Submissions</h1>
+          <h1 className="text-xl font-bold">{studentName}'s Assignment Submissions</h1>
           {applicant && (
             <p className="text-md font-medium">
               Course: {applicant?.courseId?.name} 

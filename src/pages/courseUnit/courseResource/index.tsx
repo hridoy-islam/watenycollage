@@ -559,7 +559,7 @@ function CourseModule() {
                     <Plus className="mr-2 h-5 w-5" /> Add Resource
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="z-[9999] max-h-[90vh] max-w-4xl overflow-y-auto">
+                <DialogContent className="z-[9999] max-h-[90vh] max-w-4xl overflow-y-auto ">
                   <DialogHeader>
                     <DialogTitle className="text-2xl">
                       {editingResource ? 'Edit Resource' : 'Create New Resource'}
