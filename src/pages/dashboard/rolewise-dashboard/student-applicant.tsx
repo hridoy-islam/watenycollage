@@ -215,7 +215,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                           </TableCell>
                           <TableCell className="py-3 text-right sm:py-4">
                             <div className="flex flex-row items-center justify-end gap-2">
-                              {application.status === 'approved' && (
+                              {application.status === 'approved' ? (
                                 <TooltipProvider>
                                   <Tooltip>
                                     <TooltipTrigger asChild>
@@ -238,7 +238,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                                     </TooltipContent>
                                   </Tooltip>
                                 </TooltipProvider>
-                              )}
+                              ):<>Not Available</>}
                             </div>
                           </TableCell>
                         </TableRow>

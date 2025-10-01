@@ -37,6 +37,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
+import { useToast } from '@/components/ui/use-toast';
 
 interface StudentApplication {
   _id: string;
@@ -80,7 +81,7 @@ export default function StudentApplicationsPage() {
   );
   const [selectedTerm, setSelectedTerm] = useState<CourseOption | null>(null);
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
-
+  const { toast } = useToast();
   const fetchData = async (
     page = 1,
     limit = 10,
@@ -170,47 +171,59 @@ export default function StudentApplicationsPage() {
     setCurrentPage(1);
   };
 
-const updateApplicationStatus = async (
-  applicationId: string,
-  status: "approved" | "cancelled"
-) => {
-  // 1. Optimistically update UI immediately
-  setApplications((prev) =>
-    prev.map((app) =>
-      app._id === applicationId ? { ...app, status } : app
-    )
-  );
-  setFilteredApplications((prev) =>
-    prev.map((app) =>
-      app._id === applicationId ? { ...app, status } : app
-    )
-  );
-
-  setUpdatingStatus(applicationId);
-
-  try {
-    // 2. Fire API call in background
-    await axiosInstance.patch(`/application-course/${applicationId}`, {
-      status,
-    });
-  } catch (error) {
-    console.error("Error updating application status:", error);
-
-    // 3. Rollback if request fails
+  const updateApplicationStatus = async (
+    applicationId: string,
+    status: "approved" | "cancelled"
+  ) => {
+    // 1. Optimistically update UI immediately
     setApplications((prev) =>
       prev.map((app) =>
-        app._id === applicationId ? { ...app, status: "applied" } : app
+        app._id === applicationId ? { ...app, status } : app
       )
     );
     setFilteredApplications((prev) =>
       prev.map((app) =>
-        app._id === applicationId ? { ...app, status: "applied" } : app
+        app._id === applicationId ? { ...app, status } : app
       )
     );
-  } finally {
-    setUpdatingStatus(null);
-  }
-};
+
+    setUpdatingStatus(applicationId);
+
+    try {
+      // 2. Fire API call in background
+      await axiosInstance.patch(`/application-course/${applicationId}`, {
+        status,
+      });
+
+      toast({
+        title:
+          status === "approved"
+            ? "Application approved successfully!"
+            : "Application rejected successfully!",
+        className: "bg-watney text-white border-none"
+      });
+
+    } catch (error) {
+
+      // 3. Rollback if request fails
+      setApplications((prev) =>
+        prev.map((app) =>
+          app._id === applicationId ? { ...app, status: "applied" } : app
+        )
+      );
+      setFilteredApplications((prev) =>
+        prev.map((app) =>
+          app._id === applicationId ? { ...app, status: "applied" } : app
+        )
+      );
+      toast({
+        title: "Failed to update application status.",
+        className: "bg-destructive text-white border-none",
+      });
+    } finally {
+      setUpdatingStatus(null);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -354,9 +367,9 @@ const updateApplicationStatus = async (
                         {app.studentId?.studentType === 'eu'
                           ? 'Home'
                           : app.studentId?.studentType
-                              ?.charAt(0)
-                              .toUpperCase() +
-                            app.studentId?.studentType?.slice(1)}
+                            ?.charAt(0)
+                            .toUpperCase() +
+                          app.studentId?.studentType?.slice(1)}
                       </Badge>
                     </TableCell>
                     <TableCell
@@ -385,7 +398,7 @@ const updateApplicationStatus = async (
                           'capitalize',
                           app?.status === 'applied' && 'bg-blue-500 text-white',
                           app?.status === 'approved' &&
-                            'bg-green-500 text-white',
+                          'bg-green-500 text-white',
                           app?.status === 'cancelled' && 'bg-red-500 text-white'
                         )}
                       >
@@ -407,62 +420,80 @@ const updateApplicationStatus = async (
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className='bg-white text-black border-gray-300 '>
+
+                        <DropdownMenuContent align="end" className="bg-white text-black border-gray-300">
+                          {/* Assignment */}
                           <DropdownMenuItem
                             onClick={() =>
-                              navigate(
-                                `/dashboard/student-applications/${app?._id}/assignment/${app.studentId?._id}`
-                              )
+                              navigate(`/dashboard/student-applications/${app?._id}/assignment/${app.studentId?._id}`)
                             }
                           >
                             <FileIcon className="mr-2 h-4 w-4" />
                             Assignment
                           </DropdownMenuItem>
+
+                          {/* Mail */}
                           <DropdownMenuItem
                             onClick={() =>
-                              navigate(
-                                `/dashboard/student-application/${app.studentId?._id}/${app?._id}/mails`
-                              )
+                              navigate(`/dashboard/student-application/${app.studentId?._id}/${app?._id}/mails`)
                             }
                           >
                             <Mail className="mr-2 h-4 w-4" />
                             Mail
                           </DropdownMenuItem>
+
+                          {/* Applicant Details */}
                           <DropdownMenuItem
-                            onClick={() =>
-                              navigate(
-                                `/dashboard/student-application/${app.studentId?._id}`
-                              )
-                            }
+                            onClick={() => navigate(`/dashboard/student-application/${app.studentId?._id}`)}
                           >
                             <Eye className="mr-2 h-4 w-4" />
                             Applicant Details
                           </DropdownMenuItem>
-                          {app.status === 'applied' && (
+
+                          {/* Status-based actions */}
+                          {app.status === "applied" && (
                             <>
                               <DropdownMenuItem
-                                onClick={() =>
-                                  updateApplicationStatus(app._id, 'approved')
-                                }
+                                onClick={() => updateApplicationStatus(app._id, "approved")}
                                 disabled={updatingStatus === app._id}
                               >
                                 <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                                Approve Course
+                                Approve Application
                               </DropdownMenuItem>
+
                               <DropdownMenuItem
-                                onClick={() =>
-                                  updateApplicationStatus(app._id, 'cancelled')
-                                }
+                                onClick={() => updateApplicationStatus(app._id, "cancelled")}
                                 disabled={updatingStatus === app._id}
                               >
                                 <XCircle className="mr-2 h-4 w-4 text-red-500" />
-                                Reject Course
+                                Reject Application
                               </DropdownMenuItem>
                             </>
+                          )}
+
+                          {app.status === "approved" && (
+                            <DropdownMenuItem
+                              onClick={() => updateApplicationStatus(app._id, "cancelled")}
+                              disabled={updatingStatus === app._id}
+                            >
+                              <XCircle className="mr-2 h-4 w-4 text-red-500" />
+                              Reject Application
+                            </DropdownMenuItem>
+                          )}
+
+                          {app.status === "cancelled" && (
+                            <DropdownMenuItem
+                              onClick={() => updateApplicationStatus(app._id, "approved")}
+                              disabled={updatingStatus === app._id}
+                            >
+                              <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
+                              Approve Application
+                            </DropdownMenuItem>
                           )}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
+
                   </TableRow>
                 ))}
               </TableBody>
