@@ -82,7 +82,7 @@ export function DisabilityInfoStep({
   <Card className="border-none shadow-none">
     <CardHeader>
       <CardTitle className="text-2xl">Disability Information</CardTitle>
-      <CardDescription>
+      <CardDescription className='text-lg'>
         We are committed to creating an inclusive and supportive environment.
         The information you provide below helps us offer the appropriate
         support and make reasonable adjustments where necessary.
@@ -144,7 +144,7 @@ export function DisabilityInfoStep({
                     <Textarea
                       {...field}
                       placeholder="Briefly describe your disability and how it may affect your ability to work or participate."
-                      className="min-h-[100px] rounded-full border border-gray-300 p-4 text-lg resize-none placeholder:text-gray-400"
+                      className="min-h-[100px]  border border-gray-300 p-4 text-lg resize-none placeholder:text-gray-400"
                     />
                   </FormControl>
                   <p className="mt-2 text-md text-gray-400">
@@ -211,7 +211,7 @@ export function DisabilityInfoStep({
                     <Textarea
                       {...field}
                       placeholder="Specify what support or adjustments would help you perform at your best"
-                      className="min-h-[100px] rounded-full border border-gray-300 p-4 text-lg resize-none placeholder:text-gray-400"
+                      className="min-h-[100px]  border border-gray-300 p-4 text-lg resize-none placeholder:text-gray-400"
                     />
                   </FormControl>
                   <p className="mt-2 text-md text-gray-400">

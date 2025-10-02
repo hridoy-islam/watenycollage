@@ -240,7 +240,7 @@ const renderTrainingHistoryStep = () => (
                                   {...formField}
                                   value={formField.value || ''}
                                   placeholder="Training name"
-                                  className="h-12 rounded-full text-lg"
+                                  className=""
                                 />
                               </FormControl>
                               <p className="text-md text-gray-400">
@@ -262,7 +262,7 @@ const renderTrainingHistoryStep = () => (
                                   {...formField}
                                   value={formField.value || ''}
                                   placeholder="Awarding body"
-                                  className="h-12 rounded-full text-lg"
+                                  className=""
                                 />
                               </FormControl>
                               <p className="text-md text-gray-400">
@@ -384,7 +384,7 @@ const renderTrainingHistoryStep = () => (
                               {...formField}
                               value={formField.value || ''}
                               placeholder="Training name"
-                              className="h-12 rounded-full text-lg"
+                              className=""
                             />
                           </FormControl>
                           <p className="text-md text-gray-400">
@@ -412,7 +412,7 @@ const renderTrainingHistoryStep = () => (
                               {...formField}
                               value={formField.value || ''}
                               placeholder="Awarding body"
-                              className="h-12 rounded-full text-lg"
+                              className=""
                             />
                           </FormControl>
                           <p className="text-md text-gray-400">

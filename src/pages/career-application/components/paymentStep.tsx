@@ -94,7 +94,7 @@ export function PaymentStep({
   <Card className="border-none shadow-none">
     <CardHeader>
       <h2 className="text-2xl font-semibold">Payment Details</h2>
-      <p className="text-sm text-gray-400">
+      <p className="text-lg text-gray-400">
         Please provide your bank or building society details for payment
         processing.
       </p>
@@ -121,7 +121,7 @@ export function PaymentStep({
                       <Input
                         {...field}
                         placeholder="12345678"
-                        className="h-12 rounded-full text-lg"
+                        className=""
                       />
                     </FormControl>
                     <p className="text-md text-gray-400">Account number</p>
@@ -142,7 +142,7 @@ export function PaymentStep({
                       <Input
                         {...field}
                         placeholder="12-34-56"
-                        className="h-12 rounded-full text-lg"
+                        className=""
                       />
                     </FormControl>
                     <p className="text-md text-gray-400">Format: 12-34-56</p>
@@ -163,7 +163,7 @@ export function PaymentStep({
                       <Input
                         {...field}
                         placeholder="Barclays Bank"
-                        className="h-12 rounded-full text-lg"
+                        className=""
                       />
                     </FormControl>
                     <FormMessage />
@@ -183,7 +183,7 @@ export function PaymentStep({
                       <Input
                         {...field}
                         placeholder="Oxford Street Branch"
-                        className="h-12 rounded-full text-lg"
+                        className=""
                       />
                     </FormControl>
                     <FormMessage />
@@ -203,7 +203,7 @@ export function PaymentStep({
                       <Input
                         {...field}
                         placeholder="ROLL123456"
-                        className="h-12 rounded-full text-lg"
+                        className=""
                       />
                     </FormControl>
                     <FormMessage />

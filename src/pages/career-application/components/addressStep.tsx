@@ -120,7 +120,7 @@ return (
   <Card className="border-none shadow-none">
     <CardHeader>
       <CardTitle className="text-2xl">Address Information</CardTitle>
-      <CardDescription>
+      <CardDescription className='text-lg'>
         Please provide your current postal address. This helps us verify your location and ensure smooth communication throughout the application process.
       </CardDescription>
     </CardHeader>
@@ -143,7 +143,7 @@ return (
                       <Input
                         {...field}
                         placeholder="Enter the primary address (e.g., house number, street name)"
-                        className="h-12 rounded-full text-lg placeholder:text-gray-500"
+                        className=" placeholder:text-gray-500"
                       />
                     </FormControl>
                     <p className="text-md text-gray-500">
@@ -164,7 +164,7 @@ return (
                       <Input
                         {...field}
                         placeholder="Optional additional address info (e.g., apartment, unit)."
-                        className="h-12 rounded-full text-lg placeholder:text-gray-500"
+                        className=" placeholder:text-gray-500"
                       />
                     </FormControl>
                     <p className="text-md text-gray-500">
@@ -187,7 +187,7 @@ return (
                       <Input
                         {...field}
                         placeholder="Enter the name of your town or city"
-                        className="h-12 rounded-full text-lg placeholder:text-gray-500"
+                        className=" placeholder:text-gray-500"
                       />
                     </FormControl>
                     <p className="text-md text-gray-500">
@@ -210,7 +210,7 @@ return (
                       <Input
                         {...field}
                         placeholder="Enter your area’s postal/ZIP code."
-                        className="h-12 rounded-full text-lg placeholder:text-gray-500"
+                        className=" placeholder:text-gray-500"
                       />
                     </FormControl>
                     <p className="text-md text-gray-500">

@@ -643,7 +643,7 @@ export function PostEmployementStep({
                 <Textarea
                   {...field}
                   placeholder="Details (if Yes)..."
-                  className="w-full border-gray-300 rounded-full"
+                  className="w-full border-gray-300 "
                   disabled={
                     form.watch(name) !== true && !form.getValues(commentName)
                   }
@@ -684,7 +684,7 @@ export function PostEmployementStep({
                       {...field}
                       placeholder="First Name"
                       disabled
-                      className="h-12 rounded-full text-lg placeholder:text-gray-500"
+                      className=" placeholder:text-gray-500"
                     />
                   </FormControl>
                   <FormMessage className="text-md" />
@@ -704,7 +704,7 @@ export function PostEmployementStep({
                       {...field}
                       placeholder="Last Name"
                       disabled
-                      className="h-12 rounded-full text-lg placeholder:text-gray-500"
+                      className=" placeholder:text-gray-500"
                     />
                   </FormControl>
                   <FormMessage className="text-md" />
@@ -766,7 +766,7 @@ export function PostEmployementStep({
                       {...field}
                       placeholder="Job Role"
                       disabled
-                      className="h-12 rounded-full text-lg placeholder:text-gray-500"
+                      className=" placeholder:text-gray-500"
                     />
                   </FormControl>
                   <FormMessage className="text-md" />
@@ -1018,7 +1018,7 @@ export function PostEmployementStep({
                   <Textarea
                     {...field}
                     placeholder="Details..."
-                    className="min-h-[100px] rounded-full p-4 text-lg border-gray-300"
+                    className="min-h-[100px]  p-4 text-lg border-gray-300"
                   />
                 </FormControl>
                 <FormMessage className="text-md" />
@@ -1105,7 +1105,7 @@ export function PostEmployementStep({
                       <Input
                         {...field}
                         placeholder="Other inoculations..."
-                        className="h-12 rounded-full text-lg placeholder:text-gray-500"
+                        className=" placeholder:text-gray-500"
                       />
                     </FormControl>
                     <FormMessage className="text-md" />
@@ -1121,7 +1121,7 @@ export function PostEmployementStep({
                       <Input
                         {...field}
                         placeholder="Details..."
-                        className="h-12 rounded-full text-lg placeholder:text-gray-500"
+                        className=" placeholder:text-gray-500"
                       />
                     </FormControl>
                     <FormMessage className="text-md" />
@@ -1148,7 +1148,7 @@ export function PostEmployementStep({
                   <Input
                     {...field}
                     placeholder="Number of days sick..."
-                    className="h-12 rounded-full text-lg w-full md:w-[33vw]"
+                    className=" w-full md:w-[33vw]"
                   />
                 </FormControl>
                 <FormMessage className="text-md" />

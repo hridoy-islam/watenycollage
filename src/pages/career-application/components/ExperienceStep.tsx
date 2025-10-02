@@ -57,7 +57,7 @@ export function ExperienceStep({
   <Card className="border-none shadow-none">
     <CardHeader>
       <CardTitle className="text-2xl">Experience & Interests</CardTitle>
-      <CardDescription>
+      <CardDescription className='text-lg'>
         Help us get to know you better by sharing your personal interests and
         any relevant experience you feel supports your application.
       </CardDescription>
@@ -79,7 +79,7 @@ export function ExperienceStep({
                   <Textarea
                     {...field}
                     placeholder="e.g., Football, cooking, volunteering, public speaking, playing guitar"
-                    className="min-h-[100px] rounded-full border border-gray-300 p-4 text-lg resize-none placeholder:text-gray-400"
+                    className="min-h-[100px]  border border-gray-300 p-4 text-lg resize-none placeholder:text-gray-400"
                   />
                 </FormControl>
                 <p className="mt-1 text-md text-gray-400">
@@ -107,7 +107,7 @@ export function ExperienceStep({
                   <Textarea
                     {...field}
                     placeholder="e.g., Cared for elderly relative, worked in hospitality, completed first aid training"
-                    className="min-h-[100px] rounded-full border border-gray-300 p-4 text-lg resize-none placeholder:text-gray-400"
+                    className="min-h-[100px]  border border-gray-300 p-4 text-lg resize-none placeholder:text-gray-400"
                   />
                 </FormControl>
                 <p className="mt-1 text-md text-gray-400">

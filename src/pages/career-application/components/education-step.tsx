@@ -194,7 +194,7 @@ export function EducationStep({
   <div className="space-y-8">
     <CardHeader>
       <CardTitle className="text-2xl">Academic Qualification</CardTitle>
-      <CardDescription>
+      <CardDescription className='text-lg'>
         Please provide your highest level of academic qualification. This
         information is mandatory and will help us assess your educational
         background. You may add more than one qualification if applicable.
@@ -254,7 +254,7 @@ export function EducationStep({
                                 {...formField}
                                 value={formField.value || ''}
                                 placeholder="Enter qualification"
-                                className="h-12 rounded-full text-lg"
+                                className=""
                               />
                             </FormControl>
                             <FormMessage />
@@ -272,7 +272,7 @@ export function EducationStep({
                               <Input
                                 {...formField}
                                 placeholder="Grade (e.g., 3.91)"
-                                className="h-12 rounded-full text-lg"
+                                className=""
                               />
                             </FormControl>
                             <p className="mt-1 text-md text-gray-400">
@@ -294,7 +294,7 @@ export function EducationStep({
                                 {...formField}
                                 value={formField.value || ''}
                                 placeholder="Institution name"
-                                className="h-12 rounded-full text-lg"
+                                className=""
                               />
                             </FormControl>
                             <p className="text-md text-gray-400">
@@ -319,7 +319,7 @@ export function EducationStep({
                                 <CustomDatePicker
                                   selected={selectedDate}
                                   onChange={(date) => formField.onChange(date)}
-                                  className="h-12 rounded-full text-lg w-full"
+                                  className=" w-full"
                                 />
                               </FormControl>
                               <p className="text-md text-gray-400">
@@ -406,7 +406,7 @@ export function EducationStep({
                             {...formField}
                             value={formField.value || ''}
                             placeholder="Enter qualification"
-                            className="h-12 rounded-full text-lg"
+                            className=""
                           />
                         </FormControl>
                         <FormMessage />
@@ -429,7 +429,7 @@ export function EducationStep({
                           <Input
                             {...formField}
                             placeholder="e.g., 3.91"
-                            className="h-12 rounded-full text-lg"
+                            className=""
                           />
                         </FormControl>
                         <p className="text-md text-gray-400">Example: 3.91</p>
@@ -454,7 +454,7 @@ export function EducationStep({
                             {...formField}
                             value={formField.value || ''}
                             placeholder="University name"
-                            className="h-12 rounded-full text-lg"
+                            className=""
                           />
                         </FormControl>
                         <p className="text-md text-gray-400">

@@ -213,7 +213,7 @@ export function PersonalDetailsStep({
   <Card className="border-none shadow-none">
     <CardHeader>
       <CardTitle className="text-2xl">Personal Information</CardTitle>
-      <CardDescription>
+      <CardDescription className='text-lg'>
         Please provide your basic details. This information helps us tailor
         your application experience and ensure accurate communication.
       </CardDescription>
@@ -293,7 +293,7 @@ export function PersonalDetailsStep({
                       <Input
                         {...field}
                         placeholder="Enter your first name"
-                        className="h-12 rounded-full text-lg placeholder:text-gray-500"
+                        className=" placeholder:text-gray-500"
                       />
                     </FormControl>
                     <p className="text-md text-gray-500">Example: Emma</p>
@@ -312,7 +312,7 @@ export function PersonalDetailsStep({
                       <Input
                         {...field}
                         placeholder="Enter your middle name, if applicable."
-                        className="h-12 rounded-full text-lg placeholder:text-gray-500"
+                        className=" placeholder:text-gray-500"
                       />
                     </FormControl>
                     <p className="text-md text-gray-500">Example: J</p>
@@ -333,7 +333,7 @@ export function PersonalDetailsStep({
                       <Input
                         {...field}
                         placeholder="Enter your family name/surname"
-                        className="h-12 rounded-full text-lg placeholder:text-gray-500"
+                        className=" placeholder:text-gray-500"
                       />
                     </FormControl>
                     <p className="text-md text-gray-500">Example: Williams</p>
@@ -383,7 +383,7 @@ export function PersonalDetailsStep({
                         type="email"
                         {...field}
                         placeholder="Enter a valid email address you check regularly"
-                        className="h-12 rounded-full text-lg placeholder:text-gray-500"
+                        className=" placeholder:text-gray-500"
                         disabled
                       />
                     </FormControl>
@@ -408,7 +408,7 @@ export function PersonalDetailsStep({
                         type="tel"
                         {...field}
                         placeholder="Include country code if applying from outside the UK"
-                        className="h-12 rounded-full text-lg placeholder:text-gray-500"
+                        className=" placeholder:text-gray-500"
                       />
                     </FormControl>
                     <p className="text-md text-gray-500">
@@ -430,7 +430,7 @@ export function PersonalDetailsStep({
                         <Input
                           {...field}
                           placeholder="UK applicants only. Format: Two letters, six numbers, and a final letter"
-                          className="h-12 rounded-full text-lg placeholder:text-gray-500"
+                          className=" placeholder:text-gray-500"
                         />
                       </FormControl>
                       <p className="text-md text-gray-500">
@@ -569,7 +569,7 @@ export function PersonalDetailsStep({
                               field.onChange(value);
                             }}
                             value={field.value}
-                            className="h-12 rounded-full text-lg placeholder:text-gray-500"
+                            className=" placeholder:text-gray-500"
                           />
                         </FormControl>
                         <p className="text-md text-gray-500">

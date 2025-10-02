@@ -28,7 +28,7 @@ interface OptionType {
   label: string;
 }
 
-interface SignUpFormProps extends HTMLAttributes<HTMLDivElement> {}
+interface SignUpFormProps extends HTMLAttributes<HTMLDivElement> { }
 
 const signUpSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -51,7 +51,7 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
   const [currentStep, setCurrentStep] = useState<SignUpStep>('form');
   const [userData, setUserData] = useState<SignUpFormValues | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-const [isOtpVerifying, setIsOtpVerifying] = useState(false);
+  const [isOtpVerifying, setIsOtpVerifying] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
 
@@ -91,44 +91,44 @@ const [isOtpVerifying, setIsOtpVerifying] = useState(false);
       });
       setCurrentStep('otp');
     } catch (err: any) {
-       form.setError('email', {
-      type: 'server',
-      message: err.response?.data?.message || 'Something went wrong'
-    });
+      form.setError('email', {
+        type: 'server',
+        message: err.response?.data?.message || 'Something went wrong'
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
 
- const handleOtpVerificationSuccess = async () => {
-  if (!userData) return;
+  const handleOtpVerificationSuccess = async () => {
+    if (!userData) return;
 
-  try {
-    setIsOtpVerifying(true); // show verifying on OTP button
+    try {
+      setIsOtpVerifying(true); // show verifying on OTP button
 
-    // Final registration API call
-    const response = await axiosInstance.post('/auth/signup', {
-      ...userData,
-      name: `${userData.title} ${userData.firstName} ${userData.initial} ${userData.lastName}`.trim(),
-      email: userData.email.toLowerCase(),
-      role: 'applicant',
-      isValided: true
-    });
+      // Final registration API call
+      const response = await axiosInstance.post('/auth/signup', {
+        ...userData,
+        name: `${userData.title} ${userData.firstName} ${userData.initial} ${userData.lastName}`.trim(),
+        email: userData.email.toLowerCase(),
+        role: 'applicant',
+        isValided: true
+      });
 
-    if (response?.data?.success) {
-      setCurrentStep('success');
+      if (response?.data?.success) {
+        setCurrentStep('success');
+      }
+    } catch (err: any) {
+      toast({
+        title: 'Registration Failed',
+        description: 'Please try again.',
+        variant: 'destructive'
+      });
+      setCurrentStep('form');
+    } finally {
+      setIsOtpVerifying(false); // hide verifying
     }
-  } catch (err: any) {
-    toast({
-      title: 'Registration Failed',
-      description: 'Please try again.',
-      variant: 'destructive'
-    });
-    setCurrentStep('form');
-  } finally {
-    setIsOtpVerifying(false); // hide verifying
-  }
-};
+  };
   const handleLogout = () => {
     // Clear any stored data
     localStorage.removeItem('signup_otp');
@@ -197,8 +197,26 @@ const [isOtpVerifying, setIsOtpVerifying] = useState(false);
                         field.onChange(option?.value)
                       }
                       placeholder="Select title"
-                      className="react-select-container"
+                      className="react-select-container rounded-full"
+
                       classNamePrefix="react-select"
+                      styles={{
+                        control: (provided) => ({
+                          ...provided,
+                          borderRadius: '9999px', // fully rounded
+                          height: '3rem', // h-12
+                          minHeight: '3rem',
+                          padding: '0 0.5rem', // optional padding inside
+                        }),
+                        menu: (provided) => ({
+                          ...provided,
+                          borderRadius: '0.75rem', // round dropdown menu
+                        }),
+                        option: (provided) => ({
+                          ...provided,
+                          borderRadius: '0.5rem', // round individual options
+                        }),
+                      }}
                     />
                   </FormControl>
                   <FormMessage className="text-xs text-red-600" />
@@ -295,6 +313,23 @@ const [isOtpVerifying, setIsOtpVerifying] = useState(false);
                       placeholder="Select nationality"
                       className="react-select-container"
                       classNamePrefix="react-select"
+                      styles={{
+      control: (provided) => ({
+        ...provided,
+        borderRadius: '9999px', // fully rounded
+        height: '3rem', // h-12
+        minHeight: '3rem',
+        padding: '0 0.5rem', // optional padding inside
+      }),
+      menu: (provided) => ({
+        ...provided,
+        borderRadius: '0.75rem', // round dropdown menu
+      }),
+      option: (provided) => ({
+        ...provided,
+        borderRadius: '0.5rem', // round individual options
+      }),
+    }}
                     />
                   </FormControl>
                   <FormMessage className="text-xs text-red-600" />
@@ -392,7 +427,7 @@ const [isOtpVerifying, setIsOtpVerifying] = useState(false);
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="h-12 w-full rounded-md bg-watney font-medium text-white shadow-sm transition-colors hover:bg-watney/90"
+              className="h-12 w-full  bg-watney font-medium text-white shadow-sm transition-colors hover:bg-watney/90"
             >
               {isSubmitting ? 'Creating Account...' : 'Create Account'}
             </Button>

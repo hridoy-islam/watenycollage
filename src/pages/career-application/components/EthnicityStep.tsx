@@ -190,8 +190,8 @@ return (
         <CardContent>
           <div className="space-y-6">
             <div className="flex flex-col items-start">
-              <h2 className="text-xl font-semibold">Ethnic Background</h2>
-              <p className="text-md">
+              <h2 className="text-2xl font-semibold">Ethnic Background</h2>
+              <p className="text-lg">
                 This information helps us ensure our recruitment practices are
                 fair and inclusive. Your response is optional and will not affect
                 your application.
@@ -298,7 +298,7 @@ return (
                         <Textarea
                           {...field}
                           placeholder="e.g., Polish, Nigerian, Filipino, etc."
-                          className="min-h-[100px] rounded-full border border-gray-300 p-4 text-lg resize-none placeholder:text-gray-400"
+                          className="min-h-[100px] border border-gray-300 p-4 text-lg resize-none placeholder:text-gray-400"
                         />
                       </FormControl>
                       <p className="mt-1 text-md text-gray-400">

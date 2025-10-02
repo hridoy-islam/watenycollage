@@ -149,7 +149,7 @@ export function NextToKinStep({
   <Card className="border-none shadow-none">
     <CardHeader>
       <CardTitle className="text-2xl">Next of Kin Details</CardTitle>
-      <CardDescription>
+      <CardDescription className='text-lg'>
         Please provide the contact information for your next of kin or emergency contact. This ensures we can reach someone on your behalf if needed during the application or onboarding process.
       </CardDescription>
     </CardHeader>
@@ -173,7 +173,7 @@ export function NextToKinStep({
                       <Input
                         {...field}
                         placeholder="Enter the full name of your emergency contact"
-                        className="h-12 rounded-full text-lg placeholder:text-gray-500"
+                        className=" placeholder:text-gray-500"
                       />
                     </FormControl>
                     <p className="text-md text-gray-500">
@@ -196,7 +196,7 @@ export function NextToKinStep({
                       <Input
                         {...field}
                         placeholder="Enter a phone number where this person can be reached in an emergency"
-                        className="h-12 rounded-full text-lg placeholder:text-gray-500"
+                        className=" placeholder:text-gray-500"
                       />
                     </FormControl>
                     <p className="text-md text-gray-500">
@@ -220,7 +220,7 @@ export function NextToKinStep({
                         type="email"
                         {...field}
                         placeholder="Provide an email address for non-urgent communication"
-                        className="h-12 rounded-full text-lg placeholder:text-gray-500"
+                        className=" placeholder:text-gray-500"
                       />
                     </FormControl>
                     <p className="text-md text-gray-500">
@@ -295,7 +295,7 @@ export function NextToKinStep({
                         type="text"
                         {...field}
                         placeholder="Enter the full address of your emergency contact"
-                        className="h-12 rounded-full text-lg placeholder:text-gray-500"
+                        className=" placeholder:text-gray-500"
                       />
                     </FormControl>
                     <p className="text-md text-gray-500">

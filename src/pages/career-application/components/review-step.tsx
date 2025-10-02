@@ -666,7 +666,7 @@ const renderCurrentStep = () => {
                       <FormControl>
                         <Textarea
                           placeholder="Enter details here..."
-                          className="min-h-[100px] rounded-full p-4 text-lg mt-2 w-full"
+                          className="min-h-[100px] p-4 text-lg mt-2 w-full"
                           {...field}
                         />
                       </FormControl>
@@ -741,7 +741,7 @@ const renderCurrentStep = () => {
                       <FormControl>
                         <Textarea
                           placeholder="Enter details here..."
-                          className="min-h-[100px] rounded-full p-4 text-lg mt-2 w-full"
+                          className="min-h-[100px]  p-4 text-lg mt-2 w-full"
                           {...field}
                         />
                       </FormControl>
@@ -879,7 +879,7 @@ const renderCurrentStep = () => {
                   <FormControl>
                     <Textarea
                       placeholder="Enter details here..."
-                      className="min-h-[100px] rounded-full p-4 text-lg mt-2 w-full"
+                      className="min-h-[100px]  p-4 text-lg mt-2 w-full"
                       rows={5}
                       {...field}
                     />
@@ -896,7 +896,7 @@ const renderCurrentStep = () => {
       return (
         <>
           {/* Terms Section */}
-          <div className="mt-8">
+          <div className="mt-8 pt-4">
             <h1 className="mb-2 text-xl font-semibold sm:text-2xl">
               Terms and Conditions Agreement
             </h1>

@@ -92,7 +92,7 @@ export function EmergencyContact({
                   <h2 className="text-xl font-semibold">
                     Next of Kin
                   </h2>
-                  <p className="text-md">
+                  <p className="text-lg">
                     Please provide the details of someone we can contact in case
                     of an emergency. This is typically a close relative or
                     someone you trust.

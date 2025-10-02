@@ -88,7 +88,7 @@ export function RefereeDetailsStep({
                   <Input
                     {...field}
                     placeholder="Sarah Johnson"
-                    className="h-12 rounded-full text-lg"
+                    className=""
                   />
                 </FormControl>
                 <p className="text-md text-gray-400">Example: Sarah Johnson</p>
@@ -110,7 +110,7 @@ export function RefereeDetailsStep({
                   <Input
                     {...field}
                     placeholder="Senior Manager"
-                    className="h-12 rounded-full text-lg"
+                    className=""
                   />
                 </FormControl>
                 <p className="text-md text-gray-400">Example: Senior Manager</p>
@@ -132,7 +132,7 @@ export function RefereeDetailsStep({
                   <Input
                     {...field}
                     placeholder="Line Manager, Colleague, Friend"
-                    className="h-12 rounded-full text-lg"
+                    className=""
                   />
                 </FormControl>
                 <p className="text-md text-gray-400">Example: Line Manager</p>
@@ -154,7 +154,7 @@ export function RefereeDetailsStep({
                   <Input
                     {...field}
                     placeholder="ABC Health Services Ltd."
-                    className="h-12 rounded-full text-lg"
+                    className=""
                   />
                 </FormControl>
                 <p className="text-md text-gray-400">Example: ABC Health Services Ltd.</p>
@@ -176,7 +176,7 @@ export function RefereeDetailsStep({
                   <Input
                     {...field}
                     placeholder="123 High Street, London, W1A 1AA"
-                    className="h-12 rounded-full text-lg"
+                    className=""
                   />
                 </FormControl>
                 <p className="text-md text-gray-400">
@@ -200,7 +200,7 @@ export function RefereeDetailsStep({
                   <Input
                     {...field}
                     placeholder="+44 20 1234 5678"
-                    className="h-12 rounded-full text-lg"
+                    className=""
                   />
                 </FormControl>
                 <p className="text-md text-gray-400">Example: +44 20 1234 5678</p>
@@ -220,7 +220,7 @@ export function RefereeDetailsStep({
                   <Input
                     {...field}
                     placeholder="+44 20 1234 5679"
-                    className="h-12 rounded-full text-lg"
+                    className=""
                   />
                 </FormControl>
                 <p className="text-md text-gray-400">Example: +44 20 1234 5679</p>
@@ -243,7 +243,7 @@ export function RefereeDetailsStep({
                     {...field}
                     placeholder="s.johnson@abcservices.com"
                     type="email"
-                    className="h-12 rounded-full text-lg"
+                    className=""
                   />
                 </FormControl>
                 <p className="text-md text-gray-400">
@@ -262,7 +262,7 @@ export function RefereeDetailsStep({
     <Card className="border-none shadow-none">
       <CardHeader>
         <h2 className="text-2xl font-semibold">Reference Details</h2>
-        <p className="text-md text-gray-400">
+        <p className="text-lg text-gray-400">
           Please give the names and addresses of three referees. Two of these must be your current and most recent employers. If this period of employment was for less than three month you will require a further referee from your next previous employer for whom you worked for a minimum of three months. A referee from your employment must be a senior line manager who knows you. Referees must not be family&nbsp;members.
         </p>
       </CardHeader>

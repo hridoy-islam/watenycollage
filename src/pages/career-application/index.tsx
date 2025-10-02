@@ -408,9 +408,9 @@ useEffect(() => {
 
       localStorage.removeItem('applicationId');
 
-      toast({
-        description: 'Career application submitted successfully.'
-      });
+      // toast({
+      //   description: 'Career application submitted successfully.'
+      // });
 
       setFormSubmitted(true);
     } catch (error: any) {
@@ -624,112 +624,193 @@ useEffect(() => {
     }
   };
 
-  if (formSubmitted) {
-    return (
-      <div className="flex min-h-[calc(100vh-150px)] items-center justify-center px-4">
-  <Card className="rounded-2xl bg-watney/80 backdrop-blur-sm border border-white/30 shadow-2xl p-16 relative overflow-hidden">
-    {/* Background decorative elements */}
-    <div className="absolute -top-20 -right-20 w-40 h-40 bg-white/5 rounded-full blur-xl"></div>
-    <div className="absolute -bottom-16 -left-16 w-32 h-32 bg-white/10 rounded-full blur-lg"></div>
+//   if (formSubmitted) {
+//     return (
+//       <div className="flex min-h-[calc(100vh-150px)] items-center justify-center px-4">
+//   <Card className="rounded-2xl bg-watney/80 backdrop-blur-sm border border-white/30 shadow-2xl p-16 relative overflow-hidden">
+//     {/* Background decorative elements */}
+//     <div className="absolute -top-20 -right-20 w-40 h-40 bg-white/5 rounded-full blur-xl"></div>
+//     <div className="absolute -bottom-16 -left-16 w-32 h-32 bg-white/10 rounded-full blur-lg"></div>
     
-    <div className="flex flex-col items-center gap-8 text-center relative z-10">
-      {/* Animated checkmark circle */}
-      <div className="rounded-full bg-white/90 p-8 shadow-lg backdrop-blur-sm border border-white/50 animate-pulse-slow">
-        <Check size={84} className="text-watney drop-shadow-sm" />
-      </div>
+//     <div className="flex flex-col items-center gap-8 text-center relative z-10">
+//       {/* Animated checkmark circle */}
+//       <div className="rounded-full bg-white/90 p-8 shadow-lg backdrop-blur-sm border border-white/50 animate-pulse-slow">
+//         <Check size={84} className="text-watney drop-shadow-sm" />
+//       </div>
       
-      <CardTitle className="text-3xl font-bold text-white drop-shadow-md">
-        Your Application Submitted Successfully
-      </CardTitle>
+//       <CardTitle className="text-3xl font-bold text-white drop-shadow-md">
+//         Your Application Submitted Successfully
+//       </CardTitle>
       
-      <CardDescription className="mt-2 text-lg leading-relaxed text-white/95 backdrop-blur-md rounded-2xl">
-        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-          Thank you for your submission. Our team has received your
-          career application and will get back to you shortly. Stay
-          tuned!
+//       <CardDescription className="mt-2 text-lg leading-relaxed text-white/95 backdrop-blur-md rounded-2xl">
+//         <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+//           Thank you for your submission. Our team has received your
+//           career application and will get back to you shortly. Stay
+//           tuned!
           
-          <div className="mt-4 rounded-xl text-center text-lg text-white/95">
-            <p className="font-medium">
-              If you have any questions or need help with your
-              application, please don't hesitate to contact us:
-            </p>
-            <ul className="mt-4 list-none space-y-3 w-auto">
-              <li className="flex items-center justify-center gap-3 rounded-lg py-2 px-4 ">
-                <span className="text-xl">📧</span>
-                <strong>Email:</strong>
-                <a
-                  href="mailto:info@everycare.co.uk"
-                  className="underline hover:text-white transition-colors"
-                >
-                  info@everycare.co.uk
-                </a>
-              </li>
-              <li className="flex items-center justify-center gap-3 rounded-lg py-2 px-4 ">
-                <span className="text-xl">☎</span>
-                <strong>Phone:</strong>
-                <span>+442920455300</span>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </CardDescription>
+//           <div className="mt-4 rounded-xl text-center text-lg text-white/95">
+//             <p className="font-medium">
+//               If you have any questions or need help with your
+//               application, please don't hesitate to contact us:
+//             </p>
+//             <ul className="mt-4 list-none space-y-3 w-auto">
+//               <li className="flex items-center justify-center gap-3 rounded-lg py-2 px-4 ">
+//                 <span className="text-xl">📧</span>
+//                 <strong>Email:</strong>
+//                 <a
+//                   href="mailto:info@everycare.co.uk"
+//                   className="underline hover:text-white transition-colors"
+//                 >
+//                   info@everycare.co.uk
+//                 </a>
+//               </li>
+//               <li className="flex items-center justify-center gap-3 rounded-lg py-2 px-4 ">
+//                 <span className="text-xl">☎</span>
+//                 <strong>Phone:</strong>
+//                 <span>+442920455300</span>
+//               </li>
+//             </ul>
+//           </div>
+//         </div>
+//       </CardDescription>
       
-      <Button
-        onClick={handleDashboardRedirect}
-        className="mt-6  rounded-xl bg-white/90 backdrop-blur-sm px-16 py-6 text-lg font-semibold text-watney transition-all hover:bg-white hover:scale-105 hover:shadow-lg border border-white/50 shadow-md"
-      >
-        Done
-      </Button>
+//       <Button
+//         onClick={handleDashboardRedirect}
+//         className="mt-6  rounded-xl bg-white/90 backdrop-blur-sm px-16 py-6 text-lg font-semibold text-watney transition-all hover:bg-white hover:scale-105 hover:shadow-lg border border-white/50 shadow-md"
+//       >
+//         Done
+//       </Button>
+//     </div>
+//   </Card>
+// </div>
+//     );
+//   }
+
+
+if (formSubmitted) {
+  return (
+    <div className="flex min-h-[calc(100vh-150px)] items-center justify-center px-4">
+  <div className="max-w-7xl w-full flex flex-col md:flex-row items-center md:items-start justify-between gap-12 p-6 md:p-12">
+    
+    {/* Left Text Content */}
+    <div className="flex-1 text-center md:text-left space-y-6">
+      <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 leading-tight">
+        THANK YOU
+      </h1>
+      <h2 className="text-xl font-semibold">Your Application Submitted Successfully!</h2>
+      <p className="text-gray-600 text-lg mt-4 max-w-2xl mx-auto md:mx-0">
+        Our team has received your career application and will get back to you shortly. Stay tuned!
+      </p>
+
+      {/* Contact Info */}
+      <ul className="mt-4 space-y-3">
+        <li className="flex items-center gap-3 rounded-lg py-2 px-4">
+          <span className="text-xl">📧</span>
+          <div className="flex gap-1">
+            <strong>Email:</strong>
+            <a
+              href="mailto:info@everycare.co.uk"
+              className="underline hover:text-orange-600 transition-colors"
+            >
+              info@everycare.co.uk
+            </a>
+          </div>
+        </li>
+        <li className="flex items-center gap-3 rounded-lg py-2 px-4">
+          <span className="text-xl">☎</span>
+          <div className="flex gap-1">
+            <strong>Phone:</strong>
+            <span>+44 2920 455300</span>
+          </div>
+        </li>
+      </ul>
+
+      {/* Divider */}
+      <div className="w-24 h-1 bg-orange-500 mx-auto md:mx-0 mt-6 rounded-full"></div>
+
+      {/* Action Button */}
+      <div className="flex flex-wrap justify-center md:justify-start gap-4 mt-8">
+        <button
+          onClick={() => (window.location.href = '/')}
+          className="px-6 py-2.5 border border-orange-500 text-orange-500 rounded-full font-medium hover:bg-orange-50 transition-colors"
+        >
+          Done
+        </button>
+      </div>
     </div>
-  </Card>
+
+    {/* Right: Heart Graphic */}
+    <div className="flex-1 flex justify-center mt-8 md:mt-0">
+      <div className="relative w-64 h-64 md:w-80 md:h-80">
+        {/* Glow layers */}
+        <div className="absolute inset-0 bg-orange-400 rounded-full blur-2xl opacity-40"></div>
+        <div className="absolute inset-0 bg-orange-500 rounded-full blur-xl opacity-60"></div>
+
+        {/* Solid heart */}
+        <div className="relative w-full h-full flex items-center justify-center">
+          <svg
+            width="120"
+            height="120"
+            viewBox="0 0 24 24"
+            fill="white"
+            className="drop-shadow-md"
+          >
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 
+            2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09
+            C13.09 3.81 14.76 3 16.5 3
+            19.58 3 22 5.42 22 8.5
+            c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+          </svg>
+        </div>
+      </div>
+    </div>
+
+  </div>
 </div>
-    );
-  }
+
+  );
+}
 
   return (
     <div className="p-4">
       {/* Header with Progress Circle and Step Counter */}
-      <div className="mb-2 flex flex-col items-center justify-between gap-2 sm:flex-row">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">Career Application</h1>
-          <p className="mt-2 text-sm text-gray-600">
-            Step {displayStep} of {TOTAL_FILLABLE_STEPS}
-          </p>
-        </div>
-        {/* ✅ Animated Success Message - Between Progress & Form */}
-        <AnimatePresence>
-          {successMessage && (
-            <motion.div
-              className=" flex justify-center"
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.3, ease: 'easeInOut' }}
-            >
-              <div className="rounded-md bg-watney px-5 py-2.5 text-lg font-medium text-white shadow-md">
-                {successMessage}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+     <div className="mb-2 flex flex-col items-center justify-between gap-2 sm:flex-row w-full">
+  <div>
+    <h1 className="text-xl font-semibold text-gray-800">
+      Step {displayStep} of {TOTAL_FILLABLE_STEPS}
+    </h1>
+  </div>
 
-        <div className="flex flex-col items-center">
-          <div className="h-24 w-24">
-            <CircularProgressbar
-              value={progressPercentage}
-              text={`${progressPercentage}%`}
-              styles={buildStyles({
-                textSize: '20px',
-                pathColor: '#2563eb',
-                textColor: '#1e293b',
-                trailColor: '#e2e8f0',
-                backgroundColor: '#f1f5f9',
-              })}
-            />
-          </div>
-          <p className="mt-2 text-sm text-gray-600">Application Progress</p>
+  {/* ✅ Animated Success Message */}
+  <AnimatePresence>
+    {successMessage && (
+      <motion.div
+        className="flex justify-center"
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: -4 }}
+        exit={{ opacity: 0, y: -10 }}
+        transition={{ duration: 0.3, ease: 'easeInOut' }}
+      >
+        <div className="rounded-md bg-watney px-5 py-2.5 text-lg font-medium text-white shadow-md">
+          {successMessage}
         </div>
+      </motion.div>
+    )}
+  </AnimatePresence>
+
+  {/* ✅ Linear Progress Bar with percentage inside */}
+  <div className="flex flex-col items-center w-full sm:w-1/3">
+    <div className="relative w-full bg-gray-200 rounded-full h-6">
+      <div
+        className="bg-watney h-6 rounded-full transition-all duration-500 flex items-center justify-center text-white font-medium"
+        style={{ width: `${progressPercentage}%` }}
+      >
+        {progressPercentage}%
       </div>
+    </div>
+  </div>
+</div>
+
 
 
       {/* Form Content */}

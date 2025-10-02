@@ -419,7 +419,7 @@ export function EmploymentStep({
           <div>
             <CardHeader>
               <CardTitle className="text-2xl font-semibold">Employment History</CardTitle>
-              <CardDescription>
+              <CardDescription className='text-lg'>
                 Please provide your current and previous employment details. This information helps us understand your experience and assess your application more accurately.
               </CardDescription>
             </CardHeader>
@@ -484,7 +484,7 @@ export function EmploymentStep({
                               <Input
                                 {...field}
                                 placeholder="Company Name"
-                                className="h-12 rounded-full text-lg !placeholder:text-gray-400"
+                                className=" !placeholder:text-gray-400"
                               />
                             </FormControl>
                             <p className="text-md text-gray-400">
@@ -508,7 +508,7 @@ export function EmploymentStep({
                               <Input
                                 {...field}
                                 placeholder="Position"
-                                className="h-12 rounded-full text-lg !placeholder:text-gray-400"
+                                className=" !placeholder:text-gray-400"
                               />
                             </FormControl>
                             <p className="text-md text-gray-400">
@@ -594,7 +594,7 @@ export function EmploymentStep({
                             <FormControl>
                               <Textarea
                                 {...field}
-                                className="min-h-[100px] rounded-full border border-gray-200 p-4 text-lg resize-none"
+                                className="min-h-[100px] border border-gray-200 p-4 text-lg resize-none"
                                 placeholder="Job Duties"
                               />
                             </FormControl>
@@ -669,7 +669,7 @@ export function EmploymentStep({
                                   <Input
                                     {...field}
                                     placeholder="Company Name"
-                                    className="h-12 rounded-full text-lg"
+                                    className=""
                                   />
                                 </FormControl>
                                 <p className="text-md text-gray-400">
@@ -693,7 +693,7 @@ export function EmploymentStep({
                                   <Input
                                     {...field}
                                     placeholder="Position"
-                                    className="h-12 rounded-full text-lg"
+                                    className=""
                                   />
                                 </FormControl>
                                 <p className="text-md text-gray-400">
@@ -775,7 +775,7 @@ export function EmploymentStep({
                                   <Input
                                     {...field}
                                     placeholder="Enter the reason"
-                                    className="h-12 rounded-full text-lg"
+                                    className=""
                                   />
                                 </FormControl>
                                 <p className="text-md text-gray-400">
@@ -798,7 +798,7 @@ export function EmploymentStep({
                                 <FormControl>
                                   <Textarea
                                     {...field}
-                                    className="min-h-[100px] rounded-full border border-gray-200 p-4 text-lg resize-none"
+                                    className="min-h-[100px] border border-gray-200 p-4 text-lg resize-none"
                                     placeholder="Job Duties"
                                   />
                                 </FormControl>
@@ -857,7 +857,7 @@ export function EmploymentStep({
                                   <FormControl>
                                     <Textarea
                                       {...field}
-                                      className="min-h-[100px] rounded-full border border-gray-200 p-4 text-lg resize-none"
+                                      className="min-h-[100px]  border border-gray-200 p-4 text-lg resize-none"
                                       placeholder="Explanation for gaps after this employment"
                                     />
                                   </FormControl>
