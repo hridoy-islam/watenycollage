@@ -219,13 +219,13 @@ export function PaymentStep({
               type="button"
               variant="outline"
               onClick={handleBack}
-              className="h-12 rounded-full text-lg bg-watney text-white hover:bg-watney/90"
+              className=" text-lg bg-watney text-white hover:bg-watney/90"
             >
               Back
             </Button>
             <Button
               type="submit"
-              className="h-12 rounded-full text-lg bg-watney text-white hover:bg-watney/90"
+              className=" text-lg bg-watney text-white hover:bg-watney/90"
             >
               Next
             </Button>

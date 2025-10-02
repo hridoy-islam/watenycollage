@@ -228,7 +228,7 @@ return (
                           control: (base) => ({
                             ...base,
                             height: '3rem',
-                            borderRadius: '9999px',
+                            borderRadius: '16px',
                             fontSize: '1.125rem',
                           }),
                           placeholder: (base) => ({ ...base, fontSize: '1.125rem' }),
@@ -272,7 +272,7 @@ return (
                             control: (base) => ({
                               ...base,
                               height: '3rem',
-                              borderRadius: '9999px',
+                              borderRadius: '16px',
                               fontSize: '1.125rem',
                             }),
                             placeholder: (base) => ({ ...base, fontSize: '1.125rem' }),
@@ -318,13 +318,13 @@ return (
             type="button"
             variant="outline"
             onClick={handleBack}
-            className="h-12 rounded-full bg-watney text-lg text-white hover:bg-watney/90"
+            className=" bg-watney text-lg text-white hover:bg-watney/90"
           >
             Back
           </Button>
           <Button
             type="submit"
-            className="h-12 rounded-full bg-watney text-lg text-white hover:bg-watney/90"
+            className=" bg-watney text-lg text-white hover:bg-watney/90"
           >
             Next
           </Button>

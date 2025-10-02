@@ -207,7 +207,7 @@ export function EducationStep({
           type="button"
           variant="outline"
           onClick={addEducationEntry}
-          className="mb-4 bg-watney text-white hover:bg-watney/90 rounded-full"
+          className="mb-4 bg-watney text-white hover:bg-watney/90 "
         >
           {fields.length === 0 ? 'Add Qualification' : 'Add More Qualification'}
         </Button>
@@ -339,7 +339,7 @@ export function EducationStep({
                           <FormItem className="flex flex-col">
                             <Button
                               type="button"
-                              className="bg-watney text-white hover:bg-watney/90 text-lg py-2 h-12 rounded-full"
+                              className="bg-watney text-white hover:bg-watney/90 text-lg py-2 "
                               onClick={() =>
                                 setUploadState({
                                   isOpen: true,
@@ -373,7 +373,7 @@ export function EducationStep({
                         variant="ghost"
                         size="sm"
                         onClick={() => remove(index)}
-                      className="h-12 w-full rounded-full text-lg text-red-500 hover:bg-red-100 hover:text-red-700"
+                      className=" w-full -lg text-red-500 hover:bg-red-100 hover:text-red-700"
                       >
                         Remove
                       </Button>
@@ -484,7 +484,7 @@ export function EducationStep({
                             <CustomDatePicker
                               selected={selectedDate}
                               onChange={(date) => formField.onChange(date)}
-                              className="h-12 rounded-full text-lg w-full"
+                              className="h-12  text-lg w-full"
                             />
                           </FormControl>
                           <p className="text-md text-gray-400">
@@ -509,7 +509,7 @@ export function EducationStep({
                       <FormItem className="flex flex-col">
                         <Button
                           type="button"
-                          className="bg-watney text-white hover:bg-watney/90 text-lg py-2 h-12 rounded-full"
+                          className="bg-watney text-white hover:bg-watney/90 text-lg py-2 "
                           onClick={() =>
                             setUploadState({
                               isOpen: true,
@@ -545,7 +545,7 @@ export function EducationStep({
                     variant="ghost"
                     size="sm"
                     onClick={() => remove(index)}
-                      className="h-12 w-full rounded-full text-lg text-red-500 hover:bg-red-100 hover:text-red-700"
+                      className="w-full text-lg text-red-500 hover:bg-red-100 hover:text-red-700"
                   >
                     Remove Qualification
                   </Button>
@@ -569,14 +569,14 @@ export function EducationStep({
               type="button"
               variant="outline"
               onClick={handleBack}
-              className="h-12 rounded-full bg-watney px-6 text-lg text-white hover:bg-watney/90"
+              className="bg-watney px-6 text-lg text-white hover:bg-watney/90"
             >
               Back
             </Button>
             <Button
               type="submit"
               onClick={form.handleSubmit(onSubmit)}
-              className="h-12 rounded-full bg-watney px-6 text-lg text-white hover:bg-watney/90"
+              className="bg-watney px-6 text-lg text-white hover:bg-watney/90"
             >
               Next
             </Button>

@@ -245,7 +245,7 @@ return (
                             control: (base) => ({
                               ...base,
                               width: '100%',
-                              borderRadius: '9999px',
+                              borderRadius: '16px',
                               fontSize: '1.125rem',
                               minHeight: '3rem',
                               height: '3rem',
@@ -278,13 +278,13 @@ return (
               type="button"
               variant="outline"
               onClick={handleBack}
-              className="h-12 rounded-full bg-watney px-6 text-lg text-white hover:bg-watney/90"
+              className="bg-watney px-6 text-lg text-white hover:bg-watney/90"
             >
               Back
             </Button>
             <Button
               type="submit"
-              className="h-12 rounded-full bg-watney px-6 text-lg text-white hover:bg-watney/90"
+              className="bg-watney px-6 text-lg text-white hover:bg-watney/90"
             >
               Next
             </Button>

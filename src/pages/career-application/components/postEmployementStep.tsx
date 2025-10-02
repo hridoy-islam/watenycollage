@@ -1298,7 +1298,7 @@ export function PostEmployementStep({
               <Button
                 type="button"
                 variant="outline"
-                className="h-12 rounded-full bg-watney px-6 text-lg text-white hover:bg-watney/90"
+                className=" bg-watney px-6 text-lg text-white hover:bg-watney/90"
                 onClick={handleBack}
               >
                 Back
@@ -1307,14 +1307,14 @@ export function PostEmployementStep({
               {currentStep === totalSteps ? (
                 <Button
                   type="submit"
-                  className="h-12 rounded-full bg-watney px-6 text-lg text-white hover:bg-watney/90"
+                  className=" bg-watney px-6 text-lg text-white hover:bg-watney/90"
                 >
                   Next
                 </Button>
               ) : (
                 <Button
                   type="button"
-                  className="h-12 rounded-full bg-watney px-6 text-lg text-white hover:bg-watney/90"
+                  className=" bg-watney px-6 text-lg text-white hover:bg-watney/90"
                   onClick={handleNextClick} // Use the new handler
                 >
                   Next

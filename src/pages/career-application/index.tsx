@@ -687,7 +687,7 @@ useEffect(() => {
 //   }
 
 
-if (formSubmitted) {
+if (!formSubmitted) {
   return (
     <div className="flex min-h-[calc(100vh-150px)] items-center justify-center px-4">
   <div className="max-w-7xl w-full flex flex-col md:flex-row items-center md:items-start justify-between gap-12 p-6 md:p-12">
@@ -731,7 +731,7 @@ if (formSubmitted) {
       {/* Action Button */}
       <div className="flex flex-wrap justify-center md:justify-start gap-4 mt-8">
         <button
-          onClick={() => (window.location.href = '/')}
+          onClick={handleDashboardRedirect}
           className="px-6 py-2.5 border border-orange-500 text-orange-500 rounded-full font-medium hover:bg-orange-50 transition-colors"
         >
           Done
@@ -741,13 +741,13 @@ if (formSubmitted) {
 
     {/* Right: Heart Graphic */}
     <div className="flex-1 flex justify-center mt-8 md:mt-0">
-      <div className="relative w-64 h-64 md:w-80 md:h-80">
+      <div className="relative w-64 h-64 md:w-96 md:h-96">
         {/* Glow layers */}
-        <div className="absolute inset-0 bg-orange-400 rounded-full blur-2xl opacity-40"></div>
-        <div className="absolute inset-0 bg-orange-500 rounded-full blur-xl opacity-60"></div>
+        <div className="absolute inset-0 bg-red-400 rounded-full blur-xl opacity-10"></div>
+        <div className="absolute inset-0 bg-red-500 rounded-full blur-xl opacity-30"></div>
 
         {/* Solid heart */}
-        <div className="relative w-full h-full flex items-center justify-center">
+        {/* <div className="relative w-full h-full flex items-center justify-center">
           <svg
             width="120"
             height="120"
@@ -761,7 +761,9 @@ if (formSubmitted) {
             19.58 3 22 5.42 22 8.5
             c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
           </svg>
-        </div>
+        </div> */}
+
+        <img src="/heart.png" alt="heartimg" />
       </div>
     </div>
 
@@ -799,16 +801,17 @@ if (formSubmitted) {
   </AnimatePresence>
 
   {/* ✅ Linear Progress Bar with percentage inside */}
-  <div className="flex flex-col items-center w-full sm:w-1/3">
-    <div className="relative w-full bg-gray-200 rounded-full h-6">
-      <div
-        className="bg-watney h-6 rounded-full transition-all duration-500 flex items-center justify-center text-white font-medium"
-        style={{ width: `${progressPercentage}%` }}
-      >
-        {progressPercentage}%
-      </div>
+<div className="flex flex-col items-center w-full sm:w-1/3">
+  <div className="relative w-full bg-gray-200 rounded-full h-6 overflow-hidden">
+    <div
+      className="bg-watney h-6 rounded-full transition-all duration-500 flex items-center justify-center text-white font-medium"
+      style={{ width: progressPercentage > 0 ? `${progressPercentage}%` : '2rem' }} // min width for text
+    >
+      {progressPercentage}%
     </div>
   </div>
+</div>
+
 </div>
 
 

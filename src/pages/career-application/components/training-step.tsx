@@ -186,7 +186,7 @@ const renderTrainingHistoryStep = () => (
           type="button"
           variant="outline"
           onClick={addTrainingEntry}
-          className="mb-4 h-12 rounded-full bg-watney text-lg text-white hover:bg-watney/90"
+          className="mb-4  bg-watney text-lg text-white hover:bg-watney/90"
         >
           {fields.length === 0 ? 'Add Training Record' : 'Add More Training'}
         </Button>
@@ -288,7 +288,7 @@ const renderTrainingHistoryStep = () => (
                                     selected={selectedDate}
                                     onChange={(date) => formField.onChange(date)}
                                     placeholderText="MM/DD/YYYY"
-                                    className="h-12 rounded-full text-lg w-full"
+                                    className=" text-lg w-full"
                                   />
                                 </FormControl>
                                 <p className="text-md text-gray-400">
@@ -308,7 +308,7 @@ const renderTrainingHistoryStep = () => (
                             <FormItem className="flex flex-col">
                               <Button
                                 type="button"
-                                className="h-12 rounded-full bg-watney text-lg text-white hover:bg-watney/90"
+                                className=" bg-watney text-lg text-white hover:bg-watney/90"
                                 onClick={() =>
                                   setUploadState({
                                     isOpen: true,
@@ -342,7 +342,7 @@ const renderTrainingHistoryStep = () => (
                           variant="ghost"
                           size="sm"
                           onClick={() => remove(index)}
-                          className="h-12 rounded-full text-lg text-red-500 hover:bg-red-100 hover:text-red-700"
+                          className=" text-lg text-red-500 hover:bg-red-100 hover:text-red-700"
                         >
                           Remove
                         </Button>
@@ -444,7 +444,7 @@ const renderTrainingHistoryStep = () => (
                                 selected={selectedDate}
                                 onChange={(date) => formField.onChange(date)}
                                 placeholderText="MM/DD/YYYY"
-                                className="h-12 rounded-full text-lg w-full"
+                                className="h-12 rounded-2xl text-lg w-full"
                               />
                             </FormControl>
                             <p className="text-md text-gray-400">
@@ -470,7 +470,7 @@ const renderTrainingHistoryStep = () => (
                         <FormItem className="flex flex-col">
                           <Button
                             type="button"
-                            className="h-12 rounded-full bg-watney text-lg text-white hover:bg-watney/90"
+                            className="h-12 rounded-2xl bg-watney text-lg text-white hover:bg-watney/90"
                             onClick={() =>
                               setUploadState({
                                 isOpen: true,
@@ -505,7 +505,7 @@ const renderTrainingHistoryStep = () => (
                       type="button"
                       variant="ghost"
                       onClick={() => remove(index)}
-                      className="h-12 w-full rounded-full text-lg text-red-500 hover:bg-red-100 hover:text-red-700"
+                      className="w-full text-lg text-red-500 hover:bg-red-100 hover:text-red-700"
                     >
                       Remove Training
                     </Button>
@@ -530,13 +530,13 @@ const renderTrainingHistoryStep = () => (
               type="button"
               variant="outline"
               onClick={handleBack}
-              className="h-12 rounded-full bg-watney px-6 text-lg text-white hover:bg-watney/90"
+              className="bg-watney px-6 text-lg text-white hover:bg-watney/90"
             >
               Back
             </Button>
             <Button
               type="submit"
-              className="h-12 rounded-full bg-watney px-6 text-lg text-white hover:bg-watney/90"
+              className="bg-watney px-6 text-lg text-white hover:bg-watney/90"
             >
               Next
             </Button>

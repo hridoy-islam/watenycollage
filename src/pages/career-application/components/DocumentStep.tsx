@@ -173,7 +173,7 @@ export function DocumentStep({
               <div className="flex items-center space-x-3 flex-1 min-w-0">
                 
                 
-                <div className="min-w-0 flex-1">
+                <div className="min-w-0 flex flex-row items-center gap-4">
                   <div className="flex items-center space-x-2">
                     <span className="text-sm font-medium text-gray-900 truncate">
                       {fileName}
@@ -184,14 +184,12 @@ export function DocumentStep({
                       variant="default"
                       size="sm"
                       onClick={() => window.open(fileUrl, '_blank')}
-                      className="h-6 px-2 text-xs text-blue-600 hover:bg-blue-50 flex items-center gap-1"
+                      className="h-6 px-2 text-xs bg-watney text-white hover:bg-watney flex items-center gap-1"
                     >
                       <Eye className="h-3 w-3" />
                       View
                     </Button>
-                    {fileSize && (
-                      <span className="text-xs text-gray-500">• {fileSize}</span>
-                    )}
+                   
                   </div>
                 </div>
               </div>
@@ -350,7 +348,7 @@ export function DocumentStep({
 
                 <Dialog open={isDialogOpen} onOpenChange={handleDialogOpenChange}>
                   <DialogTrigger asChild>
-                    <Button className="h-12 rounded-full bg-watney text-lg text-white hover:bg-watney/90 flex items-center gap-2 mb-6">
+                    <Button className=" bg-watney text-lg text-white hover:bg-watney/90 flex items-center gap-2 mb-6">
                       <Plus className="h-5 w-5" />
                       Add Document
                     </Button>
@@ -506,7 +504,7 @@ export function DocumentStep({
                       const isUploaded = isDocumentUploaded(id);
                       if (!isUploaded) return null;
                       return (
-                        <div key={id} className="rounded-xl border border-green-200 bg-green-50/50 p-4">
+                        <div key={id} className="rounded-xl bg-watney/10 p-4">
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
                               <div className="flex items-center space-x-3 mb-3">
@@ -519,12 +517,12 @@ export function DocumentStep({
                                     {required && <span className="ml-1 text-red-500">*</span>}
                                     <CheckCircle className="ml-2 h-4 w-4 text-green-600" />
                                   </h3>
-                                  <p className="text-sm text-gray-600 mt-1">
+                                  {/* <p className="text-sm text-gray-600 mt-1">
                                     {Array.isArray(documents[id]) 
                                       ? `${(documents[id] as string[]).length} file${(documents[id] as string[]).length > 1 ? 's' : ''} uploaded`
                                       : '1 file uploaded'
                                     }
-                                  </p>
+                                  </p> */}
                                 </div>
                               </div>
                               {renderUploadedFiles(id)}
@@ -543,7 +541,7 @@ export function DocumentStep({
                     <p className="text-gray-600 mb-4">Get started by uploading your first document</p>
                     <Dialog open={isDialogOpen} onOpenChange={handleDialogOpenChange}>
                       <DialogTrigger asChild>
-                        <Button className="h-12 rounded-full bg-watney text-lg text-white hover:bg-watney/90 flex items-center gap-2">
+                        <Button className=" bg-watney text-lg text-white hover:bg-watney/90 flex items-center gap-2">
                           <Plus className="h-5 w-5" />
                           Upload First Document
                         </Button>
@@ -594,14 +592,14 @@ export function DocumentStep({
             <Button
               variant="outline"
               onClick={handleBack}
-              className="h-12 w-full justify-center rounded-full bg-watney text-lg text-white hover:bg-watney/90 sm:w-auto"
+              className=" w-full justify-center bg-watney text-lg text-white hover:bg-watney/90 sm:w-auto"
             >
               Back
             </Button>
             <Button
               onClick={handleSubmit}
               disabled={!allDocumentsUploaded}
-              className="h-12 w-full justify-center rounded-full bg-watney text-lg text-white hover:bg-watney/90 sm:w-auto"
+              className="w-full justify-center bg-watney text-lg text-white hover:bg-watney/90 sm:w-auto"
             >
               Next
             </Button>

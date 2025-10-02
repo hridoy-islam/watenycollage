@@ -978,7 +978,7 @@ const renderCurrentStep = () => {
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full h-12 rounded-full text-lg sm:w-auto"
+                  className="w-full  text-lg sm:w-auto"
                 >
                   Preview Application
                 </Button>
@@ -992,7 +992,7 @@ const renderCurrentStep = () => {
                   <Button
                     variant="outline"
                     onClick={() => setIsDialogOpen(false)}
-                    className="h-12 rounded-full text-lg bg-watney text-white hover:bg-watney/90"
+                    className=" text-lg bg-watney text-white hover:bg-watney/90"
                   >
                     Close
                   </Button>
@@ -1053,7 +1053,7 @@ const renderCurrentStep = () => {
                 type="button"
                 variant="outline"
                 onClick={handleBack}
-              className="h-12 rounded-full bg-watney px-6 text-lg text-white hover:bg-watney/90"
+              className=" bg-watney px-6 text-lg text-white hover:bg-watney/90"
               >
                 Back
               </Button>
@@ -1063,7 +1063,7 @@ const renderCurrentStep = () => {
                   type="button"
                   onClick={handleNext}
                   disabled={!termsAccepted || !dataProcessingAccepted}
-              className="h-12 rounded-full bg-watney px-6 text-lg text-white hover:bg-watney/90"
+              className=" bg-watney px-6 text-lg text-white hover:bg-watney/90"
                 >
                   Submit Application
                 </Button>
@@ -1071,7 +1071,7 @@ const renderCurrentStep = () => {
                 <Button
                   type="button"
                   onClick={handleNext}
-              className="h-12 rounded-full bg-watney px-6 text-lg text-white hover:bg-watney/90"
+              className=" bg-watney px-6 text-lg text-white hover:bg-watney/90"
                 >
                   Next
                 </Button>

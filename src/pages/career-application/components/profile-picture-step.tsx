@@ -92,7 +92,7 @@ const isValidImageUrl = (url) => {
 
         <Button
           variant="default"
-                  className="h-12 rounded-full bg-watney px-6 text-lg text-white hover:bg-watney/90"
+                  className="bg-watney px-6 text-lg text-white hover:bg-watney/90"
           onClick={() => setUploadOpen(true)}
         >
           Upload Image
@@ -133,7 +133,7 @@ const isValidImageUrl = (url) => {
     <div className="flex flex-col sm:flex-row justify-end gap-2 pt-4">
       <Button
         onClick={handleNext}
-                  className="h-12 rounded-full bg-watney px-6 text-lg text-white hover:bg-watney/90"
+                  className="bg-watney px-6 text-lg text-white hover:bg-watney/90"
         disabled={!isValidImageUrl(profilePictureUrl)}
       >
         Next

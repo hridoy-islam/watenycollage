@@ -125,13 +125,13 @@ export function ExperienceStep({
               type="button"
               variant="outline"
               onClick={handleBack}
-              className="h-12 rounded-full bg-watney text-lg text-white hover:bg-watney/90"
+              className=" bg-watney text-lg text-white hover:bg-watney/90"
             >
               Back
             </Button>
             <Button
               type="submit"
-              className="h-12 rounded-full bg-watney text-lg text-white hover:bg-watney/90"
+              className=" bg-watney text-lg text-white hover:bg-watney/90"
             >
               Next
             </Button>

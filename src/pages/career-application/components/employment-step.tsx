@@ -447,7 +447,7 @@ export function EmploymentStep({
                         control: (base) => ({
                           ...base,
                           height: '3rem',
-                          borderRadius: '9999px',
+                          borderRadius: '16px',
                           fontSize: '1.125rem',
                         }),
                         placeholder: (base) => ({ ...base, fontSize: '1.125rem' }),
@@ -535,7 +535,7 @@ export function EmploymentStep({
                                   selected={selectedDate}
                                   onChange={(date) => field.onChange(date)}
                                   placeholder="Employment Start Date"
-                                  className="h-12 rounded-full text-lg w-full"
+                                  className=" text-lg w-full"
                                 />
                               </FormControl>
                               <p className="text-md text-gray-400">
@@ -568,7 +568,7 @@ export function EmploymentStep({
                                   control: (base) => ({
                                     ...base,
                                     height: '3rem',
-                                    borderRadius: '9999px',
+                                    borderRadius: '16px',
                                     fontSize: '1.125rem',
                                   }),
                                 }}
@@ -631,7 +631,7 @@ export function EmploymentStep({
                               control: (base) => ({
                                 ...base,
                                 height: '3rem',
-                                borderRadius: '9999px',
+                                borderRadius: '16px',
                                 fontSize: '1.125rem',
                               }),
                             }}
@@ -721,7 +721,7 @@ export function EmploymentStep({
                                       onChange={(date) => field.onChange(date)}
                                       placeholder="Employment Start Date"
                                       futureDate={true}
-                                      className="h-12 rounded-full text-lg w-full"
+                                      className=" text-lg w-full"
                                     />
                                   </FormControl>
                                   <p className="text-md text-gray-400">
@@ -750,7 +750,7 @@ export function EmploymentStep({
                                       onChange={(date) => field.onChange(date)}
                                       placeholder="Employment End Date"
                                       futureDate={true}
-                                      className="h-12 rounded-full text-lg w-full"
+                                      className=" text-lg w-full"
                                     />
                                   </FormControl>
                                   <p className="text-md text-gray-400">
@@ -831,7 +831,7 @@ export function EmploymentStep({
                                     control: (base) => ({
                                       ...base,
                                       height: '3rem',
-                                      borderRadius: '9999px',
+                                      borderRadius: '16px',
                                       fontSize: '1.125rem',
                                     }),
                                   }}
@@ -876,7 +876,7 @@ export function EmploymentStep({
                             type="button"
                             variant="destructive"
                             onClick={() => remove(index)}
-                            className="mt-4 h-12 rounded-full text-lg"
+                            className="mt-4  text-lg"
                           >
                             Remove This Experience
                           </Button>
@@ -899,7 +899,7 @@ export function EmploymentStep({
                           employmentGapsExplanation: '',
                         })
                       }
-                      className="h-12 rounded-full bg-watney text-lg text-white hover:bg-watney/90"
+                      className=" bg-watney text-lg text-white hover:bg-watney/90"
                     >
                       Add More Experience
                     </Button>
@@ -911,7 +911,7 @@ export function EmploymentStep({
                   <Button
                     type="button"
                     variant="outline"
-                    className="h-12 rounded-full bg-watney text-lg text-white hover:bg-watney/90"
+                    className=" bg-watney text-lg text-white hover:bg-watney/90"
                     onClick={() => {
                       if (showFullForm) {
                         setShowFullForm(false);
@@ -924,7 +924,7 @@ export function EmploymentStep({
                   </Button>
                   <Button
                     type="submit"
-                    className="h-12 rounded-full bg-watney text-lg text-white hover:bg-watney/90"
+                    className=" bg-watney text-lg text-white hover:bg-watney/90"
                   >
                     Next
                   </Button>
