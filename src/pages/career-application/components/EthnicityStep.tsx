@@ -180,53 +180,103 @@ export function EthnicityStep({
   }
 
   function handleBack() {
-    setCurrentStep(8);
+    setCurrentStep(10);
   }
 
-  return (
-    <div className="rounded-lg bg-white py-6">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <CardContent>
-            <div className="space-y-6">
-              <div className="flex flex-col items-start">
-                <h2 className="text-xl font-semibold">Ethnic Background</h2>
-                <p className="text-md">
-                  This information helps us ensure our recruitment practices are
-                  fair and inclusivYour response is optional and will not affect
-                  your application.
-                </p>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2  gap-4">
-                {/* Step 1: Select Ethnic Group */}
+return (
+  <div className="rounded-lg bg-white py-6">
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)}>
+        <CardContent>
+          <div className="space-y-6">
+            <div className="flex flex-col items-start">
+              <h2 className="text-xl font-semibold">Ethnic Background</h2>
+              <p className="text-md">
+                This information helps us ensure our recruitment practices are
+                fair and inclusive. Your response is optional and will not affect
+                your application.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Step 1: Select Ethnic Group */}
+              <FormField
+                control={form.control}
+                name="ethnicityGroup"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-lg font-medium">
+                      Select Your Ethnic Group{' '}
+                      <span className="text-red-500">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Select
+                        options={ethnicGroups}
+                        placeholder="Choose an ethnic group..."
+                        isClearable
+                        value={
+                          ethnicGroups.find((g) => g.value === field.value) || null
+                        }
+                        onChange={(option) => {
+                          field.onChange(option ? option.value : '');
+                          form.setValue('ethnicityValue', '');
+                          form.setValue('ethnicityOther', '');
+                        }}
+                        className="text-lg"
+                        menuPortalTarget={document.body}
+                        styles={{
+                          menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+                          control: (base) => ({
+                            ...base,
+                            height: '3rem',
+                            borderRadius: '9999px',
+                            fontSize: '1.125rem',
+                          }),
+                          placeholder: (base) => ({ ...base, fontSize: '1.125rem' }),
+                          singleValue: (base) => ({ ...base, fontSize: '1.125rem' }),
+                          input: (base) => ({ ...base, fontSize: '1.125rem' }),
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Step 2: Select Specific Ethnicity (if group selected) */}
+              {selectedGroup && (
                 <FormField
                   control={form.control}
-                  name="ethnicityGroup"
+                  name="ethnicityValue"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>
-                        Select Your Ethnic Group{' '}
+                      <FormLabel className="text-lg font-medium">
+                        Select Your Specific Ethnicity{' '}
                         <span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>
                         <Select
-                          options={ethnicGroups}
-                          placeholder="Choose an ethnic group..."
+                          options={filteredOptions}
+                          placeholder="Choose your specific ethnicity..."
                           isClearable
                           value={
-                            ethnicGroups.find((g) => g.value === field.value) ||
-                            null
+                            filteredOptions.find((opt) => opt.value === field.value) || null
                           }
                           onChange={(option) => {
                             field.onChange(option ? option.value : '');
-                            // Reset value when group changes
-                            form.setValue('ethnicityValue', '');
                             form.setValue('ethnicityOther', '');
                           }}
-                          className="text-sm"
+                          className="text-lg"
                           menuPortalTarget={document.body}
                           styles={{
-                            menuPortal: (base) => ({ ...base, zIndex: 9999 })
+                            menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+                            control: (base) => ({
+                              ...base,
+                              height: '3rem',
+                              borderRadius: '9999px',
+                              fontSize: '1.125rem',
+                            }),
+                            placeholder: (base) => ({ ...base, fontSize: '1.125rem' }),
+                            singleValue: (base) => ({ ...base, fontSize: '1.125rem' }),
                           }}
                         />
                       </FormControl>
@@ -234,90 +284,53 @@ export function EthnicityStep({
                     </FormItem>
                   )}
                 />
+              )}
 
-                {/* Step 2: Select Specific Ethnicity (if group selected) */}
-                {selectedGroup && (
-                  <FormField
-                    control={form.control}
-                    name="ethnicityValue"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          Select Your Specific Ethnicity{' '}
-                          <span className="text-red-500">*</span>
-                        </FormLabel>
-                        <FormControl>
-                          <Select
-                            options={filteredOptions}
-                            placeholder="Choose your specific ethnicity..."
-                            isClearable
-                            value={
-                              filteredOptions.find(
-                                (opt) => opt.value === field.value
-                              ) || null
-                            }
-                            onChange={(option) => {
-                              field.onChange(option ? option.value : '');
-                              form.setValue('ethnicityOther', ''); // Reset other field
-                            }}
-                            className="text-sm"
-                            menuPortalTarget={document.body}
-                            styles={{
-                              menuPortal: (base) => ({ ...base, zIndex: 9999 })
-                            }}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                )}
-
-                {/* Step 3: Show "Please Specify" if "Other" is selected */}
-                {requiresOther && (
-                  <FormField
-                    control={form.control}
-                    name="ethnicityOther"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Please Specify</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            {...field}
-                            placeholder="e.g., Polish, Nigerian, Filipino, etc."
-                            className="!placeholder:text-gray-500 placeholder:text-xs border-gray-300"
-                          />
-                        </FormControl>
-                        <p className="mt-1 text-xs text-gray-400">
-                          Example: Brazilian, Somali, Malaysian
-                        </p>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                )}
-              </div>
+              {/* Step 3: Show "Please Specify" if "Other" is selected */}
+              {requiresOther && (
+                <FormField
+                  control={form.control}
+                  name="ethnicityOther"
+                  render={({ field }) => (
+                    <FormItem className="md:col-span-2">
+                      <FormLabel className="text-lg font-medium">Please Specify</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          {...field}
+                          placeholder="e.g., Polish, Nigerian, Filipino, etc."
+                          className="min-h-[100px] rounded-full border border-gray-300 p-4 text-lg resize-none placeholder:text-gray-400"
+                        />
+                      </FormControl>
+                      <p className="mt-1 text-md text-gray-400">
+                        Example: Brazilian, Somali, Malaysian
+                      </p>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
             </div>
-          </CardContent>
-
-          <div className="flex justify-between px-6 pt-6">
-            <Button
-              type="button"
-              variant="outline"
-              className="bg-watney text-white hover:bg-watney/90"
-              onClick={handleBack}
-            >
-              Back
-            </Button>
-            <Button
-              type="submit"
-              className="bg-watney text-white hover:bg-watney/90"
-            >
-              Next
-            </Button>
           </div>
-        </form>
-      </Form>
-    </div>
-  );
+        </CardContent>
+
+        <div className="flex justify-between px-6 pt-6">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleBack}
+            className="h-12 rounded-full bg-watney text-lg text-white hover:bg-watney/90"
+          >
+            Back
+          </Button>
+          <Button
+            type="submit"
+            className="h-12 rounded-full bg-watney text-lg text-white hover:bg-watney/90"
+          >
+            Next
+          </Button>
+        </div>
+      </form>
+    </Form>
+  </div>
+);
 }

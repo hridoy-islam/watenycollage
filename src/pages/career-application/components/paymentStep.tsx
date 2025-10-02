@@ -86,141 +86,154 @@ export function PaymentStep({
   };
 
   const handleBack = () => {
-    setCurrentStep(12); // Adjust step number as needed
+    setCurrentStep(14); // Adjust step number as needed
     setSubstep(9)
   };
 
-  return (
-    <Card className="border-none shadow-none">
-      <CardHeader>
-        <h2 className="text-xl font-semibold">Payment Details</h2>
-        <p className="text-sm text-gray-400">
-          Please provide your bank or building society details for payment
-          processing.
-        </p>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-           
+ return (
+  <Card className="border-none shadow-none">
+    <CardHeader>
+      <h2 className="text-2xl font-semibold">Payment Details</h2>
+      <p className="text-sm text-gray-400">
+        Please provide your bank or building society details for payment
+        processing.
+      </p>
+    </CardHeader>
+    <CardContent>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          {/* Bank Details */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">
+              Bank/Building Society Details
+            </h3>
 
-            {/* Bank Details */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">
-                Bank/Building Society Details
-              </h3>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <FormField
+                control={form.control}
+                name="accountNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-lg font-medium">
+                      Account Number <span className="text-red-500">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder="12345678"
+                        className="h-12 rounded-full text-lg"
+                      />
+                    </FormControl>
+                    <p className="text-md text-gray-400">Account number</p>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="accountNumber"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Account Number <span className="text-red-500">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          placeholder="12345678"
-                     
-                        />
-                      </FormControl>
-                      <p className="text-xs text-gray-400">
-                      account number
-                      </p>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              <FormField
+                control={form.control}
+                name="sortCode"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-lg font-medium">
+                      Sort Code <span className="text-red-500">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder="12-34-56"
+                        className="h-12 rounded-full text-lg"
+                      />
+                    </FormControl>
+                    <p className="text-md text-gray-400">Format: 12-34-56</p>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-                <FormField
-                  control={form.control}
-                  name="sortCode"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Sort Code <span className="text-red-500">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="12-34-56" />
-                      </FormControl>
-                      <p className="text-xs text-gray-400">Format: 12-34-56</p>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              <FormField
+                control={form.control}
+                name="bankName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-lg font-medium">
+                      Bank Name <span className="text-red-500">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder="Barclays Bank"
+                        className="h-12 rounded-full text-lg"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-                <FormField
-                  control={form.control}
-                  name="bankName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Bank Name <span className="text-red-500">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="Barclays Bank" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              <FormField
+                control={form.control}
+                name="branchName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-lg font-medium">
+                      Branch Name
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder="Oxford Street Branch"
+                        className="h-12 rounded-full text-lg"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-                <FormField
-                  control={form.control}
-                  name="branchName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Branch Name
-                      </FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="Oxford Street Branch" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="buildingSocietyRollNo"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Building Society Roll No. (if applicable)
-                      </FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="ROLL123456" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+              <FormField
+                control={form.control}
+                name="buildingSocietyRollNo"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-lg font-medium">
+                      Building Society Roll No. (if applicable)
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder="ROLL123456"
+                        className="h-12 rounded-full text-lg"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
+          </div>
 
-            {/* Navigation Buttons */}
-            <div className="flex justify-between pt-6">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleBack}
-                className="bg-watney text-white hover:bg-watney/90"
-              >
-                Back
-              </Button>
-              <Button
-                type="submit"
-                className="bg-watney text-white hover:bg-watney/90"
-              >
-                Next
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
-  );
+          {/* Navigation Buttons */}
+          <div className="flex justify-between pt-6">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleBack}
+              className="h-12 rounded-full text-lg bg-watney text-white hover:bg-watney/90"
+            >
+              Back
+            </Button>
+            <Button
+              type="submit"
+              className="h-12 rounded-full text-lg bg-watney text-white hover:bg-watney/90"
+            >
+              Next
+            </Button>
+          </div>
+        </form>
+      </Form>
+    </CardContent>
+  </Card>
+);
+
 }

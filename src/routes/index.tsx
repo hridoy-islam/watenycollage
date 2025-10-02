@@ -92,11 +92,11 @@ export default function AppRouter() {
         element: withRole(<CareerPage />, ['admin', 'applicant']),
         index: true
       },
-      {
-        path: 'career',
-        element: withRole(<CareerResumeUpload />, ['applicant','admin']),
-        index: true
-      },
+      // {
+      //   path: 'career',
+      //   element: withRole(<CareerResumeUpload />, ['applicant','admin']),
+      //   index: true
+      // },
       {
         path: 'career-guideline',
         element: withRole(<CareerGuideline />, ['admin','applicant']),

@@ -122,7 +122,10 @@ export function ReviewStep({
   defaultValues,
   formData,
   onSubmit,
-  setCurrentStep
+  setCurrentStep,
+    subStep,
+  subStepInfo,
+  onSubStepChange
 }) {
   const [currentStep, setCurrentStepState] = useState(1);
   const totalSteps = STEPS.length;
@@ -152,37 +155,49 @@ export function ReviewStep({
   const watchROA = form.watch('roaDeclaration');
   const termsAccepted = form.watch('termsAccepted');
   const dataProcessingAccepted = form.watch('dataProcessingAccepted');
-
-  // Handle Back
-  const handleBack = () => {
-    if (currentStep === 1) {
-      setCurrentStep(13); // Go back to previous main step
-    } else {
-      setCurrentStepState(currentStep - 1); // Go back within review steps
+// Handle Back
+const handleBack = () => {
+  if (currentStep === 1) {
+    // If at the first review step → go back to previous main step
+    if (setCurrentStep) {
+      setCurrentStep(15); 
     }
-  };
+  } else {
+    // Otherwise go back one review step
+    setCurrentStepState(currentStep - 1);
+    if (onSubStepChange) {
+      onSubStepChange(currentStep - 1);
+    }
+  }
+};
 
-  // Handle Next (save + validate current step)
-  const handleNext = async () => {
-    const currentStepFields = STEPS[currentStep - 1].fields;
-    const isValid = await form.trigger(currentStepFields as any);
+// Handle Next (validate + save + go forward)
+const handleNext = async () => {
+  const currentStepFields = STEPS[currentStep - 1].fields;
+  const isValid = await form.trigger(currentStepFields as any);
 
-    if (isValid) {
-      // Save current step data (you can pass to parent via onSave if needed)
-      const stepData = currentStepFields.reduce((acc, field) => {
-        acc[field] = form.getValues(field as keyof TFormValues);
-        return acc;
-      }, {} as Partial<TFormValues>);
+  if (isValid) {
+    // ✅ Collect current step’s data
+    const stepData = currentStepFields.reduce((acc, field) => {
+      acc[field] = form.getValues(field as keyof TFormValues);
+      return acc;
+    }, {} as Partial<TFormValues>);
 
-      // Move to next step or submit
-      if (currentStep < totalSteps) {
-        setCurrentStepState(currentStep + 1);
-      } else {
-        // Last step → trigger final submit
-        form.handleSubmit(onSubmit)();
+    // Optional save callback
+
+    if (currentStep < totalSteps) {
+      // Go to next review step
+      setCurrentStepState(currentStep + 1);
+      if (onSubStepChange) {
+        onSubStepChange(currentStep + 1);
       }
+    } else {
+      // Last step → trigger final submit
+      form.handleSubmit(onSubmit)();
     }
-  };
+  }
+};
+
 
   // Format helpers (unchanged)
   const formatDate = (date: Date | string | undefined) => {
@@ -418,491 +433,580 @@ export function ReviewStep({
     </div>
   );
 
-  // ✅ RENDER CURRENT STEP
-  const renderCurrentStep = () => {
-    switch (currentStep) {
-      case 1:
-        return (
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-sm sm:text-base">
-              <tbody>
-                {/* GDPR Declaration */}
-                <tr className="border-b border-gray-300">
-                  <td className="px-2 py-2 align-top">
-                    <span className="text-xl font-semibold sm:text-2xl">
-                      GDPR Declaration
-                    </span>
-                    <br />
-                    <br />
-                    I,{' '}
-                    <span className="font-medium">
-                      {defaultValues?.title} {defaultValues?.firstName}{' '}
-                      {defaultValues?.initial} {defaultValues?.lastName}
-                    </span>
-                    , hereby authorize Everycare Romford to contact the
-                    mentioned referees to avail my reference as a part of the
-                    recruitment process.
-                    <span className="text-red-500">*</span>
-                  </td>
-                  <td className="px-2 py-4 align-middle">
-                    <FormField
-                      control={form.control}
-                      name="declarationContactReferee"
-                      render={({ field }) => (
-                        <FormItem>
-                          <div className="flex gap-4">
-                            <FormControl>
-                              <div className="flex items-center">
-                                <Checkbox
-                                  checked={field.value === true}
-                                  onCheckedChange={() => field.onChange(true)}
-                                />
-                                <FormLabel className="ml-2">Yes</FormLabel>
-                              </div>
-                            </FormControl>
-                            <FormControl>
-                              <div className="flex items-center">
-                                <Checkbox
-                                  checked={field.value === false}
-                                  onCheckedChange={() => field.onChange(false)}
-                                />
-                                <FormLabel className="ml-2">No</FormLabel>
-                              </div>
-                            </FormControl>
-                          </div>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </td>
-                  <td className="px-2 py-4 align-top"></td>
-                </tr>
 
-                <tr>
-                  <td colSpan={3} className="py-2"></td>
-                </tr>
 
-                {/* Correct Upload Declaration */}
-                <tr className="border-b border-gray-300">
-                  <td className="px-2 py-4 align-top">
-                    Do you declare that all uploaded documents and information
-                    are correct and authentic?{' '}
-                    <span className="text-red-500">*</span>
-                  </td>
-                  <td className="px-2 py-4 align-top">
-                    <FormField
-                      control={form.control}
-                      name="declarationCorrectUpload"
-                      render={({ field }) => (
-                        <FormItem>
-                          <div className="flex gap-4">
-                            <FormControl>
-                              <div className="flex items-center">
-                                <Checkbox
-                                  checked={field.value === true}
-                                  onCheckedChange={() => field.onChange(true)}
-                                />
-                                <FormLabel className="ml-2">Yes</FormLabel>
-                              </div>
-                            </FormControl>
-                            <FormControl>
-                              <div className="flex items-center">
-                                <Checkbox
-                                  checked={field.value === false}
-                                  onCheckedChange={() => field.onChange(false)}
-                                />
-                                <FormLabel className="ml-2">No</FormLabel>
-                              </div>
-                            </FormControl>
-                          </div>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </td>
-                  <td className="px-2 py-4 align-top"></td>
-                </tr>
+// Reusable Yes/No Checkbox Component with proper HTML labels
 
-                {/* Disciplinary Investigation */}
-                <tr className="border-b border-gray-300">
-                  <td className="px-2 py-4 align-top">
-                    Have you ever been subject to a disciplinary investigation
-                    by an employer, or been required to attend such a process
-                    (whether or not this resulted in dismissal)?{' '}
-                    <span className="text-red-500">*</span>
-                  </td>
-                  <td className="px-2 py-4 align-top">
-                    <FormField
-                      control={form.control}
-                      name="disciplinaryInvestigation"
-                      render={({ field }) => (
-                        <FormItem>
-                          <div className="flex gap-4">
-                            <FormControl>
-                              <div className="flex items-center">
-                                <Checkbox
-                                  checked={field.value === true}
-                                  onCheckedChange={() => field.onChange(true)}
-                                />
-                                <FormLabel className="ml-2">Yes</FormLabel>
-                              </div>
-                            </FormControl>
-                            <FormControl>
-                              <div className="flex items-center">
-                                <Checkbox
-                                  checked={field.value === false}
-                                  onCheckedChange={() => field.onChange(false)}
-                                />
-                                <FormLabel className="ml-2">No</FormLabel>
-                              </div>
-                            </FormControl>
-                          </div>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </td>
-                  <td className="px-2 py-4 align-top"></td>
-                </tr>
 
-                {watchDisciplinary && (
-                  <tr className="border-b border-gray-300">
-                    <td colSpan={3} className="px-2 py-4">
-                      <FormField
-                        control={form.control}
-                        name="disciplinaryInvestigationDetails"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>
-                              Please provide details and outcome{' '}
-                              <span className="text-red-500">*</span>
-                            </FormLabel>
-                            <FormControl>
-                              <Textarea
-                                placeholder="Enter details here..."
-                                className="mt-2 w-full border-gray-300"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </td>
-                  </tr>
-                )}
-
-                {/* Abuse/Inappropriate Behaviour Investigation */}
-                <tr className="border-b border-gray-300">
-                  <td className="px-2 py-4 align-top">
-                    Have you ever been investigated or been involved (in any
-                    way) in an investigation/enquiry regarding abuse or any
-                    other inappropriate behaviour?{' '}
-                    <span className="text-red-500">*</span>
-                  </td>
-                  <td className="px-2 py-4 align-top">
-                    <FormField
-                      control={form.control}
-                      name="abuseInvestigation"
-                      render={({ field }) => (
-                        <FormItem>
-                          <div className="flex gap-4">
-                            <FormControl>
-                              <div className="flex items-center">
-                                <Checkbox
-                                  checked={field.value === true}
-                                  onCheckedChange={() => field.onChange(true)}
-                                />
-                                <FormLabel className="ml-2">Yes</FormLabel>
-                              </div>
-                            </FormControl>
-                            <FormControl>
-                              <div className="flex items-center">
-                                <Checkbox
-                                  checked={field.value === false}
-                                  onCheckedChange={() => field.onChange(false)}
-                                />
-                                <FormLabel className="ml-2">No</FormLabel>
-                              </div>
-                            </FormControl>
-                          </div>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </td>
-                  <td className="px-2 py-4 align-top"></td>
-                </tr>
-
-                {watchAbuse && (
-                  <tr className="border-b border-gray-300">
-                    <td colSpan={3} className="px-2 py-4">
-                      <FormField
-                        control={form.control}
-                        name="abuseInvestigationDetails"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>
-                              Please provide details and outcome{' '}
-                              <span className="text-red-500">*</span>
-                            </FormLabel>
-                            <FormControl>
-                              <Textarea
-                                placeholder="Enter details here..."
-                                className="mt-2 w-full border-gray-300"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </td>
-                  </tr>
-                )}
-
-                {/* Applied Before */}
-                <tr className="border-b border-gray-300">
-                  <td className="px-2 py-4 align-top">
-                    Have you previously applied for a role with this
-                    organisation? <span className="text-red-500">*</span>
-                  </td>
-                  <td className="px-2 py-4 align-top">
-                    <FormField
-                      control={form.control}
-                      name="appliedBefore"
-                      render={({ field }) => (
-                        <FormItem>
-                          <div className="flex gap-4">
-                            <FormControl>
-                              <div className="flex items-center">
-                                <Checkbox
-                                  checked={field.value === true}
-                                  onCheckedChange={() => field.onChange(true)}
-                                />
-                                <FormLabel className="ml-2">Yes</FormLabel>
-                              </div>
-                            </FormControl>
-                            <FormControl>
-                              <div className="flex items-center">
-                                <Checkbox
-                                  checked={field.value === false}
-                                  onCheckedChange={() => field.onChange(false)}
-                                />
-                                <FormLabel className="ml-2">No</FormLabel>
-                              </div>
-                            </FormControl>
-                          </div>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </td>
-                  <td className="px-2 py-4 align-top"></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        );
-
-      case 2:
-        return (
-          <div className="space-y-6">
-            <div className="border-b border-gray-300 pb-4 ">
-              <h2 className="text-xl font-semibold text-gray-800 sm:text-2xl">
-                REHABILITATION OF OFFENDERS ACT 1974
-              </h2>
-              <p className="mt-2 text-sm text-gray-600">
-                By virtue of the Rehabilitation of Offenders Act 1974 (Exception
-                Order 75), the provisions of Section 4.2 do not apply to health
-                service roles. Your answer must include any "spent" convictions.
-              </p>
-              <p className="mt-2 text-sm italic text-gray-700">
-                (Note: A conviction may not prevent your application from being
-                processed, but we will require further details at interview.
-                Failure to disclose may be considered gross misconduct.)
-              </p>
-            </div>
-            <div className="w-full">
-              <FormField
-                control={form.control}
-                name="roaDeclaration"
-                render={({ field }) => (
-                  <FormItem className="w-full">
-                    {/* ✅ Label + Controls in one row */}
-                    <div className="flex items-center justify-between gap-6">
-                      <FormLabel className="whitespace-normal">
-                        Have you ever received a caution, been convicted of a
-                        criminal offence (including spent convictions), or have
-                        any outstanding pending prosecutions?{' '}
-                        <span className="text-red-500">*</span>
-                      </FormLabel>
-
-                      <FormControl>
-                        <div className="flex items-center gap-6">
-                          <label className="flex cursor-pointer items-center gap-2">
-                            <Checkbox
-                              checked={field.value === true}
-                              onCheckedChange={() => field.onChange(true)}
-                            />
-                            <span>Yes</span>
-                          </label>
-
-                          <label className="flex cursor-pointer items-center gap-2">
-                            <Checkbox
-                              checked={field.value === false}
-                              onCheckedChange={() => field.onChange(false)}
-                            />
-                            <span>No</span>
-                          </label>
-                        </div>
-                      </FormControl>
-                    </div>
-
-                    <FormMessage />
-                  </FormItem>
-                )}
+const YesNoCheckbox = ({ control, name, label, required = false }) => (
+  <FormField
+    control={control}
+    name={name}
+    render={({ field }) => (
+      <FormItem>
+        <div className="flex gap-4">
+          <FormControl>
+            <label className="flex items-center cursor-pointer">
+              <Checkbox
+                checked={field.value === true}
+                className='h-6 w-6'
+                onCheckedChange={(checked) => {
+                  if (checked) {
+                    field.onChange(true);
+                  } else {
+                    // Don't allow unchecking by clicking the same checkbox
+                    // Only allow changing by clicking the other option
+                    field.onChange(field.value);
+                  }
+                }}
               />
-            </div>
+              <FormLabel className="ml-2 text-lg cursor-pointer">Yes</FormLabel>
+            </label>
+          </FormControl>
+          <FormControl>
+            <label className="flex items-center cursor-pointer">
+              <Checkbox
+                checked={field.value === false}
+                                className='h-6 w-6'
 
-            {watchROA && (
+                onCheckedChange={(checked) => {
+                  if (checked) {
+                    field.onChange(false);
+                  } else {
+                    field.onChange(field.value);
+                  }
+                }}
+              />
+              <FormLabel className="ml-2 text-lg cursor-pointer">No</FormLabel>
+            </label>
+          </FormControl>
+        </div>
+        <FormMessage className="text-md" />
+      </FormItem>
+    )}
+  />
+);
+
+const renderCurrentStep = () => {
+  switch (currentStep) {
+  case 1:
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full border-collapse text-lg">
+        <tbody>
+          {/* GDPR Declaration */}
+          <tr className="border-b border-gray-300">
+            <td className="px-2 py-4 align-top">
+              <span className="text-xl font-semibold sm:text-2xl">
+                GDPR Declaration
+              </span>
+              <br />
+              <br />
+              <span className="text-lg font-medium">
+                I,{' '}
+                <span className="font-medium">
+                  {defaultValues?.title} {defaultValues?.firstName}{' '}
+                  {defaultValues?.initial} {defaultValues?.lastName}
+                </span>
+                , hereby authorize Everycare Romford to contact the
+                mentioned referees to avail my reference as a part of the
+                recruitment process.
+                <span className="text-red-500">*</span>
+              </span>
+            </td>
+            <td className="px-2 py-4 align-middle">
               <FormField
                 control={form.control}
-                name="roaDeclarationDetails"
+                name="declarationContactReferee"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>
-                      Please specify the type, number and dates of all offences{' '}
+                    <div className="flex gap-4">
+                      <FormControl>
+                        <label className="flex items-center cursor-pointer">
+                          <Checkbox
+                            checked={field.value === true}
+                                            className='h-6 w-6'
+
+                            onCheckedChange={() => field.onChange(true)}
+                          />
+                          <FormLabel className="ml-2 text-lg cursor-pointer">Yes</FormLabel>
+                        </label>
+                      </FormControl>
+                      <FormControl>
+                        <label className="flex items-center cursor-pointer">
+                          <Checkbox
+                            checked={field.value === false}
+                                            className='h-6 w-6'
+
+                            onCheckedChange={() => field.onChange(false)}
+                          />
+                          <FormLabel className="ml-2 text-lg cursor-pointer">No</FormLabel>
+                        </label>
+                      </FormControl>
+                    </div>
+                    <FormMessage className="text-md" />
+                  </FormItem>
+                )}
+              />
+            </td>
+            <td className="px-2 py-4 align-top"></td>
+          </tr>
+
+          <tr>
+            <td colSpan={3} className="py-2"></td>
+          </tr>
+
+          {/* Correct Upload Declaration */}
+          <tr className="border-b border-gray-300">
+            <td className="px-2 py-4 align-top">
+              <span className="text-lg font-medium">
+                Do you declare that all uploaded documents and information
+                are correct and authentic?{' '}
+                <span className="text-red-500">*</span>
+              </span>
+            </td>
+            <td className="px-2 py-4 align-top">
+              <FormField
+                control={form.control}
+                name="declarationCorrectUpload"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex gap-4">
+                      <FormControl>
+                        <label className="flex items-center cursor-pointer">
+                          <Checkbox
+                            checked={field.value === true}
+                                            className='h-6 w-6'
+
+                            onCheckedChange={() => field.onChange(true)}
+                          />
+                          <FormLabel className="ml-2 text-lg cursor-pointer">Yes</FormLabel>
+                        </label>
+                      </FormControl>
+                      <FormControl>
+                        <label className="flex items-center cursor-pointer">
+                          <Checkbox
+                            checked={field.value === false}
+                                            className='h-6 w-6'
+
+                            onCheckedChange={() => field.onChange(false)}
+                          />
+                          <FormLabel className="ml-2 text-lg cursor-pointer">No</FormLabel>
+                        </label>
+                      </FormControl>
+                    </div>
+                    <FormMessage className="text-md" />
+                  </FormItem>
+                )}
+              />
+            </td>
+            <td className="px-2 py-4 align-top"></td>
+          </tr>
+
+          {/* Disciplinary Investigation */}
+          <tr className="border-b border-gray-300">
+            <td className="px-2 py-4 align-top">
+              <span className="text-lg font-medium">
+                Have you ever been subject to a disciplinary investigation
+                by an employer, or been required to attend such a process
+                (whether or not this resulted in dismissal)?{' '}
+                <span className="text-red-500">*</span>
+              </span>
+            </td>
+            <td className="px-2 py-4 align-top">
+              <FormField
+                control={form.control}
+                name="disciplinaryInvestigation"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex gap-4">
+                      <FormControl>
+                        <label className="flex items-center cursor-pointer">
+                          <Checkbox
+                            checked={field.value === true}
+                                            className='h-6 w-6'
+
+                            onCheckedChange={() => field.onChange(true)}
+                          />
+                          <FormLabel className="ml-2 text-lg cursor-pointer">Yes</FormLabel>
+                        </label>
+                      </FormControl>
+                      <FormControl>
+                        <label className="flex items-center cursor-pointer">
+                          <Checkbox
+                            checked={field.value === false}
+                                            className='h-6 w-6'
+
+                            onCheckedChange={() => field.onChange(false)}
+                          />
+                          <FormLabel className="ml-2 text-lg cursor-pointer">No</FormLabel>
+                        </label>
+                      </FormControl>
+                    </div>
+                    <FormMessage className="text-md" />
+                  </FormItem>
+                )}
+              />
+            </td>
+            <td className="px-2 py-4 align-top"></td>
+          </tr>
+
+          {watchDisciplinary && (
+            <tr className="border-b border-gray-300">
+              <td colSpan={3} className="px-2 py-4">
+                <FormField
+                  control={form.control}
+                  name="disciplinaryInvestigationDetails"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-lg font-medium">
+                        Please provide details and outcome{' '}
+                        <span className="text-red-500">*</span>
+                      </FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Enter details here..."
+                          className="min-h-[100px] rounded-full p-4 text-lg mt-2 w-full"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage className="text-md" />
+                    </FormItem>
+                  )}
+                />
+              </td>
+            </tr>
+          )}
+
+          {/* Abuse/Inappropriate Behaviour Investigation */}
+          <tr className="border-b border-gray-300">
+            <td className="px-2 py-4 align-top">
+              <span className="text-lg font-medium">
+                Have you ever been investigated or been involved (in any
+                way) in an investigation/enquiry regarding abuse or any
+                other inappropriate behaviour?{' '}
+                <span className="text-red-500">*</span>
+              </span>
+            </td>
+            <td className="px-2 py-4 align-top">
+              <FormField
+                control={form.control}
+                name="abuseInvestigation"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex gap-4">
+                      <FormControl>
+                        <label className="flex items-center cursor-pointer">
+                          <Checkbox
+                            checked={field.value === true}
+                                            className='h-6 w-6'
+
+                            onCheckedChange={() => field.onChange(true)}
+                          />
+                          <FormLabel className="ml-2 text-lg cursor-pointer">Yes</FormLabel>
+                        </label>
+                      </FormControl>
+                      <FormControl>
+                        <label className="flex items-center cursor-pointer">
+                          <Checkbox
+                            checked={field.value === false}
+                                            className='h-6 w-6'
+
+                            onCheckedChange={() => field.onChange(false)}
+                          />
+                          <FormLabel className="ml-2 text-lg cursor-pointer">No</FormLabel>
+                        </label>
+                      </FormControl>
+                    </div>
+                    <FormMessage className="text-md" />
+                  </FormItem>
+                )}
+              />
+            </td>
+            <td className="px-2 py-4 align-top"></td>
+          </tr>
+
+          {watchAbuse && (
+            <tr className="border-b border-gray-300">
+              <td colSpan={3} className="px-2 py-4">
+                <FormField
+                  control={form.control}
+                  name="abuseInvestigationDetails"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-lg font-medium">
+                        Please provide details and outcome{' '}
+                        <span className="text-red-500">*</span>
+                      </FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Enter details here..."
+                          className="min-h-[100px] rounded-full p-4 text-lg mt-2 w-full"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage className="text-md" />
+                    </FormItem>
+                  )}
+                />
+              </td>
+            </tr>
+          )}
+
+          {/* Applied Before */}
+          <tr className="border-b border-gray-300">
+            <td className="px-2 py-4 align-top">
+              <span className="text-lg font-medium">
+                Have you previously applied for a role with this
+                organisation? <span className="text-red-500">*</span>
+              </span>
+            </td>
+            <td className="px-2 py-4 align-top">
+              <FormField
+                control={form.control}
+                name="appliedBefore"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex gap-4">
+                      <FormControl>
+                        <label className="flex items-center cursor-pointer">
+                          <Checkbox
+                            checked={field.value === true}
+                                            className='h-6 w-6'
+
+                            onCheckedChange={() => field.onChange(true)}
+                          />
+                          <FormLabel className="ml-2 text-lg cursor-pointer">Yes</FormLabel>
+                        </label>
+                      </FormControl>
+                      <FormControl>
+                        <label className="flex items-center cursor-pointer">
+                          <Checkbox
+                            checked={field.value === false}
+                                            className='h-6 w-6'
+
+                            onCheckedChange={() => field.onChange(false)}
+                          />
+                          <FormLabel className="ml-2 text-lg cursor-pointer">No</FormLabel>
+                        </label>
+                      </FormControl>
+                    </div>
+                    <FormMessage className="text-md" />
+                  </FormItem>
+                )}
+              />
+            </td>
+            <td className="px-2 py-4 align-top"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
+    case 2:
+      return (
+        <div className="space-y-6">
+          <div className="border-b border-gray-300 pb-4 pt-4">
+            <h2 className="text-xl font-semibold text-gray-800 sm:text-2xl">
+              REHABILITATION OF OFFENDERS ACT 1974
+            </h2>
+            <p className="mt-2 text-md text-gray-600">
+              By virtue of the Rehabilitation of Offenders Act 1974 (Exception
+              Order 75), the provisions of Section 4.2 do not apply to health
+              service roles. Your answer must include any "spent" convictions.
+            </p>
+            <p className="mt-2 text-md italic text-gray-700">
+              (Note: A conviction may not prevent your application from being
+              processed, but we will require further details at interview.
+              Failure to disclose may be considered gross misconduct.)
+            </p>
+          </div>
+          <div className="w-full">
+            <FormField
+              control={form.control}
+              name="roaDeclaration"
+              render={({ field }) => (
+                <FormItem className="w-full">
+                  {/* ✅ Label + Controls in one row */}
+                  <div className="flex items-center justify-between gap-6">
+                    <FormLabel className="whitespace-normal text-lg font-medium">
+                      Have you ever received a caution, been convicted of a
+                      criminal offence (including spent convictions), or have
+                      any outstanding pending prosecutions?{' '}
                       <span className="text-red-500">*</span>
                     </FormLabel>
+
                     <FormControl>
-                      <Textarea
-                        placeholder="Enter details here..."
-                        className="mt-2 w-full border-gray-300"
-                        rows={5}
-                        {...field}
-                      />
+                      <div className="flex items-center gap-6">
+                        <label className="flex cursor-pointer items-center gap-2 text-lg">
+                          <Checkbox
+                            checked={field.value === true}
+                                            className='h-6 w-6'
+
+                            onCheckedChange={() => field.onChange(true)}
+                          />
+                          <span>Yes</span>
+                        </label>
+
+                        <label className="flex cursor-pointer items-center gap-2 text-lg">
+                          <Checkbox
+                            checked={field.value === false}
+                                            className='h-6 w-6'
+
+                            onCheckedChange={() => field.onChange(false)}
+                          />
+                          <span>No</span>
+                        </label>
+                      </div>
                     </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
+                  </div>
+
+                  <FormMessage className="text-md" />
+                </FormItem>
+              )}
+            />
           </div>
-        );
 
-      case 3:
-        return (
-          <>
-            {/* Terms Section */}
-            <div className="mt-8">
-              <h1 className="mb-2 text-xl font-semibold sm:text-2xl">
-                Terms and Conditions Agreement
-              </h1>
-              <div className="max-h-40 overflow-y-auto rounded-md border border-gray-300 bg-gray-50 p-3 text-xs sm:text-sm">
-                <p className="mb-2">
-                  I confirm that the information provided is true, complete, and
-                  accurate. False information may lead to termination.
-                </p>
-                <p>
-                  I acknowledge that my data may be used for compliance and
-                  recruitment purposes in line with UK GDPR.
-                </p>
-              </div>
+          {watchROA && (
+            <FormField
+              control={form.control}
+              name="roaDeclarationDetails"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-lg font-medium">
+                    Please specify the type, number and dates of all offences{' '}
+                    <span className="text-red-500">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Enter details here..."
+                      className="min-h-[100px] rounded-full p-4 text-lg mt-2 w-full"
+                      rows={5}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage className="text-md" />
+                </FormItem>
+              )}
+            />
+          )}
+        </div>
+      );
+
+    case 3:
+      return (
+        <>
+          {/* Terms Section */}
+          <div className="mt-8">
+            <h1 className="mb-2 text-xl font-semibold sm:text-2xl">
+              Terms and Conditions Agreement
+            </h1>
+            <div className="max-h-40 overflow-y-auto rounded-md border border-gray-300 bg-gray-50 p-3 text-md">
+              <p className="mb-2">
+                I confirm that the information provided is true, complete, and
+                accurate. False information may lead to termination.
+              </p>
+              <p>
+                I acknowledge that my data may be used for compliance and
+                recruitment purposes in line with UK GDPR.
+              </p>
             </div>
-            <p className="mt-6 text-sm font-medium text-gray-800 sm:text-base">
-              Please tick the boxes to confirm:
-            </p>
+          </div>
+          <p className="mt-6 text-lg font-medium text-gray-800">
+            Please tick the boxes to confirm:
+          </p>
 
-            <div className="mt-4 space-y-4">
-              {/* Terms */}
-              <FormField
-                control={form.control}
-                name="termsAccepted"
-                render={({ field }) => (
-                  <FormItem className="flex items-start space-x-3 rounded-lg border border-gray-300 p-3 hover:shadow-md sm:p-4">
-                    <FormControl className="mt-2">
-                      <Checkbox
-                        id="terms"
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormLabel
-                      htmlFor="terms"
-                      className="text-sm text-gray-700"
-                    >
-                      I accept the terms and conditions of this application
-                      process.
-                    </FormLabel>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          <div className="mt-4 space-y-4">
+            {/* Terms */}
+            <FormField
+              control={form.control}
+              name="termsAccepted"
+              render={({ field }) => (
+                <FormItem className="flex items-start space-x-3 rounded-lg border border-gray-300 p-3 hover:shadow-md sm:p-4">
+                  <FormControl className="mt-2">
+                    <Checkbox
+                      id="terms"
+                      checked={field.value}
+                                      className='h-6 w-6'
 
-              {/* Data Processing */}
-              <FormField
-                control={form.control}
-                name="dataProcessingAccepted"
-                render={({ field }) => (
-                  <FormItem className="flex items-start space-x-3 rounded-lg border border-gray-300 p-3 hover:shadow-md sm:p-4">
-                    <FormControl className="mt-2">
-                      <Checkbox
-                        id="data-processing"
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormLabel
-                      htmlFor="data-processing"
-                      className="text-sm text-gray-700"
-                    >
-                      I consent to the processing of my personal data in line
-                      with UK GDPR and the Data Protection Act 2018.
-                    </FormLabel>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex flex-col justify-between gap-4 pt-6 sm:flex-row">
-              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full sm:w-auto"
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormLabel
+                    htmlFor="terms"
+                    className="text-lg"
                   >
-                    Preview Application
+                    I accept the terms and conditions of this application
+                    process.
+                  </FormLabel>
+                  <FormMessage className="text-md" />
+                </FormItem>
+              )}
+            />
+
+            {/* Data Processing */}
+            <FormField
+              control={form.control}
+              name="dataProcessingAccepted"
+              render={({ field }) => (
+                <FormItem className="flex items-start space-x-3 rounded-lg border border-gray-300 p-3 hover:shadow-md sm:p-4">
+                  <FormControl className="mt-2">
+                    <Checkbox
+                      id="data-processing"
+                                      className='h-6 w-6'
+
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormLabel
+                    htmlFor="data-processing"
+                    className="text-lg"
+                  >
+                    I consent to the processing of my personal data in line
+                    with UK GDPR and the Data Protection Act 2018.
+                  </FormLabel>
+                  <FormMessage className="text-md" />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-col justify-between gap-4 pt-6 sm:flex-row">
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full h-12 rounded-full text-lg sm:w-auto"
+                >
+                  Preview Application
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-h-[80vh] w-full overflow-y-auto sm:min-w-[600px] lg:min-w-[800px]">
+                <DialogHeader>
+                  <DialogTitle className="text-lg font-medium">Application Preview</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-6">{sections}</div>
+                <DialogFooter>
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsDialogOpen(false)}
+                    className="h-12 rounded-full text-lg bg-watney text-white hover:bg-watney/90"
+                  >
+                    Close
                   </Button>
-                </DialogTrigger>
-                <DialogContent className="max-h-[80vh] w-full overflow-y-auto sm:min-w-[600px] lg:min-w-[800px]">
-                  <DialogHeader>
-                    <DialogTitle>Application Preview</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-6">{sections}</div>
-                  <DialogFooter>
-                    <Button
-                      variant="outline"
-                      onClick={() => setIsDialogOpen(false)}
-                      className="bg-watney text-white hover:bg-watney/90"
-                    >
-                      Close
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            </div>
-          </>
-        );
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </>
+      );
 
-      default:
-        return null;
-    }
-  };
-
+    default:
+      return null;
+  }
+};
   // ✅ RENDER PROGRESS BAR
   const renderProgressBar = () => (
     <div className="py-4">
@@ -934,7 +1038,7 @@ export function ReviewStep({
       >
         <Card className="border-none shadow-none">
           <CardContent>
-            {renderProgressBar()}
+            {/* {renderProgressBar()} */}
 
             <div className="mb-6">
               <h3 className="mb-4 text-lg font-semibold">
@@ -949,7 +1053,7 @@ export function ReviewStep({
                 type="button"
                 variant="outline"
                 onClick={handleBack}
-                className="bg-watney text-white hover:bg-watney/90"
+              className="h-12 rounded-full bg-watney px-6 text-lg text-white hover:bg-watney/90"
               >
                 Back
               </Button>
@@ -959,7 +1063,7 @@ export function ReviewStep({
                   type="button"
                   onClick={handleNext}
                   disabled={!termsAccepted || !dataProcessingAccepted}
-                  className="bg-watney text-white hover:bg-watney/90"
+              className="h-12 rounded-full bg-watney px-6 text-lg text-white hover:bg-watney/90"
                 >
                   Submit Application
                 </Button>
@@ -967,7 +1071,7 @@ export function ReviewStep({
                 <Button
                   type="button"
                   onClick={handleNext}
-                  className="bg-watney text-white hover:bg-watney/90"
+              className="h-12 rounded-full bg-watney px-6 text-lg text-white hover:bg-watney/90"
                 >
                   Next
                 </Button>

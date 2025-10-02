@@ -322,9 +322,11 @@ export function PostEmployementStep({
   onSaveAndContinue,
   setCurrentStep,
   onSave,
-  subStep
+  subStep,
+  subStepInfo,
+  onSubStepChange
 }) {
-  const [currentStep, setCurrentStepState] = useState(subStep ||1);
+  const [currentStep, setCurrentStepState] = useState(subStep || 1);
   const totalSteps = STEPS.length;
 
   const form = useForm<MedicalHistoryFormValues>({
@@ -402,14 +404,42 @@ export function PostEmployementStep({
     }
   }, [defaultValues, form]);
 
+  // const handleNext = async (e?: React.MouseEvent | React.KeyboardEvent) => {
+  //   // Prevent any default behavior if event exists
+  //   e?.preventDefault();
+  //   e?.stopPropagation();
+
+  //   const currentStepFields = STEPS[currentStep - 1].fields;
+
+  //   // Trigger validation only for current step
+  //   const isValid = await form.trigger(currentStepFields as any);
+
+  //   if (isValid) {
+  //     const currentStepData = currentStepFields.reduce((acc, field) => {
+  //       acc[field] = form.getValues(field as keyof MedicalHistoryFormValues);
+  //       return acc;
+  //     }, {} as Partial<MedicalHistoryFormValues>);
+
+  //     // Save the step data
+  //     if (onSave) onSave(currentStepData);
+
+  //     // Only move to next step - don't handle final submission here
+  //     if (currentStep < totalSteps) {
+  //       setCurrentStepState(currentStep + 1);
+  //     }
+  //   }
+  // };
+
+
+
+
+  // Update the Next button to explicitly prevent defaults
+
   const handleNext = async (e?: React.MouseEvent | React.KeyboardEvent) => {
-    // Prevent any default behavior if event exists
     e?.preventDefault();
     e?.stopPropagation();
 
     const currentStepFields = STEPS[currentStep - 1].fields;
-
-    // Trigger validation only for current step
     const isValid = await form.trigger(currentStepFields as any);
 
     if (isValid) {
@@ -418,17 +448,20 @@ export function PostEmployementStep({
         return acc;
       }, {} as Partial<MedicalHistoryFormValues>);
 
-      // Save the step data
       if (onSave) onSave(currentStepData);
 
-      // Only move to next step - don't handle final submission here
       if (currentStep < totalSteps) {
-        setCurrentStepState(currentStep + 1);
+        const nextStep = currentStep + 1;
+        setCurrentStepState(nextStep);
+        // 🔥 Notify parent about sub-step change
+        if (onSubStepChange) {
+          onSubStepChange(nextStep);
+        }
       }
     }
   };
 
-  // Update the Next button to explicitly prevent defaults
+
   const handleNextClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -447,16 +480,17 @@ export function PostEmployementStep({
       }
     }
   };
+
+
   const handleBack = () => {
     if (currentStep === 1) {
       const currentFormData = form.getValues();
       if (onSave) onSave(currentFormData);
 
       if (setCurrentStep) {
-        setCurrentStep(11);
+        setCurrentStep(13);
       }
     } else {
-      // Save current step data before going back
       const currentStepFields = STEPS[currentStep - 1].fields;
       const currentStepData = currentStepFields.reduce((acc, field) => {
         acc[field] = form.getValues(field as keyof MedicalHistoryFormValues);
@@ -465,10 +499,41 @@ export function PostEmployementStep({
 
       if (onSave) onSave(currentStepData);
 
-      // Go back one step within this component
-      setCurrentStepState(currentStep - 1);
+      const prevStep = currentStep - 1;
+      setCurrentStepState(prevStep);
+      // 🔥 Notify parent about sub-step change
+      if (onSubStepChange) {
+        onSubStepChange(prevStep);
+      }
     }
   };
+
+
+
+  // const handleBack = () => {
+  //   if (currentStep === 1) {
+  //     const currentFormData = form.getValues();
+  //     if (onSave) onSave(currentFormData);
+
+  //     if (setCurrentStep) {
+  //       setCurrentStep(11);
+  //     }
+  //   } else {
+  //     // Save current step data before going back
+  //     const currentStepFields = STEPS[currentStep - 1].fields;
+  //     const currentStepData = currentStepFields.reduce((acc, field) => {
+  //       acc[field] = form.getValues(field as keyof MedicalHistoryFormValues);
+  //       return acc;
+  //     }, {} as Partial<MedicalHistoryFormValues>);
+
+  //     if (onSave) onSave(currentStepData);
+
+  //     // Go back one step within this component
+  //     setCurrentStepState(currentStep - 1);
+  //   }
+  // };
+
+
 
   const handleSubmit = async () => {
     const currentStepFields = STEPS[currentStep - 1].fields;
@@ -495,24 +560,24 @@ export function PostEmployementStep({
     await handleSubmit();
   };
 
-  const renderProgressBar = () => (
-    <div className="mb-8">
-      <div className="mb-2 flex justify-between">
-        <span className="text-sm font-medium text-gray-700">
-          Step {currentStep} of {totalSteps}
-        </span>
-        <span className="text-sm text-gray-500">
-          {Math.round((currentStep / totalSteps) * 100)}% Complete
-        </span>
-      </div>
-      <div className="h-2.5 w-full rounded-full bg-gray-200">
-        <div
-          className="h-2.5 rounded-full bg-watney transition-all duration-300"
-          style={{ width: `${(currentStep / totalSteps) * 100}%` }}
-        ></div>
-      </div>
-    </div>
-  );
+  // const renderProgressBar = () => (
+  //   <div className="mb-8">
+  //     <div className="mb-2 flex justify-between">
+  //       <span className="text-md font-medium text-gray-700">
+  //         Step {currentStep} of {totalSteps}
+  //       </span>
+  //       <span className="text-md text-gray-500">
+  //         {Math.round((currentStep / totalSteps) * 100)}% Complete
+  //       </span>
+  //     </div>
+  //     <div className="h-2.5 w-full rounded-full bg-gray-200">
+  //       <div
+  //         className="h-2.5 rounded-full bg-watney transition-all duration-300"
+  //         style={{ width: `${(currentStep / totalSteps) * 100}%` }}
+  //       ></div>
+  //     </div>
+  //   </div>
+  // );
 
   const renderCheckboxField = (
     name: keyof MedicalHistoryFormValues,
@@ -521,7 +586,7 @@ export function PostEmployementStep({
   ) => (
     <div className="grid grid-cols-1 items-start gap-4 border-b border-gray-100 py-3 sm:grid-cols-3">
       {/* Question */}
-      <FormLabel className="self-center font-medium">{label}</FormLabel>
+      <FormLabel className="self-center font-medium text-lg">{label}</FormLabel>
 
       {/* Yes/No Checkboxes using shadcn/ui */}
       <FormField
@@ -534,11 +599,13 @@ export function PostEmployementStep({
               <Checkbox
                 checked={field.value === true}
                 onCheckedChange={() => field.onChange(true)}
+                className='h-6 w-6'
+
                 id={`${String(name)}-yes`}
               />
               <label
                 htmlFor={`${String(name)}-yes`}
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                className="text-lg font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               >
                 Yes
               </label>
@@ -549,11 +616,12 @@ export function PostEmployementStep({
               <Checkbox
                 checked={field.value === false}
                 onCheckedChange={() => field.onChange(false)}
+                className='h-6 w-6'
                 id={`${String(name)}-no`}
               />
               <label
                 htmlFor={`${String(name)}-no`}
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                className="text-lg font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               >
                 No
               </label>
@@ -575,7 +643,7 @@ export function PostEmployementStep({
                 <Textarea
                   {...field}
                   placeholder="Details (if Yes)..."
-                  className="w-full border-gray-300"
+                  className="w-full border-gray-300 rounded-full"
                   disabled={
                     form.watch(name) !== true && !form.getValues(commentName)
                   }
@@ -592,7 +660,7 @@ export function PostEmployementStep({
   );
 
   const renderSection = (title: string, children: React.ReactNode) => (
-    <div className="space-y-2">{children}</div>
+    <div className="space-y-2 text-lg">{children}</div>
   );
 
   // Render current step content
@@ -610,11 +678,16 @@ export function PostEmployementStep({
               name="firstName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Employee Forename</FormLabel>
+                  <FormLabel className="text-lg font-medium">Employee Forename</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="First Name" disabled />
+                    <Input
+                      {...field}
+                      placeholder="First Name"
+                      disabled
+                      className="h-12 rounded-full text-lg placeholder:text-gray-500"
+                    />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-md" />
                 </FormItem>
               )}
             />
@@ -625,11 +698,16 @@ export function PostEmployementStep({
               name="lastName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Employee Surename</FormLabel>
+                  <FormLabel className="text-lg font-medium">Employee Surename</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Last Name" disabled />
+                    <Input
+                      {...field}
+                      placeholder="Last Name"
+                      disabled
+                      className="h-12 rounded-full text-lg placeholder:text-gray-500"
+                    />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-md" />
                 </FormItem>
               )}
             />
@@ -652,7 +730,7 @@ export function PostEmployementStep({
 
                 return (
                   <FormItem className="mt-2 flex w-full flex-col">
-                    <FormLabel>Date of Birth (MM/DD/YYYY)</FormLabel>
+                    <FormLabel className="text-lg font-medium">Date of Birth (MM/DD/YYYY)</FormLabel>
                     <FormControl className="w-full">
                       <CustomDatePicker
                         selected={value}
@@ -667,10 +745,10 @@ export function PostEmployementStep({
                         disabled
                       />
                     </FormControl>
-                    <p className="text-xs text-gray-400">
+                    <p className="text-md text-gray-400">
                       Example: MM/DD/YYYY or 01/24/1995
                     </p>
-                    <FormMessage />
+                    <FormMessage className="text-md" />
                   </FormItem>
                 );
               }}
@@ -682,11 +760,16 @@ export function PostEmployementStep({
               name="jobRole"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Position Applied For</FormLabel>
+                  <FormLabel className="text-lg font-medium">Position Applied For</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Job Role" disabled />
+                    <Input
+                      {...field}
+                      placeholder="Job Role"
+                      disabled
+                      className="h-12 rounded-full text-lg placeholder:text-gray-500"
+                    />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-md" />
                 </FormItem>
               )}
             />
@@ -697,20 +780,23 @@ export function PostEmployementStep({
               name="sex"
               render={({ field }) => (
                 <FormItem className="flex items-center space-x-4">
-                  <FormLabel className="mt-2">
+                  <FormLabel className="mt-2 text-lg font-medium">
                     Sex <span className="text-red-500">*</span>
                   </FormLabel>
                   <FormControl>
                     <div className="flex space-x-4">
-                      <label className="flex items-center space-x-1">
+                      <label className="flex items-center space-x-1 text-lg">
                         <Checkbox
                           checked={field.value === 'male'}
+                          className="h-6 w-6"
                           onCheckedChange={() => field.onChange('male')}
                         />
                         <span>Male</span>
                       </label>
-                      <label className="flex items-center space-x-1">
+                      <label className="flex items-center space-x-1 text-lg">
                         <Checkbox
+                          className="h-6 w-6"
+
                           checked={field.value === 'female'}
                           onCheckedChange={() => field.onChange('female')}
                         />
@@ -718,7 +804,7 @@ export function PostEmployementStep({
                       </label>
                     </div>
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-md" />
                 </FormItem>
               )}
             />
@@ -923,7 +1009,7 @@ export function PostEmployementStep({
             name="seriousIllnessDetails"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>
+                <FormLabel className="text-lg font-medium">
                   Please detail any serious illness, hospital admission,
                   operation or accident that caused 5+ days off work in last 5
                   years
@@ -932,10 +1018,10 @@ export function PostEmployementStep({
                   <Textarea
                     {...field}
                     placeholder="Details..."
-                    className="w-full border-gray-300"
+                    className="min-h-[100px] rounded-full p-4 text-lg border-gray-300"
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-md" />
               </FormItem>
             )}
           />
@@ -1009,16 +1095,20 @@ export function PostEmployementStep({
               'testedHIVComment'
             )}
             <div className="grid grid-cols-1 items-center gap-4 border-b border-gray-100 py-2 sm:grid-cols-3">
-              <FormLabel>Other (please specify)</FormLabel>
+              <FormLabel className="text-lg font-medium">Other (please specify)</FormLabel>
               <FormField
                 control={form.control}
                 name="inocOther"
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Input {...field} placeholder="Other inoculations..." />
+                      <Input
+                        {...field}
+                        placeholder="Other inoculations..."
+                        className="h-12 rounded-full text-lg placeholder:text-gray-500"
+                      />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-md" />
                   </FormItem>
                 )}
               />
@@ -1028,9 +1118,13 @@ export function PostEmployementStep({
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Input {...field} placeholder="Details..." />
+                      <Input
+                        {...field}
+                        placeholder="Details..."
+                        className="h-12 rounded-full text-lg placeholder:text-gray-500"
+                      />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-md" />
                   </FormItem>
                 )}
               />
@@ -1046,7 +1140,7 @@ export function PostEmployementStep({
             name="daysSickLastYear"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>
+                <FormLabel className="text-lg font-medium">
                   Number of days sickness in the past year (i.e. In the last 12
                   months)
                 </FormLabel>
@@ -1054,10 +1148,10 @@ export function PostEmployementStep({
                   <Input
                     {...field}
                     placeholder="Number of days sick..."
-                    className="w-full md:w-[33vw]"
+                    className="h-12 rounded-full text-lg w-full md:w-[33vw]"
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-md" />
               </FormItem>
             )}
           />
@@ -1066,9 +1160,9 @@ export function PostEmployementStep({
       case 9:
         return renderSection(
           'Consent & Declaration',
-          <div className="space-y-6 text-sm">
+          <div className="space-y-6">
             {/* Night Working Notice */}
-            <div className="rounded-md bg-blue-50 p-4 text-blue-800">
+            <div className="rounded-md bg-blue-50 p-4 text-blue-800 text-lg">
               <strong>Night Working:</strong> Employees who are regularly
               required to work more than three hours a shift between 11.00 p.m.
               and 6.00 a.m. are entitled to a regular assessment of their
@@ -1086,17 +1180,19 @@ export function PostEmployementStep({
                   <FormControl>
                     <Checkbox
                       checked={field.value}
+                      className='h-6 w-6'
+
                       onCheckedChange={field.onChange}
                     />
                   </FormControl>
                   <div className="space-y-1 leading-none">
-                    <FormLabel>
+                    <FormLabel className="text-lg">
                       I declare that the information I have given on this
                       document is, to the best of my knowledge, a true and
                       complete account of my medical history.
                     </FormLabel>
                   </div>
-                  <FormMessage />
+                  <FormMessage className="text-md" />
                 </FormItem>
               )}
             />
@@ -1110,10 +1206,12 @@ export function PostEmployementStep({
                     <Checkbox
                       checked={field.value}
                       onCheckedChange={field.onChange}
+                      className='h-6 w-6'
+
                     />
                   </FormControl>
                   <div className="space-y-1 leading-none">
-                    <FormLabel>
+                    <FormLabel className="text-lg">
                       I understand and accept that it will be a condition of my
                       contract of employment to be fully immunised (if not
                       already) against Hepatitis B, Tuberculosis and Rubella
@@ -1121,7 +1219,7 @@ export function PostEmployementStep({
                       regularly immunised.
                     </FormLabel>
                   </div>
-                  <FormMessage />
+                  <FormMessage className="text-md" />
                 </FormItem>
               )}
             />
@@ -1135,10 +1233,12 @@ export function PostEmployementStep({
                     <Checkbox
                       checked={field.value}
                       onCheckedChange={field.onChange}
+                      className='h-6 w-6'
+
                     />
                   </FormControl>
                   <div className="space-y-1 leading-none">
-                    <FormLabel>
+                    <FormLabel className="text-lg">
                       I understand and accept that if I do not comply with the
                       above obligations or should any information come to light
                       following my employment with Everycare Romford which shows
@@ -1147,7 +1247,7 @@ export function PostEmployementStep({
                       employment.
                     </FormLabel>
                   </div>
-                  <FormMessage />
+                  <FormMessage className="text-md" />
                 </FormItem>
               )}
             />
@@ -1162,16 +1262,16 @@ export function PostEmployementStep({
   return (
     <Card className="border-none shadow-none">
       <CardHeader>
-        <h2 className="text-xl font-semibold">
+        <h2 className="text-2xl font-semibold">
           Post-Employment Medical Questionnaire
         </h2>
-        <p className="text-sm text-gray-400">
+        <p className="text-md text-gray-400">
           Please answer all questions honestly. Your responses will be treated
           confidentially.
         </p>
       </CardHeader>
       <CardContent>
-        {renderProgressBar()}
+        {/* {renderProgressBar()} */}
 
         <Form {...form}>
           <form
@@ -1198,7 +1298,7 @@ export function PostEmployementStep({
               <Button
                 type="button"
                 variant="outline"
-                className="bg-watney text-white hover:bg-watney/90"
+                className="h-12 rounded-full bg-watney px-6 text-lg text-white hover:bg-watney/90"
                 onClick={handleBack}
               >
                 Back
@@ -1207,14 +1307,14 @@ export function PostEmployementStep({
               {currentStep === totalSteps ? (
                 <Button
                   type="submit"
-                  className="bg-watney text-white hover:bg-watney/90"
+                  className="h-12 rounded-full bg-watney px-6 text-lg text-white hover:bg-watney/90"
                 >
                   Next
                 </Button>
               ) : (
                 <Button
                   type="button"
-                  className="bg-watney text-white hover:bg-watney/90"
+                  className="h-12 rounded-full bg-watney px-6 text-lg text-white hover:bg-watney/90"
                   onClick={handleNextClick} // Use the new handler
                 >
                   Next

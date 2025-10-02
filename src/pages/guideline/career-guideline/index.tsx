@@ -20,113 +20,88 @@ import { AppDispatch } from '@/redux/store';
 import { updateAuthIsAuthorized } from '@/redux/features/authSlice';
 
 const steps: React.ReactNode[] = [
-  // Step 1: Welcome to Every Care
-  <div key="step-1" className="space-y-4">
-    <p className="text-2xl font-medium">
-      👋 <strong>Welcome to Careers at Every Care</strong> — a leading
-      UK-based institution that values talent, diversity, and passion for
-      education.
+  // Step 1: Welcome & Introduction
+  <div key="step-1" className="space-y-4 text-start">
+    <h2 className="text-2xl font-semibold">👋 Welcome to Everycare Romford Careers</h2>
+    <p className="text-lg text-gray-700">
+      We are part of <strong>Everycare UK</strong>, a trusted home care provider established in 1993 
+      with over 20 branches nationwide. Everycare Romford delivers CQC-registered domiciliary care across 
+      Havering, Romford, Hornchurch, Rainham, and Upminster. We are rated 
+      <strong> Good </strong> by the Care Quality Commission.
     </p>
-    <p className="text-xl">
-      Thank you for your interest in joining our team. Before you proceed with
-      your job application, please read this guide carefully.
-    </p>
-    <ul className="mt-4 list-disc space-y-2 pl-8 text-xl text-gray-700">
-      <li>We are an equal opportunity employer</li>
-      <li>
-        We welcome applications from all backgrounds and experience levels
-      </li>
-      <li>
-        All applications will be considered in accordance with UK employment and
-        equality laws
-      </li>
+    <h3 className="text-xl font-semibold">What you’ll discover here:</h3>
+    <ul className="list-disc pl-6 space-y-2 text-gray-700">
+      <li><strong>Who we are</strong> – A leading UK home care provider committed to dignity, independence, and person-centred care.</li>
+      <li><strong>What we expect from applicants</strong> – Caring, reliable, and professional people who share our values. Training and support are provided.</li>
+      <li><strong>How your data is handled</strong> – Your information is securely stored and managed in line with UK GDPR.</li>
     </ul>
+    <p className="text-gray-700">
+      We are an equal opportunity employer. All applications are considered fairly under UK employment and equality law.
+    </p>
   </div>,
 
   // Step 2: What You’ll Need
-  <div key="step-2" className="space-y-4">
-    <h3 className="text-2xl font-semibold">🔹 What You'll Need</h3>
-    <p className="text-xl">
-      To complete your application successfully, make sure you have the
-      following ready:
-    </p>
-    <ul className="mt-4 list-disc space-y-2 pl-8 text-xl text-gray-700">
-      <li>
-        <strong>Personal Details:</strong> Title, First Name, Middle
-        Name(Initial), Last Name, Date of birth, Gender, Country Of Residence
-        and also your current residential address, including Address Line1,
-        Address Line 2, City, Post code, Country. <span  className='font-semibold'>If you are an International Worker, please share your Sharecode</span>
-      </li>
-      <li>
-        <strong>Application Details:</strong> Provide the of your availablility
-        to start work, your weekly availablility.
-      </li>
-      <li>
-        <strong>Education History:</strong> Previous Institution Name,
-        qualification, grade, award date and certificate.
-      </li>
-      <li>
-        <strong>Employment Details:</strong> If applicable, provide your current
-        or most recent employer's name, job title, and employment start date and
-        your responsibilities.
-      </li>
-
-      <li>
-        <strong>Disability Details:</strong> If you have a disability, please
-        provide details so we can make necessary accommodations during the
-        application process.
-      </li>
-      <li>
-        <strong>Reference Details:</strong> You will need to provide two
-        professional references, including their full name, relationship to you,
-        and contact number, email, address.
-      </li>
-      <li>
-        <strong>Documents:</strong> You have to upload your CV , Cover Letter
-        and Proof of address (e.g., utility bill, bank statement) dated within
-        the last 3 months.
-      </li>
+  <div key="step-2" className="space-y-4 text-start">
+    <h3 className="text-2xl font-semibold">📋 What You’ll Need</h3>
+    <p className="text-lg text-gray-700">To complete your application successfully, please prepare the following:</p>
+    <ul className="list-disc pl-6 space-y-2 text-gray-700">
+      <li><strong>Personal & Background:</strong> Full name, date of birth, gender, address, right-to-work code (if applicable), phone, and email.</li>
+      <li><strong>Availability:</strong> Earliest start date, weekly availability, and preferred shifts.</li>
+      <li><strong>Education & Training:</strong> Qualifications, awarding body, grades, dates, and care-related training.</li>
+      <li><strong>Employment History:</strong> Most recent employer details and responsibilities.</li>
+      <li><strong>References:</strong> Two professional references with contact details.</li>
+      <li><strong>Documents:</strong> CV (required), Cover letter (optional), Proof of address, Certificates, DBS certificate (if available).</li>
+      <li><strong>Checks:</strong> Disabilities/support needs, immunisation details, unspent convictions.</li>
     </ul>
   </div>,
 
-  // Step 4: Important Reminders
-  <div key="step-3" className="space-y-4">
+  // Step 3: Important Reminders
+  <div key="step-3" className="space-y-4 text-start">
     <h3 className="text-2xl font-semibold">✅ Important Reminders</h3>
-    <ul className="mt-4 list-disc space-y-2 pl-8 text-xl text-gray-700">
-      <li>
-        <strong>Accuracy matters:</strong> Double-check all details before
-        submission.
-      </li>
-      <li>
-        <strong>Be honest:</strong> This is a legal and binding record. False
-        info may result in rejection.
-      </li>
-      <li>
-        <strong>Support & Accessibility:</strong> Let us know if you need
-        assistance or accommodations.
-      </li>
+    <ul className="list-disc pl-6 space-y-2 text-gray-700">
+      <li><strong>Accuracy matters:</strong> Review all information carefully before submission.</li>
+      <li><strong>Be truthful:</strong> False or misleading details may lead to rejection or withdrawal of an offer.</li>
+      <li><strong>Accessibility:</strong> Tell us if you need adjustments — we want the process to be fair.</li>
+      <li><strong>Commitment to standards:</strong> Care roles require safeguarding, confidentiality, and CQC compliance.</li>
     </ul>
-    <p className="mt-4 text-xl text-gray-700">
-      We are here to help you succeed — make sure to reach out if you need any
-      clarification.
-    </p>
   </div>,
 
-  // Step 5: Data & Support + Final Call to Action
+  // Step 4: Privacy & Consent
   <div key="step-4" className="space-y-6 text-start">
-    <h3 className="text-2xl font-semibold">🔐 Data Privacy & Support</h3>
-    <p className="text-xl text-gray-700">
-      Every Care handles your data securely in compliance with UK GDPR. Your
-      personal information will only be used for application purposes.
-    </p>
+  <h3 className="text-2xl font-semibold">🔒 Privacy & Consent</h3>
 
-    <p className="mb-2 mt-6 text-3xl font-bold">📄 Ready to Apply?</p>
-    <p className="text-xl text-gray-700">
-      By clicking "Continue Application” you agree to provide honest and
-      accurate information.
-    </p>
-  </div>
+  <p className="text-lg text-gray-700">
+    Everycare Romford handles your information securely and in line with UK GDPR. 
+    Your data will only be used for recruitment, onboarding, and statutory checks 
+    such as references, DBS, and right-to-work verification.
+  </p>
+
+  <h4 className="text-xl font-semibold">📄 Declaration</h4>
+  <ul className="list-disc pl-6 mt-2 text-gray-700 space-y-1">
+    <li>All information you provide is accurate and complete.</li>
+    <li>You consent to reference, DBS, and qualification checks.</li>
+    <li>You understand that misrepresentation may lead to rejection or termination.</li>
+  </ul>
+</div>,
+
+
+  // Step 5: Final Review
+  <div key="step-5" className="space-y-4 text-start">
+    <h3 className="text-2xl font-semibold">📑 Final Review</h3>
+    <p className="text-lg text-gray-700">Here’s a summary of what you’ll complete in the form:</p>
+    <ol className="list-decimal pl-6 space-y-1 text-gray-700">
+      <li>Personal & Contact Information</li>
+      <li>Education & Training</li>
+      <li>Employment History</li>
+      <li>References</li>
+      <li>Document Uploads</li>
+      <li>Declarations</li>
+    </ol>
+        <p className="text-xl font-bold">When you click Continue Application, you’ll begin the application form.</p>
+
+  </div>,
 ];
+
 
 export default function CareerGuideline() {
   const [step, setStep] = useState(0);
@@ -149,7 +124,7 @@ export default function CareerGuideline() {
       if (user?.isCompleted && user?.role === 'applicant') {
         navigate(`/dashboard/job-application/${applicationId}`);
       } else {
-        navigate('/dashboard/career');
+        navigate('/dashboard/career-application');
       }
     }
   };

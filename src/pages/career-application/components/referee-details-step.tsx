@@ -59,7 +59,7 @@ export function RefereeDetailsStep({
   };
 
   function handleBack() {
-    setCurrentStep(6);
+    setCurrentStep(8);
   }
 
   const renderRefereeFields = (
@@ -69,8 +69,10 @@ export function RefereeDetailsStep({
   ) => {
     return (
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold">{title} <span className="text-red-500">*</span></h3>
-        <p className="text-sm text-gray-600">{description}</p>
+        <h3 className="text-lg font-semibold">
+          {title} <span className="text-red-500">*</span>
+        </h3>
+        <p className="text-md text-gray-600">{description}</p>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {/* Name */}
@@ -79,11 +81,17 @@ export function RefereeDetailsStep({
             name={`${refKey}.name`}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name <span className="text-red-500">*</span></FormLabel>
+                <FormLabel className="text-lg font-medium">
+                  Name <span className="text-red-500">*</span>
+                </FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Sarah Johnson" />
+                  <Input
+                    {...field}
+                    placeholder="Sarah Johnson"
+                    className="h-12 rounded-full text-lg"
+                  />
                 </FormControl>
-                <p className="text-xs text-gray-400">Example: Sarah Johnson</p>
+                <p className="text-md text-gray-400">Example: Sarah Johnson</p>
                 <FormMessage />
               </FormItem>
             )}
@@ -95,27 +103,39 @@ export function RefereeDetailsStep({
             name={`${refKey}.position`}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Position <span className="text-red-500">*</span></FormLabel>
+                <FormLabel className="text-lg font-medium">
+                  Position <span className="text-red-500">*</span>
+                </FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Senior Manager" />
+                  <Input
+                    {...field}
+                    placeholder="Senior Manager"
+                    className="h-12 rounded-full text-lg"
+                  />
                 </FormControl>
-                <p className="text-xs text-gray-400">Example: Senior Manager</p>
+                <p className="text-md text-gray-400">Example: Senior Manager</p>
                 <FormMessage />
               </FormItem>
             )}
           />
 
-          {/* Relationship (now input instead of select) */}
+          {/* Relationship */}
           <FormField
             control={form.control}
             name={`${refKey}.relationship`}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Relationship to you <span className="text-red-500">*</span></FormLabel>
+                <FormLabel className="text-lg font-medium">
+                  Relationship to you <span className="text-red-500">*</span>
+                </FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Line Manager, Colleague, Friend" />
+                  <Input
+                    {...field}
+                    placeholder="Line Manager, Colleague, Friend"
+                    className="h-12 rounded-full text-lg"
+                  />
                 </FormControl>
-                <p className="text-xs text-gray-400">Example: Line Manager</p>
+                <p className="text-md text-gray-400">Example: Line Manager</p>
                 <FormMessage />
               </FormItem>
             )}
@@ -127,11 +147,17 @@ export function RefereeDetailsStep({
             name={`${refKey}.organisation`}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Organisation <span className="text-red-500">*</span></FormLabel>
+                <FormLabel className="text-lg font-medium">
+                  Organisation <span className="text-red-500">*</span>
+                </FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="ABC Health Services Ltd." />
+                  <Input
+                    {...field}
+                    placeholder="ABC Health Services Ltd."
+                    className="h-12 rounded-full text-lg"
+                  />
                 </FormControl>
-                <p className="text-xs text-gray-400">Example: ABC Health Services Ltd.</p>
+                <p className="text-md text-gray-400">Example: ABC Health Services Ltd.</p>
                 <FormMessage />
               </FormItem>
             )}
@@ -143,11 +169,19 @@ export function RefereeDetailsStep({
             name={`${refKey}.address`}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Address <span className="text-red-500">*</span></FormLabel>
+                <FormLabel className="text-lg font-medium">
+                  Address <span className="text-red-500">*</span>
+                </FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="123 High Street, London, W1A 1AA" />
+                  <Input
+                    {...field}
+                    placeholder="123 High Street, London, W1A 1AA"
+                    className="h-12 rounded-full text-lg"
+                  />
                 </FormControl>
-                <p className="text-xs text-gray-400">Example: 123 High Street, London, W1A 1AA</p>
+                <p className="text-md text-gray-400">
+                  Example: 123 High Street, London, W1A 1AA
+                </p>
                 <FormMessage />
               </FormItem>
             )}
@@ -159,11 +193,17 @@ export function RefereeDetailsStep({
             name={`${refKey}.tel`}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Tel No. (NOT Mobile) <span className="text-red-500">*</span></FormLabel>
+                <FormLabel className="text-lg font-medium">
+                  Tel No. (NOT Mobile) <span className="text-red-500">*</span>
+                </FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="+44 20 1234 5678" />
+                  <Input
+                    {...field}
+                    placeholder="+44 20 1234 5678"
+                    className="h-12 rounded-full text-lg"
+                  />
                 </FormControl>
-                <p className="text-xs text-gray-400">Example: +44 20 1234 5678</p>
+                <p className="text-md text-gray-400">Example: +44 20 1234 5678</p>
                 <FormMessage />
               </FormItem>
             )}
@@ -175,11 +215,15 @@ export function RefereeDetailsStep({
             name={`${refKey}.fax`}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>FAX No.</FormLabel>
+                <FormLabel className="text-lg font-medium">FAX No.</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="+44 20 1234 5679" />
+                  <Input
+                    {...field}
+                    placeholder="+44 20 1234 5679"
+                    className="h-12 rounded-full text-lg"
+                  />
                 </FormControl>
-                <p className="text-xs text-gray-400">Example: +44 20 1234 5679</p>
+                <p className="text-md text-gray-400">Example: +44 20 1234 5679</p>
                 <FormMessage />
               </FormItem>
             )}
@@ -191,11 +235,20 @@ export function RefereeDetailsStep({
             name={`${refKey}.email`}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email Address <span className="text-red-500">*</span></FormLabel>
+                <FormLabel className="text-lg font-medium">
+                  Email Address <span className="text-red-500">*</span>
+                </FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="s.johnson@abcservices.com" type="email" />
+                  <Input
+                    {...field}
+                    placeholder="s.johnson@abcservices.com"
+                    type="email"
+                    className="h-12 rounded-full text-lg"
+                  />
                 </FormControl>
-                <p className="text-xs text-gray-400">Example: s.johnson@abcservices.com</p>
+                <p className="text-md text-gray-400">
+                  Example: s.johnson@abcservices.com
+                </p>
                 <FormMessage />
               </FormItem>
             )}
@@ -208,9 +261,9 @@ export function RefereeDetailsStep({
   return (
     <Card className="border-none shadow-none">
       <CardHeader>
-        <h2 className="text-xl font-semibold">Reference Details</h2>
-        <p className="text-sm text-gray-400">
-          Please give the names and addresses of three referees. Two of these must be your current and most recent employers. If this period of employment was for less than three month you will require a further referee from your next previous employer for whom you worked for a minimum of three months. A referee from your employment must be a senior line manager who knows you. Referees must not be family members.
+        <h2 className="text-2xl font-semibold">Reference Details</h2>
+        <p className="text-md text-gray-400">
+          Please give the names and addresses of three referees. Two of these must be your current and most recent employers. If this period of employment was for less than three month you will require a further referee from your next previous employer for whom you worked for a minimum of three months. A referee from your employment must be a senior line manager who knows you. Referees must not be family&nbsp;members.
         </p>
       </CardHeader>
       <CardContent>
@@ -237,11 +290,14 @@ export function RefereeDetailsStep({
                 type="button"
                 variant="outline"
                 onClick={handleBack}
-                className="bg-watney text-white hover:bg-watney/90"
+                className="h-12 rounded-full bg-watney text-lg text-white hover:bg-watney/90"
               >
                 Back
               </Button>
-              <Button type="submit" className="bg-watney text-white hover:bg-watney/90">
+              <Button
+                type="submit"
+                className="h-12 rounded-full bg-watney text-lg text-white hover:bg-watney/90"
+              >
                 Next
               </Button>
             </div>

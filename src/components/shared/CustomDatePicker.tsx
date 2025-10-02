@@ -56,7 +56,7 @@ export function CustomDatePicker({
             placeholder={placeholder}
             disabled={disabled}
             value={selected ? format(selected, 'yyyy-MM-dd') : 'Select date'}
-            className="w-full cursor-pointer rounded-md border border-gray-300 bg-white px-3 py-2 text-sm"
+            className="w-full cursor-pointer rounded-full h-12 border border-gray-300 bg-white px-3 py-2 text-sm"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();

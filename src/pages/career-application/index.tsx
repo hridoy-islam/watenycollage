@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ProfilePictureStep } from './components/profile-picture-step';
 import { PersonalDetailsStep } from './components/personal-details-step';
 import { DisabilityInfoStep } from './components/disability-info-step';
@@ -8,7 +9,15 @@ import { RefereeDetailsStep } from './components/referee-details-step';
 import { DocumentStep } from './components/DocumentStep';
 import { EducationStep } from './components/education-step';
 import { EmploymentStep } from './components/employment-step';
-// import { ReviewModal } from "./components/review-modal"
+import { TrainingStep } from './components/training-step';
+import { ExperienceStep } from './components/ExperienceStep';
+import { EthnicityStep } from './components/EthnicityStep';
+import { PostEmployementStep } from './components/postEmployementStep';
+import { PaymentStep } from './components/paymentStep';
+import { AddressStep } from './components/addressStep';
+import { NextToKinStep } from './components/nextToKinStep';
+
+// UI Components
 import { Button } from '@/components/ui/button';
 import { Check } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
@@ -17,37 +26,47 @@ import { useNavigate } from 'react-router-dom';
 import axiosInstance from '@/lib/axios';
 import { useDispatch, useSelector } from 'react-redux';
 import type { TCareer } from '@/types/career';
-import {
-  validateStep,
-  findFirstIncompleteStep
-} from '@/utils/careerform-validation-utils';
 import { updateAuthIsCompleted } from '@/redux/features/authSlice';
 import { AppDispatch } from '@/redux/store';
 import { useLocation } from 'react-router-dom';
-import { EmergencyContact } from './components/emergencyContact';
-import { TrainingStep } from './components/training-step';
-import { ExperienceStep } from './components/ExperienceStep';
-import { EthnicityStep } from './components/EthnicityStep';
-import { PostEmployementStep } from './components/postEmployementStep';
-import { PaymentStep } from './components/paymentStep';
 
-// Define form steps for career application
+// Circular Progress
+import {
+  CircularProgressbar,
+  buildStyles
+} from 'react-circular-progressbar';
+import 'react-circular-progressbar/dist/styles.css';
+
+// Define form steps (for UI reference)
 const careerFormSteps = [
   { id: 1, label: 'Profile Picture' },
   { id: 2, label: 'Personal Details' },
-  { id: 3, label: 'Application Details' },
-  { id: 4, label: 'Education' },
-  { id: 5, label: 'Employment' },
-  { id: 6, label: 'Disability Info' },
-  { id: 7, label: 'Emergency Contact' },
-  { id: 8, label: 'Referee Details' },
-  { id: 9, label: 'Documents' },
-  { id: 10, label: 'Review & Submit' }
+  { id: 3, label: 'Address Details' },
+  { id: 4, label: 'Next To Kin' },
+  { id: 5, label: 'Application Details' },
+  { id: 6, label: 'Education' },
+  { id: 7, label: 'Training' },
+  { id: 8, label: 'Employment' },
+  { id: 9, label: 'Referee Details' },
+  { id: 10, label: 'Experience' },
+  { id: 11, label: 'Ethnicity' },
+  { id: 12, label: 'Disability Info' },
+  { id: 13, label: 'Documents' },
+  { id: 14, label: 'Post-Employment' },
+  { id: 15, label: 'Payment' },
+  { id: 16, label: 'Review & Submit' }
 ];
+
+const TOTAL_FILLABLE_STEPS = 16;
+
+const SUB_STEP_CONFIG: Record<number, number> = {
+  14: 9,
+  16: 3
+};
 
 export default function CareerApplicationForm() {
   const [currentStep, setCurrentStep] = useState(1);
-  const [subStep, setSubstep] = useState(1);
+  const [subStepInfo, setSubStepInfo] = useState<{ current: number; total: number }>({ current: 1, total: 1 });
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [formData, setFormData] = useState<Partial<TCareer>>({
     status: 'applied'
@@ -55,6 +74,7 @@ export default function CareerApplicationForm() {
   const [fetchData, setFetchData] = useState<any>({});
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null); // ✅ For animated feedback
   const { toast } = useToast();
   const navigate = useNavigate();
   const { user } = useSelector((state: any) => state.auth);
@@ -62,6 +82,7 @@ export default function CareerApplicationForm() {
   const [parsedResume, setParsedResume] = useState<string | null>(null);
   const location = useLocation();
   const [refreshCounter, setRefreshCounter] = useState(0);
+  const [subStep, setSubstep] = useState(1);
 
   const refreshData = () => {
     setRefreshCounter((prev) => prev + 1);
@@ -70,99 +91,9 @@ export default function CareerApplicationForm() {
   useEffect(() => {
     if (location.state?.parsedResume) {
       setParsedResume(location.state.parsedResume);
-      // Optionally clear the state after reading it
       window.history.replaceState({}, document.title);
     }
   }, [location.state]);
-
-  const nameMatch = parsedResume?.match(
-    /\b([A-Z][a-z]+(?:\s[A-Z][a-z]+)*)\s([A-Z][a-z]+)\b/
-  );
-  const emailMatch = parsedResume?.match(
-    /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/
-  );
-
-  const phoneMatch = parsedResume?.match(
-    /\+?\d{1,4}[\s\-]?\(?\d{1,4}\)?[\s\-]?\d{6,10}/
-  );
-
-  const dobMatch = parsedResume?.match(
-    /(?:\b(?:[A-Za-z]+\s)?\d{1,2}[,\s]?\s?\d{4}\b|\b\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}\b)/
-  );
-  const passportIdMatch = parsedResume?.match(/\b([A-Za-z0-9]{6,10})\b/);
-  const expiryDateMatch = parsedResume?.match(
-    /\b(?:[A-Za-z]+\s)?\d{1,2}[,\s]?\s?\d{4}\b|\b\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}\b/
-  );
-  const maritalStatusMatch = parsedResume?.match(
-    /\b(Single|Married|Divorced|Widowed|Separated)\b/
-  );
-  const ethnicityMatch = parsedResume?.match(
-    /\b(Caucasian|Asian|Hispanic|Black|Latino|Middle Eastern|Native American|Pacific Islander|African|European|South Asian|...)\b/
-  );
-  const nationalityMatch = parsedResume?.match(
-    /\b(American|Bangladeshi|Canadian|British|Australian|Indian|Pakistani|Chinese|Japanese|French|German|Spanish|Russian|Brazilian|Mexican|Italian|...)\b/
-  );
-  const countryOfBirthMatch = parsedResume?.match(/\bBorn\s([A-Za-z\s]+)\b/);
-  const addressLine1Match = parsedResume?.match(/^(.*\d{1,5}.*)$/);
-  const addressLine2Match = parsedResume?.match(
-    /^(.*[A-Za-z0-9\s]*[A-Za-z]{2,})$/
-  );
-  const cityMatch = parsedResume?.match(
-    /\b([A-Za-z\s]+(?:[A-Za-z]+))\b(?:,\s?)/
-  );
-  const postCodeMatch = parsedResume?.match(/\b\d{5}(?:[-\s]?\d{4})?\b/);
-  const countryMatch = parsedResume?.match(/\b([A-Za-z\s]+)\b$/);
-  const institutionMatch = parsedResume?.match(
-    /(?:University|College|Institute|Academy|School|Campus)[A-Za-z\s]+/i
-  );
-
-  const phoneNumber = phoneMatch ? phoneMatch[0] : '';
-  const passportId = passportIdMatch ? passportIdMatch[0] : '';
-  const email = emailMatch ? emailMatch[0] : null;
-  const addressLine1 = addressLine1Match ? addressLine1Match[0] : '';
-  const addressLine2 = addressLine2Match ? addressLine2Match[0] : '';
-  const city = cityMatch ? cityMatch[1] : '';
-  const postCode = postCodeMatch ? postCodeMatch[0] : '';
-  const country = countryMatch ? countryMatch[1] : '';
-  const academicInstitution = institutionMatch ? institutionMatch[0] : '';
-
-  const passportNumber = passportIdMatch ? passportIdMatch[0] : '';
-  const expiryDate = expiryDateMatch ? expiryDateMatch[0] : '';
-  const maritalStatus = maritalStatusMatch ? maritalStatusMatch[0] : '';
-  const nationality = nationalityMatch ? nationalityMatch[0] : '';
-  const ethnicity = ethnicityMatch ? ethnicityMatch[0] : '';
-  const countryOfBirth = countryOfBirthMatch ? countryOfBirthMatch[1] : '';
-  const dateOfBirth = dobMatch ? dobMatch[0] : '';
-
-  const residentialAddressLine1 = addressLine1 || '';
-  const residentialAddressLine2 = addressLine2 || '';
-  const residentialCity = city || '';
-  const residentialPostCode = postCode || '';
-  const residentialCountry = country || '';
-
-  // useEffect(() => {
-  //   if (parsedResume) {
-  //     setFormData((prev) => ({
-  //       ...prev,
-  //       dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined,
-  //       phone: phoneNumber,
-  //       passportNumber,
-
-  //       maritalStatus,
-  //       nationality,
-  //       ethnicity,
-  //       countryOfBirth,
-
-  //       postalAddressLine1: residentialAddressLine1,
-  //       postalAddressLine2: residentialAddressLine2,
-  //       postalCity: residentialCity,
-  //       postalPostCode: residentialPostCode,
-  //       postalCountry: residentialCountry
-  //     }));
-  //   }
-  // }, [parsedResume]);
-
-  // console.log(formData, 'FORM');
 
   const fetchedData = async () => {
     try {
@@ -171,7 +102,6 @@ export default function CareerApplicationForm() {
       setFetchData((prev) => ({
         ...prev,
         ...userData
-        //  dateOfBirth: new  Date(userData.dateOfBirth),
       }));
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -186,12 +116,6 @@ export default function CareerApplicationForm() {
     if (!userData.image || userData.image.trim() === '') {
       return 1;
     }
-
-    // You can add more step checks here
-    // Example:
-    // if (!userData.education || userData.education.length === 0) return 2;
-    // if (!userData.experience || userData.experience.length === 0) return 3;
-
     return -1;
   };
 
@@ -199,16 +123,17 @@ export default function CareerApplicationForm() {
     if (Object.keys(fetchData).length === 0) return;
 
     const firstIncompleteStep = findFirstIncompleteStep(fetchData);
-
     if (firstIncompleteStep !== -1 && currentStep !== firstIncompleteStep) {
-      // toast({
-      //   title: 'Incomplete Application',
-      //   description: `Redirecting to step ${firstIncompleteStep} to complete required information.`
-      // });
-
       setCurrentStep(firstIncompleteStep);
     }
   }, [fetchData]);
+
+useEffect(() => {
+  const total = SUB_STEP_CONFIG[currentStep] || 1;
+  setSubStepInfo({ current: 1, total }); // always reset to 1
+}, [currentStep]);
+
+
 
   const applicationId = localStorage.getItem('applicationId');
 
@@ -216,12 +141,37 @@ export default function CareerApplicationForm() {
     setCurrentStep(stepId);
   };
 
+  // ✅ Show animated success message when step is completed
   const markStepAsCompleted = (stepId: number) => {
     if (!completedSteps.includes(stepId)) {
       setCompletedSteps((prev) => [...prev, stepId]);
+
+      const inspiringMessages: Record<number, string> = {
+        1: "Great start! Your profile picture is set.",
+        2: "Personal details locked in — looking good!",
+        3: "Address saved. One step closer to your new role!",
+        4: "Next of kin added. Safety first!",
+        5: "Application details submitted — you're on a roll!",
+        6: "Education history updated. Your journey matters!",
+        7: "Training recorded. Skills are power!",
+        8: "Employment info saved. Experience counts!",
+        9: "Referees added. Trusted voices in your corner!",
+        10: "Work experience logged. Impressive background!",
+        11: "Ethnicity info recorded. Diversity strengthens us.",
+        12: "Disability info saved. We’re here to support you.",
+        13: "Documents uploaded. Almost there!",
+        14: "Post-employment plans noted. Forward-thinking!",
+        15: "Payment details confirmed. Smooth sailing ahead!",
+        16: "Review complete! You’re ready to submit."
+      };
+
+      const message = inspiringMessages[stepId] || `✅ Step ${stepId} completed!`;
+      setSuccessMessage(`🎉 ${message}`);
+      setTimeout(() => setSuccessMessage(null), 3500); // Slightly longer to read
     }
   };
 
+  // === Step Handlers ===
   const handleProfilePictureSaveAndContinue = async (data: any) => {
     try {
       setFormData((prev) => ({ ...prev, ...data }));
@@ -244,12 +194,34 @@ export default function CareerApplicationForm() {
     }
   };
 
-  const handleApplicationDetailsSaveAndContinue = async (data: any) => {
+  const handleAdsressSaveAndContinue = async (data: any) => {
     try {
       setFormData((prev) => ({ ...prev, ...data }));
       await axiosInstance.patch(`/users/${user._id}`, data);
       markStepAsCompleted(3);
       setCurrentStep(4);
+    } catch (error) {
+      console.error('Failed to update address details:', error);
+    }
+  };
+
+  const handleNextToKinSaveAndContinue = async (data: any) => {
+    try {
+      setFormData((prev) => ({ ...prev, ...data }));
+      await axiosInstance.patch(`/users/${user._id}`, data);
+      markStepAsCompleted(4);
+      setCurrentStep(5);
+    } catch (error) {
+      console.error('Failed to update next to kin details:', error);
+    }
+  };
+
+  const handleApplicationDetailsSaveAndContinue = async (data: any) => {
+    try {
+      setFormData((prev) => ({ ...prev, ...data }));
+      await axiosInstance.patch(`/users/${user._id}`, data);
+      markStepAsCompleted(5);
+      setCurrentStep(6);
     } catch (error) {
       console.error('Failed to update application details:', error);
     }
@@ -259,46 +231,25 @@ export default function CareerApplicationForm() {
     try {
       setFormData((prev) => ({ ...prev, ...data }));
       await axiosInstance.patch(`/users/${user._id}`, data);
-      markStepAsCompleted(4);
-      setCurrentStep(5);
+      markStepAsCompleted(6);
+      setCurrentStep(7);
     } catch (error) {
       console.error('Failed to update education details:', error);
     }
   };
 
-
   const handleTrainingSaveAndContinue = async (data: any) => {
-    try {
-      setFormData((prev) => ({ ...prev, ...data }));
-      await axiosInstance.patch(`/users/${user._id}`, data);
-      markStepAsCompleted(5);
-      setCurrentStep(6);
-    } catch (error) {
-      console.error('Failed to update employment details:', error);
-    }
-  };
-    const handleEmploymentSaveAndContinue = async (data: any) => {
-    try {
-      setFormData((prev) => ({ ...prev, ...data }));
-      await axiosInstance.patch(`/users/${user._id}`, data);
-      markStepAsCompleted(6);
-      setCurrentStep(7);
-    } catch (error) {
-      console.error('Failed to update employment details:', error);
-    }
-  };
-
-    const handleRefereeDetailsSaveAndContinue = async (data: any) => {
     try {
       setFormData((prev) => ({ ...prev, ...data }));
       await axiosInstance.patch(`/users/${user._id}`, data);
       markStepAsCompleted(7);
       setCurrentStep(8);
     } catch (error) {
-      console.error('Failed to update referee details:', error);
+      console.error('Failed to update training details:', error);
     }
   };
-  const handleExperianceSaveAndContinue = async (data: any) => {
+
+  const handleEmploymentSaveAndContinue = async (data: any) => {
     try {
       setFormData((prev) => ({ ...prev, ...data }));
       await axiosInstance.patch(`/users/${user._id}`, data);
@@ -309,29 +260,49 @@ export default function CareerApplicationForm() {
     }
   };
 
-  const handleEthnicitySaveAndContinue = async (data: any) => {
+  const handleRefereeDetailsSaveAndContinue = async (data: any) => {
     try {
       setFormData((prev) => ({ ...prev, ...data }));
       await axiosInstance.patch(`/users/${user._id}`, data);
       markStepAsCompleted(9);
       setCurrentStep(10);
     } catch (error) {
-      console.error('Failed to update disability info:', error);
+      console.error('Failed to update referee details:', error);
     }
   };
-  const handleDisabilityInfoSaveAndContinue = async (data: any) => {
+
+  const handleExperianceSaveAndContinue = async (data: any) => {
     try {
       setFormData((prev) => ({ ...prev, ...data }));
       await axiosInstance.patch(`/users/${user._id}`, data);
       markStepAsCompleted(10);
       setCurrentStep(11);
     } catch (error) {
-      console.error('Failed to update disability info:', error);
+      console.error('Failed to update experience details:', error);
     }
   };
 
+  const handleEthnicitySaveAndContinue = async (data: any) => {
+    try {
+      setFormData((prev) => ({ ...prev, ...data }));
+      await axiosInstance.patch(`/users/${user._id}`, data);
+      markStepAsCompleted(11);
+      setCurrentStep(12);
+    } catch (error) {
+      console.error('Failed to update ethnicity info:', error);
+    }
+  };
 
-
+  const handleDisabilityInfoSaveAndContinue = async (data: any) => {
+    try {
+      setFormData((prev) => ({ ...prev, ...data }));
+      await axiosInstance.patch(`/users/${user._id}`, data);
+      markStepAsCompleted(12);
+      setCurrentStep(13);
+    } catch (error) {
+      console.error('Failed to update disability info:', error);
+    }
+  };
 
   const handleDocumentSave = async (data: any) => {
     try {
@@ -344,18 +315,19 @@ export default function CareerApplicationForm() {
       });
     }
   };
-  
+
   const handleDocumentsSaveAndContinue = async (data: any) => {
     try {
       setFormData((prev) => ({ ...prev, ...data }));
       await axiosInstance.patch(`/users/${user._id}`, data);
-      markStepAsCompleted(11);
-      setCurrentStep(12);
+      markStepAsCompleted(13);
+      setCurrentStep(14);
       setSubstep(1)
     } catch (error) {
       console.error('Failed to update documents:', error);
     }
   };
+
   const handlePostEmployementSave = async (data: any) => {
     try {
       setFormData((prev) => ({ ...prev, ...data }));
@@ -367,46 +339,39 @@ export default function CareerApplicationForm() {
       });
     }
   };
+
   const handlePostEmployementSaveAndContinue = async (data: any) => {
     try {
       setFormData((prev) => ({ ...prev, ...data }));
       await axiosInstance.patch(`/users/${user._id}`, data);
-      markStepAsCompleted(12);
-      setCurrentStep(13);
+      markStepAsCompleted(14);
+      setCurrentStep(15);
     } catch (error) {
-      console.error('Failed to update documents:', error);
+      console.error('Failed to update post-employment info:', error);
     }
   };
+
   const handlePayrollSaveAndContinue = async (data: any) => {
     try {
       setFormData((prev) => ({ ...prev, ...data }));
       await axiosInstance.patch(`/users/${user._id}`, data);
-      markStepAsCompleted(13);
-      setCurrentStep(14);
+      markStepAsCompleted(15);
+      setCurrentStep(16);
+      setSubstep(1);
     } catch (error) {
-      console.error('Failed to update documents:', error);
+      console.error('Failed to update payment info:', error);
     }
   };
 
   const handleDashboardRedirect = () => {
-    if (user?.role === 'admin') {
-      navigate('/dashboard');
-    } else if (user?.role === 'student') {
-      navigate('/dashboard');
-    } else if (user?.role === 'applicant') {
-      navigate('/dashboard');
-    }
+    navigate('/dashboard');
   };
 
   const handleReviewClick = () => {
-    // Check if all required steps are completed before showing the review
-    const requiredSteps = [1, 2, 3, 4, 5, 6, 7, 8,9,10,11,12,13]; // All steps except the final Review & Submit
-    const missingSteps = requiredSteps.filter(
-      (step) => !completedSteps.includes(step)
-    );
+    const requiredSteps = Array.from({ length: TOTAL_FILLABLE_STEPS }, (_, i) => i + 1);
+    const missingSteps = requiredSteps.filter((step) => !completedSteps.includes(step));
 
     if (missingSteps.length > 0) {
-      // Get the names of the missing steps
       const missingStepNames = missingSteps.map(
         (stepId) =>
           careerFormSteps.find((step) => step.id === stepId)?.label ||
@@ -419,7 +384,6 @@ export default function CareerApplicationForm() {
         variant: 'destructive'
       });
 
-      // Navigate to the first incomplete step
       setCurrentStep(missingSteps[0]);
       return;
     }
@@ -427,30 +391,7 @@ export default function CareerApplicationForm() {
     setReviewModalOpen(true);
   };
 
-  const handleSubmit = async (formData) => {
-    // const requiredSteps = [2, 3, 4, 5, 6, 7, 8];
-    // const missingSteps = requiredSteps.filter(
-    //   (step) => !completedSteps.includes(step)
-    // );
-
-    // if (missingSteps.length > 0) {
-    //   // Get the names of the missing steps
-    //   const missingStepNames = missingSteps.map(
-    //     (stepId) =>
-    //       careerFormSteps.find((step) => step.id === stepId)?.label ||
-    //       `Step ${stepId}`
-    //   );
-
-    //   toast({
-    //     title: 'Incomplete Application',
-    //     description: `Please complete the following sections before submitting: ${missingStepNames.join(', ')}`,
-    //     variant: 'destructive'
-    //   });
-
-    //   // Navigate to the first incomplete step
-    //   setCurrentStep(missingSteps[0]);
-    //   return;
-    // }
+  const handleSubmit = async (formData: any) => {
     try {
       await axiosInstance.patch(`/users/${user._id}`, {
         ...formData,
@@ -465,22 +406,43 @@ export default function CareerApplicationForm() {
         });
       }
 
-      dispatch(updateAuthIsCompleted(true));
-
       localStorage.removeItem('applicationId');
 
       toast({
         description: 'Career application submitted successfully.'
       });
+
+      setFormSubmitted(true);
     } catch (error: any) {
       toast({
         title: error?.response?.data?.message || 'Something went wrong.',
         className: 'destructive border-none text-white'
       });
     }
-
-    setFormSubmitted(true);
   };
+
+  const calculateProgressPercentage = () => {
+    let completed = 0;
+    for (let step = 1; step <= TOTAL_FILLABLE_STEPS; step++) {
+      if (completedSteps.includes(step)) {
+        completed += 1;
+      } else if (step === currentStep) {
+        const { current: currentSub, total: totalSub } = subStepInfo;
+        if (totalSub > 1) {
+          completed += (currentSub - 1) / totalSub;
+        }
+        break;
+      } else {
+        break;
+      }
+    }
+    return Math.min(100, Math.round((completed / TOTAL_FILLABLE_STEPS) * 100));
+  };
+
+  const progressPercentage = calculateProgressPercentage();
+  const displayStep = subStepInfo.total > 1
+    ? `${currentStep}.${subStepInfo.current}`
+    : currentStep;
 
   const renderStep = () => {
     switch (currentStep) {
@@ -503,13 +465,29 @@ export default function CareerApplicationForm() {
         );
       case 3:
         return (
+          <AddressStep
+            defaultValues={{ ...fetchData, ...formData }}
+            onSaveAndContinue={handleAdsressSaveAndContinue}
+            setCurrentStep={setCurrentStep}
+          />
+        );
+      case 4:
+        return (
+          <NextToKinStep
+            defaultValues={{ ...fetchData, ...formData }}
+            onSaveAndContinue={handleNextToKinSaveAndContinue}
+            setCurrentStep={setCurrentStep}
+          />
+        );
+      case 5:
+        return (
           <ApplicationDetailsStep
             defaultValues={{ ...fetchData, ...formData }}
             onSaveAndContinue={handleApplicationDetailsSaveAndContinue}
             setCurrentStep={setCurrentStep}
           />
         );
-      case 4:
+      case 6:
         return (
           <EducationStep
             defaultValues={{ ...fetchData, ...formData }}
@@ -517,7 +495,7 @@ export default function CareerApplicationForm() {
             setCurrentStep={setCurrentStep}
           />
         );
-         case 5:
+      case 7:
         return (
           <TrainingStep
             defaultValues={{ ...fetchData, ...formData }}
@@ -525,7 +503,7 @@ export default function CareerApplicationForm() {
             setCurrentStep={setCurrentStep}
           />
         );
-      case 6:
+      case 8:
         return (
           <EmploymentStep
             defaultValues={{ ...fetchData, ...formData }}
@@ -533,7 +511,7 @@ export default function CareerApplicationForm() {
             setCurrentStep={setCurrentStep}
           />
         );
-     case 7:
+      case 9:
         return (
           <RefereeDetailsStep
             defaultValues={{ ...fetchData, ...formData }}
@@ -541,7 +519,7 @@ export default function CareerApplicationForm() {
             setCurrentStep={setCurrentStep}
           />
         );
-      case 8:
+      case 10:
         return (
           <ExperienceStep
             defaultValues={{ ...fetchData, ...formData }}
@@ -549,7 +527,7 @@ export default function CareerApplicationForm() {
             setCurrentStep={setCurrentStep}
           />
         );
-         case 9:
+      case 11:
         return (
           <EthnicityStep
             defaultValues={{ ...fetchData, ...formData }}
@@ -557,7 +535,7 @@ export default function CareerApplicationForm() {
             setCurrentStep={setCurrentStep}
           />
         );
-      case 10:
+      case 12:
         return (
           <DisabilityInfoStep
             defaultValues={{ ...fetchData, ...formData }}
@@ -565,37 +543,34 @@ export default function CareerApplicationForm() {
             setCurrentStep={setCurrentStep}
           />
         );
-      // case 10:
-      //   return (
-      //     <EmergencyContact
-      //       defaultValues={{ ...fetchData, ...formData }}
-      //       onSaveAndContinue={handleEmergencySaveAndContinue}
-      //       setCurrentStep={setCurrentStep}
-      //     />
-      //   );
-      
-      case 11:
+      case 13:
         return (
           <DocumentStep
             defaultValues={{ ...fetchData, ...formData }}
             onSaveAndContinue={handleDocumentsSaveAndContinue}
             setCurrentStep={setCurrentStep}
             onSave={handleDocumentSave}
+            subStepInfo={subStepInfo}
+            onSubStepChange={(current) =>
+              setSubStepInfo((prev) => ({ ...prev, current }))
+            }
           />
         );
-      case 12:
+      case 14:
         return (
           <PostEmployementStep
             defaultValues={{ ...fetchData, ...formData }}
             onSaveAndContinue={handlePostEmployementSaveAndContinue}
             setCurrentStep={setCurrentStep}
-                        onSave={handlePostEmployementSave}
-                       subStep={subStep}
-
-
+            onSave={handlePostEmployementSave}
+            subStep={subStep}
+            subStepInfo={subStepInfo}
+            onSubStepChange={(current) =>
+              setSubStepInfo((prev) => ({ ...prev, current }))
+            }
           />
         );
-      case 13:
+      case 15:
         return (
           <PaymentStep
             defaultValues={{ ...fetchData, ...formData }}
@@ -604,7 +579,7 @@ export default function CareerApplicationForm() {
             setSubstep={setSubstep}
           />
         );
-      case 14:
+      case 16:
         return (
           <ReviewStep
             defaultValues={{ ...fetchData, ...formData }}
@@ -612,6 +587,11 @@ export default function CareerApplicationForm() {
             onReview={handleReviewClick}
             onSubmit={handleSubmit}
             setCurrentStep={setCurrentStep}
+            subStep={subStep}
+            subStepInfo={subStepInfo}
+            onSubStepChange={(current) =>
+              setSubStepInfo((prev) => ({ ...prev, current }))
+            }
           />
         );
       default:
@@ -632,7 +612,7 @@ export default function CareerApplicationForm() {
                 onClick={() => {
                   markStepAsCompleted(currentStep);
                   setCurrentStep((prev) =>
-                    Math.min(careerFormSteps.length, prev + 1)
+                    Math.min(TOTAL_FILLABLE_STEPS, prev + 1)
                   );
                 }}
               >
@@ -647,60 +627,112 @@ export default function CareerApplicationForm() {
   if (formSubmitted) {
     return (
       <div className="flex min-h-[calc(100vh-150px)] items-center justify-center px-4">
-        <Card className="rounded-lg border border-gray-100 bg-watney/90 p-24 shadow-lg">
-          <div className="flex flex-col items-center gap-6 text-center">
-            <div className="rounded-full bg-white p-8">
-              <Check size={84} className="text-watney" />
-            </div>
-            <div className="flex items-center gap-4 text-center">
-              <div>
-                <CardTitle className="text-2xl font-semibold text-white">
-                  Your Application Submitted Successfully
-                </CardTitle>
-                <CardDescription className="mt-2 text-base leading-relaxed text-white">
-                  Thank you for your submission. Our team has received your
-                  career application and will get back to you shortly. Stay
-                  tuned!
-                  {/* Support Section */}
-                  <div className=" mt-2 w-full rounded-md text-center text-base text-white ">
-                    <p>
-                      If you have any questions or need help with your
-                      application, please don’t hesitate to contact us:
-                    </p>
-                    <ul className="mt-3 list-none space-y-2">
-                      <li>
-                        📧 <strong>Email:</strong>{' '}
-                        <a
-                          href="mailto:admissions@watneycollege.ac.uk"
-                          className="underline"
-                        >
-                          info@everycare.co.uk
-                        </a>
-                      </li>
-                      <li>
-                        ☎ <strong>Phone:</strong> +442920455300
-                      </li>
-                    </ul>
-                  </div>
-                </CardDescription>
-              </div>
-            </div>
-
-            <Button
-              onClick={handleDashboardRedirect}
-              className="mt-4 w-full rounded-sm bg-white px-6 py-3 text-base font-semibold text-watney transition hover:bg-white sm:w-auto"
-            >
-              Done
-            </Button>
-          </div>
-        </Card>
+  <Card className="rounded-2xl bg-watney/80 backdrop-blur-sm border border-white/30 shadow-2xl p-16 relative overflow-hidden">
+    {/* Background decorative elements */}
+    <div className="absolute -top-20 -right-20 w-40 h-40 bg-white/5 rounded-full blur-xl"></div>
+    <div className="absolute -bottom-16 -left-16 w-32 h-32 bg-white/10 rounded-full blur-lg"></div>
+    
+    <div className="flex flex-col items-center gap-8 text-center relative z-10">
+      {/* Animated checkmark circle */}
+      <div className="rounded-full bg-white/90 p-8 shadow-lg backdrop-blur-sm border border-white/50 animate-pulse-slow">
+        <Check size={84} className="text-watney drop-shadow-sm" />
       </div>
+      
+      <CardTitle className="text-3xl font-bold text-white drop-shadow-md">
+        Your Application Submitted Successfully
+      </CardTitle>
+      
+      <CardDescription className="mt-2 text-lg leading-relaxed text-white/95 backdrop-blur-md rounded-2xl">
+        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+          Thank you for your submission. Our team has received your
+          career application and will get back to you shortly. Stay
+          tuned!
+          
+          <div className="mt-4 rounded-xl text-center text-lg text-white/95">
+            <p className="font-medium">
+              If you have any questions or need help with your
+              application, please don't hesitate to contact us:
+            </p>
+            <ul className="mt-4 list-none space-y-3 w-auto">
+              <li className="flex items-center justify-center gap-3 rounded-lg py-2 px-4 ">
+                <span className="text-xl">📧</span>
+                <strong>Email:</strong>
+                <a
+                  href="mailto:info@everycare.co.uk"
+                  className="underline hover:text-white transition-colors"
+                >
+                  info@everycare.co.uk
+                </a>
+              </li>
+              <li className="flex items-center justify-center gap-3 rounded-lg py-2 px-4 ">
+                <span className="text-xl">☎</span>
+                <strong>Phone:</strong>
+                <span>+442920455300</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </CardDescription>
+      
+      <Button
+        onClick={handleDashboardRedirect}
+        className="mt-6  rounded-xl bg-white/90 backdrop-blur-sm px-16 py-6 text-lg font-semibold text-watney transition-all hover:bg-white hover:scale-105 hover:shadow-lg border border-white/50 shadow-md"
+      >
+        Done
+      </Button>
+    </div>
+  </Card>
+</div>
     );
   }
+
   return (
-    <div className=" mx-auto md:p-4">
-      {/* <h1 className="text-2xl font-bold text-center mb-8">Career Application</h1> */}
-      {/* <StepIndicator currentStep={currentStep} totalSteps={totalSteps} /> */}
+    <div className="p-4">
+      {/* Header with Progress Circle and Step Counter */}
+      <div className="mb-2 flex flex-col items-center justify-between gap-2 sm:flex-row">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800">Career Application</h1>
+          <p className="mt-2 text-sm text-gray-600">
+            Step {displayStep} of {TOTAL_FILLABLE_STEPS}
+          </p>
+        </div>
+        {/* ✅ Animated Success Message - Between Progress & Form */}
+        <AnimatePresence>
+          {successMessage && (
+            <motion.div
+              className=" flex justify-center"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+            >
+              <div className="rounded-md bg-watney px-5 py-2.5 text-lg font-medium text-white shadow-md">
+                {successMessage}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <div className="flex flex-col items-center">
+          <div className="h-24 w-24">
+            <CircularProgressbar
+              value={progressPercentage}
+              text={`${progressPercentage}%`}
+              styles={buildStyles({
+                textSize: '20px',
+                pathColor: '#2563eb',
+                textColor: '#1e293b',
+                trailColor: '#e2e8f0',
+                backgroundColor: '#f1f5f9',
+              })}
+            />
+          </div>
+          <p className="mt-2 text-sm text-gray-600">Application Progress</p>
+        </div>
+      </div>
+
+
+      {/* Form Content */}
       <div className="">{renderStep()}</div>
     </div>
   );

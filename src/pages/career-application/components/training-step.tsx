@@ -165,369 +165,360 @@ export function TrainingStep({
     if (currentPage === 1) {
       setCurrentStep(4);
     } else {
-      setCurrentPage(1);
+      setCurrentPage(6);
     }
   }
 
-  const renderTrainingHistoryStep = () => (
-    <div className="space-y-8">
-      <CardHeader>
-        <CardTitle className="text-2xl">Professional Training & Qualifications (Starting with most recent)</CardTitle>
-        <CardDescription>
-          Please provide details of any formal training you have completed. This
-          section is optional, but if you fill in any field in a row, all fields
-          in that row become mandatory.
-        </CardDescription>
-      </CardHeader>
+const renderTrainingHistoryStep = () => (
+  <div className="space-y-8">
+    <CardHeader>
+      <CardTitle className="text-2xl">Professional Training & Qualifications (Starting with most recent)</CardTitle>
+      <CardDescription>
+        Please provide details of any formal training you have completed. This
+        section is optional, but if you fill in any field in a row, all fields
+        in that row become mandatory.
+      </CardDescription>
+    </CardHeader>
 
-      <CardContent className="mt-2 p-0 px-6">
-        <div className="-mt-8">
-          {fields.length === 0 ? (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={addTrainingEntry}
-              className="mb-4 bg-watney text-white hover:bg-watney/90"
-            >
-              Add Training Record
-            </Button>
-          ) : (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={addTrainingEntry}
-              className="mb-4 bg-watney text-white hover:bg-watney/90"
-            >
-              Add More Training
-            </Button>
-          )}
-        </div>
+    <CardContent className="mt-2 p-0 px-6">
+      <div className="-mt-8">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={addTrainingEntry}
+          className="mb-4 h-12 rounded-full bg-watney text-lg text-white hover:bg-watney/90"
+        >
+          {fields.length === 0 ? 'Add Training Record' : 'Add More Training'}
+        </Button>
+      </div>
 
-        {fields.length > 0 && (
-          <>
-            {/* Desktop/Tablet View: Table */}
-            <div className="hidden overflow-x-auto md:block">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>
-                      Training Name{' '}
-                      <span className="hidden text-red-500 group-[.filled]:inline">
-                        *
-                      </span>
-                    </TableHead>
-                    <TableHead>
-                      Awarding Body{' '}
-                      <span className="hidden text-red-500 group-[.filled]:inline">
-                        *
-                      </span>
-                    </TableHead>
-                    <TableHead>Completion Date</TableHead>
-                    <TableHead>Certificate</TableHead>
-                    <TableHead className="w-[80px]">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {fields.map((field, index) => {
-                    const isRowFilled =
-                      form.getValues(`trainingData.${index}.trainingName`)?.trim() ||
-                      form.getValues(`trainingData.${index}.awardingBody`)?.trim() ||
-                      form.getValues(`trainingData.${index}.completionDate`) ||
-                      form.getValues(`trainingData.${index}.certificate`);
+      {fields.length > 0 && (
+        <>
+          {/* Desktop/Tablet View: Table */}
+          <div className="hidden overflow-x-auto md:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="text-lg">
+                    Training Name{' '}
+                    <span className="hidden text-red-500 group-[.group-filled]:inline">
+                      *
+                    </span>
+                  </TableHead>
+                  <TableHead className="text-lg">
+                    Awarding Body{' '}
+                    <span className="hidden text-red-500 group-[.group-filled]:inline">
+                      *
+                    </span>
+                  </TableHead>
+                  <TableHead className="text-lg">Completion Date</TableHead>
+                  <TableHead className="text-lg">Certificate</TableHead>
+                  <TableHead className="w-[80px]"></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {fields.map((field, index) => {
+                  const isRowFilled =
+                    form.getValues(`trainingData.${index}.trainingName`)?.trim() ||
+                    form.getValues(`trainingData.${index}.awardingBody`)?.trim() ||
+                    form.getValues(`trainingData.${index}.completionDate`) ||
+                    form.getValues(`trainingData.${index}.certificate`);
 
-                    return (
-                      <TableRow
-                        key={field.id}
-                        className={isRowFilled ? 'group-filled' : ''}
-                      >
-                        <TableCell className="align-top">
-                          <FormField
-                            control={form.control}
-                            name={`trainingData.${index}.trainingName`}
-                            render={({ field: formField }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Input
-                                    {...formField}
-                                    value={formField.value || ''}
-                                    placeholder="Training name"
-                                  />
-                                </FormControl>
-                                <p className="text-xs text-gray-400">
-                                  Example: First Aid Certification
-                                </p>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </TableCell>
-                        <TableCell className="align-top">
-                          <FormField
-                            control={form.control}
-                            name={`trainingData.${index}.awardingBody`}
-                            render={({ field: formField }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Input
-                                    {...formField}
-                                    value={formField.value || ''}
-                                    placeholder="Awarding body"
-                                  />
-                                </FormControl>
-                                <p className="text-xs text-gray-400">
-                                  Example: Red Cross
-                                </p>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </TableCell>
-                        <TableCell className="align-top">
-                          <FormField
-                            control={form.control}
-                            name={`trainingData.${index}.completionDate`}
-                            render={({ field: formField }) => {
-                              const selectedDate = formField.value
-                                ? new Date(formField.value)
-                                : null;
-                              return (
-                                <FormItem>
-                                  <FormControl>
-                                    <CustomDatePicker
-                                      selected={selectedDate}
-                                      onChange={(date) =>
-                                        formField.onChange(date)
-                                      }
-                                      placeholderText="MM/DD/YYYY"
-                                    />
-                                  </FormControl>
-                                  <p className="text-xs text-gray-400">
-                                    Example: 06/15/2023
-                                  </p>
-                                  <FormMessage />
-                                </FormItem>
-                              );
-                            }}
-                          />
-                        </TableCell>
-                        <TableCell className="align-top">
-                          <FormField
-                            control={form.control}
-                            name={`trainingData.${index}.certificate`}
-                            render={({ field: formField }) => (
-                              <FormItem className="flex flex-col">
-                                <Button
-                                  type="button"
-                                  className="bg-watney py-1 text-xs text-white hover:bg-watney/90"
-                                  onClick={() =>
-                                    setUploadState({
-                                      isOpen: true,
-                                      field: formField.name
-                                    })
-                                  }
-                                >
-                                  Upload Certificate
-                                </Button>
-                                <p className="mt-1 text-xs text-gray-500">
-                                  PDF, JPG, PNG (≤5MB)
-                                </p>
-                                {formField.value && (
-                                  <a
-                                    href={formField.value}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="mt-1 text-xs text-blue-600 underline"
-                                  >
-                                    View File
-                                  </a>
-                                )}
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => remove(index)}
-                            className="text-red-500 hover:bg-red-500 hover:text-white"
-                          >
-                            Remove
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </div>
-
-            {/* Mobile View: Stacked Cards */}
-            <div className="space-y-6 md:hidden">
-              {fields.map((field, index) => {
-                const isRowFilled =
-                  form.getValues(`trainingData.${index}.trainingName`)?.trim() ||
-                  form.getValues(`trainingData.${index}.awardingBody`)?.trim() ||
-                  form.getValues(`trainingData.${index}.completionDate`) ||
-                  form.getValues(`trainingData.${index}.certificate`);
-
-                return (
-                  <div
-                    key={field.id}
-                    className="space-y-4 rounded-lg border border-gray-300 bg-white p-2"
-                  >
-                    {/* Training Name */}
-                    <div>
-                      <label className="mb-1 block text-sm font-medium text-gray-700">
-                        Training Name{' '}
-                        {isRowFilled && <span className="text-red-500">*</span>}
-                      </label>
-                      <FormField
-                        control={form.control}
-                        name={`trainingData.${index}.trainingName`}
-                        render={({ field: formField }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Input
-                                {...formField}
-                                value={formField.value || ''}
-                                placeholder="Training name"
-                              />
-                            </FormControl>
-                            <p className="text-xs text-gray-400">
-                              Example: First Aid Certification
-                            </p>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-
-                    {/* Awarding Body */}
-                    <div>
-                      <label className="mb-1 block text-sm font-medium text-gray-700">
-                        Awarding Body{' '}
-                        {isRowFilled && <span className="text-red-500">*</span>}
-                      </label>
-                      <FormField
-                        control={form.control}
-                        name={`trainingData.${index}.awardingBody`}
-                        render={({ field: formField }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Input
-                                {...formField}
-                                value={formField.value || ''}
-                                placeholder="Awarding body"
-                              />
-                            </FormControl>
-                            <p className="text-xs text-gray-400">
-                              Example: Red Cross
-                            </p>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-
-                    {/* Completion Date */}
-                    <div>
-                      <label className="mb-1 block text-sm font-medium text-gray-700">
-                        Completion Date{' '}
-                        {isRowFilled && <span className="text-red-500">*</span>}
-                      </label>
-                      <FormField
-                        control={form.control}
-                        name={`trainingData.${index}.completionDate`}
-                        render={({ field: formField }) => {
-                          const selectedDate = formField.value
-                            ? new Date(formField.value)
-                            : null;
-                          return (
+                  return (
+                    <TableRow
+                      key={field.id}
+                      className={isRowFilled ? 'group-filled' : ''}
+                    >
+                      <TableCell className="align-top">
+                        <FormField
+                          control={form.control}
+                          name={`trainingData.${index}.trainingName`}
+                          render={({ field: formField }) => (
                             <FormItem>
                               <FormControl>
-                                <CustomDatePicker
-                                  selected={selectedDate}
-                                  onChange={(date) => formField.onChange(date)}
-                                  placeholderText="MM/DD/YYYY"
-                                  className="w-full"
+                                <Input
+                                  {...formField}
+                                  value={formField.value || ''}
+                                  placeholder="Training name"
+                                  className="h-12 rounded-full text-lg"
                                 />
                               </FormControl>
-                              <p className="text-xs text-gray-400">
-                                Example: 06/15/2023
+                              <p className="text-md text-gray-400">
+                                Example: First Aid Certification
                               </p>
                               <FormMessage />
                             </FormItem>
-                          );
-                        }}
-                      />
-                    </div>
-
-                    {/* Certificate Upload */}
-                    <div>
-                      <label className="mb-1 block text-sm font-medium text-gray-700">
-                        Certificate{' '}
-                        {isRowFilled && <span className="text-red-500">*</span>}
-                      </label>
-                      <FormField
-                        control={form.control}
-                        name={`trainingData.${index}.certificate`}
-                        render={({ field: formField }) => (
-                          <FormItem className="flex flex-col">
-                            <Button
-                              type="button"
-                              className="bg-watney py-1 text-xs text-white hover:bg-watney/90"
-                              onClick={() =>
-                                setUploadState({
-                                  isOpen: true,
-                                  field: formField.name
-                                })
-                              }
-                            >
-                              Upload Certificate
-                            </Button>
-                            <p className="mt-1 text-xs text-gray-500">
-                              PDF, JPG, PNG (≤5MB)
-                            </p>
-                            {formField.value && (
-                              <a
-                                href={formField.value}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="mt-1 text-xs text-blue-600 underline"
+                          )}
+                        />
+                      </TableCell>
+                      <TableCell className="align-top">
+                        <FormField
+                          control={form.control}
+                          name={`trainingData.${index}.awardingBody`}
+                          render={({ field: formField }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input
+                                  {...formField}
+                                  value={formField.value || ''}
+                                  placeholder="Awarding body"
+                                  className="h-12 rounded-full text-lg"
+                                />
+                              </FormControl>
+                              <p className="text-md text-gray-400">
+                                Example: Red Cross
+                              </p>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </TableCell>
+                      <TableCell className="align-top">
+                        <FormField
+                          control={form.control}
+                          name={`trainingData.${index}.completionDate`}
+                          render={({ field: formField }) => {
+                            const selectedDate = formField.value
+                              ? new Date(formField.value)
+                              : null;
+                            return (
+                              <FormItem>
+                                <FormControl>
+                                  <CustomDatePicker
+                                    selected={selectedDate}
+                                    onChange={(date) => formField.onChange(date)}
+                                    placeholderText="MM/DD/YYYY"
+                                    className="h-12 rounded-full text-lg w-full"
+                                  />
+                                </FormControl>
+                                <p className="text-md text-gray-400">
+                                  Example: 06/15/2023
+                                </p>
+                                <FormMessage />
+                              </FormItem>
+                            );
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell className="align-top">
+                        <FormField
+                          control={form.control}
+                          name={`trainingData.${index}.certificate`}
+                          render={({ field: formField }) => (
+                            <FormItem className="flex flex-col">
+                              <Button
+                                type="button"
+                                className="h-12 rounded-full bg-watney text-lg text-white hover:bg-watney/90"
+                                onClick={() =>
+                                  setUploadState({
+                                    isOpen: true,
+                                    field: formField.name,
+                                  })
+                                }
                               >
-                                View File
-                              </a>
-                            )}
+                                Upload Certificate
+                              </Button>
+                              <p className="mt-1 text-md text-gray-500">
+                                PDF, JPG, PNG (≤5MB)
+                              </p>
+                              {formField.value && (
+                                <a
+                                  href={formField.value}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="mt-1 text-md text-blue-600 underline"
+                                >
+                                  View File
+                                </a>
+                              )}
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => remove(index)}
+                          className="h-12 rounded-full text-lg text-red-500 hover:bg-red-100 hover:text-red-700"
+                        >
+                          Remove
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Mobile View: Stacked Cards */}
+          <div className="space-y-6 md:hidden">
+            {fields.map((field, index) => {
+              const isRowFilled =
+                form.getValues(`trainingData.${index}.trainingName`)?.trim() ||
+                form.getValues(`trainingData.${index}.awardingBody`)?.trim() ||
+                form.getValues(`trainingData.${index}.completionDate`) ||
+                form.getValues(`trainingData.${index}.certificate`);
+
+              return (
+                <div
+                  key={field.id}
+                  className="space-y-4 rounded-lg border border-gray-300 bg-white p-4"
+                >
+                  {/* Training Name */}
+                  <div>
+                    <label className="mb-2 block text-lg font-medium text-gray-700">
+                      Training Name{' '}
+                      {isRowFilled && <span className="text-red-500">*</span>}
+                    </label>
+                    <FormField
+                      control={form.control}
+                      name={`trainingData.${index}.trainingName`}
+                      render={({ field: formField }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input
+                              {...formField}
+                              value={formField.value || ''}
+                              placeholder="Training name"
+                              className="h-12 rounded-full text-lg"
+                            />
+                          </FormControl>
+                          <p className="text-md text-gray-400">
+                            Example: First Aid Certification
+                          </p>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  {/* Awarding Body */}
+                  <div>
+                    <label className="mb-2 block text-lg font-medium text-gray-700">
+                      Awarding Body{' '}
+                      {isRowFilled && <span className="text-red-500">*</span>}
+                    </label>
+                    <FormField
+                      control={form.control}
+                      name={`trainingData.${index}.awardingBody`}
+                      render={({ field: formField }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input
+                              {...formField}
+                              value={formField.value || ''}
+                              placeholder="Awarding body"
+                              className="h-12 rounded-full text-lg"
+                            />
+                          </FormControl>
+                          <p className="text-md text-gray-400">
+                            Example: Red Cross
+                          </p>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  {/* Completion Date */}
+                  <div>
+                    <label className="mb-2 block text-lg font-medium text-gray-700">
+                      Completion Date{' '}
+                      {isRowFilled && <span className="text-red-500">*</span>}
+                    </label>
+                    <FormField
+                      control={form.control}
+                      name={`trainingData.${index}.completionDate`}
+                      render={({ field: formField }) => {
+                        const selectedDate = formField.value
+                          ? new Date(formField.value)
+                          : null;
+                        return (
+                          <FormItem>
+                            <FormControl>
+                              <CustomDatePicker
+                                selected={selectedDate}
+                                onChange={(date) => formField.onChange(date)}
+                                placeholderText="MM/DD/YYYY"
+                                className="h-12 rounded-full text-lg w-full"
+                              />
+                            </FormControl>
+                            <p className="text-md text-gray-400">
+                              Example: 06/15/2023
+                            </p>
                             <FormMessage />
                           </FormItem>
-                        )}
-                      />
-                    </div>
-
-                    {/* Remove Button */}
-                    <div className="pt-2">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => remove(index)}
-                        className="w-full text-sm text-red-500 hover:bg-red-50 hover:text-red-700"
-                      >
-                        Remove Training
-                      </Button>
-                    </div>
+                        );
+                      }}
+                    />
                   </div>
-                );
-              })}
-            </div>
-          </>
-        )}
-      </CardContent>
-    </div>
-  );
+
+                  {/* Certificate Upload */}
+                  <div>
+                    <label className="mb-2 block text-lg font-medium text-gray-700">
+                      Certificate{' '}
+                      {isRowFilled && <span className="text-red-500">*</span>}
+                    </label>
+                    <FormField
+                      control={form.control}
+                      name={`trainingData.${index}.certificate`}
+                      render={({ field: formField }) => (
+                        <FormItem className="flex flex-col">
+                          <Button
+                            type="button"
+                            className="h-12 rounded-full bg-watney text-lg text-white hover:bg-watney/90"
+                            onClick={() =>
+                              setUploadState({
+                                isOpen: true,
+                                field: formField.name,
+                              })
+                            }
+                          >
+                            Upload Certificate
+                          </Button>
+                          <p className="mt-1 text-md text-gray-500">
+                            PDF, JPG, PNG (≤5MB)
+                          </p>
+                          {formField.value && (
+                            <a
+                              href={formField.value}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="mt-1 text-md text-blue-600 underline"
+                            >
+                              View File
+                            </a>
+                          )}
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  {/* Remove Button */}
+                  <div className="pt-2">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => remove(index)}
+                      className="h-12 w-full rounded-full text-lg text-red-500 hover:bg-red-100 hover:text-red-700"
+                    >
+                      Remove Training
+                    </Button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
+    </CardContent>
+  </div>
+);
 
   return (
     <Card className="border-none shadow-none">
@@ -539,13 +530,13 @@ export function TrainingStep({
               type="button"
               variant="outline"
               onClick={handleBack}
-              className="bg-watney text-white hover:bg-watney/90"
+              className="h-12 rounded-full bg-watney px-6 text-lg text-white hover:bg-watney/90"
             >
               Back
             </Button>
             <Button
               type="submit"
-              className="bg-watney text-white hover:bg-watney/90"
+              className="h-12 rounded-full bg-watney px-6 text-lg text-white hover:bg-watney/90"
             >
               Next
             </Button>

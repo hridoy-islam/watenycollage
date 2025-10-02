@@ -186,7 +186,7 @@ export function EducationStep({
     if (currentPage === 1) {
       setCurrentStep(3);
     } else {
-      setCurrentPage(1);
+      setCurrentPage(5);
     }
   }
 
@@ -203,25 +203,14 @@ export function EducationStep({
 
     <CardContent className="mt-2 p-0 px-6">
       <div className="-mt-8">
-        {fields.length === 0 ? (
-          <Button
-            type="button"
-            variant="outline"
-            onClick={addEducationEntry}
-            className="mb-4 bg-watney text-white hover:bg-watney/90"
-          >
-            Add Qualification
-          </Button>
-        ) : (
-          <Button
-            type="button"
-            variant="outline"
-            onClick={addEducationEntry}
-            className="mb-4 bg-watney text-white hover:bg-watney/90"
-          >
-            Add More Qualification
-          </Button>
-        )}
+        <Button
+          type="button"
+          variant="outline"
+          onClick={addEducationEntry}
+          className="mb-4 bg-watney text-white hover:bg-watney/90 rounded-full"
+        >
+          {fields.length === 0 ? 'Add Qualification' : 'Add More Qualification'}
+        </Button>
       </div>
 
       {fields.length > 0 && (
@@ -231,24 +220,24 @@ export function EducationStep({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>
+                  <TableHead className='text-lg'>
                     Qualifications <span className="text-red-500">*</span>
                   </TableHead>
-                  <TableHead>
+                  <TableHead className='text-lg'>
                     Grade <span className="text-red-500">*</span>
                   </TableHead>
-                  <TableHead className="min-w-[300px]">
+                  <TableHead className="min-w-[300px] text-lg">
                     Name of the Institution{' '}
                     <span className="text-red-500">*</span>
                   </TableHead>
-                  <TableHead>
+                  <TableHead className='text-lg'>
                     Date of Award (MM/DD/YYYY){' '}
                     <span className="text-red-500">*</span>
                   </TableHead>
-                  <TableHead>
+                  <TableHead className='text-lg'>
                     Certificate <span className="text-red-500">*</span>
                   </TableHead>
-                  <TableHead className="w-[80px]">Actions</TableHead>
+                  <TableHead className="w-[80px] text-lg">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -265,6 +254,7 @@ export function EducationStep({
                                 {...formField}
                                 value={formField.value || ''}
                                 placeholder="Enter qualification"
+                                className="h-12 rounded-full text-lg"
                               />
                             </FormControl>
                             <FormMessage />
@@ -282,9 +272,10 @@ export function EducationStep({
                               <Input
                                 {...formField}
                                 placeholder="Grade (e.g., 3.91)"
+                                className="h-12 rounded-full text-lg"
                               />
                             </FormControl>
-                            <p className="mt-1 text-xs text-gray-400">
+                            <p className="mt-1 text-md text-gray-400">
                               Example: 3.91
                             </p>
                             <FormMessage />
@@ -303,9 +294,10 @@ export function EducationStep({
                                 {...formField}
                                 value={formField.value || ''}
                                 placeholder="Institution name"
+                                className="h-12 rounded-full text-lg"
                               />
                             </FormControl>
-                            <p className="text-xs text-gray-400">
+                            <p className="text-md text-gray-400">
                               Example: University of Manchester
                             </p>
                             <FormMessage />
@@ -327,9 +319,10 @@ export function EducationStep({
                                 <CustomDatePicker
                                   selected={selectedDate}
                                   onChange={(date) => formField.onChange(date)}
+                                  className="h-12 rounded-full text-lg w-full"
                                 />
                               </FormControl>
-                              <p className="text-xs text-gray-400">
+                              <p className="text-md text-gray-400">
                                 Example: 01/16/2022
                               </p>
                               <FormMessage />
@@ -346,17 +339,17 @@ export function EducationStep({
                           <FormItem className="flex flex-col">
                             <Button
                               type="button"
-                              className="bg-watney text-white hover:bg-watney/90 text-xs py-1"
+                              className="bg-watney text-white hover:bg-watney/90 text-lg py-2 h-12 rounded-full"
                               onClick={() =>
                                 setUploadState({
                                   isOpen: true,
-                                  field: formField.name
+                                  field: formField.name,
                                 })
                               }
                             >
                               Upload Certificate
                             </Button>
-                            <p className="text-xs text-gray-500 mt-1">
+                            <p className="text-md text-gray-500 mt-1">
                               PDF, JPG, PNG (≤5MB)
                             </p>
                             {formField.value && (
@@ -364,7 +357,7 @@ export function EducationStep({
                                 href={formField.value}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="mt-1 text-xs text-blue-600 underline"
+                                className="mt-1 text-md text-blue-600 underline"
                               >
                                 View File
                               </a>
@@ -380,7 +373,7 @@ export function EducationStep({
                         variant="ghost"
                         size="sm"
                         onClick={() => remove(index)}
-                        className="text-red-500 hover:bg-red-500 hover:text-white"
+                      className="h-12 w-full rounded-full text-lg text-red-500 hover:bg-red-100 hover:text-red-700"
                       >
                         Remove
                       </Button>
@@ -396,11 +389,11 @@ export function EducationStep({
             {fields.map((field, index) => (
               <div
                 key={field.id}
-                className=" rounded-lg border border-gray-300 p-2 bg-white space-y-4"
+                className="rounded-lg border border-gray-300 p-4 bg-white space-y-4"
               >
                 {/* Qualification */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-lg font-medium text-gray-700 mb-2">
                     Qualification <span className="text-red-500">*</span>
                   </label>
                   <FormField
@@ -413,6 +406,7 @@ export function EducationStep({
                             {...formField}
                             value={formField.value || ''}
                             placeholder="Enter qualification"
+                            className="h-12 rounded-full text-lg"
                           />
                         </FormControl>
                         <FormMessage />
@@ -423,7 +417,7 @@ export function EducationStep({
 
                 {/* Grade */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-lg font-medium text-gray-700 mb-2">
                     Grade <span className="text-red-500">*</span>
                   </label>
                   <FormField
@@ -432,9 +426,13 @@ export function EducationStep({
                     render={({ field: formField }) => (
                       <FormItem>
                         <FormControl>
-                          <Input {...formField} placeholder="e.g., 3.91" />
+                          <Input
+                            {...formField}
+                            placeholder="e.g., 3.91"
+                            className="h-12 rounded-full text-lg"
+                          />
                         </FormControl>
-                        <p className="text-xs text-gray-400">Example: 3.91</p>
+                        <p className="text-md text-gray-400">Example: 3.91</p>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -443,7 +441,7 @@ export function EducationStep({
 
                 {/* Institution */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-lg font-medium text-gray-700 mb-2">
                     Institution <span className="text-red-500">*</span>
                   </label>
                   <FormField
@@ -456,9 +454,10 @@ export function EducationStep({
                             {...formField}
                             value={formField.value || ''}
                             placeholder="University name"
+                            className="h-12 rounded-full text-lg"
                           />
                         </FormControl>
-                        <p className="text-xs text-gray-400">
+                        <p className="text-md text-gray-400">
                           Example: University of Manchester
                         </p>
                         <FormMessage />
@@ -469,7 +468,7 @@ export function EducationStep({
 
                 {/* Award Date */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-lg font-medium text-gray-700 mb-2">
                     Date of Award <span className="text-red-500">*</span>
                   </label>
                   <FormField
@@ -485,10 +484,10 @@ export function EducationStep({
                             <CustomDatePicker
                               selected={selectedDate}
                               onChange={(date) => formField.onChange(date)}
-                              className="w-full"
+                              className="h-12 rounded-full text-lg w-full"
                             />
                           </FormControl>
-                          <p className="text-xs text-gray-400">
+                          <p className="text-md text-gray-400">
                             Example: 01/16/2022
                           </p>
                           <FormMessage />
@@ -500,7 +499,7 @@ export function EducationStep({
 
                 {/* Certificate Upload */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-lg font-medium text-gray-700 mb-2">
                     Certificate <span className="text-red-500">*</span>
                   </label>
                   <FormField
@@ -510,17 +509,17 @@ export function EducationStep({
                       <FormItem className="flex flex-col">
                         <Button
                           type="button"
-                          className="bg-watney text-white hover:bg-watney/90 text-xs py-1"
+                          className="bg-watney text-white hover:bg-watney/90 text-lg py-2 h-12 rounded-full"
                           onClick={() =>
                             setUploadState({
                               isOpen: true,
-                              field: formField.name
+                              field: formField.name,
                             })
                           }
                         >
                           Upload Certificate
                         </Button>
-                        <p className="text-xs text-gray-500 mt-1">
+                        <p className="text-md text-gray-500 mt-1">
                           PDF, JPG, PNG (≤5MB)
                         </p>
                         {formField.value && (
@@ -528,7 +527,7 @@ export function EducationStep({
                             href={formField.value}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="mt-1 text-xs text-blue-600 underline"
+                            className="mt-1 text-md text-blue-600 underline"
                           >
                             View File
                           </a>
@@ -546,7 +545,7 @@ export function EducationStep({
                     variant="ghost"
                     size="sm"
                     onClick={() => remove(index)}
-                    className="text-red-500 hover:bg-red-50 hover:text-red-700 text-sm w-full"
+                      className="h-12 w-full rounded-full text-lg text-red-500 hover:bg-red-100 hover:text-red-700"
                   >
                     Remove Qualification
                   </Button>
@@ -570,14 +569,14 @@ export function EducationStep({
               type="button"
               variant="outline"
               onClick={handleBack}
-              className="bg-watney text-white hover:bg-watney/90"
+              className="h-12 rounded-full bg-watney px-6 text-lg text-white hover:bg-watney/90"
             >
               Back
             </Button>
             <Button
               type="submit"
               onClick={form.handleSubmit(onSubmit)}
-              className="bg-watney text-white hover:bg-watney/90"
+              className="h-12 rounded-full bg-watney px-6 text-lg text-white hover:bg-watney/90"
             >
               Next
             </Button>
