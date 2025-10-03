@@ -319,120 +319,351 @@ const handleNext = async () => {
     return `${address.line1}${address.line2 ? `, ${address.line2}` : ''}, ${address.city}, ${address.postCode}, ${address.country}`;
   };
 
+
+  const isEmpty = (value) => {
+  if (value === null || value === undefined) return true;
+  if (typeof value === 'string' && value.trim() === '') return true;
+  if (Array.isArray(value) && value.length === 0) return true;
+  if (typeof value === 'object' && Object.keys(value).length === 0) return true;
+  return false;
+};
+
+const filterEmptyFields = (obj) => {
+  if (!obj || typeof obj !== 'object') return {};
+  return Object.fromEntries(
+    Object.entries(obj).filter(([_, v]) => !isEmpty(v))
+  );
+};
+
   // Preview Sections (unchanged)
-  const sections = (
-    <div className="space-y-6">
-      {renderSection('Personal Details', {
+const sections = (
+  <div className="space-y-6">
+    {/* Personal Details */}
+    {renderSection(
+      'Personal Details',
+      filterEmptyFields({
         title: defaultValues.title,
         firstName: defaultValues.firstName,
         initial: defaultValues.initial,
         lastName: defaultValues.lastName,
+        otherName: defaultValues.otherName,
         dateOfBirth: defaultValues.dateOfBirth,
-        gender: defaultValues.gender,
-        maritalStatus: defaultValues.maritalStatus,
         nationality: defaultValues.nationality,
+        countryOfResidence: defaultValues.countryOfResidence,
+        countryOfBirth: defaultValues.countryOfBirth,
         shareCode: defaultValues.shareCode,
         nationalInsuranceNumber: defaultValues.nationalInsuranceNumber,
         postalAddressLine1: defaultValues.postalAddressLine1,
         postalAddressLine2: defaultValues.postalAddressLine2,
         postalCity: defaultValues.postalCity,
         postalPostCode: defaultValues.postalPostCode,
-        postalCountry: defaultValues.postalCountry
-      })}
+        postalCountry: defaultValues.postalCountry,
+      })
+    )}
 
-      {renderSection('Emergency Contact Information', {
+    {/* Emergency Contact */}
+    {renderSection(
+      'Emergency Contact Information',
+      filterEmptyFields({
         emergencyFullName: defaultValues.emergencyFullName,
         emergencyContactNumber: defaultValues.emergencyContactNumber,
         emergencyEmail: defaultValues.emergencyEmail,
         emergencyRelationship: defaultValues.emergencyRelationship,
-        emergencyAddress: defaultValues.emergencyAddress
-      })}
+        emergencyAddress: defaultValues.emergencyAddress,
+      })
+    )}
 
-      {renderSection(
-        'Application Details',
-        Object.fromEntries(
-          Object.entries({
-            availableFromDate: defaultValues.availableFromDate,
-            source: defaultValues.source,
-            isStudent: defaultValues.isStudent,
-            referralEmployee:
-              defaultValues.source === 'referral'
-                ? defaultValues.referralEmployee
-                : undefined,
-            isUnderStatePensionAge: defaultValues.isUnderStatePensionAge,
-            isOver18: defaultValues.isOver18,
-            isSubjectToImmigrationControl:
-              defaultValues.isSubjectToImmigrationControl,
-            canWorkInUK: defaultValues.canWorkInUK
-          }).filter(([_, value]) => value !== undefined)
-        )
-      )}
+    {/* Application Details */}
+    {renderSection(
+      'Application Details',
+      filterEmptyFields({
+        availableFromDate: defaultValues.availableFromDate,
+        source: defaultValues.source,
+        referralEmployee:
+          defaultValues.source === 'referral'
+            ? defaultValues.referralEmployee
+            : undefined,
+        isStudent: defaultValues.isStudent,
+        isUnderStatePensionAge: defaultValues.isUnderStatePensionAge,
+        isOver18: defaultValues.isOver18,
+        isSubjectToImmigrationControl: defaultValues.isSubjectToImmigrationControl,
+        canWorkInUK: defaultValues.canWorkInUK,
+        competentInOtherLanguage: defaultValues.competentInOtherLanguage,
+        otherLanguages: defaultValues.otherLanguages?.length
+          ? defaultValues.otherLanguages
+          : undefined,
+        drivingLicense: defaultValues.drivingLicense,
+        licenseNumber: defaultValues.licenseNumber,
+        carOwner: defaultValues.carOwner,
+        travelAreas: defaultValues.travelAreas,
+        solelyForEverycare: defaultValues.solelyForEverycare,
+        otherEmployers: defaultValues.otherEmployers,
+        professionalBody: defaultValues.professionalBody,
+        professionalBodyDetails: defaultValues.professionalBodyDetails,
+      })
+    )}
 
-      {renderSection('Availability', {
+    {/* Availability */}
+    {Object.values(defaultValues.availability || {}).some(Boolean) &&
+      renderSection('Availability', {
         monday: defaultValues.availability?.monday,
         tuesday: defaultValues.availability?.tuesday,
         wednesday: defaultValues.availability?.wednesday,
         thursday: defaultValues.availability?.thursday,
         friday: defaultValues.availability?.friday,
         saturday: defaultValues.availability?.saturday,
-        sunday: defaultValues.availability?.sunday
+        sunday: defaultValues.availability?.sunday,
       })}
 
-      {Array.isArray(defaultValues.educationData) &&
-        defaultValues.educationData.map((education, index) => (
+    {/* Education */}
+    {Array.isArray(defaultValues.educationData) &&
+      defaultValues.educationData.length > 0 &&
+      defaultValues.educationData.map((education, index) => {
+        const filtered = filterEmptyFields(education);
+        return Object.keys(filtered).length > 0 ? (
           <React.Fragment key={index}>
-            {renderSection(`Education ${index + 1}`, {
-              institution: education.institution,
-              qualification: education.qualification,
-              grade: education.grade,
-              awardDate: education.awardDate,
-              certificate: education.certificate
-            })}
+            {renderSection(`Education ${index + 1}`, filtered)}
           </React.Fragment>
-        ))}
+        ) : null;
+      })}
 
-      {renderSection('Current Employment', defaultValues.currentEmployment)}
-      {defaultValues.previousEmployments &&
-        defaultValues.previousEmployments.length > 0 && (
-          <div>
-            <h3 className="mb-2 text-lg font-medium text-black">
-              Previous Employment
-            </h3>
-            {defaultValues.previousEmployments.map((employment, index) => (
+    {/* Current Employment */}
+    {defaultValues.currentEmployment &&
+      Object.keys(filterEmptyFields(defaultValues.currentEmployment)).length >
+        0 &&
+      renderSection('Current Employment', defaultValues.currentEmployment)}
+
+    {/* Previous Employments */}
+    {Array.isArray(defaultValues.previousEmployments) &&
+      defaultValues.previousEmployments.length > 0 && (
+        <div>
+          <h3 className="mb-2 text-lg font-medium text-black">
+            Previous Employment
+          </h3>
+          {defaultValues.previousEmployments.map((employment, index) => {
+            const filtered = filterEmptyFields(employment);
+            return Object.keys(filtered).length > 0 ? (
               <div
                 key={index}
                 className="mb-4 rounded-md border border-gray-300 bg-gray-50 p-4"
               >
-                {renderSection('', employment, false)}
+                {renderSection('', filtered, false)}
               </div>
-            ))}
-          </div>
-        )}
-      {renderSection('Employment Gaps', {
-        hasEmploymentGaps: defaultValues.hasEmploymentGaps,
-        employmentGapsExplanation: defaultValues.employmentGapsExplanation
-      })}
+            ) : null;
+          })}
+        </div>
+      )}
 
-      {renderSection('Reference 1', defaultValues.referee1)}
-      {renderSection('Reference 2', defaultValues.referee2)}
-      {renderSection('Disability Information', {
+    
+    {/* References */}
+    {defaultValues.professionalReferee1 &&
+      Object.keys(filterEmptyFields(defaultValues.professionalReferee1))
+        .length > 0 &&
+      renderSection('Professional Reference 1', defaultValues.professionalReferee1)}
+
+    {defaultValues.professionalReferee2 &&
+      Object.keys(filterEmptyFields(defaultValues.professionalReferee2))
+        .length > 0 &&
+      renderSection('Professional Reference 2', defaultValues.professionalReferee2)}
+
+    {defaultValues.personalReferee &&
+      Object.keys(filterEmptyFields(defaultValues.personalReferee)).length >
+        0 &&
+      renderSection('Personal Reference', defaultValues.personalReferee)}
+
+    {/* Disability */}
+    {renderSection(
+      'Disability Information',
+      filterEmptyFields({
         hasDisability: defaultValues.hasDisability,
         disabilityDetails: defaultValues.disabilityDetails,
         needsReasonableAdjustment: defaultValues.needsReasonableAdjustment,
-        reasonableAdjustmentDetails: defaultValues.reasonableAdjustmentDetails
-      })}
+        reasonableAdjustmentDetails:
+          defaultValues.reasonableAdjustmentDetails,
+      })
+    )}
 
-      {renderSection('Documents', {
+    {/* Documents */}
+    {renderSection(
+      'Documents',
+      filterEmptyFields({
         cvResume: defaultValues.cvResume,
+        proofOfAddress1: defaultValues.proofOfAddress1,
+        proofOfAddress2: defaultValues.proofOfAddress2,
+        idDocuments: defaultValues.idDocuments,
+        utilityBills: defaultValues.utilityBills,
+        bankStatement: defaultValues.bankStatement,
+        proofOfNI: defaultValues.proofOfNI,
+        immigrationDocument: defaultValues.immigrationDocument,
         proofOfAddress: defaultValues.proofOfAddress,
         passport: defaultValues.passport,
-        immigrationDocument: defaultValues.immigrationDocument,
         workExperience: defaultValues.workExperience,
-        personalStatement: defaultValues.personalStatement
-      })}
-    </div>
-  );
+        personalStatement: defaultValues.personalStatement,
+      })
+    )}
 
+    {/* Health & Medical */}
+{renderSection(
+  'Health & Medical Information',
+  filterEmptyFields({
+    sex: defaultValues.sex,
+    advisedMedicalWorkRestriction: defaultValues.advisedMedicalWorkRestriction,
+    advisedMedicalWorkRestrictionComment: defaultValues.advisedMedicalWorkRestrictionComment,
+    undueFatigue: defaultValues.undueFatigue,
+    undueFatigueDetails: defaultValues.undueFatigueDetails,
+    bronchitis: defaultValues.bronchitis,
+    bronchitisDetails: defaultValues.bronchitisDetails,
+    breathlessness: defaultValues.breathlessness,
+    breathlessnessDetails: defaultValues.breathlessnessDetails,
+    allergies: defaultValues.allergies,
+    allergiesDetails: defaultValues.allergiesDetails,
+    pneumonia: defaultValues.pneumonia,
+    pneumoniaDetails: defaultValues.pneumoniaDetails,
+    hayFever: defaultValues.hayFever,
+    hayFeverDetails: defaultValues.hayFeverDetails,
+    shortnessOfBreath: defaultValues.shortnessOfBreath,
+    shortnessOfBreathDetails: defaultValues.shortnessOfBreathDetails,
+    jundice: defaultValues.jundice,
+    jundiceDetails: defaultValues.jundiceDetails,
+    stomachProblems: defaultValues.stomachProblems,
+    stomachProblemsDetails: defaultValues.stomachProblemsDetails,
+    stomachUlcer: defaultValues.stomachUlcer,
+    stomachUlcerDetails: defaultValues.stomachUlcerDetails,
+    hernias: defaultValues.hernias,
+    herniasDetails: defaultValues.herniasDetails,
+    bowelProblem: defaultValues.bowelProblem,
+    bowelProblemDetails: defaultValues.bowelProblemDetails,
+    diabetesMellitus: defaultValues.diabetesMellitus,
+    diabetesMellitusDetails: defaultValues.diabetesMellitusDetails,
+    nervousDisorder: defaultValues.nervousDisorder,
+    nervousDisorderDetails: defaultValues.nervousDisorderDetails,
+    dizziness: defaultValues.dizziness,
+    dizzinessDetails: defaultValues.dizzinessDetails,
+    earProblems: defaultValues.earProblems,
+    earProblemsDetails: defaultValues.earProblemsDetails,
+    hearingDefect: defaultValues.hearingDefect,
+    hearingDefectDetails: defaultValues.hearingDefectDetails,
+    epilepsy: defaultValues.epilepsy,
+    epilepsyDetails: defaultValues.epilepsyDetails,
+    eyeProblems: defaultValues.eyeProblems,
+    eyeProblemsDetails: defaultValues.eyeProblemsDetails,
+    ppeAllergy: defaultValues.ppeAllergy,
+    ppeAllergyDetails: defaultValues.ppeAllergyDetails,
+    rheumaticFever: defaultValues.rheumaticFever,
+    rheumaticFeverDetails: defaultValues.rheumaticFeverDetails,
+    highBloodPressure: defaultValues.highBloodPressure,
+    highBloodPressureDetails: defaultValues.highBloodPressureDetails,
+    lowBloodPressure: defaultValues.lowBloodPressure,
+    lowBloodPressureDetails: defaultValues.lowBloodPressureDetails,
+    palpitations: defaultValues.palpitations,
+    palpitationsDetails: defaultValues.palpitationsDetails,
+    heartAttack: defaultValues.heartAttack,
+    heartAttackDetails: defaultValues.heartAttackDetails,
+    angina: defaultValues.angina,
+    anginaDetails: defaultValues.anginaDetails,
+    asthma: defaultValues.asthma,
+    asthmaDetails: defaultValues.asthmaDetails,
+    chronicLungProblems: defaultValues.chronicLungProblems,
+    chronicLungProblemsDetails: defaultValues.chronicLungProblemsDetails,
+    stroke: defaultValues.stroke,
+    strokeDetails: defaultValues.strokeDetails,
+    heartMurmur: defaultValues.heartMurmur,
+    heartMurmurDetails: defaultValues.heartMurmurDetails,
+    backProblems: defaultValues.backProblems,
+    backProblemsDetails: defaultValues.backProblemsDetails,
+    jointProblems: defaultValues.jointProblems,
+    jointProblemsDetails: defaultValues.jointProblemsDetails,
+    swollenLegs: defaultValues.swollenLegs,
+    swollenLegsDetails: defaultValues.swollenLegsDetails,
+    varicoseVeins: defaultValues.varicoseVeins,
+    varicoseVeinsDetails: defaultValues.varicoseVeinsDetails,
+    rheumatism: defaultValues.rheumatism,
+    rheumatismDetails: defaultValues.rheumatismDetails,
+    migraine: defaultValues.migraine,
+    migraineDetails: defaultValues.migraineDetails,
+    drugReaction: defaultValues.drugReaction,
+    drugReactionDetails: defaultValues.drugReactionDetails,
+    visionCorrection: defaultValues.visionCorrection,
+    visionCorrectionDetails: defaultValues.visionCorrectionDetails,
+    skinConditions: defaultValues.skinConditions,
+    skinConditionsDetails: defaultValues.skinConditionsDetails,
+    alcoholHealthProblems: defaultValues.alcoholHealthProblems,
+    alcoholHealthProblemsDetails: defaultValues.alcoholHealthProblemsDetails,
+    seriousIllnessDetails: defaultValues.seriousIllnessDetails,
+    recentIllHealth: defaultValues.recentIllHealth,
+    recentIllHealthComment: defaultValues.recentIllHealthComment,
+    attendingClinic: defaultValues.attendingClinic,
+    attendingClinicComment: defaultValues.attendingClinicComment,
+    hadChickenPox: defaultValues.hadChickenPox,
+    hadChickenPoxComment: defaultValues.hadChickenPoxComment,
+    otherCommunicableDisease: defaultValues.otherCommunicableDisease,
+    otherCommunicableDiseaseComment: defaultValues.otherCommunicableDiseaseComment,
+  })
+)}
+
+{renderSection(
+  'Payment Details',
+  filterEmptyFields({
+    houseNumberOrName: defaultValues.houseNumberOrName,
+    postCode: defaultValues.postCode,
+    jobRole: defaultValues.jobRole,
+    otherJobRole: defaultValues.otherJobRole,
+    accountNumber: defaultValues.accountNumber,
+    sortCode: defaultValues.sortCode,
+    bankName: defaultValues.bankName,
+    branchName: defaultValues.branchName,
+    buildingSocietyRollNo: defaultValues.buildingSocietyRollNo,
+  })
+)}
+{/* Vaccinations & Inoculations */}
+{renderSection(
+  'Vaccinations & Inoculations',
+  filterEmptyFields({
+    inocDiphtheria: defaultValues.inocDiphtheria,
+    inocDiphtheriaComment: defaultValues.inocDiphtheriaComment,
+    inocHepatitisB: defaultValues.inocHepatitisB,
+    inocHepatitisBComment: defaultValues.inocHepatitisBComment,
+    inocTuberculosis: defaultValues.inocTuberculosis,
+    inocTuberculosisComment: defaultValues.inocTuberculosisComment,
+    inocRubella: defaultValues.inocRubella,
+    inocRubellaComment: defaultValues.inocRubellaComment,
+    inocVaricella: defaultValues.inocVaricella,
+    inocVaricellaComment: defaultValues.inocVaricellaComment,
+    inocPolio: defaultValues.inocPolio,
+    inocPolioComment: defaultValues.inocPolioComment,
+    inocTetanus: defaultValues.inocTetanus,
+    inocTetanusComment: defaultValues.inocTetanusComment,
+    testedHIV: defaultValues.testedHIV,
+    testedHIVComment: defaultValues.testedHIVComment,
+    inocOther: defaultValues.inocOther,
+    inocOtherComment: defaultValues.inocOtherComment,
+    daysSickLastYear: defaultValues.daysSickLastYear,
+  })
+)}
+    {/* Declarations */}
+    {renderSection(
+      'Consent & Declarations',
+      filterEmptyFields({
+        declarationCorrectUpload: defaultValues.declarationCorrectUpload,
+        declarationContactReferee: defaultValues.declarationContactReferee,
+        authorizeReferees: defaultValues.authorizeReferees,
+        disciplinaryInvestigation: defaultValues.disciplinaryInvestigation,
+        disciplinaryInvestigationDetails:
+          defaultValues.disciplinaryInvestigationDetails,
+        abuseInvestigation: defaultValues.abuseInvestigation,
+        abuseInvestigationDetails: defaultValues.abuseInvestigationDetails,
+        roaDeclaration: defaultValues.roaDeclaration,
+        roaDeclarationDetails: defaultValues.roaDeclarationDetails,
+        appliedBefore: defaultValues.appliedBefore,
+        termsAccepted: defaultValues.termsAccepted,
+        dataProcessingAccepted: defaultValues.dataProcessingAccepted,
+        consentMedicalDeclaration: defaultValues.consentMedicalDeclaration,
+        consentVaccination: defaultValues.consentVaccination,
+        consentTerminationClause: defaultValues.consentTerminationClause,
+      })
+    )}
+  </div>
+);
 
 
 // Reusable Yes/No Checkbox Component with proper HTML labels

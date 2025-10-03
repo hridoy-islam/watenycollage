@@ -687,7 +687,7 @@ useEffect(() => {
 //   }
 
 
-if (!formSubmitted) {
+if (formSubmitted) {
   return (
     <div className="flex min-h-[calc(100vh-150px)] items-center justify-center px-4">
   <div className="max-w-7xl w-full flex flex-col md:flex-row items-center md:items-start justify-between gap-12 p-6 md:p-12">
@@ -788,9 +788,9 @@ if (!formSubmitted) {
     {successMessage && (
       <motion.div
         className="flex justify-center"
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: -4 }}
-        exit={{ opacity: 0, y: -10 }}
+        initial={{ opacity: 0, y: -10 ,x: 200 }}
+        animate={{ opacity: 1, y: -4 ,x: 200 }}
+        exit={{ opacity: 0, y: -10,x: 200  }}
         transition={{ duration: 0.3, ease: 'easeInOut' }}
       >
         <div className="rounded-md bg-watney px-5 py-2.5 text-lg font-medium text-white shadow-md">
