@@ -730,12 +730,12 @@ if (formSubmitted) {
 
       {/* Action Button */}
       <div className="flex flex-wrap justify-center md:justify-start gap-4 mt-8">
-        <button
+        <Button
           onClick={handleDashboardRedirect}
-          className="px-6 py-2.5 border border-orange-500 text-orange-500 rounded-full font-medium hover:bg-orange-50 transition-colors"
+          className="bg-watney text-white hover:bg-watney/90 "
         >
           Done
-        </button>
+        </Button>
       </div>
     </div>
 
@@ -784,7 +784,7 @@ if (formSubmitted) {
   </div>
 
   {/* ✅ Animated Success Message */}
-  <AnimatePresence>
+  {/* <AnimatePresence>
     {successMessage && (
       <motion.div
         className="flex justify-center"
@@ -798,7 +798,7 @@ if (formSubmitted) {
         </div>
       </motion.div>
     )}
-  </AnimatePresence>
+  </AnimatePresence> */}
 
   {/* ✅ Linear Progress Bar with percentage inside */}
 <div className="flex flex-col items-center w-full sm:w-1/3">

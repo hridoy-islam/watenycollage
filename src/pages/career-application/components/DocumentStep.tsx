@@ -152,63 +152,46 @@ export function DocumentStep({
     documents.bankStatement.length > 0 &&
     documents.proofOfNI.length > 0;
 
-  const renderUploadedFiles = (field: keyof DocumentFile) => {
-    const value = documents[field];
-    if (!value) return null;
+const renderUploadedFiles = (field: keyof DocumentFile) => {
+  const value = documents[field];
+  if (!value) return null;
 
-    const files = Array.isArray(value) ? value : [value];
+  const files = Array.isArray(value) ? value : [value];
 
-    return (
-      <div className="mt-3 space-y-2">
-        {files.map((fileUrl, index) => {
-          const fileName = decodeURIComponent(fileUrl.split('/').pop() || `File-${index}`);
-          const fileExtension = fileName.split('.').pop()?.toUpperCase() || 'FILE';
-          const fileSize = ''; // You can add file size if available
+  return (
+    <div className="mt-1 space-y-1">
+      {files.map((fileUrl, index) => {
+        const fileName = decodeURIComponent(fileUrl.split('/').pop() || `File-${index}`);
+        return (
+          <div
+            key={`${fileUrl}-${index}`}
+            className="flex items-center gap-2 text-sm"
+          >
+            {/* File name */}
+            <span className="text-gray-900 truncate text-lg flex-1">{fileName}</span>
 
-          return (
-            <div
-              key={`${fileUrl}-${index}`}
-              className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg hover:shadow-md transition-all group"
+            {/* View button */}
+            <Button
+              onClick={() => window.open(fileUrl, '_blank')}
+              className="px-2 text-xs bg-watney text-white hover:bg-watney/90 flex items-center gap-1"
             >
-              <div className="flex items-center space-x-3 flex-1 min-w-0">
-                
-                
-                <div className="min-w-0 flex flex-row items-center gap-4">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-sm font-medium text-gray-900 truncate">
-                      {fileName}
-                    </span>
-                  </div>
-                  <div className="flex items-center space-x-2 mt-1">
-                    <Button
-                      variant="default"
-                      size="sm"
-                      onClick={() => window.open(fileUrl, '_blank')}
-                      className="h-6 px-2 text-xs bg-watney text-white hover:bg-watney flex items-center gap-1"
-                    >
-                      <Eye className="h-3 w-3" />
-                      View
-                    </Button>
-                   
-                  </div>
-                </div>
-              </div>
-              
-              <Button
-                variant="default"
-                size="sm"
-                onClick={() => handleRemoveFile(field, fileUrl)}
-                className="h-8 w-8 p-0 text-gray-400 hover:bg-red-50 hover:text-red-500   transition-opacity"
-                title="Delete document"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
+              <Eye className="h-5 w-5" />
+              View
+            </Button>
+
+            {/* Delete button */}
+            <Button
+              onClick={() => handleRemoveFile(field, fileUrl)}
+              className=" text-gray-500 hover:text-red-600 hover:bg-transparent"
+            >
+              <Trash2 className="h-5 w-5" />
+            </Button>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
 
   const isDocumentUploaded = (field: keyof DocumentFile): boolean => {
     const value = documents[field];
@@ -500,37 +483,32 @@ export function DocumentStep({
                 {/* Uploaded Documents List */}
                 {hasUploadedDocuments && (
                   <div className="space-y-4">
-                    {documentTypes.map(({ id, label, required }) => {
-                      const isUploaded = isDocumentUploaded(id);
-                      if (!isUploaded) return null;
-                      return (
-                        <div key={id} className="rounded-xl bg-watney/10 p-4">
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <div className="flex items-center space-x-3 mb-3">
-                                <div className="rounded-lg bg-green-100 p-2">
-                                  <FileText className="h-5 w-5 text-green-600" />
-                                </div>
-                                <div>
-                                  <h3 className="flex items-center text-lg font-semibold text-gray-900">
-                                    {label}
-                                    {required && <span className="ml-1 text-red-500">*</span>}
-                                    <CheckCircle className="ml-2 h-4 w-4 text-green-600" />
-                                  </h3>
-                                  {/* <p className="text-sm text-gray-600 mt-1">
-                                    {Array.isArray(documents[id]) 
-                                      ? `${(documents[id] as string[]).length} file${(documents[id] as string[]).length > 1 ? 's' : ''} uploaded`
-                                      : '1 file uploaded'
-                                    }
-                                  </p> */}
-                                </div>
-                              </div>
-                              {renderUploadedFiles(id)}
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
+                   {documentTypes.map(({ id, label, required }) => {
+  const isUploaded = isDocumentUploaded(id);
+  if (!isUploaded) return null;
+
+  return (
+    <div key={id} className="flex items-start gap-3 py-2 border-b border-gray-100 last:border-b-0 hover:bg-watney/10 px-3">
+      {/* Icon */}
+        <FileText className="h-6 w-6 text-gray-500 mt-3" />
+
+      {/* Content */}
+      <div className="flex flex-row items-center justify-between w-full ">
+        {/* Label with tick */}
+        <div className="flex items-center gap-1 mb-1">
+          <span className=" font-medium text-gray-900">
+            {label}
+            {required && <span className="text-red-500 ml-0.5">*</span>}
+          </span>
+          <CheckCircle className="h-3.5 w-3.5 text-green-600 flex-shrink-0" />
+        </div>
+
+        {/* Uploaded files (compact) */}
+        {renderUploadedFiles(id)}
+      </div>
+    </div>
+  );
+})}
                   </div>
                 )}
 
@@ -570,7 +548,7 @@ export function DocumentStep({
                         const uploaded = isDocumentUploaded(id);
                         return (
                           <div key={id} className="flex items-center justify-between py-2">
-                            <span className={`text-sm ${uploaded ? 'text-green-600 font-medium' : 'text-gray-600'}`}>
+                            <span className={`text-sm text-gray-600`}>
                               {label}
                             </span>
                             {uploaded ? (

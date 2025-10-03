@@ -341,7 +341,7 @@ const sections = (
     {/* Personal Details */}
     {renderSection(
       'Personal Details',
-      filterEmptyFields({
+      {
         title: defaultValues.title,
         firstName: defaultValues.firstName,
         initial: defaultValues.initial,
@@ -358,25 +358,25 @@ const sections = (
         postalCity: defaultValues.postalCity,
         postalPostCode: defaultValues.postalPostCode,
         postalCountry: defaultValues.postalCountry,
-      })
+      }
     )}
 
     {/* Emergency Contact */}
     {renderSection(
       'Emergency Contact Information',
-      filterEmptyFields({
+      {
         emergencyFullName: defaultValues.emergencyFullName,
         emergencyContactNumber: defaultValues.emergencyContactNumber,
         emergencyEmail: defaultValues.emergencyEmail,
         emergencyRelationship: defaultValues.emergencyRelationship,
         emergencyAddress: defaultValues.emergencyAddress,
-      })
+      }
     )}
 
     {/* Application Details */}
     {renderSection(
       'Application Details',
-      filterEmptyFields({
+      {
         availableFromDate: defaultValues.availableFromDate,
         source: defaultValues.source,
         referralEmployee:
@@ -400,7 +400,7 @@ const sections = (
         otherEmployers: defaultValues.otherEmployers,
         professionalBody: defaultValues.professionalBody,
         professionalBodyDetails: defaultValues.professionalBodyDetails,
-      })
+      }
     )}
 
     {/* Availability */}
@@ -487,7 +487,7 @@ const sections = (
     {/* Documents */}
     {renderSection(
       'Documents',
-      filterEmptyFields({
+      {
         cvResume: defaultValues.cvResume,
         proofOfAddress1: defaultValues.proofOfAddress1,
         proofOfAddress2: defaultValues.proofOfAddress2,
@@ -496,11 +496,11 @@ const sections = (
         bankStatement: defaultValues.bankStatement,
         proofOfNI: defaultValues.proofOfNI,
         immigrationDocument: defaultValues.immigrationDocument,
-        proofOfAddress: defaultValues.proofOfAddress,
-        passport: defaultValues.passport,
-        workExperience: defaultValues.workExperience,
-        personalStatement: defaultValues.personalStatement,
-      })
+        // proofOfAddress: defaultValues.proofOfAddress,
+        // passport: defaultValues.passport,
+        // workExperience: defaultValues.workExperience,
+        // personalStatement: defaultValues.personalStatement,
+      }
     )}
 
     {/* Health & Medical */}
@@ -601,25 +601,10 @@ const sections = (
     otherCommunicableDiseaseComment: defaultValues.otherCommunicableDiseaseComment,
   })
 )}
-
-{renderSection(
-  'Payment Details',
-  filterEmptyFields({
-    houseNumberOrName: defaultValues.houseNumberOrName,
-    postCode: defaultValues.postCode,
-    jobRole: defaultValues.jobRole,
-    otherJobRole: defaultValues.otherJobRole,
-    accountNumber: defaultValues.accountNumber,
-    sortCode: defaultValues.sortCode,
-    bankName: defaultValues.bankName,
-    branchName: defaultValues.branchName,
-    buildingSocietyRollNo: defaultValues.buildingSocietyRollNo,
-  })
-)}
 {/* Vaccinations & Inoculations */}
 {renderSection(
   'Vaccinations & Inoculations',
-  filterEmptyFields({
+  {
     inocDiphtheria: defaultValues.inocDiphtheria,
     inocDiphtheriaComment: defaultValues.inocDiphtheriaComment,
     inocHepatitisB: defaultValues.inocHepatitisB,
@@ -639,8 +624,23 @@ const sections = (
     inocOther: defaultValues.inocOther,
     inocOtherComment: defaultValues.inocOtherComment,
     daysSickLastYear: defaultValues.daysSickLastYear,
-  })
+  }
 )}
+{renderSection(
+  'Payment Details',
+ {
+    houseNumberOrName: defaultValues.houseNumberOrName,
+    postCode: defaultValues.postCode,
+    jobRole: defaultValues.jobRole,
+    otherJobRole: defaultValues.otherJobRole,
+    accountNumber: defaultValues.accountNumber,
+    sortCode: defaultValues.sortCode,
+    bankName: defaultValues.bankName,
+    branchName: defaultValues.branchName,
+    buildingSocietyRollNo: defaultValues.buildingSocietyRollNo,
+  }
+)}
+
     {/* Declarations */}
     {renderSection(
       'Consent & Declarations',

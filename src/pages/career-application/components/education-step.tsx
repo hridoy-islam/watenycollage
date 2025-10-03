@@ -370,10 +370,10 @@ export function EducationStep({
                     <TableCell>
                       <Button
                         type="button"
-                        variant="ghost"
-                        size="sm"
+                                              variant="ghost"
+
                         onClick={() => remove(index)}
-                      className=" w-full -lg text-red-500 hover:bg-red-100 hover:text-red-700"
+                      className=" w-full  text-red-500 hover:bg-red-100 hover:text-red-700"
                       >
                         Remove
                       </Button>

@@ -163,7 +163,7 @@ export function TrainingStep({
 
   function handleBack() {
     if (currentPage === 1) {
-      setCurrentStep(4);
+      setCurrentStep(6);
     } else {
       setCurrentPage(6);
     }

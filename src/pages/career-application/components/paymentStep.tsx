@@ -145,7 +145,7 @@ export function PaymentStep({
                         className=""
                       />
                     </FormControl>
-                    <p className="text-md text-gray-400">Format: 12-34-56</p>
+                    <p className="text-md text-gray-400">Format: 124456</p>
                     <FormMessage />
                   </FormItem>
                 )}
