@@ -434,25 +434,26 @@ const sections = (
       renderSection('Current Employment', defaultValues.currentEmployment)}
 
     {/* Previous Employments */}
-    {Array.isArray(defaultValues.previousEmployments) &&
-      defaultValues.previousEmployments.length > 0 && (
-        <div>
-          <h3 className="mb-2 text-lg font-medium text-black">
-            Previous Employment
-          </h3>
-          {defaultValues.previousEmployments.map((employment, index) => {
-            const filtered = filterEmptyFields(employment);
-            return Object.keys(filtered).length > 0 ? (
-              <div
-                key={index}
-                className="mb-4 rounded-md border border-gray-300 bg-gray-50 p-4"
-              >
-                {renderSection('', filtered, false)}
-              </div>
-            ) : null;
-          })}
-        </div>
-      )}
+   {/* Previous Employment — only shown if there are entries */}
+{Array.isArray(defaultValues.previousEmployments) &&
+  defaultValues.previousEmployments.length > 0 && (
+    <div>
+      <h3 className="mb-2 text-lg font-medium text-black">
+        Previous Employment
+      </h3>
+      {defaultValues.previousEmployments.map((employment, index) => {
+        const filtered = filterEmptyFields(employment);
+        return Object.keys(filtered).length > 0 ? (
+          <div
+            key={index}
+            className="mb-4 rounded-md border border-gray-300 bg-gray-50 p-4"
+          >
+            {renderSection('', filtered, false)}
+          </div>
+        ) : null;
+      })}
+    </div>
+  )}
 
     
     {/* References */}
@@ -1284,7 +1285,7 @@ const renderCurrentStep = () => {
                 type="button"
                 variant="outline"
                 onClick={handleBack}
-              className=" bg-watney px-6 text-lg text-white hover:bg-watney/90"
+              className=" bg-watney  text-lg text-white hover:bg-watney/90"
               >
                 Back
               </Button>
@@ -1294,7 +1295,7 @@ const renderCurrentStep = () => {
                   type="button"
                   onClick={handleNext}
                   disabled={!termsAccepted || !dataProcessingAccepted}
-              className=" bg-watney px-6 text-lg text-white hover:bg-watney/90"
+              className=" bg-watney  text-lg text-white hover:bg-watney/90"
                 >
                   Submit Application
                 </Button>
@@ -1302,7 +1303,7 @@ const renderCurrentStep = () => {
                 <Button
                   type="button"
                   onClick={handleNext}
-              className=" bg-watney px-6 text-lg text-white hover:bg-watney/90"
+              className=" bg-watney  text-lg text-white hover:bg-watney/90"
                 >
                   Next
                 </Button>

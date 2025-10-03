@@ -278,13 +278,13 @@ return (
               type="button"
               variant="outline"
               onClick={handleBack}
-              className="bg-watney px-6 text-lg text-white hover:bg-watney/90"
+              className="bg-watney  text-lg text-white hover:bg-watney/90"
             >
               Back
             </Button>
             <Button
               type="submit"
-              className="bg-watney px-6 text-lg text-white hover:bg-watney/90"
+              className="bg-watney  text-lg text-white hover:bg-watney/90"
             >
               Next
             </Button>
