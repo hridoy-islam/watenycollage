@@ -165,18 +165,18 @@ const renderUploadedFiles = (field: keyof DocumentFile) => {
         return (
           <div
             key={`${fileUrl}-${index}`}
-            className="flex items-center gap-2 text-sm"
+            className="flex items-center gap-6"
           >
             {/* File name */}
-            <span className="text-gray-900 truncate text-lg flex-1">{fileName}</span>
+            {/* <span className="text-gray-900 truncate text-lg flex-1">{fileName}</span> */}
 
             {/* View button */}
             <Button
               onClick={() => window.open(fileUrl, '_blank')}
-              className="px-2 text-xs bg-watney text-white hover:bg-watney/90 flex items-center gap-1"
+              className=" bg-watney text-white hover:bg-watney/90 flex items-center gap-1"
             >
               <Eye className="h-5 w-5" />
-              View
+              View Document
             </Button>
 
             {/* Delete button */}
@@ -496,7 +496,7 @@ const renderUploadedFiles = (field: keyof DocumentFile) => {
       <div className="flex flex-row items-center justify-between w-full ">
         {/* Label with tick */}
         <div className="flex items-center gap-1 mb-1">
-          <span className=" font-medium text-gray-900">
+          <span className=" font-medium  text-lg text-gray-900">
             {label}
             {required && <span className="text-red-500 ml-0.5">*</span>}
           </span>
