@@ -1,10 +1,14 @@
 import React from 'react';
-import { 
-  User, MapPin, Phone, BookOpen, Briefcase, 
-  FileCheck, GraduationCap, ChevronRight, 
+import {
+  User, MapPin, Phone, BookOpen, Briefcase,
+  FileCheck, GraduationCap, ChevronRight,
   File,
   User2Icon,
-  UserCircle
+  UserCircle,
+  ClipboardList,
+  FileText,
+  Home,
+  Wallet
 } from 'lucide-react';
 import { TabListProps, TabItemProps, TabType } from './types';
 
@@ -14,11 +18,10 @@ const TabItem: React.FC<TabItemProps> = ({ id, label, icon, isActive, onClick })
     <button
       type="button"
       onClick={() => onClick(id)}
-      className={`w-full flex items-center px-4 py-3 text-left text-md ${
-        isActive
+      className={`w-full flex items-center px-4 py-3 text-left text-md ${isActive
           ? 'bg-indigo-50 text-watney border-l-4 border-watney/60 font-medium'
           : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-      } transition-all duration-200`}
+        } transition-all duration-200`}
     >
       <span className="mr-3">{icon}</span>
       <span className="flex-1">{label}</span>
@@ -29,20 +32,24 @@ const TabItem: React.FC<TabItemProps> = ({ id, label, icon, isActive, onClick })
 
 const TabList: React.FC<TabListProps> = ({ activeTab, setActiveTab }) => {
   // Define tab data
-  const tabs = [
-    { id: 'personalDetails' as TabType, label: 'Personal Details', icon: <User size={20} /> },
-    { id: 'applicationData' as TabType, label: 'Application Details', icon: <File size={20} /> },
-    {
-          id: 'emergencyContactData' as TabType,
-          label: 'Emergency Contact',
-          icon: <Phone size={20} />
-        },
-    { id: 'educationData' as TabType, label: 'Education', icon: <BookOpen size={20} /> },
-    { id: 'employmentData' as TabType, label: 'Employment', icon: <Briefcase size={20} /> },
-    { id: 'disabilityData' as TabType, label: 'Disability', icon: <User2Icon size={20} /> },
-    { id: 'refereeData' as TabType, label: 'Referance', icon: <UserCircle size={20} /> },
-    { id: 'documentData' as TabType, label: 'Documents', icon: <File size={20} /> }
-  ];
+ const tabs = [
+  { id: "personalDetails" as TabType, label: "Personal Details", icon: <User size={20} /> },
+  { id: "addressDetails" as TabType, label: "Address Details", icon: <Home size={20} /> },
+  { id: "nextToKin" as TabType, label: "Next of Kin", icon: <Phone size={20} /> },
+
+  { id: "applicationData" as TabType, label: "Application Details", icon: <ClipboardList size={20} /> },
+  { id: "educationData" as TabType, label: "Education", icon: <GraduationCap size={20} /> },
+  { id: "trainingData" as TabType, label: "Training", icon: <BookOpen size={20} /> },
+  { id: "experienceData" as TabType, label: "Experience", icon: <Briefcase size={20} /> },
+  { id: "ethnicityData" as TabType, label: "Ethnicity", icon: <User2Icon size={20} /> },
+
+  { id: "employmentData" as TabType, label: "Employment", icon: <Briefcase size={20} /> },
+  { id: "disabilityData" as TabType, label: "Disability", icon: <User2Icon size={20} /> },
+  { id: "refereeData" as TabType, label: "Reference", icon: <UserCircle size={20} /> },
+  { id: "documentData" as TabType, label: "Documents", icon: <FileText size={20} /> },
+  { id: "postEmployment" as TabType, label: "Post Employment", icon: <ClipboardList size={20} /> },
+  { id: "paymentData" as TabType, label: "Payment Details", icon: <Wallet size={20} /> },
+];
 
   return (
     <div className="py-2">

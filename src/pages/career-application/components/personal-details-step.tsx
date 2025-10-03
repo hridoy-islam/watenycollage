@@ -67,24 +67,7 @@ export const personalDetailsSchema = z
     isBritishCitizen: z.boolean().optional(),
     shareCode: z.string().optional(),
 
-    postalAddressLine1: z
-      .string()
-      .min(1, { message: 'Address line 1 is required' }),
-    postalAddressLine2: z.string().optional(),
-    postalCity: z.string().min(1, { message: 'City is required' }),
-    postalPostCode: z.string().min(1, { message: 'Postal code is required' }),
-    postalCountry: z.string().min(1, { message: 'Country is required' }),
-    emergencyContactNumber: z
-      .string()
-      .min(1, { message: 'Emergency contact number is required' }),
-    emergencyEmail: z
-      .string()
-      .email({ message: 'Please enter a valid email address' }),
-    emergencyFullName: z.string().min(1, { message: 'Full name is required' }),
-    emergencyRelationship: z
-      .string()
-      .min(1, { message: 'Relationship is required' }),
-    emergencyAddress: z.string().min(1, { message: 'Address is required' })
+    
   })
   .superRefine((data, ctx) => {
     if (data.nationality !== 'british') {
@@ -130,16 +113,7 @@ export function PersonalDetailsStep({
       nationalInsuranceNumber: '',
       isBritishCitizen: undefined,
       shareCode: '',
-      postalAddressLine1: '',
-      postalAddressLine2: '',
-      postalCity: '',
-      postalPostCode: '',
-      postalCountry: '',
-      emergencyContactNumber: '',
-      emergencyEmail: '',
-      emergencyFullName: '',
-      emergencyRelationship: '',
-      emergencyAddress: ''
+     
     }
   });
 
@@ -153,11 +127,7 @@ export function PersonalDetailsStep({
         nationality: defaultValues.nationality
           ? defaultValues.nationality.toLowerCase().replace(/\s/g, '-')
           : '',
-        emergencyContactNumber: defaultValues?.emergencyContactNumber || '',
-        emergencyEmail: defaultValues?.emergencyEmail || '',
-        emergencyFullName: defaultValues?.emergencyFullName || '',
-        emergencyRelationship: defaultValues?.emergencyRelationship || '',
-        emergencyAddress: defaultValues?.emergencyAddress || ''
+       
       });
     }
   }, [defaultValues, form]);
