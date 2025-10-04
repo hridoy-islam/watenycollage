@@ -22,7 +22,7 @@ export default function DashboardPage() {
         if (!user.isCompleted) {
           
           if (user.role === 'applicant') {
-            navigate('/dashboard/career');
+            navigate('/dashboard/career-guideline');
           }
         }
       }

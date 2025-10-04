@@ -22,7 +22,7 @@ import { updateAuthIsAuthorized } from '@/redux/features/authSlice';
 const steps: React.ReactNode[] = [
   // Step 1: Welcome & Introduction
   <div key="step-1" className="space-y-4 text-start">
-    <h2 className="text-2xl font-semibold">👋 Welcome to Everycare Romford Careers</h2>
+    <h2 className="text-2xl font-semibold">Welcome to Everycare Romford Careers</h2>
     <p className="text-lg text-gray-700">
       We are part of <strong>Everycare UK</strong>, a trusted home care provider established in 1993 
       with over 20 branches nationwide. Everycare Romford delivers CQC-registered domiciliary care across 
