@@ -11,7 +11,7 @@ interface PersonalDetailsTabProps {
 
 export function PersonalDetailsTab({ application, renderFieldRow }: PersonalDetailsTabProps) {
   return (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+    <div className="grid grid-cols-1 gap-6 ">
       <Card>
         <CardContent className="pt-6">
           <h3 className="mb-4 text-lg font-semibold">Personal Information</h3>

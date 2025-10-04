@@ -45,6 +45,7 @@ import { PostEmploymentTab } from "./components/post-employment-tab"
 import { ReferenceTab } from "./components/reference-tab"
 import { TrainingTab } from "./components/training-tab"
 import { TermTab } from "./components/terms-tab"
+import { TabContent, VerticalTabs } from "./components/VerticalTab"
 
 
 
@@ -397,9 +398,10 @@ export default function ViewCareerApplicationPage() {
     )
   }
 
- return (
+return (
   <div className="w-full">
-    <div className="flex items-center justify-between px-4">
+    {/* Header */}
+    <div className="flex items-center justify-between px-4 py-3">
       <Button className="bg-watney text-white hover:bg-watney/90" onClick={() => navigate(-1)}>
         <MoveLeft /> Back
       </Button>
@@ -407,96 +409,70 @@ export default function ViewCareerApplicationPage() {
       <PDFGenerator application={application} applicationJob={applicationJob} />
     </div>
 
+    {/* Main Content with Vertical Tabs */}
     <div className="p-4 pb-5">
-      <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as TabType)}>
-        {/* First Horizontal Tab List - Main Sections */}
-        <TabsList className="mb-4 grid grid-cols-4 rounded-md bg-white shadow-lg md:grid-cols-7">
-          {tabs.slice(0, 7).map((tab) => (
-            <TabsTrigger
-              key={tab.id}
-              value={tab.id}
-              className="flex items-center gap-1 focus:bg-watney active:bg-watney data-[state=active]:bg-watney"
-            >
-              {tab.icon}
-              <span className="hidden sm:inline">{tab.label}</span>
-            </TabsTrigger>
-          ))}
-        </TabsList>
-
-        {/* Second Horizontal Tab List - Additional Sections */}
-        <TabsList className="mb-6 grid grid-cols-4 rounded-md bg-white shadow-lg md:grid-cols-8">
-          {tabs.slice(7).map((tab) => (
-            <TabsTrigger
-              key={tab.id}
-              value={tab.id}
-              className="flex items-center gap-1 focus:bg-watney active:bg-watney data-[state=active]:bg-watney"
-            >
-              {tab.icon}
-              <span className="hidden sm:inline">{tab.label}</span>
-            </TabsTrigger>
-          ))}
-        </TabsList>
-
-        {/* All Tab Content Components */}
-        <TabsContent value="personalDetails">
+      <VerticalTabs activeTab={activeTab} onTabChange={setActiveTab}>
+        {/* Personal Details */}
+        <TabContent value="personalDetails" activeTab={activeTab}>
           <PersonalDetailsTab application={application} renderFieldRow={renderFieldRow} />
-        </TabsContent>
+        </TabContent>
 
-        <TabsContent value="addressDetails">
+        <TabContent value="addressDetails" activeTab={activeTab}>
           <AddressDetailsTab application={application} renderFieldRow={renderFieldRow} />
-        </TabsContent>
+        </TabContent>
 
-        <TabsContent value="nextToKin">
+        <TabContent value="nextToKin" activeTab={activeTab}>
           <NextOfKinTab application={application} renderFieldRow={renderFieldRow} />
-        </TabsContent>
+        </TabContent>
 
-        <TabsContent value="applicationData">
+        <TabContent value="applicationData" activeTab={activeTab}>
           <ApplicationDetailsTab application={application} renderFieldRow={renderFieldRow} />
-        </TabsContent>
+        </TabContent>
 
-        <TabsContent value="educationData">
+        <TabContent value="educationData" activeTab={activeTab}>
           <EducationTab application={application} renderFieldRow={renderFieldRow} />
-        </TabsContent>
+        </TabContent>
 
-        <TabsContent value="trainingData">
+        <TabContent value="trainingData" activeTab={activeTab}>
           <TrainingTab application={application} renderFieldRow={renderFieldRow} />
-        </TabsContent>
+        </TabContent>
 
-        <TabsContent value="experienceData">
+        <TabContent value="experienceData" activeTab={activeTab}>
           <ExperienceTab application={application} renderFieldRow={renderFieldRow} />
-        </TabsContent>
+        </TabContent>
 
-        <TabsContent value="ethnicityData">
+        <TabContent value="ethnicityData" activeTab={activeTab}>
           <EthnicityTab application={application} renderFieldRow={renderFieldRow} />
-        </TabsContent>
+        </TabContent>
 
-        <TabsContent value="employmentData">
+        <TabContent value="employmentData" activeTab={activeTab}>
           <EmploymentTab application={application} renderFieldRow={renderFieldRow} />
-        </TabsContent>
+        </TabContent>
 
-        <TabsContent value="disabilityData">
+        <TabContent value="disabilityData" activeTab={activeTab}>
           <DisabilityTab application={application} renderFieldRow={renderFieldRow} />
-        </TabsContent>
+        </TabContent>
 
-        <TabsContent value="refereeData">
+        <TabContent value="refereeData" activeTab={activeTab}>
           <ReferenceTab application={application} renderFieldRow={renderFieldRow} />
-        </TabsContent>
+        </TabContent>
 
-        <TabsContent value="documentData">
+        <TabContent value="documentData" activeTab={activeTab}>
           <DocumentsTab application={application} renderFieldRow={renderFieldRow} />
-        </TabsContent>
+        </TabContent>
 
-        <TabsContent value="postEmployment">
+        <TabContent value="postEmployment" activeTab={activeTab}>
           <PostEmploymentTab application={application} renderFieldRow={renderFieldRow} />
-        </TabsContent>
+        </TabContent>
 
-        <TabsContent value="paymentData">
+        <TabContent value="paymentData" activeTab={activeTab}>
           <PaymentDetailsTab application={application} renderFieldRow={renderFieldRow} />
-        </TabsContent>
-         <TabsContent value="terms">
+        </TabContent>
+
+        <TabContent value="terms" activeTab={activeTab}>
           <TermTab application={application} renderFieldRow={renderFieldRow} />
-        </TabsContent>
-      </Tabs>
+        </TabContent>
+      </VerticalTabs>
     </div>
   </div>
 );

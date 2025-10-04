@@ -433,23 +433,31 @@ useEffect(() => {
     }
   };
 
-  const calculateProgressPercentage = () => {
-    let completed = 0;
-    for (let step = 1; step <= TOTAL_FILLABLE_STEPS; step++) {
-      if (completedSteps.includes(step)) {
-        completed += 1;
-      } else if (step === currentStep) {
-        const { current: currentSub, total: totalSub } = subStepInfo;
-        if (totalSub > 1) {
-          completed += (currentSub - 1) / totalSub;
-        }
-        break;
-      } else {
-        break;
+const calculateProgressPercentage = () => {
+  let completed = 0;
+
+  for (let step = 1; step <= TOTAL_FILLABLE_STEPS; step++) {
+    if (completedSteps.includes(step)) {
+      // ✅ Already marked complete
+      completed += 1;
+    } else if (step < currentStep) {
+      // ✅ If user skipped back/forward, count previous steps as "done enough"
+      completed += 1;
+    } else if (step === currentStep) {
+      // ✅ Handle substeps if present
+      const { current: currentSub, total: totalSub } = subStepInfo;
+      if (totalSub > 1) {
+        completed += (currentSub - 1) / totalSub;
       }
+      break;
+    } else {
+      break;
     }
-    return Math.min(100, Math.round((completed / TOTAL_FILLABLE_STEPS) * 100));
-  };
+  }
+
+  return Math.min(100, Math.round((completed / TOTAL_FILLABLE_STEPS) * 100));
+};
+
 
   const progressPercentage = calculateProgressPercentage();
   const displayStep = subStepInfo.total > 1
