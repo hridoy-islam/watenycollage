@@ -62,6 +62,32 @@ const DisabilityData = ({
               }
               className="react-select-container"
               classNamePrefix="react-select"
+              styles={{
+                            placeholder: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem',
+                              color: '#9CA3AF'
+                            }),
+                            control: (provided) => ({
+                              ...provided,
+                              borderRadius: '16px',
+                              fontSize: '1.125rem',
+                              minHeight: '3rem', // h-12 = 48px
+                              height: '3rem'
+                            }),
+                            singleValue: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem'
+                            }),
+                            input: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem'
+                            }),
+                            valueContainer: (provided) => ({
+                              ...provided,
+                              padding: '0 0.75rem' // px-3 for better spacing
+                            })
+                          }}
             />
           ) : (
             <div className="text-gray-900">
@@ -113,8 +139,31 @@ const DisabilityData = ({
               menuPortalTarget={document.body}
               menuPosition="fixed"
               styles={{
-                menuPortal: (base) => ({ ...base, zIndex: 9999 })
-              }}
+                            placeholder: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem',
+                              color: '#9CA3AF'
+                            }),
+                            control: (provided) => ({
+                              ...provided,
+                              borderRadius: '16px',
+                              fontSize: '1.125rem',
+                              minHeight: '3rem', // h-12 = 48px
+                              height: '3rem'
+                            }),
+                            singleValue: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem'
+                            }),
+                            input: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem'
+                            }),
+                            valueContainer: (provided) => ({
+                              ...provided,
+                              padding: '0 0.75rem' // px-3 for better spacing
+                            })
+                          }}
             />
           ) : (
             <div className="text-gray-900">

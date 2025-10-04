@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { TabContentProps } from './types';
 import PersonalDetails from './tabs/PersonalDetails';
 import AddressData from './tabs/ApplicationData';
-import EmergencyContactData from './tabs/EmergencyContactData';
+import EmergencyContactData from './tabs/NextOfKinData';
 import EducationData from './tabs/EducationData';
 import EmploymentData from './tabs/EmploymentData';
 import ComplianceData from './tabs/DisabilityData';
@@ -13,6 +13,15 @@ import { useSelector } from 'react-redux';
 import DocumentData from './tabs/DocumentData';
 import ApplicationData from './tabs/ApplicationData';
 import RefereeDetails from './tabs/RefereeData';
+import AddressDetails from './tabs/addressData';
+import TrainingData from './tabs/TrainingData';
+import DisabilityData from './tabs/DisabilityData';
+import ExperienceData from './tabs/ExperienceData';
+import NextToKin from './tabs/NextOfKinData';
+
+import EthnicityData from './tabs/EthnicityData';
+import PaymentData from './tabs/PaymentData';
+import PostEmployment from './tabs/PostEmployment';
 
 const TabContent: React.FC<TabContentProps> = ({ activeTab, userData,refreshData }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -51,26 +60,39 @@ const TabContent: React.FC<TabContentProps> = ({ activeTab, userData,refreshData
       refreshData
     };
 
-    switch (activeTab) {
-      case 'personalDetails':
-        return <PersonalDetails {...commonProps} />;
-      case 'applicationData':
-        return <ApplicationData {...commonProps} />;
-         case 'emergencyContactData':
-        return <EmergencyContactData {...commonProps} />;
-      case 'educationData':
-        return <EducationData {...commonProps} />;
-      case 'employmentData':
-        return <EmploymentData {...commonProps} />;
-      case 'disabilityData':
-        return <ComplianceData {...commonProps} />;
-      case 'documentData':
-        return <DocumentData {...commonProps} />;
-      case 'refereeData':
-        return <RefereeDetails {...commonProps} />;
-      default:
-        return <div>Select a tab to view content</div>;
-    }
+   switch (activeTab) {
+  case "personalDetails":
+    return <PersonalDetails {...commonProps} />;
+  case "addressDetails":
+    return <AddressDetails {...commonProps} />;
+  case "nextToKin":
+    return <NextToKin {...commonProps} />;
+  case "applicationData":
+    return <ApplicationData {...commonProps} />;
+  case "educationData":
+    return <EducationData {...commonProps} />;
+  case "trainingData":
+    return <TrainingData {...commonProps} />;
+  case "experienceData":
+    return <ExperienceData {...commonProps} />;
+  case "ethnicityData":
+    return <EthnicityData {...commonProps} />;
+  case "employmentData":
+    return <EmploymentData {...commonProps} />;
+  case "disabilityData":
+    return <DisabilityData {...commonProps} />;
+  case "refereeData":
+    return <RefereeDetails {...commonProps} />;
+  case "documentData":
+    return <DocumentData {...commonProps} />;
+  case "postEmployment":
+    return <PostEmployment {...commonProps} />;
+  case "paymentData":
+    return <PaymentData {...commonProps} />;
+  default:
+    return <div>Select a tab to view content</div>;
+}
+
   };
 
   return <div className="animate-fadeIn">{renderTabContent()}</div>;

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Edit2, Save, X } from 'lucide-react';
+import { useSelector } from 'react-redux';
 
 const TabSection = ({
   title,
@@ -12,6 +13,9 @@ const TabSection = ({
   onEdit
 }) => {
 
+  const user = useSelector((state: any) => state.auth.user);
+
+
   return (
     <section className="animate-fadeIn">
       <div className="mb-6 flex items-start justify-between">
@@ -21,8 +25,7 @@ const TabSection = ({
             <p className="mt-1 text-sm text-gray-500">{description}</p>
           )}
         </div>
-
-        <div className="flex space-x-2">
+        {user.role === 'admin' && <div className="flex space-x-2">
           {isEditing ? (
             <>
               <button
@@ -49,7 +52,8 @@ const TabSection = ({
               Edit
             </button>
           )}
-        </div>
+        </div>}
+
       </div>
 
       <div
@@ -58,9 +62,9 @@ const TabSection = ({
         <div className="px-6 py-5">
           {React.Children.map(children, child => {
             if (React.isValidElement(child)) {
-              return React.cloneElement(child as React.ReactElement<any>, { 
+              return React.cloneElement(child as React.ReactElement<any>, {
                 isEditing,
-                userData 
+                userData
               });
             }
             return child;

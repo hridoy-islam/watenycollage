@@ -17,7 +17,7 @@ import JobPage from '@/pages/dashboard/components/jobs';
 import JobApplication from '@/pages/Job-registration';
 import CareerGuideline from '@/pages/guideline/career-guideline';
 import JobApplicationPage from '@/pages/dashboard-application/job-application';
-import ViewCareerApplicationPage from '@/pages/application/view-careerApplication';
+import ViewCareerApplicationPage from '@/pages/application/applicantDetails/view-careerApplication';
 import CareerApplicationsPage from '@/pages/dashboard/components/jobs/job-applicant';
 import InterviewPage from '@/pages/interview';
 

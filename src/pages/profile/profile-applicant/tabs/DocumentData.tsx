@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -7,25 +6,29 @@ import {
   FileText,
   ExternalLink,
   Upload,
-  CheckCircle
+  CheckCircle,
+  Image,
+  CreditCard,
+  FileCheck,
+  User,
+  MapPin,
+  FileStack,
 } from 'lucide-react';
 import { z } from 'zod';
 import { ImageUploader } from '../components/document-uploader';
 import { useSelector } from 'react-redux';
 
-// Zod validation schema
+// ✅ Updated Zod schema
 export const documentSchema = z.object({
-  cvResume: z.string().min(1, { message: 'Resume is required' }),
-  image: z.string().optional(),
-  proofOfAddress: z.array(z.string()).nonempty({
-    message: 'Proof of address is required'
-  }),
-  passport: z.array(z.string()).nonempty({
-    message: 'Passport or ID is required'
-  }),
-  workExperience: z.array(z.string()).optional(),
-  personalStatement: z.array(z.string()).optional(),
-    immigrationDocument: z.array(z.string()).optional()
+  cvResume: z.string().min(1, 'CV/Resume is required'),
+  image: z.string().min(1, 'Photograph is required'),
+  idDocuments: z.array(z.string()).nonempty('Proof of ID is required'),
+  proofOfAddress1: z.string().min(1, 'Proof of Address 1 is required'),
+  proofOfAddress2: z.string().min(1, 'Proof of Address 2 is required'),
+  utilityBills: z.array(z.string()).nonempty('Utility Bills are required'),
+  bankStatement: z.array(z.string()).nonempty('Bank Statement is required'),
+  proofOfNI: z.array(z.string()).nonempty('National Insurance proof is required'),
+  immigrationDocument: z.array(z.string()).optional(),
 });
 
 export type DocumentFile = z.infer<typeof documentSchema>;
@@ -43,7 +46,7 @@ export default function DocumentData({
   isEditing = false,
   onSave,
   onCancel,
-  onEdit
+  onEdit,
 }: DocumentDataProps) {
   const [documents, setDocuments] = useState<DocumentFile>(userData);
   const [uploadState, setUploadState] = useState<{
@@ -51,24 +54,23 @@ export default function DocumentData({
     field: keyof DocumentFile | null;
   }>({
     isOpen: false,
-    field: null
+    field: null,
   });
   const { user } = useSelector((state: any) => state.auth);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
-  const [validationErrors, setValidationErrors] = useState<
-    Record<string, string>
-  >({});
+  // Sync when userData changes
+  useEffect(() => {
+    setDocuments(userData);
+  }, [userData]);
 
-  const handleRemoveFile = (field: keyof DocumentFile, fileName: string) => {
+  const handleRemoveFile = (field: keyof DocumentFile, fileUrl: string) => {
     if (typeof documents[field] === 'string') {
-      setDocuments((prev) => ({
-        ...prev,
-        [field]: ''
-      }));
+      setDocuments((prev) => ({ ...prev, [field]: '' }));
     } else {
       setDocuments((prev) => ({
         ...prev,
-        [field]: (prev[field] as string[]).filter((file) => file !== fileName)
+        [field]: (prev[field] as string[]).filter((url) => url !== fileUrl),
       }));
     }
   };
@@ -92,90 +94,55 @@ export default function DocumentData({
   };
 
   const renderUploadedFiles = (field: keyof DocumentFile) => {
-    if (field === 'image' || field === 'cvResume') {
-      const fileUrl = documents[field] as string;
-      if (fileUrl) {
-        const fileName = decodeURIComponent(fileUrl.split('/').pop() || 'Document');
-        return (
-          <div className="mt-3 space-y-2">
-            <div className="flex w-auto items-center justify-between rounded-lg border border-gray-200 bg-white p-3 transition-all hover:shadow-md">
-              <div className="flex items-center space-x-3">
-               
-                <div className="min-w-0 flex-1">
-                  <div className="flex min-w-0 flex-1 gap-2">
-                    <a
-                      href={fileUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center space-x-2 text-sm font-medium text-gray-900 transition-colors hover:text-watney/90"
-                    >
-                      <Button className="flex flex-row items-center gap-4 bg-watney text-white hover:bg-watney/90">
-                        View <ExternalLink className="h-3 w-3 flex-shrink-0" />
-                      </Button>
-                    </a>
-                  </div>
-                </div>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleRemoveFile(field, fileUrl)}
-                className="h-8 w-8 p-0 text-gray-400 hover:bg-red-50 hover:text-red-500"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        );
-      }
-      return null;
-    }
-
     const value = documents[field];
-    if (Array.isArray(value) && value.length > 0) {
+    if (!value) return null;
+
+    if (typeof value === 'string') {
+      if (!value) return null;
       return (
         <div className="mt-3 space-y-2">
-          {value.map((fileUrl, index) => {
-            const fileName = decodeURIComponent(
-              fileUrl.split('/').pop() || `File-${index}`
-            );
-            return (
-              <div
-                key={`${fileUrl}-${index}`}
-                className="flex w-auto items-center justify-between rounded-lg border border-gray-200 bg-white p-3 transition-all hover:shadow-md"
-              >
-                <div className="flex items-center space-x-3">
-                  <div className="flex min-w-0 flex-1 gap-2">
-                    <a
-                      href={fileUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center space-x-2 text-sm font-medium text-gray-900 transition-colors hover:text-watney/90"
-                    >
-                      <Button className="flex flex-row items-center gap-4 bg-watney text-white hover:bg-watney/90">
-                        View <ExternalLink className="h-3 w-3 flex-shrink-0" />
-                      </Button>
-                    </a>
-                  </div>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleRemoveFile(field, fileUrl)}
-                  className="h-8 w-8 p-0 text-gray-400 hover:bg-red-50 hover:text-red-500"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            );
-          })}
+          <FileItem fileUrl={value} onRemove={() => handleRemoveFile(field, value)} />
+        </div>
+      );
+    } else if (Array.isArray(value) && value.length > 0) {
+      return (
+        <div className="mt-3 space-y-2">
+          {value.map((url, index) => (
+            <FileItem key={`${url}-${index}`} fileUrl={url} onRemove={() => handleRemoveFile(field, url)} />
+          ))}
         </div>
       );
     }
     return null;
   };
 
-  const openImageUploader = (field: keyof DocumentFile) => {
+  const FileItem = ({ fileUrl, onRemove }: { fileUrl: string; onRemove: () => void }) => {
+    const fileName = decodeURIComponent(fileUrl.split('/').pop() || 'Document');
+    return (
+      <div className="flex w-full items-center justify-between rounded-lg border border-gray-200 bg-white p-3 hover:shadow-md">
+        <a
+          href={fileUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center space-x-2 text-sm font-medium text-gray-900 hover:text-watney/90"
+        >
+          <Button className="bg-watney text-white hover:bg-watney/90">
+            View <ExternalLink className="ml-1 h-3 w-3" />
+          </Button>
+        </a>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onRemove}
+          className="h-8 w-8 p-0 text-gray-400 hover:bg-red-50 hover:text-red-500"
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </div>
+    );
+  };
+
+  const openUploader = (field: keyof DocumentFile) => {
     setUploadState({ isOpen: true, field });
   };
 
@@ -186,203 +153,207 @@ export default function DocumentData({
       return;
     }
     const fileUrl = uploadResponse.data.fileUrl;
-    if (typeof documents[field] === 'string') {
-      setDocuments((prev) => ({
-        ...prev,
-        [field]: fileUrl
-      }));
-    } else {
-      setDocuments((prev) => ({
-        ...prev,
-        [field]: [...(prev[field] as string[]), fileUrl]
-      }));
-    }
+
+    setDocuments((prev) => {
+      if (typeof prev[field] === 'string') {
+        return { ...prev, [field]: fileUrl };
+      } else {
+        return { ...prev, [field]: [...(prev[field] as string[]), fileUrl] };
+      }
+    });
+
     setUploadState({ isOpen: false, field: null });
   };
 
+  // ✅ Updated document types to match your list
   const documentTypes = [
-     {
+    {
       id: 'cvResume',
-      label: 'Resume',
+      label: 'CV/Resume',
       required: true,
       instructions: 'Upload your CV or Resume',
-      formats: 'PDF, JPG, PNG',
-      error: validationErrors.cvResume,
-      icon: FileText
+      formats: 'PDF, DOC, DOCX',
+      icon: FileText,
     },
     {
-      id: 'proofOfAddress',
-      label: 'Proof of Address',
+      id: 'image',
+      label: 'Photograph',
       required: true,
-      instructions:
-        'Upload recent utility bill or bank statement showing your address',
-      formats: 'PDF, JPG, PNG',
-      error: validationErrors.proofOfAddress,
-      icon: FileText
+      instructions: 'Recent passport-style photograph',
+      formats: 'JPG, PNG',
+      icon: Image,
     },
     {
-      id: 'passport',
-      label: 'Passport or UK ID',
+      id: 'idDocuments',
+      label: 'Proof of ID',
       required: true,
-      instructions:
-        'Please upload a clear copy of your valid passport, BRP, or UK driving licence',
+      instructions: 'Passport, driving licence, or BRP',
       formats: 'PDF, JPG, PNG',
-      error: validationErrors.proofOfAddress,
-      icon: FileText
+      icon: User,
+    },
+    {
+      id: 'proofOfAddress1',
+      label: 'Proof of Address 1',
+      required: true,
+      instructions: 'Recent utility bill or council tax (last 3 months)',
+      formats: 'PDF, JPG, PNG',
+      icon: MapPin,
+    },
+    {
+      id: 'proofOfAddress2',
+      label: 'Proof of Address 2',
+      required: true,
+      instructions: 'Second proof of address (e.g., bank statement)',
+      formats: 'PDF, JPG, PNG',
+      icon: MapPin,
+    },
+    {
+      id: 'utilityBills',
+      label: 'Utility Bills',
+      required: true,
+      instructions: 'Gas, electricity, water, or broadband bills',
+      formats: 'PDF, JPG, PNG',
+      uploadLabel: 'You can upload multiple files',
+      icon: FileStack,
+    },
+    {
+      id: 'bankStatement',
+      label: 'Bank Statement',
+      required: true,
+      instructions: 'Recent bank statement (last 3 months)',
+      formats: 'PDF, JPG, PNG',
+      uploadLabel: 'You can upload multiple files',
+      icon: CreditCard,
+    },
+    {
+      id: 'proofOfNI',
+      label: 'National Insurance',
+      required: true,
+      instructions: 'NI number letter or payslip showing NI',
+      formats: 'PDF, JPG, PNG',
+      uploadLabel: 'You can upload multiple files',
+      icon: FileCheck,
     },
     {
       id: 'immigrationDocument',
-      label: 'Immigration Documents',
+      label: 'Immigration Details / Work Permit',
       required: false,
-      instructions: 'Upload any relevant visas, permits, or immigration-related documents.',
+      instructions: 'Visa, work permit, or immigration status documents',
       formats: 'PDF, JPG, PNG',
       uploadLabel: 'You can upload multiple files',
-      icon: FileText
+      icon: FileText,
     },
-    {
-      id: 'workExperience',
-      label: 'Work Experience Documents',
-      required: false,
-      instructions: 'Upload relevant work experience documents',
-      formats: 'PDF, JPG, PNG',
-      uploadLabel: 'You can upload multiple files',
-      icon: FileText
-    },
-    {
-      id: 'personalStatement',
-      label: 'Personal Statement',
-      required: false,
-      instructions: 'Upload your personal statement',
-      formats: 'PDF, DOCX, TXT',
-      icon: FileText
-    }
   ];
 
   return (
     <div className="">
       <Card className="border-0 shadow-none">
-        <CardHeader className="">
-          <div className="space-y-4">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">Document</h2>
-            </div>
-          </div>
+        <CardHeader>
+          <h2 className="text-2xl font-bold text-gray-900">Documents</h2>
         </CardHeader>
         <CardContent className="p-6">
-          <div className="gap-4 grid md:grid-cols-2 grid-cols-1 ">
-            {documentTypes.map(
-              ({
-                id,
-                label,
-                required,
-                instructions,
-                formats,
-                error,
-                icon: Icon,
-                uploadLabel
-              }) => {
-                const hasFiles =
-                  typeof documents[id as keyof DocumentFile] === 'string'
-                    ? (documents[id as keyof DocumentFile] as string).length > 0
-                    : Array.isArray(documents[id as keyof DocumentFile]) &&
-                      (documents[id as keyof DocumentFile] as string[]).length > 0;
-                return (
-                  <div
-                    key={id}
-                    className={`rounded-xl border-2 transition-all ${
-                      error
-                        ? 'border-red-200 bg-red-50'
-                        : hasFiles
-                        ? 'border-gray-100 bg-gray-50 hover:border-gray-200'
-                        : 'border-gray-100 bg-gray-50 hover:border-gray-200'
-                    }`}
-                  >
-                    <div className="p-6">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="mb-2 flex items-center space-x-3">
-                            <div
-                              className={`rounded-lg p-2 ${
-                                error
-                                  ? 'bg-red-100'
-                                  : hasFiles
-                                  ? 'bg-gray-100'
-                                  : 'bg-gray-100'
-                              }`}
-                            >
-                              <Icon
-                                className={`h-5 w-5 ${
-                                  error
-                                    ? 'text-red-600'
-                                    : hasFiles
-                                    ? 'text-green-600'
-                                    : 'text-gray-600'
-                                }`}
-                              />
-                            </div>
-                            <div>
-                              <h3 className="flex items-center text-lg font-semibold text-gray-900">
-                                {label}
-                                {required && (
-                                  <span className="ml-2 text-red-500">*</span>
-                                )}
-                                {hasFiles && (
-                                  <CheckCircle className="ml-2 h-5 w-5 text-green-600" />
-                                )}
-                              </h3>
-                              <p className="text-sm text-gray-600">{instructions}</p>
-                              <p className="mt-1 text-xs text-gray-500">
-                                Accepted formats: {formats}
-                              </p>
-                              {uploadLabel && (
-                                <p className="mt-1 text-xs text-gray-800 font-semibold">
-                                  {uploadLabel}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                          {error && (
-                            <div className="mt-2 rounded-lg border border-red-200 bg-red-100 p-3">
-                              <p className="text-sm font-medium text-red-700">
-                                {error}
-                              </p>
-                            </div>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            {documentTypes.map(({ id, label, required, instructions, formats, uploadLabel, icon: Icon }) => {
+              const field = id as keyof DocumentFile;
+              const value = documents[field];
+              const hasFiles =
+                typeof value === 'string'
+                  ? !!value
+                  : Array.isArray(value)
+                  ? value.length > 0
+                  : false;
+
+              const error = validationErrors[id];
+
+              return (
+                <div
+                  key={id}
+                  className={`rounded-xl border-2 p-6 transition-all ${
+                    error
+                      ? 'border-red-200 bg-red-50'
+                      : hasFiles
+                      ? 'border-green-200 bg-green-50'
+                      : 'border-gray-200 bg-gray-50 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="mb-3 flex items-start space-x-3">
+                        <div
+                          className={`rounded-lg p-2 ${
+                            error
+                              ? 'bg-red-100'
+                              : hasFiles
+                              ? 'bg-green-100'
+                              : 'bg-gray-100'
+                          }`}
+                        >
+                          <Icon
+                            className={`h-5 w-5 ${
+                              error
+                                ? 'text-red-600'
+                                : hasFiles
+                                ? 'text-green-600'
+                                : 'text-gray-600'
+                            }`}
+                          />
+                        </div>
+                        <div>
+                          <h3 className="flex items-center text-lg font-semibold text-gray-900">
+                            {label}
+                            {required && <span className="ml-1 text-red-500">*</span>}
+                            {hasFiles && !error && (
+                              <CheckCircle className="ml-2 h-5 w-5 text-green-600" />
+                            )}
+                          </h3>
+                          <p className="mt-1 text-sm text-gray-600">{instructions}</p>
+                          <p className="mt-1 text-xs text-gray-500">Accepted formats: {formats}</p>
+                          {uploadLabel && (
+                            <p className="mt-1 text-xs font-medium text-gray-700">{uploadLabel}</p>
                           )}
                         </div>
-                        <Button
-                          type="button"
-                          onClick={() => openImageUploader(id as keyof DocumentFile)}
-                          className="ml-4 flex items-center space-x-2 rounded-lg bg-watney px-6 py-2 text-white transition-colors hover:bg-watney/90"
-                        >
-                          <Upload className="h-4 w-4" />
-                          <span>Upload</span>
-                        </Button>
                       </div>
-                      {renderUploadedFiles(id as keyof DocumentFile)}
+
+                      {error && (
+                        <div className="mt-2 rounded-lg bg-red-100 p-3">
+                          <p className="text-sm font-medium text-red-700">{error}</p>
+                        </div>
+                      )}
                     </div>
+
+                    <Button
+                      type="button"
+                      onClick={() => openUploader(field)}
+                      className="ml-4 flex items-center space-x-1 rounded-lg bg-watney px-4 py-2 text-white hover:bg-watney/90"
+                    >
+                      <Upload className="h-4 w-4" />
+                      <span>Upload</span>
+                    </Button>
                   </div>
-                );
-              }
-            )}
+
+                  {renderUploadedFiles(field)}
+                </div>
+              );
+            })}
           </div>
 
-          {/* Navigation Buttons */}
-          <div className="flex justify-end pt-8">
-            {hasChanges() && (
+          {/* Save Button */}
+          {hasChanges() && (
+            <div className="mt-8 flex justify-end">
               <Button
                 type="button"
                 onClick={handleSubmit}
                 className="bg-watney text-white hover:bg-watney/90"
               >
-                Save
+                Save Documents
               </Button>
-            )}
-          </div>
+            </div>
+          )}
+
+          {/* Uploader Modal */}
           <ImageUploader
             open={uploadState.isOpen}
-            onOpenChange={(isOpen) =>
-              setUploadState((prev) => ({ ...prev, isOpen }))
-            }
+            onOpenChange={(isOpen) => setUploadState((prev) => ({ ...prev, isOpen }))}
             onUploadComplete={handleUploadComplete}
             entityId={user?._id}
           />

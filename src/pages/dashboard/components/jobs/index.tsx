@@ -148,11 +148,10 @@ export default function JobPage() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search by job Name"
-              className="h-8 max-w-[400px]"
+              className="max-w-[400px]"
             />
             <Button
               onClick={handleSearch}
-              size="sm"
               className="min-w-[100px] border-none bg-watney text-white hover:bg-watney/90"
             >
               Search
@@ -162,7 +161,6 @@ export default function JobPage() {
         <div className="flex flex-row items-center gap-4">
           <Button
             className="border-none bg-watney text-white hover:bg-watney/90"
-            size={'sm'}
             onClick={() => navigate('/dashboard')}
           >
             <MoveLeft className="mr-2 h-4 w-4" />
@@ -170,7 +168,6 @@ export default function JobPage() {
           </Button>
           <Button
             className="border-none bg-watney text-white hover:bg-watney/90"
-            size={'sm'}
             onClick={() => setDialogOpen(true)}
           >
             <Plus className="mr-2 h-4 w-4" />

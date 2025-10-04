@@ -3,7 +3,10 @@ import TabSection from '../TabSection';
 import { User } from '../../../types/user.types';
 import Select from 'react-select';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { CustomDatePicker } from '@/components/shared/CustomDatePicker';
+import { Checkbox } from '@/components/ui/checkbox';
+import { languages } from '@/types';
 
 interface ApplicationDataProps {
   userData: User;
@@ -18,7 +21,7 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
   isEditing = false,
   onSave,
   onCancel,
-  onEdit
+  onEdit,
 }) => {
   const [localData, setLocalData] = useState<User>(userData);
 
@@ -26,10 +29,7 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
     setLocalData(userData);
   }, [userData]);
 
-  const handleInputChange = <K extends keyof User>(
-    field: K,
-    value: User[K]
-  ) => {
+  const handleInputChange = <K extends keyof User>(field: K, value: User[K]) => {
     setLocalData((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -37,20 +37,40 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
     if (onSave) onSave(localData);
   };
 
-  // Source options
+  // Options
   const sourceOptions = [
     { value: 'website', label: 'Company Website' },
     { value: 'referral', label: 'Referral' },
     { value: 'linkedin', label: 'LinkedIn' },
     { value: 'indeed', label: 'Indeed' },
-    { value: 'other', label: 'Other' }
+    { value: 'other', label: 'Other' },
   ];
 
-  // Yes/No options for dropdowns
   const yesNoOptions = [
     { value: true, label: 'Yes' },
-    { value: false, label: 'No' }
+    { value: false, label: 'No' },
   ];
+
+
+
+  // Helper
+  const capitalizeFirstLetter = (str: string): string => {
+    return str ? str.charAt(0).toUpperCase() + str.slice(1) : '';
+  };
+
+  const renderField = (
+    label: string,
+    isRequired = false,
+    children: React.ReactNode
+  ) => (
+    <div>
+      <label className="block text-sm font-medium text-gray-700">
+        {label}
+        {isRequired && <span className="text-red-500"> *</span>}
+      </label>
+      <div className="mt-1">{children}</div>
+    </div>
+  );
 
   return (
     <TabSection
@@ -63,254 +83,665 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
       onEdit={onEdit}
     >
       <div className="space-y-8">
-        {/* Available From Date */}
-
+        {/* Grid of Fields */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          {/* Extended Fields */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Available From Date
-            </label>
-            {isEditing ? (
-              <CustomDatePicker
-                selected={
-                  localData?.availableFromDate
-                    ? new Date(localData.availableFromDate)
-                    : null
-                }
-                onChange={(date: Date | null) => {
-                  if (date) {
-                    handleInputChange('availableFromDate', date.toISOString());
-                  }
-                }}
-                placeholder="Available From Date"
-              />
-            ) : (
-              <div className="mt-1 text-gray-900">
-                {localData?.availableFromDate
-                  ? new Date(localData.availableFromDate).toLocaleDateString()
-                  : '-'}
-              </div>
-            )}
-          </div>
-          <div>
-            {/* Source */}
-            <label className="block text-sm font-medium text-gray-700">
-              How did you hear about us?
-            </label>
-            {isEditing ? (
+          {/* Available From Date */}
+          {renderField('Available From Date', true, isEditing ? (
+            <CustomDatePicker
+              selected={localData.availableFromDate ? new Date(localData.availableFromDate) : null}
+              onChange={(date) => {
+                handleInputChange('availableFromDate', date ? date.toISOString() : '');
+              }}
+              placeholder="Available From Date"
+            />
+          ) : (
+            localData.availableFromDate
+              ? new Date(localData.availableFromDate).toLocaleDateString()
+              : '-'
+          ))}
+
+          {/* Competent in Another Language */}
+          {renderField('Are you competent in another language?', true, isEditing ? (
+            <Select
+              options={yesNoOptions}
+              value={yesNoOptions.find(opt => opt.value === localData.competentInOtherLanguage) || null}
+              onChange={(opt) => handleInputChange('competentInOtherLanguage', opt?.value ?? null)}
+              isClearable
+              className="react-select-container"
+              classNamePrefix="react-select"
+              styles={{
+                            placeholder: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem',
+                              color: '#9CA3AF'
+                            }),
+                            control: (provided) => ({
+                              ...provided,
+                              borderRadius: '16px',
+                              fontSize: '1.125rem',
+                              minHeight: '3rem', // h-12 = 48px
+                              height: '3rem'
+                            }),
+                            singleValue: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem'
+                            }),
+                            input: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem'
+                            }),
+                            valueContainer: (provided) => ({
+                              ...provided,
+                              padding: '0 0.75rem' // px-3 for better spacing
+                            })
+                          }}
+            />
+          ) : (
+            localData.competentInOtherLanguage !== null
+              ? localData.competentInOtherLanguage
+                ? 'Yes'
+                : 'No'
+              : '-'
+          ))}
+
+          {/* Other Languages */}
+          {localData.competentInOtherLanguage === true && (
+            renderField('Select the languages', true, isEditing ? (
               <Select
-                options={sourceOptions}
-                value={sourceOptions.find(
-                  (opt) => opt.value === localData.source
-                )}
+                isMulti
+                options={languages.map(lang => ({
+                  value: lang,
+                  label: capitalizeFirstLetter(lang),
+                }))}
+                value={(localData.otherLanguages || []).map(lang => ({
+                  value: lang,
+                  label: capitalizeFirstLetter(lang),
+                }))}
                 onChange={(selected) =>
-                  handleInputChange('source', selected?.value || '')
+                  handleInputChange(
+                    'otherLanguages',
+                    selected?.map((opt) => opt.value) || []
+                  )
                 }
                 className="react-select-container"
                 classNamePrefix="react-select"
+                styles={{
+                            placeholder: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem',
+                              color: '#9CA3AF'
+                            }),
+                            control: (provided) => ({
+                              ...provided,
+                              borderRadius: '16px',
+                              fontSize: '1.125rem',
+                              minHeight: '3rem', // h-12 = 48px
+                              height: '3rem'
+                            }),
+                            singleValue: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem'
+                            }),
+                            input: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem'
+                            }),
+                            valueContainer: (provided) => ({
+                              ...provided,
+                              padding: '0 0.75rem' // px-3 for better spacing
+                            })
+                          }}
               />
             ) : (
-              <div className="mt-1 text-gray-900">
-                {capitalizeFirstLetter(localData.source || '-')}
-              </div>
-            )}
-          </div>
-
-          {localData.source === 'referral' && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Referral Employee
-              </label>
-              {isEditing ? (
-                <Input
-                  type="text"
-                  value={localData.referralEmployee || ''}
-                  onChange={(e) =>
-                    handleInputChange('referralEmployee', e.target.value)
-                  }
-                />
-              ) : (
-                <div className="mt-1 text-gray-900">
-                  {localData.referralEmployee || '-'}
-                </div>
-              )}
-            </div>
+              (localData.otherLanguages || []).map(capitalizeFirstLetter).join(', ') || '-'
+            ))
           )}
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Is Student?
-            </label>
-            {isEditing ? (
-              <Select
-                options={yesNoOptions}
-                value={yesNoOptions.find(
-                  (opt) => opt.value === localData.isStudent
-                )}
-                onChange={(selected) =>
-                  handleInputChange('isStudent', selected?.value || false)
-                }
-                className="react-select-container"
-                classNamePrefix="react-select"
-              />
-            ) : (
-              <div className="mt-1 text-gray-900">
-                {localData.isStudent ? 'Yes' : 'No'}
-              </div>
-            )}
-          </div>
+          {/* Driving License */}
+          {renderField('Do you hold a driving license?', true, isEditing ? (
+            <Select
+              options={yesNoOptions}
+              value={yesNoOptions.find(opt => opt.value === localData.drivingLicense) || null}
+              onChange={(opt) => handleInputChange('drivingLicense', opt?.value ?? null)}
+              isClearable
+              className="react-select-container"
+              classNamePrefix="react-select"
+              styles={{
+                            placeholder: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem',
+                              color: '#9CA3AF'
+                            }),
+                            control: (provided) => ({
+                              ...provided,
+                              borderRadius: '16px',
+                              fontSize: '1.125rem',
+                              minHeight: '3rem', // h-12 = 48px
+                              height: '3rem'
+                            }),
+                            singleValue: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem'
+                            }),
+                            input: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem'
+                            }),
+                            valueContainer: (provided) => ({
+                              ...provided,
+                              padding: '0 0.75rem' // px-3 for better spacing
+                            })
+                          }}
+            />
+          ) : (
+            localData.drivingLicense !== null
+              ? localData.drivingLicense
+                ? 'Yes'
+                : 'No'
+              : '-'
+          ))}
 
-          {/* Is Under State Pension Age? */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Is Under State Pension Age?
-            </label>
-            {isEditing ? (
-              <Select
-                options={yesNoOptions}
-                value={yesNoOptions.find(
-                  (opt) => opt.value === localData.isUnderStatePensionAge
-                )}
-                onChange={(selected) =>
-                  handleInputChange(
-                    'isUnderStatePensionAge',
-                    selected?.value || false
-                  )
-                }
-                className="react-select-container"
-                classNamePrefix="react-select"
+          {/* License Number */}
+          {localData.drivingLicense && (
+            renderField('License Number', true, isEditing ? (
+              <Input
+                value={localData.licenseNumber || ''}
+                onChange={(e) => handleInputChange('licenseNumber', e.target.value)}
+                placeholder="Enter license number"
               />
             ) : (
-              <div className="mt-1 text-gray-900">
-                {localData.isUnderStatePensionAge ? 'Yes' : 'No'}
-              </div>
-            )}
-          </div>
+              localData.licenseNumber || '-'
+            ))
+          )}
 
-          {/* Is Over 18? */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Are you aged 18 or over?
-              <span className="text-red-500">*</span>
-            </label>
-            {isEditing ? (
-              <Select
-                options={yesNoOptions}
-                value={yesNoOptions.find(
-                  (opt) => opt.value === localData.isOver18
-                )}
-                onChange={(selected) =>
-                  handleInputChange('isOver18', selected?.value || false)
-                }
-                className="react-select-container"
-                classNamePrefix="react-select"
-              />
-            ) : (
-              <div className="mt-1 text-gray-900">
-                {localData.isOver18 ? 'Yes' : 'No'}
-              </div>
-            )}
-          </div>
+          {/* Car Owner */}
+          {renderField('Do you own a car?', true, isEditing ? (
+            <Select
+              options={yesNoOptions}
+              value={yesNoOptions.find(opt => opt.value === localData.carOwner) || null}
+              onChange={(opt) => handleInputChange('carOwner', opt?.value ?? null)}
+              isClearable
+              className="react-select-container"
+              classNamePrefix="react-select"
+              styles={{
+                            placeholder: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem',
+                              color: '#9CA3AF'
+                            }),
+                            control: (provided) => ({
+                              ...provided,
+                              borderRadius: '16px',
+                              fontSize: '1.125rem',
+                              minHeight: '3rem', // h-12 = 48px
+                              height: '3rem'
+                            }),
+                            singleValue: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem'
+                            }),
+                            input: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem'
+                            }),
+                            valueContainer: (provided) => ({
+                              ...provided,
+                              padding: '0 0.75rem' // px-3 for better spacing
+                            })
+                          }}
+            />
+          ) : (
+            localData.carOwner !== null
+              ? localData.carOwner
+                ? 'Yes'
+                : 'No'
+              : '-'
+          ))}
 
-          {/* Is Subject to Immigration Control? */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Are you subject to immigration control?
-              <span className="text-red-500">*</span>
-            </label>
-            {isEditing ? (
-              <Select
-                options={yesNoOptions}
-                value={yesNoOptions.find(
-                  (opt) => opt.value === localData.isSubjectToImmigrationControl
-                )}
-                onChange={(selected) =>
-                  handleInputChange(
-                    'isSubjectToImmigrationControl',
-                    selected?.value || false
-                  )
-                }
-                className="react-select-container"
-                classNamePrefix="react-select"
-              />
-            ) : (
-              <div className="mt-1 text-gray-900">
-                {localData.isSubjectToImmigrationControl ? 'Yes' : 'No'}
-              </div>
-            )}
-          </div>
+          {/* Travel Areas */}
+          {renderField('What areas are you prepared to travel to?', true, isEditing ? (
+            <Textarea
+              value={localData.travelAreas || ''}
+              onChange={(e) => handleInputChange('travelAreas', e.target.value)}
+              placeholder="List areas..."
+              className="resize-none"
+            />
+          ) : (
+            localData.travelAreas || '-'
+          ))}
 
-          {/* Can Work in UK? */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Are you free to remain and take up employment in the UK?
-              <span className="text-red-500">*</span>
-            </label>
-            {isEditing ? (
-              <Select
-                options={yesNoOptions}
-                value={yesNoOptions.find(
-                  (opt) => opt.value === localData.canWorkInUK
-                )}
-                onChange={(selected) =>
-                  handleInputChange('canWorkInUK', selected?.value || false)
-                }
-                className="react-select-container"
-                classNamePrefix="react-select"
+          {/* Solely for Everycare */}
+          {renderField('Will you be working solely for Everycare?', true, isEditing ? (
+            <Select
+              options={yesNoOptions}
+              value={yesNoOptions.find(opt => opt.value === localData.solelyForEverycare) || null}
+              onChange={(opt) => handleInputChange('solelyForEverycare', opt?.value ?? null)}
+              isClearable
+              className="react-select-container"
+              classNamePrefix="react-select"
+              styles={{
+                            placeholder: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem',
+                              color: '#9CA3AF'
+                            }),
+                            control: (provided) => ({
+                              ...provided,
+                              borderRadius: '16px',
+                              fontSize: '1.125rem',
+                              minHeight: '3rem', // h-12 = 48px
+                              height: '3rem'
+                            }),
+                            singleValue: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem'
+                            }),
+                            input: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem'
+                            }),
+                            valueContainer: (provided) => ({
+                              ...provided,
+                              padding: '0 0.75rem' // px-3 for better spacing
+                            })
+                          }}
+            />
+          ) : (
+            localData.solelyForEverycare !== null
+              ? localData.solelyForEverycare
+                ? 'Yes'
+                : 'No'
+              : '-'
+          ))}
+
+          {/* Other Employers */}
+          {localData.solelyForEverycare === false && (
+            renderField('Who else do you work for?', true, isEditing ? (
+              <Textarea
+                value={localData.otherEmployers || ''}
+                onChange={(e) => handleInputChange('otherEmployers', e.target.value)}
+                placeholder="Enter employer names"
+                className="resize-none"
               />
             ) : (
-              <div className="mt-1 text-gray-900">
-                {localData.canWorkInUK ? 'Yes' : 'No'}
-              </div>
-            )}
-          </div>
+              localData.otherEmployers || '-'
+            ))
+          )}
+
+          {/* Professional Body */}
+          {renderField('Are you a member of a professional body?', true, isEditing ? (
+            <Select
+              options={yesNoOptions}
+              value={yesNoOptions.find(opt => opt.value === localData.professionalBody) || null}
+              onChange={(opt) => handleInputChange('professionalBody', opt?.value ?? null)}
+              isClearable
+              className="react-select-container"
+              classNamePrefix="react-select"
+              styles={{
+                            placeholder: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem',
+                              color: '#9CA3AF'
+                            }),
+                            control: (provided) => ({
+                              ...provided,
+                              borderRadius: '16px',
+                              fontSize: '1.125rem',
+                              minHeight: '3rem', // h-12 = 48px
+                              height: '3rem'
+                            }),
+                            singleValue: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem'
+                            }),
+                            input: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem'
+                            }),
+                            valueContainer: (provided) => ({
+                              ...provided,
+                              padding: '0 0.75rem' // px-3 for better spacing
+                            })
+                          }}
+            />
+          ) : (
+            localData.professionalBody !== null
+              ? localData.professionalBody
+                ? 'Yes'
+                : 'No'
+              : '-'
+          ))}
+
+          {/* Professional Body Details */}
+          {localData.professionalBody && (
+            renderField('Please provide details', true, isEditing ? (
+              <Input
+                value={localData.professionalBodyDetails || ''}
+                onChange={(e) => handleInputChange('professionalBodyDetails', e.target.value)}
+                placeholder="Enter professional body details"
+              />
+            ) : (
+              localData.professionalBodyDetails || '-'
+            ))
+          )}
+
+          {/* Age 18+ */}
+          {renderField('Are you aged 18 or over?', true, isEditing ? (
+            <Select
+              options={yesNoOptions}
+              value={yesNoOptions.find(opt => opt.value === localData.isOver18) || null}
+              onChange={(opt) => handleInputChange('isOver18', opt?.value ?? null)}
+              isClearable
+              className="react-select-container"
+              classNamePrefix="react-select"
+              styles={{
+                            placeholder: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem',
+                              color: '#9CA3AF'
+                            }),
+                            control: (provided) => ({
+                              ...provided,
+                              borderRadius: '16px',
+                              fontSize: '1.125rem',
+                              minHeight: '3rem', // h-12 = 48px
+                              height: '3rem'
+                            }),
+                            singleValue: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem'
+                            }),
+                            input: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem'
+                            }),
+                            valueContainer: (provided) => ({
+                              ...provided,
+                              padding: '0 0.75rem' // px-3 for better spacing
+                            })
+                          }}
+            />
+          ) : (
+            localData.isOver18 !== null
+              ? localData.isOver18
+                ? 'Yes'
+                : 'No'
+              : '-'
+          ))}
+
+          {/* Immigration Control */}
+          {renderField('Are you subject to immigration control?', true, isEditing ? (
+            <Select
+              options={yesNoOptions}
+              value={yesNoOptions.find(opt => opt.value === localData.isSubjectToImmigrationControl) || null}
+              onChange={(opt) => handleInputChange('isSubjectToImmigrationControl', opt?.value ?? null)}
+              isClearable
+              className="react-select-container"
+              classNamePrefix="react-select"
+              styles={{
+                            placeholder: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem',
+                              color: '#9CA3AF'
+                            }),
+                            control: (provided) => ({
+                              ...provided,
+                              borderRadius: '16px',
+                              fontSize: '1.125rem',
+                              minHeight: '3rem', // h-12 = 48px
+                              height: '3rem'
+                            }),
+                            singleValue: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem'
+                            }),
+                            input: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem'
+                            }),
+                            valueContainer: (provided) => ({
+                              ...provided,
+                              padding: '0 0.75rem' // px-3 for better spacing
+                            })
+                          }}
+            />
+          ) : (
+            localData.isSubjectToImmigrationControl !== null
+              ? localData.isSubjectToImmigrationControl
+                ? 'Yes'
+                : 'No'
+              : '-'
+          ))}
+
+          {/* Can Work in UK */}
+          {renderField('Are you free to remain and take up employment in the UK?', true, isEditing ? (
+            <Select
+              options={yesNoOptions}
+              value={yesNoOptions.find(opt => opt.value === localData.canWorkInUK) || null}
+              onChange={(opt) => handleInputChange('canWorkInUK', opt?.value ?? null)}
+              isClearable
+              className="react-select-container"
+              classNamePrefix="react-select"
+              styles={{
+                            placeholder: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem',
+                              color: '#9CA3AF'
+                            }),
+                            control: (provided) => ({
+                              ...provided,
+                              borderRadius: '16px',
+                              fontSize: '1.125rem',
+                              minHeight: '3rem', // h-12 = 48px
+                              height: '3rem'
+                            }),
+                            singleValue: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem'
+                            }),
+                            input: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem'
+                            }),
+                            valueContainer: (provided) => ({
+                              ...provided,
+                              padding: '0 0.75rem' // px-3 for better spacing
+                            })
+                          }}
+            />
+          ) : (
+            localData.canWorkInUK !== null
+              ? localData.canWorkInUK
+                ? 'Yes'
+                : 'No'
+              : '-'
+          ))}
+
+          {/* Source */}
+          {renderField('How did you hear about us?', true, isEditing ? (
+            <Select
+              options={sourceOptions}
+              value={sourceOptions.find(opt => opt.value === localData.source) || null}
+              onChange={(opt) => handleInputChange('source', opt?.value || '')}
+              isClearable
+              className="react-select-container"
+              classNamePrefix="react-select"
+              styles={{
+                            placeholder: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem',
+                              color: '#9CA3AF'
+                            }),
+                            control: (provided) => ({
+                              ...provided,
+                              borderRadius: '16px',
+                              fontSize: '1.125rem',
+                              minHeight: '3rem', // h-12 = 48px
+                              height: '3rem'
+                            }),
+                            singleValue: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem'
+                            }),
+                            input: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem'
+                            }),
+                            valueContainer: (provided) => ({
+                              ...provided,
+                              padding: '0 0.75rem' // px-3 for better spacing
+                            })
+                          }}
+            />
+          ) : (
+            sourceOptions.find(opt => opt.value === localData.source)?.label || '-'
+          ))}
+
+          {/* Referral Employee */}
+          {localData.source === 'referral' && (
+            renderField('Referred by (Employee Name)', true, isEditing ? (
+              <Input
+                value={localData.referralEmployee || ''}
+                onChange={(e) => handleInputChange('referralEmployee', e.target.value)}
+                placeholder="Enter the employee name"
+              />
+            ) : (
+              localData.referralEmployee || '-'
+            ))
+          )}
+
+          {/* Student */}
+          {renderField('Are you currently a student?', true, isEditing ? (
+            <Select
+              options={yesNoOptions}
+              value={yesNoOptions.find(opt => opt.value === localData.isStudent) || null}
+              onChange={(opt) => handleInputChange('isStudent', opt?.value ?? null)}
+              isClearable
+              className="react-select-container"
+              classNamePrefix="react-select"
+              styles={{
+                            placeholder: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem',
+                              color: '#9CA3AF'
+                            }),
+                            control: (provided) => ({
+                              ...provided,
+                              borderRadius: '16px',
+                              fontSize: '1.125rem',
+                              minHeight: '3rem', // h-12 = 48px
+                              height: '3rem'
+                            }),
+                            singleValue: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem'
+                            }),
+                            input: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem'
+                            }),
+                            valueContainer: (provided) => ({
+                              ...provided,
+                              padding: '0 0.75rem' // px-3 for better spacing
+                            })
+                          }}
+            />
+          ) : (
+            localData.isStudent !== null
+              ? localData.isStudent
+                ? 'Yes'
+                : 'No'
+              : '-'
+          ))}
+
+          {/* Pension Age */}
+          {renderField('Are you under state pension age?', true, isEditing ? (
+            <Select
+              options={yesNoOptions}
+              value={yesNoOptions.find(opt => opt.value === localData.isUnderStatePensionAge) || null}
+              onChange={(opt) => handleInputChange('isUnderStatePensionAge', opt?.value ?? null)}
+              isClearable
+              className="react-select-container"
+              classNamePrefix="react-select"
+              styles={{
+                            placeholder: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem',
+                              color: '#9CA3AF'
+                            }),
+                            control: (provided) => ({
+                              ...provided,
+                              borderRadius: '16px',
+                              fontSize: '1.125rem',
+                              minHeight: '3rem', // h-12 = 48px
+                              height: '3rem'
+                            }),
+                            singleValue: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem'
+                            }),
+                            input: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem'
+                            }),
+                            valueContainer: (provided) => ({
+                              ...provided,
+                              padding: '0 0.75rem' // px-3 for better spacing
+                            })
+                          }}
+            />
+          ) : (
+            localData.isUnderStatePensionAge !== null
+              ? localData.isUnderStatePensionAge
+                ? 'Yes'
+                : 'No'
+              : '-'
+          ))}
         </div>
 
         {/* Weekly Availability */}
         <div>
           <label className="mb-2 block text-sm font-medium text-gray-700">
-            Weekly Availability
+            Availability (Select all that apply)
+            <span className="text-red-500"> *</span>
           </label>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
-            {[
-              'Monday',
-              'Tuesday',
-              'Wednesday',
-              'Thursday',
-              'Friday',
-              'Saturday',
-              'Sunday'
-            ].map((day) => (
-              <div key={day} className="flex items-center gap-2">
-                <label className="text-sm">{day}</label>
-                <input
-                  type="checkbox"
-                  checked={localData.availability?.[day.toLowerCase()] || false}
-                  onChange={(e) =>
-                    setLocalData((prev) => ({
-                      ...prev,
-                      availability: {
-                        ...prev.availability,
-                        [day.toLowerCase()]: e.target.checked
-                      }
-                    }))
-                  }
-                  disabled={!isEditing}
-                  className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                />
-              </div>
-            ))}
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => {
+              const dayKey = day.toLowerCase();
+              return (
+                <div key={day} className="flex items-center gap-2">
+                  {isEditing ? (
+                    <>
+                      <Checkbox
+                        id={dayKey}
+                        checked={localData.availability?.[dayKey] || false}
+                        onCheckedChange={(checked) =>
+                          setLocalData((prev) => ({
+                            ...prev,
+                            availability: {
+                              ...prev.availability,
+                              [dayKey]: checked === true,
+                            },
+                          }))
+                        }
+                      />
+                      <label htmlFor={dayKey} className="text-sm font-medium">
+                        {day}
+                      </label>
+                    </>
+                  ) : (
+                    <span className="text-sm">
+                      {day}: {localData.availability?.[dayKey] ? 'Yes' : 'No'}
+                    </span>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
     </TabSection>
   );
 };
-
-// Helper function to capitalize first letter
-function capitalizeFirstLetter(str: string): string {
-  return str ? str.charAt(0).toUpperCase() + str.slice(1) : '';
-}
 
 export default ApplicationData;

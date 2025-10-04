@@ -392,9 +392,21 @@ useEffect(() => {
   };
 
   const handleSubmit = async (formData: any) => {
+     console.log("🔥 formData submitted:", formData);
     try {
+
       await axiosInstance.patch(`/users/${user._id}`, {
         ...formData,
+        declarationCorrectUpload: formData.declarationCorrectUpload,
+      disciplinaryInvestigation: formData.disciplinaryInvestigation,
+      disciplinaryInvestigationDetails: formData.disciplinaryInvestigationDetails,
+      abuseInvestigation: formData.abuseInvestigation,
+      abuseInvestigationDetails: formData.abuseInvestigationDetails,
+      appliedBefore: formData.appliedBefore,
+      roaDeclaration: formData.roaDeclaration,
+      roaDeclarationDetails: formData.roaDeclarationDetails,
+      termsAccepted: formData.termsAccepted,
+      dataProcessingAccepted: formData.dataProcessingAccepted,
         isCompleted: true
       });
       dispatch(updateAuthIsCompleted(true));

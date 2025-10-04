@@ -11,15 +11,15 @@ import { useSelector } from "react-redux";
 import { ImageUploader } from "../components/userImage-uploader";
 
 interface PersonalDetailsProps {
-  userData: any;
+  userData: User;
   isEditing?: boolean;
-  onSave?: (data: any) => void;
+  onSave?: (data: User) => void;
   onCancel?: () => void;
   onEdit?: () => void;
   refreshData?: () => void;
 }
 
-const PersonalDetails: React.FC<PersonalDetailsProps> = ({
+const PaymentData: React.FC<PersonalDetailsProps> = ({
   userData,
   isEditing,
   onSave,
@@ -27,7 +27,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
   onEdit,
   refreshData,
 }) => {
-  const [localData, setLocalData] = useState(userData);
+  const [localData, setLocalData] = useState<User>(userData);
   const [uploadOpen, setUploadOpen] = useState(false);
   const { user } = useSelector((state: any) => state.auth);
 
@@ -35,7 +35,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
     setLocalData(userData);
   }, [userData]);
 
-  const handleInputChange = (field: keyof any, value: any) => {
+  const handleInputChange = (field: keyof User, value: any) => {
     setLocalData((prev) => ({
       ...prev,
       [field]: value,
@@ -96,9 +96,9 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
         <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center">
           <div className="group relative">
             <div className="h-32 w-32 overflow-hidden rounded-full border-4 border-white bg-gray-200 shadow-lg">
-              {localData?.image ? (
+              {localData.image ? (
                 <img
-                  src={localData?.image}
+                  src={localData.image}
                   alt="Profile"
                   className="h-full w-full object-cover"
                 />
@@ -123,15 +123,15 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
 
           <div>
             <h3 className="text-xl font-semibold text-gray-900">
-              {capitalizeFirstLetter(localData?.title)}{" "}
-              {capitalizeFirstLetter(localData?.firstName)}{" "}
-              {capitalizeFirstLetter(localData?.initial)}{" "}
-              {capitalizeFirstLetter(localData?.lastName)}
+              {capitalizeFirstLetter(localData.title)}{" "}
+              {capitalizeFirstLetter(localData.firstName)}{" "}
+              {capitalizeFirstLetter(localData.initial)}{" "}
+              {capitalizeFirstLetter(localData.lastName)}
             </h3>
-            <p className="text-gray-500">{localData?.email}</p>
-            <p className="text-gray-500">{localData?.phone}</p>
+            <p className="text-gray-500">{localData.email}</p>
+            <p className="text-gray-500">{localData.phone}</p>
             <p className="mt-1 inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
-              {localData?.status}
+              {localData.status}
             </p>
           </div>
         </div>
@@ -182,7 +182,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
                 />
               ) : (
                 <div className="mt-1 text-gray-900">
-                  {capitalizeFirstLetter(localData?.title || "-")}
+                  {capitalizeFirstLetter(localData.title || "-")}
                 </div>
               )}
             </div>
@@ -420,4 +420,4 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
   );
 };
 
-export default PersonalDetails;
+export default PaymentData;

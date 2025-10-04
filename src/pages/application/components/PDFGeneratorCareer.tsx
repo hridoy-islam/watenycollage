@@ -19,7 +19,7 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({ application , applicationJo
       document={<ApplicationPDFDocument formData={application}  applicationJob={applicationJob || []}/>}
       fileName={fileName}
     >
-      <Button className="flex flex-row gap-2 bg-watney text-white hover:bg-watney/90 px-4 py-2 rounded-md items-center text-sm">
+      <Button className="flex flex-row gap-2 bg-watney text-white hover:bg-watney/90 px-4  items-center text-sm">
         <File className="w-4" />
         PDF
       </Button>

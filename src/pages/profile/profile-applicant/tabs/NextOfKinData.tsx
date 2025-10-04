@@ -4,7 +4,8 @@ import { User } from '../../../types/user.types';
 import { Input } from '@/components/ui/input';
 import { emergencyContactRelationships } from '@/types';
 import Select from 'react-select';
-const EmergencyContactData = ({
+import { Label } from '@/components/ui/label';
+const NextToKinData = ({
   userData,
   isEditing = false,
   onSave,
@@ -38,8 +39,8 @@ const EmergencyContactData = ({
 
   return (
     <TabSection
-      title="Emergency Contact"
-      description="Contact information in case of emergency"
+      title="Next Of Kin"
+      description="Details of your next of kin"
       userData={userData}
       isEditing={isEditing}
       onSave={handleSave}
@@ -54,9 +55,9 @@ const EmergencyContactData = ({
           </h3>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <Label className="block text-sm font-medium text-gray-700">
                 Full Name
-              </label>
+              </Label>
               {isEditing ? (
                 <Input
                   type="text"
@@ -73,9 +74,9 @@ const EmergencyContactData = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <Label className="block text-sm font-medium text-gray-700">
                 Relationship
-              </label>
+              </Label>
 
               {isEditing ? (
                 <Select
@@ -94,19 +95,32 @@ const EmergencyContactData = ({
                   }
                   className="mt-1"
                   classNamePrefix="react-select"
-                  styles={{
-                    menu: (provided) => ({ ...provided, zIndex: 9999 }),
-                    control: (provided, state) => ({
-                      ...provided,
-                      borderColor: state.isFocused
-                        ? '#4F46E5'
-                        : provided.borderColor,
-                      boxShadow: state.isFocused ? '0 0 0 1px #4F46E5' : 'none',
-                      '&:hover': {
-                        borderColor: state.isFocused ? '#4F46E5' : '#4F46E5'
-                      }
-                    })
-                  }}
+                   styles={{
+                            placeholder: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem',
+                              color: '#9CA3AF'
+                            }),
+                            control: (provided) => ({
+                              ...provided,
+                              borderRadius: '16px',
+                              fontSize: '1.125rem',
+                              minHeight: '3rem', // h-12 = 48px
+                              height: '3rem'
+                            }),
+                            singleValue: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem'
+                            }),
+                            input: (provided) => ({
+                              ...provided,
+                              fontSize: '1.125rem'
+                            }),
+                            valueContainer: (provided) => ({
+                              ...provided,
+                              padding: '0 0.75rem' // px-3 for better spacing
+                            })
+                          }}
                   menuPortalTarget={document.body}
                 />
               ) : (
@@ -117,9 +131,9 @@ const EmergencyContactData = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <Label className="block text-sm font-medium text-gray-700">
                 Contact Number
-              </label>
+              </Label>
               {isEditing ? (
                 <Input
                   type="text"
@@ -136,9 +150,9 @@ const EmergencyContactData = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <Label className="block text-sm font-medium text-gray-700">
                 Email
-              </label>
+              </Label>
               {isEditing ? (
                 <Input
                   type="email"
@@ -153,11 +167,11 @@ const EmergencyContactData = ({
                 </div>
               )}
             </div>
+<div>
 
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700">
+              <Label className="block text-sm font-medium text-gray-700">
                 Address
-              </label>
+              </Label>
               {isEditing ? (
                 <Input
                   type="text"
@@ -171,7 +185,7 @@ const EmergencyContactData = ({
                   {localData?.emergencyAddress || '-'}
                 </div>
               )}
-            </div>
+                </div>
           </div>
         </div>
       </div>
@@ -179,4 +193,4 @@ const EmergencyContactData = ({
   );
 };
 
-export default EmergencyContactData;
+export default NextToKinData;
