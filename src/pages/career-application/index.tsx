@@ -743,6 +743,13 @@ if (formSubmitted) {
             <span>+44 2920 455300</span>
           </div>
         </li>
+         <li className="flex items-center gap-3 rounded-lg py-2 px-4">
+    <span className="text-xl">📍</span>
+    <div className="flex flex-col">
+      <strong>Address:</strong>
+      <span>28-30 Carlisle Street, Splott, Cardiff, CF24 2DS, United Kingdom</span>
+    </div>
+  </li>
       </ul>
 
       {/* Divider */}
