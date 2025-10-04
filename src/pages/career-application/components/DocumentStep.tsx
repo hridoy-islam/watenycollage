@@ -512,7 +512,7 @@ const renderUploadedFiles = (field: keyof DocumentFile) => {
                   </div>
                 )}
 
-                {!hasUploadedDocuments && (
+                {/* {!hasUploadedDocuments && (
                   <div className="text-center py-12 border-2 border-dashed border-gray-300 rounded-xl">
                     <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">No documents uploaded yet</h3>
@@ -526,7 +526,7 @@ const renderUploadedFiles = (field: keyof DocumentFile) => {
                       </DialogTrigger>
                     </Dialog>
                   </div>
-                )}
+                )} */}
               </div>
             </div>
 
