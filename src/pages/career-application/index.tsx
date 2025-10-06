@@ -52,16 +52,16 @@ const careerFormSteps = [
   { id: 11, label: 'Ethnicity' },
   { id: 12, label: 'Disability Info' },
   { id: 13, label: 'Documents' },
-  { id: 14, label: 'Post-Employment' },
-  { id: 15, label: 'Payment' },
-  { id: 16, label: 'Review & Submit' }
+  // { id: 14, label: 'Post-Employment' },
+  // { id: 15, label: 'Payment' },
+  { id: 14, label: 'Review & Submit' }
 ];
 
-const TOTAL_FILLABLE_STEPS = 16;
+const TOTAL_FILLABLE_STEPS = 14;
 
 const SUB_STEP_CONFIG: Record<number, number> = {
-  14: 8,
-  16: 4
+  // 14: 8,
+  14: 3
 };
 
 export default function CareerApplicationForm() {
@@ -658,35 +658,35 @@ export default function CareerApplicationForm() {
 
           />
         );
+      // case 14:
+      //   return (
+      //     <PostEmployementStep
+      //       defaultValues={{ ...fetchData, ...formData }}
+      //       onSaveAndContinue={handlePostEmployementSaveAndContinue}
+      //       setCurrentStep={setCurrentStep}
+      //       onSave={handlePostEmployementSave}
+      //       subStep={subStep}
+      //       subStepInfo={subStepInfo}
+      //       onSubStepChange={(current) =>
+      //         setSubStepInfo((prev) => ({ ...prev, current }))
+      //       }
+
+      //       saveAndLogout={handleSaveAndLogout}
+
+      //     />
+      //   );
+      // case 15:
+      //   return (
+      //     <PaymentStep
+      //       defaultValues={{ ...fetchData, ...formData }}
+      //       onSaveAndContinue={handlePayrollSaveAndContinue}
+      //       setCurrentStep={setCurrentStep}
+      //       setSubstep={setSubstep}
+      //       saveAndLogout={handleSaveAndLogout}
+
+      //     />
+      //   );
       case 14:
-        return (
-          <PostEmployementStep
-            defaultValues={{ ...fetchData, ...formData }}
-            onSaveAndContinue={handlePostEmployementSaveAndContinue}
-            setCurrentStep={setCurrentStep}
-            onSave={handlePostEmployementSave}
-            subStep={subStep}
-            subStepInfo={subStepInfo}
-            onSubStepChange={(current) =>
-              setSubStepInfo((prev) => ({ ...prev, current }))
-            }
-
-            saveAndLogout={handleSaveAndLogout}
-
-          />
-        );
-      case 15:
-        return (
-          <PaymentStep
-            defaultValues={{ ...fetchData, ...formData }}
-            onSaveAndContinue={handlePayrollSaveAndContinue}
-            setCurrentStep={setCurrentStep}
-            setSubstep={setSubstep}
-            saveAndLogout={handleSaveAndLogout}
-
-          />
-        );
-      case 16:
         return (
           <ReviewStep
             defaultValues={{ ...fetchData, ...formData }}

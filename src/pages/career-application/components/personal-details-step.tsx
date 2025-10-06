@@ -544,6 +544,7 @@ export function PersonalDetailsStep({
                                   field.onChange(value);
                                 }}
                                 value={field.value}
+                                maxLength={11}
                                 className=" placeholder:text-gray-500"
                               />
                             </FormControl>

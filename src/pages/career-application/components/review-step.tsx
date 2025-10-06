@@ -104,20 +104,14 @@ type TFormValues = z.infer<typeof careerSchema>;
 
 // ✅ STEP CONFIGURATION — 3 STEPS
 const STEPS = [
+  
   {
     id: 1,
-    // title: ',
+    // title: 'Declarations & GDPR Consent',
     fields: [
       'consentMedicalDeclaration',
       'consentTerminationClause',
-      'consentVaccination'
-
-    ]
-  },
-  {
-    id: 2,
-    // title: 'Declarations & GDPR Consent',
-    fields: [
+      'consentVaccination',
       'declarationContactReferee',
       'declarationCorrectUpload',
       'disciplinaryInvestigation',
@@ -128,12 +122,12 @@ const STEPS = [
     ]
   },
   {
-    id: 3,
+    id: 2,
     // title: 'ROA Declaration',
     fields: ['roaDeclaration', 'roaDeclarationDetails']
   },
   {
-    id: 4,
+    id: 3,
     // title: 'Terms & Submission',
     fields: ['termsAccepted', 'dataProcessingAccepted']
   }
@@ -186,7 +180,7 @@ export function ReviewStep({
     if (currentStep === 1) {
       // If at the first review step → go back to previous main step
       if (setCurrentStep) {
-        setCurrentStep(15);
+        setCurrentStep(13);
       }
     } else {
       // Otherwise go back one review step
@@ -668,7 +662,7 @@ export function ReviewStep({
       )}
 
       {/* Declarations */}
-      {renderSection(
+      {/* {renderSection(
         'Consent & Declarations',
         filterEmptyFields({
 
@@ -689,7 +683,7 @@ export function ReviewStep({
           consentVaccination: defaultValues.consentVaccination,
           consentTerminationClause: defaultValues.consentTerminationClause,
         })
-      )}
+      )} */}
     </div>
   );
 
@@ -749,6 +743,13 @@ export function ReviewStep({
   const renderCurrentStep = () => {
     switch (currentStep) {
 
+      // case 1:
+      //   return (
+      //     <div className="overflow-x-auto">
+            
+      //     </div>
+
+      //   );
       case 1:
         return (
           <div className="overflow-x-auto">
@@ -782,7 +783,7 @@ export function ReviewStep({
                       <span className="text-red-500">*</span>
                     </span>
                   </td>
-                  <td className="px-4 py-4 align-top text-right w-1/3">
+                  <td className="px-6 py-4 align-top text-right w-1/3">
                     <FormField
                       control={form.control}
                       name="consentMedicalDeclaration"
@@ -829,7 +830,7 @@ export function ReviewStep({
                       <span className="text-red-500">*</span>
                     </span>
                   </td>
-                  <td className="px-4 py-4 text-right w-1/3">
+                  <td className="px-6 py-4 text-right w-1/3">
                     <FormField
                       control={form.control}
                       name="consentVaccination"
@@ -877,7 +878,7 @@ export function ReviewStep({
                       <span className="text-red-500">*</span>
                     </span>
                   </td>
-                  <td className="px-4 py-4 text-right w-1/3">
+                  <td className="px-6 py-4 text-right w-1/3">
                     <FormField
                       control={form.control}
                       name="consentTerminationClause"
@@ -913,12 +914,6 @@ export function ReviewStep({
                 </tr>
               </tbody>
             </table>
-          </div>
-
-        );
-      case 2:
-        return (
-          <div className="overflow-x-auto">
             <table className="w-full border-collapse text-lg">
               <tbody>
                 {/* GDPR Declaration */}
@@ -1229,7 +1224,7 @@ export function ReviewStep({
             </table>
           </div>
         );
-      case 3:
+      case 2:
         return (
           <div className="space-y-6">
             <div className="border-b border-gray-300 pb-4 pt-4">
@@ -1319,7 +1314,7 @@ export function ReviewStep({
           </div>
         );
 
-      case 4:
+      case 3:
         return (
           <>
             {/* Terms Section */}
