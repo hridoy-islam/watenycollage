@@ -60,8 +60,8 @@ const careerFormSteps = [
 const TOTAL_FILLABLE_STEPS = 16;
 
 const SUB_STEP_CONFIG: Record<number, number> = {
-  14: 9,
-  16: 2
+  14: 8,
+  16: 4
 };
 
 export default function CareerApplicationForm() {

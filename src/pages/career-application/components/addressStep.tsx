@@ -287,7 +287,7 @@ export function AddressStep({
                 onClick={() => saveAndLogout()}
                 className="bg-watney  text-white hover:bg-watney/90"
               >
-                Save And Logout
+                Save And Exit
               </Button>
               <Button
                 type="submit"

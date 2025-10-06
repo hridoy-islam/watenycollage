@@ -13,8 +13,20 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 
-// Referee schema (simplified)
-const refereeSchema = z.object({
+// Referee schema for professional referees (all required except fax)
+const professionalRefereeSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  position: z.string().min(1, 'Position is required'),
+  relationship: z.string().min(1, 'Relationship is required'),
+  organisation: z.string().min(1, 'Organisation is required'),
+  address: z.string().min(1, 'Address is required'),
+  tel: z.string().min(1, 'Tel number is required'),
+  fax: z.string().optional(),
+  email: z.string().email('Invalid email address')
+});
+
+// Referee schema for personal referee (some optional)
+const personalRefereeSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   position: z.string().optional(),
   relationship: z.string().min(1, 'Relationship is required'),
@@ -27,9 +39,9 @@ const refereeSchema = z.object({
 
 // Updated schema for 3 referees
 const refereeDetailsSchema = z.object({
-  professionalReferee1: refereeSchema,
-  professionalReferee2: refereeSchema,
-  personalReferee: refereeSchema
+  professionalReferee1: professionalRefereeSchema,
+  professionalReferee2: professionalRefereeSchema,
+  personalReferee: personalRefereeSchema
 });
 
 export type RefereeFormValues = z.infer<typeof refereeDetailsSchema>;
@@ -63,6 +75,15 @@ export function RefereeDetailsStep({
     setCurrentStep(8);
   }
 
+  // Helper to check if a field is required for a given referee type
+  const isFieldRequired = (refKey: keyof RefereeFormValues, fieldName: string): boolean => {
+    if (refKey === 'personalReferee') {
+      return ['name', 'relationship', 'tel', 'email'].includes(fieldName);
+    }
+    // For professional referees, all except 'fax' are required
+    return fieldName !== 'fax';
+  };
+
   const renderRefereeFields = (
     refKey: keyof RefereeFormValues,
     title: string,
@@ -83,13 +104,12 @@ export function RefereeDetailsStep({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-lg font-medium">
-                  Name <span className="text-red-500">*</span>
+                  Name {isFieldRequired(refKey, 'name') && <span className="text-red-500">*</span>}
                 </FormLabel>
                 <FormControl>
                   <Input
                     {...field}
                     placeholder="Sarah Johnson"
-                    className=""
                   />
                 </FormControl>
                 <p className="text-md text-gray-400">Example: Sarah Johnson</p>
@@ -105,13 +125,12 @@ export function RefereeDetailsStep({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-lg font-medium">
-                  Position
+                  Position {isFieldRequired(refKey, 'position') && <span className="text-red-500">*</span>}
                 </FormLabel>
                 <FormControl>
                   <Input
                     {...field}
                     placeholder="Senior Manager"
-                    className=""
                   />
                 </FormControl>
                 <p className="text-md text-gray-400">Example: Senior Manager</p>
@@ -127,13 +146,12 @@ export function RefereeDetailsStep({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-lg font-medium">
-                  Relationship to you <span className="text-red-500">*</span>
+                  Relationship to you {isFieldRequired(refKey, 'relationship') && <span className="text-red-500">*</span>}
                 </FormLabel>
                 <FormControl>
                   <Input
                     {...field}
                     placeholder="Line Manager, Colleague, Friend"
-                    className=""
                   />
                 </FormControl>
                 <p className="text-md text-gray-400">Example: Line Manager</p>
@@ -149,13 +167,12 @@ export function RefereeDetailsStep({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-lg font-medium">
-                  Organisation
+                  Organisation {isFieldRequired(refKey, 'organisation') && <span className="text-red-500">*</span>}
                 </FormLabel>
                 <FormControl>
                   <Input
                     {...field}
                     placeholder="ABC Health Services Ltd."
-                    className=""
                   />
                 </FormControl>
                 <p className="text-md text-gray-400">Example: ABC Health Services Ltd.</p>
@@ -171,13 +188,12 @@ export function RefereeDetailsStep({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-lg font-medium">
-                  Address
+                  Address {isFieldRequired(refKey, 'address') && <span className="text-red-500">*</span>}
                 </FormLabel>
                 <FormControl>
                   <Input
                     {...field}
                     placeholder="123 High Street, London, W1A 1AA"
-                    className=""
                   />
                 </FormControl>
                 <p className="text-md text-gray-400">
@@ -195,13 +211,12 @@ export function RefereeDetailsStep({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-lg font-medium">
-                  Tel No. (NOT Mobile) <span className="text-red-500">*</span>
+                  Tel No. (NOT Mobile) {isFieldRequired(refKey, 'tel') && <span className="text-red-500">*</span>}
                 </FormLabel>
                 <FormControl>
                   <Input
                     {...field}
                     placeholder="+44 20 1234 5678"
-                    className=""
                   />
                 </FormControl>
                 <p className="text-md text-gray-400">Example: +44 20 1234 5678</p>
@@ -216,12 +231,13 @@ export function RefereeDetailsStep({
             name={`${refKey}.fax`}
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-lg font-medium">FAX No.</FormLabel>
+                <FormLabel className="text-lg font-medium">
+                  FAX No. {isFieldRequired(refKey, 'fax') && <span className="text-red-500">*</span>}
+                </FormLabel>
                 <FormControl>
                   <Input
                     {...field}
                     placeholder="+44 20 1234 5679"
-                    className=""
                   />
                 </FormControl>
                 <p className="text-md text-gray-400">Example: +44 20 1234 5679</p>
@@ -237,14 +253,13 @@ export function RefereeDetailsStep({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-lg font-medium">
-                  Email Address <span className="text-red-500">*</span>
+                  Email Address {isFieldRequired(refKey, 'email') && <span className="text-red-500">*</span>}
                 </FormLabel>
                 <FormControl>
                   <Input
                     {...field}
                     placeholder="s.johnson@abcservices.com"
                     type="email"
-                    className=""
                   />
                 </FormControl>
                 <p className="text-md text-gray-400">
@@ -291,19 +306,19 @@ export function RefereeDetailsStep({
                 type="button"
                 variant="outline"
                 onClick={handleBack}
-                className=" bg-watney text-lg text-white hover:bg-watney/90"
+                className="bg-watney text-lg text-white hover:bg-watney/90"
               >
                 Back
               </Button>
               <Button
                 onClick={() => saveAndLogout()}
-                className="bg-watney  text-white hover:bg-watney/90"
+                className="bg-watney text-white hover:bg-watney/90"
               >
-                Save and Logout
+                Save And Exit
               </Button>
               <Button
                 type="submit"
-                className=" bg-watney text-lg text-white hover:bg-watney/90"
+                className="bg-watney text-lg text-white hover:bg-watney/90"
               >
                 Save and Next
               </Button>

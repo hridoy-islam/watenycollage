@@ -88,7 +88,7 @@ export function PaymentStep({
 
   const handleBack = () => {
     setCurrentStep(14); // Adjust step number as needed
-    setSubstep(9)
+    setSubstep(8)
   };
 
   return (
@@ -236,7 +236,7 @@ export function PaymentStep({
                 onClick={() => saveAndLogout()}
                 className="bg-watney  text-white hover:bg-watney/90"
               >
-                Save And Logout
+                Save And Exit
               </Button>
               <Button
                 type="submit"

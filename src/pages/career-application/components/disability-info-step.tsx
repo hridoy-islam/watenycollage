@@ -238,7 +238,7 @@ export function DisabilityInfoStep({
                 onClick={() => saveAndLogout()}
                 className="bg-watney  text-white hover:bg-watney/90"
               >
-                Save and Logout
+                Save And Exit
               </Button>
               <Button
                 type="submit"

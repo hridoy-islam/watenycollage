@@ -52,7 +52,6 @@ const steps: React.ReactNode[] = [
       <li><strong>References:</strong> Two Professional and one charecter refeeres with their contact details.</li>
       <li><strong>Documents:</strong> CV (required), Cover letter (optional), Proof of address, Certificates, DBS certificate (if available).</li>
       <li><strong>Checks:</strong> Disabilities/support needs, immunisation details, unspent convictions.</li>
-            <li><strong>Decleartion:</strong> You Must make sure.</li>
 
     </ul>
   </div>,
@@ -83,6 +82,8 @@ const steps: React.ReactNode[] = [
     <li>All information you provide is accurate and complete.</li>
     <li>You consent to reference, DBS, and qualification checks.</li>
     <li>You understand that misrepresentation may lead to rejection or termination.</li>
+                <li>You Must make sure.</li>
+
   </ul>
 </div>,
 
@@ -142,7 +143,7 @@ export default function CareerGuideline() {
   {/* Header */}
   <CardHeader className="px-4 py-4 sm:px-8 sm:py-6 text-center sm:text-left">
     <CardTitle className="text-2xl sm:text-3xl font-bold">
-      Career Application Guidelines
+      Guidelines
     </CardTitle>
   </CardHeader>
 

@@ -71,20 +71,22 @@ export const personalDetailsSchema = z
   })
   .superRefine((data, ctx) => {
     if (data.nationality !== 'british') {
-      // if (typeof data.isBritishCitizen !== 'boolean') {
-      //   ctx.addIssue({
-      //     path: ['isBritishCitizen'],
-      //     code: z.ZodIssueCode.custom,
-      //     message: 'This field is required if not British'
-      //   });
-      // }
-
       if (!data.shareCode || data.shareCode.trim() === '') {
         ctx.addIssue({
           path: ['shareCode'],
           code: z.ZodIssueCode.custom,
-          message: 'Share Code is required if not British'
+          message: 'Share Code is required if not British',
         });
+      } else {
+        // Remove dashes to count characters
+        const plainCode = data.shareCode.replace(/-/g, '');
+        if (plainCode.length !== 9) {
+          ctx.addIssue({
+            path: ['shareCode'],
+            code: z.ZodIssueCode.custom,
+            message: 'Share Code must be exactly 9 characters',
+          });
+        }
       }
     }
   });
@@ -574,7 +576,7 @@ export function PersonalDetailsStep({
                 onClick={() => saveAndLogout()}
                 className="bg-watney  text-white hover:bg-watney/90"
               >
-                Save and Logout
+                Save And Exit
               </Button>
               <Button
                 type="submit"

@@ -131,15 +131,9 @@ const isValidImageUrl = (url) => {
       </div>
     </div>
 
-    <div className="flex flex-col sm:flex-row justify-between gap-2 pt-4">
+    <div className="flex flex-col sm:flex-row justify-end gap-2 pt-4">
 
 
-      <Button
-        onClick={()=> saveAndLogout()}
-                  className="bg-watney  text-white hover:bg-watney/90"
-      >
-        Save and Logout
-      </Button>
 
       <Button
         onClick={handleNext}

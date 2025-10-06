@@ -856,7 +856,7 @@ export function ApplicationDetailsStep({
                 onClick={() => saveAndLogout()}
                 className="bg-watney  text-white hover:bg-watney/90"
               >
-                Save and Logout
+                Save And Exit
               </Button>
               <Button type="submit" className="bg-watney  text-lg text-white hover:bg-watney/90"
               >
