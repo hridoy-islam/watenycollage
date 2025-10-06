@@ -157,6 +157,10 @@ export function ReviewStep({
     resolver: zodResolver(careerSchema),
     defaultValues: {
       ...defaultValues,
+      
+      consentMedicalDeclaration:undefined,
+      consentTerminationClause: undefined,
+      consentVaccination:undefined,
       declarationCorrectUpload: undefined,
       declarationContactReferee: undefined,
       disciplinaryInvestigation: undefined,
