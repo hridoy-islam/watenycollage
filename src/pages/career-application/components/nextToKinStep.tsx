@@ -71,7 +71,8 @@ type PersonalDetailsFormValues = z.infer<typeof personalDetailsSchema>;
 export function NextToKinStep({
   defaultValues,
   onSaveAndContinue,
-  setCurrentStep
+  setCurrentStep,
+  saveAndLogout
 }) {
   const form = useForm<PersonalDetailsFormValues>({
     resolver: zodResolver(personalDetailsSchema),
@@ -318,10 +319,16 @@ export function NextToKinStep({
               Back
             </Button>
             <Button
+                onClick={() => saveAndLogout()}
+                className="bg-watney  text-white hover:bg-watney/90"
+              >
+                Save And Logout
+              </Button>
+            <Button
               type="submit"
               className=" bg-watney  text-lg text-white hover:bg-watney/90"
             >
-              Next
+              Save And Next
             </Button>
           </div>
         </form>

@@ -26,7 +26,7 @@ import { useNavigate } from 'react-router-dom';
 import axiosInstance from '@/lib/axios';
 import { useDispatch, useSelector } from 'react-redux';
 import type { TCareer } from '@/types/career';
-import { updateAuthIsCompleted } from '@/redux/features/authSlice';
+import { logout, updateAuthIsCompleted } from '@/redux/features/authSlice';
 import { AppDispatch } from '@/redux/store';
 import { useLocation } from 'react-router-dom';
 
@@ -61,7 +61,7 @@ const TOTAL_FILLABLE_STEPS = 16;
 
 const SUB_STEP_CONFIG: Record<number, number> = {
   14: 9,
-  16: 3
+  16: 2
 };
 
 export default function CareerApplicationForm() {
@@ -128,10 +128,10 @@ export default function CareerApplicationForm() {
     }
   }, [fetchData]);
 
-useEffect(() => {
-  const total = SUB_STEP_CONFIG[currentStep] || 1;
-  setSubStepInfo({ current: 1, total }); // always reset to 1
-}, [currentStep]);
+  useEffect(() => {
+    const total = SUB_STEP_CONFIG[currentStep] || 1;
+    setSubStepInfo({ current: 1, total }); // always reset to 1
+  }, [currentStep]);
 
 
 
@@ -363,6 +363,34 @@ useEffect(() => {
     }
   };
 
+
+  const handleSaveAndLogout = async () => {
+    try {
+      // const { status, ...safeFetchData } = fetchData || {};
+      const { status, ...safeFormData } = formData || {};
+
+
+      const dataToSave = {
+        ...fetchData,
+        ...safeFormData,
+      };
+
+      await axiosInstance.patch(`/users/${user._id}`, dataToSave);
+
+
+      localStorage.removeItem("applicationId");
+      await dispatch(logout());
+      navigate('/');
+
+    } catch (error: any) {
+      toast({
+        title: error?.response?.data?.message || "Failed to save and logout.",
+        className: "destructive border-none text-white",
+      });
+    }
+  };
+
+
   const handleDashboardRedirect = () => {
     navigate('/dashboard');
   };
@@ -392,21 +420,21 @@ useEffect(() => {
   };
 
   const handleSubmit = async (formData: any) => {
-     console.log("🔥 formData submitted:", formData);
+    console.log("🔥 formData submitted:", formData);
     try {
 
       await axiosInstance.patch(`/users/${user._id}`, {
         ...formData,
         declarationCorrectUpload: formData.declarationCorrectUpload,
-      disciplinaryInvestigation: formData.disciplinaryInvestigation,
-      disciplinaryInvestigationDetails: formData.disciplinaryInvestigationDetails,
-      abuseInvestigation: formData.abuseInvestigation,
-      abuseInvestigationDetails: formData.abuseInvestigationDetails,
-      appliedBefore: formData.appliedBefore,
-      roaDeclaration: formData.roaDeclaration,
-      roaDeclarationDetails: formData.roaDeclarationDetails,
-      termsAccepted: formData.termsAccepted,
-      dataProcessingAccepted: formData.dataProcessingAccepted,
+        disciplinaryInvestigation: formData.disciplinaryInvestigation,
+        disciplinaryInvestigationDetails: formData.disciplinaryInvestigationDetails,
+        abuseInvestigation: formData.abuseInvestigation,
+        abuseInvestigationDetails: formData.abuseInvestigationDetails,
+        appliedBefore: formData.appliedBefore,
+        roaDeclaration: formData.roaDeclaration,
+        roaDeclarationDetails: formData.roaDeclarationDetails,
+        termsAccepted: formData.termsAccepted,
+        dataProcessingAccepted: formData.dataProcessingAccepted,
         isCompleted: true
       });
       dispatch(updateAuthIsCompleted(true));
@@ -433,22 +461,50 @@ useEffect(() => {
     }
   };
 
-const calculateProgressPercentage = () => {
+  // const calculateProgressPercentage = () => {
+  //   let completed = 0;
+
+  //   for (let step = 1; step <= TOTAL_FILLABLE_STEPS; step++) {
+  //     if (completedSteps.includes(step)) {
+  //       // ✅ Already marked complete
+  //       completed += 1;
+  //     } else if (step < currentStep) {
+  //       // ✅ If user skipped back/forward, count previous steps as "done enough"
+  //       completed += 1;
+  //     } else if (step === currentStep) {
+  //       // ✅ Handle substeps if present
+  //       const { current: currentSub, total: totalSub } = subStepInfo;
+  //       if (totalSub > 1) {
+  //         completed += (currentSub - 1) / totalSub;
+  //       }
+  //       break;
+  //     } else {
+  //       break;
+  //     }
+  //   }
+
+  //   return Math.min(100, Math.round((completed / TOTAL_FILLABLE_STEPS) * 100));
+  // };
+
+
+  const calculateProgressPercentage = () => {
   let completed = 0;
 
   for (let step = 1; step <= TOTAL_FILLABLE_STEPS; step++) {
     if (completedSteps.includes(step)) {
-      // ✅ Already marked complete
       completed += 1;
     } else if (step < currentStep) {
-      // ✅ If user skipped back/forward, count previous steps as "done enough"
       completed += 1;
     } else if (step === currentStep) {
-      // ✅ Handle substeps if present
       const { current: currentSub, total: totalSub } = subStepInfo;
-      if (totalSub > 1) {
+
+      if (step === TOTAL_FILLABLE_STEPS && totalSub > 1) {
+        // ✅ Make last substep = 100%
+        completed += currentSub / totalSub;
+      } else if (totalSub > 1) {
         completed += (currentSub - 1) / totalSub;
       }
+
       break;
     } else {
       break;
@@ -473,6 +529,7 @@ const calculateProgressPercentage = () => {
             onSaveAndContinue={handleProfilePictureSaveAndContinue}
             setCurrentStep={setCurrentStep}
             refreshData={refreshData}
+            saveAndLogout={handleSaveAndLogout}
           />
         );
       case 2:
@@ -481,6 +538,8 @@ const calculateProgressPercentage = () => {
             defaultValues={{ ...fetchData, ...formData }}
             onSaveAndContinue={handlePersonalDetailsSaveAndContinue}
             setCurrentStep={setCurrentStep}
+            saveAndLogout={handleSaveAndLogout}
+
           />
         );
       case 3:
@@ -489,6 +548,8 @@ const calculateProgressPercentage = () => {
             defaultValues={{ ...fetchData, ...formData }}
             onSaveAndContinue={handleAdsressSaveAndContinue}
             setCurrentStep={setCurrentStep}
+            saveAndLogout={handleSaveAndLogout}
+
           />
         );
       case 4:
@@ -497,6 +558,8 @@ const calculateProgressPercentage = () => {
             defaultValues={{ ...fetchData, ...formData }}
             onSaveAndContinue={handleNextToKinSaveAndContinue}
             setCurrentStep={setCurrentStep}
+            saveAndLogout={handleSaveAndLogout}
+
           />
         );
       case 5:
@@ -505,6 +568,8 @@ const calculateProgressPercentage = () => {
             defaultValues={{ ...fetchData, ...formData }}
             onSaveAndContinue={handleApplicationDetailsSaveAndContinue}
             setCurrentStep={setCurrentStep}
+            saveAndLogout={handleSaveAndLogout}
+
           />
         );
       case 6:
@@ -513,6 +578,8 @@ const calculateProgressPercentage = () => {
             defaultValues={{ ...fetchData, ...formData }}
             onSaveAndContinue={handleEducationSaveAndContinue}
             setCurrentStep={setCurrentStep}
+            saveAndLogout={handleSaveAndLogout}
+
           />
         );
       case 7:
@@ -521,6 +588,8 @@ const calculateProgressPercentage = () => {
             defaultValues={{ ...fetchData, ...formData }}
             onSaveAndContinue={handleTrainingSaveAndContinue}
             setCurrentStep={setCurrentStep}
+            saveAndLogout={handleSaveAndLogout}
+
           />
         );
       case 8:
@@ -529,6 +598,8 @@ const calculateProgressPercentage = () => {
             defaultValues={{ ...fetchData, ...formData }}
             onSaveAndContinue={handleEmploymentSaveAndContinue}
             setCurrentStep={setCurrentStep}
+            saveAndLogout={handleSaveAndLogout}
+
           />
         );
       case 9:
@@ -537,6 +608,8 @@ const calculateProgressPercentage = () => {
             defaultValues={{ ...fetchData, ...formData }}
             onSaveAndContinue={handleRefereeDetailsSaveAndContinue}
             setCurrentStep={setCurrentStep}
+            saveAndLogout={handleSaveAndLogout}
+
           />
         );
       case 10:
@@ -545,6 +618,8 @@ const calculateProgressPercentage = () => {
             defaultValues={{ ...fetchData, ...formData }}
             onSaveAndContinue={handleExperianceSaveAndContinue}
             setCurrentStep={setCurrentStep}
+            saveAndLogout={handleSaveAndLogout}
+
           />
         );
       case 11:
@@ -553,6 +628,8 @@ const calculateProgressPercentage = () => {
             defaultValues={{ ...fetchData, ...formData }}
             onSaveAndContinue={handleEthnicitySaveAndContinue}
             setCurrentStep={setCurrentStep}
+            saveAndLogout={handleSaveAndLogout}
+
           />
         );
       case 12:
@@ -561,6 +638,8 @@ const calculateProgressPercentage = () => {
             defaultValues={{ ...fetchData, ...formData }}
             onSaveAndContinue={handleDisabilityInfoSaveAndContinue}
             setCurrentStep={setCurrentStep}
+            saveAndLogout={handleSaveAndLogout}
+
           />
         );
       case 13:
@@ -574,6 +653,9 @@ const calculateProgressPercentage = () => {
             onSubStepChange={(current) =>
               setSubStepInfo((prev) => ({ ...prev, current }))
             }
+
+            saveAndLogout={handleSaveAndLogout}
+
           />
         );
       case 14:
@@ -588,6 +670,9 @@ const calculateProgressPercentage = () => {
             onSubStepChange={(current) =>
               setSubStepInfo((prev) => ({ ...prev, current }))
             }
+
+            saveAndLogout={handleSaveAndLogout}
+
           />
         );
       case 15:
@@ -597,6 +682,8 @@ const calculateProgressPercentage = () => {
             onSaveAndContinue={handlePayrollSaveAndContinue}
             setCurrentStep={setCurrentStep}
             setSubstep={setSubstep}
+            saveAndLogout={handleSaveAndLogout}
+
           />
         );
       case 16:
@@ -612,6 +699,8 @@ const calculateProgressPercentage = () => {
             onSubStepChange={(current) =>
               setSubStepInfo((prev) => ({ ...prev, current }))
             }
+            saveAndLogout={handleSaveAndLogout}
+
           />
         );
       default:
@@ -644,137 +733,137 @@ const calculateProgressPercentage = () => {
     }
   };
 
-//   if (formSubmitted) {
-//     return (
-//       <div className="flex min-h-[calc(100vh-150px)] items-center justify-center px-4">
-//   <Card className="rounded-2xl bg-watney/80 backdrop-blur-sm border border-white/30 shadow-2xl p-16 relative overflow-hidden">
-//     {/* Background decorative elements */}
-//     <div className="absolute -top-20 -right-20 w-40 h-40 bg-white/5 rounded-full blur-xl"></div>
-//     <div className="absolute -bottom-16 -left-16 w-32 h-32 bg-white/10 rounded-full blur-lg"></div>
-    
-//     <div className="flex flex-col items-center gap-8 text-center relative z-10">
-//       {/* Animated checkmark circle */}
-//       <div className="rounded-full bg-white/90 p-8 shadow-lg backdrop-blur-sm border border-white/50 animate-pulse-slow">
-//         <Check size={84} className="text-watney drop-shadow-sm" />
-//       </div>
-      
-//       <CardTitle className="text-3xl font-bold text-white drop-shadow-md">
-//         Your Application Submitted Successfully
-//       </CardTitle>
-      
-//       <CardDescription className="mt-2 text-lg leading-relaxed text-white/95 backdrop-blur-md rounded-2xl">
-//         <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-//           Thank you for your submission. Our team has received your
-//           career application and will get back to you shortly. Stay
-//           tuned!
-          
-//           <div className="mt-4 rounded-xl text-center text-lg text-white/95">
-//             <p className="font-medium">
-//               If you have any questions or need help with your
-//               application, please don't hesitate to contact us:
-//             </p>
-//             <ul className="mt-4 list-none space-y-3 w-auto">
-//               <li className="flex items-center justify-center gap-3 rounded-lg py-2 px-4 ">
-//                 <span className="text-xl">📧</span>
-//                 <strong>Email:</strong>
-//                 <a
-//                   href="mailto:info@everycare.co.uk"
-//                   className="underline hover:text-white transition-colors"
-//                 >
-//                   info@everycare.co.uk
-//                 </a>
-//               </li>
-//               <li className="flex items-center justify-center gap-3 rounded-lg py-2 px-4 ">
-//                 <span className="text-xl">☎</span>
-//                 <strong>Phone:</strong>
-//                 <span>+442920455300</span>
-//               </li>
-//             </ul>
-//           </div>
-//         </div>
-//       </CardDescription>
-      
-//       <Button
-//         onClick={handleDashboardRedirect}
-//         className="mt-6  rounded-xl bg-white/90 backdrop-blur-sm px-16 py-6 text-lg font-semibold text-watney transition-all hover:bg-white hover:scale-105 hover:shadow-lg border border-white/50 shadow-md"
-//       >
-//         Done
-//       </Button>
-//     </div>
-//   </Card>
-// </div>
-//     );
-//   }
+  //   if (formSubmitted) {
+  //     return (
+  //       <div className="flex min-h-[calc(100vh-150px)] items-center justify-center px-4">
+  //   <Card className="rounded-2xl bg-watney/80 backdrop-blur-sm border border-white/30 shadow-2xl p-16 relative overflow-hidden">
+  //     {/* Background decorative elements */}
+  //     <div className="absolute -top-20 -right-20 w-40 h-40 bg-white/5 rounded-full blur-xl"></div>
+  //     <div className="absolute -bottom-16 -left-16 w-32 h-32 bg-white/10 rounded-full blur-lg"></div>
+
+  //     <div className="flex flex-col items-center gap-8 text-center relative z-10">
+  //       {/* Animated checkmark circle */}
+  //       <div className="rounded-full bg-white/90 p-8 shadow-lg backdrop-blur-sm border border-white/50 animate-pulse-slow">
+  //         <Check size={84} className="text-watney drop-shadow-sm" />
+  //       </div>
+
+  //       <CardTitle className="text-3xl font-bold text-white drop-shadow-md">
+  //         Your Application Submitted Successfully
+  //       </CardTitle>
+
+  //       <CardDescription className="mt-2 text-lg leading-relaxed text-white/95 backdrop-blur-md rounded-2xl">
+  //         <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+  //           Thank you for your submission. Our team has received your
+  //           career application and will get back to you shortly. Stay
+  //           tuned!
+
+  //           <div className="mt-4 rounded-xl text-center text-lg text-white/95">
+  //             <p className="font-medium">
+  //               If you have any questions or need help with your
+  //               application, please don't hesitate to contact us:
+  //             </p>
+  //             <ul className="mt-4 list-none space-y-3 w-auto">
+  //               <li className="flex items-center justify-center gap-3 rounded-lg py-2 px-4 ">
+  //                 <span className="text-xl">📧</span>
+  //                 <strong>Email:</strong>
+  //                 <a
+  //                   href="mailto:info@everycare.co.uk"
+  //                   className="underline hover:text-white transition-colors"
+  //                 >
+  //                   info@everycare.co.uk
+  //                 </a>
+  //               </li>
+  //               <li className="flex items-center justify-center gap-3 rounded-lg py-2 px-4 ">
+  //                 <span className="text-xl">☎</span>
+  //                 <strong>Phone:</strong>
+  //                 <span>+442920455300</span>
+  //               </li>
+  //             </ul>
+  //           </div>
+  //         </div>
+  //       </CardDescription>
+
+  //       <Button
+  //         onClick={handleDashboardRedirect}
+  //         className="mt-6  rounded-xl bg-white/90 backdrop-blur-sm px-16 py-6 text-lg font-semibold text-watney transition-all hover:bg-white hover:scale-105 hover:shadow-lg border border-white/50 shadow-md"
+  //       >
+  //         Done
+  //       </Button>
+  //     </div>
+  //   </Card>
+  // </div>
+  //     );
+  //   }
 
 
-if (formSubmitted) {
-  return (
-    <div className="flex min-h-[calc(100vh-150px)] items-center justify-center px-4">
-  <div className="max-w-7xl w-full flex flex-col md:flex-row items-center md:items-start justify-between gap-12 p-6 md:p-12">
-    
-    {/* Left Text Content */}
-    <div className="flex-1 text-center md:text-left space-y-6">
-      <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 leading-tight">
-        THANK YOU
-      </h1>
-      <h2 className="text-xl font-semibold">Your Application Submitted Successfully!</h2>
-      <p className="text-gray-600 text-lg mt-4 max-w-2xl mx-auto md:mx-0">
-        Our team has received your career application and will get back to you shortly. Stay tuned!
-      </p>
+  if (formSubmitted) {
+    return (
+      <div className="flex min-h-[calc(100vh-150px)] items-center justify-center px-4">
+        <div className="max-w-7xl w-full flex flex-col md:flex-row items-center md:items-start justify-between gap-12 p-6 md:p-12">
 
-      {/* Contact Info */}
-      <ul className="mt-4 space-y-3">
-        <li className="flex items-center gap-3 rounded-lg py-2 px-4">
-          <span className="text-xl">📧</span>
-          <div className="flex gap-1">
-            <strong>Email:</strong>
-            <a
-              href="mailto:info@everycare.co.uk"
-              className="underline hover:text-orange-600 transition-colors"
-            >
-              info@everycare.co.uk
-            </a>
+          {/* Left Text Content */}
+          <div className="flex-1 text-center md:text-left space-y-6">
+            <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 leading-tight">
+              THANK YOU
+            </h1>
+            <h2 className="text-xl font-semibold">Your Application Submitted Successfully!</h2>
+            <p className="text-gray-600 text-lg mt-4 max-w-2xl mx-auto md:mx-0">
+              Our team has received your career application and will get back to you shortly. Stay tuned!
+            </p>
+
+            {/* Contact Info */}
+            <ul className="mt-4 space-y-3">
+              <li className="flex items-center gap-3 rounded-lg py-2 px-4">
+                <span className="text-xl">📧</span>
+                <div className="flex gap-1">
+                  <strong>Email:</strong>
+                  <a
+                    href="mailto:info@everycare.co.uk"
+                    className="underline hover:text-orange-600 transition-colors"
+                  >
+                    info@everycare.co.uk
+                  </a>
+                </div>
+              </li>
+              <li className="flex items-center gap-3 rounded-lg py-2 px-4">
+                <span className="text-xl">☎</span>
+                <div className="flex gap-1">
+                  <strong>Phone:</strong>
+                  <span>+44 2920 455300</span>
+                </div>
+              </li>
+              <li className="flex items-center gap-3 rounded-lg py-2 px-4">
+                <span className="text-xl">📍</span>
+                <div className="flex flex-col">
+                  <strong>Address:</strong>
+                  <span>28-30 Carlisle Street, Splott, Cardiff, CF24 2DS, United Kingdom</span>
+                </div>
+              </li>
+            </ul>
+
+            {/* Divider */}
+            <div className="w-24 h-1 bg-orange-500 mx-auto md:mx-0 mt-6 rounded-full"></div>
+
+            {/* Action Button */}
+            <div className="flex flex-wrap justify-center md:justify-start gap-4 mt-8">
+              <Button
+                onClick={handleDashboardRedirect}
+                className="bg-watney text-white hover:bg-watney/90 "
+              >
+                Done
+              </Button>
+            </div>
           </div>
-        </li>
-        <li className="flex items-center gap-3 rounded-lg py-2 px-4">
-          <span className="text-xl">☎</span>
-          <div className="flex gap-1">
-            <strong>Phone:</strong>
-            <span>+44 2920 455300</span>
-          </div>
-        </li>
-         <li className="flex items-center gap-3 rounded-lg py-2 px-4">
-    <span className="text-xl">📍</span>
-    <div className="flex flex-col">
-      <strong>Address:</strong>
-      <span>28-30 Carlisle Street, Splott, Cardiff, CF24 2DS, United Kingdom</span>
-    </div>
-  </li>
-      </ul>
 
-      {/* Divider */}
-      <div className="w-24 h-1 bg-orange-500 mx-auto md:mx-0 mt-6 rounded-full"></div>
+          {/* Right: Heart Graphic */}
+          <div className="flex-1 flex justify-center mt-8 md:mt-0">
+            <div className="relative w-64 h-64 md:w-96 md:h-96">
+              {/* Glow layers */}
+              <div className="absolute inset-0 bg-red-400 rounded-full blur-xl opacity-10"></div>
+              <div className="absolute inset-0 bg-red-500 rounded-full blur-xl opacity-30"></div>
 
-      {/* Action Button */}
-      <div className="flex flex-wrap justify-center md:justify-start gap-4 mt-8">
-        <Button
-          onClick={handleDashboardRedirect}
-          className="bg-watney text-white hover:bg-watney/90 "
-        >
-          Done
-        </Button>
-      </div>
-    </div>
-
-    {/* Right: Heart Graphic */}
-    <div className="flex-1 flex justify-center mt-8 md:mt-0">
-      <div className="relative w-64 h-64 md:w-96 md:h-96">
-        {/* Glow layers */}
-        <div className="absolute inset-0 bg-red-400 rounded-full blur-xl opacity-10"></div>
-        <div className="absolute inset-0 bg-red-500 rounded-full blur-xl opacity-30"></div>
-
-        {/* Solid heart */}
-        {/* <div className="relative w-full h-full flex items-center justify-center">
+              {/* Solid heart */}
+              {/* <div className="relative w-full h-full flex items-center justify-center">
           <svg
             width="120"
             height="120"
@@ -790,28 +879,28 @@ if (formSubmitted) {
           </svg>
         </div> */}
 
-        <img src="/heart.png" alt="heartimg" />
+              <img src="/heart.png" alt="heartimg" />
+            </div>
+          </div>
+
+        </div>
       </div>
-    </div>
 
-  </div>
-</div>
-
-  );
-}
+    );
+  }
 
   return (
     <div className="p-4">
       {/* Header with Progress Circle and Step Counter */}
-     <div className="mb-2 flex flex-col items-center justify-between gap-2 sm:flex-row w-full">
-  <div>
-    <h1 className="text-xl font-semibold text-gray-800">
-      Step {displayStep} of {TOTAL_FILLABLE_STEPS}
-    </h1>
-  </div>
+      <div className="mb-2 flex flex-col items-center justify-between gap-2 sm:flex-row w-full">
+        <div>
+          <h1 className="text-xl font-semibold text-gray-800">
+            Step {displayStep} of {TOTAL_FILLABLE_STEPS}
+          </h1>
+        </div>
 
-  {/* ✅ Animated Success Message */}
-  {/* <AnimatePresence>
+        {/* ✅ Animated Success Message */}
+        {/* <AnimatePresence>
     {successMessage && (
       <motion.div
         className="flex justify-center"
@@ -827,19 +916,19 @@ if (formSubmitted) {
     )}
   </AnimatePresence> */}
 
-  {/* ✅ Linear Progress Bar with percentage inside */}
-<div className="flex flex-col items-center w-full sm:w-1/3">
-  <div className="relative w-full bg-gray-200 rounded-full h-6 overflow-hidden">
-    <div
-      className="bg-watney h-6 rounded-full transition-all duration-500 flex items-center justify-center text-white font-medium"
-      style={{ width: progressPercentage > 0 ? `${progressPercentage}%` : '2rem' }} // min width for text
-    >
-      {progressPercentage}%
-    </div>
-  </div>
-</div>
+        {/* ✅ Linear Progress Bar with percentage inside */}
+        <div className="flex flex-col items-center w-full sm:w-1/3">
+          <div className="relative w-full bg-gray-200 rounded-full h-6 overflow-hidden">
+            <div
+              className="bg-watney h-6 rounded-full transition-all duration-500 flex items-center justify-center text-white font-medium"
+              style={{ width: progressPercentage > 0 ? `${progressPercentage}%` : '2rem' }} // min width for text
+            >
+              {progressPercentage}%
+            </div>
+          </div>
+        </div>
 
-</div>
+      </div>
 
 
 

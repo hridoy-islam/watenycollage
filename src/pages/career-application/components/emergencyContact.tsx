@@ -38,7 +38,8 @@ export function EmergencyContact({
   defaultValues,
   onSaveAndContinue,
 
-  setCurrentStep
+  setCurrentStep,
+  saveAndLogout
 }) {
   const form = useForm<ContactData>({
     resolver: zodResolver(contactSchema),
@@ -235,10 +236,16 @@ export function EmergencyContact({
             Back
           </Button>
           <Button
+              onClick={() => saveAndLogout()}
+              className="bg-watney  text-white hover:bg-watney/90"
+            >
+              Save And Logout
+            </Button>
+          <Button
             type="submit"
             className="bg-watney text-white hover:bg-watney/90"
           >
-            Next
+           Save And Next
           </Button>
         </div>
       </form>

@@ -50,6 +50,8 @@ interface DocumentsStepProps {
   onSaveAndContinue: (data: DocumentFile) => void;
   setCurrentStep: (step: number) => void;
   onSave: () => void;
+  saveAndLogout: () => void;
+
 }
 
 const documentTypes = [
@@ -74,7 +76,8 @@ export function DocumentStep({
   defaultValues,
   onSaveAndContinue,
   setCurrentStep,
-  onSave
+  onSave,
+  saveAndLogout
 }: DocumentsStepProps) {
   const hasExistingResume = !!defaultValues?.cvResume;
   const documentSchema = createDocumentSchema(hasExistingResume, defaultValues?.nationality);
@@ -152,46 +155,46 @@ export function DocumentStep({
     documents.bankStatement.length > 0 &&
     documents.proofOfNI.length > 0;
 
-const renderUploadedFiles = (field: keyof DocumentFile) => {
-  const value = documents[field];
-  if (!value) return null;
+  const renderUploadedFiles = (field: keyof DocumentFile) => {
+    const value = documents[field];
+    if (!value) return null;
 
-  const files = Array.isArray(value) ? value : [value];
+    const files = Array.isArray(value) ? value : [value];
 
-  return (
-    <div className="mt-1 space-y-1">
-      {files.map((fileUrl, index) => {
-        const fileName = decodeURIComponent(fileUrl.split('/').pop() || `File-${index}`);
-        return (
-          <div
-            key={`${fileUrl}-${index}`}
-            className="flex items-center gap-6"
-          >
-            {/* File name */}
-            {/* <span className="text-gray-900 truncate text-lg flex-1">{fileName}</span> */}
-
-            {/* View button */}
-            <Button
-              onClick={() => window.open(fileUrl, '_blank')}
-              className=" bg-watney text-white hover:bg-watney/90 flex items-center gap-1"
+    return (
+      <div className="mt-1 space-y-1">
+        {files.map((fileUrl, index) => {
+          const fileName = decodeURIComponent(fileUrl.split('/').pop() || `File-${index}`);
+          return (
+            <div
+              key={`${fileUrl}-${index}`}
+              className="flex items-center gap-6"
             >
-              <Eye className="h-5 w-5" />
-              View Document
-            </Button>
+              {/* File name */}
+              {/* <span className="text-gray-900 truncate text-lg flex-1">{fileName}</span> */}
 
-            {/* Delete button */}
-            <Button
-              onClick={() => handleRemoveFile(field, fileUrl)}
-              className=" text-gray-500 hover:text-red-600 hover:bg-transparent"
-            >
-              <Trash2 className="h-5 w-5" />
-            </Button>
-          </div>
-        );
-      })}
-    </div>
-  );
-};
+              {/* View button */}
+              <Button
+                onClick={() => window.open(fileUrl, '_blank')}
+                className=" bg-watney text-white hover:bg-watney/90 flex items-center gap-1"
+              >
+                <Eye className="h-5 w-5" />
+                View Document
+              </Button>
+
+              {/* Delete button */}
+              <Button
+                onClick={() => handleRemoveFile(field, fileUrl)}
+                className=" text-gray-500 hover:text-red-600 hover:bg-transparent"
+              >
+                <Trash2 className="h-5 w-5" />
+              </Button>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
 
   const isDocumentUploaded = (field: keyof DocumentFile): boolean => {
     const value = documents[field];
@@ -211,12 +214,12 @@ const renderUploadedFiles = (field: keyof DocumentFile) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const uploadableOptions: DocOption[] = documentTypes
-  .map(doc => ({
-    value: doc.id,
-    label: `${doc.label}${doc.required ? ' *' : ''}`,
-    required: doc.required
-  }))
-  .filter(option => !isDocumentUploaded(option.value));
+    .map(doc => ({
+      value: doc.id,
+      label: `${doc.label}${doc.required ? ' *' : ''}`,
+      required: doc.required
+    }))
+    .filter(option => !isDocumentUploaded(option.value));
 
   const handleDialogOpenChange = (open: boolean) => {
     setIsDialogOpen(open);
@@ -239,17 +242,17 @@ const renderUploadedFiles = (field: keyof DocumentFile) => {
     const fileExt = file.name.split('.').pop()?.toLowerCase();
     const mimeType = file.type;
 
-    const valid = allowedTypes.some(type => {
-      if (type.startsWith('.')) {
-        return fileExt === type.slice(1);
-      }
-      return mimeType.includes(type.toLowerCase());
-    });
+    // const valid = allowedTypes.some(type => {
+    //   if (type.startsWith('.')) {
+    //     return fileExt === type.slice(1);
+    //   }
+    //   return mimeType.includes(type.toLowerCase());
+    // });
 
-    if (!valid) {
-      setUploadError(`Invalid file type. Allowed: ${documentTypes.find(d => d.id === docId)?.formats}`);
-      return false;
-    }
+    // if (!valid) {
+    //   setUploadError(`Invalid file type. Allowed: ${documentTypes.find(d => d.id === docId)?.formats}`);
+    //   return false;
+    // }
 
     return true;
   };
@@ -297,6 +300,11 @@ const renderUploadedFiles = (field: keyof DocumentFile) => {
     });
 
     setTimeout(() => onSave(documentsRef.current), 0);
+    setUploadedFileUrl(null);
+    setFileToUpload(null);
+    setSelectedDocOption(null);
+    setUploadError(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
     setIsDialogOpen(false);
   };
 
@@ -362,29 +370,27 @@ const renderUploadedFiles = (field: keyof DocumentFile) => {
                       {selectedDocOption && (
                         <div>
                           <Label className="block text-sm font-medium mb-2">
-                            Upload File ({documentTypes.find(d => d.id === selectedDocOption.value)?.formats})
+                            Upload File
                           </Label>
-                          
+
                           {/* Hidden file input */}
                           <input
                             ref={fileInputRef}
                             type="file"
                             onChange={handleFileSelect}
                             className="hidden"
-                            accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
                             disabled={isUploading}
                           />
 
                           {/* Professional Upload Area */}
-                          <div 
+                          <div
                             onClick={triggerFileInput}
-                            className={`border-2 border-dashed rounded-lg p-6 text-center transition-all cursor-pointer ${
-                              isUploading 
-                                ? 'border-blue-300 bg-blue-50' 
-                                : uploadedFileUrl 
-                                ? 'border-green-300 bg-green-50' 
+                            className={`border-2 border-dashed rounded-lg p-6 text-center transition-all cursor-pointer ${isUploading
+                              ? 'border-blue-300 bg-blue-50'
+                              : uploadedFileUrl
+                                ? 'border-green-300 bg-green-50'
                                 : 'border-gray-300 bg-gray-50 hover:border-watney hover:bg-watney/5'
-                            }`}
+                              }`}
                           >
                             {isUploading ? (
                               <div className="flex flex-col items-center">
@@ -445,7 +451,7 @@ const renderUploadedFiles = (field: keyof DocumentFile) => {
                                 <Upload className="h-8 w-8 text-gray-400 mb-2" />
                                 <p className="text-sm font-medium text-gray-900">Click to select file</p>
                                 <p className="text-xs text-gray-600 mt-1">
-                                  Max file size: 5MB • {documentTypes.find(d => d.id === selectedDocOption.value)?.formats}
+                                  Max file size: 5MB 
                                 </p>
                               </div>
                             )}
@@ -483,32 +489,32 @@ const renderUploadedFiles = (field: keyof DocumentFile) => {
                 {/* Uploaded Documents List */}
                 {hasUploadedDocuments && (
                   <div className="space-y-4">
-                   {documentTypes.map(({ id, label, required }) => {
-  const isUploaded = isDocumentUploaded(id);
-  if (!isUploaded) return null;
+                    {documentTypes.map(({ id, label, required }) => {
+                      const isUploaded = isDocumentUploaded(id);
+                      if (!isUploaded) return null;
 
-  return (
-    <div key={id} className="flex items-start gap-3 py-2 border-b border-gray-100 last:border-b-0 hover:bg-watney/10 px-3">
-      {/* Icon */}
-        <FileText className="h-6 w-6 text-gray-500 mt-3" />
+                      return (
+                        <div key={id} className="flex items-start gap-3 py-2 border-b border-gray-100 last:border-b-0 hover:bg-watney/10 px-3">
+                          {/* Icon */}
+                          <FileText className="h-6 w-6 text-gray-500 mt-3" />
 
-      {/* Content */}
-      <div className="flex flex-row items-center justify-between w-full ">
-        {/* Label with tick */}
-        <div className="flex items-center gap-1 mb-1">
-          <span className=" font-medium  text-lg text-gray-900">
-            {label}
-            {required && <span className="text-red-500 ml-0.5">*</span>}
-          </span>
-          <CheckCircle className="h-3.5 w-3.5 text-green-600 flex-shrink-0" />
-        </div>
+                          {/* Content */}
+                          <div className="flex flex-row items-center justify-between w-full ">
+                            {/* Label with tick */}
+                            <div className="flex items-center gap-1 mb-1">
+                              <span className=" font-medium  text-lg text-gray-900">
+                                {label}
+                                {required && <span className="text-red-500 ml-0.5">*</span>}
+                              </span>
+                              <CheckCircle className="h-3.5 w-3.5 text-green-600 flex-shrink-0" />
+                            </div>
 
-        {/* Uploaded files (compact) */}
-        {renderUploadedFiles(id)}
-      </div>
-    </div>
-  );
-})}
+                            {/* Uploaded files (compact) */}
+                            {renderUploadedFiles(id)}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
 
@@ -575,11 +581,17 @@ const renderUploadedFiles = (field: keyof DocumentFile) => {
               Back
             </Button>
             <Button
+              onClick={() => saveAndLogout()}
+              className="bg-watney  text-white hover:bg-watney/90"
+            >
+              Save And Logout
+            </Button>
+            <Button
               onClick={handleSubmit}
               disabled={!allDocumentsUploaded}
               className="w-full justify-center bg-watney text-lg text-white hover:bg-watney/90 sm:w-auto"
             >
-              Next
+              Save And Next
             </Button>
           </div>
         </CardContent>

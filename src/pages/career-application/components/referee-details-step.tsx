@@ -16,10 +16,10 @@ import { Input } from '@/components/ui/input';
 // Referee schema (simplified)
 const refereeSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  position: z.string().min(1, 'Position is required'),
+  position: z.string().optional(),
   relationship: z.string().min(1, 'Relationship is required'),
-  organisation: z.string().min(1, 'Organisation is required'),
-  address: z.string().min(1, 'Address is required'),
+  organisation: z.string().optional(),
+  address: z.string().optional(),
   tel: z.string().min(1, 'Tel number is required'),
   fax: z.string().optional(),
   email: z.string().email('Invalid email address')
@@ -37,7 +37,8 @@ export type RefereeFormValues = z.infer<typeof refereeDetailsSchema>;
 export function RefereeDetailsStep({
   defaultValues,
   onSaveAndContinue,
-  setCurrentStep
+  setCurrentStep,
+  saveAndLogout
 }) {
   const form = useForm<RefereeFormValues>({
     resolver: zodResolver(refereeDetailsSchema),
@@ -104,7 +105,7 @@ export function RefereeDetailsStep({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-lg font-medium">
-                  Position <span className="text-red-500">*</span>
+                  Position
                 </FormLabel>
                 <FormControl>
                   <Input
@@ -148,7 +149,7 @@ export function RefereeDetailsStep({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-lg font-medium">
-                  Organisation <span className="text-red-500">*</span>
+                  Organisation
                 </FormLabel>
                 <FormControl>
                   <Input
@@ -170,7 +171,7 @@ export function RefereeDetailsStep({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-lg font-medium">
-                  Address <span className="text-red-500">*</span>
+                  Address
                 </FormLabel>
                 <FormControl>
                   <Input
@@ -295,10 +296,16 @@ export function RefereeDetailsStep({
                 Back
               </Button>
               <Button
+                onClick={() => saveAndLogout()}
+                className="bg-watney  text-white hover:bg-watney/90"
+              >
+                Save and Logout
+              </Button>
+              <Button
                 type="submit"
                 className=" bg-watney text-lg text-white hover:bg-watney/90"
               >
-                Next
+                Save and Next
               </Button>
             </div>
           </form>

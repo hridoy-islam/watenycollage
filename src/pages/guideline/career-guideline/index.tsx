@@ -22,7 +22,7 @@ import { updateAuthIsAuthorized } from '@/redux/features/authSlice';
 const steps: React.ReactNode[] = [
   // Step 1: Welcome & Introduction
   <div key="step-1" className="space-y-4 text-start">
-    <h2 className="text-2xl font-semibold">Welcome to Everycare Romford Careers</h2>
+    <h2 className="text-2xl font-semibold">Welcome to Everycare Romford</h2>
     <p className="text-lg text-gray-700">
       We are part of <strong>Everycare UK</strong>, a trusted home care provider established in 1993 
       with over 20 branches nationwide. Everycare Romford delivers CQC-registered domiciliary care across 
@@ -49,9 +49,11 @@ const steps: React.ReactNode[] = [
       <li><strong>Availability:</strong> Earliest start date, weekly availability, and preferred shifts.</li>
       <li><strong>Education & Training:</strong> Qualifications, awarding body, grades, dates, and care-related training.</li>
       <li><strong>Employment History:</strong> Most recent employer details and responsibilities.</li>
-      <li><strong>References:</strong> Two professional references with contact details.</li>
+      <li><strong>References:</strong> Two Professional and one charecter refeeres with their contact details.</li>
       <li><strong>Documents:</strong> CV (required), Cover letter (optional), Proof of address, Certificates, DBS certificate (if available).</li>
       <li><strong>Checks:</strong> Disabilities/support needs, immunisation details, unspent convictions.</li>
+            <li><strong>Decleartion:</strong> You Must make sure.</li>
+
     </ul>
   </div>,
 
@@ -97,7 +99,7 @@ const steps: React.ReactNode[] = [
       <li>Document Uploads</li>
       <li>Declarations</li>
     </ol>
-        <p className="text-xl font-bold">When you click Continue Application, you’ll begin the application form.</p>
+        <p className="text-xl font-medium">  When Ready Please Click <strong>Continue Application</strong> button to start with your application process.</p>
 
   </div>,
 ];

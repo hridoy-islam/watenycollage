@@ -77,7 +77,14 @@ const applicationDetailsSchema = z
     competentInOtherLanguage: z.boolean(),
     otherLanguages: z.array(z.string()).optional(),
     drivingLicense: z.boolean(),
-    licenseNumber: z.string().optional(),
+    licenseNumber: z
+      .string()
+      .regex(/^[A-Za-z0-9]{16}$/, {
+        message: 'License number must be exactly 16 characters'
+      })
+      .or(z.literal(''))
+      .nullable(),
+
     carOwner: z.boolean(),
     travelAreas: z.string().min(1, { message: 'Please specify travel areas' }),
     solelyForEverycare: z.boolean(),
@@ -96,14 +103,16 @@ const applicationDetailsSchema = z
         path: ['otherLanguages']
       });
     }
-
-    if (data.drivingLicense && !data.licenseNumber) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Please provide your driving license number',
-        path: ['licenseNumber']
-      });
+    if (data.drivingLicense) {
+      if (!data.licenseNumber) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Please provide your driving license number',
+          path: ['licenseNumber']
+        });
+      }
     }
+
 
     if (!data.solelyForEverycare && !data.otherEmployers) {
       ctx.addIssue({
@@ -135,7 +144,8 @@ type ApplicationDetailsFormValues = z.infer<typeof applicationDetailsSchema>;
 export function ApplicationDetailsStep({
   defaultValues,
   onSaveAndContinue,
-  setCurrentStep
+  setCurrentStep,
+  saveAndLogout
 }) {
   const form = useForm<ApplicationDetailsFormValues>({
     resolver: zodResolver(applicationDetailsSchema),
@@ -291,8 +301,8 @@ export function ApplicationDetailsStep({
                   name="otherLanguages"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>
-                        Select the languages <span className="text-red-500">*</span>
+                      <FormLabel className='text-watney'>
+                        If Yes, specify language(s) <span className="text-red-500">*</span>
                       </FormLabel>
                       <Controller
                         control={form.control}
@@ -375,17 +385,18 @@ export function ApplicationDetailsStep({
                   name="licenseNumber"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>
-                        License Number <span className="text-red-500">*</span>
+                      <FormLabel className='text-watney'>
+                        Valid Uk Driving license <span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>
                         <Input
                           {...field}
                           placeholder="Enter license number"
                           className=""
+
                         />
                       </FormControl>
-                      <p className="text-md text-gray-400">Example: ABC123456D</p>
+                      <p className="text-md text-gray-400">Example: ABC1234DG32HS56D</p>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -485,7 +496,7 @@ export function ApplicationDetailsStep({
                   name="otherEmployers"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>
+                      <FormLabel className='text-watney'>
                         Who else do you work for? <span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>
@@ -541,7 +552,7 @@ export function ApplicationDetailsStep({
                   name="professionalBodyDetails"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>
+                      <FormLabel className='text-watney'>
                         Please provide details <span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>
@@ -699,7 +710,7 @@ export function ApplicationDetailsStep({
                   name="referralEmployee"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>
+                      <FormLabel className='text-watney'>
                         Referred by (Employee Name)
                         <span className="text-red-500">*</span>
                       </FormLabel>
@@ -841,9 +852,15 @@ export function ApplicationDetailsStep({
               >
                 Back
               </Button>
+              <Button
+                onClick={() => saveAndLogout()}
+                className="bg-watney  text-white hover:bg-watney/90"
+              >
+                Save and Logout
+              </Button>
               <Button type="submit" className="bg-watney  text-lg text-white hover:bg-watney/90"
               >
-                Next
+                Save And Next
               </Button>
             </div>
           </form>
