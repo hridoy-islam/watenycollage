@@ -94,7 +94,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
   // 🔥 Delete confirmation dialog state
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
-  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+  const MAX_FILE_SIZE = 20 * 1024 * 1024; // 5MB
 
   // Fetch applicationId when dialog opens (for student)
   useEffect(() => {
@@ -140,7 +140,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
     if (file.size > MAX_FILE_SIZE) {
       toast({
         title: 'File too large',
-        description: 'File must be less than 5MB.',
+        description: 'File must be less than 20MB.',
         variant: 'destructive'
       });
       setUploadingFile(false);

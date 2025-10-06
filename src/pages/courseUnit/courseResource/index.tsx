@@ -205,7 +205,7 @@ setUnitMaterial(material || {});
     if (file.size > MAX_FILE_SIZE) {
       toast({
         title: 'File too large',
-        description: 'File must be less than 5MB.',
+        description: 'File must be less than 20MB.',
         variant: 'destructive',
       });
       setUploadingFile(false);
