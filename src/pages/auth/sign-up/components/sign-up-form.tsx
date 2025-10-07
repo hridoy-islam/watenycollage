@@ -201,22 +201,31 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
 
                       classNamePrefix="react-select"
                       styles={{
-                        control: (provided) => ({
-                          ...provided,
-                          borderRadius: '16px', // fully rounded
-                          height: '3rem', // h-12
-                          minHeight: '3rem',
-                          padding: '0 0.5rem', // optional padding inside
-                        }),
-                        menu: (provided) => ({
-                          ...provided,
-                          borderRadius: '0.75rem', // round dropdown menu
-                        }),
-                        option: (provided) => ({
-                          ...provided,
-                          borderRadius: '0.5rem', // round individual options
-                        }),
-                      }}
+                              placeholder: (provided) => ({
+                                ...provided,
+                                fontSize: '1.125rem',
+                                color: '#9CA3AF'
+                              }),
+                              control: (provided) => ({
+                                ...provided,
+                                borderRadius: '16px',
+                                fontSize: '1.125rem',
+                                minHeight: '3rem', // h-12 = 48px
+                                height: '3rem'
+                              }),
+                              singleValue: (provided) => ({
+                                ...provided,
+                                fontSize: '1.125rem'
+                              }),
+                              input: (provided) => ({
+                                ...provided,
+                                fontSize: '1.125rem'
+                              }),
+                              valueContainer: (provided) => ({
+                                ...provided,
+                                padding: '0 0.75rem' // px-3 for better spacing
+                              })
+                            }}
                     />
                   </FormControl>
                   <FormMessage className="text-md text-red-600" />
@@ -313,23 +322,32 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
                       placeholder="Select nationality"
                       className="react-select-container"
                       classNamePrefix="react-select"
-                      styles={{
-      control: (provided) => ({
-        ...provided,
-        borderRadius: '16px', // fully rounded
-        height: '3rem', // h-12
-        minHeight: '3rem',
-        padding: '0 0.5rem', // optional padding inside
-      }),
-      menu: (provided) => ({
-        ...provided,
-        borderRadius: '0.75rem', // round dropdown menu
-      }),
-      option: (provided) => ({
-        ...provided,
-        borderRadius: '0.5rem', // round individual options
-      }),
-    }}
+                     styles={{
+                              placeholder: (provided) => ({
+                                ...provided,
+                                fontSize: '1.125rem',
+                                color: '#9CA3AF'
+                              }),
+                              control: (provided) => ({
+                                ...provided,
+                                borderRadius: '16px',
+                                fontSize: '1.125rem',
+                                minHeight: '3rem', // h-12 = 48px
+                                height: '3rem'
+                              }),
+                              singleValue: (provided) => ({
+                                ...provided,
+                                fontSize: '1.125rem'
+                              }),
+                              input: (provided) => ({
+                                ...provided,
+                                fontSize: '1.125rem'
+                              }),
+                              valueContainer: (provided) => ({
+                                ...provided,
+                                padding: '0 0.75rem' // px-3 for better spacing
+                              })
+                            }}
                     />
                   </FormControl>
                   <FormMessage className="text-md text-red-600" />
