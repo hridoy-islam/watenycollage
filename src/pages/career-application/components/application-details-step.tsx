@@ -272,8 +272,8 @@ export function ApplicationDetailsStep({
                       options={yesNoOptions}
                       placeholder="Select Yes or No"
                       isClearable
-                      value={yesNoOptions.find((opt) => opt.value === field.value) || null}
-                      onChange={(option) => field.onChange(option ? option.value : null)}
+                       value={yesNoOptions.find((opt) => opt.value === field.value) || undefined}
+                      onChange={(option) => field.onChange(option ? option.value : undefined)}
                       className="text-lg"
                       // 👇 Style the control (input container)
                       styles={{
@@ -358,8 +358,8 @@ export function ApplicationDetailsStep({
                       options={yesNoOptions}
                       placeholder="Select Yes or No"
                       isClearable
-                      value={yesNoOptions.find((opt) => opt.value === field.value) || null}
-                      onChange={(option) => field.onChange(option ? option.value : null)}
+                       value={yesNoOptions.find((opt) => opt.value === field.value) || undefined}
+                      onChange={(option) => field.onChange(option ? option.value : undefined)}
                       className="text-lg"
                       styles={{
                         control: (base) => ({
@@ -393,6 +393,7 @@ export function ApplicationDetailsStep({
                           {...field}
                           placeholder="Enter license number"
                           className=""
+                          maxLength={16}
 
                         />
                       </FormControl>
@@ -416,8 +417,8 @@ export function ApplicationDetailsStep({
                       options={yesNoOptions}
                       placeholder="Select Yes or No"
                       isClearable
-                      value={yesNoOptions.find((opt) => opt.value === field.value) || null}
-                      onChange={(option) => field.onChange(option ? option.value : null)}
+                       value={yesNoOptions.find((opt) => opt.value === field.value) || undefined}
+                      onChange={(option) => field.onChange(option ? option.value : undefined)}
                       className="text-lg"
                       styles={{
                         control: (base) => ({
@@ -471,8 +472,8 @@ export function ApplicationDetailsStep({
                       options={yesNoOptions}
                       placeholder="Select Yes or No"
                       isClearable
-                      value={yesNoOptions.find((opt) => opt.value === field.value) || null}
-                      onChange={(option) => field.onChange(option ? option.value : null)}
+                       value={yesNoOptions.find((opt) => opt.value === field.value) || undefined}
+                      onChange={(option) => field.onChange(option ? option.value : undefined)}
                       className="text-lg"
                       styles={{
                         control: (base) => ({
@@ -527,8 +528,8 @@ export function ApplicationDetailsStep({
                       options={yesNoOptions}
                       placeholder="Select Yes or No"
                       isClearable
-                      value={yesNoOptions.find((opt) => opt.value === field.value) || null}
-                      onChange={(option) => field.onChange(option ? option.value : null)}
+                       value={yesNoOptions.find((opt) => opt.value === field.value) || undefined}
+                      onChange={(option) => field.onChange(option ? option.value : undefined)}
                       className="text-lg"
                       styles={{
                         control: (base) => ({
@@ -583,8 +584,8 @@ export function ApplicationDetailsStep({
                       options={yesNoOptions}
                       placeholder="Select Yes if you're aged 18 or over."
                       isClearable
-                      value={yesNoOptions.find((opt) => opt.value === field.value) || null}
-                      onChange={(option) => field.onChange(option ? option.value : null)}
+                       value={yesNoOptions.find((opt) => opt.value === field.value) || undefined}
+                      onChange={(option) => field.onChange(option ? option.value : undefined)}
                       className="text-lg"
                       styles={{
                         control: (base) => ({
@@ -615,8 +616,8 @@ export function ApplicationDetailsStep({
                       options={yesNoOptions}
                       placeholder="Select Yes if you're subject to immigration control."
                       isClearable
-                      value={yesNoOptions.find((opt) => opt.value === field.value) || null}
-                      onChange={(option) => field.onChange(option ? option.value : null)}
+                       value={yesNoOptions.find((opt) => opt.value === field.value) || undefined}
+                      onChange={(option) => field.onChange(option ? option.value : undefined)}
                       className="text-lg"
                       styles={{
                         control: (base) => ({
@@ -647,8 +648,8 @@ export function ApplicationDetailsStep({
                       options={yesNoOptions}
                       placeholder="Select Yes if you can legally work in the UK."
                       isClearable
-                      value={yesNoOptions.find((opt) => opt.value === field.value) || null}
-                      onChange={(option) => field.onChange(option ? option.value : null)}
+                       value={yesNoOptions.find((opt) => opt.value === field.value) || undefined}
+                      onChange={(option) => field.onChange(option ? option.value : undefined)}
                       className="text-lg"
                       styles={{
                         control: (base) => ({
@@ -793,8 +794,8 @@ export function ApplicationDetailsStep({
                       options={yesNoOptions}
                       placeholder="Select Yes if you are currently enrolled..."
                       isClearable
-                      value={yesNoOptions.find((opt) => opt.value === field.value) || null}
-                      onChange={(option) => field.onChange(option ? option.value : null)}
+                      value={yesNoOptions.find((opt) => opt.value === field.value) || undefined}
+                      onChange={(option) => field.onChange(option ? option.value : undefined)}
                       className="text-lg"
                       styles={{
                         control: (base) => ({
