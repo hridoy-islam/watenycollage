@@ -19,11 +19,14 @@ export default function DashboardPage() {
           navigate('/dashboard/career-guideline');
         }
       } else {
-        // if (!user.isCompleted) {
+        if (!user.isCompleted) {
           
           if (user.role === 'applicant') {
             navigate('/dashboard/career-application');
-          // }
+          }
+        }
+        else{
+          navigate('/dashboard');
         }
       }
     }
