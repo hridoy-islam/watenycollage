@@ -12,7 +12,7 @@ interface EmploymentTabProps {
 
 export function EmploymentTab({ application, renderFieldRow }: EmploymentTabProps) {
   return (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+    <div className="grid grid-cols-1 gap-6 ">
       <Card>
         <CardContent className="pt-6">
           <h3 className="mb-2 text-lg font-semibold">Current Employment</h3>

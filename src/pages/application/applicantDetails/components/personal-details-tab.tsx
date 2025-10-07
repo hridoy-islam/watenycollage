@@ -29,6 +29,8 @@ export function PersonalDetailsTab({ application, renderFieldRow }: PersonalDeta
               {renderFieldRow("Last Name", application.lastName, "lastName")}
               {renderFieldRow("Other Name", application.otherName, "otherName")}
               {renderFieldRow("Initial", application.initial, "initial")}
+                            {renderFieldRow("Email", application.email, "email")}
+
               {renderFieldRow("Date of Birth", application.dateOfBirth, "dateOfBirth")}
               {renderFieldRow("Nationality", application.nationality, "nationality")}
               {renderFieldRow("Country of Residence", application.countryOfResidence, "countryOfResidence")}

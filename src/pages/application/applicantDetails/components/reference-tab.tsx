@@ -11,7 +11,7 @@ interface ReferenceTabProps {
 
 export function ReferenceTab({ application, renderFieldRow }: ReferenceTabProps) {
   return (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+    <div className="grid grid-cols-1 gap-6 ">
       {application.professionalReferee1 && (
         <Card>
           <CardContent className="pt-6">

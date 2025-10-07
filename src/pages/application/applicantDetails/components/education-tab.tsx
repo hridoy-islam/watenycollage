@@ -17,7 +17,7 @@ export function EducationTab({ application, renderFieldRow }: EducationTabProps)
       {!application.educationData || application.educationData.length === 0 ? (
         <p className="italic text-muted-foreground">No education history provided</p>
       ) : (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 ">
           {application.educationData.map((education: any, index: number) => (
             <Card key={index}>
               <CardContent className="pt-4">

@@ -1,30 +1,30 @@
 import React from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from "@/components/ui/table";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Heart, Stethoscope, Activity, Shield, Syringe, FileCheck } from 'lucide-react';
 
 interface PostEmploymentTabProps {
   application: any;
   renderFieldRow: (label: string, value: any, fieldPath: string) => React.ReactNode;
 }
 
-export function PostEmploymentTab({ application, renderFieldRow }: PostEmploymentTabProps) {
-  return (
-    <Tabs defaultValue="personalRole" className="space-y-4">
-      {/* Tab Headers */}
-      <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
-        <TabsTrigger value="personalRole">Personal & Role</TabsTrigger>
-        <TabsTrigger value="medicalRestriction">Medical Work Restriction</TabsTrigger>
-        <TabsTrigger value="medicalConditions">Medical Conditions</TabsTrigger>
-        <TabsTrigger value="additionalHealth">Additional Health Info</TabsTrigger>
-        <TabsTrigger value="vaccination">Vaccination History</TabsTrigger>
-        <TabsTrigger value="declarations">Declarations & Consent</TabsTrigger>
-      </TabsList>
+const postEmploymentTabs = [
+  { id: "personalRole", label: "Personal & Role", icon: <Heart className="w-4 h-4" /> },
+  { id: "medicalRestriction", label: "Medical Work Restriction", icon: <Stethoscope className="w-4 h-4" /> },
+  { id: "medicalConditions", label: "Medical Conditions", icon: <Activity className="w-4 h-4" /> },
+  { id: "additionalHealth", label: "Additional Health Info", icon: <Shield className="w-4 h-4" /> },
+  { id: "vaccination", label: "Vaccination History", icon: <Syringe className="w-4 h-4" /> },
+  { id: "declarations", label: "Declarations & Consent", icon: <FileCheck className="w-4 h-4" /> },
+];
 
-      {/* Personal & Role */}
-      <TabsContent value="personalRole">
-        <Card>
-          <CardContent className="pt-6">
+export function PostEmploymentTab({ application, renderFieldRow }: PostEmploymentTabProps) {
+  const [activeTab, setActiveTab] = React.useState("personalRole");
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case "personalRole":
+        return (
+          <div>
             <h3 className="mb-4 text-lg font-semibold">Personal & Role</h3>
             <Table>
               <TableHeader>
@@ -39,14 +39,12 @@ export function PostEmploymentTab({ application, renderFieldRow }: PostEmploymen
                 {renderFieldRow("Job Role", application.jobRole, "jobRole")}
               </TableBody>
             </Table>
-          </CardContent>
-        </Card>
-      </TabsContent>
+          </div>
+        );
 
-      {/* Medical Work Restriction */}
-      <TabsContent value="medicalRestriction">
-        <Card>
-          <CardContent className="pt-6">
+      case "medicalRestriction":
+        return (
+          <div>
             <h3 className="mb-4 text-lg font-semibold">Medical Work Restriction</h3>
             <Table>
               <TableHeader>
@@ -70,14 +68,12 @@ export function PostEmploymentTab({ application, renderFieldRow }: PostEmploymen
                   )}
               </TableBody>
             </Table>
-          </CardContent>
-        </Card>
-      </TabsContent>
+          </div>
+        );
 
-      {/* Medical Conditions */}
-      <TabsContent value="medicalConditions">
-        <Card>
-          <CardContent className="pt-6">
+      case "medicalConditions":
+        return (
+          <div>
             <h3 className="mb-4 text-lg font-semibold">Medical Conditions</h3>
             <Table>
               <TableHeader>
@@ -148,14 +144,12 @@ export function PostEmploymentTab({ application, renderFieldRow }: PostEmploymen
                 ))}
               </TableBody>
             </Table>
-          </CardContent>
-        </Card>
-      </TabsContent>
+          </div>
+        );
 
-      {/* Additional Health Info */}
-      <TabsContent value="additionalHealth">
-        <Card>
-          <CardContent className="pt-6">
+      case "additionalHealth":
+        return (
+          <div>
             <h3 className="mb-4 text-lg font-semibold">Additional Health Information</h3>
             <Table>
               <TableHeader>
@@ -190,14 +184,12 @@ export function PostEmploymentTab({ application, renderFieldRow }: PostEmploymen
                 {renderFieldRow("Days Sick Last Year", application.daysSickLastYear, "daysSickLastYear")}
               </TableBody>
             </Table>
-          </CardContent>
-        </Card>
-      </TabsContent>
+          </div>
+        );
 
-      {/* Vaccination History */}
-      <TabsContent value="vaccination">
-        <Card>
-          <CardContent className="pt-6">
+      case "vaccination":
+        return (
+          <div>
             <h3 className="mb-4 text-lg font-semibold">Vaccination History</h3>
             <Table>
               <TableHeader>
@@ -235,14 +227,12 @@ export function PostEmploymentTab({ application, renderFieldRow }: PostEmploymen
                 ))}
               </TableBody>
             </Table>
-          </CardContent>
-        </Card>
-      </TabsContent>
+          </div>
+        );
 
-      {/* Declarations & Consent */}
-      <TabsContent value="declarations">
-        <Card>
-          <CardContent className="pt-6">
+      case "declarations":
+        return (
+          <div>
             <h3 className="mb-4 text-lg font-semibold">Declarations & Consent</h3>
             <Table>
               <TableHeader>
@@ -253,14 +243,82 @@ export function PostEmploymentTab({ application, renderFieldRow }: PostEmploymen
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {renderFieldRow("I confirm that the information provided is true and accurate to the best of my knowledge. I understand that any false information may result in termination of employment.", application.consentMedicalDeclaration ? "Yes" : "No", "consentMedicalDeclaration")}
-                {renderFieldRow("I consent to vaccination requirements as per company policy.", application.consentVaccination ? "Yes" : "No", "consentVaccination")}
-                {renderFieldRow("I agree that providing false medical information may lead to termination of employment.", application.consentTerminationClause ? "Yes" : "No", "consentTerminationClause")}
+                {renderFieldRow(
+                  "I confirm that the information provided is true and accurate to the best of my knowledge. I understand that any false information may result in termination of employment.",
+                  application.consentMedicalDeclaration ? "Yes" : "No",
+                  "consentMedicalDeclaration"
+                )}
+                {renderFieldRow(
+                  "I consent to vaccination requirements as per company policy.",
+                  application.consentVaccination ? "Yes" : "No",
+                  "consentVaccination"
+                )}
+                {renderFieldRow(
+                  "I agree that providing false medical information may lead to termination of employment.",
+                  application.consentTerminationClause ? "Yes" : "No",
+                  "consentTerminationClause"
+                )}
               </TableBody>
             </Table>
-          </CardContent>
-        </Card>
-      </TabsContent>
-    </Tabs>
+          </div>
+        );
+
+      default:
+        return (
+          <div>
+            <h3 className="mb-4 text-lg font-semibold">Personal & Role</h3>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-1/3 text-left">Field</TableHead>
+                  <TableHead className="text-right">Value</TableHead>
+                  <TableHead className="w-10 text-right"></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {renderFieldRow("Sex", application.sex, "sex")}
+                {renderFieldRow("Job Role", application.jobRole, "jobRole")}
+              </TableBody>
+            </Table>
+          </div>
+        );
+    }
+  };
+
+  return (
+    <Card className="p-6">
+      <div className="flex gap-6 h-full">
+        {/* Vertical Tab List */}
+        <aside className="w-64 flex-shrink-0">
+          <nav className="bg-white rounded-lg shadow-lg overflow-hidden sticky top-4">
+            <div className="py-2">
+              {postEmploymentTabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`
+                    w-full flex items-center gap-3 px-4 py-3 text-left transition-all
+                    hover:bg-gray-50
+                    ${
+                      activeTab === tab.id
+                        ? 'bg-orange-500 text-white hover:bg-orange-600'
+                        : 'text-gray-700'
+                    }
+                  `}
+                >
+                  {tab.icon}
+                  <span className="text-sm font-medium">{tab.label}</span>
+                </button>
+              ))}
+            </div>
+          </nav>
+        </aside>
+
+        {/* Tab Content */}
+        <main className="flex-1 bg-white rounded-lg shadow-lg p-6 overflow-auto">
+          {renderTabContent()}
+        </main>
+      </div>
+    </Card>
   );
 }
