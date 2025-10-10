@@ -22,110 +22,107 @@ import { updateAuthIsAuthorized } from '@/redux/features/authSlice';
 const steps: React.ReactNode[] = [
   // Step 1: Welcome to Cyberpeers
   <div key="step-1" className="space-y-4">
-    <p className="text-2xl font-medium">
-      👋 <strong>Welcome to Careers at Cyberpeers</strong> — a leading UK-based
-      institution that values talent, diversity, and passion for education.
+    <h2 className="text-3xl font-semibold">Welcome to Careers at Cyberpeers</h2>
+    <p className="text-lg">
+      Welcome to <strong>Careers at Cyberpeers</strong> — a forward-thinking UK-based digital agency that brings together 
+      creative minds, developers, and marketing strategists to build innovative online experiences. 
+      At Cyberpeers, we believe that great ideas come from diverse perspectives. Whether you’re a developer, designer, 
+      marketer, or creative thinker, your skills can make a real impact here.
     </p>
-    <p className="text-xl">
-      Thank you for your interest in joining our team. Before you proceed with
-      your job application, please read this guide carefully.
+    <p className="text-lg">
+      Before you begin your application, please take a moment to read this guide carefully to ensure a smooth and successful process.
     </p>
-    <ul className="mt-4 list-disc space-y-2 pl-8 text-xl text-gray-700">
-      <li>We are an equal opportunity employer</li>
-      <li>
-        We welcome applications from all backgrounds and experience levels
-      </li>
-      <li>
-        All applications will be considered in accordance with UK employment and
-        equality laws
-      </li>
+    <ul className="mt-4 list-disc space-y-2 pl-8 text-lg text-gray-700">
+      <li>We are an Equal Opportunities Employer committed to fairness and inclusion.</li>
+      <li>We welcome candidates from all backgrounds and experience levels.</li>
+      <li>All applications are handled in line with UK employment and equality legislation.</li>
     </ul>
   </div>,
 
   // Step 2: What You’ll Need
   <div key="step-2" className="space-y-4">
-    <h3 className="text-2xl font-semibold">🔹 What You'll Need</h3>
-    <p className="text-xl">
-      To complete your application successfully, make sure you have the
-      following ready:
+    <h3 className="text-2xl font-semibold">🔹 What You’ll Need</h3>
+    <p className="text-lg">
+      To complete your application efficiently, please prepare the following information and documents in advance:
     </p>
-    <ul className="mt-4 list-disc space-y-2 pl-8 text-xl text-gray-700">
+    <ul className="mt-4 list-disc space-y-2 pl-8 text-lg text-gray-700">
       <li>
-        <strong>Personal Details:</strong> Title, First Name, Middle
-        Name(Initial), Last Name, Date of birth, Gender, Country Of Residence
-        and also your current residential address, including Address Line1,
-        Address Line 2, City, Post code, Country.
+        <strong>Personal Details:</strong> Your title, full name, date of birth, gender, country of residence, and current address 
+        (including Address Line 1, Address Line 2, Town/City, Postcode, and Country).
       </li>
       <li>
-        <strong>Application Details:</strong> Provide the of your availablility
-        to start work, your weekly availablility.
+        <strong>Application Details:</strong> The date you are available to start and your preferred working hours or flexibility 
+        (e.g., hybrid or remote availability).
       </li>
       <li>
-        <strong>Education History:</strong> Previous Institution Name,
-        qualification, grade, award date and certificate.
+        <strong>Education Background:</strong> Institution name, qualification obtained, grade, and date awarded 
+        (attach certificates if available).
       </li>
       <li>
-        <strong>Employment Details:</strong> If applicable, provide your current
-        or most recent employer's name, job title, and employment start date and
-        your responsibilities.
-      </li>
-
-      <li>
-        <strong>Disability Details:</strong> If you have a disability, please
-        provide details so we can make necessary accommodations during the
-        application process.
+        <strong>Employment History:</strong> Current or most recent employer’s name, your job title, start date, and a brief 
+        overview of your main responsibilities or key projects.
       </li>
       <li>
-        <strong>Reference Details:</strong> You will need to provide two
-        professional references, including their full name, relationship to you,
-        and contact number, email, address.
+        <strong>Disability Information (if applicable):</strong> Let us know if you have a disability or health condition 
+        that requires reasonable adjustments during the recruitment process.
       </li>
       <li>
-        <strong>Documents:</strong> You have to upload your CV , Cover Letter
-        and Proof of address (e.g., utility bill, bank statement) dated within
-        the last 3 months.
+        <strong>References:</strong> Provide details for two professional referees — including their full names, positions, 
+        relationship to you, contact numbers, and email addresses.
+      </li>
+      <li>
+        <strong>Documents:</strong> Upload your updated CV, Cover Letter, and proof of address 
+        (such as a utility bill or bank statement dated within the last three months).
       </li>
     </ul>
   </div>,
 
-  // Step 4: Important Reminders
+  // Step 3: Important Reminders
   <div key="step-3" className="space-y-4">
-    <h3 className="text-2xl font-semibold">✅ Important Reminders</h3>
-    <ul className="mt-4 list-disc space-y-2 pl-8 text-xl text-gray-700">
+    <h3 className="text-2xl font-semibold">Important Reminders</h3>
+    <ul className="mt-4 list-disc space-y-2 pl-8 text-lg text-gray-700">
       <li>
-        <strong>Accuracy matters:</strong> Double-check all details before
-        submission.
+        <strong>Be accurate:</strong> Double-check your details before submission. Small errors can delay the process.
       </li>
       <li>
-        <strong>Be honest:</strong> This is a legal and binding record. False
-        info may result in rejection.
+        <strong>Be honest:</strong> All information must be truthful and complete. Providing false or misleading information 
+        may result in disqualification.
       </li>
       <li>
-        <strong>Support & Accessibility:</strong> Let us know if you need
-        assistance or accommodations.
+        <strong>Ask for help:</strong> If you need assistance or any adjustments during the recruitment process, we’re here to support you.
       </li>
     </ul>
-    <p className="mt-4 text-xl text-gray-700">
-      We are here to help you succeed — make sure to reach out if you need any
-      clarification.
+    <p className="mt-4 text-lg text-gray-700">
+      Our team values transparency and communication — don’t hesitate to reach out if you have questions about your application 
+      or the next steps.
     </p>
   </div>,
 
-  // Step 5: Data & Support + Final Call to Action
+  // Step 4: Data Privacy & Support
   <div key="step-4" className="space-y-6 text-start">
-    <h3 className="text-2xl font-semibold">🔐 Data Privacy & Support</h3>
-    <p className="text-xl text-gray-700">
-      Cyberpeers handles your data securely in compliance with UK GDPR. Your
-      personal information will only be used for application purposes.
+    <h3 className="text-2xl font-semibold">Data Privacy & Support</h3>
+    <p className="text-lg text-gray-700">
+      At Cyberpeers, your privacy and security matter. We handle all personal information in full compliance with UK GDPR. 
+      Your data will be used solely for recruitment and onboarding purposes and will never be shared with third parties 
+      without your consent.
     </p>
+    <p className="text-lg text-gray-700">
+      For queries or technical support during your application, contact our recruitment team at 
+      <a href="mailto:contact@cyberpeers.co.uk" className="text-theme underline ml-1">contact@cyberpeers.co.uk</a>.
+    </p>
+  </div>,
 
-    <p className="mb-2 mt-6 text-3xl font-bold">🎓 Ready to Apply?</p>
-    <p className="text-xl text-gray-700">
-      By clicking "Continue Application” you agree to provide honest and
-      accurate information.
+  // Step 5: Ready to Apply
+  <div key="step-5" className="space-y-4">
+    <h3 className="text-2xl font-semibold">Ready to Apply?</h3>
+    <p className="text-lg text-gray-700">
+      Please ensure you’ve reviewed the guidelines and have all required details and documents ready. 
+      When you’re ready, click <strong>“Continue to Application”</strong> to begin your journey with Cyberpeers — 
+      let’s build something exceptional together.
     </p>
-  </div>
+  </div>,
 ];
+
 
 export default function CareerGuideline() {
   const [step, setStep] = useState(0);
