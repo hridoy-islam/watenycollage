@@ -22,6 +22,8 @@ import CareerApplicationsPage from '@/pages/dashboard/components/jobs/job-applic
 import InterviewPage from '@/pages/interview';
 import CharacterReferencePage from '@/pages/character-reference';
 import EmploymentReferencePage from '@/pages/employment-reference';
+import ProfessionalReferencePage from '@/pages/professional-reference';
+import PersonalReferencePage from '@/pages/personal-reference';
 
 
 const SignInPage = lazy(() => import('@/pages/auth/signin/index'));
@@ -143,12 +145,12 @@ export default function AppRouter() {
     },
       {
       path: '/personal-reference',
-      element: <CharacterReferencePage />,
+      element: <PersonalReferencePage />,
       index: true
     },
     {
       path: '/professional-reference',
-      element: <EmploymentReferencePage />,
+      element: <ProfessionalReferencePage />,
       index: true
     },
     {
