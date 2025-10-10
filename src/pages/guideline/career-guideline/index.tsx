@@ -71,7 +71,7 @@ const steps: React.ReactNode[] = [
         relationship to you, contact numbers, and email addresses.
       </li>
       <li>
-        <strong>Documents:</strong> Upload your updated CV, Cover Letter, and proof of address 
+        <strong>Documents:</strong> Upload your updated CV, and proof of address 
         (such as a utility bill or bank statement dated within the last three months).
       </li>
     </ul>
