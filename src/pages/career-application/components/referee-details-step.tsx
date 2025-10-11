@@ -67,9 +67,25 @@ export function RefereeDetailsStep({
     }
   });
 
-  const onSubmit = (data: RefereeFormValues) => {
-    onSaveAndContinue(data);
+const onSubmit = (data: RefereeFormValues) => {
+  const normalizedData = {
+    ...data,
+    professionalReferee1: {
+      ...data.professionalReferee1,
+      email: data.professionalReferee1.email.toLowerCase(),
+    },
+    professionalReferee2: {
+      ...data.professionalReferee2,
+      email: data.professionalReferee2.email.toLowerCase(),
+    },
+    personalReferee: {
+      ...data.personalReferee,
+      email: data.personalReferee.email.toLowerCase(),
+    },
   };
+  onSaveAndContinue(normalizedData);
+};
+
 
   function handleBack() {
     setCurrentStep(8);
@@ -320,7 +336,7 @@ export function RefereeDetailsStep({
                 type="submit"
                 className="bg-watney text-lg text-white hover:bg-watney/90"
               >
-                Save and Next
+                Save And Next
               </Button>
             </div>
           </form>

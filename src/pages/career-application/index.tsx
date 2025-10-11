@@ -83,6 +83,7 @@ export default function CareerApplicationForm() {
   const location = useLocation();
   const [refreshCounter, setRefreshCounter] = useState(0);
   const [subStep, setSubstep] = useState(1);
+    const [submitting, setSubmitting] = useState(false);
 
   const refreshData = () => {
     setRefreshCounter((prev) => prev + 1);
@@ -422,6 +423,7 @@ export default function CareerApplicationForm() {
   const handleSubmit = async (formData: any) => {
     console.log("🔥 formData submitted:", formData);
     try {
+            setSubmitting(true);
 
       await axiosInstance.patch(`/users/${user._id}`, {
         ...formData,
@@ -458,6 +460,9 @@ export default function CareerApplicationForm() {
         title: error?.response?.data?.message || 'Something went wrong.',
         className: 'destructive border-none text-white'
       });
+    }finally{
+                  setSubmitting(false);
+
     }
   };
 
@@ -700,6 +705,7 @@ export default function CareerApplicationForm() {
               setSubStepInfo((prev) => ({ ...prev, current }))
             }
             saveAndLogout={handleSaveAndLogout}
+            loading={submitting}
 
           />
         );

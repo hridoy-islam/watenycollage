@@ -104,7 +104,7 @@ type TFormValues = z.infer<typeof careerSchema>;
 
 // ✅ STEP CONFIGURATION — 3 STEPS
 const STEPS = [
-  
+
   {
     id: 1,
     // title: 'Declarations & GDPR Consent',
@@ -141,7 +141,8 @@ export function ReviewStep({
   subStep,
   subStepInfo,
   onSubStepChange,
-  saveAndLogout
+  saveAndLogout,
+  loading
 }) {
   const [currentStep, setCurrentStepState] = useState(1);
   const totalSteps = STEPS.length;
@@ -151,10 +152,10 @@ export function ReviewStep({
     resolver: zodResolver(careerSchema),
     defaultValues: {
       ...defaultValues,
-      
-      consentMedicalDeclaration:undefined,
+
+      consentMedicalDeclaration: undefined,
       consentTerminationClause: undefined,
-      consentVaccination:undefined,
+      consentVaccination: undefined,
       declarationCorrectUpload: undefined,
       declarationContactReferee: undefined,
       disciplinaryInvestigation: undefined,
@@ -746,7 +747,7 @@ export function ReviewStep({
       // case 1:
       //   return (
       //     <div className="overflow-x-auto">
-            
+
       //     </div>
 
       //   );
@@ -1491,18 +1492,18 @@ export function ReviewStep({
                 <Button
                   type="button"
                   onClick={handleNext}
-                  disabled={!termsAccepted || !dataProcessingAccepted}
+                  disabled={!termsAccepted || !dataProcessingAccepted || loading}
                   className=" bg-watney  text-lg text-white hover:bg-watney/90"
-                >
-                  Submit Application
+                >{loading ? "Submitting..." : "Submit Application"}
                 </Button>
               ) : (
                 <Button
                   type="button"
                   onClick={handleNext}
+
                   className=" bg-watney  text-lg text-white hover:bg-watney/90"
                 >
-                  Save and Next
+                  Save And Next
                 </Button>
               )}
             </div>

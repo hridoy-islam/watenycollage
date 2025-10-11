@@ -545,7 +545,7 @@ export function TrainingStep({
               type="submit"
               className="bg-watney  text-lg text-white hover:bg-watney/90"
             >
-              Save and Next
+              Save And Next
             </Button>
           </div>
         </form>

@@ -140,7 +140,7 @@ const isValidImageUrl = (url) => {
                   className="bg-watney  text-white hover:bg-watney/90"
         disabled={!isValidImageUrl(profilePictureUrl)}
       >
-        Save and Next
+        Save And Next
       </Button>
     </div>
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -24,6 +24,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Check } from "lucide-react";
 import { CustomDatePicker } from "@/components/shared/CustomDatePicker";
+import { useParams } from "react-router-dom";
+import axiosInstance from "@/lib/axios"
+import { BlinkingDots } from "@/components/shared/blinking-dots";
 
 const employmentReferenceSchema = z.object({
     applicantName: z.string().min(1, "Required"),
@@ -104,21 +107,123 @@ const employmentReferenceSchema = z.object({
 type EmploymentReferenceFormData = z.infer<typeof employmentReferenceSchema>;
 
 export default function ProfessionalReferencePage() {
+
+    const { ref, applicantName, id, relation, job } = useParams();
+    const [isUsed, setIsUsed] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
+
+
+
+    useEffect(() => {
+        const checkRefStatus = async () => {
+            try {
+                setLoading(true);
+                // Fetch only the relevant ref flags
+                const res = await axiosInstance.get(`/users/${id}?fields=ref1Submit,ref2Submit`);
+                const user = res.data.data
+                if (ref === "ref1" && user.ref1Submit === true) {
+                    setIsUsed(true);
+                } else if (ref === "ref2" && user.ref2Submit === true) {
+                    setIsUsed(true);
+                } else {
+                    setIsUsed(false);
+                }
+            } catch (error) {
+                console.error("Error fetching user ref status:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (id && ref) {
+            checkRefStatus();
+        }
+    }, []);
+
+    // 🔹 Convert hyphens back to spaces
+    const formatText = (text = "") => text.replace(/-/g, " ");
+
+    // 🔹 Capitalize each word
+    const capitalizeWords = (str = "") =>
+        str
+            .split(" ")
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(" ");
+
+    // 🧩 Apply formatting
+    const formattedApplicantName = formatText(applicantName);
+    const formattedRelation = capitalizeWords(formatText(relation));
+    const formattedJob = capitalizeWords(formatText(job));
+
     const [isSubmitted, setIsSubmitted] = useState(false);
 
     const form = useForm<EmploymentReferenceFormData>({
         resolver: zodResolver(employmentReferenceSchema),
         defaultValues: {
-            applicantName: "John Doe",
-            positionApplied: "Care Assistant",
-            relationship: "Former Manager",
+            applicantName: formattedApplicantName,
+            positionApplied: formattedJob,
+            relationship: formattedRelation,
         },
     });
 
-    const onSubmit = (data: EmploymentReferenceFormData) => {
-        console.log("Form submitted:", data);
-        setIsSubmitted(true);
+    const onSubmit = async (data: EmploymentReferenceFormData) => {
+        try {
+            setSubmitting(true);
+            const payload = {
+                ...data,
+                applicantId: id,
+                referenceType: ref,
+            };
+            const response = await axiosInstance.post("/reference", payload)
+
+            setIsSubmitted(true)
+            setIsUsed(true)
+            const refFlagPayload: Record<string, boolean> = {};
+            if (ref === "ref1") {
+                refFlagPayload.ref1Submit = true;
+            } else if (ref === "ref2") {
+                refFlagPayload.ref2Submit = true;
+            }
+
+            // 3️⃣ Patch request to update the user
+            await axiosInstance.patch(`/users/${id}`, refFlagPayload);
+
+        } catch (error: any) {
+            console.error("❌ Error submitting form:", error.response?.data || error.message)
+        } finally {
+            setSubmitting(false);
+        }
     };
+
+
+    if (isUsed) {
+        return (
+            <div className="min-h-screen flex items-center justify-center p-6">
+                <div className="w-full max-w-4xl">
+                    <Card className="text-center shadow-xl rounded-xl p-8 bg-watney text-white border-none">
+                        <CardHeader className="mb-6">
+                            <div className="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-white/20 mb-4">
+                                <Check className="h-10 w-10 text-white" />
+                            </div>
+                            <CardTitle className="text-4xl font-bold mb-2">
+                                Form Already Submitted
+                            </CardTitle>
+                            <CardDescription className="text-xl text-white">
+                                This form has already been submitted and cannot be submitted again.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-6 text-lg">
+                           
+                            <p className="font-medium">
+                                If you believe this is an error or need to update your submission, please contact the administrator.
+                            </p>
+                        </CardContent>
+                    </Card>
+                </div>
+            </div>
+        );
+    }
 
     if (isSubmitted) {
         return (
@@ -149,6 +254,14 @@ export default function ProfessionalReferencePage() {
                 </div>
             </div>
         );
+    }
+
+
+    if (loading) {
+
+        return (<div className="flex justify-center py-6">
+            <BlinkingDots size="large" color="bg-watney" />
+        </div>)
     }
 
 
@@ -458,9 +571,9 @@ export default function ProfessionalReferencePage() {
                                 </div>
 
                                 <div className="flex w-full justify-end">
-                                    <Button type="submit" className="bg-watney text-white hover:bg-watney/90 max-md:w-full">
-                                        Submit Reference
-                                    </Button>
+                                    <Button type="submit" disabled={submitting} className="bg-watney text-white hover:bg-watney/90 max-md:w-full">
+                                        {submitting ? "Submitting..." : "Submit Reference"}
+                                        </Button>
                                 </div>
                             </form>
                         </Form>
