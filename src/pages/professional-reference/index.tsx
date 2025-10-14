@@ -24,8 +24,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Check } from "lucide-react";
 import { CustomDatePicker } from "@/components/shared/CustomDatePicker";
-import { useParams } from "react-router-dom";
-import axiosInstance from "@/lib/axios"
+import { useLocation } from "react-router-dom";
+import axiosInstance from "@/lib/axios";
 import { BlinkingDots } from "@/components/shared/blinking-dots";
 
 const employmentReferenceSchema = z.object({
@@ -39,7 +39,6 @@ const employmentReferenceSchema = z.object({
     employmentTill: z
         .date({ required_error: "Employment end date is required" })
         .refine((date) => !isNaN(date.getTime()), { message: "Invalid date" }),
-
     reasonForLeaving: z.string().optional(),
     qualityOfWork: z.enum(["very_good", "good", "poor"], {
         required_error: "Please select an option",
@@ -85,20 +84,7 @@ const employmentReferenceSchema = z.object({
     suitabilityOpinion: z.string().min(1, "This field is required"),
     refereePosition: z.string().min(1, "This field is required"),
     refereeName: z.string().min(1, "This field is required"),
-    refereeDate: z
-        .any()
-        .refine((val) => {
-            if (val === null || val === undefined || val === '') return false;
-            const date = val instanceof Date ? val : new Date(val);
-            return date instanceof Date && !isNaN(date.getTime());
-        }, {
-            message: "Date is required",
-        })
-        .transform((val) => {
-            if (val instanceof Date) return val;
-            const date = new Date(val);
-            return isNaN(date.getTime()) ? undefined : date;
-        }),
+
 }).refine((data) => data.wouldReemploy !== "no" || (data.reemployReason && data.reemployReason.length > 0), {
     message: "Please provide a reason",
     path: ["reemployReason"],
@@ -107,56 +93,41 @@ const employmentReferenceSchema = z.object({
 type EmploymentReferenceFormData = z.infer<typeof employmentReferenceSchema>;
 
 export default function ProfessionalReferencePage() {
-
-    const { ref, applicantName, id, relation, job } = useParams();
-    const [isUsed, setIsUsed] = useState(false);
-    const [loading, setLoading] = useState(false);
+    const [wasAlreadyUsed, setWasAlreadyUsed] = useState(false); // ✅ Only set on initial load
+    const [isSubmitted, setIsSubmitted] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
+    const [id, setId] = useState<string | null>(null);
+
+    const { search } = useLocation();
+    const params = new URLSearchParams(search);
+    const segments = Array.from(params.keys());
+
+    const applicantNameParam = segments[0] || "";
+    const email = segments[1] || "";
+    const refName = segments[2] || "";
+
+    const relation = segments[3] || "";
+    const position = segments[4] || "";
+    const job = segments[5] || "";
+
+    const refParam = segments[6] || "";
 
 
 
-    useEffect(() => {
-        const checkRefStatus = async () => {
-            try {
-                setLoading(true);
-                // Fetch only the relevant ref flags
-                const res = await axiosInstance.get(`/users/${id}?fields=ref1Submit,ref2Submit`);
-                const user = res.data.data
-                if (ref === "ref1" && user.ref1Submit === true) {
-                    setIsUsed(true);
-                } else if (ref === "ref2" && user.ref2Submit === true) {
-                    setIsUsed(true);
-                } else {
-                    setIsUsed(false);
-                }
-            } catch (error) {
-                console.error("Error fetching user ref status:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        if (id && ref) {
-            checkRefStatus();
-        }
-    }, []);
-
-    // 🔹 Convert hyphens back to spaces
+    // Formatting helpers
     const formatText = (text = "") => text.replace(/-/g, " ");
-
-    // 🔹 Capitalize each word
     const capitalizeWords = (str = "") =>
         str
             .split(" ")
             .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
             .join(" ");
 
-    // 🧩 Apply formatting
-    const formattedApplicantName = formatText(applicantName);
+    const formattedApplicantName = capitalizeWords(formatText(applicantNameParam));
     const formattedRelation = capitalizeWords(formatText(relation));
+    const formattedPosition = capitalizeWords(formatText(position));
+    const formattedRefName = capitalizeWords(formatText(refName));
     const formattedJob = capitalizeWords(formatText(job));
-
-    const [isSubmitted, setIsSubmitted] = useState(false);
 
     const form = useForm<EmploymentReferenceFormData>({
         resolver: zodResolver(employmentReferenceSchema),
@@ -164,91 +135,123 @@ export default function ProfessionalReferencePage() {
             applicantName: formattedApplicantName,
             positionApplied: formattedJob,
             relationship: formattedRelation,
+            refereePosition: formattedPosition,
+            refereeName: formattedRefName
         },
     });
 
+    useEffect(() => {
+        const initialize = async () => {
+            try {
+                if (!email || !refParam) {
+                    setLoading(false);
+                    return;
+                }
+
+                // Get user by email
+                const userRes = await axiosInstance.get(`/users?email=${encodeURIComponent(email)}&fields=name`);
+                const user = userRes.data.data?.result?.[0];
+                if (!user?._id) {
+                    setLoading(false);
+                    return;
+                }
+
+                setId(user._id);
+
+                // Check if already submitted
+                const statusRes = await axiosInstance.get(`/users/${user._id}?fields=ref1Submit,ref2Submit`);
+                const userData = statusRes.data.data;
+
+                const alreadyUsed = (refParam === "ref1" && userData.ref1Submit) || (refParam === "ref2" && userData.ref2Submit);
+                setWasAlreadyUsed(alreadyUsed);
+            } catch (error) {
+                console.error("Initialization error:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        initialize();
+    }, [email, refParam]);
+
     const onSubmit = async (data: EmploymentReferenceFormData) => {
+        if (!id || !refParam) return;
+
         try {
             setSubmitting(true);
+
             const payload = {
                 ...data,
                 applicantId: id,
-                referenceType: ref,
+                referenceType: refParam,
             };
-            const response = await axiosInstance.post("/reference", payload)
 
-            setIsSubmitted(true)
-            setIsUsed(true)
-            const refFlagPayload: Record<string, boolean> = {};
-            if (ref === "ref1") {
-                refFlagPayload.ref1Submit = true;
-            } else if (ref === "ref2") {
-                refFlagPayload.ref2Submit = true;
-            }
+            await axiosInstance.post("/reference", payload);
 
-            // 3️⃣ Patch request to update the user
+            // Update user flags
+            const refFlagPayload = refParam === "ref1" ? { ref1Submit: true } : { ref2Submit: true };
             await axiosInstance.patch(`/users/${id}`, refFlagPayload);
 
+            setIsSubmitted(true);
+            // Note: We do NOT set wasAlreadyUsed here — it stays false if it was false initially
         } catch (error: any) {
-            console.error("❌ Error submitting form:", error.response?.data || error.message)
+            console.error("❌ Error submitting form:", error.response?.data || error.message);
         } finally {
             setSubmitting(false);
         }
     };
 
+    // === Render: Loading
+    if (loading) {
+        return (
+            <div className="flex justify-center py-6">
+                <BlinkingDots size="large" color="bg-watney" />
+            </div>
+        );
+    }
 
-    if (isUsed) {
+    // ✅ Priority: If already used BEFORE this session → show "Already Submitted"
+    if (wasAlreadyUsed) {
         return (
             <div className="min-h-screen flex items-center justify-center p-6">
                 <div className="w-full max-w-4xl">
-                    <Card className="text-center shadow-xl rounded-xl p-8 bg-watney text-white border-none">
+                    <Card className="text-center shadow-none rounded-xl p-8 bg-white  border-2 border-gray-300">
                         <CardHeader className="mb-6">
-                            <div className="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-white/20 mb-4">
-                                <Check className="h-10 w-10 text-white" />
-                            </div>
-                            <CardTitle className="text-4xl font-bold mb-2">
-                                Form Already Submitted
-                            </CardTitle>
-                            <CardDescription className="text-xl text-white">
+                            <div className="mx-auto flex items-center justify-center h-32 w-32  mb-4">
+                                <img src="/logo.png" alt="" />                            </div>
+                            <CardTitle className="text-4xl font-bold mb-2 text-watney">Form Already Submitted</CardTitle>
+                            <CardDescription className="text-xl font-medium text-black">
                                 This form has already been submitted and cannot be submitted again.
                             </CardDescription>
                         </CardHeader>
-                        <CardContent className="space-y-6 text-lg">
-                           
-                            <p className="font-medium">
-                                If you believe this is an error or need to update your submission, please contact the administrator.
-                            </p>
-                        </CardContent>
+
                     </Card>
                 </div>
             </div>
         );
     }
 
+    // ✅ If user just submitted → show "Thank You"
     if (isSubmitted) {
         return (
             <div className="min-h-screen flex items-center justify-center p-6">
                 <div className="w-full max-w-4xl">
-                    <Card className="text-center shadow-xl rounded-xl p-8 bg-watney text-white border-none">
+                    <Card className="text-center shadow-none rounded-xl p-8 bg-white border-2 border-gray-300">
                         <CardHeader className="mb-6">
-                            <div className="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-white/20 mb-4">
-                                <Check className="h-10 w-10 text-white" />
+                            <div className="mx-auto flex items-center justify-center h-36 w-36 mb-4">
+                                <img src="/logo.png" alt="" />
                             </div>
-                            <CardTitle className="text-4xl font-bold mb-2">
-                                Thank You!
-                            </CardTitle>
-                            <CardDescription className="text-xl text-white">
-                                Your professional reference has been submitted successfully.
+                            <CardTitle className="text-4xl text-watney font-bold mb-2">Thank You!</CardTitle>
+                            <CardDescription className="text-xl font-semibold text-black">
+                                Your reference has been submitted successfully.
                             </CardDescription>
                         </CardHeader>
-                        <CardContent className="space-y-6 text-lg">
+                        <CardContent className="text-lg font-medium">
                             <p>
-                                Thank you for taking the time to complete this employment reference form.
-                                Your feedback is valuable and will be carefully reviewed.
+                                Thank you for taking the time to complete this employment reference form. Your feedback is valuable and
+                                will be carefully reviewed.
                             </p>
-                            <p className="font-medium">
-                                We appreciate your contribution and your support in helping us maintain high standards.
-                            </p>
+
                         </CardContent>
                     </Card>
                 </div>
@@ -256,23 +259,15 @@ export default function ProfessionalReferencePage() {
         );
     }
 
-
-    if (loading) {
-
-        return (<div className="flex justify-center py-6">
-            <BlinkingDots size="large" color="bg-watney" />
-        </div>)
-    }
-
-
+    // ✅ Otherwise, show the form
     return (
         <div className="min-h-screen p-6">
-            <div className="mx-auto ">
+            <div className="mx-auto">
                 <div className="flex flex-row items-center justify-between mb-6">
                     <img src="/logo.png" alt="Everycare logo" className="h-16" />
                 </div>
 
-                <Card className=" border border-gray-300">
+                <Card className="border border-gray-300">
                     <CardHeader>
                         <CardTitle className="text-xl">Professional Reference Questionnaire</CardTitle>
                     </CardHeader>
@@ -315,19 +310,17 @@ export default function ProfessionalReferencePage() {
                                     </div>
 
                                     <div className="space-y-4 border-t pt-4">
-                                        <h3 className="font-semibold">
-                                            Employment Period
-                                        </h3>
+                                        <h3 className="font-semibold">Employment Period</h3>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <FormField
                                                 control={form.control}
                                                 name="employmentFrom"
                                                 render={({ field }) => (
                                                     <FormItem>
-                                                        <FormLabel> When did the applicant start the job?</FormLabel>
+                                                        <FormLabel>When did the applicant start the job?</FormLabel>
                                                         <FormControl>
                                                             <CustomDatePicker
-                                                                selected={field.value || null} // Now expects Date | null
+                                                                selected={field.value || null}
                                                                 onChange={(date: Date | null) => field.onChange(date)}
                                                                 placeholder="MM/DD/YYYY"
                                                             />
@@ -344,7 +337,7 @@ export default function ProfessionalReferencePage() {
                                                         <FormLabel>When did the applicant leave the job?</FormLabel>
                                                         <FormControl>
                                                             <CustomDatePicker
-                                                                selected={field.value || null} // Now expects Date | null
+                                                                selected={field.value || null}
                                                                 onChange={(date: Date | null) => field.onChange(date)}
                                                                 placeholder="MM/DD/YYYY"
                                                             />
@@ -372,9 +365,7 @@ export default function ProfessionalReferencePage() {
 
                                 {/* === Applicant's General Ability / Characteristics === */}
                                 <div className="space-y-6 border-t pt-6">
-                                    <h3 className="font-semibold text-lg">
-                                        Applicant's general ability / Characteristics
-                                    </h3>
+                                    <h3 className="font-semibold text-lg">Applicant's general ability / Characteristics</h3>
 
                                     {[
                                         { name: "qualityOfWork", label: "1. Quality and organization of work" },
@@ -434,7 +425,6 @@ export default function ProfessionalReferencePage() {
                                     ))}
                                 </div>
 
-
                                 {/* === Final Questions === */}
                                 <div className="space-y-4 border-t pt-6">
                                     <FormField
@@ -443,8 +433,8 @@ export default function ProfessionalReferencePage() {
                                         render={({ field }) => (
                                             <FormItem>
                                                 <FormLabel>
-                                                    Do you know any reason(s) why, including health, which would make this
-                                                    applicant unsuitable for employment?
+                                                    Do you know any reason(s) why, including health, which would make this applicant unsuitable for
+                                                    employment?
                                                 </FormLabel>
                                                 <FormControl>
                                                     <Textarea {...field} rows={3} />
@@ -506,10 +496,7 @@ export default function ProfessionalReferencePage() {
                                         name="suitabilityOpinion"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel>
-                                                    Please give your opinion of the applicant's suitability for the post applied
-                                                    for
-                                                </FormLabel>
+                                                <FormLabel>Please give your opinion of the applicant's suitability for the post applied for</FormLabel>
                                                 <FormControl>
                                                     <Textarea {...field} rows={4} />
                                                 </FormControl>
@@ -521,7 +508,13 @@ export default function ProfessionalReferencePage() {
 
                                 {/* === Referee Details === */}
                                 <div className="space-y-4 border-t pt-6">
-                                    <h3 className="font-semibold text-lg">Reference Details</h3>
+                                    <div>
+
+                                        <h3 className="font-semibold text-lg">Reference Details</h3>
+                                        <p className="text-sm text-muted-foreground">
+                                            Please review your details below. If any information is incorrect, you can edit it before submitting.
+                                        </p>
+                                    </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <FormField
                                             control={form.control}
@@ -549,31 +542,18 @@ export default function ProfessionalReferencePage() {
                                                 </FormItem>
                                             )}
                                         />
-                                        <FormField
-                                            control={form.control}
-                                            name="refereeDate"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>Date</FormLabel>
-                                                    <FormControl>
-                                                        <CustomDatePicker
-                                                            selected={field.value || null} // Now expects Date | null
-                                                            onChange={(date: Date | null) => field.onChange(date)}
-                                                            placeholder="MM/DD/YYYY"
-                                                        />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                    </div>
 
+                                    </div>
                                 </div>
 
                                 <div className="flex w-full justify-end">
-                                    <Button type="submit" disabled={submitting} className="bg-watney text-white hover:bg-watney/90 max-md:w-full">
-                                        {submitting ? "Submitting..." : "Submit Reference"}
-                                        </Button>
+                                    <Button
+                                        type="submit"
+                                        disabled={submitting}
+                                        className="bg-watney text-white hover:bg-watney/90 max-md:w-full"
+                                    >
+                                        {submitting ? "Submitting..." : "Complete"}
+                                    </Button>
                                 </div>
                             </form>
                         </Form>

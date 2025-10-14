@@ -28,7 +28,7 @@ const professionalRefereeSchema = z.object({
 // Referee schema for personal referee (some optional)
 const personalRefereeSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  position: z.string().optional(),
+  position: z.string().min(1, 'Position is required'),
   relationship: z.string().min(1, 'Relationship is required'),
   organisation: z.string().optional(),
   address: z.string().optional(),

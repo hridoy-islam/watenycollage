@@ -144,12 +144,12 @@ export default function AppRouter() {
       index: true
     },
       {
-      path: '/:ref/:applicantName/:id/personal/:relation/:job',
+      path: '/personal',
       element: <PersonalReferencePage />,
       index: true
     },
     {
-      path: '/:ref/:applicantName/:id/professional/:relation/:job',
+      path: '/professional',
       element: <ProfessionalReferencePage />,
       index: true
     },
