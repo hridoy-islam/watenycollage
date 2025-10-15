@@ -14,6 +14,7 @@ import {
   FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { HelperTooltip } from '@/helper/HelperTooltip';
 
 
 // Types
@@ -78,149 +79,166 @@ export function RefereeDetailsStep({
   }
 
   const renderRefereeFields = (
-    refKey: 'referee1' | 'referee2',
-    title: string,
-    description: string
-  ) => (
-    <div className="space-y-4">
-      <h3 className="text-lg font-semibold">{title} <span className="text-red-500">*</span></h3>
+  refKey: 'referee1' | 'referee2',
+  title: string,
+  description: string
+) => (
+  <div className="space-y-4">
+    <div>
+      <h3 className="text-lg font-semibold">
+        {title} <span className="text-red-500">*</span>
+      </h3>
       <p className="text-sm text-gray-600">{description}</p>
-
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {/* Name */}
-        <FormField
-          control={form.control}
-          name={`${refKey}.name`}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Full Name <span className="text-red-500">*</span></FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  placeholder="Enter the full name of the referee."
-                  className="placeholder:text-xs placeholder:text-gray-400"
-                />
-              </FormControl>
-              <p className="mt-2 text-xs text-gray-400">Example: Sarah Johnson</p>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Organisation */}
-        <FormField
-          control={form.control}
-          name={`${refKey}.organisation`}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Company / Institution <span className="text-red-500">*</span></FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  placeholder="Enter organisation name"
-                  className="placeholder:text-xs placeholder:text-gray-400"
-                />
-              </FormControl>
-              <p className="mt-2 text-xs text-gray-400">
-                Example: ABC Health Services Ltd.
-              </p>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Address */}
-        <FormField
-          control={form.control}
-          name={`${refKey}.address`}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Address <span className="text-red-500">*</span></FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  placeholder="Provide the company or business address."
-                  className="placeholder:text-xs placeholder:text-gray-400"
-                />
-              </FormControl>
-              <p className="mt-2 text-xs text-gray-400">
-                Example: 123 High Street, London, W1A 1AA
-              </p>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Relationship */}
-        <FormField
-          control={form.control}
-          name={`${refKey}.relationship`}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Relationship <span className="text-red-500">*</span></FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  placeholder="Kindly indicate your relationship with the person mentioned."
-                  className="!placeholder:text-gray-400   placeholder:text-xs  placeholder:text-gray-400"
-                />
-              </FormControl>
-              <p className="mt-2 text-xs text-gray-400">
-                  Example: Line Manager at XYZ Ltd.
-                </p>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-
-        {/* Email */}
-        <FormField
-          control={form.control}
-          name={`${refKey}.email`}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email Address <span className="text-red-500">*</span></FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  type="email"
-                  placeholder="Email address"
-                  className="placeholder:text-xs placeholder:text-gray-400"
-                />
-              </FormControl>
-              <p className="mt-2 text-xs text-gray-400">
-                Example: s.johnson@abcservices.com
-              </p>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Phone */}
-        <FormField
-          control={form.control}
-          name={`${refKey}.phone`}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Phone Number <span className="text-red-500">*</span></FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  placeholder="+Include country code"
-                  className="placeholder:text-xs placeholder:text-gray-400"
-                />
-              </FormControl>
-              <p className="mt-2 text-xs text-gray-400">
-                Example: +44 7911 123456
-              </p>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
     </div>
-  );
+
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      {/* Name */}
+      <FormField
+        control={form.control}
+        name={`${refKey}.name`}
+        render={({ field }) => (
+          <FormItem className="mt-2 flex flex-col">
+            <FormLabel>
+              <div className="flex items-center gap-1">
+                Full Name <span className="text-red-500">*</span>
+              </div>
+                <HelperTooltip text="Example: Sarah Johnson" />
+            </FormLabel>
+            <FormControl>
+              <Input
+                {...field}
+                placeholder="Enter the full name of the referee."
+                className="placeholder:text-xs placeholder:text-gray-400"
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      {/* Organisation */}
+      <FormField
+        control={form.control}
+        name={`${refKey}.organisation`}
+        render={({ field }) => (
+          <FormItem className="mt-2 flex flex-col">
+            <FormLabel>
+              <div className="flex items-center gap-1">
+                Company / Institution <span className="text-red-500">*</span>
+              </div>
+                <HelperTooltip text="Example: ABC Health Services Ltd." />
+            </FormLabel>
+            <FormControl>
+              <Input
+                {...field}
+                placeholder="Enter organisation name"
+                className="placeholder:text-xs placeholder:text-gray-400"
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      {/* Address */}
+      <FormField
+        control={form.control}
+        name={`${refKey}.address`}
+        render={({ field }) => (
+          <FormItem className="mt-2 flex flex-col">
+            <FormLabel>
+              <div className="flex items-center gap-1">
+                Address <span className="text-red-500">*</span>
+              </div>
+                <HelperTooltip text="Example: 123 High Street, London, W1A 1AA" />
+            </FormLabel>
+            <FormControl>
+              <Input
+                {...field}
+                placeholder="Provide the company or business address."
+                className="placeholder:text-xs placeholder:text-gray-400"
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      {/* Relationship */}
+      <FormField
+        control={form.control}
+        name={`${refKey}.relationship`}
+        render={({ field }) => (
+          <FormItem className="mt-2 flex flex-col">
+            <FormLabel>
+              <div className="flex items-center gap-1">
+                Relationship <span className="text-red-500">*</span>
+              </div>
+                <HelperTooltip text="Example: Line Manager at XYZ Ltd." />
+            </FormLabel>
+            <FormControl>
+              <Input
+                {...field}
+                placeholder="Kindly indicate your relationship with the person mentioned."
+                className="placeholder:text-xs placeholder:text-gray-400"
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      {/* Email */}
+      <FormField
+        control={form.control}
+        name={`${refKey}.email`}
+        render={({ field }) => (
+          <FormItem className="mt-2 flex flex-col">
+            <FormLabel>
+              <div className="flex items-center gap-1">
+                Email Address <span className="text-red-500">*</span>
+              </div>
+                <HelperTooltip text="Example: s.johnson@abcservices.com" />
+            </FormLabel>
+            <FormControl>
+              <Input
+                {...field}
+                type="email"
+                placeholder="Email address"
+                className="placeholder:text-xs placeholder:text-gray-400"
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      {/* Phone */}
+      <FormField
+        control={form.control}
+        name={`${refKey}.phone`}
+        render={({ field }) => (
+          <FormItem className="mt-2 flex flex-col">
+            <FormLabel>
+              <div className="flex items-center gap-1">
+                Phone Number <span className="text-red-500">*</span>
+              </div>
+                <HelperTooltip text="Example: +44 7911 123456" />
+            </FormLabel>
+            <FormControl>
+              <Input
+                {...field}
+                placeholder="+Include country code"
+                className="placeholder:text-xs placeholder:text-gray-400"
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    </div>
+  </div>
+);
 
   return (
     <Card className="border-none shadow-none">

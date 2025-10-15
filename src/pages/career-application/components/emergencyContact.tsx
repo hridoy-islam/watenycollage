@@ -17,6 +17,7 @@ import { useEffect } from 'react';
 import Select from 'react-select';
 
 import { countries, emergencyContactRelationships } from '@/types';
+import { HelperTooltip } from '@/helper/HelperTooltip';
 
 const contactSchema = z.object({
   emergencyContactNumber: z
@@ -83,165 +84,173 @@ export function EmergencyContact({
    
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        <div>
-          <CardContent>
-            <div className="grid grid-cols-1 ">
-              {/* Emergency Contact Section */}
-              <div className="space-y-4">
-                <div className="flex flex-col items-start">
-                  <h2 className="text-xl font-semibold">
-                    Emergency Contact / Next of Kin
-                  </h2>
-                  <p className="text-md">
-                    Please provide the details of someone we can contact in case
-                    of an emergency. This is typically a close relative or
-                    someone you trust.
-                  </p>
-                </div>
+  <div>
+    <CardContent>
+      <div className="grid grid-cols-1">
+        {/* Emergency Contact Section */}
+        <div className="space-y-4">
+          <div className="flex flex-col items-start">
+            <h2 className="text-xl font-semibold">Emergency Contact / Next of Kin</h2>
+            <p className="text-md">
+              Please provide the details of someone we can contact in case of an emergency. This is typically a close relative or someone you trust.
+            </p>
+          </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="emergencyFullName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          Full Name <span className="text-red-500">*</span>
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            placeholder="Enter the full name of your emergency contact"
-                            className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
-                          />
-                        </FormControl>
-                        <p className="mt-1 text-xs text-gray-400">
-                          Example: Jane Doe
-                        </p>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Full Name */}
+            <FormField
+              control={form.control}
+              name="emergencyFullName"
+              render={({ field }) => (
+                <FormItem className="mt-2 flex flex-col">
+                  <FormLabel>
+                    <div className="flex items-center gap-1">
+                      Full Name <span className="text-red-500">*</span>
+                    </div>
+                      <HelperTooltip text="Example: Jane Doe" />
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder="Enter the full name of your emergency contact"
+                      className="placeholder:text-xs placeholder:text-gray-500"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                  <FormField
-                    control={form.control}
-                    name="emergencyContactNumber"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          Contact Number <span className="text-red-500">*</span>
-                        </FormLabel>
-                        <FormControl>
-                          <Input {...field}  placeholder="Enter a phone number where this person can be reached in an emergency"
-                            className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500" />
-                        </FormControl>
-                         <p className="mt-1 text-xs text-gray-400">
-                         Example: +44 7700 900123
-                        </p>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+            {/* Contact Number */}
+            <FormField
+              control={form.control}
+              name="emergencyContactNumber"
+              render={({ field }) => (
+                <FormItem className="mt-2 flex flex-col">
+                  <FormLabel>
+                    <div className="flex items-center gap-1">
+                      Contact Number <span className="text-red-500">*</span>
+                    </div>
+                      <HelperTooltip text="Example: +44 7700 900123" />
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder="Enter a phone number where this person can be reached in an emergency"
+                      className="placeholder:text-xs placeholder:text-gray-500"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                  <FormField
-                    control={form.control}
-                    name="emergencyEmail"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email <span className="text-red-500">*</span></FormLabel>
-                        <FormControl>
-                          <Input type="email" {...field} placeholder="Provide an email address for non-urgent communication"
-                      className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
- />
-                        </FormControl>
-                         <p className="mt-1 text-xs text-gray-400">
-                         Example: jane.doe@example.com
-                        </p>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+            {/* Email */}
+            <FormField
+              control={form.control}
+              name="emergencyEmail"
+              render={({ field }) => (
+                <FormItem className="mt-2 flex flex-col">
+                  <FormLabel>
+                    <div className="flex items-center gap-1">
+                      Email <span className="text-red-500">*</span>
+                    </div>
+                      <HelperTooltip text="Example: jane.doe@example.com" />
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      type="email"
+                      {...field}
+                      placeholder="Provide an email address for non-urgent communication"
+                      className="placeholder:text-xs placeholder:text-gray-500"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                  <FormField
-                    control={form.control}
-                    name="emergencyRelationship"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Relationship <span className="text-red-500">*</span></FormLabel>
-                        <FormControl>
-                          <Select
-                            options={relationshipOptions}
-                            value={
-                              field.value
-                                ? relationshipOptions.find(
-                                    (option) => option.value === field.value
-                                  )
-                                : null
-                            }
-                            onChange={(selected) =>
-                              field.onChange(selected?.value)
-                            }
-                            placeholder="Select your relationship with this person"
-                            isClearable
-                            styles={{
-                                placeholder: (provided) => ({
-                                  ...provided,
-                                  fontSize: '0.75rem',
-                                  color: '#9CA3AF'
-                                })
-                              }}
+            {/* Relationship */}
+            <FormField
+              control={form.control}
+              name="emergencyRelationship"
+              render={({ field }) => (
+                <FormItem className="mt-2 flex flex-col">
+                  <FormLabel>
+                    <div className="flex items-center gap-1">
+                      Relationship <span className="text-red-500">*</span>
+                    </div>
+                      <HelperTooltip text="Example: Parent" />
+                  </FormLabel>
+                  <FormControl>
+                    <Select
+                      options={relationshipOptions}
+                      value={
+                        field.value
+                          ? relationshipOptions.find((option) => option.value === field.value)
+                          : null
+                      }
+                      onChange={(selected) => field.onChange(selected?.value)}
+                      placeholder="Select your relationship with this person"
+                      isClearable
+                      styles={{
+                        placeholder: (provided) => ({
+                          ...provided,
+                          fontSize: '0.75rem',
+                          color: '#9CA3AF',
+                        }),
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                          />
-                        </FormControl>
-                         <p className="mt-1 text-xs text-gray-400">
-                          Example: Parent
-                        </p>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="emergencyAddress"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Address <span className="text-red-500">*</span></FormLabel>
-
-                        <FormControl>
-                          <Input type="text" {...field} placeholder="Enter the full address of your emergency contact"
-                      className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
- />
-                        </FormControl>
-                         <p className="mt-1 text-xs text-gray-400">
-                          Example: 12 High Street, Bristol, BS1 4ST, United Kingdom
-                        </p>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-            </div>
-          </CardContent>
+            {/* Address */}
+            <FormField
+              control={form.control}
+              name="emergencyAddress"
+              render={({ field }) => (
+                <FormItem className="mt-2 flex flex-col">
+                  <FormLabel>
+                    <div className="flex items-center gap-1">
+                      Address <span className="text-red-500">*</span>
+                    </div>
+                      <HelperTooltip text="Example: 12 High Street, Bristol, BS1 4ST, United Kingdom" />
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      type="text"
+                      {...field}
+                      placeholder="Enter the full address of your emergency contact"
+                      className="placeholder:text-xs placeholder:text-gray-500"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
         </div>
+      </div>
+    </CardContent>
+  </div>
 
-        <div className="flex justify-between px-6">
-          <Button
-            type="button"
-            variant="outline"
-            className="bg-watney text-white hover:bg-watney/90"
-            onClick={handleBack}
-          >
-            Back
-          </Button>
-          <Button
-            type="submit"
-            className="bg-watney text-white hover:bg-watney/90"
-          >
-            Next
-          </Button>
-        </div>
-      </form>
+  <div className="flex justify-between px-6 pt-4">
+    <Button
+      type="button"
+      variant="outline"
+      className="bg-watney text-white hover:bg-watney/90"
+      onClick={handleBack}
+    >
+      Back
+    </Button>
+    <Button type="submit" className="bg-watney text-white hover:bg-watney/90">
+      Next
+    </Button>
+  </div>
+</form>
     </Form>
      </div>
   );

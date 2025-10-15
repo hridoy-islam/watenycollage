@@ -24,6 +24,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { CustomDatePicker } from '@/components/shared/CustomDatePicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import Select from 'react-select';
+import { HelperTooltip } from '@/helper/HelperTooltip';
 
 // Zod Schema for Employment Form
 const employmentSchema = z
@@ -258,233 +259,160 @@ export function EmploymentStep({
   }
 
   return (
-    <Card className="border-none shadow-none ">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <div className="space-y-8 ">
-            <div>
-              <CardHeader>
-                <CardTitle className="text-2xl font-semibold">
-                  Employment History
-                </CardTitle>
-                <CardDescription>
-                  Please provide your current and previous employment details.
-                  This information helps us understand your experience and
-                  assess your application more accurately.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <FormField
-                  control={form.control}
-                  name="isEmployed"
-                  render={({ field }) => (
-                    <FormItem className="max-w-md">
-                      <FormLabel>
-                        Are you currently employed?{' '}
-                        <span className="text-red-500">*</span>
-                      </FormLabel>
-
-                      <Select
-                        options={employmentStatusOptions}
-                        placeholder="Select an option"
-                        isClearable
-                        value={
-                          employmentStatusOptions.find(
-                            (opt) => opt.value === field.value
-                          ) || null
-                        }
-                        onChange={(option) => {
-                          field.onChange(option ? option.value : '');
-                          handleEmploymentStatusChange(option?.value);
-                        }}
-                        className="text-sm"
-                      />
-
-                      <p className="text-xs text-gray-400">
-                        Select "Yes" if you are employed at the moment.
-                      </p>
-
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <>
-                  {/* Current Employment Section */}
-                  {watchIsEmployed === 'yes' && (
-                    <div className="rounded-lg border border-gray-200  p-6 shadow-sm">
-                      <h3 className="mb-4 text-xl font-medium">
-                        Current Employment
-                      </h3>
-                      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                        {/* Employer Name */}
-                        <FormField
-                          name="currentEmployment.employer"
-                          control={form.control}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>
-                                Employer Name{' '}
-                                <span className="text-red-500">*</span>
-                              </FormLabel>
-                              <FormControl>
-                                <Input
-                                  {...field}
-                                  placeholder="Company Name"
-                                  className="!placeholder:text-gray-400   placeholder:text-xs  placeholder:text-gray-400"
-                                />
-                              </FormControl>
-                              <p className="text-xs  text-gray-400">
-                                Enter the name of your current employer (e.g.,
-                                NHS Trust){' '}
-                              </p>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        {/* Job Position */}
-                        <FormField
-                          name="currentEmployment.jobTitle"
-                          control={form.control}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>
-                                Job Position{' '}
-                                <span className="text-red-500">*</span>
-                              </FormLabel>
-                              <FormControl>
-                                <Input
-                                  {...field}
-                                  placeholder="Position"
-                                  className="!placeholder:text-gray-400   placeholder:text-xs  placeholder:text-gray-400"
-                                />
-                              </FormControl>
-                              <p className="text-xs  text-gray-400">
-                                State your current job title (e.g., Support
-                                Worker)
-                              </p>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        {/* Start Date */}
-                        <FormField
-                          name="currentEmployment.startDate"
-                          control={form.control}
-                          render={({ field }) => {
-                            const selectedDate = field.value
-                              ? new Date(field.value)
-                              : null;
-
-                            return (
-                              <FormItem>
-                                <FormLabel>
-                                  Start Date (MM/DD/YYYY){' '}
-                                  <span className="text-red-500">*</span>
-                                </FormLabel>
-                                <FormControl>
-                                  <CustomDatePicker
-                                    selected={selectedDate}
-                                    onChange={(date) => field.onChange(date)}
-                                    placeholder="Employment Start Date"
-                                    
-                                  />
-                                </FormControl>
-                                <p className="text-xs  text-gray-400">
-                                  Select the date you started this position(e.g.
-                                  11/01/2000)
-                                </p>
-                                <FormMessage />
-                              </FormItem>
-                            );
-                          }}
-                        />
-
-                        <FormField
-                          name="currentEmployment.employmentType"
-                          control={form.control}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>
-                                Employment Type{' '}
-                                <span className="text-red-500">*</span>
-                              </FormLabel>
-
-                              <FormControl>
-                                <Select
-                                  options={employmentTypeOptions}
-                                  placeholder="Select Type of Employment"
-                                  isClearable
-                                  value={
-                                    employmentTypeOptions.find(
-                                      (option) => option.value === field.value
-                                    ) || null
-                                  }
-                                  onChange={(option) =>
-                                    field.onChange(option ? option.value : '')
-                                  }
-                                  className="text-sm"
-                                />
-                              </FormControl>
-
-                              <p className="mt-1 text-xs text-gray-400">
-                                Select from options: Full-Time, Part-Time,
-                                Contract, Freelance
-                              </p>
-
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        {/* Main Responsibilities */}
-                        <FormField
-                          name="currentEmployment.responsibilities"
-                          control={form.control}
-                          render={({ field }) => (
-                            <FormItem className="sm:col-span-2 lg:col-span-3">
-                              <FormLabel>
-                                Main Responsibilities{' '}
-                                <span className="text-red-500">*</span>
-                              </FormLabel>
-                              <FormControl>
-                                <Textarea
-                                  {...field}
-                                  className="!placeholder:text-gray-400 min-h-[80px] border border-gray-200   placeholder:text-xs  placeholder:text-gray-400"
-                                  placeholder="Job Duties"
-                                />
-                              </FormControl>
-                              <p className="mt-1 text-xs text-gray-400">
-                                Briefly describe your key responsibilities{' '}
-                              </p>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
+  <Card className="border-none shadow-none">
+  <Form {...form}>
+    <form onSubmit={form.handleSubmit(onSubmit)}>
+      <div className="space-y-8">
+        <div>
+          <CardHeader>
+            <CardTitle className="text-2xl font-semibold">
+              Employment History
+            </CardTitle>
+            <CardDescription>
+              Please provide your current and previous employment details.
+              This information helps us understand your experience and
+              assess your application more accurately.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <FormField
+              control={form.control}
+              name="isEmployed"
+              render={({ field }) => (
+                <FormItem className="mt-2 flex flex-col max-w-md">
+                  <FormLabel>
+                    <div className="flex items-center gap-1">
+                      Are you currently employed?
+                      <span className="text-red-500">*</span>
                     </div>
-                  )}
+                      <HelperTooltip text="Select 'Yes' if you are employed at the moment." />
+                  </FormLabel>
+                  <FormControl>
+                    <Select
+                      options={employmentStatusOptions}
+                      placeholder="Select an option"
+                      isClearable
+                      value={
+                        employmentStatusOptions.find(
+                          (opt) => opt.value === field.value
+                        ) || null
+                      }
+                      onChange={(option) => {
+                        field.onChange(option ? option.value : '');
+                        handleEmploymentStatusChange(option?.value);
+                      }}
+                      className="text-sm"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
+            <>
+              {/* Current Employment Section */}
+              {watchIsEmployed === 'yes' && (
+                <div className="rounded-lg border border-gray-200 p-6 shadow-sm">
+                  <h3 className="mb-4 text-xl font-medium">Current Employment</h3>
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    {/* Employer Name */}
                     <FormField
-                      name="hasPreviousEmployment"
+                      name="currentEmployment.employer"
                       control={form.control}
                       render={({ field }) => (
-                        <FormItem className="mt-4">
+                        <FormItem className="mt-2 flex flex-col">
                           <FormLabel>
-                            Do you have previous employment history?{' '}
-                            <span className="text-red-500">*</span>
+                            <div className="flex items-center gap-1">
+                              Employer Name
+                              <span className="text-red-500">*</span>
+                            </div>
+                              <HelperTooltip text="Enter the name of your current employer (e.g., NHS Trust)" />
                           </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              placeholder="Company Name"
+                              className="placeholder:text-xs placeholder:text-gray-400"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
+                    {/* Job Position */}
+                    <FormField
+                      name="currentEmployment.jobTitle"
+                      control={form.control}
+                      render={({ field }) => (
+                        <FormItem className="mt-2 flex flex-col">
+                          <FormLabel>
+                            <div className="flex items-center gap-1">
+                              Job Position
+                              <span className="text-red-500">*</span>
+                            </div>
+                              <HelperTooltip text="State your current job title (e.g., Support Worker)" />
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              placeholder="Position"
+                              className="placeholder:text-xs placeholder:text-gray-400"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* Start Date */}
+                    <FormField
+                      name="currentEmployment.startDate"
+                      control={form.control}
+                      render={({ field }) => {
+                        const selectedDate = field.value ? new Date(field.value) : null;
+                        return (
+                          <FormItem className="mt-2 flex flex-col">
+                            <FormLabel>
+                              <div className="flex items-center gap-1">
+                                Start Date (MM/DD/YYYY)
+                                <span className="text-red-500">*</span>
+                              </div>
+                                <HelperTooltip text="Select the date you started this position (e.g. 11/01/2000)" />
+                            </FormLabel>
+                            <FormControl>
+                              <CustomDatePicker
+                                selected={selectedDate}
+                                onChange={(date) => field.onChange(date)}
+                                placeholder="Employment Start Date"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        );
+                      }}
+                    />
+
+                    {/* Employment Type */}
+                    <FormField
+                      name="currentEmployment.employmentType"
+                      control={form.control}
+                      render={({ field }) => (
+                        <FormItem className="mt-2 flex flex-col">
+                          <FormLabel>
+                            <div className="flex items-center gap-1">
+                              Employment Type
+                              <span className="text-red-500">*</span>
+                            </div>
+                              <HelperTooltip text="Select from options: Full-Time, Part-Time, Contract, Freelance" />
+                          </FormLabel>
                           <FormControl>
                             <Select
-                              options={previousEmploymentOptions}
-                              placeholder="Select an option"
+                              options={employmentTypeOptions}
+                              placeholder="Select Type of Employment"
                               isClearable
                               value={
-                                previousEmploymentOptions.find(
+                                employmentTypeOptions.find(
                                   (option) => option.value === field.value
                                 ) || null
                               }
@@ -494,335 +422,345 @@ export function EmploymentStep({
                               className="text-sm"
                             />
                           </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                          <p className="mt-1 text-xs text-gray-400">
-                            List any previous jobs you've held. Include job
-                            title, employer, dates, and responsibilities.
-                          </p>
-
+                    {/* Main Responsibilities */}
+                    <FormField
+                      name="currentEmployment.responsibilities"
+                      control={form.control}
+                      render={({ field }) => (
+                        <FormItem className="mt-2 flex flex-col sm:col-span-2 lg:col-span-3">
+                          <FormLabel>
+                            <div className="flex items-center gap-1">
+                              Main Responsibilities
+                              <span className="text-red-500">*</span>
+                            </div>
+                              <HelperTooltip text="Briefly describe your key responsibilities" />
+                          </FormLabel>
+                          <FormControl>
+                            <Textarea
+                              {...field}
+                              className="min-h-[80px] border border-gray-200 placeholder:text-xs placeholder:text-gray-400"
+                              placeholder="Job Duties"
+                            />
+                          </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
                   </div>
+                </div>
+              )}
 
-                  {form.watch('hasPreviousEmployment') === 'yes' && (
-                    <div>
-                      <h3 className="mb-4 text-xl font-medium">
-                        Previous Employment
-                      </h3>
-
-                      {fields.map((fieldItem, index) => (
-                        <div
-                          key={fieldItem.id}
-                          className="mb-6 rounded-md border border-gray-200 p-4 shadow-sm"
-                        >
-                          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                            {/* Employer */}
-                            <FormField
-                              name={`previousEmployments.${index}.employer`}
-                              control={form.control}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>
-                                    Employer Name{' '}
-                                    <span className="text-red-500">*</span>
-                                  </FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      {...field}
-                                      placeholder="Company Name"
-                                    />
-                                  </FormControl>
-                                  <p className="text-xs  text-gray-400">
-                                    Enter the name of your current employer
-                                    (e.g., NHS Trust){' '}
-                                  </p>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-
-                            {/* Job Title */}
-                            <FormField
-                              name={`previousEmployments.${index}.jobTitle`}
-                              control={form.control}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>
-                                    Job position{' '}
-                                    <span className="text-red-500">*</span>
-                                  </FormLabel>
-                                  <FormControl>
-                                    <Input {...field} placeholder="Position" />
-                                  </FormControl>
-                                  <p className="text-xs  text-gray-400">
-                                    State your current job title (e.g., Support
-                                    Worker)
-                                  </p>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-
-                            {/* Start Date */}
-                            <FormField
-                              name={`previousEmployments.${index}.startDate`}
-                              control={form.control}
-                              render={({ field }) => {
-                                const selectedDate = field.value
-                                  ? new Date(field.value)
-                                  : null;
-
-                                return (
-                                  <FormItem>
-                                    <FormLabel>
-                                      Start Date (MM/DD/YYYY){' '}
-                                      <span className="text-red-500">*</span>
-                                    </FormLabel>
-                                    <FormControl>
-                                      <CustomDatePicker
-                                        selected={selectedDate}
-                                        onChange={(date) =>
-                                          field.onChange(date)
-                                        }
-                                        placeholder="Employment Start Date"
-                                         futureDate={true}
-                                      />
-                                    </FormControl>
-                                    <p className="text-xs  text-gray-400">
-                                      Select the date you started this position
-                                      (e.g. 11/01/2000)
-                                    </p>{' '}
-                                    <FormMessage />
-                                  </FormItem>
-                                );
-                              }}
-                            />
-
-                            {/* End Date */}
-                            <FormField
-                              name={`previousEmployments.${index}.endDate`}
-                              control={form.control}
-                              render={({ field }) => {
-                                const selectedDate = field.value
-                                  ? new Date(field.value)
-                                  : null;
-
-                                return (
-                                  <FormItem>
-                                    <FormLabel>
-                                      End Date (MM/DD/YYYY){' '}
-                                      <span className="text-red-500">*</span>
-                                    </FormLabel>
-                                    <FormControl>
-                                      <CustomDatePicker
-                                        selected={selectedDate}
-                                        onChange={(date) =>
-                                          field.onChange(date)
-                                        }
-                                        placeholder="Employment End Date"
-                                         futureDate={true}
-                                      />
-                                    </FormControl>
-                                    <p className="mt-1 text-xs text-gray-400">
-                                      Select the end date (e.g. 11/01/2000)
-                                    </p>
-                                    <FormMessage />
-                                  </FormItem>
-                                );
-                              }}
-                            />
-
-                            {/* Reason for Leaving */}
-                            <FormField
-                              name={`previousEmployments.${index}.reasonForLeaving`}
-                              control={form.control}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>
-                                    Reason for Leaving{' '}
-                                    <span className="text-red-500">*</span>
-                                  </FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      {...field}
-                                      placeholder="Enter the reason"
-                                    />
-                                  </FormControl>
-                                  <p className="mt-1 text-xs text-gray-400">
-                                    Reason for Leaving the Position
-                                  </p>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-
-                            {/* Responsibilities */}
-                            <FormField
-                              name={`previousEmployments.${index}.responsibilities`}
-                              control={form.control}
-                              render={({ field }) => (
-                                <FormItem className="sm:col-span-2 lg:col-span-3 ">
-                                  <FormLabel>
-                                    Main Responsibilities{' '}
-                                    <span className="text-red-500">*</span>
-                                  </FormLabel>
-                                  <FormControl>
-                                    <Textarea
-                                      {...field}
-                                      className="min-h-[80px] border border-gray-200"
-                                      placeholder="Job Duties"
-                                    />
-                                  </FormControl>
-                                  <p className="mt-1 text-xs text-gray-400">
-                                    Briefly describe your key responsibilities{' '}
-                                  </p>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </div>
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                <FormField
+                  name="hasPreviousEmployment"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem className="mt-2 flex flex-col">
+                      <FormLabel>
+                        <div className="flex items-center gap-1">
+                          Do you have previous employment history?
+                          <span className="text-red-500">*</span>
                         </div>
-                      ))}
-
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() =>
-                          append({
-                            employer: '',
-                            jobTitle: '',
-                            startDate: undefined,
-                            endDate: undefined,
-                            reasonForLeaving: '',
-                            responsibilities: '',
-                          })
-                        }
-                        className="bg-watney text-white hover:bg-watney/90"
-                      >
-                        Add More Experiance
-                      </Button>
-                    </div>
+                          <HelperTooltip text="List any previous jobs you've held. Include job title, employer, dates, and responsibilities." />
+                      </FormLabel>
+                      <FormControl>
+                        <Select
+                          options={previousEmploymentOptions}
+                          placeholder="Select an option"
+                          isClearable
+                          value={
+                            previousEmploymentOptions.find(
+                              (option) => option.value === field.value
+                            ) || null
+                          }
+                          onChange={(option) =>
+                            field.onChange(option ? option.value : '')
+                          }
+                          className="text-sm"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
                   )}
+                />
+              </div>
 
-                  {form.watch('hasPreviousEmployment') === 'yes' && (
-                    <>
-                      <FormField
-                        control={form.control}
-                        name="hasEmploymentGaps"
-                        render={({ field }) => (
-                          <FormItem className="max-w-md">
-                            <FormLabel>
-                              Any gaps of more than 1 month in the last 5 years?{' '}
-                              <span className="text-red-500">*</span>
-                            </FormLabel>
+              {form.watch('hasPreviousEmployment') === 'yes' && (
+                <div>
+                  <h3 className="mb-4 text-xl font-medium">Previous Employment</h3>
 
-                            <Select
-                              options={employmentGapOptions}
-                              placeholder="Select"
-                              isClearable
-                              value={
-                                employmentGapOptions.find(
-                                  (option) => option.value === field.value
-                                ) || null
-                              }
-                              onChange={(option) =>
-                                field.onChange(option ? option.value : '')
-                              }
-                              className="text-sm"
-                            />
-
-                            <p className="mt-1 text-xs text-gray-400">
-                              Have you had any periods of 1 month or more
-                              without employment in the past 5 years?
-                            </p>
-
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      {watchHasGaps === 'yes' && (
+                  {fields.map((fieldItem, index) => (
+                    <div
+                      key={fieldItem.id}
+                      className="mb-6 rounded-md border border-gray-200 p-4 shadow-sm"
+                    >
+                      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                        {/* Employer */}
                         <FormField
-                          name="employmentGapsExplanation"
+                          name={`previousEmployments.${index}.employer`}
                           control={form.control}
                           render={({ field }) => (
-                            <FormItem className="">
+                            <FormItem className="mt-2 flex flex-col">
                               <FormLabel>
-                                Please explain the reason{' '}
-                                <span className="text-red-500">*</span>
+                                <div className="flex items-center gap-1">
+                                  Employer Name
+                                  <span className="text-red-500">*</span>
+                                </div>
+                                  <HelperTooltip text="Enter the name of your previous employer (e.g., NHS Trust)" />
                               </FormLabel>
                               <FormControl>
-                                <Textarea
-                                  {...field}
-                                  className="min-h-[100px] border-gray-200"
-                                  placeholder="Explanation for Gaps
-"
-                                />
+                                <Input {...field} placeholder="Company Name" />
                               </FormControl>
-                              <p className="mt-1 text-xs text-gray-400">
-                                Briefly explain the reason for any gaps (e.g.,
-                                study break, health reasons, relocation)
-                              </p>
                               <FormMessage />
                             </FormItem>
                           )}
                         />
-                      )}
-                    </>
-                  )}
-                  {/* <FormField
-                    name="declaration"
+
+                        {/* Job Title */}
+                        <FormField
+                          name={`previousEmployments.${index}.jobTitle`}
+                          control={form.control}
+                          render={({ field }) => (
+                            <FormItem className="mt-2 flex flex-col">
+                              <FormLabel>
+                                <div className="flex items-center gap-1">
+                                  Job Position
+                                  <span className="text-red-500">*</span>
+                                </div>
+                                  <HelperTooltip text="State your job title (e.g., Support Worker)" />
+                              </FormLabel>
+                              <FormControl>
+                                <Input {...field} placeholder="Position" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        {/* Start Date */}
+                        <FormField
+                          name={`previousEmployments.${index}.startDate`}
+                          control={form.control}
+                          render={({ field }) => {
+                            const selectedDate = field.value ? new Date(field.value) : null;
+                            return (
+                              <FormItem className="mt-2 flex flex-col">
+                                <FormLabel>
+                                  <div className="flex items-center gap-1">
+                                    Start Date (MM/DD/YYYY)
+                                    <span className="text-red-500">*</span>
+                                  </div>
+                                    <HelperTooltip text="Select the date you started this position (e.g. 11/01/2000)" />
+                                </FormLabel>
+                                <FormControl>
+                                  <CustomDatePicker
+                                    selected={selectedDate}
+                                    onChange={(date) => field.onChange(date)}
+                                    placeholder="Employment Start Date"
+                                    futureDate={true}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            );
+                          }}
+                        />
+
+                        {/* End Date */}
+                        <FormField
+                          name={`previousEmployments.${index}.endDate`}
+                          control={form.control}
+                          render={({ field }) => {
+                            const selectedDate = field.value ? new Date(field.value) : null;
+                            return (
+                              <FormItem className="mt-2 flex flex-col">
+                                <FormLabel>
+                                  <div className="flex items-center gap-1">
+                                    End Date (MM/DD/YYYY)
+                                    <span className="text-red-500">*</span>
+                                  </div>
+                                    <HelperTooltip text="Select the end date (e.g. 11/01/2000)" />
+                                </FormLabel>
+                                <FormControl>
+                                  <CustomDatePicker
+                                    selected={selectedDate}
+                                    onChange={(date) => field.onChange(date)}
+                                    placeholder="Employment End Date"
+                                    futureDate={true}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            );
+                          }}
+                        />
+
+                        {/* Reason for Leaving */}
+                        <FormField
+                          name={`previousEmployments.${index}.reasonForLeaving`}
+                          control={form.control}
+                          render={({ field }) => (
+                            <FormItem className="mt-2 flex flex-col">
+                              <FormLabel>
+                                <div className="flex items-center gap-1">
+                                  Reason for Leaving
+                                  <span className="text-red-500">*</span>
+                                </div>
+                                  <HelperTooltip text="Reason for leaving the position" />
+                              </FormLabel>
+                              <FormControl>
+                                <Input {...field} placeholder="Enter the reason" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        {/* Responsibilities */}
+                        <FormField
+                          name={`previousEmployments.${index}.responsibilities`}
+                          control={form.control}
+                          render={({ field }) => (
+                            <FormItem className="mt-2 flex flex-col sm:col-span-2 lg:col-span-3">
+                              <FormLabel>
+                                <div className="flex items-center gap-1">
+                                  Main Responsibilities
+                                  <span className="text-red-500">*</span>
+                                </div>
+                                  <HelperTooltip text="Briefly describe your key responsibilities" />
+                              </FormLabel>
+                              <FormControl>
+                                <Textarea
+                                  {...field}
+                                  className="min-h-[80px] border border-gray-200"
+                                  placeholder="Job Duties"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
+                  ))}
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() =>
+                      append({
+                        employer: '',
+                        jobTitle: '',
+                        startDate: undefined,
+                        endDate: undefined,
+                        reasonForLeaving: '',
+                        responsibilities: '',
+                      })
+                    }
+                    className="bg-watney text-white hover:bg-watney/90"
+                  >
+                    Add More Experience
+                  </Button>
+                </div>
+              )}
+
+              {form.watch('hasPreviousEmployment') === 'yes' && (
+                <>
+                  <FormField
                     control={form.control}
+                    name="hasEmploymentGaps"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="mt-2 flex flex-col max-w-md">
                         <FormLabel>
-                          <label className="flex items-center space-x-2">
-                            <input
-                              type="checkbox"
-                              checked={field.value}
-                              onChange={(e) => field.onChange(e.target.checked)}
-                            />
-                            <span>
-                              I confirm that the information provided is
-                              accurate.
-                            </span>
-                          </label>
+                          <div className="flex items-center gap-1">
+                            Any gaps of more than 1 month in the last 5 years?
+                            <span className="text-red-500">*</span>
+                          </div>
+                            <HelperTooltip text="Have you had any periods of 1 month or more without employment in the past 5 years?" />
                         </FormLabel>
+                        <FormControl>
+                          <Select
+                            options={employmentGapOptions}
+                            placeholder="Select"
+                            isClearable
+                            value={
+                              employmentGapOptions.find(
+                                (option) => option.value === field.value
+                              ) || null
+                            }
+                            onChange={(option) =>
+                              field.onChange(option ? option.value : '')
+                            }
+                            className="text-sm"
+                          />
+                        </FormControl>
+                        <FormMessage />
                       </FormItem>
                     )}
-                  /> */}
+                  />
 
-                  {/* Navigation Buttons */}
-                  <div className="flex justify-between pt-4">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="bg-watney text-white hover:bg-watney/90"
-                      onClick={() => {
-                        if (showFullForm) {
-                          setShowFullForm(false);
-                        } else {
-                          handleBack();
-                        }
-                      }}
-                    >
-                      Back
-                    </Button>
-                    <Button
-                      type="submit"
-                      className="bg-watney text-white hover:bg-watney/90"
-                    >
-                      Next
-                    </Button>
-                  </div>
+                  {watchHasGaps === 'yes' && (
+                    <FormField
+                      name="employmentGapsExplanation"
+                      control={form.control}
+                      render={({ field }) => (
+                        <FormItem className="mt-2 flex flex-col">
+                          <FormLabel>
+                            <div className="flex items-center gap-1">
+                              Please explain the reason
+                              <span className="text-red-500">*</span>
+                            </div>
+                              <HelperTooltip text="Briefly explain the reason for any gaps (e.g., study break, health reasons, relocation)" />
+                          </FormLabel>
+                          <FormControl>
+                            <Textarea
+                              {...field}
+                              className="min-h-[100px] border-gray-200"
+                              placeholder="Explanation for gaps"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
                 </>
-              </CardContent>
-            </div>
-          </div>
-        </form>
-      </Form>
-    </Card>
+              )}
+
+              {/* Navigation Buttons */}
+              <div className="flex justify-between pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="bg-watney text-white hover:bg-watney/90"
+                  onClick={() => {
+                    if (showFullForm) {
+                      setShowFullForm(false);
+                    } else {
+                      handleBack();
+                    }
+                  }}
+                >
+                  Back
+                </Button>
+                <Button
+                  type="submit"
+                  className="bg-watney text-white hover:bg-watney/90"
+                >
+                  Next
+                </Button>
+              </div>
+            </>
+          </CardContent>
+        </div>
+      </div>
+    </form>
+  </Form>
+</Card>
   );
 }

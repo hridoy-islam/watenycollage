@@ -28,6 +28,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { format, getMonth, getYear, parse } from 'date-fns';
 import { CustomDatePicker } from '@/components/shared/CustomDatePicker';
 import moment from 'moment';
+import { HelperTooltip } from '@/helper/HelperTooltip';
 
 // Define title options for react-select
 const titleOptions = [
@@ -77,7 +78,7 @@ export const personalDetailsSchema = z
   })
   .superRefine((data, ctx) => {
     if (data.nationality !== 'british') {
-    
+
       if (!data.shareCode || data.shareCode.trim() === '') {
         ctx.addIssue({
           path: ['shareCode'],
@@ -205,7 +206,9 @@ export function PersonalDetailsStep({
                   render={({ field }) => (
                     <FormItem className="z-[1002]">
                       <FormLabel>
-                        Title<span className="text-red-500">*</span>
+                        <div> Title<span className="text-red-500">*</span></div>
+
+                        <HelperTooltip text=" Example: Mr., Ms., Mrs., Dr., etc" />
                       </FormLabel>
                       <Controller
                         name="title"
@@ -230,9 +233,9 @@ export function PersonalDetailsStep({
                           />
                         )}
                       />
-                      <p className="text-xs  text-gray-400">
+                      {/* <p className="text-xs  text-gray-400">
                         Example: Mr., Ms., Mrs., Dr., etc
-                      </p>
+                      </p> */}
                       <FormMessage />
                     </FormItem>
                   )}
@@ -244,7 +247,9 @@ export function PersonalDetailsStep({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        First Name<span className="text-red-500">*</span>
+                        <div> First Name<span className="text-red-500">*</span></div>
+
+                        <HelperTooltip text="Example: Emma" />
                       </FormLabel>
                       <FormControl>
                         <Input
@@ -253,7 +258,7 @@ export function PersonalDetailsStep({
                           className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
                         />
                       </FormControl>
-                      <p className="text-xs  text-gray-500">Example: Emma</p>
+                      {/* <p className="text-xs  text-gray-500">Example: Emma</p> */}
 
                       <FormMessage />
                     </FormItem>
@@ -265,7 +270,9 @@ export function PersonalDetailsStep({
                   name="initial"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Middle Initial (Optional)</FormLabel>
+                      <FormLabel>Middle Initial (Optional)
+                        <HelperTooltip text="Example: J" />
+                      </FormLabel>
                       <FormControl>
                         <Input
                           {...field}
@@ -273,7 +280,7 @@ export function PersonalDetailsStep({
                           className="!placeholder:text-gray-400 placeholder:text-xs placeholder:text-gray-400"
                         />
                       </FormControl>
-                      <p className="text-xs  text-gray-400">Example: J</p>
+                      {/* <p className="text-xs  text-gray-400">Example: J</p> */}
 
                       <FormMessage />
                     </FormItem>
@@ -286,7 +293,9 @@ export function PersonalDetailsStep({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        Last Name<span className="text-red-500">*</span>
+                        <div>   Last Name<span className="text-red-500">*</span></div>
+
+                        <HelperTooltip text="Example: Williams" />
                       </FormLabel>
                       <FormControl>
                         <Input
@@ -295,9 +304,9 @@ export function PersonalDetailsStep({
                           className="!placeholder:text-gray-400 placeholder:text-xs placeholder:text-gray-400"
                         />
                       </FormControl>
-                      <p className="text-xs  text-gray-400">
+                      {/* <p className="text-xs  text-gray-400">
                         Example: Williams
-                      </p>
+                      </p> */}
 
                       <FormMessage />
                     </FormItem>
@@ -311,10 +320,14 @@ export function PersonalDetailsStep({
                     const value = field.value ? new Date(field.value) : null;
 
                     return (
-                      <FormItem className="mt-2 flex w-full flex-col">
+                      <FormItem className=" flex w-full flex-col">
                         <FormLabel>
-                          Date of Birth (MM/DD/YYYY)
-                          <span className="text-red-500">*</span>
+                          <div>
+                            Date of Birth (MM/DD/YYYY)
+                            <span className="text-red-500">*</span>
+                          </div>
+
+                          <HelperTooltip text="Example: MM/DD/YYYY or 01/24/1995" />
                         </FormLabel>
                         <FormControl className="w-full">
                           <CustomDatePicker
@@ -323,9 +336,9 @@ export function PersonalDetailsStep({
                             placeholder="Use your official birth date"
                           />
                         </FormControl>
-                        <p className="text-xs text-gray-400">
+                        {/* <p className="text-xs text-gray-400">
                           Example: MM/DD/YYYY or 01/24/1995
-                        </p>
+                        </p> */}
                         <FormMessage />
                       </FormItem>
                     );
@@ -336,9 +349,13 @@ export function PersonalDetailsStep({
                   control={form.control}
                   name="email"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className=''>
                       <FormLabel>
-                        Email<span className="text-red-500">*</span>
+                        <div>
+                          Email<span className="text-red-500">*</span>
+                        </div>
+
+                        <HelperTooltip text="Example: emma.williams@email.com" />
                       </FormLabel>
                       <FormControl>
                         <Input
@@ -349,9 +366,9 @@ export function PersonalDetailsStep({
                           disabled
                         />
                       </FormControl>
-                      <p className="text-xs  text-gray-400">
+                      {/* <p className="text-xs  text-gray-400">
                         Example: emma.williams@email.com
-                      </p>
+                      </p> */}
 
                       <FormMessage />
                     </FormItem>
@@ -364,7 +381,11 @@ export function PersonalDetailsStep({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        Phone Number<span className="text-red-500">*</span>
+                        <div>
+                          Phone Number<span className="text-red-500">*</span>
+                        </div>
+
+                        <HelperTooltip text="Example: +44 7123 456789" />
                       </FormLabel>
                       <FormControl>
                         <Input
@@ -374,10 +395,9 @@ export function PersonalDetailsStep({
                           className="!placeholder:text-gray-400 placeholder:text-xs placeholder:text-gray-400"
                         />
                       </FormControl>
-                      <p className="text-xs  text-gray-400">
+                      {/* <p className="text-xs  text-gray-400">
                         Example: +44 7123 456789
-                        <span className="text-red-500">*</span>
-                      </p>
+                      </p> */}
 
                       <FormMessage />
                     </FormItem>
@@ -385,7 +405,7 @@ export function PersonalDetailsStep({
                 />
 
                 <div className="space-y-2">
-                  <FormLabel>National Insurance Number</FormLabel>
+                  <FormLabel>National Insurance Number <HelperTooltip text="Example: QQ 12 34 56 C" /></FormLabel>
                   <FormField
                     control={form.control}
                     name="nationalInsuranceNumber"
@@ -398,9 +418,9 @@ export function PersonalDetailsStep({
                             className="!placeholder:text-gray-400  placeholder:text-[12px] placeholder:text-gray-400"
                           />
                         </FormControl>
-                        <p className="text-xs  text-gray-400">
+                        {/* <p className="text-xs  text-gray-400">
                           Example: QQ 12 34 56 C
-                        </p>
+                        </p> */}
 
                         <FormMessage />
                       </FormItem>
@@ -415,7 +435,11 @@ export function PersonalDetailsStep({
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>
-                            Nationality<span className="text-red-500">*</span>
+                            <div>
+                              Nationality<span className="text-red-500">*</span>
+
+                            </div>
+                            <HelperTooltip text="Choose a nationality (e.g., American)" />
                           </FormLabel>
                           <Controller
                             name="nationality"
@@ -452,9 +476,9 @@ export function PersonalDetailsStep({
                               />
                             )}
                           />
-                          <p className="text-xs text-gray-400">
+                          {/* <p className="text-xs text-gray-400">
                             Choose a nationality (e.g., American)
-                          </p>
+                          </p> */}
                           <FormMessage />
                         </FormItem>
                       )}
@@ -465,8 +489,12 @@ export function PersonalDetailsStep({
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>
-                            Country of Residence
-                            <span className="text-red-500">*</span>
+                            <div>
+                              Country of Residence
+                              <span className="text-red-500">*</span>
+                            </div>
+
+                            <HelperTooltip text="Example: Select country (e.g., America)" />
                           </FormLabel>
                           <Controller
                             name="countryOfResidence"
@@ -503,9 +531,9 @@ export function PersonalDetailsStep({
                               />
                             )}
                           />
-                          <p className="text-xs text-gray-400">
+                          {/* <p className="text-xs text-gray-400">
                             Example: Select country (e.g., America)
-                          </p>
+                          </p> */}
                           <FormMessage />
                         </FormItem>
                       )}
@@ -514,57 +542,16 @@ export function PersonalDetailsStep({
                 </div>
 
                 {watchNationality !== 'british' && (
-                  // <div className="col-span-full">
-                  //   <FormField
-                  //     control={form.control}
-                  //     name="isBritishCitizen"
-                  //     render={({ field }) => (
-                  //       <FormItem>
-                  //         <FormLabel>
-                  //           What is your current immigration status in the UK?
-                  //           For example, are you a British citizen, hold
-                  //           settled or pre-settled status, have indefinite
-                  //           leave to remain, or are you on a visa?
-                  //         </FormLabel>
-                  //         <Controller
-                  //           name="isBritishCitizen"
-                  //           control={form.control}
-                  //           render={({ field }) => (
-                  //             <div className="w-[60vw]">
-                  //               <Select
-                  //                 options={yesNoOptions}
-                  //                 value={yesNoOptions.find(
-                  //                   (opt) => opt.value === field.value
-                  //                 )}
-                  //                 onChange={(selected) =>
-                  //                   field.onChange(selected?.value)
-                  //                 }
-                  //                 className="react-select-container"
-                  //                 classNamePrefix="react-select"
-                  //                 placeholder="Select your immigration status"
-                  //                 styles={{
-                  //                   placeholder: (provided) => ({
-                  //                     ...provided,
-                  //                     fontSize: '0.75rem',
-                  //                     color: '#9CA3AF'
-                  //                   })
-                  //                 }}
-                  //               />
-                  //             </div>
-                  //           )}
-                  //         />
-                  //         <p className="text-xs text-gray-400">
-                  //           Example: British citizen
-                  //         </p>
-                  //         <FormMessage />
-                  //       </FormItem>
-                  //     )}
-                  //   />
 
-                  // </div>
 
                   <div className="space-y-2">
-                    <FormLabel>Please give your Share Code:</FormLabel>
+                    
+                    <FormLabel>
+                      <div>
+                      Please give your Share Code: <span className="text-red-500">*</span>
+                    </div>
+                      <HelperTooltip text="Example: 5J7K9Q" /></FormLabel>
+
                     <FormField
                       control={form.control}
                       name="shareCode"
@@ -577,9 +564,9 @@ export function PersonalDetailsStep({
                               className="!placeholder:text-gray-400 placeholder:text-xs placeholder:text-gray-400"
                             />
                           </FormControl>
-                          <p className="text-xs text-gray-400">
+                          {/* <p className="text-xs text-gray-400">
                             Example: 5J7K9Q
-                          </p>
+                          </p> */}
                           <FormMessage />
                         </FormItem>
                       )}
@@ -596,7 +583,11 @@ export function PersonalDetailsStep({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
+                          <div>
+
                           Address Line 1<span className="text-red-500">*</span>
+                          </div>
+                          <HelperTooltip text="Example: 12B Parkview Road" />
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -605,9 +596,9 @@ export function PersonalDetailsStep({
                             className="!placeholder:text-gray-400 placeholder:text-xs placeholder:text-gray-400"
                           />
                         </FormControl>
-                        <p className="text-xs  text-gray-400">
+                        {/* <p className="text-xs  text-gray-400">
                           Example: 12B Parkview Road
-                        </p>
+                        </p> */}
 
                         <FormMessage />
                       </FormItem>
@@ -619,7 +610,9 @@ export function PersonalDetailsStep({
                     name="postalAddressLine2"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Address Line 2 (Optional)</FormLabel>
+                        <FormLabel>Address Line 2 (Optional)
+                          <HelperTooltip text="Example: Flat 3A" />
+                        </FormLabel>
                         <FormControl>
                           <Input
                             {...field}
@@ -627,9 +620,9 @@ export function PersonalDetailsStep({
                             className="!placeholder:text-gray-400 placeholder:text-xs placeholder:text-gray-400"
                           />
                         </FormControl>
-                        <p className="text-xs  text-gray-400">
+                        {/* <p className="text-xs  text-gray-400">
                           Example: Flat 3A
-                        </p>
+                        </p> */}
 
                         <FormMessage />
                       </FormItem>
@@ -642,7 +635,11 @@ export function PersonalDetailsStep({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
+                          <div>
+
                           City<span className="text-red-500">*</span>
+                          </div>
+                          <HelperTooltip text="Example: London" />
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -651,9 +648,9 @@ export function PersonalDetailsStep({
                             className="!placeholder:text-gray-400 placeholder:text-xs placeholder:text-gray-400"
                           />
                         </FormControl>
-                        <p className="text-xs  text-gray-400">
+                        {/* <p className="text-xs  text-gray-400">
                           Example: London
-                        </p>
+                        </p> */}
 
                         <FormMessage />
                       </FormItem>
@@ -666,7 +663,11 @@ export function PersonalDetailsStep({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
+                          <div>
+
                           Postal Code<span className="text-red-500">*</span>
+                          </div>
+                          <HelperTooltip text="Example: SW1A 1AA" />
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -675,9 +676,9 @@ export function PersonalDetailsStep({
                             className="!placeholder:text-gray-400 placeholder:text-xs placeholder:text-gray-400"
                           />
                         </FormControl>
-                        <p className="text-xs  text-gray-400">
+                        {/* <p className="text-xs  text-gray-400">
                           Example: SW1A 1AA
-                        </p>
+                        </p> */}
 
                         <FormMessage />
                       </FormItem>
@@ -690,7 +691,11 @@ export function PersonalDetailsStep({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
+                          <div>
+
                           Country<span className="text-red-500">*</span>
+                          </div>
+                          <HelperTooltip text="Example: London" />
                         </FormLabel>
                         <Controller
                           name="postalCountry"
@@ -715,9 +720,9 @@ export function PersonalDetailsStep({
                             />
                           )}
                         />
-                        <p className="text-xs  text-gray-400">
+                        {/* <p className="text-xs  text-gray-400">
                           Example: London
-                        </p>
+                        </p> */}
 
                         <FormMessage />
                       </FormItem>
@@ -739,7 +744,9 @@ export function PersonalDetailsStep({
                     name="prevPostalAddressLine1"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Address Line 1</FormLabel>
+                        <FormLabel>Address Line 1
+                          <HelperTooltip text="Example: 12B Parkview Road" />
+                        </FormLabel>
                         <FormControl>
                           <Input
                             {...field}
@@ -747,9 +754,9 @@ export function PersonalDetailsStep({
                             className="!placeholder:text-gray-400 placeholder:text-xs placeholder:text-gray-400"
                           />
                         </FormControl>
-                        <p className="text-xs  text-gray-400">
+                        {/* <p className="text-xs  text-gray-400">
                           Example: 12B Parkview Road
-                        </p>
+                        </p> */}
 
                         <FormMessage />
                       </FormItem>
@@ -761,7 +768,9 @@ export function PersonalDetailsStep({
                     name="prevPostalAddressLine2"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Address Line 2</FormLabel>
+                        <FormLabel>Address Line 2
+                          <HelperTooltip text="Example: Flat 3A" />
+                        </FormLabel>
                         <FormControl>
                           <Input
                             {...field}
@@ -769,9 +778,9 @@ export function PersonalDetailsStep({
                             className="!placeholder:text-gray-400 placeholder:text-xs placeholder:text-gray-400"
                           />
                         </FormControl>
-                        <p className="text-xs  text-gray-400">
+                        {/* <p className="text-xs  text-gray-400">
                           Example: Flat 3A
-                        </p>
+                        </p> */}
 
                         <FormMessage />
                       </FormItem>
@@ -783,7 +792,9 @@ export function PersonalDetailsStep({
                     name="prevPostalCity"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>City</FormLabel>
+                        <FormLabel>City
+                          <HelperTooltip text="Example: London" />
+                        </FormLabel>
                         <FormControl>
                           <Input
                             {...field}
@@ -791,9 +802,9 @@ export function PersonalDetailsStep({
                             className="!placeholder:text-gray-400 placeholder:text-xs placeholder:text-gray-400"
                           />
                         </FormControl>
-                        <p className="text-xs  text-gray-400">
+                        {/* <p className="text-xs  text-gray-400">
                           Example: London
-                        </p>
+                        </p> */}
 
                         <FormMessage />
                       </FormItem>
@@ -805,7 +816,9 @@ export function PersonalDetailsStep({
                     name="prevPostalPostCode"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Postal Code</FormLabel>
+                        <FormLabel>Postal Code
+                          <HelperTooltip text=" Example: SW1A 1AA" />
+                        </FormLabel>
                         <FormControl>
                           <Input
                             {...field}
@@ -813,9 +826,9 @@ export function PersonalDetailsStep({
                             className="!placeholder:text-gray-400 placeholder:text-xs placeholder:text-gray-400"
                           />
                         </FormControl>
-                        <p className="text-xs  text-gray-400">
+                        {/* <p className="text-xs  text-gray-400">
                           Example: SW1A 1AA
-                        </p>
+                        </p> */}
 
                         <FormMessage />
                       </FormItem>
@@ -827,7 +840,9 @@ export function PersonalDetailsStep({
                     name="prevPostalCountry"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Country</FormLabel>
+                        <FormLabel>Country
+                          <HelperTooltip text="Example: London" />
+                        </FormLabel>
                         <Controller
                           name="prevPostalCountry"
                           control={form.control}
@@ -851,9 +866,9 @@ export function PersonalDetailsStep({
                             />
                           )}
                         />
-                        <p className="text-xs  text-gray-400">
-                          Example: London
-                        </p>
+                        {/* <p className="text-xs  text-gray-400">
+                          Example: Italy
+                        </p> */}
 
                         <FormMessage />
                       </FormItem>

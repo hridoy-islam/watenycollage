@@ -26,6 +26,7 @@ import { CustomDatePicker } from '@/components/shared/CustomDatePicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import Select from 'react-select';
 import { Textarea } from '@/components/ui/textarea';
+import { HelperTooltip } from '@/helper/HelperTooltip';
 
 const daysOfWeek = [
   'monday',
@@ -75,7 +76,7 @@ const applicationDetailsSchema = z
     })
   })
   .superRefine((data, ctx) => {
-    
+
 
     // If source is "referral", referralEmployee must be provided
     if (data.source === 'referral' && !data.referralEmployee) {
@@ -115,7 +116,7 @@ export function ApplicationDetailsStep({
       isOver18: undefined,
       isSubjectToImmigrationControl: undefined,
       canWorkInUK: undefined,
-      
+
     },
     ...defaultValues
   });
@@ -166,417 +167,311 @@ export function ApplicationDetailsStep({
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <FormField
-                control={form.control}
-                name="availableFromDate"
-                render={({ field }) => {
-                  const selectedDate = field.value
-                    ? new Date(field.value)
-                    : null;
+  <Form {...form}>
+    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        {/* Available From Date */}
+        <FormField
+          control={form.control}
+          name="availableFromDate"
+          render={({ field }) => {
+            const selectedDate = field.value ? new Date(field.value) : null;
+            return (
+              <FormItem className="mt-2 flex w-full flex-col">
+                <FormLabel>
+                  <div>
+                    Available From Date (MM/DD/YYYY)
+                    <span className="text-red-500">*</span>
+                  </div>
+                  <HelperTooltip text="Example: 01/06/2025" />
+                </FormLabel>
+                <FormControl>
+                  <CustomDatePicker
+                    selected={selectedDate}
+                    onChange={(date) => field.onChange(date)}
+                    placeholder="When would you be available to start this role?"
+                    futureDate={false}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
+        />
 
-                  return (
-                    <FormItem className="mt-2 flex w-full flex-col">
-                      <FormLabel>
-                        Available From Date (MM/DD/YYYY)
-                        <span className="text-red-500">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <CustomDatePicker
-                          selected={selectedDate}
-                          onChange={(date) => field.onChange(date)}
-                          placeholder="When would you be available to start this role?"
-                          futureDate={false}
-                        />
-                      </FormControl>
-                      <p className="text-xs  text-gray-400">
-                        Example: 01/06/2025
-                      </p>
+        {/* Are you aged 18 or over? */}
+        <FormField
+          control={form.control}
+          name="isOver18"
+          render={({ field }) => (
+            <FormItem className="mt-2 flex w-full flex-col">
+              <FormLabel>
+                <div>
+                  Are you aged 18 or over?
+                  <span className="text-red-500">*</span>
+                </div>
+                <HelperTooltip text="Example: Yes" />
+              </FormLabel>
+              <FormControl>
+                <Select
+                  options={yesNoOptions}
+                  placeholder="Select Yes if you're aged 18 or over."
+                  isClearable
+                  value={yesNoOptions.find((opt) => opt.value === field.value) || null}
+                  onChange={(option) => field.onChange(option ? option.value : null)}
+                  className="text-sm"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-                      <FormMessage />
-                    </FormItem>
-                  );
+        {/* Immigration Control */}
+        <FormField
+          control={form.control}
+          name="isSubjectToImmigrationControl"
+          render={({ field }) => (
+            <FormItem className="mt-2 flex w-full flex-col">
+              <FormLabel>
+                <div>
+                  Are you subject to immigration control?
+                  <span className="text-red-500">*</span>
+                </div>
+                <HelperTooltip text="Example: Yes" />
+              </FormLabel>
+              <FormControl>
+                <Select
+                  options={yesNoOptions}
+                  placeholder="Select Yes if you're subject to immigration control."
+                  isClearable
+                  value={yesNoOptions.find((opt) => opt.value === field.value) || null}
+                  onChange={(option) => field.onChange(option ? option.value : null)}
+                  className="text-sm"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Can Work in UK */}
+        <FormField
+          control={form.control}
+          name="canWorkInUK"
+          render={({ field }) => (
+            <FormItem className="mt-2 flex w-full flex-col">
+              <FormLabel>
+                <div>
+                  Are you free to remain and take up employment in the UK?
+                  <span className="text-red-500">*</span>
+                </div>
+                <HelperTooltip text="Example: Yes" />
+              </FormLabel>
+              <FormControl>
+                <Select
+                  options={yesNoOptions}
+                  placeholder="Select Yes if you can legally work in the UK."
+                  isClearable
+                  value={yesNoOptions.find((opt) => opt.value === field.value) || null}
+                  onChange={(option) => field.onChange(option ? option.value : null)}
+                  className="text-sm"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* How did you hear about us? */}
+        <FormField
+          control={form.control}
+          name="source"
+          render={({ field }) => (
+            <FormItem className="mt-2 flex w-full flex-col">
+              <FormLabel>
+                <div>
+                  How did you hear about us?
+                  <span className="text-red-500">*</span>
+                </div>
+                <HelperTooltip text="Example: Job board, referral, social media, company website, other" />
+              </FormLabel>
+              <FormControl>
+                <Select
+                  options={options}
+                  placeholder="Let us know how you found out about this opportunity."
+                  isClearable
+                  value={options.find((option) => option.value === field.value) || null}
+                  onChange={(selected) => field.onChange(selected?.value)}
+                  className="text-sm"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Referred by (conditional) */}
+        {sourceValue === 'referral' && (
+          <FormField
+            control={form.control}
+            name="referralEmployee"
+            render={({ field }) => (
+              <FormItem className="mt-2 flex w-full flex-col">
+                <FormLabel>
+                  <div>
+                    Referred by (Employee Name)
+                    <span className="text-red-500">*</span>
+                  </div>
+                  <HelperTooltip text="Example: Emma Watson" />
+                </FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Enter the employee name" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+      </div>
+
+      {/* Availability (Select all that apply) */}
+      <FormField
+        control={form.control}
+        name="availability"
+        render={() => (
+          <FormItem className="mt-2 flex w-full flex-col">
+            <div className="flex items-center justify-start gap-2">
+              <FormLabel>
+                <div>
+                  Availability (Select all that apply)
+                  <span className="text-red-500">*</span>
+                </div>
+                <HelperTooltip text="Select all the days you are available to work." />
+              </FormLabel>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="bg-watney hover:bg-watney/90"
+                onClick={() => {
+                  const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+                  days.forEach((day) => {
+                    form.setValue(`availability.${day}`, true);
+                  });
                 }}
-              />
+              >
+                Select All
+              </Button>
+            </div>
 
-              <FormField
-                control={form.control}
-                name="isOver18"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Are you aged 18 or over?
-                      <span className="text-red-500">*</span>
-                    </FormLabel>
-                    <Select
-                      options={yesNoOptions}
-                      placeholder="Select Yes if you're aged 18 or over."
-                      isClearable
-                      value={
-                        yesNoOptions.find((opt) => opt.value === field.value) ||
-                        null
-                      }
-                      onChange={(option) =>
-                        field.onChange(option ? option.value : null)
-                      }
-                      className="text-sm"
-                    />
-                    <p className="text-xs  text-gray-400">Example: Yes</p>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Immigration Control */}
-              <FormField
-                control={form.control}
-                name="isSubjectToImmigrationControl"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Are you subject to immigration control?
-                      <span className="text-red-500">*</span>
-                    </FormLabel>
-                    <Select
-                      options={yesNoOptions}
-                      placeholder="Select Yes if you're subject to immigration control."
-                      isClearable
-                      value={
-                        yesNoOptions.find((opt) => opt.value === field.value) ||
-                        null
-                      }
-                      onChange={(option) =>
-                        field.onChange(option ? option.value : null)
-                      }
-                      className="text-sm"
-                    />
-                    <p className="text-xs  text-gray-400">Example: Yes</p>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Can Work in UK */}
-              <FormField
-                control={form.control}
-                name="canWorkInUK"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Are you free to remain and take up employment in the UK?
-                      <span className="text-red-500">*</span>
-                    </FormLabel>
-                    <Select
-                      options={yesNoOptions}
-                      placeholder="Select Yes if you can legally work in the UK."
-                      isClearable
-                      value={
-                        yesNoOptions.find((opt) => opt.value === field.value) ||
-                        null
-                      }
-                      onChange={(option) =>
-                        field.onChange(option ? option.value : null)
-                      }
-                      className="text-sm"
-                    />
-                    <p className="text-xs  text-gray-400">Example: Yes</p>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              
-              
-
-              <FormField
-                control={form.control}
-                name="source"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      How did you hear about us?
-                      <span className="text-red-500">*</span>
-                    </FormLabel>
-
-                    <Controller
-                      control={form.control}
-                      name="source"
-                      render={({ field }) => (
-                        <Select
-                          {...field}
-                          options={options}
-                          placeholder="Let us know how you found out about this opportunity."
-                          onChange={(selected) =>
-                            field.onChange(selected?.value)
-                          }
-                          value={options.find(
-                            (option) => option.value === field.value
-                          )}
-                          isClearable
-                          className="text-sm"
-                        />
-                      )}
-                    />
-
-                    <p className="text-xs text-gray-400">
-                      Example: Job board, referral, social media, company
-                      website, other
-                    </p>
-
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              {sourceValue === 'referral' && (
+            <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {[
+                'Monday',
+                'Tuesday',
+                'Wednesday',
+                'Thursday',
+                'Friday',
+                'Saturday',
+                'Sunday'
+              ].map((day) => (
                 <FormField
+                  key={day}
                   control={form.control}
-                  name="referralEmployee"
+                  name={`availability.${day.toLowerCase()}`}
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Referred by (Employee Name)
-                        <span className="text-red-500">*</span>
-                      </FormLabel>
+                    <FormItem className="flex flex-row items-center space-x-2 space-y-0">
                       <FormControl>
-                        <Input
-                          {...field}
-                          placeholder="Enter the employee name"
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
                         />
                       </FormControl>
-                      <p className="text-xs  text-gray-400">
-                        Example: Emma Watson
-                      </p>
-
-                      <FormMessage />
+                      <FormLabel className="font-normal">{day}</FormLabel>
                     </FormItem>
                   )}
                 />
-              )}
+              ))}
             </div>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
 
-            {/* <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <FormField
-                control={form.control}
-                name="salaryExpectation"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Salary Expectation (£)</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        placeholder="Salary expectation"
-                        type="text"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="maxHoursPerWeek"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>How many hours can you work?</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Max hours" type="number" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div> */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        {/* Student Status */}
+        <FormField
+          control={form.control}
+          name="isStudent"
+          render={({ field }) => (
+            <FormItem className="mt-2 flex w-full flex-col">
+              <FormLabel>
+                <div>
+                  Are you currently a student?
+                  <span className="text-red-500">*</span>
+                </div>
+                <HelperTooltip text="Example: Yes / No" />
+              </FormLabel>
+              <FormControl>
+                <Select
+                  options={yesNoOptions}
+                  placeholder="Select Yes if you are currently enrolled in any educational institution."
+                  isClearable
+                  value={yesNoOptions.find((opt) => opt.value === field.value) || null}
+                  onChange={(option) => field.onChange(option ? option.value : null)}
+                  className="text-sm"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-            <FormField
-              control={form.control}
-              name="availability"
-              render={() => (
-                <FormItem className="">
-                  <div className="flex items-center justify-start gap-2">
-                    <FormLabel>
-                      Availability (Select all that apply)
-                      <span className="text-red-500">*</span>
-                    </FormLabel>
+        {/* Under State Pension Age */}
+        <FormField
+          control={form.control}
+          name="isUnderStatePensionAge"
+          render={({ field }) => (
+            <FormItem className="mt-2 flex w-full flex-col">
+              <FormLabel>
+                <div>
+                  Are you under state pension age?
+                  <span className="text-red-500">*</span>
+                </div>
+                <HelperTooltip text="Example: Yes / No" />
+              </FormLabel>
+              <FormControl>
+                <Select
+                  options={yesNoOptions}
+                  placeholder="Indicate whether you are below the UK state pension age."
+                  isClearable
+                  value={yesNoOptions.find((option) => option.value === field.value) || null}
+                  onChange={(option) => field.onChange(option ? option.value : null)}
+                  className="text-sm"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
 
-                    {/* Select All Button */}
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      className="bg-watney hover:bg-watney/90"
-                      onClick={() => {
-                        const days = [
-                          'monday',
-                          'tuesday',
-                          'wednesday',
-                          'thursday',
-                          'friday',
-                          'saturday',
-                          'sunday'
-                        ];
-
-                        days.forEach((day) => {
-                          form.setValue(`availability.${day}`, true);
-                        });
-                      }}
-                    >
-                      Select All
-                    </Button>
-                  </div>
-                  <p className="pb-2 text-xs text-gray-400">
-                    Select all the days you are available to work.
-                  </p>
-
-                  {/* Days Checkboxes */}
-                  <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                    {[
-                      'Monday',
-                      'Tuesday',
-                      'Wednesday',
-                      'Thursday',
-                      'Friday',
-                      'Saturday',
-                      'Sunday'
-                    ].map((day) => (
-                      <FormField
-                        key={day}
-                        control={form.control}
-                        name={`availability.${day.toLowerCase()}`}
-                        render={({ field }) => (
-                          <FormItem className="flex flex-row items-center space-x-2 space-y-0">
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                              />
-                            </FormControl>
-                            <FormLabel className="font-normal">{day}</FormLabel>
-                          </FormItem>
-                        )}
-                      />
-                    ))}
-                  </div>
-                </FormItem>
-              )}
-            />
-
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {/* Student Status */}
-              <FormField
-                control={form.control}
-                name="isStudent"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Are you currently a student?
-                      <span className="text-red-500">*</span>
-                    </FormLabel>
-
-                    <Select
-                      options={yesNoOptions}
-                      placeholder="Select Yes if you are currently enrolled in any educational institution."
-                      isClearable
-                      value={
-                        yesNoOptions.find((opt) => opt.value === field.value) ||
-                        null
-                      }
-                      onChange={(option) =>
-                        field.onChange(option ? option.value : null)
-                      }
-                      className="text-sm"
-                    />
-
-                    <p className="text-xs text-gray-400">Example: Yes / No</p>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Under State Pension Age */}
-              <FormField
-                control={form.control}
-                name="isUnderStatePensionAge"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Are you under state pension age?{' '}
-                      <span className="text-red-500">*</span>
-                    </FormLabel>
-
-                    <Select
-                      options={yesNoOptions}
-                      placeholder="Indicate whether you are below the UK state pension age."
-                      isClearable
-                      value={
-                        yesNoOptions.find(
-                          (option) => option.value === field.value
-                        ) || null
-                      }
-                      onChange={(option) =>
-                        field.onChange(option ? option.value : null)
-                      }
-                      className="text-sm"
-                    />
-
-                    <p className="text-xs text-gray-400">Example: Yes / No</p>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            {/* 
-            <FormField
-              control={form.control}
-              name="isBritishCitizen"
-              render={({ field }) => (
-                <FormItem className="space-y-3">
-                  <FormLabel>Citizenship Status</FormLabel>
-                  <div className="flex flex-col gap-2">
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        checked={field.value === true}
-                        onCheckedChange={() => field.onChange(true)}
-                      />
-                      <FormLabel className="font-normal">
-                        I am a British citizen
-                      </FormLabel>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        checked={field.value === false}
-                        onCheckedChange={() => field.onChange(false)}
-                      />
-                      <FormLabel className="font-normal">
-                        I am not a British citizen
-                      </FormLabel>
-                    </div>
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            /> */}
-
-            <div className="flex justify-between">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleBack}
-                className="bg-watney text-white hover:bg-watney/90"
-              >
-                Back
-              </Button>
-              <Button
-                type="submit"
-                className="bg-watney text-white hover:bg-watney/90"
-              >
-                Next
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </CardContent>
+      <div className="flex justify-between">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleBack}
+          className="bg-watney text-white hover:bg-watney/90"
+        >
+          Back
+        </Button>
+        <Button type="submit" className="bg-watney text-white hover:bg-watney/90">
+          Next
+        </Button>
+      </div>
+    </form>
+  </Form>
+</CardContent>
     </Card>
   );
 }

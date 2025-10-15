@@ -22,6 +22,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import type { TCareer } from '@/types/career';
 import { Checkbox } from '@/components/ui/checkbox';
+import { HelperTooltip } from '@/helper/HelperTooltip';
 
 const disabilityInfoSchema = z
   .object({
@@ -74,7 +75,7 @@ export function DisabilityInfoStep({
     onSaveAndContinue(data);
   }
 
-   function handleBack() {
+  function handleBack() {
     setCurrentStep(5);
   }
 
@@ -98,8 +99,14 @@ export function DisabilityInfoStep({
                 <FormItem className="py-2">
                   <div className="flex flex-row items-center space-x-3 space-y-0">
                     <FormLabel>
-                      Do you have any known disability?{' '}
-                      <span className="text-red-500">*</span>
+                      <div>
+
+                        Do you have any known disability?{' '}
+                        <span className="text-red-500">*</span>
+                      </div>
+                      <HelperTooltip text="Let us know if you consider yourself to have a disability
+                    under the Equality Act 2010." />
+
                     </FormLabel>
 
                     <div className="flex space-x-6">
@@ -121,10 +128,10 @@ export function DisabilityInfoStep({
                     </div>
                   </div>
 
-                  <p className="mt-2 text-xs text-gray-400">
+                  {/* <p className="mt-2 text-xs text-gray-400">
                     Let us know if you consider yourself to have a disability
                     under the Equality Act 2010.{' '}
-                  </p>
+                  </p> */}
                   <FormMessage />
                 </FormItem>
               )}
@@ -137,8 +144,13 @@ export function DisabilityInfoStep({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      Please provide details about your disability{' '}
-                      <span className="text-red-500">*</span>
+                      <div>
+
+                        Please provide details about your disability{' '}
+                        <span className="text-red-500">*</span>
+                      </div>
+                      <HelperTooltip text="Example: I have dyslexia, which affects my reading speed
+                      and short-term memory." />
                     </FormLabel>
                     <FormControl>
                       <Textarea
@@ -165,11 +177,14 @@ export function DisabilityInfoStep({
                   <div className="flex flex-row items-center space-x-3">
                     <div className="space-y-1 leading-none">
                       <FormLabel>
-                        Do you require any reasonable adjustments?{' '}
-                        <span className="text-red-500">
-                          {' '}
+                        <div>
+
+                          Do you require any reasonable adjustments?{' '}
+
                           <span className="text-red-500">*</span>
-                        </span>
+                        </div>
+                        <HelperTooltip text="Indicate whether you need any changes or accommodations
+                    during the application or employment process." />
                       </FormLabel>
                     </div>
                     <div className="flex space-x-6">
@@ -191,10 +206,10 @@ export function DisabilityInfoStep({
                     </div>
                   </div>
 
-                  <p className="mt-2 text-xs text-gray-400">
+                  {/* <p className="mt-2 text-xs text-gray-400">
                     Indicate whether you need any changes or accommodations
                     during the application or employment process.
-                  </p>
+                  </p> */}
                   <FormMessage />
                 </FormItem>
               )}
@@ -207,8 +222,13 @@ export function DisabilityInfoStep({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
+                      <div>
+
                       Please provide details about the adjustments needed{' '}
                       <span className="text-red-500">*</span>
+                      </div>
+                      <HelperTooltip text="Example: I require additional time during written
+                      assessments and access to screen-reading software." />
                     </FormLabel>
                     <FormControl>
                       <Textarea
@@ -217,10 +237,10 @@ export function DisabilityInfoStep({
                         className="!placeholder:text-gray-400 min-h-[100px]   placeholder:text-xs  placeholder:text-gray-400"
                       />
                     </FormControl>
-                    <p className="mt-2 text-xs text-gray-400">
+                    {/* <p className="mt-2 text-xs text-gray-400">
                       Example: I require additional time during written
                       assessments and access to screen-reading software.
-                    </p>
+                    </p> */}
                     <FormMessage />
                   </FormItem>
                 )}
