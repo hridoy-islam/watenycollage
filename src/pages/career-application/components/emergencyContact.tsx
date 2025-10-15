@@ -107,7 +107,7 @@ export function EmergencyContact({
                     <div className="flex items-center gap-1">
                       Full Name <span className="text-red-500">*</span>
                     </div>
-                      <HelperTooltip text="Example: Jane Doe" />
+<HelperTooltip text="Provide the full name of your emergency contact. Example: Jane Doe" />
                   </FormLabel>
                   <FormControl>
                     <Input
@@ -131,7 +131,7 @@ export function EmergencyContact({
                     <div className="flex items-center gap-1">
                       Contact Number <span className="text-red-500">*</span>
                     </div>
-                      <HelperTooltip text="Example: +44 7700 900123" />
+<HelperTooltip text="Enter a phone number where this person can be reached in an emergency. Example: +44 7700 900123" />
                   </FormLabel>
                   <FormControl>
                     <Input
@@ -155,7 +155,7 @@ export function EmergencyContact({
                     <div className="flex items-center gap-1">
                       Email <span className="text-red-500">*</span>
                     </div>
-                      <HelperTooltip text="Example: jane.doe@example.com" />
+<HelperTooltip text="Provide an email for non-urgent communication. Example: jane.doe@example.com" />
                   </FormLabel>
                   <FormControl>
                     <Input
@@ -180,7 +180,7 @@ export function EmergencyContact({
                     <div className="flex items-center gap-1">
                       Relationship <span className="text-red-500">*</span>
                     </div>
-                      <HelperTooltip text="Example: Parent" />
+<HelperTooltip text="Specify your relationship with the contact. Example: Parent, Spouse, Sibling" />
                   </FormLabel>
                   <FormControl>
                     <Select
@@ -217,7 +217,7 @@ export function EmergencyContact({
                     <div className="flex items-center gap-1">
                       Address <span className="text-red-500">*</span>
                     </div>
-                      <HelperTooltip text="Example: 12 High Street, Bristol, BS1 4ST, United Kingdom" />
+<HelperTooltip text="Enter the full residential address of your emergency contact. Example: 12 High Street, Bristol, BS1 4ST, United Kingdom" />
                   </FormLabel>
                   <FormControl>
                     <Input

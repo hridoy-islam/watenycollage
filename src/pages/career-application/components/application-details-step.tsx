@@ -183,7 +183,7 @@ export function ApplicationDetailsStep({
                     Available From Date (MM/DD/YYYY)
                     <span className="text-red-500">*</span>
                   </div>
-                  <HelperTooltip text="Example: 01/06/2025" />
+                  <HelperTooltip text="Enter the date you are available to start working. Example: 01/06/2025" />
                 </FormLabel>
                 <FormControl>
                   <CustomDatePicker
@@ -210,7 +210,7 @@ export function ApplicationDetailsStep({
                   Are you aged 18 or over?
                   <span className="text-red-500">*</span>
                 </div>
-                <HelperTooltip text="Example: Yes" />
+                <HelperTooltip text="Select ‘Yes’ if you are 18 years old or older. Example: Yes" />
               </FormLabel>
               <FormControl>
                 <Select
@@ -238,7 +238,7 @@ export function ApplicationDetailsStep({
                   Are you subject to immigration control?
                   <span className="text-red-500">*</span>
                 </div>
-                <HelperTooltip text="Example: Yes" />
+                <HelperTooltip text="Select ‘Yes’ if you require permission to live or work in the UK. Example: No" />
               </FormLabel>
               <FormControl>
                 <Select
@@ -266,7 +266,7 @@ export function ApplicationDetailsStep({
                   Are you free to remain and take up employment in the UK?
                   <span className="text-red-500">*</span>
                 </div>
-                <HelperTooltip text="Example: Yes" />
+                <HelperTooltip text="Select ‘Yes’ if you are legally eligible to work in the United Kingdom. Example: Yes" />
               </FormLabel>
               <FormControl>
                 <Select
@@ -294,7 +294,7 @@ export function ApplicationDetailsStep({
                   How did you hear about us?
                   <span className="text-red-500">*</span>
                 </div>
-                <HelperTooltip text="Example: Job board, referral, social media, company website, other" />
+                <HelperTooltip text="Indicate how you discovered this job opportunity. Example: Company Website, Referral, LinkedIn" />
               </FormLabel>
               <FormControl>
                 <Select
@@ -323,7 +323,7 @@ export function ApplicationDetailsStep({
                     Referred by (Employee Name)
                     <span className="text-red-500">*</span>
                   </div>
-                  <HelperTooltip text="Example: Emma Watson" />
+                  <HelperTooltip text="Provide the name of the employee who referred you. Example: Emma Watson" />
                 </FormLabel>
                 <FormControl>
                   <Input {...field} placeholder="Enter the employee name" />
@@ -347,7 +347,7 @@ export function ApplicationDetailsStep({
                   Availability (Select all that apply)
                   <span className="text-red-500">*</span>
                 </div>
-                <HelperTooltip text="Select all the days you are available to work." />
+                <HelperTooltip text="Select all days you are available to work. Example: Monday, Wednesday, Friday" />
               </FormLabel>
               <Button
                 type="button"
@@ -410,7 +410,7 @@ export function ApplicationDetailsStep({
                   Are you currently a student?
                   <span className="text-red-500">*</span>
                 </div>
-                <HelperTooltip text="Example: Yes / No" />
+                <HelperTooltip text="Select ‘Yes’ if you are currently enrolled in any educational institution. Example: No" />
               </FormLabel>
               <FormControl>
                 <Select
@@ -438,7 +438,7 @@ export function ApplicationDetailsStep({
                   Are you under state pension age?
                   <span className="text-red-500">*</span>
                 </div>
-                <HelperTooltip text="Example: Yes / No" />
+                <HelperTooltip text="Select ‘Yes’ if you are below the official state pension age. Example: Yes" />
               </FormLabel>
               <FormControl>
                 <Select

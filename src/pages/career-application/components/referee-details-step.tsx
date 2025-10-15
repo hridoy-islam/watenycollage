@@ -102,7 +102,7 @@ export function RefereeDetailsStep({
               <div className="flex items-center gap-1">
                 Full Name <span className="text-red-500">*</span>
               </div>
-                <HelperTooltip text="Example: Sarah Johnson" />
+<HelperTooltip text="Enter the referee’s full name. Example: Sarah Johnson" />
             </FormLabel>
             <FormControl>
               <Input
@@ -126,7 +126,7 @@ export function RefereeDetailsStep({
               <div className="flex items-center gap-1">
                 Company / Institution <span className="text-red-500">*</span>
               </div>
-                <HelperTooltip text="Example: ABC Health Services Ltd." />
+<HelperTooltip text="Provide the name of the referee’s organisation. Example: ABC Health Services Ltd." />
             </FormLabel>
             <FormControl>
               <Input
@@ -150,7 +150,7 @@ export function RefereeDetailsStep({
               <div className="flex items-center gap-1">
                 Address <span className="text-red-500">*</span>
               </div>
-                <HelperTooltip text="Example: 123 High Street, London, W1A 1AA" />
+<HelperTooltip text="Provide the full address of the organisation. Example: 123 High Street, London, W1A 1AA" />
             </FormLabel>
             <FormControl>
               <Input
@@ -174,7 +174,7 @@ export function RefereeDetailsStep({
               <div className="flex items-center gap-1">
                 Relationship <span className="text-red-500">*</span>
               </div>
-                <HelperTooltip text="Example: Line Manager at XYZ Ltd." />
+<HelperTooltip text="Indicate your relationship with this referee. Example: Line Manager at XYZ Ltd." />
             </FormLabel>
             <FormControl>
               <Input
@@ -198,7 +198,7 @@ export function RefereeDetailsStep({
               <div className="flex items-center gap-1">
                 Email Address <span className="text-red-500">*</span>
               </div>
-                <HelperTooltip text="Example: s.johnson@abcservices.com" />
+<HelperTooltip text="Enter a professional email for contacting the referee. Example: s.johnson@abcservices.com" />
             </FormLabel>
             <FormControl>
               <Input
@@ -223,7 +223,7 @@ export function RefereeDetailsStep({
               <div className="flex items-center gap-1">
                 Phone Number <span className="text-red-500">*</span>
               </div>
-                <HelperTooltip text="Example: +44 7911 123456" />
+<HelperTooltip text="Provide a contact number including country code. Example: +44 7911 123456" />
             </FormLabel>
             <FormControl>
               <Input

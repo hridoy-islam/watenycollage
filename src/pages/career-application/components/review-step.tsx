@@ -370,7 +370,7 @@ export function ReviewStep({
                     <div className="flex items-center gap-1">
                       Do you declare that all uploaded documents and information are correct and authentic?
                       <span className="text-red-500">*</span>
-                      <HelperTooltip text="Please confirm that all information and documents you've provided are true and accurate." />
+<HelperTooltip text="Confirm that all documents and information you’ve provided are accurate and authentic. Example: All uploaded certificates and forms are true and correct." />
                     </div>
                   </FormLabel>
                   <div className="flex flex-col sm:flex-row gap-4">
@@ -410,7 +410,7 @@ export function ReviewStep({
                     <div className="flex items-center gap-1">
                       Do you give permission for us to contact your referees on your behalf?
                       <span className="text-red-500">*</span>
-                      <HelperTooltip text="We may contact your referees to verify your experience and suitability for the role." />
+<HelperTooltip text="Give us permission to contact your referees to verify your experience. Example: Yes, my previous manager can be contacted." />
                     </div>
                   </FormLabel>
                   <div className="flex flex-col sm:flex-row gap-4">
@@ -450,7 +450,7 @@ export function ReviewStep({
                     <div className="flex items-center gap-1">
                       Do you have any unspent criminal convictions?
                       <span className="text-red-500">*</span>
-                      <HelperTooltip text="If yes, you may be asked to provide further information later." />
+<HelperTooltip text="Indicate if you have any unspent criminal convictions. Example: Yes, a speeding offence in 2022." />
                     </div>
                   </FormLabel>
                   <div className="flex flex-col sm:flex-row gap-4">
@@ -491,7 +491,7 @@ export function ReviewStep({
                       <div className="flex items-center gap-1">
                         Please provide details of the conviction
                         <span className="text-red-500">*</span>
-                        <HelperTooltip text="Describe the nature, date, and outcome of the conviction." />
+<HelperTooltip text="Provide details of any convictions, including nature, date, and outcome. Example: Minor speeding offence, 12/03/2022, fined £100." />
                       </div>
                     </FormLabel>
                     <FormControl>
@@ -517,7 +517,7 @@ export function ReviewStep({
                     <div className="flex items-center gap-1">
                       Have you previously applied for a role with this organisation?
                       <span className="text-red-500">*</span>
-                      <HelperTooltip text="This helps us locate your previous application records, if any." />
+<HelperTooltip text="Indicate if you’ve applied to this organisation previously. Example: Yes, applied for a Support Worker role in 2021." />
                     </div>
                   </FormLabel>
                   <div className="flex flex-col sm:flex-row gap-4">

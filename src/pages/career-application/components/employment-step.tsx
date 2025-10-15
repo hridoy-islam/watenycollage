@@ -285,7 +285,7 @@ export function EmploymentStep({
                       Are you currently employed?
                       <span className="text-red-500">*</span>
                     </div>
-                      <HelperTooltip text="Select 'Yes' if you are employed at the moment." />
+<HelperTooltip text="Select 'Yes' if you are currently employed, otherwise 'No'." />
                   </FormLabel>
                   <FormControl>
                     <Select
@@ -326,7 +326,7 @@ export function EmploymentStep({
                               Employer Name
                               <span className="text-red-500">*</span>
                             </div>
-                              <HelperTooltip text="Enter the name of your current employer (e.g., NHS Trust)" />
+<HelperTooltip text="Enter the name of your current employer. Example: NHS Trust" />
                           </FormLabel>
                           <FormControl>
                             <Input
@@ -351,7 +351,7 @@ export function EmploymentStep({
                               Job Position
                               <span className="text-red-500">*</span>
                             </div>
-                              <HelperTooltip text="State your current job title (e.g., Support Worker)" />
+<HelperTooltip text="State your current job title. Example: Support Worker" />
                           </FormLabel>
                           <FormControl>
                             <Input
@@ -378,7 +378,7 @@ export function EmploymentStep({
                                 Start Date (MM/DD/YYYY)
                                 <span className="text-red-500">*</span>
                               </div>
-                                <HelperTooltip text="Select the date you started this position (e.g. 11/01/2000)" />
+<HelperTooltip text="Select the date you started your current position. Example: 11/01/2020" />
                             </FormLabel>
                             <FormControl>
                               <CustomDatePicker
@@ -404,7 +404,7 @@ export function EmploymentStep({
                               Employment Type
                               <span className="text-red-500">*</span>
                             </div>
-                              <HelperTooltip text="Select from options: Full-Time, Part-Time, Contract, Freelance" />
+<HelperTooltip text="Select your employment type. Example: Full-Time, Part-Time, Contract" />
                           </FormLabel>
                           <FormControl>
                             <Select
@@ -438,7 +438,7 @@ export function EmploymentStep({
                               Main Responsibilities
                               <span className="text-red-500">*</span>
                             </div>
-                              <HelperTooltip text="Briefly describe your key responsibilities" />
+<HelperTooltip text="Briefly describe your key responsibilities in this role." />
                           </FormLabel>
                           <FormControl>
                             <Textarea
@@ -466,7 +466,7 @@ export function EmploymentStep({
                           Do you have previous employment history?
                           <span className="text-red-500">*</span>
                         </div>
-                          <HelperTooltip text="List any previous jobs you've held. Include job title, employer, dates, and responsibilities." />
+<HelperTooltip text="Indicate if you have held any previous jobs before your current employment." />
                       </FormLabel>
                       <FormControl>
                         <Select
@@ -511,7 +511,7 @@ export function EmploymentStep({
                                   Employer Name
                                   <span className="text-red-500">*</span>
                                 </div>
-                                  <HelperTooltip text="Enter the name of your previous employer (e.g., NHS Trust)" />
+<HelperTooltip text="Enter the name of your previous employer. Example: NHS Trust" />
                               </FormLabel>
                               <FormControl>
                                 <Input {...field} placeholder="Company Name" />
@@ -532,7 +532,7 @@ export function EmploymentStep({
                                   Job Position
                                   <span className="text-red-500">*</span>
                                 </div>
-                                  <HelperTooltip text="State your job title (e.g., Support Worker)" />
+<HelperTooltip text="State your job title for this role. Example: Support Worker" />
                               </FormLabel>
                               <FormControl>
                                 <Input {...field} placeholder="Position" />
@@ -555,7 +555,7 @@ export function EmploymentStep({
                                     Start Date (MM/DD/YYYY)
                                     <span className="text-red-500">*</span>
                                   </div>
-                                    <HelperTooltip text="Select the date you started this position (e.g. 11/01/2000)" />
+<HelperTooltip text="Select the date you started this previous job. Example: 05/01/2018" />
                                 </FormLabel>
                                 <FormControl>
                                   <CustomDatePicker
@@ -584,7 +584,7 @@ export function EmploymentStep({
                                     End Date (MM/DD/YYYY)
                                     <span className="text-red-500">*</span>
                                   </div>
-                                    <HelperTooltip text="Select the end date (e.g. 11/01/2000)" />
+<HelperTooltip text="Select the date you ended this previous job. Example: 04/30/2020" />
                                 </FormLabel>
                                 <FormControl>
                                   <CustomDatePicker
@@ -611,7 +611,7 @@ export function EmploymentStep({
                                   Reason for Leaving
                                   <span className="text-red-500">*</span>
                                 </div>
-                                  <HelperTooltip text="Reason for leaving the position" />
+<HelperTooltip text="Briefly explain why you left this role. Example: Career growth" />
                               </FormLabel>
                               <FormControl>
                                 <Input {...field} placeholder="Enter the reason" />
@@ -632,7 +632,7 @@ export function EmploymentStep({
                                   Main Responsibilities
                                   <span className="text-red-500">*</span>
                                 </div>
-                                  <HelperTooltip text="Briefly describe your key responsibilities" />
+<HelperTooltip text="Summarize your key responsibilities in this role." />
                               </FormLabel>
                               <FormControl>
                                 <Textarea
@@ -681,7 +681,7 @@ export function EmploymentStep({
                             Any gaps of more than 1 month in the last 5 years?
                             <span className="text-red-500">*</span>
                           </div>
-                            <HelperTooltip text="Have you had any periods of 1 month or more without employment in the past 5 years?" />
+<HelperTooltip text="Indicate if you have had any employment gaps of 1 month or more in the last 5 years." />
                         </FormLabel>
                         <FormControl>
                           <Select
@@ -715,7 +715,7 @@ export function EmploymentStep({
                               Please explain the reason
                               <span className="text-red-500">*</span>
                             </div>
-                              <HelperTooltip text="Briefly explain the reason for any gaps (e.g., study break, health reasons, relocation)" />
+<HelperTooltip text="Provide a brief reason for any employment gaps. Example: Study break, health reasons, relocation." />
                           </FormLabel>
                           <FormControl>
                             <Textarea

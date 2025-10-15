@@ -104,8 +104,8 @@ export function DisabilityInfoStep({
                         Do you have any known disability?{' '}
                         <span className="text-red-500">*</span>
                       </div>
-                      <HelperTooltip text="Let us know if you consider yourself to have a disability
-                    under the Equality Act 2010." />
+<HelperTooltip text="Indicate if you have a disability under the Equality Act 2010. Example: Yes" />
+                   
 
                     </FormLabel>
 
@@ -149,8 +149,8 @@ export function DisabilityInfoStep({
                         Please provide details about your disability{' '}
                         <span className="text-red-500">*</span>
                       </div>
-                      <HelperTooltip text="Example: I have dyslexia, which affects my reading speed
-                      and short-term memory." />
+                      <HelperTooltip text="Briefly describe your disability and its impact. Example: I have dyslexia, which affects reading speed and short-term memory." />
+
                     </FormLabel>
                     <FormControl>
                       <Textarea
@@ -183,8 +183,8 @@ export function DisabilityInfoStep({
 
                           <span className="text-red-500">*</span>
                         </div>
-                        <HelperTooltip text="Indicate whether you need any changes or accommodations
-                    during the application or employment process." />
+                       <HelperTooltip text="Specify if you need any accommodations during the application or employment process. Example: Yes" />
+
                       </FormLabel>
                     </div>
                     <div className="flex space-x-6">
@@ -227,8 +227,8 @@ export function DisabilityInfoStep({
                       Please provide details about the adjustments needed{' '}
                       <span className="text-red-500">*</span>
                       </div>
-                      <HelperTooltip text="Example: I require additional time during written
-                      assessments and access to screen-reading software." />
+                      <HelperTooltip text="Briefly describe the adjustments or support you need. Example: I require extra time during written assessments and access to screen-reading software." />
+
                     </FormLabel>
                     <FormControl>
                       <Textarea

@@ -237,35 +237,35 @@ export function EducationStep({
                     <TableHead>
                       <div className="flex items-center gap-1">
                         Qualifications <span className="text-red-500">*</span>
-                        <HelperTooltip text="Example: BSc Computer Science" />
+                        <HelperTooltip text={`Enter the name of your degree or qualification.\nExample: BSc in Computer Science`} />
                       </div>
                     </TableHead>
 
                     <TableHead>
                       <div className="flex items-center gap-1">
                         Grade <span className="text-red-500">*</span>
-                        <HelperTooltip text="Example: 3.91 or First Class" />
+                        <HelperTooltip text={`Enter your final grade or class.\nExample: 3.91 GPA or First Class`} />
                       </div>
                     </TableHead>
 
                     <TableHead className="min-w-[300px]">
                       <div className="flex items-center gap-1">
                         Name of the Institution <span className="text-red-500">*</span>
-                        <HelperTooltip text="Example: University of Manchester" />
+                        <HelperTooltip text={`Enter the full official name of your educational institution.\nExample: University of Manchester`} />
                       </div>
                     </TableHead>
 
                     <TableHead>
                       <div className="flex items-center gap-1">
                         Date of Award (MM/DD/YYYY) <span className="text-red-500">*</span>
-                        <HelperTooltip text="Example: 01/16/2022" />
+                        <HelperTooltip text={`Enter the exact date your degree or certificate was awarded.\nExample: 01/16/2022`} />
                       </div>
                     </TableHead>
 
                     <TableHead>
                       <div className="flex items-center gap-1">
                         Certificate <span className="text-red-500">*</span>
-                        <HelperTooltip text="Upload your official certificate (PDF, JPG, PNG ≤5MB)" />
+                        <HelperTooltip text={`Upload a scanned copy of your official certificate in PDF, JPG, or PNG format.\nMaximum file size: 5MB`} />
                       </div>
                     </TableHead>
 
@@ -430,7 +430,7 @@ export function EducationStep({
                         <FormLabel>
                           <div className="flex items-center gap-1">
                             Qualification <span className="text-red-500">*</span>
-                            <HelperTooltip text="Example: BSc Computer Science" />
+                            <HelperTooltip text={`Enter the name of your degree or qualification.\nExample: BSc in Computer Science`} />
                           </div>
                         </FormLabel>
                         <FormControl>
@@ -454,7 +454,7 @@ export function EducationStep({
                         <FormLabel>
                           <div className="flex items-center gap-1">
                             Grade <span className="text-red-500">*</span>
-                            <HelperTooltip text="Example: 3.91 or First Class" />
+                            <HelperTooltip text={`Enter your final grade or class.\nExample: 3.91 GPA or First Class`} />
                           </div>
                         </FormLabel>
                         <FormControl>
@@ -474,7 +474,7 @@ export function EducationStep({
                         <FormLabel>
                           <div className="flex items-center gap-1">
                             Institution <span className="text-red-500">*</span>
-                            <HelperTooltip text="Example: University of Manchester" />
+                            <HelperTooltip text={`Enter the full official name of your educational institution.\nExample: University of Manchester`} />
                           </div>
                         </FormLabel>
                         <FormControl>
@@ -500,7 +500,7 @@ export function EducationStep({
                           <FormLabel>
                             <div className="flex items-center gap-1">
                               Date of Award <span className="text-red-500">*</span>
-                              <HelperTooltip text="Example: 01/16/2022" />
+                              <HelperTooltip text={`Enter the exact date your degree or certificate was awarded.\nExample: 01/16/2022`} />
                             </div>
                           </FormLabel>
                           <FormControl>
@@ -526,7 +526,7 @@ export function EducationStep({
                         <FormLabel>
                           <div className="flex items-center gap-1">
                             Certificate <span className="text-red-500">*</span>
-                            <HelperTooltip text="PDF, JPG, PNG (≤5MB)" />
+                            <HelperTooltip text={`Upload a scanned copy of your official certificate in PDF, JPG, or PNG format.\nMaximum file size: 5MB`} />
                           </div>
                         </FormLabel>
                         <Button

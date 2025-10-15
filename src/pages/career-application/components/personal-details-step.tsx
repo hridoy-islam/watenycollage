@@ -208,7 +208,7 @@ export function PersonalDetailsStep({
                       <FormLabel>
                         <div> Title<span className="text-red-500">*</span></div>
 
-                        <HelperTooltip text=" Example: Mr., Ms., Mrs., Dr., etc" />
+                        <HelperTooltip text="Select your preferred title as it appears in formal identification documents (e.g., Mr, Ms, Dr)." />
                       </FormLabel>
                       <Controller
                         name="title"
@@ -249,7 +249,7 @@ export function PersonalDetailsStep({
                       <FormLabel>
                         <div> First Name<span className="text-red-500">*</span></div>
 
-                        <HelperTooltip text="Example: Emma" />
+                        <HelperTooltip text="Enter your given name exactly as it appears on your legal documents." />
                       </FormLabel>
                       <FormControl>
                         <Input
@@ -271,7 +271,7 @@ export function PersonalDetailsStep({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Middle Initial (Optional)
-                        <HelperTooltip text="Example: J" />
+                        <HelperTooltip text="Enter your middle name or initial, if applicable." />
                       </FormLabel>
                       <FormControl>
                         <Input
@@ -295,7 +295,7 @@ export function PersonalDetailsStep({
                       <FormLabel>
                         <div>   Last Name<span className="text-red-500">*</span></div>
 
-                        <HelperTooltip text="Example: Williams" />
+                        <HelperTooltip text="Enter your family or surname exactly as it appears on your passport or ID." />
                       </FormLabel>
                       <FormControl>
                         <Input
@@ -327,7 +327,7 @@ export function PersonalDetailsStep({
                             <span className="text-red-500">*</span>
                           </div>
 
-                          <HelperTooltip text="Example: MM/DD/YYYY or 01/24/1995" />
+                          <HelperTooltip text="Provide date of birth using specified format." />
                         </FormLabel>
                         <FormControl className="w-full">
                           <CustomDatePicker
@@ -355,7 +355,7 @@ export function PersonalDetailsStep({
                           Email<span className="text-red-500">*</span>
                         </div>
 
-                        <HelperTooltip text="Example: emma.williams@email.com" />
+                        <HelperTooltip text="Enter a valid email address you regularly check. We’ll use this to send updates and confirmations." />
                       </FormLabel>
                       <FormControl>
                         <Input
@@ -385,7 +385,7 @@ export function PersonalDetailsStep({
                           Phone Number<span className="text-red-500">*</span>
                         </div>
 
-                        <HelperTooltip text="Example: +44 7123 456789" />
+                        <HelperTooltip text="Include international dialing code for non-UK applicants.Example: +44 7123 456789" />
                       </FormLabel>
                       <FormControl>
                         <Input
@@ -405,7 +405,7 @@ export function PersonalDetailsStep({
                 />
 
                 <div className="space-y-2">
-                  <FormLabel>National Insurance Number <HelperTooltip text="Example: QQ 12 34 56 C" /></FormLabel>
+                  <FormLabel>National Insurance Number <HelperTooltip text="Format requirement: Two letters, six numerals, one concluding letter." /></FormLabel>
                   <FormField
                     control={form.control}
                     name="nationalInsuranceNumber"
@@ -439,7 +439,7 @@ export function PersonalDetailsStep({
                               Nationality<span className="text-red-500">*</span>
 
                             </div>
-                            <HelperTooltip text="Choose a nationality (e.g., American)" />
+                            <HelperTooltip text="Select your nationality as listed on your passport or other official identification." />
                           </FormLabel>
                           <Controller
                             name="nationality"
@@ -494,7 +494,7 @@ export function PersonalDetailsStep({
                               <span className="text-red-500">*</span>
                             </div>
 
-                            <HelperTooltip text="Example: Select country (e.g., America)" />
+                            <HelperTooltip text="Select the country where you currently live." />
                           </FormLabel>
                           <Controller
                             name="countryOfResidence"
@@ -550,7 +550,7 @@ export function PersonalDetailsStep({
                       <div>
                       Please give your Share Code: <span className="text-red-500">*</span>
                     </div>
-                      <HelperTooltip text="Example: 5J7K9Q" /></FormLabel>
+                      <HelperTooltip text="Enter the 6-character share code provided to you. This helps us verify your information." /></FormLabel>
 
                     <FormField
                       control={form.control}
@@ -587,7 +587,7 @@ export function PersonalDetailsStep({
 
                           Address Line 1<span className="text-red-500">*</span>
                           </div>
-                          <HelperTooltip text="Example: 12B Parkview Road" />
+                          <HelperTooltip text="Enter your primary street address (e.g., house number, street name)." />
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -611,7 +611,7 @@ export function PersonalDetailsStep({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Address Line 2 (Optional)
-                          <HelperTooltip text="Example: Flat 3A" />
+                          <HelperTooltip text="Add apartment, suite, unit, or building details if applicable." />
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -639,7 +639,7 @@ export function PersonalDetailsStep({
 
                           City<span className="text-red-500">*</span>
                           </div>
-                          <HelperTooltip text="Example: London" />
+                          <HelperTooltip text="Enter the name of your city or town." />
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -667,7 +667,7 @@ export function PersonalDetailsStep({
 
                           Postal Code<span className="text-red-500">*</span>
                           </div>
-                          <HelperTooltip text="Example: SW1A 1AA" />
+                          <HelperTooltip text="Enter your area’s postal or ZIP code." />
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -695,7 +695,7 @@ export function PersonalDetailsStep({
 
                           Country<span className="text-red-500">*</span>
                           </div>
-                          <HelperTooltip text="Example: London" />
+                          <HelperTooltip text="Select the country that corresponds to the address above." />
                         </FormLabel>
                         <Controller
                           name="postalCountry"
@@ -745,7 +745,7 @@ export function PersonalDetailsStep({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Address Line 1
-                          <HelperTooltip text="Example: 12B Parkview Road" />
+                          <HelperTooltip text="Enter your previous street address if you’ve lived at your current address for less than 12 months." />
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -769,7 +769,7 @@ export function PersonalDetailsStep({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Address Line 2
-                          <HelperTooltip text="Example: Flat 3A" />
+                          <HelperTooltip text="Add apartment, suite, unit, or building details if applicable." />
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -793,7 +793,7 @@ export function PersonalDetailsStep({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>City
-                          <HelperTooltip text="Example: London" />
+                          <HelperTooltip text="Enter the name of your city or town." />
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -817,7 +817,7 @@ export function PersonalDetailsStep({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Postal Code
-                          <HelperTooltip text=" Example: SW1A 1AA" />
+                          <HelperTooltip text="Enter your area’s postal or ZIP code." />
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -841,7 +841,7 @@ export function PersonalDetailsStep({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Country
-                          <HelperTooltip text="Example: London" />
+                          <HelperTooltip text="Select the country that corresponds to the address above." />
                         </FormLabel>
                         <Controller
                           name="prevPostalCountry"
