@@ -205,9 +205,6 @@ export function StudentAssignmentsPage() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>My Assignments</CardTitle>
-              <CardDescription>
-                All assignments from your enrolled courses
-              </CardDescription>
             </div>
             <div>
               <Button
@@ -264,14 +261,9 @@ export function StudentAssignmentsPage() {
               <FileText className="mb-4 h-12 w-12 text-muted-foreground" />
               <h3 className="text-lg font-semibold">
                 {assignments.length === 0
-                  ? 'No assignments found'
+                  ? 'There are no assignments at the moment.'
                   : 'No matching assignments'}
               </h3>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {assignments.length === 0
-                  ? "You don't have any assignments in your enrolled courses."
-                  : 'No assignments match your current search or filter.'}
-              </p>
             </div>
           ) : (
             <div className="">
@@ -294,7 +286,7 @@ export function StudentAssignmentsPage() {
                       className="group"
                     >
                       <TableCell
-                        className="text-xs cursor-pointer"
+                        className="cursor-pointer text-xs"
                         onClick={() => handleViewAssignment(assignment)}
                       >
                         <div className="flex items-center gap-2">
@@ -303,14 +295,14 @@ export function StudentAssignmentsPage() {
                         </div>
                       </TableCell>
                       <TableCell
-                        className="text-xs cursor-pointer"
+                        className="cursor-pointer text-xs"
                         onClick={() => handleViewAssignment(assignment)}
                       >
                         {assignment.unitTitle}
                       </TableCell>
 
                       <TableCell
-                        className="text-xs font-medium cursor-pointer"
+                        className="cursor-pointer text-xs font-medium"
                         onClick={() => handleViewAssignment(assignment)}
                       >
                         <div className="flex items-center gap-2">
@@ -327,7 +319,7 @@ export function StudentAssignmentsPage() {
                           ? new Date(assignment.deadline).toLocaleDateString()
                           : 'No deadline'}
                       </TableCell> */}
-                      <TableCell className="text-right cursor-pointer">
+                      <TableCell className="cursor-pointer text-right">
                         <div className="flex justify-end">
                           <Button
                             variant="outline"

@@ -148,10 +148,8 @@ export function StudentAssignmentFeedbackList() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Pending Assignment Submission Feedback</CardTitle>
-              <CardDescription>
-                Assignments with submissions that need your review and feedback
-              </CardDescription>
+              <CardTitle>Assignment Feedbacks</CardTitle>
+              
             </div>
             <div>
               <Button
@@ -193,7 +191,7 @@ export function StudentAssignmentFeedbackList() {
           ) : filteredAssignments.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 text-center">
               <FileText className="h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-medium">No assignments found</h3>
+              <h3 className="text-lg font-medium">You’ve seen everything — nothing pending now</h3>
               
             </div>
           ) : (

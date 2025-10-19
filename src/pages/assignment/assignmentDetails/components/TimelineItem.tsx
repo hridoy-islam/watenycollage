@@ -34,7 +34,7 @@ interface TimelineItemProps {
   isTeacher: boolean;
   isStudent?: boolean;
   assignment?: any;
-  isFirstSubmissionItem?: boolean;
+  isLatestSubmissionItem?: boolean;
   hasFeedbackAfter?: boolean;
   onEdit: (type: 'submission' | 'feedback', id: string) => void;
   onDelete: (type: 'submission' | 'feedback', id: string) => void;
@@ -47,7 +47,7 @@ export const TimelineItem: React.FC<TimelineItemProps> = ({
   isTeacher,
   isStudent = false,
   assignment,
-  isFirstSubmissionItem = false,
+  isLatestSubmissionItem = false,
   hasFeedbackAfter = false,
   onEdit,
   onDelete,
@@ -65,7 +65,7 @@ export const TimelineItem: React.FC<TimelineItemProps> = ({
     if (isTeacher) return true;
 
     if (isStudent && isSubmission) {
-      const canEdit = isFirstSubmissionItem && !hasFeedbackAfter;
+      const canEdit = isLatestSubmissionItem && !hasFeedbackAfter;
       return canEdit;
     }
 

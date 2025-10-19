@@ -206,10 +206,8 @@ export function AssignmentFeedbackList() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Pending Feedback</CardTitle>
-              <CardDescription>
-                Assignments with submissions that need your review and feedback
-              </CardDescription>
+              <CardTitle>Assignment Feedbacks</CardTitle>
+              
             </div>
             <div>
               <Button

@@ -82,6 +82,20 @@ const isFirstSubmission = (submissionId: string, submissions: Submission[]): boo
   return firstSubmission._id === submissionId;
 };
 
+const isLatestSubmission = (submissionId: string, submissions: Submission[]): boolean => {
+  if (submissions.length === 0) return false;
+  
+  // Sort submissions by createdAt in descending order (newest first)
+  const sortedSubmissions = [...submissions].sort((a, b) => 
+    moment(b.createdAt).valueOf() - moment(a.createdAt).valueOf()
+  );
+  
+  // The first item in the sorted array is the latest submission
+  const latestSubmission = sortedSubmissions[0];
+  return latestSubmission._id === submissionId;
+};
+
+
 // Helper function to check if there's feedback after a submission
 const hasFeedbackAfterSubmission = (
   submissionId: string, 
@@ -154,15 +168,19 @@ export const AssignmentTimeline: React.FC<AssignmentTimelineProps> = ({
               if (loadingItems[item.data._id]) return null;
               
               // Calculate edit/delete permissions for submissions
-              let isFirstSubmissionItem = false;
+              let isLatestSubmissionItem = false;
               let hasFeedbackAfter = false;
               
               if (item.type === 'submission' && selectedAssignment) {
-                isFirstSubmissionItem = isFirstSubmission(
-                  item.data._id, 
+                // isFirstSubmissionItem = isFirstSubmission(
+                //   item.data._id, 
+                //   selectedAssignment.submissions || []
+                // );
+                
+                isLatestSubmissionItem = isLatestSubmission( // Use the new function
+                  item.data._id,
                   selectedAssignment.submissions || []
                 );
-                
                 hasFeedbackAfter = hasFeedbackAfterSubmission(
                   item.data._id,
                   item.data.createdAt.toISOString(),
@@ -185,7 +203,7 @@ export const AssignmentTimeline: React.FC<AssignmentTimelineProps> = ({
                     isTeacher={isTeacher}
                     isStudent={isStudent}
                     assignment={selectedAssignment}
-                    isFirstSubmissionItem={isFirstSubmissionItem}
+                    isLatestSubmissionItem={isLatestSubmissionItem}
                     hasFeedbackAfter={hasFeedbackAfter}
                     onEdit={onEditItem}
                     onDelete={onDeleteItem}

@@ -16,6 +16,7 @@ import { Input } from '@/components/ui/input';
 import { DataTablePagination } from '@/components/shared/data-table-pagination';
 import { downloadEmailPDF } from './components/pdf-generator';
 import { EmailDraftDialog } from './components/email-draft-dialog';
+import { useNavigate } from 'react-router-dom';
 
 const TemplatePage = () => {
   const [drafts, setDrafts] = useState<any>([]);
@@ -28,7 +29,7 @@ const TemplatePage = () => {
   const [entriesPerPage, setEntriesPerPage] = useState(100);
   const [searchTerm, setSearchTerm] = useState('');
   const [downloadingPdf, setDownloadingPdf] = useState<string | null>(null);
-
+const navigate = useNavigate()
   const fetchData = async (page, entriesPerPage, searchTerm = '') => {
     try {
       if (initialLoading) setInitialLoading(true);
@@ -122,14 +123,24 @@ const TemplatePage = () => {
             </Button>
           </div>
         </div>
+        <div className='flex gap-4'>
+
+        <Button
+          className="bg-watney text-white hover:bg-watney/90"
+          onClick={() => navigate('/dashboard/signature')}
+          size={'sm'}
+          >
+          Signature
+        </Button>
         <Button
           className="bg-watney text-white hover:bg-watney/90"
           onClick={() => setDraftDialogOpen(true)}
           size={'sm'}
-        >
+          >
           <Plus className="mr-2 h-4 w-4" />
           New Template
         </Button>
+          </div>
       </div>
 
       <div className="rounded-md bg-white p-4 shadow-2xl">

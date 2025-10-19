@@ -184,7 +184,14 @@ export const SubmissionDialog: React.FC<SubmissionDialogProps> = ({
   const handleRemoveFile = (index: number) => {
     if ((isStudent && isFormDisabled) || !formState?.files) return;
 
-    // Don't allow removing the last file if it's required for submission
+    // For editing submissions, allow removing any file including the last one
+    // The submit button will be disabled if no files remain
+    if (editingItem && editingItem.type === 'submission') {
+      onRemoveFile(index);
+      return;
+    }
+
+    // For new submissions, don't allow removing the last file
     if (requiresFiles() && formState.files.length <= 1) {
       return;
     }
@@ -205,6 +212,19 @@ export const SubmissionDialog: React.FC<SubmissionDialogProps> = ({
 
   // Check if this is an editing mode
   const isEditing = !!editingItem;
+
+  // Check if we should disable file removal
+  const shouldDisableFileRemoval = (fileIndex: number) => {
+    if ((isStudent && isFormDisabled) || !formState?.files) return true;
+    
+    // For editing submissions, allow removing any file
+    if (editingItem && editingItem.type === 'submission') {
+      return false;
+    }
+    
+    // For new submissions, disable removing the last file
+    return requiresFiles() && formState.files.length <= 1;
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -281,7 +301,7 @@ export const SubmissionDialog: React.FC<SubmissionDialogProps> = ({
             {/* File requirement hint */}
             {requiresFiles() && (
               <p className="mt-1 text-xs text-gray-500">
-                At least one file is required for submission.
+                At least one file is required for {isEditing ? 'updating' : 'submitting'} this assignment.
               </p>
             )}
           </div>
@@ -306,13 +326,10 @@ export const SubmissionDialog: React.FC<SubmissionDialogProps> = ({
                       variant="ghost"
                       size="icon"
                       onClick={() => handleRemoveFile(i)}
-                      disabled={
-                        (isStudent && isFormDisabled) ||
-                        (requiresFiles() && formState.files.length <= 1)
-                      }
+                      disabled={shouldDisableFileRemoval(i)}
                       className="h-6 w-6 flex-shrink-0"
                       title={
-                        requiresFiles() && formState.files.length <= 1
+                        shouldDisableFileRemoval(i)
                           ? 'At least one file is required'
                           : 'Remove file'
                       }
@@ -345,24 +362,6 @@ export const SubmissionDialog: React.FC<SubmissionDialogProps> = ({
             !isStudent &&
             (!editingItem || editingItem.type === 'feedback') && (
               <div className="space-y-3 border-t pt-4">
-                {/* <div className="flex items-center gap-2">
-                <Checkbox
-                  id="admin-submission"
-                  checked={formState?.isAdminSubmission || false}
-                  onCheckedChange={(checked) =>
-                    onFormChange({
-                      isAdminSubmission: Boolean(checked),
-                      requireResubmit: checked
-                        ? false
-                        : formState?.requireResubmit
-                    })
-                  }
-                />
-                <Label htmlFor="admin-submission" className="text-sm">
-                  Submit Assignment for Student
-                </Label>
-              </div> */}
-
                 {!formState?.isAdminSubmission && (
                   <>
                     <div className="flex items-center gap-2">
@@ -411,7 +410,7 @@ export const SubmissionDialog: React.FC<SubmissionDialogProps> = ({
             )}
 
           {/* Student editing info */}
-          {isStudent && isEditing && (
+          {/* {isStudent && isEditing && (
             <div className="rounded-lg border border-blue-200 bg-blue-50 p-3">
               <div className="flex items-center gap-2 text-blue-800">
                 <Info className="h-4 w-4" />
@@ -419,10 +418,10 @@ export const SubmissionDialog: React.FC<SubmissionDialogProps> = ({
               </div>
               <p className="mt-1 text-xs text-blue-700">
                 You are editing your submission. You can update your files and
-                notes.
+                notes. At least one file is required to update your submission.
               </p>
             </div>
-          )}
+          )} */}
         </div>
 
         {/* Dialog Actions */}

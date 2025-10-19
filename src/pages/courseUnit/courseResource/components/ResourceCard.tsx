@@ -189,7 +189,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
             {isAdmin && (
               <Button
                 size="icon"
-                variant="ghost"
+                variant="default"
                 onClick={() => onEdit(resource)}
               >
                 <Pencil className="h-4 w-4" />

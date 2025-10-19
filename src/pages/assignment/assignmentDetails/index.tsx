@@ -637,68 +637,68 @@ const AssignmentDetailPage = () => {
       : null;
   };
 
-  const canStudentSubmit = (assignment: Assignment | null): boolean => {
-    if (!assignment || !isStudent) return false;
+const canStudentSubmit = (assignment: Assignment | null): boolean => {
+  if (!assignment || !isStudent) return false;
 
-    // Check if assignment is completed
-    if (assignment.status === 'completed') return false;
+  // Check if assignment is completed
+  if (assignment.status === 'completed') return false;
 
-    // Get the most recent feedback with deadline (for resubmission)
-    const getLatestFeedbackDeadline = (): moment.Moment | null => {
-      const feedbacksWithDeadline = assignment.feedbacks
-        .filter((feedback) => feedback.deadline)
-        .sort(
-          (a, b) =>
-            moment(b.createdAt).valueOf() - moment(a.createdAt).valueOf()
-        );
-
-      return feedbacksWithDeadline.length > 0
-        ? moment(feedbacksWithDeadline[0].deadline)
-        : null;
-    };
-
-    // Get unit material deadline for this specific assignment
-    const getUnitMaterialDeadline = (): moment.Moment | null => {
-      if (!unitMaterial?.assignments) return null;
-
-      const materialAssignment = unitMaterial.assignments.find(
-        (a: any) => a.title === assignment.assignmentName
+  // Get the most recent feedback with deadline (for resubmission)
+  const getLatestFeedbackDeadline = (): moment.Moment | null => {
+    const feedbacksWithDeadline = assignment.feedbacks
+      .filter((feedback) => feedback.deadline)
+      .sort(
+        (a, b) =>
+          moment(b.createdAt).valueOf() - moment(a.createdAt).valueOf()
       );
 
-      return materialAssignment?.deadline
-        ? moment(materialAssignment.deadline)
-        : null;
-    };
+    return feedbacksWithDeadline.length > 0
+      ? moment(feedbacksWithDeadline[0].deadline)
+      : null;
+  };
 
-    const feedbackDeadline = getLatestFeedbackDeadline();
-    const unitMaterialDeadline = getUnitMaterialDeadline();
+  // Get unit material deadline for this specific assignment
+  const getUnitMaterialDeadline = (): moment.Moment | null => {
+    if (!unitMaterial?.assignments) return null;
 
-    const hasStudentSubmittedBefore = assignment.submissions.length > 0;
-    const requiresResubmission = assignment.requireResubmit;
+    const materialAssignment = unitMaterial.assignments.find(
+      (a: any) => a.title === assignment.assignmentName
+    );
 
-    // Scenario 1: First time submission (no submissions yet)
-    if (!hasStudentSubmittedBefore) {
-      // Check unit material deadline
-      if (unitMaterialDeadline && moment().isAfter(unitMaterialDeadline)) {
-        return false; // Unit material deadline passed, cannot submit first time
-      }
-      return true; // Can submit first time before unit material deadline
-    }
+    return materialAssignment?.deadline
+      ? moment(materialAssignment.deadline)
+      : null;
+  };
 
-    // Scenario 2: Resubmission required (teacher gave feedback with resubmission)
-    if (requiresResubmission) {
-      // Check feedback deadline first
-      if (feedbackDeadline) {
-        return moment().isBefore(feedbackDeadline); // Can submit if before feedback deadline
-      }
-      // If no feedback deadline but resubmission required, allow submission
+  const feedbackDeadline = getLatestFeedbackDeadline();
+  const unitMaterialDeadline = getUnitMaterialDeadline();
+
+  const hasStudentSubmittedBefore = assignment.submissions.length > 0;
+  const requiresResubmission = assignment.requireResubmit;
+
+  // Scenario 1: First time submission (no submissions yet)
+  if (!hasStudentSubmittedBefore) {
+    // REMOVED: Deadline check for first submission
+    // Allow submission even if deadline has passed
+    return true;
+  }
+
+  // Scenario 2: Resubmission required (teacher gave feedback with resubmission)
+  if (requiresResubmission) {
+    // Check feedback deadline first
+    if (feedbackDeadline) {
+      // REMOVED: Deadline check for resubmission
+      // Allow resubmission even if feedback deadline has passed
       return true;
     }
+    // If no feedback deadline but resubmission required, allow submission
+    return true;
+  }
 
-    // Scenario 3: Student has submitted before but no resubmission required
-    // In this case, student cannot submit again unless teacher requires resubmission
-    return false;
-  };
+  // Scenario 3: Student has submitted before but no resubmission required
+  // In this case, student cannot submit again unless teacher requires resubmission
+  return false;
+};
 
   // Calculate values for the current selected assignment
   const effectiveDeadline = selectedAssignment
@@ -1578,7 +1578,7 @@ const AssignmentDetailPage = () => {
     : null;
 
   return (
-    <div className="mx-auto flex h-screen flex-col overflow-auto rounded-lg bg-white p-4 shadow-md">
+    <div className="mx-auto flex flex-col overflow-auto rounded-lg bg-white p-4 shadow-md">
       {/* Header */}
       <AssignmentHeader
         isStudent={isStudent}

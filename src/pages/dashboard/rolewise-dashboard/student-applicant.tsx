@@ -272,7 +272,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                                   }
                                   className="bg-watney text-white hover:bg-watney/90"
                                 >
-                                  <FileText className="h-4 w-4" /> View
+                                  <FileText className="h-4 w-4 mr-2" /> View
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent>
@@ -330,7 +330,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
         >
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-base font-semibold text-gray-800">
-              Pending Assignment Submission Feedback
+              Assignment Feedbacks
             </CardTitle>
             <div className="rounded-full bg-blue-50 p-2">
               <MessageSquare className="h-4 w-4 text-blue-600" />
