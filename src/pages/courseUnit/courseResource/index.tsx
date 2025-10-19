@@ -11,20 +11,17 @@ import {
 import { Plus, GraduationCap, MoveLeft } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import moment from 'moment';
-import {
-  Resource,
-  UploadState,
-  ResourceType,
-  ContentType,
-} from './components/types';
+
 import { useToast } from '@/components/ui/use-toast';
 import { allowedFileTypes, MAX_FILE_SIZE } from './components/utils';
-import ResourceTypeSelector from './components/ResourceTypeSelector';
-import ResourceForm from './components/ResourceForm';
-import ResourceList from './components/ResourceList';
+
 import axiosInstance from '@/lib/axios';
 import { useSelector } from 'react-redux';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
+import { ContentType, Resource, ResourceType, UploadState } from './components/types';
+import ResourceTypeSelector from './components/ResourceTypeSelector';
+import ResourceForm from './components/ResourceForm';
+import ResourceList from './components/ResourceList';
 
 function CourseModule() {
   const { toast } = useToast();
@@ -39,7 +36,7 @@ function CourseModule() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [selectedResourceType, setSelectedResourceType] = useState<ResourceType | null>(null);
   const [editingResource, setEditingResource] = useState<Resource | null>(null);
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -61,39 +58,44 @@ function CourseModule() {
   const [courseName, setCourseName] = useState<string>('');
   const [unitTitle, setUnitTitle] = useState<string>('');
   const [unitMaterial, setUnitMaterial] = useState<string>({});
+  const [applicationId, setApplicationId] = useState(null);
 
-  // ✅ Optimized: Fetch all data in parallel
+  // ✅ Single loading state for all data fetching
   const fetchData = async () => {
     if (!unitId) return;
-    
+
     try {
       setLoading(true);
-      
+
       // Parallel API calls
       const requests = [
         axiosInstance.get(`/course-unit/${unitId}`),
         axiosInstance.get(`/unit-material?unitId=${unitId}&limit=all`)
       ];
-      
+
       // Add student submissions request if student
       if (isStudent && user?._id) {
         requests.push(
           axiosInstance.get(`/assignment?studentId=${user._id}&unitId=${unitId}`)
         );
+
+         requests.push(
+        axiosInstance.get(`/application-course?studentId=${user._id}&courseId=${id}`)
+      );
       }
 
       const responses = await Promise.all(requests);
-      
+
       // Process course/unit info
       const unitRes = responses[0];
       setUnitTitle(unitRes.data.data.title || '');
       setCourseName(unitRes.data.data.courseId?.name || '');
-      
+
       // Process resources
       const materialRes = responses[1];
       const material = materialRes.data.data.result[0];
       const mappedResources: Resource[] = [];
-setUnitMaterial(material || {});
+      setUnitMaterial(material || {});
       if (material) {
         if (material.introduction) {
           mappedResources.push({
@@ -136,7 +138,7 @@ setUnitMaterial(material || {});
       }
 
       setResources(mappedResources);
-      
+
       // Process student submissions (if applicable)
       if (isStudent && responses[2]) {
         const submissions = responses[2].data.data.result || [];
@@ -146,6 +148,14 @@ setUnitMaterial(material || {});
         });
         setStudentSubmissions(grouped);
       }
+
+  if (isStudent && responses[3]) {
+      const appRes = responses[3];
+      const apps = appRes.data.data.result || [];
+      const appId = apps.length > 0 ? apps[0]._id : null;
+      setApplicationId(appId);
+    }
+
     } catch (error) {
       console.error('Error fetching data:', error);
       toast({
@@ -193,7 +203,7 @@ setUnitMaterial(material || {});
     }
   }, [editingResource]);
 
-  // ✅ File upload handler (unchanged)
+  // ✅ File upload handler
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -212,14 +222,13 @@ setUnitMaterial(material || {});
       return;
     }
 
-
     try {
-      const formData = new FormData();
-      formData.append('entityId', user?._id);
-      formData.append('file_type', 'resource');
-      formData.append('file', file);
+      const uploadFormData = new FormData();
+      uploadFormData.append('entityId', user?._id);
+      uploadFormData.append('file_type', 'resource');
+      uploadFormData.append('file', file);
 
-      const response = await axiosInstance.post('/documents', formData, {
+      const response = await axiosInstance.post('/documents', uploadFormData, {
         onUploadProgress: (progressEvent) => {
           if (progressEvent.total) {
             const percentCompleted = Math.round(
@@ -236,14 +245,18 @@ setUnitMaterial(material || {});
         response.data.data?.fileUrl
       ) {
         const fileUrl = response.data.data.fileUrl.trim();
+
         setUploadState({
           selectedDocument: fileUrl,
           fileName: file.name,
         });
-        toast({
-          title: 'Success',
-          description: 'Document uploaded successfully!',
-        });
+
+        setContentType('upload');
+
+        // toast({
+        //   title: 'Success',
+        //   description: 'Document uploaded successfully!',
+        // });
       } else {
         throw new Error('Upload failed: Invalid API response');
       }
@@ -340,6 +353,7 @@ setUnitMaterial(material || {});
         const newAssignment = {
           title: formData.title.trim(),
           deadline: formData.deadline,
+          content: formData.content?.trim() || '',
           type: 'assignment',
         };
 
@@ -370,7 +384,7 @@ setUnitMaterial(material || {});
           toast({ title: 'Assignment created successfully!' });
         }
 
-        fetchData(); // ✅ Refresh all data
+        fetchData();
         resetForm();
         return;
       } catch (error) {
@@ -429,17 +443,19 @@ setUnitMaterial(material || {});
 
         const newResource: any = {
           type: selectedResourceType,
-          title: formData.title || undefined,
-          content: contentType === 'text' ? formData.content : undefined,
-          learningOutcomes: formData.learningOutcomes || undefined,
+          title: formData.title?.trim() || undefined,
+          content: formData.content?.trim() || undefined,
+          learningOutcomes: formData.learningOutcomes?.trim() || undefined,
           assessmentCriteria:
             formData.assessmentCriteria.length > 0
               ? formData.assessmentCriteria
               : undefined,
         };
 
-        if (contentType === 'upload' && uploadState.selectedDocument) {
+        if (uploadState.selectedDocument) {
           newResource.fileUrl = uploadState.selectedDocument;
+        }
+        if (uploadState.fileName) {
           newResource.fileName = uploadState.fileName;
         }
 
@@ -465,7 +481,7 @@ setUnitMaterial(material || {});
       }
 
       toast({ title: editingResource ? 'Resource updated!' : 'Resource created!' });
-      fetchData(); // ✅ Refresh all data
+      fetchData();
       resetForm();
     } catch (error) {
       console.error('Save resource error:', error);
@@ -476,49 +492,47 @@ setUnitMaterial(material || {});
     }
   };
 
-const handleDeleteResource = async (id: string) => {
-  const resource = resources.find((r) => r._id === id);
-  if (!resource) return;
+  const handleDeleteResource = async (id: string) => {
+    const resource = resources.find((r) => r._id === id);
+    if (!resource) return;
 
-  try {
-    // Determine which section the resource belongs to
-    let updatePayload: any = {};
+    try {
+      let updatePayload: any = {};
 
-    if (resource.type === 'introduction') {
-      // Set introduction to null or remove it
-      updatePayload.introduction = null;
-    } else if (resource.type === 'study-guide') {
-      updatePayload.$pull = { studyGuides: { _id: id } };
-    } else if (resource.type === 'lecture') {
-      updatePayload.$pull = { lectures: { _id: id } };
-    } else if (resource.type === 'learning-outcome') {
-      updatePayload.$pull = { learningOutcomes: { _id: id } };
-    } else if (resource.type === 'assignment') {
-      updatePayload.$pull = { assignments: { _id: id } };
-    } else {
+      if (resource.type === 'introduction') {
+        updatePayload.introduction = null;
+      } else if (resource.type === 'study-guide') {
+        updatePayload.$pull = { studyGuides: { _id: id } };
+      } else if (resource.type === 'lecture') {
+        updatePayload.$pull = { lectures: { _id: id } };
+      } else if (resource.type === 'learning-outcome') {
+        updatePayload.$pull = { learningOutcomes: { _id: id } };
+      } else if (resource.type === 'assignment') {
+        updatePayload.$pull = { assignments: { _id: id } };
+      } else {
+        toast({
+          title: 'Unsupported resource type',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      const response = await axiosInstance.patch(`/unit-material/${unitMaterial?._id}`, updatePayload);
+
+      if (response.status === 200) {
+        toast({
+          title: 'Resource deleted successfully',
+        });
+        setResources(resources.filter(r => r._id !== id));
+      }
+    } catch (error: any) {
       toast({
-        title: 'Unsupported resource type',
+        title: 'Failed to delete resource',
+        description: error?.response?.data?.message || error.message || 'Please try again.',
         variant: 'destructive',
       });
-      return;
     }
-
-    const response = await axiosInstance.patch(`/unit-material/${unitMaterial?._id}`, updatePayload);
-
-    if (response.status === 200) {
-      toast({
-        title: 'Resource deleted successfully',
-      });
-      setResources(resources.filter(r => r._id !== id));
-    }
-  } catch (error: any) {
-    toast({
-      title: 'Failed to delete resource',
-      description: error?.response?.data?.message || error.message || 'Please try again.',
-      variant: 'destructive',
-    });
-  }
-};
+  };
 
   const handleEditResource = (resource: Resource) => {
     setEditingResource(resource);
@@ -533,7 +547,7 @@ const handleDeleteResource = async (id: string) => {
     return moment(date).format('DD MMM, YYYY');
   };
 
-  // ✅ Show loading state
+  // ✅ Single loading state at the top
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -547,13 +561,18 @@ const handleDeleteResource = async (id: string) => {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-white p-6 rounded-2xl ">
       <div className="space-y-2">
         <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-          <h1 className="text-sm font-semibold text-slate-900">
-            Course Name: <span className="text-slate-700 font-medium">{courseName}</span> <br />
-            Unit Name: <span className="text-slate-700 font-medium">{unitTitle}</span>
-          </h1>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 text-sm text-slate-600">
+                <GraduationCap className="h-4 w-4" />
+                <span className="font-medium">{courseName}</span>
+              </div>
+              <h1 className="text-2xl font-bold text-slate-900 tracking-tight">{unitTitle}</h1>
+            </div>
+            </div>
           <div className="flex gap-4">
             <Button onClick={() => navigate(-1)} size="sm" className='bg-watney text-white hover:bg-watney/90'>
               <MoveLeft className="mr-2 h-4 w-4" /> Back
@@ -615,6 +634,7 @@ const handleDeleteResource = async (id: string) => {
             onEditResource={handleEditResource}
             onDeleteResource={handleDeleteResource}
             formatDate={formatDate}
+            applicationId={applicationId}
           />
         ) : (
           <Card className="shadow-lg">

@@ -133,6 +133,10 @@ export default function CoursesPage() {
     navigate(`${course._id}/unit`)
   };
 
+   const handleDocument = (course) => {
+    navigate(`course-document/${course._id}`)
+  };
+
   useEffect(() => {
     fetchData(currentPage, entriesPerPage); // Refresh data
   }, [currentPage, entriesPerPage]);
@@ -300,6 +304,22 @@ export default function CoursesPage() {
                     <div className='flex flex-row items-center gap-2'>
 
                     <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            className="border-none bg-watney text-white hover:bg-watney/90 flex "
+                            size="sm"
+                            onClick={() => handleDocument(course)}
+                            >
+                            <File className="h-4 w-4 mr-2" />
+                            Document
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Course Document</p>
+                        </TooltipContent>
+                      </Tooltip>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Button

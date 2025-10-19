@@ -28,7 +28,11 @@ import {
   File,
   X,
   CheckCircle,
-  Eye
+  Eye,
+  AlertCircle,
+  MessageSquare,
+  Download,
+  Upload
 } from 'lucide-react';
 import moment from 'moment';
 import { Resource } from './types';
@@ -48,6 +52,8 @@ import {
   DialogClose
 } from '@/components/ui/dialog';
 import { useNavigate, useParams } from 'react-router-dom';
+import { Textarea } from '@/components/ui/textarea';
+import { BlinkingDots } from '@/components/shared/blinking-dots';
 
 // Define upload state type
 interface UploadState {
@@ -60,13 +66,15 @@ interface ResourceCardProps {
   studentSubmission?: any;
   onEdit: (resource: Resource) => void;
   onDelete: (id: string) => void;
+  applicationId: any
 }
 
 const ResourceCard: React.FC<ResourceCardProps> = ({
   resource,
   studentSubmission,
   onEdit,
-  onDelete
+  onDelete,
+  applicationId
 }) => {
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -76,177 +84,14 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
   const isStudent = user?.role === 'student';
 
   // Dialog state for student submission
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [uploadState, setUploadState] = useState<UploadState>({
-    selectedDocument: null,
-    fileName: null
-  });
-  const [uploadingFile, setUploadingFile] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [uploadError, setUploadError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-  const [applicationId, setApplicationId] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [localSubmission, setLocalSubmission] = useState(
-    studentSubmission || null
-  );
+
 
   // 🔥 Delete confirmation dialog state
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
-  const MAX_FILE_SIZE = 20 * 1024 * 1024; // 5MB
 
-  // Fetch applicationId when dialog opens (for student)
-  useEffect(() => {
-    if (dialogOpen && isStudent && user?._id && id) {
-      const fetchApplicationId = async () => {
-        try {
-          const res = await axiosInstance.get(
-            `/application-course?studentId=${user._id}&courseId=${id}`
-          );
-          const applications = res.data.data.result || [];
-          if (applications.length > 0) {
-            setApplicationId(applications[0]._id);
-          } else {
-            toast({
-              title: 'Error',
-              description: 'No active application found for this unit.',
-              variant: 'destructive'
-            });
-            setDialogOpen(false);
-          }
-        } catch (error) {
-          console.error('Failed to fetch application ID:', error);
-          toast({
-            title: 'Error',
-            description: 'Could not load your application. Please try again.',
-            variant: 'destructive'
-          });
-          setDialogOpen(false);
-        }
-      };
-      fetchApplicationId();
-    }
-  }, [dialogOpen, isStudent, user?._id, id, toast]);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
 
-    setUploadError(null);
-    setUploadingFile(true);
-    setUploadProgress(0);
-
-    if (file.size > MAX_FILE_SIZE) {
-      toast({
-        title: 'File too large',
-        description: 'File must be less than 20MB.',
-        variant: 'destructive'
-      });
-      setUploadingFile(false);
-      return;
-    }
-
-    try {
-      const formData = new FormData();
-      formData.append('entityId', user?._id);
-      formData.append('file_type', 'resource');
-      formData.append('file', file);
-
-      const response = await axiosInstance.post('/documents', formData, {
-        onUploadProgress: (progressEvent) => {
-          if (progressEvent.total) {
-            const percentCompleted = Math.round(
-              (progressEvent.loaded * 100) / progressEvent.total
-            );
-            setUploadProgress(percentCompleted);
-          }
-        }
-      });
-
-      if (
-        response.status === 200 &&
-        response.data?.success &&
-        response.data.data?.fileUrl
-      ) {
-        const fileUrl = response.data.data.fileUrl.trim();
-        setUploadState({
-          selectedDocument: fileUrl,
-          fileName: file.name
-        });
-        toast({
-          title: 'Success',
-          description: 'Document uploaded successfully!'
-        });
-      } else {
-        throw new Error('Upload failed: Invalid API response');
-      }
-    } catch (error) {
-      console.error('Upload error:', error);
-      setUploadError('Failed to upload document. Please try again.');
-      toast({
-        title: 'Upload failed',
-        description: 'Could not upload your document.',
-        variant: 'destructive'
-      });
-    } finally {
-      setUploadingFile(false);
-      setUploadProgress(0);
-    }
-  };
-
-  const handleSubmitAssignment = async () => {
-    if (!uploadState.selectedDocument) {
-      toast({
-        title: 'Error',
-        description: 'Please upload a document.',
-        variant: 'destructive'
-      });
-      return;
-    }
-
-    if (!applicationId || !unitId) {
-      toast({
-        title: 'Error',
-        description: 'Missing application or unit ID.',
-        variant: 'destructive'
-      });
-      return;
-    }
-
-    try {
-      setSubmitting(true);
-      const response = await axiosInstance.post('/assignment', {
-        applicationId,
-        studentId: user._id,
-        unitId,
-        assignmentName: resource.title,
-        document: uploadState.selectedDocument
-      });
-
-      toast({
-        title: 'Success',
-        description: 'Assignment submitted successfully!'
-      });
-
-      setLocalSubmission({
-        document: uploadState.selectedDocument,
-        createdAt: new Date().toISOString()
-      });
-
-      setUploadState({ selectedDocument: null, fileName: null });
-      setDialogOpen(false);
-    } catch (error) {
-      console.error('Failed to submit assignment:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to submit assignment. Please try again.',
-        variant: 'destructive'
-      });
-    } finally {
-      setSubmitting(false);
-    }
-  };
 
   const getResourceTypeIcon = (type: string) => {
     switch (type) {
@@ -278,41 +123,85 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
     }
   };
 
-  const formatDeadline = (deadline: string | Date) => {
-    return moment(deadline).format('DD-MM-YYYY');
-  };
 
-  // === Render Assignment Card ===
+
   if (resource.type === 'assignment') {
-    return (
-      <div className="flex items-center justify-between rounded-lg border border-gray-300 p-4">
-        <div className="flex flex-1 items-center gap-3">
-          <Badge
-            className={`${getResourceTypeColor(resource.type)} p-2 text-white`}
-          >
-            {getResourceTypeIcon(resource.type)}
-          </Badge>
-          <h3 className="font-medium">{resource.title}</h3>
-          {resource.deadline && (
-            <div className="flex items-center text-sm text-slate-600">
-              <Clock className="ml-3 mr-1 h-4 w-4" />
-              <span>Due: {formatDeadline(resource.deadline)}</span>
-            </div>
-          )}
-        </div>
+    const [threadData, setThreadData] = useState<{
+      assignment: any;
+     
+    } | null>(null);
 
-        <div className="flex items-center gap-3">
-          {isAdmin && (
-            <div className="flex gap-2">
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
+    useEffect(() => {
+      if (!isStudent || !user?._id || !id || !unitId) return;
+
+      const loadAssignment = async () => {
+        try {
+          // Get Application ID
+         
+          // Get Assignment Data
+          const assignmentRes = await axiosInstance.get(
+            `/assignment?studentId=${user._id}&assignmentName=${encodeURIComponent(resource.title)}&unitId=${unitId}`
+          );
+
+          const assignmentData = Array.isArray(assignmentRes.data.data.result)
+            ? assignmentRes.data.data.result[0]
+            : assignmentRes.data.data;
+
+          setThreadData({
+            assignment: assignmentData,
+          });
+        } catch (err) {
+          console.error('Failed to load assignment', err);
+          toast({
+            title: 'Error',
+            description: 'Could not load assignment.',
+            variant: 'destructive'
+          });
+        } 
+      };
+
+      loadAssignment();
+    }, [isStudent, user?._id, id, unitId]);
+
+
+    return (
+      <div className="group flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="font-medium text-gray-900">{resource.title}</h3>
+            {resource.deadline && (
+              <div className="flex items-center gap-1 text-sm font-medium text-gray-500">
+                <Clock className="h-3.5 w-3.5" />
+                <span>
+                  Deadline:{' '}
+                  {resource.deadline
+                    ? moment(resource.deadline).format('DD MMM, YYYY')
+                    : 'No deadline'}
+                </span>{' '}
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2">
+            {/* Edit Button */}
+            {isAdmin && (
               <Button
-                variant="default"
                 size="icon"
+                variant="ghost"
                 onClick={() => onEdit(resource)}
-                className="text-watney hover:text-watney/90"
               >
                 <Pencil className="h-4 w-4" />
               </Button>
-              <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+            )}
+
+            {/* Delete Button */}
+            {isAdmin && (
+              <Dialog
+                open={deleteDialogOpen}
+                onOpenChange={setDeleteDialogOpen}
+              >
                 <DialogTrigger asChild>
                   <Button variant="destructive" size="icon">
                     <Trash2 className="h-4 w-4" />
@@ -322,7 +211,8 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
                   <DialogHeader>
                     <DialogTitle>Confirm Deletion</DialogTitle>
                     <DialogDescription>
-                      Are you sure you want to delete this assignment? This action cannot be undone.
+                      Are you sure you want to delete this assignment? This
+                      action cannot be undone.
                     </DialogDescription>
                   </DialogHeader>
                   <DialogFooter>
@@ -341,166 +231,26 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
-            </div>
-          )}
+            )}
 
-          {isStudent && (
-            <>
-              {localSubmission ? (
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center text-sm text-slate-600">
-                    <Clock className="ml-3 mr-1 h-4 w-4" />
-                    <span>
-                      Submitted: {formatDeadline(localSubmission.createdAt)}
-                    </span>
-                  </div>
-                  <Badge
-                    variant="secondary"
-                    className="bg-green-100 text-green-800 hover:bg-green-200"
-                  >
-                    <CheckCircle className="mr-1 h-3 w-3" />
-                    Submitted
-                  </Badge>
-                  <Button
-                    asChild
-                    variant="default"
-                    size="sm"
-                    className="h-8 px-2"
-                  >
-                    <a
-                      href={localSubmission.document}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1 bg-watney text-white hover:bg-watney/90"
-                    >
-                      <Eye className="h-4 w-4" />
-                      View Document
-                    </a>
-                  </Button>
-                </div>
-              ) : (
-                <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button
-                      size="sm"
-                      className="bg-watney text-white hover:bg-watney/90"
-                    >
-                      <Plus className="mr-2 h-4 w-4" /> Submit Assignment
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="z-[9999] max-w-md">
-                    <DialogHeader>
-                      <DialogTitle>Submit Assignment</DialogTitle>
-                      <DialogDescription>
-                        Upload your work for: <strong>{resource.title}</strong>
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4 py-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="assignment-name">
-                          Assignment Title
-                        </Label>
-                        <Input
-                          id="assignment-name"
-                          value={resource.title}
-                          disabled
-                          className="bg-gray-100"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Document</Label>
-                        <input
-                          type="file"
-                          onChange={handleFileChange}
-                          className="hidden"
-                          ref={fileInputRef}
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => fileInputRef.current?.click()}
-                          className="w-full bg-watney text-white hover:bg-watney/90"
-                          disabled={uploadingFile}
-                        >
-                          <FileText className="mr-2 h-4 w-4" />
-                          {uploadState.selectedDocument
-                            ? 'Change Document'
-                            : 'Upload Document'}
-                        </Button>
-
-                        {uploadState.selectedDocument && (
-                          <div className="flex items-center justify-between rounded-md bg-gray-100 p-3">
-                            <a
-                              href={uploadState.selectedDocument}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex items-center gap-2 truncate text-sm font-medium text-black hover:underline"
-                            >
-                              <File className="h-4 w-4" />
-                              {uploadState.fileName || 'Uploaded Document'}
-                            </a>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setUploadState({
-                                  selectedDocument: null,
-                                  fileName: null
-                                });
-                                if (fileInputRef.current)
-                                  fileInputRef.current.value = '';
-                              }}
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        )}
-
-                        {uploadingFile && (
-                          <div className="text-center text-sm text-muted-foreground">
-                            Uploading... {uploadProgress}%
-                          </div>
-                        )}
-                        {uploadError && (
-                          <p className="text-sm text-red-600">{uploadError}</p>
-                        )}
-                      </div>
-
-                      <div className="flex justify-end gap-2 pt-2">
-                        <Button
-                          variant="outline"
-                          onClick={() => {
-                            setDialogOpen(false);
-                            setUploadState({
-                              selectedDocument: null,
-                              fileName: null
-                            });
-                            if (fileInputRef.current)
-                              fileInputRef.current.value = '';
-                          }}
-                        >
-                          Cancel
-                        </Button>
-                        <Button
-                          onClick={handleSubmitAssignment}
-                          disabled={
-                            submitting || uploadingFile || !applicationId
-                          }
-                          className="bg-watney text-white hover:bg-watney/90"
-                        >
-                          {submitting ? 'Submitting...' : 'Submit'}
-                        </Button>
-                      </div>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              )}
-            </>
-          )}
+            {/* View Button */}
+            {isStudent && applicationId && (
+              <Button
+                size="sm"
+                className="bg-watney text-white hover:bg-watney/90"
+                onClick={() =>
+                  navigate(
+                    `/dashboard/student-applications/${applicationId}/assignment/${user._id}/unit-assignments/${unitId}`,
+                    { state: { assignmentId: threadData?.assignment?._id } }
+                  )
+                }
+              >
+                Assignment Details
+              </Button>
+            )}
+          </div>
         </div>
+
       </div>
     );
   }
@@ -508,7 +258,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
   // === Introduction Card ===
   if (resource.type === 'introduction') {
     return (
-      <Card className="shadow-lg">
+      <Card className="border border-gray-300 shadow-none">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -527,7 +277,10 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
                 >
                   <Pencil className="h-4 w-4" />
                 </Button>
-                <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                <Dialog
+                  open={deleteDialogOpen}
+                  onOpenChange={setDeleteDialogOpen}
+                >
                   <DialogTrigger asChild>
                     <Button variant="destructive" size="icon">
                       <Trash2 className="h-4 w-4" />
@@ -537,7 +290,8 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
                     <DialogHeader>
                       <DialogTitle>Confirm Deletion</DialogTitle>
                       <DialogDescription>
-                        Are you sure you want to delete this introduction? This action cannot be undone.
+                        Are you sure you want to delete this introduction? This
+                        action cannot be undone.
                       </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
@@ -597,9 +351,16 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
                 >
                   <Pencil className="h-4 w-4" />
                 </Button>
-                <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                <Dialog
+                  open={deleteDialogOpen}
+                  onOpenChange={setDeleteDialogOpen}
+                >
                   <DialogTrigger asChild>
-                    <Button variant="destructive" size="icon" onClick={(e) => e.stopPropagation()}>
+                    <Button
+                      variant="destructive"
+                      size="icon"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </DialogTrigger>
@@ -607,7 +368,8 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
                     <DialogHeader>
                       <DialogTitle>Confirm Deletion</DialogTitle>
                       <DialogDescription>
-                        Are you sure you want to delete this learning outcome? This action cannot be undone.
+                        Are you sure you want to delete this learning outcome?
+                        This action cannot be undone.
                       </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
@@ -695,7 +457,10 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
               >
                 <Pencil className="h-4 w-4" />
               </Button>
-              <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+              <Dialog
+                open={deleteDialogOpen}
+                onOpenChange={setDeleteDialogOpen}
+              >
                 <DialogTrigger asChild>
                   <Button
                     variant="destructive"
@@ -709,7 +474,8 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
                   <DialogHeader>
                     <DialogTitle>Confirm Deletion</DialogTitle>
                     <DialogDescription>
-                      Are you sure you want to delete this resource? This action cannot be undone.
+                      Are you sure you want to delete this resource? This action
+                      cannot be undone.
                     </DialogDescription>
                   </DialogHeader>
                   <DialogFooter>
@@ -734,18 +500,22 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
       </AccordionTrigger>
       <AccordionContent className="px-4 pt-4">
         <div className="flex items-start justify-between">
-          <div className="flex-1">
-            {resource.content && resource.content.trim() ? (
+          <div className="flex-1 space-y-4">
+            {/* Render rich text content if available */}
+            {resource.content && resource.content.trim() && (
               <div
                 className="space-y-2 px-2 leading-relaxed text-slate-700 [&>ol]:list-decimal [&>ol]:pl-5 [&>ul]:list-disc [&>ul]:pl-5"
                 dangerouslySetInnerHTML={{ __html: resource.content }}
               />
-            ) : resource.fileUrl && resource.fileUrl.trim() ? (
+            )}
+
+            {/* Render file link if available */}
+            {resource.fileUrl && resource.fileUrl.trim() && (
               <div className="flex items-center gap-3 rounded-lg bg-slate-50 p-4">
                 <Button
                   asChild
                   variant="link"
-                  className="p-0 font-medium text-blue-600 hover:underline"
+                  className="p-0 font-medium text-watney hover:underline"
                 >
                   <a
                     href={resource.fileUrl.trim()}
@@ -758,7 +528,10 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
                   </a>
                 </Button>
               </div>
-            ) : (
+            )}
+
+            {/* Show "No content" only if neither exists */}
+            {!resource.content?.trim() && !resource.fileUrl?.trim() && (
               <p className="px-4 italic text-slate-500">No content available</p>
             )}
           </div>

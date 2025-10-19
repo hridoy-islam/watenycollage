@@ -1,22 +1,14 @@
-
 import { useState, useEffect } from 'react';
 import axiosInstance from '@/lib/axios';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle
-} from '@/components/ui/card';
-
-
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Users,
   GraduationCap,
   BookOpen,
   FolderOpen,
-
+  MessageSquare,
+  Clock
 } from 'lucide-react';
-
 import { useNavigate } from 'react-router-dom';
 
 // Define types with optional chaining support
@@ -57,6 +49,50 @@ interface Job {
   applicationDeadline?: string;
 }
 
+interface Assignment {
+  _id: string;
+  assignmentName: string;
+  submissions: Array<{
+    _id: string;
+    seen: boolean;
+    submitBy: {
+      _id: string;
+      name: string;
+      email: string;
+    };
+    files: string[];
+    comment?: string;
+    status: 'submitted' | 'resubmitted';
+    createdAt: string;
+  }>;
+  feedbacks: Array<{
+    _id: string;
+    seen: boolean;
+    submitBy: {
+      _id: string;
+      name: string;
+      email: string;
+    };
+    files: string[];
+    comment?: string;
+    createdAt: string;
+  }>;
+  studentId: {
+    _id: string;
+    name: string;
+    email: string;
+  };
+  unitId: {
+    _id: string;
+    title: string;
+  };
+  status: string;
+  requireResubmit: boolean;
+  deadline?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export function AdminDashboard() {
   const [studentApplications, setStudentApplications] = useState<
     StudentApplication[]
@@ -80,27 +116,38 @@ export function AdminDashboard() {
   const [totalCourse, setTotalCourse] = useState(0);
   const [totalTerm, setTotalTerm] = useState(0);
   const [totalJob, setTotalJob] = useState(0);
+  const [pendingFeedbackCount, setPendingFeedbackCount] = useState(0);
 
   const fetchData = async (page = 1, entriesPerPage = 100) => {
     try {
-      const [studentRes, careerRes, courseRes, termRes, jobRes] =
-        await Promise.all([
-          axiosInstance.get('/application-course', {
-            params: { page, limit: entriesPerPage }
-          }),
-          axiosInstance.get('/application-job', {
-            params: { page, limit: entriesPerPage }
-          }),
-          axiosInstance.get('/courses', {
-            params: { page, limit: entriesPerPage }
-          }),
-          axiosInstance.get('/terms', {
-            params: { page, limit: entriesPerPage }
-          }),
-          axiosInstance.get('/jobs', {
-            params: { page, limit: entriesPerPage }
-          })
-        ]);
+      const [
+        studentRes,
+        careerRes,
+        courseRes,
+        termRes,
+        jobRes,
+        assignmentsRes
+      ] = await Promise.all([
+        axiosInstance.get('/application-course', {
+          params: { page, limit: 'all' }
+        }),
+        axiosInstance.get('/application-job', {
+          params: { page, limit: 'all' }
+        }),
+        axiosInstance.get('/courses', {
+          params: { page, limit: 'all' }
+        }),
+        axiosInstance.get('/terms', {
+          params: { page, limit: 'all' }
+        }),
+        axiosInstance.get('/jobs', {
+          params: { page, limit: 'all' }
+        }),
+        // Fetch assignments with seen: false for submissions
+        axiosInstance.get(
+          '/assignment?status=submitted&limit=all&fields=status'
+        )
+      ]);
 
       // Set individual total pages
       setStudentTotalPages(studentRes.data.data?.meta?.totalPage || 1);
@@ -108,9 +155,9 @@ export function AdminDashboard() {
       setCourseTotalPages(courseRes.data.data?.meta?.totalPage || 1);
       setTermTotalPages(termRes.data.data?.meta?.totalPage || 1);
       setJobTotalPages(jobRes.data.data?.meta?.totalPage || 1);
-      settTotalStudent(studentRes.data.data?.meta?.total );
-      setTotalApplicant(careerRes.data.data?.meta?.total );
-      setTotalCourse(courseRes.data.data?.meta?.total );
+      settTotalStudent(studentRes.data.data?.meta?.total);
+      setTotalApplicant(careerRes.data.data?.meta?.total);
+      setTotalCourse(courseRes.data.data?.meta?.total);
       setTotalTerm(termRes.data.data?.meta?.total);
       setTotalJob(jobRes.data.data?.meta?.total);
 
@@ -120,6 +167,11 @@ export function AdminDashboard() {
       setCourses(courseRes.data.data?.result || []);
       setTerms(termRes.data.data?.result || []);
       setJobs(jobRes.data.data?.result || []);
+
+      // Process assignments data for pending feedback
+      const assignmentsData = assignmentsRes.data.data?.meta.total || 0;
+
+      setPendingFeedbackCount(assignmentsData);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -134,11 +186,14 @@ export function AdminDashboard() {
   const navigate = useNavigate();
 
   return (
-    <div className="flex-1 space-y-4  ">
+    <div className="flex-1 space-y-4">
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
         {/* Student Applications */}
-        <Card onClick={()=> navigate('/dashboard/student-applications')} className='cursor-pointer'>
+        <Card
+          onClick={() => navigate('/dashboard/student-applications')}
+          className="cursor-pointer"
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               Student Applications
@@ -150,21 +205,11 @@ export function AdminDashboard() {
           </CardContent>
         </Card>
 
-        {/* Career Applications */}
-        {/* <Card onClick={()=> navigate('/dashboard/career-applications')} className='cursor-pointer'>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Career Applications
-            </CardTitle>
-            <Briefcase className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalApplicant}</div>
-          </CardContent>
-        </Card> */}
-
         {/* Total Courses */}
-        <Card onClick={()=> navigate('/dashboard/courses')} className='cursor-pointer'>
+        <Card
+          onClick={() => navigate('/dashboard/courses')}
+          className="cursor-pointer"
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Courses</CardTitle>
             <BookOpen className="h-4 w-4 text-muted-foreground" />
@@ -175,7 +220,10 @@ export function AdminDashboard() {
         </Card>
 
         {/* Total Intakes */}
-        <Card onClick={()=> navigate('/dashboard/terms')} className='cursor-pointer'>
+        <Card
+          onClick={() => navigate('/dashboard/terms')}
+          className="cursor-pointer"
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Intakes</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
@@ -186,7 +234,10 @@ export function AdminDashboard() {
         </Card>
 
         {/* Total Jobs */}
-        <Card onClick={()=> navigate('/dashboard/jobs')} className='cursor-pointer'>
+        <Card
+          onClick={() => navigate('/dashboard/jobs')}
+          className="cursor-pointer"
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Jobs</CardTitle>
             <FolderOpen className="h-4 w-4 text-muted-foreground" />
@@ -195,9 +246,33 @@ export function AdminDashboard() {
             <div className="text-2xl font-bold">{totalJob}</div>
           </CardContent>
         </Card>
+
+        {/* Pending Feedback */}
+        <Card
+          onClick={() => navigate('/dashboard/assignments-feedback')}
+          className="cursor-pointer transition-colors"
+        >
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium ">
+              Pending Assignments
+            </CardTitle>
+            <MessageSquare className="h-4 w-4 " />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold ">{pendingFeedbackCount}</div>
+          </CardContent>
+        </Card>
       </div>
 
-     
+      {/* Optional: Show a loading state for the pending feedback count */}
+      {loading && (
+        <div className="flex items-center justify-center p-4">
+          <Clock className="mr-2 h-4 w-4 animate-spin" />
+          <span className="text-sm text-muted-foreground">
+            Loading dashboard data...
+          </span>
+        </div>
+      )}
     </div>
   );
 }

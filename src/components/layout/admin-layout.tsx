@@ -21,7 +21,7 @@ export default function AdminLayout({
       <TopNav />
       {/* <SideNav /> */}
 
-      <main className="mx-auto px-4 py-6">{children}</main>
+      <main className="mx-auto px-4 py-8 ">{children}</main>
       <Toaster />
     </div>
   );

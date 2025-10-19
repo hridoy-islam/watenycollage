@@ -77,6 +77,21 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
 
   // ===== FORM RENDERERS =====
 
+  useEffect(() => {
+    if (
+      (selectedResourceType === 'study-guide' ||
+        selectedResourceType === 'lecture') &&
+      uploadState.fileName &&
+      uploadState.fileUrl
+    ) {
+      setFormData((prev) => ({
+        ...prev,
+        fileName: uploadState.fileName,
+        fileUrl: uploadState.fileUrl
+      }));
+    }
+  }, [uploadState, selectedResourceType, setFormData]);
+
   const renderIntroductionForm = () => (
     <div className="space-y-4">
       <div>
@@ -89,7 +104,7 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
               setFormData((prev) => ({ ...prev, content: value }))
             }
             modules={quillModules}
-            className="[&_.ql-editor]:min-h-[200px]"
+            className="[&_.ql-editor]:max-h-[200px] [&_.ql-editor]:min-h-[200px] [&_.ql-editor]:overflow-y-auto"
           />
         </div>
       </div>
@@ -97,7 +112,7 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
   );
 
   const renderContentForm = () => (
-    <div className="space-y-6">
+    <div className="-mt-4 space-y-4">
       <div>
         <Label htmlFor="resource-title">Title</Label>
         <Input
@@ -111,47 +126,38 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
         />
       </div>
 
-      <Tabs
-        value={contentType}
-        onValueChange={(value) => setContentType(value as ContentType)}
-      >
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="text">Text Content</TabsTrigger>
-          <TabsTrigger value="upload">Document Upload</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="text" className="space-y-4">
-          <div>
-            <Label htmlFor="resource-content">Content</Label>
-            <div className="mt-2">
-              <ReactQuill
-                theme="snow"
-                value={formData.content}
-                onChange={(value) =>
-                  setFormData((prev) => ({ ...prev, content: value }))
-                }
-                modules={quillModules}
-                className="[&_.ql-editor]:min-h-[200px]"
-              />
-            </div>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="upload" className="space-y-4">
-          <FileUploadArea
-            uploadState={uploadState}
-            uploadingFile={uploadingFile}
-            uploadProgress={uploadProgress}
-            uploadError={uploadError}
-            onFileChange={onFileChange}
+      {/* === Text Content === */}
+      <div>
+        <Label htmlFor="resource-content">Text Content</Label>
+        <div className="mt-2">
+          <ReactQuill
+            theme="snow"
+            value={formData.content}
+            onChange={(value) =>
+              setFormData((prev) => ({ ...prev, content: value }))
+            }
+            modules={quillModules}
+            className="[&_.ql-editor]:max-h-[200px] [&_.ql-editor]:min-h-[200px] [&_.ql-editor]:overflow-y-auto"
           />
-        </TabsContent>
-      </Tabs>
+        </div>
+      </div>
+
+      {/* === File Upload === */}
+      <div>
+        <Label>Upload Document</Label>
+        <FileUploadArea
+          uploadState={uploadState}
+          uploadingFile={uploadingFile}
+          uploadProgress={uploadProgress}
+          uploadError={uploadError}
+          onFileChange={onFileChange}
+        />
+      </div>
     </div>
   );
 
   const renderAssignmentForm = () => (
-    <div className="h-[20vh] space-y-6">
+    <div className="h-[60vh] space-y-4">
       <div>
         <Label htmlFor="assignment-title">Assignment Title</Label>
         <Input
@@ -164,6 +170,21 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
           className="mt-2"
         />
       </div>
+      <div>
+        <Label htmlFor="resource-content">Assignment Details (Optional)</Label>
+        <div className="mt-2">
+          <ReactQuill
+            theme="snow"
+            value={formData.content}
+            onChange={(value) =>
+              setFormData((prev) => ({ ...prev, content: value }))
+            }
+            modules={quillModules}
+            className="[&_.ql-editor]:max-h-[200px] [&_.ql-editor]:min-h-[200px] [&_.ql-editor]:overflow-y-auto"
+          />
+        </div>
+      </div>
+
       <div>
         <Label htmlFor="assignment-deadline">Deadline</Label>
         <Input
@@ -186,7 +207,7 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
     </div>
   );
 
-    const renderCreateLearningOutcomeForm = () => {
+  const renderCreateLearningOutcomeForm = () => {
     const [isAddingNew, setIsAddingNew] = useState(false);
 
     if (currentStep === 1) {
@@ -227,13 +248,13 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
     // Step 2: Assessment Criteria
     return (
       <div className="space-y-2">
-        <div className="flex items-center justify-between -mt-6">
+        <div className="-mt-6 flex items-center justify-between">
           <Button
             type="button"
             variant="default"
-            size={"sm"}
+            size={'sm'}
             onClick={() => setCurrentStep(1)}
-            className="text-sm bg-watney text-white hover:bg-watney/90 flex items-center gap-2"
+            className="flex items-center gap-2 bg-watney text-sm text-white hover:bg-watney/90"
           >
             ← Back
           </Button>
@@ -302,14 +323,16 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
                     </span>
                     <div
                       className="ql-snow text-slate-800"
-                      dangerouslySetInnerHTML={{ __html: item.description || '' }}
+                      dangerouslySetInnerHTML={{
+                        __html: item.description || ''
+                      }}
                     />
                   </div>
                   <div className="ml-4 flex gap-1">
                     <Button
                       variant="default"
                       size="sm"
-                      className='hover:bg-blue-50'
+                      className="hover:bg-blue-50"
                       onClick={() => {
                         setEditingIndex(index);
                         setEditContent(item.description || '');
@@ -320,7 +343,7 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
                     <Button
                       variant="default"
                       size="sm"
-                      className='hover:bg-red-50'
+                      className="hover:bg-red-50"
                       onClick={() => {
                         setFormData((prev) => ({
                           ...prev,
@@ -414,7 +437,6 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
     );
   };
 
-
   const renderFormContent = () => {
     switch (selectedResourceType) {
       case 'introduction':
@@ -440,10 +462,9 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
       case 'lecture':
         return (
           formData.title?.trim() &&
-          (contentType === 'text'
-            ? formData.content?.trim()
-            : uploadState.selectedDocument)
+          (formData.content?.trim() || uploadState.selectedDocument)
         );
+
       case 'assignment':
         return formData.title?.trim() && !!formData.deadline;
       case 'learning-outcome':

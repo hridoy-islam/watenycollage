@@ -41,6 +41,11 @@ import AssignmentPage from '@/pages/assignment';
 import CourseUnitPage from '@/pages/courseUnit';
 import CourseModule from '@/pages/courseUnit/courseResource';
 import CourseResource from '@/pages/courseUnit/courseResource';
+import AssignmentDetailPage from '@/pages/assignment/assignmentDetails';
+import { AssignmentFeedbackList } from '@/pages/pendingAssignmentFeedback';
+import { StudentAssignmentFeedbackList } from '@/pages/pendingAssignmentFeedbackStudent';
+import { StudentAssignmentsPage } from '@/pages/studentAssignmentList';
+import CourseDocumentPage from '@/pages/courseDocument';
 
 const SignInPage = lazy(() => import('@/pages/auth/signin/index'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
@@ -85,6 +90,21 @@ export default function AppRouter() {
         element: withRole(<InternationalStudentApplication />, ['admin', 'student']),
         index: true
       },
+       {
+        path: 'assignments-feedback',
+        element: withRole(<AssignmentFeedbackList />, ['admin']),
+        index: true
+      },
+         {
+        path: 'student-assignments-feedback',
+        element: withRole(<StudentAssignmentFeedbackList />, ['admin','student']),
+        index: true
+      },
+           {
+        path: 'student-assignments',
+        element: withRole(<StudentAssignmentsPage />, ['admin','student']),
+        index: true
+      },
       {
         path: 'applications',
         element: withRole(<ApplicationListPage />, ['admin']),
@@ -121,6 +141,11 @@ export default function AppRouter() {
       {
         path: 'courses',
         element: withRole(<CoursesPage />, ['admin','student']),
+        index: true
+      },
+            {
+        path: 'courses/course-document/:id',
+        element: withRole(<CourseDocumentPage />, ['admin','student']),
         index: true
       },
       {
@@ -176,6 +201,11 @@ export default function AppRouter() {
       {
         path: 'student-applications/:id/assignment/:studentId',
         element: withRole(<AssignmentPage />, ['admin','student']),
+        index: true
+      },
+       {
+        path: 'student-applications/:id/assignment/:studentId/unit-assignments/:unitId',
+        element: withRole(<AssignmentDetailPage />, ['admin','student']),
         index: true
       },
       {

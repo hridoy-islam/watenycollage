@@ -22,7 +22,7 @@ const FileUploadArea: React.FC<FileUploadAreaProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   return (
-    <div className="rounded-lg border-2 border-dashed border-slate-300 p-8 text-center">
+    <div className="rounded-lg border-2 border-dashed border-slate-300 p-4 text-center ">
       <input
         type="file"
         onChange={onFileChange}
