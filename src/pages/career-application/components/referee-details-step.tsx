@@ -12,6 +12,7 @@ import {
   FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { HelperTooltip } from '@/helper/HelperTooltip';
 
 // Referee schema for professional referees (all required except fax)
 const professionalRefereeSchema = z.object({
@@ -56,43 +57,66 @@ export function RefereeDetailsStep({
     resolver: zodResolver(refereeDetailsSchema),
     defaultValues: {
       professionalReferee1: defaultValues?.professionalReferee1 ?? {
-        name: '', position: '', relationship: '', organisation: '', address: '', tel: '', fax: '', email: ''
+        name: '',
+        position: '',
+        relationship: '',
+        organisation: '',
+        address: '',
+        tel: '',
+        fax: '',
+        email: ''
       },
       professionalReferee2: defaultValues?.professionalReferee2 ?? {
-        name: '', position: '', relationship: '', organisation: '', address: '', tel: '', fax: '', email: ''
+        name: '',
+        position: '',
+        relationship: '',
+        organisation: '',
+        address: '',
+        tel: '',
+        fax: '',
+        email: ''
       },
       personalReferee: defaultValues?.personalReferee ?? {
-        name: '', position: '', relationship: '', organisation: '', address: '', tel: '', fax: '', email: ''
+        name: '',
+        position: '',
+        relationship: '',
+        organisation: '',
+        address: '',
+        tel: '',
+        fax: '',
+        email: ''
       }
     }
   });
 
-const onSubmit = (data: RefereeFormValues) => {
-  const normalizedData = {
-    ...data,
-    professionalReferee1: {
-      ...data.professionalReferee1,
-      email: data.professionalReferee1.email.toLowerCase(),
-    },
-    professionalReferee2: {
-      ...data.professionalReferee2,
-      email: data.professionalReferee2.email.toLowerCase(),
-    },
-    personalReferee: {
-      ...data.personalReferee,
-      email: data.personalReferee.email.toLowerCase(),
-    },
+  const onSubmit = (data: RefereeFormValues) => {
+    const normalizedData = {
+      ...data,
+      professionalReferee1: {
+        ...data.professionalReferee1,
+        email: data.professionalReferee1.email.toLowerCase()
+      },
+      professionalReferee2: {
+        ...data.professionalReferee2,
+        email: data.professionalReferee2.email.toLowerCase()
+      },
+      personalReferee: {
+        ...data.personalReferee,
+        email: data.personalReferee.email.toLowerCase()
+      }
+    };
+    onSaveAndContinue(normalizedData);
   };
-  onSaveAndContinue(normalizedData);
-};
-
 
   function handleBack() {
     setCurrentStep(8);
   }
 
   // Helper to check if a field is required for a given referee type
-  const isFieldRequired = (refKey: keyof RefereeFormValues, fieldName: string): boolean => {
+  const isFieldRequired = (
+    refKey: keyof RefereeFormValues,
+    fieldName: string
+  ): boolean => {
     if (refKey === 'personalReferee') {
       return ['name', 'relationship', 'tel', 'email'].includes(fieldName);
     }
@@ -120,15 +144,20 @@ const onSubmit = (data: RefereeFormValues) => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-lg font-medium">
-                  Name {isFieldRequired(refKey, 'name') && <span className="text-red-500">*</span>}
+                  <div>
+
+                  Name{' '}
+                  {isFieldRequired(refKey, 'name') && (
+                    <span className="text-red-500">*</span>
+                  )}
+                  </div>
+                  <HelperTooltip text="Enter the full name of the referee, e.g., Sarah Johnson." />
+
                 </FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    placeholder="Sarah Johnson"
-                  />
+                  <Input {...field} placeholder="Sarah Johnson" />
                 </FormControl>
-                <p className="text-md text-gray-400">Example: Sarah Johnson</p>
+                {/* <p className="text-md text-gray-400">Example: Sarah Johnson</p> */}
                 <FormMessage />
               </FormItem>
             )}
@@ -141,15 +170,20 @@ const onSubmit = (data: RefereeFormValues) => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-lg font-medium">
-                  Position {isFieldRequired(refKey, 'position') && <span className="text-red-500">*</span>}
+                  <div>
+
+                  Position{' '}
+                  {isFieldRequired(refKey, 'position') && (
+                    <span className="text-red-500">*</span>
+                  )}
+                  </div>
+                  <HelperTooltip text="State the referee's job title or position, e.g., Senior Manager." />
+
                 </FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    placeholder="Senior Manager"
-                  />
+                  <Input {...field} placeholder="Senior Manager" />
                 </FormControl>
-                <p className="text-md text-gray-400">Example: Senior Manager</p>
+                {/* <p className="text-md text-gray-400">Example: Senior Manager</p> */}
                 <FormMessage />
               </FormItem>
             )}
@@ -162,7 +196,15 @@ const onSubmit = (data: RefereeFormValues) => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-lg font-medium">
-                  Relationship to you {isFieldRequired(refKey, 'relationship') && <span className="text-red-500">*</span>}
+                  <div>
+
+                  Relationship to you{' '}
+                  {isFieldRequired(refKey, 'relationship') && (
+                    <span className="text-red-500">*</span>
+                  )}
+                  </div>
+                  <HelperTooltip text="Specify how this referee is related to you, e.g., Line Manager, Colleague, Friend." />
+
                 </FormLabel>
                 <FormControl>
                   <Input
@@ -170,7 +212,7 @@ const onSubmit = (data: RefereeFormValues) => {
                     placeholder="Line Manager, Colleague, Friend"
                   />
                 </FormControl>
-                <p className="text-md text-gray-400">Example: Line Manager</p>
+                {/* <p className="text-md text-gray-400">Example: Line Manager</p> */}
                 <FormMessage />
               </FormItem>
             )}
@@ -183,15 +225,22 @@ const onSubmit = (data: RefereeFormValues) => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-lg font-medium">
-                  Organisation {isFieldRequired(refKey, 'organisation') && <span className="text-red-500">*</span>}
+                  <div>
+
+                  Organisation{' '}
+                  {isFieldRequired(refKey, 'organisation') && (
+                    <span className="text-red-500">*</span>
+                  )}
+                  </div>
+                  <HelperTooltip text="Enter the full name of the referee's organisation, e.g., ABC Health Services Ltd." />
+
                 </FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    placeholder="ABC Health Services Ltd."
-                  />
+                  <Input {...field} placeholder="ABC Health Services Ltd." />
                 </FormControl>
-                <p className="text-md text-gray-400">Example: ABC Health Services Ltd.</p>
+                {/* <p className="text-md text-gray-400">
+                  Example: ABC Health Services Ltd.
+                </p> */}
                 <FormMessage />
               </FormItem>
             )}
@@ -204,7 +253,15 @@ const onSubmit = (data: RefereeFormValues) => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-lg font-medium">
-                  Address {isFieldRequired(refKey, 'address') && <span className="text-red-500">*</span>}
+                  <div>
+
+                  Address{' '}
+                  {isFieldRequired(refKey, 'address') && (
+                    <span className="text-red-500">*</span>
+                  )}
+                  </div>
+                  <HelperTooltip text="Provide the full postal address of the referee, e.g., 123 High Street, London, W1A 1AA." />
+
                 </FormLabel>
                 <FormControl>
                   <Input
@@ -212,9 +269,9 @@ const onSubmit = (data: RefereeFormValues) => {
                     placeholder="123 High Street, London, W1A 1AA"
                   />
                 </FormControl>
-                <p className="text-md text-gray-400">
+                {/* <p className="text-md text-gray-400">
                   Example: 123 High Street, London, W1A 1AA
-                </p>
+                </p> */}
                 <FormMessage />
               </FormItem>
             )}
@@ -227,15 +284,22 @@ const onSubmit = (data: RefereeFormValues) => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-lg font-medium">
-                  Tel No. (NOT Mobile) {isFieldRequired(refKey, 'tel') && <span className="text-red-500">*</span>}
+                  <div>
+
+                  Tel No. (NOT Mobile){' '}
+                  {isFieldRequired(refKey, 'tel') && (
+                    <span className="text-red-500">*</span>
+                  )}
+                  </div>
+                  <HelperTooltip text="Provide the referee's landline number, e.g., +44 20 1234 5678." />
+
                 </FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    placeholder="+44 20 1234 5678"
-                  />
+                  <Input {...field} placeholder="+44 20 1234 5678" />
                 </FormControl>
-                <p className="text-md text-gray-400">Example: +44 20 1234 5678</p>
+                {/* <p className="text-md text-gray-400">
+                  Example: +44 20 1234 5678
+                </p> */}
                 <FormMessage />
               </FormItem>
             )}
@@ -248,15 +312,22 @@ const onSubmit = (data: RefereeFormValues) => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-lg font-medium">
-                  FAX No. {isFieldRequired(refKey, 'fax') && <span className="text-red-500">*</span>}
+                  <div>
+
+                  FAX No.{' '}
+                  {isFieldRequired(refKey, 'fax') && (
+                    <span className="text-red-500">*</span>
+                  )}
+                  </div>
+                  <HelperTooltip text="Provide the fax number of the referee, e.g., +44 20 1234 5679." />
+
                 </FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    placeholder="+44 20 1234 5679"
-                  />
+                  <Input {...field} placeholder="+44 20 1234 5679" />
                 </FormControl>
-                <p className="text-md text-gray-400">Example: +44 20 1234 5679</p>
+                {/* <p className="text-md text-gray-400">
+                  Example: +44 20 1234 5679
+                </p> */}
                 <FormMessage />
               </FormItem>
             )}
@@ -269,7 +340,15 @@ const onSubmit = (data: RefereeFormValues) => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-lg font-medium">
-                  Email Address {isFieldRequired(refKey, 'email') && <span className="text-red-500">*</span>}
+                  <div>
+
+                  Email Address{' '}
+                  {isFieldRequired(refKey, 'email') && (
+                    <span className="text-red-500">*</span>
+                  )}
+                  </div>
+                  <HelperTooltip text="Enter a valid email address for the referee, e.g., s.johnson@abcservices.com." />
+
                 </FormLabel>
                 <FormControl>
                   <Input
@@ -278,9 +357,9 @@ const onSubmit = (data: RefereeFormValues) => {
                     type="email"
                   />
                 </FormControl>
-                <p className="text-md text-gray-400">
+                {/* <p className="text-md text-gray-400">
                   Example: s.johnson@abcservices.com
-                </p>
+                </p> */}
                 <FormMessage />
               </FormItem>
             )}
@@ -295,7 +374,13 @@ const onSubmit = (data: RefereeFormValues) => {
       <CardHeader>
         <h2 className="text-2xl font-semibold">Reference Details</h2>
         <p className="text-lg text-gray-400">
-          Please give the names and addresses of three referees. Two of these must be your current and most recent employers. If this period of employment was for less than three month you will require a further referee from your next previous employer for whom you worked for a minimum of three months. A referee from your employment must be a senior line manager who knows you. Referees must not be family&nbsp;members.
+          Please give the names and addresses of three referees. Two of these
+          must be your current and most recent employers. If this period of
+          employment was for less than three month you will require a further
+          referee from your next previous employer for whom you worked for a
+          minimum of three months. A referee from your employment must be a
+          senior line manager who knows you. Referees must not be
+          family&nbsp;members.
         </p>
       </CardHeader>
       <CardContent>
@@ -317,24 +402,26 @@ const onSubmit = (data: RefereeFormValues) => {
               'A personal referee who knows you and can speak to your character. Must not be a family member.'
             )}
 
-            <div className="flex justify-between pt-4">
+            <div className="flex flex-col gap-3 pt-4 sm:flex-row sm:justify-between">
               <Button
                 type="button"
                 variant="outline"
                 onClick={handleBack}
-                className="bg-watney text-lg text-white hover:bg-watney/90"
+                className="w-full bg-watney text-lg text-white hover:bg-watney/90 sm:w-auto"
               >
                 Back
               </Button>
+
               <Button
                 onClick={() => saveAndLogout()}
-                className="bg-watney text-white hover:bg-watney/90"
+                className="w-full bg-watney text-white hover:bg-watney/90 sm:w-auto"
               >
                 Save And Exit
               </Button>
+
               <Button
                 type="submit"
-                className="bg-watney text-lg text-white hover:bg-watney/90"
+                className="w-full bg-watney text-lg text-white hover:bg-watney/90 sm:w-auto"
               >
                 Save And Next
               </Button>

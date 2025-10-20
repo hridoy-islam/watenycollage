@@ -32,6 +32,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { format, getMonth, getYear, parse } from 'date-fns';
 import { CustomDatePicker } from '@/components/shared/CustomDatePicker';
 import moment from 'moment';
+import { HelperTooltip } from '@/helper/HelperTooltip';
 
 // Define title options for react-select
 const titleOptions = [
@@ -126,179 +127,188 @@ export function AddressStep({
         </CardDescription>
       </CardHeader>
 
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="space-y-4">
-              <h1 className="text-xl font-semibold">Postal Address</h1>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="postalAddressLine1"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Address Line 1<span className="text-red-500">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          placeholder="Enter the primary address (e.g., house number, street name)"
-                          className=" placeholder:text-gray-500"
-                        />
-                      </FormControl>
-                      <p className="text-md text-gray-500">
-                        Example: 12B Parkview Road
-                      </p>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+  <CardContent>
+  <Form {...form}>
+    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <div className="space-y-4">
+        <h1 className="text-xl font-semibold">Postal Address</h1>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {/* Address Line 1 */}
+          <FormField
+            control={form.control}
+            name="postalAddressLine1"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  <div>
+                    Address Line 1<span className="text-red-500">*</span>
+                  </div>
+                  <HelperTooltip text="Provide the first line of your address, including building number and street name. e.g., 12B Parkview Road" />
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder="Enter your primary address"
+                    className="placeholder:text-gray-500"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-                <FormField
-                  control={form.control}
-                  name="postalAddressLine2"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Address Line 2 (Optional)</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          placeholder="Optional additional address info (e.g., apartment, unit)."
-                          className=" placeholder:text-gray-500"
-                        />
-                      </FormControl>
-                      <p className="text-md text-gray-500">
-                        Example: Flat 3A
-                      </p>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+          {/* Address Line 2 */}
+          <FormField
+            control={form.control}
+            name="postalAddressLine2"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  <div>Address Line 2 (Optional)</div>
+                  <HelperTooltip text="Add apartment, suite, floor, or unit number if applicable. e.g., Flat 3A" />
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder="Enter additional address info (optional)"
+                    className="placeholder:text-gray-500"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-                <FormField
-                  control={form.control}
-                  name="postalCity"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        City<span className="text-red-500">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          placeholder="Enter the name of your town or city"
-                          className=" placeholder:text-gray-500"
-                        />
-                      </FormControl>
-                      <p className="text-md text-gray-500">
-                        Example: London
-                      </p>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+          {/* City */}
+          <FormField
+            control={form.control}
+            name="postalCity"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  <div>
+                    City<span className="text-red-500">*</span>
+                  </div>
+                  <HelperTooltip text="Enter the city or town where you reside. e.g., London" />
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder="Enter your city"
+                    className="placeholder:text-gray-500"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-                <FormField
-                  control={form.control}
-                  name="postalPostCode"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Postal Code<span className="text-red-500">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          placeholder="Enter your area’s postal/ZIP code."
-                          className=" placeholder:text-gray-500"
-                        />
-                      </FormControl>
-                      <p className="text-md text-gray-500">
-                        Example: SW1A 1AA
-                      </p>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+          {/* Postal Code */}
+          <FormField
+            control={form.control}
+            name="postalPostCode"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  <div>
+                    Postal Code<span className="text-red-500">*</span>
+                  </div>
+                  <HelperTooltip text="Provide the postal or ZIP code for your area. e.g., SW1A 1AA" />
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder="Enter your postal or ZIP code"
+                    className="placeholder:text-gray-500"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-                <FormField
-                  control={form.control}
+          {/* Country */}
+          <FormField
+            control={form.control}
+            name="postalCountry"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  <div>
+                    Country<span className="text-red-500">*</span>
+                  </div>
+                  <HelperTooltip text="Select the country of your postal address. e.g., United Kingdom" />
+                </FormLabel>
+                <Controller
                   name="postalCountry"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Country<span className="text-red-500">*</span>
-                      </FormLabel>
-                      <Controller
-                        name="postalCountry"
-                        control={form.control}
-                        render={({ field: { onChange, value } }) => (
-                          <Select
-                            options={countryOptions}
-                            value={countryOptions.find((opt) => opt.value === value)}
-                            onChange={(option) => onChange(option?.value)}
-                            className="react-select-container"
-                            classNamePrefix="react-select"
-                            placeholder="Select the country corresponding to the above address"
-                            styles={{
-                              container: (base) => ({ ...base, width: '100%' }),
-                              control: (base) => ({
-                                ...base,
-                                width: '100%',
-                                borderRadius: '16px',
-                                fontSize: '1.125rem',
-                                minHeight: '3rem',
-                                height: '3rem',
-                                padding: '0 0.75rem'
-                              }),
-                              menu: (base) => ({ ...base, width: '100%' }),
-                              placeholder: (base) => ({
-                                ...base,
-                                fontSize: '1.125rem',
-                                color: '#9CA3AF'
-                              }),
-                              singleValue: (base) => ({ ...base, fontSize: '1.125rem' }),
-                              input: (base) => ({ ...base, fontSize: '1.125rem' })
-                            }}
-                          />
-                        )}
-                      />
-                      <p className="text-md text-gray-500">
-                        Example: United Kingdom
-                      </p>
-                      <FormMessage />
-                    </FormItem>
+                  control={form.control}
+                  render={({ field: { onChange, value } }) => (
+                    <Select
+                      options={countryOptions}
+                      value={countryOptions.find((opt) => opt.value === value)}
+                      onChange={(option) => onChange(option?.value)}
+                      className="react-select-container"
+                      classNamePrefix="react-select"
+                      placeholder="Select your country"
+                      styles={{
+                        container: (base) => ({ ...base, width: '100%' }),
+                        control: (base) => ({
+                          ...base,
+                          width: '100%',
+                          borderRadius: '16px',
+                          fontSize: '1.125rem',
+                          minHeight: '3rem',
+                          height: '3rem',
+                          padding: '0 0.75rem',
+                        }),
+                        menu: (base) => ({ ...base, width: '100%' }),
+                        placeholder: (base) => ({
+                          ...base,
+                          fontSize: '1.125rem',
+                          color: '#9CA3AF',
+                        }),
+                        singleValue: (base) => ({ ...base, fontSize: '1.125rem' }),
+                        input: (base) => ({ ...base, fontSize: '1.125rem' }),
+                      }}
+                    />
                   )}
                 />
-              </div>
-            </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+      </div>
 
-            <div className="flex justify-between pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleBack}
-                className="bg-watney  text-lg text-white hover:bg-watney/90"
-              >
-                Back
-              </Button>
-              <Button
-                onClick={() => saveAndLogout()}
-                className="bg-watney  text-white hover:bg-watney/90"
-              >
-                Save And Exit
-              </Button>
-              <Button
-                type="submit"
-                className="bg-watney  text-lg text-white hover:bg-watney/90"
-              >
-                Save And Next
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </CardContent>
+      <div className="flex flex-col sm:flex-row sm:justify-between gap-3 pt-4">
+  <Button
+    type="button"
+    variant="outline"
+    onClick={handleBack}
+    className="bg-watney text-lg text-white hover:bg-watney/90 w-full sm:w-auto"
+  >
+    Back
+  </Button>
+
+  <Button
+    onClick={() => saveAndLogout()}
+    className="bg-watney text-white hover:bg-watney/90 w-full sm:w-auto"
+  >
+    Save And Exit
+  </Button>
+
+  <Button
+    type="submit"
+    className="bg-watney text-lg text-white hover:bg-watney/90 w-full sm:w-auto"
+  >
+    Save And Next
+  </Button>
+</div>
+
+    </form>
+  </Form>
+</CardContent>
+
     </Card>
   );
 }

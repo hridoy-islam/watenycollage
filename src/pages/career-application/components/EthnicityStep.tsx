@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input';
 import { useEffect, useState } from 'react';
 import Select from 'react-select';
 import { Textarea } from '@/components/ui/textarea';
+import { HelperTooltip } from '@/helper/HelperTooltip';
 
 // Define ethnicity options
 const ethnicityOptions = [
@@ -206,8 +207,13 @@ export function EthnicityStep({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-lg font-medium">
+                        <div>
+
                         Select Your Ethnic Group{' '}
                         <span className="text-red-500">*</span>
+                        </div>
+                        <HelperTooltip text="Select your broad ethnic group from the list, e.g., Asian, Black, White, Mixed, Other." />
+
                       </FormLabel>
                       <FormControl>
                         <Select
@@ -251,8 +257,13 @@ export function EthnicityStep({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className='text-watney'>
+                          <div>
+
                           Select Your Specific Ethnicity{' '}
                           <span className="text-red-500">*</span>
+                          </div>
+                          <HelperTooltip text="After selecting an ethnic group, choose your specific ethnicity from the filtered options." />
+
                         </FormLabel>
                         <FormControl>
                           <Select
@@ -295,7 +306,7 @@ export function EthnicityStep({
                     render={({ field }) => (
                       <FormItem className="md:col-span-2">
                         <FormLabel className='text-watney'>
-                          Please Specify</FormLabel>
+                          Please Specify <HelperTooltip text="If your specific ethnicity is not listed, please specify it here, e.g., Brazilian, Somali, Malaysian." /></FormLabel>
                         <FormControl>
                           <Textarea
                             {...field}
@@ -303,9 +314,9 @@ export function EthnicityStep({
                             className="min-h-[100px] border border-gray-300 p-4 text-lg resize-none placeholder:text-gray-400"
                           />
                         </FormControl>
-                        <p className="mt-1 text-md text-gray-400">
+                        {/* <p className="mt-1 text-md text-gray-400">
                           Example: Brazilian, Somali, Malaysian
-                        </p>
+                        </p> */}
                         <FormMessage />
                       </FormItem>
                     )}
@@ -315,28 +326,30 @@ export function EthnicityStep({
             </div>
           </CardContent>
 
-          <div className="flex justify-between px-6 pt-6">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleBack}
-              className=" bg-watney text-lg text-white hover:bg-watney/90"
-            >
-              Back
-            </Button>
-            <Button
-              onClick={() => saveAndLogout()}
-              className="bg-watney  text-white hover:bg-watney/90"
-            >
-              Save And Exit
-            </Button>
-            <Button
-              type="submit"
-              className=" bg-watney text-lg text-white hover:bg-watney/90"
-            >
-              Save And Next
-            </Button>
-          </div>
+          <div className="flex flex-col gap-3 pt-4 p-6 sm:flex-row sm:justify-between">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleBack}
+                className="w-full bg-watney text-lg text-white hover:bg-watney/90 sm:w-auto"
+              >
+                Back
+              </Button>
+
+              <Button
+                onClick={() => saveAndLogout()}
+                className="w-full bg-watney text-white hover:bg-watney/90 sm:w-auto"
+              >
+                Save And Exit
+              </Button>
+
+              <Button
+                type="submit"
+                className="w-full bg-watney text-lg text-white hover:bg-watney/90 sm:w-auto"
+              >
+                Save And Next
+              </Button>
+            </div>
         </form>
       </Form>
     </div>

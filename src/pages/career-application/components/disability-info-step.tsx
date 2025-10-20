@@ -22,6 +22,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import type { TCareer } from '@/types/career';
 import { Checkbox } from '@/components/ui/checkbox';
+import { HelperTooltip } from '@/helper/HelperTooltip';
 
 const disabilityInfoSchema = z
   .object({
@@ -99,8 +100,14 @@ export function DisabilityInfoStep({
                 <FormItem className="py-2">
                   <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:space-x-6 sm:space-y-0">
                     <FormLabel className="text-lg font-medium">
+                      <div>
+
                       Do you have any known disability?{' '}
                       <span className="text-red-500">*</span>
+                      </div>
+
+                      <HelperTooltip text="Let us know if you consider yourself to have a disability under the Equality Act 2010." />
+
                     </FormLabel>
 
                     <div className="flex space-x-6">
@@ -122,10 +129,10 @@ export function DisabilityInfoStep({
                     </div>
                   </div>
 
-                  <p className="mt-2 text-md text-gray-400">
+                  {/* <p className="mt-2 text-md text-gray-400">
                     Let us know if you consider yourself to have a disability
                     under the Equality Act 2010.
-                  </p>
+                  </p> */}
                   <FormMessage />
                 </FormItem>
               )}
@@ -138,8 +145,13 @@ export function DisabilityInfoStep({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className='text-watney'>
+                      <div>
+
                       Please provide details about your disability{' '}
                       <span className="text-red-500">*</span>
+                      </div>
+                      <HelperTooltip text="Briefly describe your disability and how it may affect your ability to work or participate. Example: I have dyslexia, which affects my reading speed and short-term memory." />
+
                     </FormLabel>
                     <FormControl>
                       <Textarea
@@ -148,10 +160,10 @@ export function DisabilityInfoStep({
                         className="min-h-[100px]  border border-gray-300 p-4 text-lg resize-none placeholder:text-gray-400"
                       />
                     </FormControl>
-                    <p className="mt-2 text-md text-gray-400">
+                    {/* <p className="mt-2 text-md text-gray-400">
                       Example: I have dyslexia, which affects my reading speed
                       and short-term memory.
-                    </p>
+                    </p> */}
                     <FormMessage />
                   </FormItem>
                 )}
@@ -166,8 +178,13 @@ export function DisabilityInfoStep({
                   <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:space-x-6 sm:space-y-0">
                     <div className="space-y-1 leading-none">
                       <FormLabel className="text-lg font-medium">
+                        <div>
+
                         Do you require any reasonable adjustments?{' '}
                         <span className="text-red-500">*</span>
+                        </div>
+                        <HelperTooltip text="Indicate whether you need any changes or accommodations during the application or employment process." />
+
                       </FormLabel>
                     </div>
                     <div className="flex space-x-6">
@@ -189,10 +206,10 @@ export function DisabilityInfoStep({
                     </div>
                   </div>
 
-                  <p className="mt-2 text-md text-gray-400">
+                  {/* <p className="mt-2 text-md text-gray-400">
                     Indicate whether you need any changes or accommodations
                     during the application or employment process.
-                  </p>
+                  </p> */}
                   <FormMessage />
                 </FormItem>
               )}
@@ -205,8 +222,12 @@ export function DisabilityInfoStep({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className='text-watney'>
+                      <div>
+
                       Please provide details about the adjustments needed{' '}
                       <span className="text-red-500">*</span>
+                      </div>
+                      <HelperTooltip text="Specify what support or adjustments would help you perform at your best. Example: I require additional time during written assessments and access to screen-reading software." />
                     </FormLabel>
                     <FormControl>
                       <Textarea
@@ -215,34 +236,36 @@ export function DisabilityInfoStep({
                         className="min-h-[100px]  border border-gray-300 p-4 text-lg resize-none placeholder:text-gray-400"
                       />
                     </FormControl>
-                    <p className="mt-2 text-md text-gray-400">
+                    {/* <p className="mt-2 text-md text-gray-400">
                       Example: I require additional time during written
                       assessments and access to screen-reading software.
-                    </p>
+                    </p> */}
                     <FormMessage />
                   </FormItem>
                 )}
               />
             )}
 
-            <div className="flex justify-between pt-4">
+             <div className="flex flex-col gap-3 pt-4  sm:flex-row sm:justify-between">
               <Button
                 type="button"
                 variant="outline"
                 onClick={handleBack}
-                className="bg-watney text-lg text-white hover:bg-watney/90"
+                className="w-full bg-watney text-lg text-white hover:bg-watney/90 sm:w-auto"
               >
                 Back
               </Button>
+
               <Button
                 onClick={() => saveAndLogout()}
-                className="bg-watney  text-white hover:bg-watney/90"
+                className="w-full bg-watney text-white hover:bg-watney/90 sm:w-auto"
               >
                 Save And Exit
               </Button>
+
               <Button
                 type="submit"
-                className="bg-watney text-lg text-white hover:bg-watney/90"
+                className="w-full bg-watney text-lg text-white hover:bg-watney/90 sm:w-auto"
               >
                 Save And Next
               </Button>

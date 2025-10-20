@@ -32,6 +32,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { format, getMonth, getYear, parse } from 'date-fns';
 import { CustomDatePicker } from '@/components/shared/CustomDatePicker';
 import moment from 'moment';
+import { HelperTooltip } from '@/helper/HelperTooltip';
 
 // Define title options for react-select
 const titleOptions = [
@@ -65,9 +66,7 @@ export const personalDetailsSchema = z
     hasNationalInsuranceNumber: z.boolean().optional(),
     nationalInsuranceNumber: z.string().optional(),
     isBritishCitizen: z.boolean().optional(),
-    shareCode: z.string().optional(),
-
-
+    shareCode: z.string().optional()
   })
   .superRefine((data, ctx) => {
     if (data.nationality !== 'british') {
@@ -75,7 +74,7 @@ export const personalDetailsSchema = z
         ctx.addIssue({
           path: ['shareCode'],
           code: z.ZodIssueCode.custom,
-          message: 'Share Code is required if not British',
+          message: 'Share Code is required if not British'
         });
       } else {
         // Remove dashes to count characters
@@ -84,7 +83,7 @@ export const personalDetailsSchema = z
           ctx.addIssue({
             path: ['shareCode'],
             code: z.ZodIssueCode.custom,
-            message: 'Share Code must be exactly 9 characters',
+            message: 'Share Code must be exactly 9 characters'
           });
         }
       }
@@ -115,8 +114,7 @@ export function PersonalDetailsStep({
       dateOfBirth: undefined,
       nationalInsuranceNumber: '',
       isBritishCitizen: undefined,
-      shareCode: '',
-
+      shareCode: ''
     }
   });
 
@@ -129,8 +127,7 @@ export function PersonalDetailsStep({
           : undefined,
         nationality: defaultValues.nationality
           ? defaultValues.nationality.toLowerCase().replace(/\s/g, '-')
-          : '',
-
+          : ''
       });
     }
   }, [defaultValues, form]);
@@ -186,7 +183,7 @@ export function PersonalDetailsStep({
     <Card className="border-none shadow-none">
       <CardHeader>
         <CardTitle className="text-2xl">Personal Information</CardTitle>
-        <CardDescription className='text-lg'>
+        <CardDescription className="text-lg">
           Please provide your basic details. This information helps us tailor
           your application experience and ensure accurate communication.
         </CardDescription>
@@ -204,7 +201,10 @@ export function PersonalDetailsStep({
                   render={({ field }) => (
                     <FormItem className="z-[1002]">
                       <FormLabel>
-                        Title<span className="text-red-500">*</span>
+                        <div>
+                          Title<span className="text-red-500">*</span>
+                        </div>
+                        <HelperTooltip text="Choose the title that best describes you. Example: Mr., Ms., Mrs., Dr." />
                       </FormLabel>
                       <Controller
                         name="title"
@@ -212,7 +212,9 @@ export function PersonalDetailsStep({
                         render={({ field: { onChange, value } }) => (
                           <Select
                             options={titleOptions}
-                            value={titleOptions.find((opt) => opt.value === value)}
+                            value={titleOptions.find(
+                              (opt) => opt.value === value
+                            )}
                             onChange={(option) => onChange(option?.value)}
                             className="react-select-container"
                             classNamePrefix="react-select"
@@ -246,9 +248,7 @@ export function PersonalDetailsStep({
                           />
                         )}
                       />
-                      <p className="text-md text-gray-500">
-                        Example: Mr., Ms., Mrs., Dr., etc
-                      </p>
+
                       <FormMessage />
                     </FormItem>
                   )}
@@ -260,7 +260,10 @@ export function PersonalDetailsStep({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        First Name<span className="text-red-500">*</span>
+                        <div>
+                          First Name<span className="text-red-500">*</span>
+                        </div>
+                        <HelperTooltip text="Enter your given name as it appears on your ID or passport." />
                       </FormLabel>
                       <FormControl>
                         <Input
@@ -280,7 +283,10 @@ export function PersonalDetailsStep({
                   name="initial"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Middle Initial (Optional)</FormLabel>
+                      <FormLabel>
+                        Middle Initial (Optional){' '}
+                        <HelperTooltip text="Include your middle initial if you have one. Leave blank if not applicable." />
+                      </FormLabel>
                       <FormControl>
                         <Input
                           {...field}
@@ -300,7 +306,10 @@ export function PersonalDetailsStep({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        Last Name<span className="text-red-500">*</span>
+                        <div>
+                          Last Name<span className="text-red-500">*</span>
+                        </div>
+                        <HelperTooltip text="Enter your family name or surname as shown on official documents." />
                       </FormLabel>
                       <FormControl>
                         <Input
@@ -323,8 +332,11 @@ export function PersonalDetailsStep({
                     return (
                       <FormItem className="mt-2 flex w-full flex-col">
                         <FormLabel>
-                          Date of Birth (MM/DD/YYYY)
-                          <span className="text-red-500">*</span>
+                          <div>
+                            Date of Birth (MM/DD/YYYY)
+                            <span className="text-red-500">*</span>
+                          </div>
+                          <HelperTooltip text="Use your official birth date in MM/DD/YYYY format (e.g., 01/24/1995)." />
                         </FormLabel>
                         <FormControl className="w-full">
                           <CustomDatePicker
@@ -334,9 +346,7 @@ export function PersonalDetailsStep({
                             className="h-12 w-full rounded-full text-lg"
                           />
                         </FormControl>
-                        <p className="text-md text-gray-500">
-                          Example: MM/DD/YYYY or 01/24/1995
-                        </p>
+
                         <FormMessage />
                       </FormItem>
                     );
@@ -349,7 +359,10 @@ export function PersonalDetailsStep({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        Email<span className="text-red-500">*</span>
+                        <div>
+                          Email<span className="text-red-500">*</span>
+                        </div>
+                        <HelperTooltip text="This email is used for all communication. Ensure it’s valid and active." />
                       </FormLabel>
                       <FormControl>
                         <Input
@@ -360,9 +373,7 @@ export function PersonalDetailsStep({
                           disabled
                         />
                       </FormControl>
-                      <p className="text-md text-gray-500">
-                        Example: emma.williams@email.com
-                      </p>
+
                       <FormMessage />
                     </FormItem>
                   )}
@@ -374,7 +385,10 @@ export function PersonalDetailsStep({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        Phone Number<span className="text-red-500">*</span>
+                        <div>
+                          Phone Number<span className="text-red-500">*</span>
+                        </div>
+                        <HelperTooltip text="Provide a contact number including country code if you’re outside the UK." />
                       </FormLabel>
                       <FormControl>
                         <Input
@@ -384,16 +398,17 @@ export function PersonalDetailsStep({
                           className=" placeholder:text-gray-500"
                         />
                       </FormControl>
-                      <p className="text-md text-gray-500">
-                        Example: +44 7123 456789
-                      </p>
+
                       <FormMessage />
                     </FormItem>
                   )}
                 />
 
                 <div className="space-y-2">
-                  <FormLabel>National Insurance Number</FormLabel>
+                  <FormLabel>
+                    National Insurance Number
+                    <HelperTooltip text="For UK applicants only. Format: Two letters, six numbers, one final letter (e.g., QQ 12 34 56 C)." />
+                  </FormLabel>
                   <FormField
                     control={form.control}
                     name="nationalInsuranceNumber"
@@ -406,9 +421,7 @@ export function PersonalDetailsStep({
                             className=" placeholder:text-gray-500"
                           />
                         </FormControl>
-                        <p className="text-md text-gray-500">
-                          Example: QQ 12 34 56 C
-                        </p>
+
                         <FormMessage />
                       </FormItem>
                     )}
@@ -423,7 +436,10 @@ export function PersonalDetailsStep({
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>
-                            Nationality<span className="text-red-500">*</span>
+                            <div>
+                              Nationality<span className="text-red-500">*</span>
+                            </div>
+                            <HelperTooltip text="Select your nationality as stated on your passport or legal identification." />
                           </FormLabel>
                           <Controller
                             name="nationality"
@@ -431,13 +447,18 @@ export function PersonalDetailsStep({
                             render={({ field: { onChange, value } }) => (
                               <Select
                                 options={nationalityOptions}
-                                value={nationalityOptions.find((opt) => opt.value === value)}
+                                value={nationalityOptions.find(
+                                  (opt) => opt.value === value
+                                )}
                                 onChange={(option) => onChange(option?.value)}
                                 className="react-select-container"
                                 classNamePrefix="react-select"
                                 placeholder="Select your nationality as stated on your passport or legal documents."
                                 styles={{
-                                  container: (base) => ({ ...base, width: '100%' }),
+                                  container: (base) => ({
+                                    ...base,
+                                    width: '100%'
+                                  }),
                                   control: (base) => ({
                                     ...base,
                                     width: '100%',
@@ -452,8 +473,14 @@ export function PersonalDetailsStep({
                                     fontSize: '1.125rem',
                                     color: '#9CA3AF'
                                   }),
-                                  singleValue: (base) => ({ ...base, fontSize: '1.125rem' }),
-                                  input: (base) => ({ ...base, fontSize: '1.125rem' }),
+                                  singleValue: (base) => ({
+                                    ...base,
+                                    fontSize: '1.125rem'
+                                  }),
+                                  input: (base) => ({
+                                    ...base,
+                                    fontSize: '1.125rem'
+                                  }),
                                   valueContainer: (base) => ({
                                     ...base,
                                     padding: '0 0.75rem'
@@ -462,9 +489,7 @@ export function PersonalDetailsStep({
                               />
                             )}
                           />
-                          <p className="text-md text-gray-500">
-                            Choose a nationality (e.g., American)
-                          </p>
+
                           <FormMessage />
                         </FormItem>
                       )}
@@ -476,8 +501,11 @@ export function PersonalDetailsStep({
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>
-                            Country of Residence
-                            <span className="text-red-500">*</span>
+                            <div>
+                              Country of Residence
+                              <span className="text-red-500">*</span>
+                            </div>
+                            <HelperTooltip text="Select the country where you currently live or legally reside." />
                           </FormLabel>
                           <Controller
                             name="countryOfResidence"
@@ -485,13 +513,18 @@ export function PersonalDetailsStep({
                             render={({ field: { onChange, value } }) => (
                               <Select
                                 options={countryOptions}
-                                value={countryOptions.find((opt) => opt.value === value)}
+                                value={countryOptions.find(
+                                  (opt) => opt.value === value
+                                )}
                                 onChange={(option) => onChange(option?.value)}
                                 className="react-select-container"
                                 classNamePrefix="react-select"
                                 placeholder="Choose the country where you currently reside"
                                 styles={{
-                                  container: (base) => ({ ...base, width: '100%' }),
+                                  container: (base) => ({
+                                    ...base,
+                                    width: '100%'
+                                  }),
                                   control: (base) => ({
                                     ...base,
                                     width: '100%',
@@ -506,8 +539,14 @@ export function PersonalDetailsStep({
                                     fontSize: '1.125rem',
                                     color: '#9CA3AF'
                                   }),
-                                  singleValue: (base) => ({ ...base, fontSize: '1.125rem' }),
-                                  input: (base) => ({ ...base, fontSize: '1.125rem' }),
+                                  singleValue: (base) => ({
+                                    ...base,
+                                    fontSize: '1.125rem'
+                                  }),
+                                  input: (base) => ({
+                                    ...base,
+                                    fontSize: '1.125rem'
+                                  }),
                                   valueContainer: (base) => ({
                                     ...base,
                                     padding: '0 0.75rem'
@@ -516,9 +555,7 @@ export function PersonalDetailsStep({
                               />
                             )}
                           />
-                          <p className="text-md text-gray-500">
-                            Example: Select country (e.g., America)
-                          </p>
+                         
                           <FormMessage />
                         </FormItem>
                       )}
@@ -529,8 +566,14 @@ export function PersonalDetailsStep({
                         name="shareCode"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className='text-watney'>Please give your Share Code:
+                            <FormLabel className="text-watney">
+                              <div>
+                                
+                              Please give your Share Code:
                               <span className="text-red-500">*</span>
+                              </div>
+                              <HelperTooltip text="Non-UK citizens must provide their right-to-work Share Code. Format: ABC-12D-CFD." />
+
                             </FormLabel>
                             <FormControl>
                               <Input
@@ -540,7 +583,8 @@ export function PersonalDetailsStep({
                                   let value = e.target.value
                                     .toUpperCase()
                                     .replace(/[^A-Z0-9]/g, '');
-                                  value = value.match(/.{1,3}/g)?.join('-') || '';
+                                  value =
+                                    value.match(/.{1,3}/g)?.join('-') || '';
                                   field.onChange(value);
                                 }}
                                 value={field.value}
@@ -548,44 +592,47 @@ export function PersonalDetailsStep({
                                 className=" placeholder:text-gray-500"
                               />
                             </FormControl>
-                            <p className="text-md text-gray-500">
+                            {/* <p className="text-md text-gray-500">
                               For Non Uk Citizen only. Example:{' '}
-                              <span className="font-semibold text-gray-700">ABC-12D-CFD</span>
-                            </p>
+                              <span className="font-semibold text-gray-700">
+                                ABC-12D-CFD
+                              </span>
+                            </p> */}
                             <FormMessage />
                           </FormItem>
                         )}
                       />
                     )}
                   </div>
-
-
                 </div>
               </div>
             </div>
 
-            <div className="flex justify-between pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleBack}
-                className="bg-watney  text-lg text-white hover:bg-watney/90"
-              >
-                Back
-              </Button>
-              <Button
-                onClick={() => saveAndLogout()}
-                className="bg-watney  text-white hover:bg-watney/90"
-              >
-                Save And Exit
-              </Button>
-              <Button
-                type="submit"
-                className="bg-watney  text-lg text-white hover:bg-watney/90"
-              >
-                Save And Next
-              </Button>
-            </div>
+           <div className="flex flex-col sm:flex-row sm:justify-between gap-3 pt-4">
+  <Button
+    type="button"
+    variant="outline"
+    onClick={handleBack}
+    className="bg-watney text-lg text-white hover:bg-watney/90 w-full sm:w-auto"
+  >
+    Back
+  </Button>
+
+  <Button
+    onClick={() => saveAndLogout()}
+    className="bg-watney text-white hover:bg-watney/90 w-full sm:w-auto"
+  >
+    Save And Exit
+  </Button>
+
+  <Button
+    type="submit"
+    className="bg-watney text-lg text-white hover:bg-watney/90 w-full sm:w-auto"
+  >
+    Save And Next
+  </Button>
+</div>
+
           </form>
         </Form>
       </CardContent>

@@ -32,6 +32,8 @@ import { CustomDatePicker } from '@/components/shared/CustomDatePicker';
 import Select from 'react-select';
 import { useSelector } from 'react-redux';
 import { ImageUploader } from './document-uploader';
+import { HelperTooltip } from '@/helper/HelperTooltip';
+import { Label } from '@/components/ui/label';
 
 export function TrainingStep({
   defaultValues,
@@ -47,33 +49,51 @@ export function TrainingStep({
   const { user } = useSelector((state: any) => state.auth);
 
   // ✅ Updated Schema
-  const trainingEntrySchema = z.object({
-    trainingName: z.string().optional(),
-    awardingBody: z.string().optional(),
-    completionDate: z.date().nullable(),
-    certificate: z.any().optional()
-  }).superRefine((data, ctx) => {
-    const hasAnyValue =
-      data.trainingName?.trim() ||
-      data.awardingBody?.trim() ||
-      data.completionDate ||
-      data.certificate;
+  const trainingEntrySchema = z
+    .object({
+      trainingName: z.string().optional(),
+      awardingBody: z.string().optional(),
+      completionDate: z.date().nullable(),
+      certificate: z.any().optional()
+    })
+    .superRefine((data, ctx) => {
+      const hasAnyValue =
+        data.trainingName?.trim() ||
+        data.awardingBody?.trim() ||
+        data.completionDate ||
+        data.certificate;
 
-    if (!hasAnyValue) return; // empty row is fine
+      if (!hasAnyValue) return; // empty row is fine
 
-    if (!data.trainingName?.trim()) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['trainingName'], message: 'Required' });
-    }
-    if (!data.awardingBody?.trim()) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['awardingBody'], message: 'Required' });
-    }
-    if (!data.completionDate) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['completionDate'], message: 'Required' });
-    }
-    if (!data.certificate) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['certificate'], message: 'Required' });
-    }
-  });
+      if (!data.trainingName?.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['trainingName'],
+          message: 'Required'
+        });
+      }
+      if (!data.awardingBody?.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['awardingBody'],
+          message: 'Required'
+        });
+      }
+      if (!data.completionDate) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['completionDate'],
+          message: 'Required'
+        });
+      }
+      if (!data.certificate) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['certificate'],
+          message: 'Required'
+        });
+      }
+    });
 
   const trainingSchema = z.object({
     trainingData: z.array(trainingEntrySchema)
@@ -97,7 +117,9 @@ export function TrainingStep({
       trainingData: (values.trainingData || []).map((entry) => ({
         trainingName: entry.trainingName || '',
         awardingBody: entry.awardingBody || '',
-        completionDate: entry.completionDate ? new Date(entry.completionDate) : null,
+        completionDate: entry.completionDate
+          ? new Date(entry.completionDate)
+          : null,
         certificate: entry.certificate || undefined
       }))
     };
@@ -173,7 +195,9 @@ export function TrainingStep({
   const renderTrainingHistoryStep = () => (
     <div className="space-y-8">
       <CardHeader>
-        <CardTitle className="text-2xl">Professional Training & Qualifications (Starting with most recent)</CardTitle>
+        <CardTitle className="text-2xl">
+          Professional Training & Qualifications (Starting with most recent)
+        </CardTitle>
         <CardDescription>
           Please provide details of any formal training you have completed. This
           section is optional, but if you fill in any field in a row, all fields
@@ -201,27 +225,55 @@ export function TrainingStep({
                 <TableHeader>
                   <TableRow>
                     <TableHead className="text-lg">
-                      Training Name{' '}
-                      <span className="hidden text-red-500 group-[.group-filled]:inline">
-                        *
-                      </span>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          Training Name <span className="text-red-500">*</span>
+                        </div>
+                        <HelperTooltip text="Enter the official name of the training. Example: First Aid Certification" />
+                      </div>
                     </TableHead>
+
                     <TableHead className="text-lg">
-                      Awarding Body{' '}
-                      <span className="hidden text-red-500 group-[.group-filled]:inline">
-                        *
-                      </span>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          Awarding Body <span className="text-red-500">*</span>
+                        </div>
+                        <HelperTooltip text="Enter the organization that awarded the training. Example: Red Cross" />
+                      </div>
                     </TableHead>
-                    <TableHead className="text-lg">Completion Date</TableHead>
-                    <TableHead className="text-lg">Certificate</TableHead>
+
+                    <TableHead className="text-lg">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          Completion Date{' '}
+                          <span className="text-red-500">*</span>
+                        </div>
+                        <HelperTooltip text="Enter the date you completed the training. Example: 06/15/2023" />
+                      </div>
+                    </TableHead>
+
+                    <TableHead className="text-lg">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          Certificate <span className="text-red-500">*</span>
+                        </div>
+                        <HelperTooltip text="Upload your training certificate in PDF, JPG, or PNG format (≤5MB)." />
+                      </div>
+                    </TableHead>
+
                     <TableHead className="w-[80px]"></TableHead>
                   </TableRow>
                 </TableHeader>
+
                 <TableBody>
                   {fields.map((field, index) => {
                     const isRowFilled =
-                      form.getValues(`trainingData.${index}.trainingName`)?.trim() ||
-                      form.getValues(`trainingData.${index}.awardingBody`)?.trim() ||
+                      form
+                        .getValues(`trainingData.${index}.trainingName`)
+                        ?.trim() ||
+                      form
+                        .getValues(`trainingData.${index}.awardingBody`)
+                        ?.trim() ||
                       form.getValues(`trainingData.${index}.completionDate`) ||
                       form.getValues(`trainingData.${index}.certificate`);
 
@@ -244,9 +296,9 @@ export function TrainingStep({
                                     className=""
                                   />
                                 </FormControl>
-                                <p className="text-md text-gray-400">
+                                {/* <p className="text-md text-gray-400">
                                   Example: First Aid Certification
-                                </p>
+                                </p> */}
                                 <FormMessage />
                               </FormItem>
                             )}
@@ -266,9 +318,9 @@ export function TrainingStep({
                                     className=""
                                   />
                                 </FormControl>
-                                <p className="text-md text-gray-400">
+                                {/* <p className="text-md text-gray-400">
                                   Example: Red Cross
-                                </p>
+                                </p> */}
                                 <FormMessage />
                               </FormItem>
                             )}
@@ -287,14 +339,16 @@ export function TrainingStep({
                                   <FormControl>
                                     <CustomDatePicker
                                       selected={selectedDate}
-                                      onChange={(date) => formField.onChange(date)}
+                                      onChange={(date) =>
+                                        formField.onChange(date)
+                                      }
                                       placeholderText="MM/DD/YYYY"
-                                      className=" text-lg w-full"
+                                      className=" w-full text-lg"
                                     />
                                   </FormControl>
-                                  <p className="text-md text-gray-400">
+                                  {/* <p className="text-md text-gray-400">
                                     Example: 06/15/2023
-                                  </p>
+                                  </p> */}
                                   <FormMessage />
                                 </FormItem>
                               );
@@ -313,21 +367,21 @@ export function TrainingStep({
                                   onClick={() =>
                                     setUploadState({
                                       isOpen: true,
-                                      field: formField.name,
+                                      field: formField.name
                                     })
                                   }
                                 >
                                   Upload Certificate
                                 </Button>
-                                <p className="mt-1 text-md text-gray-500">
+                                {/* <p className="text-md mt-1 text-gray-500">
                                   PDF, JPG, PNG (≤5MB)
-                                </p>
+                                </p> */}
                                 {formField.value && (
                                   <a
                                     href={formField.value}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="mt-1 text-md text-blue-600 underline"
+                                    className="text-md mt-1 text-blue-600 underline"
                                   >
                                     View File
                                   </a>
@@ -359,8 +413,12 @@ export function TrainingStep({
             <div className="space-y-6 md:hidden">
               {fields.map((field, index) => {
                 const isRowFilled =
-                  form.getValues(`trainingData.${index}.trainingName`)?.trim() ||
-                  form.getValues(`trainingData.${index}.awardingBody`)?.trim() ||
+                  form
+                    .getValues(`trainingData.${index}.trainingName`)
+                    ?.trim() ||
+                  form
+                    .getValues(`trainingData.${index}.awardingBody`)
+                    ?.trim() ||
                   form.getValues(`trainingData.${index}.completionDate`) ||
                   form.getValues(`trainingData.${index}.certificate`);
 
@@ -371,10 +429,17 @@ export function TrainingStep({
                   >
                     {/* Training Name */}
                     <div>
-                      <label className="mb-2 block text-lg font-medium text-gray-700">
-                        Training Name{' '}
-                        {isRowFilled && <span className="text-red-500">*</span>}
-                      </label>
+                      <Label className="mb-2 block text-lg font-medium text-gray-700">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            Training Name{' '}
+                            {isRowFilled && (
+                              <span className="text-red-500">*</span>
+                            )}
+                          </div>
+                          <HelperTooltip text="Enter the official name of the training. Example: First Aid Certification" />
+                        </div>
+                      </Label>
                       <FormField
                         control={form.control}
                         name={`trainingData.${index}.trainingName`}
@@ -388,9 +453,9 @@ export function TrainingStep({
                                 className=""
                               />
                             </FormControl>
-                            <p className="text-md text-gray-400">
+                            {/* <p className="text-md text-gray-400">
                               Example: First Aid Certification
-                            </p>
+                            </p> */}
                             <FormMessage />
                           </FormItem>
                         )}
@@ -399,10 +464,17 @@ export function TrainingStep({
 
                     {/* Awarding Body */}
                     <div>
-                      <label className="mb-2 block text-lg font-medium text-gray-700">
-                        Awarding Body{' '}
-                        {isRowFilled && <span className="text-red-500">*</span>}
-                      </label>
+                      <Label className="mb-2 block text-lg font-medium text-gray-700">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            Awarding Body{' '}
+                            {isRowFilled && (
+                              <span className="text-red-500">*</span>
+                            )}
+                          </div>
+                          <HelperTooltip text="Enter the organization that awarded the training. Example: Red Cross" />
+                        </div>
+                      </Label>
                       <FormField
                         control={form.control}
                         name={`trainingData.${index}.awardingBody`}
@@ -416,9 +488,9 @@ export function TrainingStep({
                                 className=""
                               />
                             </FormControl>
-                            <p className="text-md text-gray-400">
+                            {/* <p className="text-md text-gray-400">
                               Example: Red Cross
-                            </p>
+                            </p> */}
                             <FormMessage />
                           </FormItem>
                         )}
@@ -427,10 +499,17 @@ export function TrainingStep({
 
                     {/* Completion Date */}
                     <div>
-                      <label className="mb-2 block text-lg font-medium text-gray-700">
-                        Completion Date{' '}
-                        {isRowFilled && <span className="text-red-500">*</span>}
-                      </label>
+                      <Label className="mb-2 block text-lg font-medium text-gray-700">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            Completion Date{' '}
+                            {isRowFilled && (
+                              <span className="text-red-500">*</span>
+                            )}
+                          </div>
+                          <HelperTooltip text="Enter the date you completed the training. Example: 06/15/2023" />
+                        </div>
+                      </Label>
                       <FormField
                         control={form.control}
                         name={`trainingData.${index}.completionDate`}
@@ -445,12 +524,12 @@ export function TrainingStep({
                                   selected={selectedDate}
                                   onChange={(date) => formField.onChange(date)}
                                   placeholderText="MM/DD/YYYY"
-                                  className="h-12 rounded-2xl text-lg w-full"
+                                  className="h-12 w-full rounded-2xl text-lg"
                                 />
                               </FormControl>
-                              <p className="text-md text-gray-400">
+                              {/* <p className="text-md text-gray-400">
                                 Example: 06/15/2023
-                              </p>
+                              </p> */}
                               <FormMessage />
                             </FormItem>
                           );
@@ -460,10 +539,18 @@ export function TrainingStep({
 
                     {/* Certificate Upload */}
                     <div>
-                      <label className="mb-2 block text-lg font-medium text-gray-700">
-                        Certificate{' '}
-                        {isRowFilled && <span className="text-red-500">*</span>}
-                      </label>
+                      <Label className="mb-2 block text-lg font-medium text-gray-700">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            Certificate{' '}
+                            {isRowFilled && (
+                              <span className="text-red-500">*</span>
+                            )}
+                          </div>
+
+                          <HelperTooltip text="Upload your training certificate in PDF, JPG, or PNG format (≤5MB)." />
+                        </div>
+                      </Label>
                       <FormField
                         control={form.control}
                         name={`trainingData.${index}.certificate`}
@@ -475,13 +562,13 @@ export function TrainingStep({
                               onClick={() =>
                                 setUploadState({
                                   isOpen: true,
-                                  field: formField.name,
+                                  field: formField.name
                                 })
                               }
                             >
                               Upload Certificate
                             </Button>
-                            <p className="mt-1 text-md text-gray-500">
+                            <p className="text-md mt-1 text-gray-500">
                               PDF, JPG, PNG (≤5MB)
                             </p>
                             {formField.value && (
@@ -489,7 +576,7 @@ export function TrainingStep({
                                 href={formField.value}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="mt-1 text-md text-blue-600 underline"
+                                className="text-md mt-1 text-blue-600 underline"
                               >
                                 View File
                               </a>
@@ -526,24 +613,26 @@ export function TrainingStep({
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           {renderTrainingHistoryStep()}
-          <div className="flex justify-between p-6">
+          <div className="flex flex-col gap-3 p-6 sm:flex-row sm:justify-between">
             <Button
               type="button"
               variant="outline"
               onClick={handleBack}
-              className="bg-watney  text-lg text-white hover:bg-watney/90"
+              className="w-full bg-watney text-lg text-white hover:bg-watney/90 sm:w-auto"
             >
               Back
             </Button>
+
             <Button
               onClick={() => saveAndLogout()}
-              className="bg-watney  text-white hover:bg-watney/90"
+              className="w-full bg-watney text-white hover:bg-watney/90 sm:w-auto"
             >
               Save And Exit
             </Button>
+
             <Button
               type="submit"
-              className="bg-watney  text-lg text-white hover:bg-watney/90"
+              className="w-full bg-watney text-lg text-white hover:bg-watney/90 sm:w-auto"
             >
               Save And Next
             </Button>

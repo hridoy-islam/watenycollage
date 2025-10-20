@@ -27,6 +27,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import Select from 'react-select';
 import { Textarea } from '@/components/ui/textarea';
 import { languages } from '@/types';
+import { HelperTooltip } from '@/helper/HelperTooltip';
 
 const daysOfWeek = [
   'monday',
@@ -112,7 +113,6 @@ const applicationDetailsSchema = z
         });
       }
     }
-
 
     if (!data.solelyForEverycare && !data.otherEmployers) {
       ctx.addIssue({
@@ -221,8 +221,10 @@ export function ApplicationDetailsStep({
     <Card className="border-0 shadow-none">
       <CardHeader>
         <CardTitle className="text-2xl">Application Details</CardTitle>
-        <CardDescription className='text-lg'>
-          Please provide specific details about the position you're applying for. This information helps us better understand your suitability and availability.
+        <CardDescription className="text-lg">
+          Please provide specific details about the position you're applying
+          for. This information helps us better understand your suitability and
+          availability.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -234,12 +236,17 @@ export function ApplicationDetailsStep({
                 control={form.control}
                 name="availableFromDate"
                 render={({ field }) => {
-                  const selectedDate = field.value ? new Date(field.value) : null;
+                  const selectedDate = field.value
+                    ? new Date(field.value)
+                    : null;
                   return (
                     <FormItem className="mt-2 flex w-full flex-col">
                       <FormLabel>
-                        Available From Date (MM/DD/YYYY)
-                        <span className="text-red-500">*</span>
+                        <div>
+                          Available From Date (MM/DD/YYYY)
+                          <span className="text-red-500">*</span>
+                        </div>
+                        <HelperTooltip text="Enter the date you’re available to start work. e.g., 01/06/2025" />
                       </FormLabel>
                       <FormControl>
                         <CustomDatePicker
@@ -247,11 +254,8 @@ export function ApplicationDetailsStep({
                           onChange={(date) => field.onChange(date)}
                           placeholder="When would you be available to start this role?"
                           futureDate={false}
-                          // 👇 Pass className to style the internal input if possible
-                          className="h-12 rounded-full text-lg"
                         />
                       </FormControl>
-                      <p className="text-md text-gray-400">Example: 01/06/2025</p>
                       <FormMessage />
                     </FormItem>
                   );
@@ -265,15 +269,23 @@ export function ApplicationDetailsStep({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      Are you competent in another language?
-                      <span className="text-red-500">*</span>
+                      <div>
+                        Are you competent in another language?
+                        <span className="text-red-500">*</span>
+                      </div>
+                      <HelperTooltip text="Select 'Yes' if you can speak or write in any language other than English. e.g., Yes" />
                     </FormLabel>
                     <Select
                       options={yesNoOptions}
                       placeholder="Select Yes or No"
                       isClearable
-                       value={yesNoOptions.find((opt) => opt.value === field.value) || undefined}
-                      onChange={(option) => field.onChange(option ? option.value : undefined)}
+                      value={
+                        yesNoOptions.find((opt) => opt.value === field.value) ||
+                        undefined
+                      }
+                      onChange={(option) =>
+                        field.onChange(option ? option.value : undefined)
+                      }
                       className="text-lg"
                       // 👇 Style the control (input container)
                       styles={{
@@ -281,14 +293,19 @@ export function ApplicationDetailsStep({
                           ...base,
                           height: '3rem', // h-12 = 3rem
                           borderRadius: '16px',
-                          fontSize: '1.125rem', // text-lg
+                          fontSize: '1.125rem' // text-lg
                         }),
-                        placeholder: (base) => ({ ...base, fontSize: '1.125rem' }),
-                        singleValue: (base) => ({ ...base, fontSize: '1.125rem' }),
-                        input: (base) => ({ ...base, fontSize: '1.125rem' }),
+                        placeholder: (base) => ({
+                          ...base,
+                          fontSize: '1.125rem'
+                        }),
+                        singleValue: (base) => ({
+                          ...base,
+                          fontSize: '1.125rem'
+                        }),
+                        input: (base) => ({ ...base, fontSize: '1.125rem' })
                       }}
                     />
-                    <p className="text-md text-gray-400">Example: Yes</p>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -301,8 +318,12 @@ export function ApplicationDetailsStep({
                   name="otherLanguages"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className='text-watney'>
-                        If Yes, specify language(s) <span className="text-red-500">*</span>
+                      <FormLabel className="text-watney">
+                        <div>
+                          If Yes, specify language(s){' '}
+                          <span className="text-red-500">*</span>
+                        </div>
+                        <HelperTooltip text="List all other languages you can communicate in fluently. e.g., English, Bengali" />
                       </FormLabel>
                       <Controller
                         control={form.control}
@@ -312,15 +333,18 @@ export function ApplicationDetailsStep({
                             isMulti
                             options={languages.map((lang) => ({
                               value: lang,
-                              label: lang.charAt(0).toUpperCase() + lang.slice(1),
+                              label:
+                                lang.charAt(0).toUpperCase() + lang.slice(1)
                             }))}
                             placeholder="Choose languages"
                             onChange={(selected) =>
-                              field.onChange(selected?.map((opt) => opt.value) || [])
+                              field.onChange(
+                                selected?.map((opt) => opt.value) || []
+                              )
                             }
                             value={field.value?.map((val) => ({
                               value: val,
-                              label: val.charAt(0).toUpperCase() + val.slice(1),
+                              label: val.charAt(0).toUpperCase() + val.slice(1)
                             }))}
                             className="text-lg"
                             styles={{
@@ -329,16 +353,24 @@ export function ApplicationDetailsStep({
                                 height: '3rem',
                                 minHeight: '3rem',
                                 borderRadius: '16px',
-                                fontSize: '1.125rem',
+                                fontSize: '1.125rem'
                               }),
-                              multiValue: (base) => ({ ...base, fontSize: '1.125rem' }),
-                              placeholder: (base) => ({ ...base, fontSize: '1.125rem' }),
-                              input: (base) => ({ ...base, fontSize: '1.125rem' }),
+                              multiValue: (base) => ({
+                                ...base,
+                                fontSize: '1.125rem'
+                              }),
+                              placeholder: (base) => ({
+                                ...base,
+                                fontSize: '1.125rem'
+                              }),
+                              input: (base) => ({
+                                ...base,
+                                fontSize: '1.125rem'
+                              })
                             }}
                           />
                         )}
                       />
-                      <p className="text-md text-gray-400">Example: English, Bengali</p>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -352,27 +384,41 @@ export function ApplicationDetailsStep({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      Do you hold a driving license? <span className="text-red-500">*</span>
+                      <div>
+                        Do you hold a driving license?{' '}
+                        <span className="text-red-500">*</span>
+                      </div>
+                      <HelperTooltip text="Select 'Yes' if you hold a valid full UK driving license. e.g., Yes" />
                     </FormLabel>
                     <Select
                       options={yesNoOptions}
                       placeholder="Select Yes or No"
                       isClearable
-                       value={yesNoOptions.find((opt) => opt.value === field.value) || undefined}
-                      onChange={(option) => field.onChange(option ? option.value : undefined)}
+                      value={
+                        yesNoOptions.find((opt) => opt.value === field.value) ||
+                        undefined
+                      }
+                      onChange={(option) =>
+                        field.onChange(option ? option.value : undefined)
+                      }
                       className="text-lg"
                       styles={{
                         control: (base) => ({
                           ...base,
                           height: '3rem',
                           borderRadius: '16px',
-                          fontSize: '1.125rem',
+                          fontSize: '1.125rem'
                         }),
-                        placeholder: (base) => ({ ...base, fontSize: '1.125rem' }),
-                        singleValue: (base) => ({ ...base, fontSize: '1.125rem' }),
+                        placeholder: (base) => ({
+                          ...base,
+                          fontSize: '1.125rem'
+                        }),
+                        singleValue: (base) => ({
+                          ...base,
+                          fontSize: '1.125rem'
+                        })
                       }}
                     />
-                    <p className="text-md text-gray-400">Example: Yes</p>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -385,8 +431,12 @@ export function ApplicationDetailsStep({
                   name="licenseNumber"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className='text-watney'>
-                        Valid Uk Driving license <span className="text-red-500">*</span>
+                      <FormLabel className="text-watney">
+                        <div>
+                          Valid Uk Driving license{' '}
+                          <span className="text-red-500">*</span>
+                        </div>
+                        <HelperTooltip text="Enter your official UK driving license number as shown on your license card. e.g., ABC1234DG32HS56D" />
                       </FormLabel>
                       <FormControl>
                         <Input
@@ -394,10 +444,8 @@ export function ApplicationDetailsStep({
                           placeholder="Enter license number"
                           className=""
                           maxLength={16}
-
                         />
                       </FormControl>
-                      <p className="text-md text-gray-400">Example: ABC1234DG32HS56D</p>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -411,25 +459,33 @@ export function ApplicationDetailsStep({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      Do you own a car? <span className="text-red-500">*</span>
+                      <div>
+                        Do you own a car?{' '}
+                        <span className="text-red-500">*</span>
+                      </div>
+                      <HelperTooltip text="Select 'Yes' if you own or have regular access to a car for work-related travel. e.g., Yes" />
                     </FormLabel>
                     <Select
                       options={yesNoOptions}
                       placeholder="Select Yes or No"
                       isClearable
-                       value={yesNoOptions.find((opt) => opt.value === field.value) || undefined}
-                      onChange={(option) => field.onChange(option ? option.value : undefined)}
+                      value={
+                        yesNoOptions.find((opt) => opt.value === field.value) ||
+                        undefined
+                      }
+                      onChange={(option) =>
+                        field.onChange(option ? option.value : undefined)
+                      }
                       className="text-lg"
                       styles={{
                         control: (base) => ({
                           ...base,
                           height: '3rem',
                           borderRadius: '16px',
-                          fontSize: '1.125rem',
-                        }),
+                          fontSize: '1.125rem'
+                        })
                       }}
                     />
-                    <p className="text-md text-gray-400">Example: Yes</p>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -442,17 +498,19 @@ export function ApplicationDetailsStep({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      What areas are you prepared to travel to?
-                      <span className="text-red-500">*</span>
+                      <div>
+                        What areas are you prepared to travel to?
+                        <span className="text-red-500">*</span>
+                      </div>
+                      <HelperTooltip text="List the cities or areas where you’re available to work or travel. e.g., London, Manchester, Birmingham" />
                     </FormLabel>
                     <FormControl>
                       <Textarea
                         {...field}
                         placeholder="List areas..."
-                        className="  border-gray-300 p-4 text-lg resize-none"
+                        className="  resize-none border-gray-300 p-4 text-lg"
                       />
                     </FormControl>
-                    <p className="text-md text-gray-400">Example: London, Manchester, Birmingham</p>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -465,26 +523,33 @@ export function ApplicationDetailsStep({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      Will you be working solely for Everycare?
-                      <span className="text-red-500">*</span>
+                      <div>
+                        Will you be working solely for Everycare?
+                        <span className="text-red-500">*</span>
+                      </div>
+                      <HelperTooltip text="Select 'Yes' if you intend to work exclusively for Everycare and not for any other employer. e.g., Yes" />
                     </FormLabel>
                     <Select
                       options={yesNoOptions}
                       placeholder="Select Yes or No"
                       isClearable
-                       value={yesNoOptions.find((opt) => opt.value === field.value) || undefined}
-                      onChange={(option) => field.onChange(option ? option.value : undefined)}
+                      value={
+                        yesNoOptions.find((opt) => opt.value === field.value) ||
+                        undefined
+                      }
+                      onChange={(option) =>
+                        field.onChange(option ? option.value : undefined)
+                      }
                       className="text-lg"
                       styles={{
                         control: (base) => ({
                           ...base,
                           height: '3rem',
                           borderRadius: '16px',
-                          fontSize: '1.125rem',
-                        }),
+                          fontSize: '1.125rem'
+                        })
                       }}
                     />
-                    <p className="text-md text-gray-400">Example: Yes</p>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -497,17 +562,23 @@ export function ApplicationDetailsStep({
                   name="otherEmployers"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className='text-watney'>
-                        Who else do you work for? <span className="text-red-500">*</span>
+                      <FormLabel className="text-watney">
+                        <div>
+                          Who else do you work for?{' '}
+                          <span className="text-red-500">*</span>
+                        </div>
+                        <HelperTooltip text="Mention other employers or organizations you currently work for or are associated with. e.g., NHS Trust, Local Care Agency" />
                       </FormLabel>
                       <FormControl>
                         <Textarea
                           {...field}
                           placeholder="Enter employer names"
-                          className=" border-gray-300 p-4 text-lg resize-none"
+                          className=" resize-none border-gray-300 p-4 text-lg"
                         />
                       </FormControl>
-                      <p className="text-md text-gray-400">Example: NHS Trust, Local Care Agency</p>
+                      <p className="text-md text-gray-400">
+                        Example: NHS Trust, Local Care Agency
+                      </p>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -521,26 +592,33 @@ export function ApplicationDetailsStep({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      Are you a member of a professional body?
-                      <span className="text-red-500">*</span>
+                      <div>
+                        Are you a member of a professional body?
+                        <span className="text-red-500">*</span>
+                      </div>
+                      <HelperTooltip text="Select 'Yes' if you are a member of any professional body related to your field. e.g., Yes" />
                     </FormLabel>
                     <Select
                       options={yesNoOptions}
                       placeholder="Select Yes or No"
                       isClearable
-                       value={yesNoOptions.find((opt) => opt.value === field.value) || undefined}
-                      onChange={(option) => field.onChange(option ? option.value : undefined)}
+                      value={
+                        yesNoOptions.find((opt) => opt.value === field.value) ||
+                        undefined
+                      }
+                      onChange={(option) =>
+                        field.onChange(option ? option.value : undefined)
+                      }
                       className="text-lg"
                       styles={{
                         control: (base) => ({
                           ...base,
                           height: '3rem',
                           borderRadius: '16px',
-                          fontSize: '1.125rem',
-                        }),
+                          fontSize: '1.125rem'
+                        })
                       }}
                     />
-                    <p className="text-md text-gray-400">Example: Yes</p>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -553,8 +631,12 @@ export function ApplicationDetailsStep({
                   name="professionalBodyDetails"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className='text-watney'>
-                        Please provide details <span className="text-red-500">*</span>
+                      <FormLabel className="text-watney">
+                        <div>
+                          Please provide details{' '}
+                          <span className="text-red-500">*</span>
+                        </div>
+                        <HelperTooltip text="Provide the name of the professional body and your membership number or details. e.g., Royal College of Nursing (RCN)" />
                       </FormLabel>
                       <FormControl>
                         <Input
@@ -563,7 +645,6 @@ export function ApplicationDetailsStep({
                           className=""
                         />
                       </FormControl>
-                      <p className="text-md text-gray-400">Example: Royal College of Nursing (RCN)</p>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -577,26 +658,33 @@ export function ApplicationDetailsStep({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      Are you aged 18 or over?
-                      <span className="text-red-500">*</span>
+                      <div>
+                        Are you aged 18 or over?
+                        <span className="text-red-500">*</span>
+                      </div>
+                      <HelperTooltip text="Select 'Yes' if you are aged 18 years or above. e.g., Yes" />
                     </FormLabel>
                     <Select
                       options={yesNoOptions}
                       placeholder="Select Yes if you're aged 18 or over."
                       isClearable
-                       value={yesNoOptions.find((opt) => opt.value === field.value) || undefined}
-                      onChange={(option) => field.onChange(option ? option.value : undefined)}
+                      value={
+                        yesNoOptions.find((opt) => opt.value === field.value) ||
+                        undefined
+                      }
+                      onChange={(option) =>
+                        field.onChange(option ? option.value : undefined)
+                      }
                       className="text-lg"
                       styles={{
                         control: (base) => ({
                           ...base,
                           height: '3rem',
                           borderRadius: '16px',
-                          fontSize: '1.125rem',
-                        }),
+                          fontSize: '1.125rem'
+                        })
                       }}
                     />
-                    <p className="text-md text-gray-400">Example: Yes</p>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -609,26 +697,33 @@ export function ApplicationDetailsStep({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      Are you subject to immigration control?
-                      <span className="text-red-500">*</span>
+                      <div>
+                        Are you subject to immigration control?
+                        <span className="text-red-500">*</span>
+                      </div>
+                      <HelperTooltip text="Select 'Yes' if you are subject to any immigration control or visa requirements. e.g., Yes" />
                     </FormLabel>
                     <Select
                       options={yesNoOptions}
                       placeholder="Select Yes if you're subject to immigration control."
                       isClearable
-                       value={yesNoOptions.find((opt) => opt.value === field.value) || undefined}
-                      onChange={(option) => field.onChange(option ? option.value : undefined)}
+                      value={
+                        yesNoOptions.find((opt) => opt.value === field.value) ||
+                        undefined
+                      }
+                      onChange={(option) =>
+                        field.onChange(option ? option.value : undefined)
+                      }
                       className="text-lg"
                       styles={{
                         control: (base) => ({
                           ...base,
                           height: '3rem',
                           borderRadius: '16px',
-                          fontSize: '1.125rem',
-                        }),
+                          fontSize: '1.125rem'
+                        })
                       }}
                     />
-                    <p className="text-md text-gray-400">Example: Yes</p>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -641,26 +736,33 @@ export function ApplicationDetailsStep({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      Are you free to remain and take up employment in the UK?
-                      <span className="text-red-500">*</span>
+                      <div>
+                        Are you free to remain and take up employment in the UK?
+                        <span className="text-red-500">*</span>
+                      </div>
+                      <HelperTooltip text="Select 'Yes' if you are legally eligible to live and work in the United Kingdom without any restrictions. e.g., Yes" />
                     </FormLabel>
                     <Select
                       options={yesNoOptions}
                       placeholder="Select Yes if you can legally work in the UK."
                       isClearable
-                       value={yesNoOptions.find((opt) => opt.value === field.value) || undefined}
-                      onChange={(option) => field.onChange(option ? option.value : undefined)}
+                      value={
+                        yesNoOptions.find((opt) => opt.value === field.value) ||
+                        undefined
+                      }
+                      onChange={(option) =>
+                        field.onChange(option ? option.value : undefined)
+                      }
                       className="text-lg"
                       styles={{
                         control: (base) => ({
                           ...base,
                           height: '3rem',
                           borderRadius: '16px',
-                          fontSize: '1.125rem',
-                        }),
+                          fontSize: '1.125rem'
+                        })
                       }}
                     />
-                    <p className="text-md text-gray-400">Example: Yes</p>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -673,8 +775,11 @@ export function ApplicationDetailsStep({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      How did you hear about us?
-                      <span className="text-red-500">*</span>
+                      <div>
+                        How did you hear about us?
+                        <span className="text-red-500">*</span>
+                      </div>
+                      <HelperTooltip text="Tell us how you found out about this job opportunity (e.g., job portal, referral, or social media). e.g., Indeed, Referral, LinkedIn" />
                     </FormLabel>
                     <Controller
                       control={form.control}
@@ -683,8 +788,12 @@ export function ApplicationDetailsStep({
                         <Select
                           options={options}
                           placeholder="Let us know how you found out about this opportunity."
-                          onChange={(selected) => field.onChange(selected?.value)}
-                          value={options.find((option) => option.value === field.value)}
+                          onChange={(selected) =>
+                            field.onChange(selected?.value)
+                          }
+                          value={options.find(
+                            (option) => option.value === field.value
+                          )}
                           isClearable
                           className="text-lg"
                           styles={{
@@ -692,13 +801,12 @@ export function ApplicationDetailsStep({
                               ...base,
                               height: '3rem',
                               borderRadius: '16px',
-                              fontSize: '1.125rem',
-                            }),
+                              fontSize: '1.125rem'
+                            })
                           }}
                         />
                       )}
                     />
-                    <p className="text-md text-gray-400">Example: Indeed, Referral, LinkedIn</p>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -711,9 +819,12 @@ export function ApplicationDetailsStep({
                   name="referralEmployee"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className='text-watney'>
-                        Referred by (Employee Name)
-                        <span className="text-red-500">*</span>
+                      <FormLabel className="text-watney">
+                        <div>
+                          Referred by (Employee Name)
+                          <span className="text-red-500">*</span>
+                        </div>
+                        <HelperTooltip text="Enter the full name of the employee who referred you to this position, if applicable. e.g., Emma Watson" />
                       </FormLabel>
                       <FormControl>
                         <Input
@@ -722,7 +833,7 @@ export function ApplicationDetailsStep({
                           className=""
                         />
                       </FormControl>
-                      <p className="text-md text-gray-400">Example: Emma Watson</p>
+                      {/* <p className="text-md text-gray-400">Example: Emma Watson</p> */}
                       <FormMessage />
                     </FormItem>
                   )}
@@ -738,8 +849,11 @@ export function ApplicationDetailsStep({
                 <FormItem>
                   <div className="flex items-center justify-start gap-2">
                     <FormLabel>
-                      Availability (Select all that apply)
-                      <span className="text-red-500">*</span>
+                      <div>
+                        Availability (Select all that apply)
+                        <span className="text-red-500">*</span>
+                      </div>
+                      <HelperTooltip text="Select all days of the week when you are available to work. Use 'Select All' if you have full availability. e.g., Monday, Wednesday, Saturday" />
                     </FormLabel>
                     <Button
                       type="button"
@@ -747,16 +861,34 @@ export function ApplicationDetailsStep({
                       size={'default'}
                       className="bg-watney hover:bg-watney/90 "
                       onClick={() => {
-                        const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-                        days.forEach((day) => form.setValue(`availability.${day}`, true));
+                        const days = [
+                          'monday',
+                          'tuesday',
+                          'wednesday',
+                          'thursday',
+                          'friday',
+                          'saturday',
+                          'sunday'
+                        ];
+                        days.forEach((day) =>
+                          form.setValue(`availability.${day}`, true)
+                        );
                       }}
                     >
                       Select All
                     </Button>
                   </div>
-                  <p className="pb-2 text-md text-gray-400">Example: Monday, Wednesday, Saturday</p>
+                  {/* <p className="pb-2 text-md text-gray-400">Example: Monday, Wednesday, Saturday</p> */}
                   <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                    {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => (
+                    {[
+                      'Monday',
+                      'Tuesday',
+                      'Wednesday',
+                      'Thursday',
+                      'Friday',
+                      'Saturday',
+                      'Sunday'
+                    ].map((day) => (
                       <FormField
                         key={day}
                         control={form.control}
@@ -769,7 +901,9 @@ export function ApplicationDetailsStep({
                                 onCheckedChange={field.onChange}
                               />
                             </FormControl>
-                            <FormLabel className="font-normal text-lg">{day}</FormLabel>
+                            <FormLabel className="text-lg font-normal">
+                              {day}
+                            </FormLabel>
                           </FormItem>
                         )}
                       />
@@ -787,26 +921,34 @@ export function ApplicationDetailsStep({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      Are you currently a student?
-                      <span className="text-red-500">*</span>
+                      <div>
+                        Are you currently a student?
+                        <span className="text-red-500">*</span>
+                      </div>
+                      <HelperTooltip text="Select 'Yes' if you are currently enrolled as a student at a college, university, or any educational institution. e.g., Yes" />
                     </FormLabel>
                     <Select
                       options={yesNoOptions}
                       placeholder="Select Yes if you are currently enrolled..."
                       isClearable
-                      value={yesNoOptions.find((opt) => opt.value === field.value) || undefined}
-                      onChange={(option) => field.onChange(option ? option.value : undefined)}
+                      value={
+                        yesNoOptions.find((opt) => opt.value === field.value) ||
+                        undefined
+                      }
+                      onChange={(option) =>
+                        field.onChange(option ? option.value : undefined)
+                      }
                       className="text-lg"
                       styles={{
                         control: (base) => ({
                           ...base,
                           height: '3rem',
                           borderRadius: '16px',
-                          fontSize: '1.125rem',
-                        }),
+                          fontSize: '1.125rem'
+                        })
                       }}
                     />
-                    <p className="text-md text-gray-400">Example: Yes</p>
+                    {/* <p className="text-md text-gray-400">Example: Yes</p> */}
                     <FormMessage />
                   </FormItem>
                 )}
@@ -818,25 +960,35 @@ export function ApplicationDetailsStep({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      Are you under state pension age? <span className="text-red-500">*</span>
+                      <div>
+                        Are you under state pension age?{' '}
+                        <span className="text-red-500">*</span>
+                      </div>
+                      <HelperTooltip text="Indicate whether you are below the official UK state pension age. This helps us with employment eligibility checks. e.g., Yes" />
                     </FormLabel>
                     <Select
                       options={yesNoOptions}
                       placeholder="Indicate whether you are below the UK state pension age."
                       isClearable
-                      value={yesNoOptions.find((option) => option.value === field.value) || null}
-                      onChange={(option) => field.onChange(option ? option.value : null)}
+                      value={
+                        yesNoOptions.find(
+                          (option) => option.value === field.value
+                        ) || null
+                      }
+                      onChange={(option) =>
+                        field.onChange(option ? option.value : null)
+                      }
                       className="text-lg"
                       styles={{
                         control: (base) => ({
                           ...base,
                           height: '3rem',
                           borderRadius: '16px',
-                          fontSize: '1.125rem',
-                        }),
+                          fontSize: '1.125rem'
+                        })
                       }}
                     />
-                    <p className="text-md text-gray-400">Example: Yes</p>
+                    {/* <p className="text-md text-gray-400">Example: Yes</p> */}
                     <FormMessage />
                   </FormItem>
                 )}
@@ -844,22 +996,26 @@ export function ApplicationDetailsStep({
             </div>
 
             {/* Buttons */}
-            <div className="flex justify-between">
+            <div className="flex flex-col gap-3 pt-4 sm:flex-row sm:justify-between">
               <Button
                 type="button"
                 variant="outline"
                 onClick={handleBack}
-                className=" bg-watney  text-lg text-white hover:bg-watney/90"
+                className="w-full bg-watney text-lg text-white hover:bg-watney/90 sm:w-auto"
               >
                 Back
               </Button>
+
               <Button
                 onClick={() => saveAndLogout()}
-                className="bg-watney  text-white hover:bg-watney/90"
+                className="w-full bg-watney text-white hover:bg-watney/90 sm:w-auto"
               >
                 Save And Exit
               </Button>
-              <Button type="submit" className="bg-watney  text-lg text-white hover:bg-watney/90"
+
+              <Button
+                type="submit"
+                className="w-full bg-watney text-lg text-white hover:bg-watney/90 sm:w-auto"
               >
                 Save And Next
               </Button>

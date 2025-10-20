@@ -26,6 +26,7 @@ import { CustomDatePicker } from "@/components/shared/CustomDatePicker";
 import axiosInstance from "@/lib/axios";
 import { useLocation } from "react-router-dom";
 import { BlinkingDots } from "@/components/shared/blinking-dots";
+import { HelperTooltip } from "@/helper/HelperTooltip";
 
 const characterReferenceSchema = z.object({
   applicantName: z.string().min(1, "Required"),
@@ -228,328 +229,349 @@ export default function CharacterReferencePage() {
           <img src="/logo.png" alt="Everycare logo" className="h-16" />
         </div>
 
-        <Card className="border border-gray-300">
-          <CardHeader>
-            <CardTitle className="text-xl">Personal Reference Questionnaire</CardTitle>
-          </CardHeader>
+      <Card className="border border-gray-300">
+  <CardHeader>
+    <CardTitle className="text-xl">Personal Reference Questionnaire</CardTitle>
+  </CardHeader>
 
-          <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                {/* === Applicant Info Box === */}
-                <div className="space-y-4 p-4 rounded-lg bg-gray-100">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center text-center">
-                    <div>
-                      <h1 className="text-lg font-semibold">Name of applicant</h1>
-                      <p className="text-base">{form.getValues("applicantName")}</p>
-                    </div>
-                    <div>
-                      <h1 className="text-lg font-semibold">Position applied for</h1>
-                      <p className="text-base">{form.getValues("positionApplied")}</p>
-                    </div>
-                    <div>
-                      <h1 className="text-lg font-semibold">Relationship to applicant</h1>
-                      <p className="text-base">{form.getValues("relationship")}</p>
-                    </div>
+  <CardContent>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        {/* === Applicant Info Box === */}
+        <div className="space-y-4 p-4 rounded-lg bg-gray-100">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center text-center">
+            <div>
+              <h1 className="text-lg font-semibold">Name of applicant</h1>
+              <p className="text-base">{form.getValues("applicantName")}</p>
+            </div>
+            <div>
+              <h1 className="text-lg font-semibold">Position applied for</h1>
+              <p className="text-base">{form.getValues("positionApplied")}</p>
+            </div>
+            <div>
+              <h1 className="text-lg font-semibold">Relationship to applicant</h1>
+              <p className="text-base">{form.getValues("relationship")}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* === How Long Known === */}
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="howLongKnown"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    <div>How long have you known the applicant? <span className="text-red-500">*</span></div>
+                    <HelperTooltip text="Provide the duration you have personally known the applicant. e.g., 3 years" />
+                  </FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="e.g., 3 years" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {/* === Health & Dependency === */}
+          <div className="space-y-4 border-t pt-4">
+            <FormField
+              control={form.control}
+              name="seriousIllness"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    <div>Does the applicant suffer from any serious or recurring illness? <span className="text-red-500">*</span>
+                    <HelperTooltip text="Indicate if the applicant has any medical conditions that may affect their work. e.g., No" /></div>
+                  </FormLabel>
+                  <div className="flex items-center gap-6 mt-2">
+                    {["yes", "no"].map((option) => (
+                      <div key={option} className="flex items-center gap-2">
+                        <Checkbox
+                          id={`seriousIllness-${option}`}
+                          checked={field.value === option}
+                          onCheckedChange={(checked) => checked && field.onChange(option)}
+                        />
+                        <Label htmlFor={`seriousIllness-${option}`} className="font-normal capitalize">
+                          {option}
+                        </Label>
+                      </div>
+                    ))}
                   </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="drugsDependency"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    <div>Was the applicant, to your personal knowledge, dependent upon drugs or medication? <span className="text-red-500">*</span>
+                    <HelperTooltip text="Indicate if the applicant has any known dependency on drugs or medication. e.g., No" /></div>
+                  </FormLabel>
+                  <div className="flex items-center gap-6 mt-2">
+                    {["yes", "no"].map((option) => (
+                      <div key={option} className="flex items-center gap-2">
+                        <Checkbox
+                          id={`drugsDependency-${option}`}
+                          checked={field.value === option}
+                          onCheckedChange={(checked) => checked && field.onChange(option)}
+                        />
+                        <Label htmlFor={`drugsDependency-${option}`} className="font-normal capitalize">
+                          {option}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
+
+        {/* === Personal Traits (YES/NO) === */}
+        <div className="space-y-6 border-t pt-6">
+          <h3 className="font-semibold text-lg">
+            From what you know of the applicant, would you consider them to be:
+          </h3>
+
+          {[
+            { name: "reliable", label: "Reliable", tooltip: "Consider if the applicant consistently completes tasks. e.g., Yes" },
+            { name: "punctual", label: "Punctual", tooltip: "Evaluate whether the applicant arrives on time. e.g., Yes" },
+            { name: "trustworthy", label: "Trustworthy", tooltip: "Assess honesty and integrity. e.g., Yes" },
+            { name: "approachable", label: "Approachable", tooltip: "Evaluate friendliness and willingness to help. e.g., Yes" },
+            { name: "tactful", label: "Tactful", tooltip: "Assess sensitivity and diplomacy. e.g., Yes" },
+            { name: "discreet", label: "Discreet", tooltip: "Evaluate confidentiality and prudence. e.g., Yes" },
+            { name: "selfMotivated", label: "Self motivated", tooltip: "Assess initiative and drive. e.g., Yes" },
+            { name: "ableToWorkAlone", label: "Able to work alone", tooltip: "Evaluate independence in completing tasks. e.g., Yes" },
+          ].map((trait) => (
+            <FormField
+              key={trait.name}
+              control={form.control}
+              name={trait.name as keyof CharacterReferenceFormData}
+              render={({ field }) => (
+                <FormItem className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-6">
+                  <div className="flex-1">
+                    <FormLabel>
+                      <div>{trait.label} <span className="text-red-500">*</span>
+                      <HelperTooltip text={trait.tooltip} /></div>
+                    </FormLabel>
+                    <FormMessage />
+                  </div>
+                  <div className="flex flex-wrap items-center gap-4">
+                    {["yes", "no"].map((option) => (
+                      <div key={option} className="flex items-center gap-2">
+                        <Checkbox
+                          id={`${trait.name}-${option}`}
+                          checked={field.value === option}
+                          onCheckedChange={(checked) => checked && field.onChange(option)}
+                        />
+                        <Label htmlFor={`${trait.name}-${option}`} className="font-normal capitalize">
+                          {option}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </FormItem>
+              )}
+            />
+          ))}
+        </div>
+
+        {/* === Ratings Section === */}
+        <div className="space-y-6 border-t pt-6">
+          <h3 className="font-semibold text-lg">
+            Bearing in mind that the applicant will deal with a variety of situations, how would you rate their level of:
+          </h3>
+
+          {[
+            { name: "competency", label: "Competency", tooltip: "Evaluate skill and knowledge level. e.g., Very Good" },
+            { name: "commonSense", label: "Common Sense", tooltip: "Evaluate practical judgment and decision-making. e.g., Good" },
+          ].map((fieldName) => {
+            const labelToValue: Record<string, string> = {
+              "Very Good": "very_good",
+              Good: "good",
+              Satisfactory: "satisfactory",
+              Poor: "poor",
+            };
+
+            return (
+              <FormField
+                key={fieldName.name}
+                control={form.control}
+                name={fieldName.name as keyof CharacterReferenceFormData}
+                render={({ field }) => (
+                  <FormItem className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-6">
+                    <div className="flex-1">
+                      <FormLabel>
+                        <div>{fieldName.label} <span className="text-red-500">*</span>
+                        <HelperTooltip text={fieldName.tooltip} /></div>
+                      </FormLabel>
+                      <FormMessage />
+                    </div>
+                    <div className="flex flex-wrap items-center gap-4">
+                      {["Very Good", "Good", "Satisfactory", "Poor"].map((option) => (
+                        <div key={option} className="flex items-center gap-2">
+                          <Checkbox
+                            id={`${fieldName.name}-${option}`}
+                            checked={field.value === labelToValue[option]}
+                            onCheckedChange={(checked) => checked && field.onChange(labelToValue[option])}
+                          />
+                          <Label htmlFor={`${fieldName.name}-${option}`} className="font-normal">
+                            {option}
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                  </FormItem>
+                )}
+              />
+            );
+          })}
+
+          <FormField
+            control={form.control}
+            name="relatesWellWithUsers"
+            render={({ field }) => (
+              <FormItem className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-6">
+                <div className="flex-1">
+                  <FormLabel>
+                    <div>Do you consider that the applicant relates well with / would relate well with service users in their care? <span className="text-red-500">*</span>
+                    <HelperTooltip text="Indicate if the applicant interacts effectively and positively with clients or service users. e.g., Yes" /></div>
+                  </FormLabel>
+                  <FormMessage />
                 </div>
-
-                {/* === How Long Known === */}
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="howLongKnown"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>How long have you known the applicant?</FormLabel>
-                          <FormControl>
-                            <Input {...field} placeholder="e.g., 3 years" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  {/* === Health & Dependency === */}
-                  <div className="space-y-4 border-t pt-4">
-                    <FormField
-                      control={form.control}
-                      name="seriousIllness"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Does the applicant suffer from any serious or recurring illness?</FormLabel>
-                          <div className="flex items-center gap-6 mt-2">
-                            {["yes", "no"].map((option) => (
-                              <div key={option} className="flex items-center gap-2">
-                                <Checkbox
-                                  id={`seriousIllness-${option}`}
-                                  checked={field.value === option}
-                                  onCheckedChange={(checked) => checked && field.onChange(option)}
-                                />
-                                <Label htmlFor={`seriousIllness-${option}`} className="font-normal capitalize">
-                                  {option}
-                                </Label>
-                              </div>
-                            ))}
-                          </div>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="drugsDependency"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>
-                            Was the applicant, to your personal knowledge, dependent upon drugs or medication?
-                          </FormLabel>
-                          <div className="flex items-center gap-6 mt-2">
-                            {["yes", "no"].map((option) => (
-                              <div key={option} className="flex items-center gap-2">
-                                <Checkbox
-                                  id={`drugsDependency-${option}`}
-                                  checked={field.value === option}
-                                  onCheckedChange={(checked) => checked && field.onChange(option)}
-                                />
-                                <Label htmlFor={`drugsDependency-${option}`} className="font-normal capitalize">
-                                  {option}
-                                </Label>
-                              </div>
-                            ))}
-                          </div>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
-
-                {/* === Personal Traits (YES/NO) === */}
-                <div className="space-y-6 border-t pt-6">
-                  <h3 className="font-semibold text-lg">From what you know of the applicant, would you consider them to be:</h3>
-
-                  {[
-                    { name: "reliable", label: "Reliable" },
-                    { name: "punctual", label: "Punctual" },
-                    { name: "trustworthy", label: "Trustworthy" },
-                    { name: "approachable", label: "Approachable" },
-                    { name: "tactful", label: "Tactful" },
-                    { name: "discreet", label: "Discreet" },
-                    { name: "selfMotivated", label: "Self motivated" },
-                    { name: "ableToWorkAlone", label: "Able to work alone" },
-                  ].map((trait) => (
-                    <FormField
-                      key={trait.name}
-                      control={form.control}
-                      name={trait.name as keyof CharacterReferenceFormData}
-                      render={({ field }) => (
-                        <FormItem className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-6">
-                          <div className="flex-1">
-                            <FormLabel>{trait.label}</FormLabel>
-                            <FormMessage />
-                          </div>
-                          <div className="flex flex-wrap items-center gap-4">
-                            {["yes", "no"].map((option) => (
-                              <div key={option} className="flex items-center gap-2">
-                                <Checkbox
-                                  id={`${trait.name}-${option}`}
-                                  checked={field.value === option}
-                                  onCheckedChange={(checked) => checked && field.onChange(option)}
-                                />
-                                <Label htmlFor={`${trait.name}-${option}`} className="font-normal capitalize">
-                                  {option}
-                                </Label>
-                              </div>
-                            ))}
-                          </div>
-                        </FormItem>
-                      )}
-                    />
+                <div className="flex flex-wrap items-center gap-4">
+                  {["yes", "no", "unsure"].map((option) => (
+                    <div key={option} className="flex items-center gap-2">
+                      <Checkbox
+                        id={`relatesWellWithUsers-${option}`}
+                        checked={field.value === option}
+                        onCheckedChange={(checked) => checked && field.onChange(option)}
+                      />
+                      <Label htmlFor={`relatesWellWithUsers-${option}`} className="font-normal capitalize">
+                        {option}
+                      </Label>
+                    </div>
                   ))}
                 </div>
+              </FormItem>
+            )}
+          />
+        </div>
 
-                {/* === Ratings Section === */}
-                <div className="space-y-6 border-t pt-6">
-                  <h3 className="font-semibold text-lg">
-                    Bearing in mind that the applicant will deal with a variety of situations, how would you rate their level of:
-                  </h3>
-
-                  {[
-                    { name: "competency", label: "Competency" },
-                    { name: "commonSense", label: "Common Sense" },
-                  ].map((fieldName) => {
-                    const labelToValue: Record<string, string> = {
-                      "Very Good": "very_good",
-                      Good: "good",
-                      Satisfactory: "satisfactory",
-                      Poor: "poor",
-                    };
-
-                    return (
-                      <FormField
-                        key={fieldName.name}
-                        control={form.control}
-                        name={fieldName.name as keyof CharacterReferenceFormData}
-                        render={({ field }) => (
-                          <FormItem className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-6">
-                            <div className="flex-1">
-                              <FormLabel>{fieldName.label}</FormLabel>
-                              <FormMessage />
-                            </div>
-                            <div className="flex flex-wrap items-center gap-4">
-                              {["Very Good", "Good", "Satisfactory", "Poor"].map((option) => (
-                                <div key={option} className="flex items-center gap-2">
-                                  <Checkbox
-                                    id={`${fieldName.name}-${option}`}
-                                    checked={field.value === labelToValue[option]}
-                                    onCheckedChange={(checked) => checked && field.onChange(labelToValue[option])}
-                                  />
-                                  <Label htmlFor={`${fieldName.name}-${option}`} className="font-normal">
-                                    {option}
-                                  </Label>
-                                </div>
-                              ))}
-                            </div>
-                          </FormItem>
-                        )}
+        {/* === Final Declarations === */}
+        <div className="space-y-4 border-t pt-6">
+          <FormField
+            control={form.control}
+            name="cautionsConvictions"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  <div>This position is exempted from the Rehabilitation of Offenders Act 1974, and any convictions must be declared. Are you aware of any cautions, convictions or pending prosecutions held by the applicant? <span className="text-red-500">*</span>
+                  <HelperTooltip text="Declare any criminal history known to you. e.g., No" /></div>
+                </FormLabel>
+                <div className="flex items-center gap-6 mt-2">
+                  {["yes", "no"].map((option) => (
+                    <div key={option} className="flex items-center gap-2">
+                      <Checkbox
+                        id={`cautionsConvictions-${option}`}
+                        checked={field.value === option}
+                        onCheckedChange={(checked) => checked && field.onChange(option)}
                       />
-                    );
-                  })}
-
-                  <FormField
-                    control={form.control}
-                    name="relatesWellWithUsers"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-6">
-                        <div className="flex-1">
-                          <FormLabel>
-                            Do you consider that the applicant relates well with / would relate well with service users in their care?
-                          </FormLabel>
-                          <FormMessage />
-                        </div>
-                        <div className="flex flex-wrap items-center gap-4">
-                          {["yes", "no", "unsure"].map((option) => (
-                            <div key={option} className="flex items-center gap-2">
-                              <Checkbox
-                                id={`relatesWellWithUsers-${option}`}
-                                checked={field.value === option}
-                                onCheckedChange={(checked) => checked && field.onChange(option)}
-                              />
-                              <Label htmlFor={`relatesWellWithUsers-${option}`} className="font-normal capitalize">
-                                {option}
-                              </Label>
-                            </div>
-                          ))}
-                        </div>
-                      </FormItem>
-                    )}
-                  />
+                      <Label htmlFor={`cautionsConvictions-${option}`} className="font-normal capitalize">
+                        {option}
+                      </Label>
+                    </div>
+                  ))}
                 </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-                {/* === Final Declarations === */}
-                <div className="space-y-4 border-t pt-6">
-                  <FormField
-                    control={form.control}
-                    name="cautionsConvictions"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          This position is exempted from the Rehabilitation of Offenders Act 1974, and any convictions
-                          must be declared. Are you aware of any cautions, convictions or pending prosecutions held by
-                          the applicant?
-                        </FormLabel>
-                        <div className="flex items-center gap-6 mt-2">
-                          {["yes", "no"].map((option) => (
-                            <div key={option} className="flex items-center gap-2">
-                              <Checkbox
-                                id={`cautionsConvictions-${option}`}
-                                checked={field.value === option}
-                                onCheckedChange={(checked) => checked && field.onChange(option)}
-                              />
-                              <Label htmlFor={`cautionsConvictions-${option}`} className="font-normal capitalize">
-                                {option}
-                              </Label>
-                            </div>
-                          ))}
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+          <FormField
+            control={form.control}
+            name="additionalComments"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  <div>Would you like to make any other comments about the suitability of the applicant for this post? <span className="text-red-500">*</span></div>
+                  <HelperTooltip text="Optional: Add any other observations regarding the applicant. e.g., Very suitable for the role" />
+                </FormLabel>
+                <FormControl>
+                  <Textarea {...field} rows={5} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
-                  <FormField
-                    control={form.control}
-                    name="additionalComments"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          Would you like to make any other comments about the suitability of the applicant for this post?
-                        </FormLabel>
-                        <FormControl>
-                          <Textarea {...field} rows={5} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+        {/* === Referee Details === */}
+        <div className="space-y-4 border-t pt-6">
+          <div>
+            <h3 className="font-semibold text-lg">Reference Details</h3>
+            <p className="text-sm text-muted-foreground">
+              Please review your details below. If any information is incorrect, you can edit it before submitting.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="refereeName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Name <HelperTooltip text="Enter your full name as the referee. e.g., John Doe" />
+                  </FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="refereePosition"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Position <HelperTooltip text="Enter your position/title at your organization. e.g., Manager" />
+                  </FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
 
-                {/* === Referee Details === */}
-                <div className="space-y-4 border-t pt-6">
-                  <div>
-                    <h3 className="font-semibold text-lg">Reference Details</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Please review your details below. If any information is incorrect, you can edit it before submitting.
-                    </p>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="refereeName"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Name</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="refereePosition"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Position</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
+        {/* === Submit Button === */}
+        <div className="flex w-full justify-end">
+          <Button
+            type="submit"
+            disabled={submitting}
+            className="bg-watney text-white hover:bg-watney/90 max-md:w-full"
+          >
+            {submitting ? "Submitting..." : "Complete"}
+          </Button>
+        </div>
+      </form>
+    </Form>
+  </CardContent>
+</Card>
 
-                {/* === Submit Button === */}
-                <div className="flex w-full justify-end">
-                  <Button
-                    type="submit"
-                    disabled={submitting}
-                    className="bg-watney text-white hover:bg-watney/90 max-md:w-full"
-                  >
-                    {submitting ? "Submitting..." : "Complete"}
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );

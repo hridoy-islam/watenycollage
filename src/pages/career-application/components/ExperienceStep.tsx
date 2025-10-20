@@ -18,6 +18,7 @@ import {
   FormMessage
 } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
+import { HelperTooltip } from '@/helper/HelperTooltip';
 
 // Simple schema with two optional string fields
 const experienceSchema = z.object({
@@ -73,8 +74,13 @@ export function ExperienceStep({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-lg font-medium">
+                    <div>
+
                     What are your life skills and interests?{' '}
                     <span className="text-red-500">*</span>
+                    </div>
+                    <HelperTooltip text="Describe your life skills and hobbies, e.g., Football, cooking, volunteering, public speaking, playing guitar." />
+
                   </FormLabel>
                   <FormControl>
                     <Textarea
@@ -83,11 +89,11 @@ export function ExperienceStep({
                       className="min-h-[100px]  border border-gray-300 p-4 text-lg resize-none placeholder:text-gray-400"
                     />
                   </FormControl>
-                  <p className="mt-1 text-md text-gray-400">
+                  {/* <p className="mt-1 text-md text-gray-400">
                     Example: I play football weekly and enjoy mentoring young
                     players. I’m also passionate about cooking and community
                     gardening.
-                  </p>
+                  </p> */}
                   <FormMessage />
                 </FormItem>
               )}
@@ -100,9 +106,14 @@ export function ExperienceStep({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-lg font-medium">
+                    <div>
+
                     Please provide a brief description of any experience
                     relevant to this application{' '}
                     <span className="text-red-500">*</span>
+                    </div>
+                    <HelperTooltip text="Provide a brief description of any experience relevant to this application, e.g., caring for a relative, working in hospitality, completing first aid training." />
+
                   </FormLabel>
                   <FormControl>
                     <Textarea
@@ -111,34 +122,36 @@ export function ExperienceStep({
                       className="min-h-[100px]  border border-gray-300 p-4 text-lg resize-none placeholder:text-gray-400"
                     />
                   </FormControl>
-                  <p className="mt-1 text-md text-gray-400">
+                  {/* <p className="mt-1 text-md text-gray-400">
                     Example: I supported my grandmother with daily living tasks
                     for 3 years, including medication management and mobility
                     assistance.
-                  </p>
+                  </p> */}
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            <div className="flex justify-between pt-4">
+             <div className="flex flex-col gap-3 pt-4 sm:flex-row sm:justify-between">
               <Button
                 type="button"
                 variant="outline"
                 onClick={handleBack}
-                className=" bg-watney text-lg text-white hover:bg-watney/90"
+                className="w-full bg-watney text-lg text-white hover:bg-watney/90 sm:w-auto"
               >
                 Back
               </Button>
+
               <Button
                 onClick={() => saveAndLogout()}
-                className="bg-watney  text-white hover:bg-watney/90"
+                className="w-full bg-watney text-white hover:bg-watney/90 sm:w-auto"
               >
                 Save And Exit
               </Button>
+
               <Button
                 type="submit"
-                className=" bg-watney text-lg text-white hover:bg-watney/90"
+                className="w-full bg-watney text-lg text-white hover:bg-watney/90 sm:w-auto"
               >
                 Save And Next
               </Button>
