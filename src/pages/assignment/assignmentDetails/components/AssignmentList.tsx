@@ -89,62 +89,74 @@ export const AssignmentList: React.FC<AssignmentListProps> = ({
   };
 
   return (
-    <div className="w-96 overflow-y-auto pr-4">
-      <Card className="border border-gray-300">
-        <CardContent className="space-y-2 pt-4">
-          {assignments.length === 0 ? (
-            <p className="py-4 text-center text-sm text-gray-500">
-              No assignments found in this unit
-            </p>
-          ) : (
-            assignments.map((assignment) => {
-              const unseenCount = getUnseenCounts(assignment);
-              const unitMaterialDeadline = getUnitMaterialDeadline(
-                assignment.assignmentName
-              );
+   <div className="w-full sm:w-96 max-h-[70vh] overflow-y-auto pr-2 sm:pr-4">
+  <Card className="border border-gray-300">
+    <CardContent className="space-y-2 pt-4">
+      {assignments.length === 0 ? (
+        <p className="py-6 text-center text-sm sm:text-base text-gray-500">
+          No assignments found in this unit
+        </p>
+      ) : (
+        assignments.map((assignment) => {
+          const unseenCount = getUnseenCounts(assignment);
+          const unitMaterialDeadline = getUnitMaterialDeadline(
+            assignment.assignmentName
+          );
 
-              return (
-                <div
-                  key={assignment._id}
-                  className={`cursor-pointer rounded-lg border p-3 transition-colors ${
-                    selectedAssignment?._id === assignment._id
-                      ? 'border-watney bg-watney/5'
-                      : 'border-gray-200 hover:bg-gray-50'
-                  }`}
-                  onClick={() => onSelectAssignment(assignment)}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">
-                      {assignment.assignmentName}
-                    </span>
-                    <div className="flex items-center gap-2 text-xs font-semibold   ">
-                      <h1 className='text-green-600'>
+          return (
+            <div
+              key={assignment._id}
+              className={`cursor-pointer rounded-lg border p-3 sm:p-4 transition-colors ${
+                selectedAssignment?._id === assignment._id
+                  ? 'border-watney bg-watney/5'
+                  : 'border-gray-200 hover:bg-gray-50'
+              }`}
+              onClick={() => onSelectAssignment(assignment)}
+            >
+              {/* === Assignment Header === */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
+                <span className="text-sm sm:text-base font-medium text-gray-800 break-words">
+                  {assignment.assignmentName}
+                </span>
 
-                      {assignment.status === 'completed' &&
-                        assignment.status.charAt(0).toUpperCase() +
+                <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold">
+                  {assignment.status === 'completed' && (
+                    <span className="text-green-600">
+                      {assignment.status.charAt(0).toUpperCase() +
                         assignment.status.slice(1)}
-                        </h1>
-                    </div>
-                  </div>
-                  <div className="mt-2 flex items-center gap-2 text-xs font-semibold text-gray-500">
-                    <Clock className="h-3 w-3" />
-                    {unitMaterialDeadline
-                      ? `Initial Deadline: ${moment(unitMaterialDeadline).format('DD MMM YYYY')}`
-                      : 'No deadline'}
-                  </div>
-                  {/* {unseenCount > 0 && (
-                    <div className="mt-1 flex items-center gap-1 text-xs text-blue-600">
-                      {isStudent
-                        ? `${unseenCount} new feedback${unseenCount > 1 ? 's' : ''}`
-                        : `${unseenCount} new submission${unseenCount > 1 ? 's' : ''}`}
-                    </div>
-                  )} */}
+                    </span>
+                  )}
                 </div>
-              );
-            })
-          )}
-        </CardContent>
-      </Card>
-    </div>
+              </div>
+
+              {/* === Deadline Info === */}
+              <div className="mt-2 flex items-center gap-2 text-xs sm:text-sm font-medium text-gray-500">
+                <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
+                {unitMaterialDeadline ? (
+                  <span>
+                    Initial Deadline:{' '}
+                    {moment(unitMaterialDeadline).format('DD MMM YYYY')}
+                  </span>
+                ) : (
+                  <span>No deadline</span>
+                )}
+              </div>
+
+              {/* === Optional Unseen Counter (Hidden Currently) === */}
+              {/* {unseenCount > 0 && (
+                <div className="mt-1 flex items-center gap-1 text-xs text-blue-600">
+                  {isStudent
+                    ? `${unseenCount} new feedback${unseenCount > 1 ? 's' : ''}`
+                    : `${unseenCount} new submission${unseenCount > 1 ? 's' : ''}`}
+                </div>
+              )} */}
+            </div>
+          );
+        })
+      )}
+    </CardContent>
+  </Card>
+</div>
+
   );
 };

@@ -71,7 +71,7 @@ function CourseUnitPage() {
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const [entriesPerPage, setEntriesPerPage] = useState(10);
+  const [entriesPerPage, setEntriesPerPage] = useState(100);
   const [totalPages, setTotalPages] = useState(1);
 
   // Fetch course name and units
@@ -233,6 +233,16 @@ function CourseUnitPage() {
   const handleModule = (unit: CourseUnit) => {
     navigate(`${unit._id}`);
   };
+
+
+  const sortedUnits = [...units].sort((a, b) => {
+  const getUnitNumber = (title: string) => {
+    const match = title.match(/Unit (\d+)/i);
+    return match ? parseInt(match[1], 10) : Infinity; // Non-unit titles go to the end
+  };
+  return getUnitNumber(a.title) - getUnitNumber(b.title);
+});
+
 
   return (
     <div className="">
@@ -417,7 +427,7 @@ function CourseUnitPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {units.map((unit) => (
+                  {sortedUnits.map((unit) => (
                     <TableRow key={unit._id}>
                       <TableCell>{unit.unitReference}</TableCell>
                       <TableCell>{unit.title}</TableCell>

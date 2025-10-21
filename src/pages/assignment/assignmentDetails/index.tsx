@@ -1653,156 +1653,133 @@ const canStudentSubmit = (assignment: Assignment | null): boolean => {
     : null;
 
   return (
-    <div className="mx-auto flex flex-col overflow-auto rounded-lg bg-white p-4 shadow-md">
-      {/* Header */}
-      <AssignmentHeader
+  <div className="mx-auto flex flex-col overflow-auto rounded-lg bg-white p-4 shadow-md w-full">
+  {/* Header */}
+  <AssignmentHeader
+    isStudent={isStudent}
+    studentName={studentName}
+    courseUnit={courseUnit}
+    onBack={() => navigate(-1)}
+  />
+
+  {/* Main Layout */}
+  <div className="flex flex-col lg:flex-row w-full gap-4">
+    {/* Left Sidebar - Assignment List */}
+    <div className="w-full lg:w-1/3 xl:w-1/4">
+      <AssignmentList
+        assignments={assignments}
+        selectedAssignment={selectedAssignment}
+        onSelectAssignment={handleSelectAssignment}
+        getStatusBadge={getStatusBadge}
+        getUnseenCounts={getUnseenCounts}
         isStudent={isStudent}
-        studentName={studentName}
-        courseUnit={courseUnit}
-        onBack={() => navigate(-1)}
+        unitMaterial={unitMaterial}
       />
+    </div>
 
-      <div className="flex ">
-        {/* Left Sidebar - Assignment List */}
-        <AssignmentList
-          assignments={assignments}
-          selectedAssignment={selectedAssignment}
-          onSelectAssignment={handleSelectAssignment}
-          getStatusBadge={getStatusBadge}
-          getUnseenCounts={getUnseenCounts}
-          isStudent={isStudent}
-          unitMaterial={unitMaterial}
-        />
-
-        {/* Right Content Area - Forum Style */}
-        <div className="ml-4 flex flex-1 flex-col   rounded-lg">
-          {selectedAssignment ? (
-            <>
-              {/* Assignment Post Header */}
-              <AssignmentContent
-                assignmentName={selectedAssignment.assignmentName}
-                effectiveDeadline={effectiveDeadline}
-                isDeadlinePassed={isDeadlinePassed || false}
-                assignmentContent={getAssignmentContent()}
-                isTeacher={isTeacher}
-                isCompleted={selectedAssignment.status === 'completed'}
-                onMarkCompleted={handleMarkAsCompleted}
-                completionDialogOpen={completionDialogOpen}
-                setCompletionDialogOpen={setCompletionDialogOpen}
-                markingCompleted={markingCompleted}
-                studentName={studentName}
-                selectedAssignmentName={selectedAssignment.assignmentName}
-                unitMaterial={unitMaterial}
-                actionButton={
-                  // Hide button if assignment is completed
-                  selectedAssignment.status !== 'completed' &&
-                  ((isStudent && canStudentSubmitCurrent) || isTeacher) && (
-                    <Button
-                      onClick={() => {
-                        setEditingItem(null);
-                        setDialogOpen(true);
-                      }}
-                      size={'sm'}
-                      className="bg-watney text-white hover:bg-watney/90"
-                    >
-                      <Plus className="mr-2 h-4 w-4" />
-                      {isStudent ? 'Submit Assignment' : 'Add Feedback'}
-                    </Button>
-                  )
-                }
-              />
-
-              {/* Forum Comments Section  */}
-              <AssignmentTimeline
-                timeline={getTimeline(selectedAssignment)}
-                isTeacher={isTeacher}
-                isStudent={isStudent} // Make sure this is passed
-                selectedAssignment={selectedAssignment} // Make sure this is passed
-                onEditItem={handleEditItem}
-                onDeleteItem={handleDeleteItem}
-                hasSelectedAssignment={!!selectedAssignment}
-                loadingItems={loadingItems}
-              />
-
-              {/* Sticky Submit/Feedback Button */}
-              {/* <div className="fixed left-0 right-8 top-40 z-20 p-4">
-                <div className="mx-auto flex  justify-end">
-                  <Button
-                    onClick={() => {
-                      setEditingItem(null);
-                      setDialogOpen(true);
-                    }}
-                    className="bg-watney text-white hover:bg-watney/90"
-                  >
-                    <Plus className="mr-2 h-4 w-4" />
-                    {isStudent ? 'Submit Assignment' : 'Add Feedback'}
-                  </Button>
-                </div>
-              </div> */}
-
-              {/* Render Dialog separately, outside the conditional */}
-              <SubmissionDialog
-                isOpen={dialogOpen}
-                onOpenChange={(open) => {
-                  console.log('Dialog onOpenChange called with:', open);
-                  setDialogOpen(open);
-                  if (!open) {
+    {/* Right Content Area */}
+    <div className="w-full lg:w-2/3 xl:w-3/4 flex flex-col rounded-lg bg-white">
+      {selectedAssignment ? (
+        <>
+          {/* Assignment Content */}
+          <AssignmentContent
+            assignmentName={selectedAssignment.assignmentName}
+            effectiveDeadline={effectiveDeadline}
+            isDeadlinePassed={isDeadlinePassed || false}
+            assignmentContent={getAssignmentContent()}
+            isTeacher={isTeacher}
+            isCompleted={selectedAssignment.status === 'completed'}
+            onMarkCompleted={handleMarkAsCompleted}
+            completionDialogOpen={completionDialogOpen}
+            setCompletionDialogOpen={setCompletionDialogOpen}
+            markingCompleted={markingCompleted}
+            studentName={studentName}
+            selectedAssignmentName={selectedAssignment.assignmentName}
+            unitMaterial={unitMaterial}
+            actionButton={
+              selectedAssignment.status !== 'completed' &&
+              ((isStudent && canStudentSubmitCurrent) || isTeacher) && (
+                <Button
+                  onClick={() => {
                     setEditingItem(null);
-                    if (selectedAssignment) {
-                      setFormState((prev) => ({
-                        ...prev,
-                        [selectedAssignment._id]: {
-                          comment: '',
-                          files: [],
-                          requireResubmit: false,
-                          resubmissionDeadline: undefined,
-                          isAdminSubmission: false
-                        }
-                      }));
-                    }
-                  }
-                }}
-                isStudent={isStudent}
-                isTeacher={isTeacher}
-                studentName={studentName}
-                formState={currentForm || { comment: '', files: [] }}
-                onFormChange={(updates) =>
+                    setDialogOpen(true);
+                  }}
+                  size="sm"
+                  className="bg-watney text-white hover:bg-watney/90 w-full sm:w-auto"
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  {isStudent ? 'Submit Assignment' : 'Add Feedback'}
+                </Button>
+              )
+            }
+          />
+
+          {/* Forum / Timeline Section */}
+          <AssignmentTimeline
+            timeline={getTimeline(selectedAssignment)}
+            isTeacher={isTeacher}
+            isStudent={isStudent}
+            selectedAssignment={selectedAssignment}
+            onEditItem={handleEditItem}
+            onDeleteItem={handleDeleteItem}
+            hasSelectedAssignment={!!selectedAssignment}
+            loadingItems={loadingItems}
+          />
+
+          {/* Dialog for Submission / Feedback */}
+          <SubmissionDialog
+            isOpen={dialogOpen}
+            onOpenChange={(open) => {
+              setDialogOpen(open);
+              if (!open) {
+                setEditingItem(null);
+                if (selectedAssignment) {
                   setFormState((prev) => ({
                     ...prev,
                     [selectedAssignment._id]: {
-                      ...prev[selectedAssignment._id],
-                      ...updates
+                      comment: '',
+                      files: [],
+                      requireResubmit: false,
+                      resubmissionDeadline: undefined,
+                      isAdminSubmission: false
                     }
-                  }))
+                  }));
                 }
-                onFileSelect={handleFileSelect}
-                onRemoveFile={removeFile}
-                onSubmit={handleSubmit}
-                uploadingFiles={uploadingFiles}
-                submitting={submitting}
-                isFormDisabled={
-                  isStudent && !canStudentSubmitCurrent && !editingItem
+              }
+            }}
+            isStudent={isStudent}
+            isTeacher={isTeacher}
+            studentName={studentName}
+            formState={currentForm || { comment: '', files: [] }}
+            onFormChange={(updates) =>
+              setFormState((prev) => ({
+                ...prev,
+                [selectedAssignment._id]: {
+                  ...prev[selectedAssignment._id],
+                  ...updates
                 }
-                editingItem={editingItem}
-                assignment={selectedAssignment}
-                triggerButton={null} // Don't use triggerButton prop
-              />
-            </>
-          ) : (
-            <AssignmentTimeline
-              timeline={getTimeline(selectedAssignment)}
-              isTeacher={isTeacher}
-              isStudent={isStudent} // Make sure this is passed
-              selectedAssignment={selectedAssignment} // Make sure this is passed
-              onEditItem={handleEditItem}
-              onDeleteItem={handleDeleteItem}
-              hasSelectedAssignment={!!selectedAssignment}
-              loadingItems={loadingItems}
-            />
-          )}
+              }))
+            }
+            onFileSelect={handleFileSelect}
+            onRemoveFile={removeFile}
+            onSubmit={handleSubmit}
+            uploadingFiles={uploadingFiles}
+            submitting={submitting}
+            isFormDisabled={isStudent && !canStudentSubmitCurrent && !editingItem}
+            editingItem={editingItem}
+            assignment={selectedAssignment}
+            triggerButton={null}
+          />
+        </>
+      ) : (
+        <div className="flex flex-col items-center justify-center h-full text-center text-gray-500">
+          <p className="text-base sm:text-lg">Select an assignment to view details</p>
         </div>
-      </div>
+      )}
     </div>
+  </div>
+</div>
+
   );
 };
 
