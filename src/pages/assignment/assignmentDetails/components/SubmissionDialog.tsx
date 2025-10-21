@@ -76,6 +76,7 @@ interface FormState {
   requireResubmit?: boolean;
   resubmissionDeadline?: Date;
   isAdminSubmission?: boolean;
+  uploadError?: string; // Added for error display
 }
 
 interface SubmissionDialogProps {
@@ -93,7 +94,6 @@ interface SubmissionDialogProps {
   submitting: boolean;
   isFormDisabled: boolean;
   triggerButton: React.ReactNode;
-  // Add these new props for editing
   editingItem?: { type: 'submission' | 'feedback'; id: string } | null;
   assignment?: Assignment | null;
 }
@@ -124,7 +124,8 @@ export const SubmissionDialog: React.FC<SubmissionDialogProps> = ({
         files: [],
         requireResubmit: false,
         resubmissionDeadline: undefined,
-        isAdminSubmission: false
+        isAdminSubmission: false,
+        uploadError: undefined
       });
     }
   }, [isOpen, editingItem]);
@@ -201,10 +202,6 @@ export const SubmissionDialog: React.FC<SubmissionDialogProps> = ({
 
   const handleSubmit = () => {
     if (!isFormValid()) {
-      const errorMessage = requiresFiles()
-        ? 'At least one file is required for submission.'
-        : 'Please provide a comment or upload files.';
-      console.error(errorMessage);
       return;
     }
     onSubmit();
@@ -279,12 +276,12 @@ export const SubmissionDialog: React.FC<SubmissionDialogProps> = ({
               >
                 <Upload className="mr-2 h-4 w-4" />
                 <span className="text-sm">
-                  {isEditing ? 'Add More Files' : 'Upload Files'}
+                  {isEditing ? 'Add More Files' : 'Upload Files'} 
                 </span>
                 <Input
                   id="file-upload"
                   type="file"
-                  multiple
+                  
                   onChange={handleFileUpload}
                   disabled={uploadingFiles || (isStudent && isFormDisabled)}
                   className="hidden"
@@ -298,10 +295,19 @@ export const SubmissionDialog: React.FC<SubmissionDialogProps> = ({
               )}
             </div>
 
+            {/* Upload Error Display */}
+            {formState?.uploadError && (
+              <div className="rounded-lg border border-red-200 bg-red-50 p-3">
+                
+                <p className="mt-1 text-xs text-red-700">{formState.uploadError}</p>
+              </div>
+            )}
+
             {/* File requirement hint */}
             {requiresFiles() && (
               <p className="mt-1 text-xs text-gray-500">
                 At least one file is required for {isEditing ? 'updating' : 'submitting'} this assignment.
+                Maximum file size: 20MB.
               </p>
             )}
           </div>
@@ -346,10 +352,7 @@ export const SubmissionDialog: React.FC<SubmissionDialogProps> = ({
           {requiresFiles() &&
             (!formState?.files || formState.files.length === 0) && (
               <div className="rounded-lg border border-amber-200 bg-amber-50 p-3">
-                <div className="flex items-center gap-2 text-amber-800">
-                  <AlertCircle className="h-4 w-4" />
-                  <span className="text-sm font-medium">File Required</span>
-                </div>
+              
                 <p className="mt-1 text-xs text-amber-700">
                   You need to upload at least one file to{' '}
                   {isEditing ? 'update' : 'submit'} this assignment.
@@ -408,20 +411,6 @@ export const SubmissionDialog: React.FC<SubmissionDialogProps> = ({
                 )}
               </div>
             )}
-
-          {/* Student editing info */}
-          {/* {isStudent && isEditing && (
-            <div className="rounded-lg border border-blue-200 bg-blue-50 p-3">
-              <div className="flex items-center gap-2 text-blue-800">
-                <Info className="h-4 w-4" />
-                <span className="text-sm font-medium">Editing Submission</span>
-              </div>
-              <p className="mt-1 text-xs text-blue-700">
-                You are editing your submission. You can update your files and
-                notes. At least one file is required to update your submission.
-              </p>
-            </div>
-          )} */}
         </div>
 
         {/* Dialog Actions */}

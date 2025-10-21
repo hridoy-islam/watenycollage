@@ -96,6 +96,7 @@ type FormState = {
   requireResubmit?: boolean;
   resubmissionDeadline?: Date;
   isAdminSubmission?: boolean;
+    uploadError?: string;
 };
 
 type TimelineItem =
@@ -721,49 +722,123 @@ const canStudentSubmit = (assignment: Assignment | null): boolean => {
 
   const isFormDisabled = isStudent && !canStudentSubmitCurrent && !editingItem;
 
+  // const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   if (!selectedAssignment || (isStudent && isFormDisabled)) return;
+  //   const files = Array.from(e.target.files || []);
+  //   if (files.length === 0) return;
+
+  //   setUploadingFiles(true);
+  //   for (const file of files) {
+  //     try {
+  //       const formData = new FormData();
+  //       formData.append('entityId', studentId || '');
+  //       formData.append(
+  //         'file_type',
+  //         isStudent ? 'assignment_submission' : 'assignment_feedback'
+  //       );
+  //       formData.append('file', file);
+
+  //       const response = await axiosInstance.post('/documents', formData);
+  //       if (response.data?.success && response.data.data?.fileUrl) {
+  //         const fileUrl = response.data.data.fileUrl.trim();
+  //         const fileName = getFileNameFromUrl(fileUrl);
+  //         setFormState((prev) => ({
+  //           ...prev,
+  //           [selectedAssignment._id]: {
+  //             ...prev[selectedAssignment._id],
+  //             files: [
+  //               ...(prev[selectedAssignment._id]?.files || []),
+  //               { url: fileUrl, name: fileName }
+  //             ]
+  //           }
+  //         }));
+  //       }
+  //     } catch (error) {
+  //       console.error('File upload error:', error);
+  //       toast({
+  //         title: 'Upload Failed',
+  //         description: `Failed to upload ${file.name}.`,
+  //         variant: 'destructive'
+  //       });
+  //     }
+  //   }
+  //   setUploadingFiles(false);
+  //   if (e.target) e.target.value = '';
+  // };
+
+
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!selectedAssignment || (isStudent && isFormDisabled)) return;
-    const files = Array.from(e.target.files || []);
-    if (files.length === 0) return;
+  if (!selectedAssignment || (isStudent && isFormDisabled)) return;
+  
+  const files = Array.from(e.target.files || []);
+  if (files.length === 0) return;
 
-    setUploadingFiles(true);
-    for (const file of files) {
-      try {
-        const formData = new FormData();
-        formData.append('entityId', studentId || '');
-        formData.append(
-          'file_type',
-          isStudent ? 'assignment_submission' : 'assignment_feedback'
-        );
-        formData.append('file', file);
+  // Only take the first file
+  const file = files[0];
 
-        const response = await axiosInstance.post('/documents', formData);
-        if (response.data?.success && response.data.data?.fileUrl) {
-          const fileUrl = response.data.data.fileUrl.trim();
-          const fileName = getFileNameFromUrl(fileUrl);
-          setFormState((prev) => ({
-            ...prev,
-            [selectedAssignment._id]: {
-              ...prev[selectedAssignment._id],
-              files: [
-                ...(prev[selectedAssignment._id]?.files || []),
-                { url: fileUrl, name: fileName }
-              ]
-            }
-          }));
-        }
-      } catch (error) {
-        console.error('File upload error:', error);
-        toast({
-          title: 'Upload Failed',
-          description: `Failed to upload ${file.name}.`,
-          variant: 'destructive'
-        });
-      }
+  setUploadingFiles(true);
+  
+  // Clear any previous errors
+  setFormState((prev) => ({
+    ...prev,
+    [selectedAssignment._id]: {
+      ...prev[selectedAssignment._id],
+      uploadError: undefined
     }
+  }));
+
+  try {
+    // File size validation (20MB = 20 * 1024 * 1024 bytes)
+    const maxSize = 20 * 1024 * 1024;
+    if (file.size > maxSize) {
+      setFormState((prev) => ({
+        ...prev,
+        [selectedAssignment._id]: {
+          ...prev[selectedAssignment._id],
+          uploadError: `File "${file.name}" exceeds the 20MB size limit. Please choose a smaller file.`
+        }
+      }));
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('entityId', studentId || '');
+    formData.append(
+      'file_type',
+      isStudent ? 'assignment_submission' : 'assignment_feedback'
+    );
+    formData.append('file', file);
+
+    const response = await axiosInstance.post('/documents', formData);
+    if (response.data?.success && response.data.data?.fileUrl) {
+      const fileUrl = response.data.data.fileUrl.trim();
+      const fileName = getFileNameFromUrl(fileUrl);
+      setFormState((prev) => ({
+        ...prev,
+        [selectedAssignment._id]: {
+          ...prev[selectedAssignment._id],
+          files: [{ url: fileUrl, name: fileName }], // Replace with single file
+          uploadError: undefined // Clear error on successful upload
+        }
+      }));
+    }
+  } catch (error) {
+    console.error('File upload error:', error);
+    setFormState((prev) => ({
+      ...prev,
+      [selectedAssignment._id]: {
+        ...prev[selectedAssignment._id],
+        uploadError: `Upload failed for "${file.name}". Please retry or contact admin.`
+      }
+    }));
+  } finally {
     setUploadingFiles(false);
     if (e.target) e.target.value = '';
-  };
+  }
+};
+
+
+
 
   const removeFile = (index: number) => {
     if (!selectedAssignment || (isStudent && isFormDisabled)) return;
