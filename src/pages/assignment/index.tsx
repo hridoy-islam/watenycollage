@@ -8,7 +8,7 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow,
+  TableRow
 } from '@/components/ui/table';
 import {
   FileText,
@@ -18,7 +18,7 @@ import {
   CheckCircle,
   MessageSquare,
   Download,
-  Clock,
+  Clock
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useToast } from '@/components/ui/use-toast';
@@ -90,7 +90,9 @@ function AssignmentPage() {
   // State
   const [applicant, setApplicant] = useState<ApplicationCourse | null>(null);
   const [courseUnits, setCourseUnits] = useState<CourseUnit[]>([]);
-  const [assignmentsByUnit, setAssignmentsByUnit] = useState<Record<string, Assignment[]>>({});
+  const [assignmentsByUnit, setAssignmentsByUnit] = useState<
+    Record<string, Assignment[]>
+  >({});
   const [loading, setLoading] = useState(true);
   const [studentName, setStudentName] = useState<string>('');
 
@@ -98,16 +100,18 @@ function AssignmentPage() {
   const fetchApplicantAndUnits = async () => {
     try {
       setLoading(true);
-      const appRes = await axiosInstance.get(`/application-course/${applicationId}`);
+      const appRes = await axiosInstance.get(
+        `/application-course/${applicationId}`
+      );
       const appData = appRes.data.data;
       setApplicant(appData);
-      
+
       const res = await axiosInstance.get(`/users/${studentId}`);
       setStudentName(res.data.data.name || 'Unknown');
 
       // Fetch course units
       const unitsRes = await axiosInstance.get(`/course-unit`, {
-        params: { courseId: appData.courseId._id, limit: 'all' },
+        params: { courseId: appData.courseId._id, limit: 'all' }
       });
       const units = unitsRes.data.data.result || [];
       setCourseUnits(units);
@@ -116,7 +120,7 @@ function AssignmentPage() {
       const assignmentsMap: Record<string, Assignment[]> = {};
       for (const unit of units) {
         const assignRes = await axiosInstance.get(`/assignment`, {
-          params: { applicationId, unitId: unit._id, limit: 'all' },
+          params: { applicationId, unitId: unit._id, limit: 'all' }
         });
         assignmentsMap[unit._id] = assignRes.data.data.result || [];
       }
@@ -126,24 +130,25 @@ function AssignmentPage() {
       toast({
         title: 'Error',
         description: 'Failed to load assignments or course units.',
-        variant: 'destructive',
+        variant: 'destructive'
       });
     } finally {
       setLoading(false);
     }
   };
 
-
   // Get latest submission date
   const getLatestSubmissionDate = (assignment: Assignment): string => {
     if (!assignment.submissions || assignment.submissions.length === 0) {
       return 'Not submitted';
     }
-    
-    const latestSubmission = assignment.submissions.reduce((latest, current) => 
-      new Date(current.createdAt) > new Date(latest.createdAt) ? current : latest
+
+    const latestSubmission = assignment.submissions.reduce((latest, current) =>
+      new Date(current.createdAt) > new Date(latest.createdAt)
+        ? current
+        : latest
     );
-    
+
     return format(new Date(latestSubmission.createdAt), 'dd MMM yyyy, HH:mm');
   };
 
@@ -153,78 +158,91 @@ function AssignmentPage() {
     }
   }, [applicationId]);
 
+  const sortedUnits = [...courseUnits].sort((a, b) => {
+    const getUnitNumber = (title: string) => {
+      const match = title.match(/Unit (\d+)/i);
+      return match ? parseInt(match[1], 10) : Infinity; // Non-unit titles go to the end
+    };
+    return getUnitNumber(a.title) - getUnitNumber(b.title);
+  });
+
   return (
     <div className="">
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold">{studentName}'s Assignment Submissions</h1>
+          <h1 className="text-xl font-bold">
+            {studentName}'s Assignment Submissions
+          </h1>
           {applicant && (
             <p className="text-md font-medium">
-              Course: {applicant?.courseId?.name} 
+              Course: {applicant?.courseId?.name}
             </p>
           )}
         </div>
-        <Button 
-          variant="default" 
-          className='bg-watney text-white hover:bg-watney/90' 
-          size="sm" 
+        <Button
+          variant="default"
+          className="bg-watney text-white hover:bg-watney/90"
+          size="sm"
           onClick={() => navigate(-1)}
         >
           <MoveLeft className="mr-2 h-4 w-4" /> Back
         </Button>
       </div>
 
-      <div className='bg-white rounded-lg shadow-md p-6'>
+      <div className="rounded-lg bg-white p-6 shadow-md">
         {loading ? (
           <div className="flex justify-center py-10">
-            <BlinkingDots size="large" color='bg-watney' />
+            <BlinkingDots size="large" color="bg-watney" />
           </div>
         ) : courseUnits.length === 0 ? (
-          <div className="text-center py-10 text-muted-foreground italic">
+          <div className="py-10 text-center italic text-muted-foreground">
             No course units found.
           </div>
         ) : (
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[300px]">Unit</TableHead>
+                <TableHead>Unit</TableHead>
                 {/* <TableHead className=''>Detail</TableHead> */}
-               
+
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {courseUnits.map((unit) => {
+              {sortedUnits.map((unit) => {
                 const unitAssignments = assignmentsByUnit[unit._id] || [];
                 const submittedCount = unitAssignments.length;
-               
-                const latestAssignment = unitAssignments.length > 0 
-                  ? unitAssignments.reduce((latest, current) => 
-                      new Date(current.updatedAt) > new Date(latest.updatedAt) ? current : latest
-                    )
-                  : null;
+
+                const latestAssignment =
+                  unitAssignments.length > 0
+                    ? unitAssignments.reduce((latest, current) =>
+                        new Date(current.updatedAt) > new Date(latest.updatedAt)
+                          ? current
+                          : latest
+                      )
+                    : null;
 
                 return (
                   <TableRow key={unit._id}>
-                    <TableCell className="font-medium cursor-pointer"  onClick={() => {
-                                navigate(`unit-assignments/${unit._id}`, {
-                                  
-                                });
-                              }} >
-                      <div className="flex items-center">
+                    <TableCell
+                      className="cursor-pointer font-medium"
+                      onClick={() => {
+                        navigate(`unit-assignments/${unit._id}`, {});
+                      }}
+                    >
+                      <div className="flex w-full items-center">
                         <FileText className="mr-2 h-4 w-4 text-muted-foreground" />
                         {unit.title}
                       </div>
-                     
                     </TableCell>
-                    
-                 {/* <TableCell className="font-medium">
+
+                    {/* <TableCell className="font-medium">
                      
                       <div className=" ">
                         Ref: {unit.unitReference} | Level: {unit.level}
                       </div>
                     </TableCell> */}
-                    
+
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         {unitAssignments.length > 0 ? (
@@ -232,20 +250,17 @@ function AssignmentPage() {
                             <Button
                               size="sm"
                               variant="default"
-                              className='bg-watney text-white hover:bg-watney/90'
+                              className="bg-watney text-white hover:bg-watney/90"
                               onClick={() => {
-                                navigate(`unit-assignments/${unit._id}`, {
-                                  
-                                });
+                                navigate(`unit-assignments/${unit._id}`, {});
                               }}
                             >
-                              <Eye className="h-4 w-4 mr-1" />
+                              <Eye className="mr-1 h-4 w-4" />
                               View
                             </Button>
-                           
                           </>
                         ) : (
-                          <span className="text-sm text-muted-foreground italic">
+                          <span className="text-sm italic text-muted-foreground">
                             No assignments
                           </span>
                         )}

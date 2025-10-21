@@ -198,6 +198,34 @@ export function StudentAssignmentsPage() {
       }
     );
   };
+
+
+
+   const assignmentsByCourse: Record<string, AssignmentData[]> = {};
+
+filteredAssignments.forEach((assignment) => {
+  if (!assignmentsByCourse[assignment.courseName]) {
+    assignmentsByCourse[assignment.courseName] = [];
+  }
+  assignmentsByCourse[assignment.courseName].push(assignment);
+});
+
+// Sort units within each course
+Object.keys(assignmentsByCourse).forEach((course) => {
+  assignmentsByCourse[course].sort((a, b) => {
+    const getUnitNumber = (title: string) => {
+      const match = title.match(/Unit (\d+)/i);
+      return match ? parseInt(match[1], 10) : Infinity;
+    };
+    return getUnitNumber(a.unitTitle) - getUnitNumber(b.unitTitle);
+  });
+});
+
+// Flatten to an array, maintaining course order
+const sortedAssignments = Object.keys(assignmentsByCourse).flatMap(
+  (course) => assignmentsByCourse[course]
+);
+
   return (
     <div className="space-y-6">
       <Card>
@@ -280,7 +308,7 @@ export function StudentAssignmentsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredAssignments.map((assignment, index) => (
+                  {sortedAssignments.map((assignment, index) => (
                     <TableRow
                       key={`${assignment.unitId}-${assignment.assignmentName}-${index}`}
                       className="group"

@@ -17,7 +17,8 @@ import {
   MoveLeft,
   MoreHorizontal,
   CheckCircle,
-  XCircle
+  XCircle,
+  Search
 } from 'lucide-react';
 import { DataTablePagination } from '@/components/shared/data-table-pagination';
 import { useNavigate } from 'react-router-dom';
@@ -38,6 +39,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/components/ui/use-toast';
+import { Input } from '@/components/ui/input';
 
 interface StudentApplication {
   _id: string;
@@ -73,7 +75,7 @@ export default function StudentApplicationsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(100);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   const [courses, setCourses] = useState<CourseOption[]>([]);
   const [terms, setTerms] = useState<CourseOption[]>([]);
   const [selectedCourse, setSelectedCourse] = useState<CourseOption | null>(
@@ -82,18 +84,22 @@ export default function StudentApplicationsPage() {
   const [selectedTerm, setSelectedTerm] = useState<CourseOption | null>(null);
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
   const { toast } = useToast();
+  
   const fetchData = async (
     page = 1,
     limit = 10,
     courseId?: string,
-    intakeId?: string
+    intakeId?: string,
+    searchTerm = ''
   ) => {
     try {
+      setLoading(true);
       const params: {
         page: number;
         limit: number;
         courseId?: string;
         intakeId?: string;
+        searchTerm?: string;
       } = {
         page,
         limit
@@ -104,6 +110,9 @@ export default function StudentApplicationsPage() {
       }
       if (intakeId) {
         params.intakeId = intakeId;
+      }
+      if (searchTerm) {
+        params.searchTerm = searchTerm;
       }
 
       const res = await axiosInstance.get('/application-course', {
@@ -148,43 +157,50 @@ export default function StudentApplicationsPage() {
     }
   };
 
+  // Initial data fetch without filters
   useEffect(() => {
-    fetchData(
-      currentPage,
-      entriesPerPage,
-      selectedCourse?.value,
-      selectedTerm?.value
-    );
+    fetchData(currentPage, entriesPerPage);
     fetchCourses();
     fetchTerms();
-  }, [currentPage, entriesPerPage, selectedCourse, selectedTerm]);
+  }, [currentPage, entriesPerPage]);
 
   const navigate = useNavigate();
 
   const handleCourseChange = (selectedOption: CourseOption | null) => {
     setSelectedCourse(selectedOption);
-    setCurrentPage(1);
   };
 
   const handleTermChange = (selectedOption: CourseOption | null) => {
     setSelectedTerm(selectedOption);
+  };
+
+  const handleSearch = () => {
     setCurrentPage(1);
+    fetchData(
+      1,
+      entriesPerPage,
+      selectedCourse?.value,
+      selectedTerm?.value,
+      searchTerm
+    );
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
   };
 
   const updateApplicationStatus = async (
     applicationId: string,
-    status: "approved" | "cancelled"
+    status: 'approved' | 'cancelled'
   ) => {
     // 1. Optimistically update UI immediately
     setApplications((prev) =>
-      prev.map((app) =>
-        app._id === applicationId ? { ...app, status } : app
-      )
+      prev.map((app) => (app._id === applicationId ? { ...app, status } : app))
     );
     setFilteredApplications((prev) =>
-      prev.map((app) =>
-        app._id === applicationId ? { ...app, status } : app
-      )
+      prev.map((app) => (app._id === applicationId ? { ...app, status } : app))
     );
 
     setUpdatingStatus(applicationId);
@@ -192,33 +208,31 @@ export default function StudentApplicationsPage() {
     try {
       // 2. Fire API call in background
       await axiosInstance.patch(`/application-course/${applicationId}`, {
-        status,
+        status
       });
 
       toast({
         title:
-          status === "approved"
-            ? "Application approved successfully!"
-            : "Application rejected successfully!",
-        className: "bg-watney text-white border-none"
+          status === 'approved'
+            ? 'Application approved successfully!'
+            : 'Application rejected successfully!',
+        className: 'bg-watney text-white border-none'
       });
-
     } catch (error) {
-
       // 3. Rollback if request fails
       setApplications((prev) =>
         prev.map((app) =>
-          app._id === applicationId ? { ...app, status: "applied" } : app
+          app._id === applicationId ? { ...app, status: 'applied' } : app
         )
       );
       setFilteredApplications((prev) =>
         prev.map((app) =>
-          app._id === applicationId ? { ...app, status: "applied" } : app
+          app._id === applicationId ? { ...app, status: 'applied' } : app
         )
       );
       toast({
-        title: "Failed to update application status.",
-        className: "bg-destructive text-white border-none",
+        title: 'Failed to update application status.',
+        className: 'bg-destructive text-white border-none'
       });
     } finally {
       setUpdatingStatus(null);
@@ -226,77 +240,13 @@ export default function StudentApplicationsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header with Search & Back Button */}
       <div className="flex flex-row items-center justify-between">
         <div className="flex flex-row flex-nowrap items-center gap-4">
           <h2 className="whitespace-nowrap text-xl font-bold">
             Student Applications
           </h2>
-          <div className="w-[250px]">
-            <Select
-              options={courses}
-              value={selectedCourse}
-              onChange={handleCourseChange}
-              placeholder="Filter student by course"
-              isClearable
-              className="text-sm"
-              styles={{
-                control: (base) => ({
-                  ...base,
-                  height: '32px',
-                  minHeight: '32px'
-                }),
-                valueContainer: (base) => ({
-                  ...base,
-                  height: '32px',
-                  padding: '0 8px'
-                }),
-                input: (base) => ({
-                  ...base,
-                  margin: '0px',
-                  paddingBottom: '0px',
-                  paddingTop: '0px'
-                }),
-                indicatorsContainer: (base) => ({
-                  ...base,
-                  height: '32px'
-                })
-              }}
-            />
-          </div>
-          <div className="w-[250px]">
-            <Select
-              options={terms}
-              value={selectedTerm}
-              onChange={handleTermChange}
-              placeholder="Filter student by term"
-              isClearable
-              className="text-sm"
-              styles={{
-                control: (base) => ({
-                  ...base,
-                  height: '32px',
-                  minHeight: '32px'
-                }),
-                valueContainer: (base) => ({
-                  ...base,
-                  height: '32px',
-                  padding: '0 8px'
-                }),
-                input: (base) => ({
-                  ...base,
-                  margin: '0px',
-                  paddingBottom: '0px',
-                  paddingTop: '0px'
-                }),
-                indicatorsContainer: (base) => ({
-                  ...base,
-                  height: '32px'
-                })
-              }}
-            />
-          </div>
         </div>
         <Button
           className="bg-watney text-white hover:bg-watney/90"
@@ -306,7 +256,99 @@ export default function StudentApplicationsPage() {
           Back
         </Button>
       </div>
-
+      
+      {/* Filters Section */}
+      <div className="flex flex-row items-center gap-4">
+        {/* Search by Student Name/Email */}
+        <div className="flex items-center space-x-4">
+          <Input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyPress={handleKeyPress}
+            placeholder="Search by student name, email"
+            className="h-9 min-w-[400px] bg-white rounded-sm"
+          />
+        </div>
+        
+        {/* Course Filter */}
+        <div className="w-[250px]">
+          <Select
+            options={courses}
+            value={selectedCourse}
+            onChange={handleCourseChange}
+            placeholder="Filter by course"
+            isClearable
+            className="text-sm"
+            styles={{
+              control: (base) => ({
+                ...base,
+                height: '36px',
+                minHeight: '36px'
+              }),
+              valueContainer: (base) => ({
+                ...base,
+                height: '36px',
+                padding: '0 8px'
+              }),
+              input: (base) => ({
+                ...base,
+                margin: '0px',
+                paddingBottom: '0px',
+                paddingTop: '0px'
+              }),
+              indicatorsContainer: (base) => ({
+                ...base,
+                height: '36px'
+              })
+            }}
+          />
+        </div>
+        
+        {/* Term Filter */}
+        <div className="w-[250px]">
+          <Select
+            options={terms}
+            value={selectedTerm}
+            onChange={handleTermChange}
+            placeholder="Filter by term"
+            isClearable
+            className="text-sm"
+            styles={{
+              control: (base) => ({
+                ...base,
+                height: '36px',
+                minHeight: '36px'
+              }),
+              valueContainer: (base) => ({
+                ...base,
+                height: '36px',
+                padding: '0 8px'
+              }),
+              input: (base) => ({
+                ...base,
+                margin: '0px',
+                paddingBottom: '0px',
+                paddingTop: '0px'
+              }),
+              indicatorsContainer: (base) => ({
+                ...base,
+                height: '36px'
+              })
+            }}
+          />
+        </div>
+        
+        <Button
+          onClick={handleSearch}
+          size="sm"
+          className="min-w-[100px] border-none bg-watney text-white hover:bg-watney/90 h-9"
+        >
+          <Search className="mr-2 h-4 w-4" />
+          Search
+        </Button>
+      </div>
+      
       {/* Unified Table Container */}
       <div className="rounded-md bg-white p-4 shadow-2xl">
         {loading ? (
@@ -315,7 +357,9 @@ export default function StudentApplicationsPage() {
           </div>
         ) : filteredApplications.length === 0 ? (
           <div className="flex justify-center py-6 text-gray-500">
-            No matching results found.
+            {searchTerm || selectedCourse || selectedTerm
+              ? 'No matching results found.'
+              : 'No student applications found.'}
           </div>
         ) : (
           <>
@@ -367,9 +411,9 @@ export default function StudentApplicationsPage() {
                         {app.studentId?.studentType === 'eu'
                           ? 'Home'
                           : app.studentId?.studentType
-                            ?.charAt(0)
-                            .toUpperCase() +
-                          app.studentId?.studentType?.slice(1)}
+                              ?.charAt(0)
+                              .toUpperCase() +
+                            app.studentId?.studentType?.slice(1)}
                       </Badge>
                     </TableCell>
                     <TableCell
@@ -398,7 +442,7 @@ export default function StudentApplicationsPage() {
                           'capitalize',
                           app?.status === 'applied' && 'bg-blue-500 text-white',
                           app?.status === 'approved' &&
-                          'bg-green-500 text-white',
+                            'bg-green-500 text-white',
                           app?.status === 'cancelled' && 'bg-red-500 text-white'
                         )}
                       >
@@ -421,11 +465,16 @@ export default function StudentApplicationsPage() {
                           </Button>
                         </DropdownMenuTrigger>
 
-                        <DropdownMenuContent align="end" className="bg-white text-black border-gray-300">
+                        <DropdownMenuContent
+                          align="end"
+                          className="border-gray-300 bg-white text-black"
+                        >
                           {/* Assignment */}
                           <DropdownMenuItem
                             onClick={() =>
-                              navigate(`/dashboard/student-applications/${app?._id}/assignment/${app.studentId?._id}`)
+                              navigate(
+                                `/dashboard/student-applications/${app?._id}/assignment/${app.studentId?._id}`
+                              )
                             }
                           >
                             <FileIcon className="mr-2 h-4 w-4" />
@@ -435,7 +484,9 @@ export default function StudentApplicationsPage() {
                           {/* Mail */}
                           <DropdownMenuItem
                             onClick={() =>
-                              navigate(`/dashboard/student-application/${app.studentId?._id}/${app?._id}/mails`)
+                              navigate(
+                                `/dashboard/student-application/${app.studentId?._id}/${app?._id}/mails`
+                              )
                             }
                           >
                             <Mail className="mr-2 h-4 w-4" />
@@ -444,17 +495,23 @@ export default function StudentApplicationsPage() {
 
                           {/* Applicant Details */}
                           <DropdownMenuItem
-                            onClick={() => navigate(`/dashboard/student-application/${app.studentId?._id}`)}
+                            onClick={() =>
+                              navigate(
+                                `/dashboard/student-application/${app.studentId?._id}`
+                              )
+                            }
                           >
                             <Eye className="mr-2 h-4 w-4" />
                             Applicant Details
                           </DropdownMenuItem>
 
                           {/* Status-based actions */}
-                          {app.status === "applied" && (
+                          {app.status === 'applied' && (
                             <>
                               <DropdownMenuItem
-                                onClick={() => updateApplicationStatus(app._id, "approved")}
+                                onClick={() =>
+                                  updateApplicationStatus(app._id, 'approved')
+                                }
                                 disabled={updatingStatus === app._id}
                               >
                                 <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
@@ -462,7 +519,9 @@ export default function StudentApplicationsPage() {
                               </DropdownMenuItem>
 
                               <DropdownMenuItem
-                                onClick={() => updateApplicationStatus(app._id, "cancelled")}
+                                onClick={() =>
+                                  updateApplicationStatus(app._id, 'cancelled')
+                                }
                                 disabled={updatingStatus === app._id}
                               >
                                 <XCircle className="mr-2 h-4 w-4 text-red-500" />
@@ -471,9 +530,11 @@ export default function StudentApplicationsPage() {
                             </>
                           )}
 
-                          {app.status === "approved" && (
+                          {app.status === 'approved' && (
                             <DropdownMenuItem
-                              onClick={() => updateApplicationStatus(app._id, "cancelled")}
+                              onClick={() =>
+                                updateApplicationStatus(app._id, 'cancelled')
+                              }
                               disabled={updatingStatus === app._id}
                             >
                               <XCircle className="mr-2 h-4 w-4 text-red-500" />
@@ -481,9 +542,11 @@ export default function StudentApplicationsPage() {
                             </DropdownMenuItem>
                           )}
 
-                          {app.status === "cancelled" && (
+                          {app.status === 'cancelled' && (
                             <DropdownMenuItem
-                              onClick={() => updateApplicationStatus(app._id, "approved")}
+                              onClick={() =>
+                                updateApplicationStatus(app._id, 'approved')
+                              }
                               disabled={updatingStatus === app._id}
                             >
                               <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
@@ -493,7 +556,6 @@ export default function StudentApplicationsPage() {
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
-
                   </TableRow>
                 ))}
               </TableBody>

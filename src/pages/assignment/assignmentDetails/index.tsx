@@ -96,7 +96,7 @@ type FormState = {
   requireResubmit?: boolean;
   resubmissionDeadline?: Date;
   isAdminSubmission?: boolean;
-    uploadError?: string;
+  uploadError?: string;
 };
 
 type TimelineItem =
@@ -638,68 +638,68 @@ const AssignmentDetailPage = () => {
       : null;
   };
 
-const canStudentSubmit = (assignment: Assignment | null): boolean => {
-  if (!assignment || !isStudent) return false;
+  const canStudentSubmit = (assignment: Assignment | null): boolean => {
+    if (!assignment || !isStudent) return false;
 
-  // Check if assignment is completed
-  if (assignment.status === 'completed') return false;
+    // Check if assignment is completed
+    if (assignment.status === 'completed') return false;
 
-  // Get the most recent feedback with deadline (for resubmission)
-  const getLatestFeedbackDeadline = (): moment.Moment | null => {
-    const feedbacksWithDeadline = assignment.feedbacks
-      .filter((feedback) => feedback.deadline)
-      .sort(
-        (a, b) =>
-          moment(b.createdAt).valueOf() - moment(a.createdAt).valueOf()
+    // Get the most recent feedback with deadline (for resubmission)
+    const getLatestFeedbackDeadline = (): moment.Moment | null => {
+      const feedbacksWithDeadline = assignment.feedbacks
+        .filter((feedback) => feedback.deadline)
+        .sort(
+          (a, b) =>
+            moment(b.createdAt).valueOf() - moment(a.createdAt).valueOf()
+        );
+
+      return feedbacksWithDeadline.length > 0
+        ? moment(feedbacksWithDeadline[0].deadline)
+        : null;
+    };
+
+    // Get unit material deadline for this specific assignment
+    const getUnitMaterialDeadline = (): moment.Moment | null => {
+      if (!unitMaterial?.assignments) return null;
+
+      const materialAssignment = unitMaterial.assignments.find(
+        (a: any) => a.title === assignment.assignmentName
       );
 
-    return feedbacksWithDeadline.length > 0
-      ? moment(feedbacksWithDeadline[0].deadline)
-      : null;
-  };
+      return materialAssignment?.deadline
+        ? moment(materialAssignment.deadline)
+        : null;
+    };
 
-  // Get unit material deadline for this specific assignment
-  const getUnitMaterialDeadline = (): moment.Moment | null => {
-    if (!unitMaterial?.assignments) return null;
+    const feedbackDeadline = getLatestFeedbackDeadline();
+    const unitMaterialDeadline = getUnitMaterialDeadline();
 
-    const materialAssignment = unitMaterial.assignments.find(
-      (a: any) => a.title === assignment.assignmentName
-    );
+    const hasStudentSubmittedBefore = assignment.submissions.length > 0;
+    const requiresResubmission = assignment.requireResubmit;
 
-    return materialAssignment?.deadline
-      ? moment(materialAssignment.deadline)
-      : null;
-  };
-
-  const feedbackDeadline = getLatestFeedbackDeadline();
-  const unitMaterialDeadline = getUnitMaterialDeadline();
-
-  const hasStudentSubmittedBefore = assignment.submissions.length > 0;
-  const requiresResubmission = assignment.requireResubmit;
-
-  // Scenario 1: First time submission (no submissions yet)
-  if (!hasStudentSubmittedBefore) {
-    // REMOVED: Deadline check for first submission
-    // Allow submission even if deadline has passed
-    return true;
-  }
-
-  // Scenario 2: Resubmission required (teacher gave feedback with resubmission)
-  if (requiresResubmission) {
-    // Check feedback deadline first
-    if (feedbackDeadline) {
-      // REMOVED: Deadline check for resubmission
-      // Allow resubmission even if feedback deadline has passed
+    // Scenario 1: First time submission (no submissions yet)
+    if (!hasStudentSubmittedBefore) {
+      // REMOVED: Deadline check for first submission
+      // Allow submission even if deadline has passed
       return true;
     }
-    // If no feedback deadline but resubmission required, allow submission
-    return true;
-  }
 
-  // Scenario 3: Student has submitted before but no resubmission required
-  // In this case, student cannot submit again unless teacher requires resubmission
-  return false;
-};
+    // Scenario 2: Resubmission required (teacher gave feedback with resubmission)
+    if (requiresResubmission) {
+      // Check feedback deadline first
+      if (feedbackDeadline) {
+        // REMOVED: Deadline check for resubmission
+        // Allow resubmission even if feedback deadline has passed
+        return true;
+      }
+      // If no feedback deadline but resubmission required, allow submission
+      return true;
+    }
+
+    // Scenario 3: Student has submitted before but no resubmission required
+    // In this case, student cannot submit again unless teacher requires resubmission
+    return false;
+  };
 
   // Calculate values for the current selected assignment
   const effectiveDeadline = selectedAssignment
@@ -766,79 +766,75 @@ const canStudentSubmit = (assignment: Assignment | null): boolean => {
   //   if (e.target) e.target.value = '';
   // };
 
-
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-  if (!selectedAssignment || (isStudent && isFormDisabled)) return;
-  
-  const files = Array.from(e.target.files || []);
-  if (files.length === 0) return;
+    if (!selectedAssignment || (isStudent && isFormDisabled)) return;
 
-  // Only take the first file
-  const file = files[0];
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
 
-  setUploadingFiles(true);
-  
-  // Clear any previous errors
-  setFormState((prev) => ({
-    ...prev,
-    [selectedAssignment._id]: {
-      ...prev[selectedAssignment._id],
-      uploadError: undefined
-    }
-  }));
+    // Only take the first file
+    const file = files[0];
 
-  try {
-    // File size validation (20MB = 20 * 1024 * 1024 bytes)
-    const maxSize = 20 * 1024 * 1024;
-    if (file.size > maxSize) {
-      setFormState((prev) => ({
-        ...prev,
-        [selectedAssignment._id]: {
-          ...prev[selectedAssignment._id],
-          uploadError: `File "${file.name}" exceeds the 20MB size limit. Please choose a smaller file.`
-        }
-      }));
-      return;
-    }
+    setUploadingFiles(true);
 
-    const formData = new FormData();
-    formData.append('entityId', studentId || '');
-    formData.append(
-      'file_type',
-      isStudent ? 'assignment_submission' : 'assignment_feedback'
-    );
-    formData.append('file', file);
-
-    const response = await axiosInstance.post('/documents', formData);
-    if (response.data?.success && response.data.data?.fileUrl) {
-      const fileUrl = response.data.data.fileUrl.trim();
-      const fileName = getFileNameFromUrl(fileUrl);
-      setFormState((prev) => ({
-        ...prev,
-        [selectedAssignment._id]: {
-          ...prev[selectedAssignment._id],
-          files: [{ url: fileUrl, name: fileName }], // Replace with single file
-          uploadError: undefined // Clear error on successful upload
-        }
-      }));
-    }
-  } catch (error) {
-    console.error('File upload error:', error);
+    // Clear any previous errors
     setFormState((prev) => ({
       ...prev,
       [selectedAssignment._id]: {
         ...prev[selectedAssignment._id],
-        uploadError: `Upload failed for "${file.name}". Please retry or contact admin.`
+        uploadError: undefined
       }
     }));
-  } finally {
-    setUploadingFiles(false);
-    if (e.target) e.target.value = '';
-  }
-};
 
+    try {
+      // File size validation (20MB = 20 * 1024 * 1024 bytes)
+      const maxSize = 20 * 1024 * 1024;
+      if (file.size > maxSize) {
+        setFormState((prev) => ({
+          ...prev,
+          [selectedAssignment._id]: {
+            ...prev[selectedAssignment._id],
+            uploadError: `File "${file.name}" exceeds the 20MB size limit. Please choose a smaller file.`
+          }
+        }));
+        return;
+      }
 
+      const formData = new FormData();
+      formData.append('entityId', studentId || '');
+      formData.append(
+        'file_type',
+        isStudent ? 'assignment_submission' : 'assignment_feedback'
+      );
+      formData.append('file', file);
 
+      const response = await axiosInstance.post('/documents', formData);
+      if (response.data?.success && response.data.data?.fileUrl) {
+        const fileUrl = response.data.data.fileUrl.trim();
+        const fileName = getFileNameFromUrl(fileUrl);
+        setFormState((prev) => ({
+          ...prev,
+          [selectedAssignment._id]: {
+            ...prev[selectedAssignment._id],
+            files: [{ url: fileUrl, name: fileName }], // Replace with single file
+            uploadError: undefined // Clear error on successful upload
+          }
+        }));
+      }
+    } catch (error) {
+      console.error('File upload error:', error);
+      setFormState((prev) => ({
+        ...prev,
+        [selectedAssignment._id]: {
+          ...prev[selectedAssignment._id],
+          uploadError: `Upload failed for "${file.name}". Please retry or contact admin.`
+        }
+      }));
+    } finally {
+      setUploadingFiles(false);
+      if (e.target) e.target.value = '';
+    }
+  };
 
   const removeFile = (index: number) => {
     if (!selectedAssignment || (isStudent && isFormDisabled)) return;
@@ -1653,7 +1649,7 @@ const canStudentSubmit = (assignment: Assignment | null): boolean => {
     : null;
 
   return (
-  <div className="mx-auto flex flex-col overflow-auto rounded-lg bg-white p-4 shadow-md w-full">
+   <div className="mx-auto flex flex-col overflow-auto rounded-lg bg-white p-4 shadow-md">
   {/* Header */}
   <AssignmentHeader
     isStudent={isStudent}
@@ -1662,10 +1658,10 @@ const canStudentSubmit = (assignment: Assignment | null): boolean => {
     onBack={() => navigate(-1)}
   />
 
-  {/* Main Layout */}
-  <div className="flex flex-col lg:flex-row w-full gap-4">
-    {/* Left Sidebar - Assignment List */}
-    <div className="w-full lg:w-1/3 xl:w-1/4">
+  {/* Responsive layout: column on mobile, row on medium+ */}
+  <div className="mt-4 flex flex-col md:flex-row">
+    {/* Assignment List */}
+    <div className="w-full md:w-auto md:mr-4 mb-4 md:mb-0">
       <AssignmentList
         assignments={assignments}
         selectedAssignment={selectedAssignment}
@@ -1677,11 +1673,11 @@ const canStudentSubmit = (assignment: Assignment | null): boolean => {
       />
     </div>
 
-    {/* Right Content Area */}
-    <div className="w-full lg:w-2/3 xl:w-3/4 flex flex-col rounded-lg bg-white">
+    {/* Right Content Area - Forum Style */}
+    <div className="flex flex-1 flex-col rounded-lg bg-white">
       {selectedAssignment ? (
         <>
-          {/* Assignment Content */}
+          {/* Assignment Post Header */}
           <AssignmentContent
             assignmentName={selectedAssignment.assignmentName}
             effectiveDeadline={effectiveDeadline}
@@ -1704,8 +1700,8 @@ const canStudentSubmit = (assignment: Assignment | null): boolean => {
                     setEditingItem(null);
                     setDialogOpen(true);
                   }}
-                  size="sm"
-                  className="bg-watney text-white hover:bg-watney/90 w-full sm:w-auto"
+                  size={'sm'}
+                  className="bg-watney text-white hover:bg-watney/90"
                 >
                   <Plus className="mr-2 h-4 w-4" />
                   {isStudent ? 'Submit Assignment' : 'Add Feedback'}
@@ -1714,7 +1710,7 @@ const canStudentSubmit = (assignment: Assignment | null): boolean => {
             }
           />
 
-          {/* Forum / Timeline Section */}
+          {/* Forum Comments Section */}
           <AssignmentTimeline
             timeline={getTimeline(selectedAssignment)}
             isTeacher={isTeacher}
@@ -1726,10 +1722,10 @@ const canStudentSubmit = (assignment: Assignment | null): boolean => {
             loadingItems={loadingItems}
           />
 
-          {/* Dialog for Submission / Feedback */}
           <SubmissionDialog
             isOpen={dialogOpen}
             onOpenChange={(open) => {
+              console.log('Dialog onOpenChange called with:', open);
               setDialogOpen(open);
               if (!open) {
                 setEditingItem(null);
@@ -1765,21 +1761,29 @@ const canStudentSubmit = (assignment: Assignment | null): boolean => {
             onSubmit={handleSubmit}
             uploadingFiles={uploadingFiles}
             submitting={submitting}
-            isFormDisabled={isStudent && !canStudentSubmitCurrent && !editingItem}
+            isFormDisabled={
+              isStudent && !canStudentSubmitCurrent && !editingItem
+            }
             editingItem={editingItem}
             assignment={selectedAssignment}
             triggerButton={null}
           />
         </>
       ) : (
-        <div className="flex flex-col items-center justify-center h-full text-center text-gray-500">
-          <p className="text-base sm:text-lg">Select an assignment to view details</p>
-        </div>
+        <AssignmentTimeline
+          timeline={getTimeline(selectedAssignment)}
+          isTeacher={isTeacher}
+          isStudent={isStudent}
+          selectedAssignment={selectedAssignment}
+          onEditItem={handleEditItem}
+          onDeleteItem={handleDeleteItem}
+          hasSelectedAssignment={!!selectedAssignment}
+          loadingItems={loadingItems}
+        />
       )}
     </div>
   </div>
 </div>
-
   );
 };
 

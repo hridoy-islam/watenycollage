@@ -25,7 +25,7 @@ export const AssignmentHeader: React.FC<AssignmentHeaderProps> = ({
       <h1 className=" font-bold max-md:hidden">
         {isStudent ? 'My Assignment' : 'Assignment'}
       </h1>
-      <div className="flex flex-row justify-between gap-4">
+      <div className="flex flex-row justify-between gap-4 text-sm md:text-lg">
         <div className=" flex items-center gap-4 ">
           {!isStudent && (
             <span>
@@ -34,7 +34,7 @@ export const AssignmentHeader: React.FC<AssignmentHeaderProps> = ({
           )}
 
           <span>
-            Unit: <span className="font-semibold">{courseUnit?.title}</span>
+            <span className="font-semibold">{courseUnit?.title}</span>
           </span>
          
         </div>

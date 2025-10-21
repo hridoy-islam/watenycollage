@@ -180,22 +180,38 @@ function CourseUnitPage() {
           gls,
           credit
         });
+
+          setUnits((prevUnits) =>
+        prevUnits.map((unit) =>
+          unit._id === currentUnitId
+            ? { ...unit, unitReference, title, level, gls, credit }
+            : unit
+        )
+      );
+
+
         toast({ title: 'Unit updated successfully!' });
       } else {
         // POST create
-        await axiosInstance.post('/course-unit', {
-          courseId,
-          unitReference,
-          title,
-          level,
-          gls,
-          credit
-        });
+        const res = await axiosInstance.post('/course-unit', {
+        courseId,
+        unitReference,
+        title,
+        level,
+        gls,
+        credit
+      });
+
+      // Add new unit to local state
+      const newUnit: CourseUnit = res.data?.data;
+       if (newUnit) {
+        setUnits((prevUnits) => [...prevUnits, newUnit]);
+      }
         toast({ title: 'Unit added successfully!' });
       }
 
       // Refresh data
-      fetchData();
+      // fetchData();
       setDialogOpen(false);
     } catch (error) {
       console.error('Submission error:', error);
@@ -234,15 +250,13 @@ function CourseUnitPage() {
     navigate(`${unit._id}`);
   };
 
-
   const sortedUnits = [...units].sort((a, b) => {
-  const getUnitNumber = (title: string) => {
-    const match = title.match(/Unit (\d+)/i);
-    return match ? parseInt(match[1], 10) : Infinity; // Non-unit titles go to the end
-  };
-  return getUnitNumber(a.title) - getUnitNumber(b.title);
-});
-
+    const getUnitNumber = (title: string) => {
+      const match = title.match(/Unit (\d+)/i);
+      return match ? parseInt(match[1], 10) : Infinity; // Non-unit titles go to the end
+    };
+    return getUnitNumber(a.title) - getUnitNumber(b.title);
+  });
 
   return (
     <div className="">
@@ -374,11 +388,10 @@ function CourseUnitPage() {
           <DialogHeader>
             <DialogTitle>Are you sure?</DialogTitle>
             <DialogDescription>
-              This action cannot be undone. This will permanently delete the unit{' '}
-              <span className="font-semibold">
-                "{unitToDelete?.title}"
-              </span>{' '}
-              and remove all associated data.
+              This action cannot be undone. This will permanently delete the
+              unit{' '}
+              <span className="font-semibold">"{unitToDelete?.title}"</span> and
+              remove all associated data.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2 sm:gap-0">

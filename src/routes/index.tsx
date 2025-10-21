@@ -26,7 +26,7 @@ import JobApplicationPage from '@/pages/dashboard-application/job-application';
 import StudentGuideline from '@/pages/guideline/student-guideline';
 import ViewStudentApplicationPage from '@/pages/application/view-studentApplication';
 import ViewCareerApplicationPage from '@/pages/application/view-careerApplication';
-import StudentApplicationsPage from '@/pages/dashboard/components/student-applications';
+import StudentApplicationsPage from '@/pages/student-applications';
 import CareerApplicationsPage from '@/pages/jobs/job-applicant';
 
 import HomeStudentApplication from '@/pages/homeStudentApplication';

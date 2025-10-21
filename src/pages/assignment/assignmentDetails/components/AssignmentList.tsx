@@ -89,9 +89,9 @@ export const AssignmentList: React.FC<AssignmentListProps> = ({
   };
 
   return (
-   <div className="w-full sm:w-96 max-h-[70vh] overflow-y-auto pr-2 sm:pr-4">
+   <div className="w-full md:w-96 max-h-[70vh] overflow-y-auto pr-2 sm:pr-4">
   <Card className="border border-gray-300">
-    <CardContent className="space-y-2 pt-4">
+    <CardContent className="space-y-2 p-4">
       {assignments.length === 0 ? (
         <p className="py-6 text-center text-sm sm:text-base text-gray-500">
           No assignments found in this unit
