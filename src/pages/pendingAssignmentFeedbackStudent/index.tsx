@@ -29,7 +29,7 @@ import { BlinkingDots } from '@/components/shared/blinking-dots';
 
 interface Assignment {
   _id: string;
-  assignmentName: string;
+  courseMaterialAssignmentId: string;
   studentId: {
     _id: string;
     name: string;
@@ -46,6 +46,16 @@ interface Assignment {
   unitId: {
     _id: string;
     title: string;
+  };
+  unitMaterialId: {
+    _id: string;
+    assignments: Array<{
+      _id: string;
+      title: string;
+      content?: string;
+      deadline?: string;
+      type: string;
+    }>;
   };
   submissions: Array<{
     _id: string;
@@ -73,7 +83,6 @@ interface Assignment {
     createdAt: string;
   }>;
   status: string;
-  deadline?: string;
   requireResubmit: boolean;
   createdAt: string;
   updatedAt: string;
@@ -102,6 +111,19 @@ export function StudentAssignmentFeedbackList() {
     }
   };
 
+  // Get assignment title from unitMaterialId.assignments
+  const getAssignmentTitle = (assignment: Assignment): string => {
+    if (!assignment.unitMaterialId?.assignments || !assignment.courseMaterialAssignmentId) {
+      return 'Unknown Assignment';
+    }
+
+    const materialAssignment = assignment.unitMaterialId.assignments.find(
+      (a: any) => a._id.toString() === assignment.courseMaterialAssignmentId
+    );
+
+    return materialAssignment?.title || 'Unknown Assignment';
+  };
+
   useEffect(() => {
     fetchAssignments();
   }, []);
@@ -124,28 +146,24 @@ export function StudentAssignmentFeedbackList() {
     // Search filter
     if (searchTerm) {
       const lowerSearchTerm = searchTerm.toLowerCase();
-      filtered = filtered.filter(assignment => 
-        assignment.assignmentName?.toLowerCase().includes(lowerSearchTerm) ||
-        assignment.applicationId?.courseId?.name?.toLowerCase().includes(lowerSearchTerm) ||
-        assignment.unitId?.title?.toLowerCase().includes(lowerSearchTerm) ||
-        assignment.studentId?.name?.toLowerCase().includes(lowerSearchTerm)
-      );
+      filtered = filtered.filter(assignment => {
+        const assignmentTitle = getAssignmentTitle(assignment);
+        return (
+          assignmentTitle.toLowerCase().includes(lowerSearchTerm) ||
+          assignment.applicationId?.courseId?.name?.toLowerCase().includes(lowerSearchTerm) ||
+          assignment.unitId?.title?.toLowerCase().includes(lowerSearchTerm) ||
+          assignment.studentId?.name?.toLowerCase().includes(lowerSearchTerm)
+        );
+      });
     }
 
     setFilteredAssignments(filtered);
   }, [assignments, searchTerm]);
 
-  // const handleViewAssignment = (assignment: Assignment) => {
-  //   navigate(
-  //     `/dashboard/student-applications/${assignment.applicationId?._id}/assignment/${assignment.studentId._id}/unit-assignments/${assignment.unitId?._id}`,
-  //     { state: { assignmentId: assignment._id } }
-  //   );
-  // };
-
   const handleViewAssignment = (assignment: Assignment) => {
-  const url = `/dashboard/student-applications/${assignment.applicationId?._id}/assignment/${assignment.studentId._id}/unit-assignments/${assignment.unitId?._id}?assignmentId=${assignment._id}`;
-  window.open(url, "_blank");
-};
+    const url = `/dashboard/student-applications/${assignment.applicationId?._id}/assignment/${assignment.studentId._id}/unit-assignments/${assignment.unitId?._id}?assignmentId=${assignment._id}`;
+    window.open(url, "_blank");
+  };
 
   return (
     <div className="space-y-6">
@@ -154,7 +172,6 @@ export function StudentAssignmentFeedbackList() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Assignment Feedbacks</CardTitle>
-              
             </div>
             <div>
               <Button
@@ -196,8 +213,7 @@ export function StudentAssignmentFeedbackList() {
           ) : filteredAssignments.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 text-center">
               <FileText className="h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-medium">You’ve seen everything — nothing pending now</h3>
-              
+              <h3 className="text-lg font-medium">You've seen everything — nothing pending now</h3>
             </div>
           ) : (
             <div className="">
@@ -207,9 +223,6 @@ export function StudentAssignmentFeedbackList() {
                     <TableHead className="text-xs">Course</TableHead>
                     <TableHead className="text-xs">Unit</TableHead>
                     <TableHead className="text-xs">Assignment</TableHead>
-                    {/* <TableHead className="text-xs">Student</TableHead> */}
-                    {/* <TableHead className="text-xs">Status</TableHead>
-                    <TableHead className="text-xs">Unseen Feedback</TableHead> */}
                     <TableHead className="text-right text-xs">
                       Actions
                     </TableHead>
@@ -218,6 +231,7 @@ export function StudentAssignmentFeedbackList() {
                 <TableBody>
                   {filteredAssignments.map((assignment) => {
                     const unseenFeedbackCount = assignment.feedbacks?.filter(feedback => !feedback.seen).length || 0;
+                    const assignmentTitle = getAssignmentTitle(assignment);
                     
                     return (
                       <TableRow key={assignment._id} className="group">
@@ -242,32 +256,9 @@ export function StudentAssignmentFeedbackList() {
                         >
                           <div className="flex items-center gap-2">
                             <FileText className="h-4 w-4 text-muted-foreground" />
-                            {assignment.assignmentName}
+                            {assignmentTitle}
                           </div>
                         </TableCell>
-                        {/* <TableCell className="text-xs">
-                          {assignment.studentId?.name || 'N/A'}
-                        </TableCell> */}
-                        {/* <TableCell className="text-xs">
-                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                            assignment.status === 'completed' 
-                              ? 'bg-green-100 text-green-800'
-                              : assignment.status === 'feedback_given'
-                              ? 'bg-blue-100 text-blue-800'
-                              : 'bg-yellow-100 text-yellow-800'
-                          }`}>
-                            {assignment.status.replace(/_/g, ' ')}
-                          </span>
-                        </TableCell> */}
-                        {/* <TableCell className="text-xs">
-                          {unseenFeedbackCount > 0 ? (
-                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                              {unseenFeedbackCount} unseen
-                            </span>
-                          ) : (
-                            <span className="text-muted-foreground">All seen</span>
-                          )}
-                        </TableCell> */}
                         <TableCell className="text-xs">
                           <div className="flex justify-end">
                             <Button

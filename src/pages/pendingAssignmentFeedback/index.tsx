@@ -41,7 +41,7 @@ import { BlinkingDots } from '@/components/shared/blinking-dots';
 
 interface Assignment {
   _id: string;
-  assignmentName: string;
+  courseMaterialAssignmentId: string;
   studentId: {
     _id: string;
     name: string;
@@ -59,6 +59,16 @@ interface Assignment {
   unitId: {
     _id: string;
     title: string;
+  };
+  unitMaterialId: {
+    _id: string;
+    assignments: Array<{
+      _id: string;
+      title: string;
+      content?: string;
+      deadline?: string;
+      type: string;
+    }>;
   };
   submissions: Array<{
     _id: string;
@@ -86,7 +96,6 @@ interface Assignment {
     createdAt: string;
   }>;
   status: string;
-  deadline?: string;
   requireResubmit: boolean;
   createdAt: string;
   updatedAt: string;
@@ -110,7 +119,7 @@ export function AssignmentFeedbackList() {
       const params: any = {
         limit: 'all',
         sort: `-createdAt`,
-        fields: 'applicationId,studentId,unitId,status,assignmentName'
+        fields: 'applicationId,studentId,unitId,status,courseMaterialAssignmentId,unitMaterialId'
       };
 
       const response = await axiosInstance.get('/assignment?status=submitted', {
@@ -118,16 +127,26 @@ export function AssignmentFeedbackList() {
       });
       const assignmentsData = response.data.data?.result || [];
 
-      // Filter assignments that have unseen submissions
-      const assignmentsWithUnseen = assignmentsData;
-
-      setAssignments(assignmentsWithUnseen);
-      setFilteredAssignments(assignmentsWithUnseen);
+      setAssignments(assignmentsData);
+      setFilteredAssignments(assignmentsData);
     } catch (error) {
       console.error('Error fetching assignments:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  // Get assignment title from unitMaterialId.assignments
+  const getAssignmentTitle = (assignment: Assignment): string => {
+    if (!assignment.unitMaterialId?.assignments || !assignment.courseMaterialAssignmentId) {
+      return 'Unknown Assignment';
+    }
+
+    const materialAssignment = assignment.unitMaterialId.assignments.find(
+      (a: any) => a._id.toString() === assignment.courseMaterialAssignmentId
+    );
+
+    return materialAssignment?.title || 'Unknown Assignment';
   };
 
   // Filter assignments based on search term and filters
@@ -139,13 +158,16 @@ export function AssignmentFeedbackList() {
     // Apply search filter
     if (searchTerm) {
       const searchLower = searchTerm.toLowerCase();
-      filtered = filtered.filter(assignment => 
-        assignment.assignmentName?.toLowerCase().includes(searchLower) ||
-        assignment.applicationId?.courseId?.name?.toLowerCase().includes(searchLower) ||
-        assignment.unitId?.title?.toLowerCase().includes(searchLower) ||
-        getStudentName(assignment).toLowerCase().includes(searchLower) ||
-        assignment.studentId?.email?.toLowerCase().includes(searchLower)
-      );
+      filtered = filtered.filter(assignment => {
+        const assignmentTitle = getAssignmentTitle(assignment);
+        return (
+          assignmentTitle.toLowerCase().includes(searchLower) ||
+          assignment.applicationId?.courseId?.name?.toLowerCase().includes(searchLower) ||
+          assignment.unitId?.title?.toLowerCase().includes(searchLower) ||
+          getStudentName(assignment).toLowerCase().includes(searchLower) ||
+          assignment.studentId?.email?.toLowerCase().includes(searchLower)
+        );
+      });
     }
 
     // Apply course filter
@@ -169,19 +191,10 @@ export function AssignmentFeedbackList() {
     fetchAssignments();
   }, []);
 
-  // const handleViewAssignment = (assignment: Assignment) => {
-  //   // Navigate to assignment detail page
-  //   navigate(
-  //     `/dashboard/student-applications/${assignment.applicationId?._id}/assignment/${assignment.studentId._id}/unit-assignments/${assignment.unitId?._id}`,
-  //     { state: { assignmentId: assignment._id } }
-  //   );
-  // };
-
-
-const handleViewAssignment = (assignment: Assignment) => {
-  const url = `/dashboard/student-applications/${assignment.applicationId?._id}/assignment/${assignment.studentId._id}/unit-assignments/${assignment.unitId?._id}?assignmentId=${assignment._id}`;
-  window.open(url, "_blank");
-};
+  const handleViewAssignment = (assignment: Assignment) => {
+    const url = `/dashboard/student-applications/${assignment.applicationId?._id}/assignment/${assignment.studentId._id}/unit-assignments/${assignment.unitId?._id}?assignmentId=${assignment._id}`;
+    window.open(url, "_blank");
+  };
 
   const getStudentName = (assignment: Assignment) => {
     if (assignment.studentId.name) {
@@ -213,7 +226,6 @@ const handleViewAssignment = (assignment: Assignment) => {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Assignment Feedbacks</CardTitle>
-              
             </div>
             <div>
               <Button
@@ -275,8 +287,6 @@ const handleViewAssignment = (assignment: Assignment) => {
             </div>
           </div>
 
-       
-
           {loading ? (
             <div className="flex items-center justify-center py-8">
               <div className="text-center">
@@ -311,63 +321,67 @@ const handleViewAssignment = (assignment: Assignment) => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredAssignments.map((assignment) => (
-                    <TableRow key={assignment._id} className="group">
-                      <TableCell
-                        className="text-xs cursor-pointer"
-                        onClick={() => handleViewAssignment(assignment)}
-                      >
-                        <div className="flex items-center gap-2">
-                          <BookOpen className="h-4 w-4 text-muted-foreground" />
-                          {assignment.applicationId?.courseId?.name || 'N/A'}
-                        </div>
-                      </TableCell>
-                      <TableCell
-                        className="text-xs cursor-pointer"
-                        onClick={() => handleViewAssignment(assignment)}
-                      >
-                        {assignment.unitId?.title || 'N/A'}
-                      </TableCell>
-                      <TableCell
-                        className="text-xs cursor-pointer"
-                        onClick={() => handleViewAssignment(assignment)}
-                      >
-                        <div className="flex items-center gap-2">
-                          <User className="h-4 w-4 text-muted-foreground" />
-                          <div>
-                            <div className="font-medium">
-                              {getStudentName(assignment)}
-                            </div>
-                            <div className="text-xs text-muted-foreground">
-                              {assignment.studentId.email}
+                  {filteredAssignments.map((assignment) => {
+                    const assignmentTitle = getAssignmentTitle(assignment);
+                    
+                    return (
+                      <TableRow key={assignment._id} className="group">
+                        <TableCell
+                          className="text-xs cursor-pointer"
+                          onClick={() => handleViewAssignment(assignment)}
+                        >
+                          <div className="flex items-center gap-2">
+                            <BookOpen className="h-4 w-4 text-muted-foreground" />
+                            {assignment.applicationId?.courseId?.name || 'N/A'}
+                          </div>
+                        </TableCell>
+                        <TableCell
+                          className="text-xs cursor-pointer"
+                          onClick={() => handleViewAssignment(assignment)}
+                        >
+                          {assignment.unitId?.title || 'N/A'}
+                        </TableCell>
+                        <TableCell
+                          className="text-xs cursor-pointer"
+                          onClick={() => handleViewAssignment(assignment)}
+                        >
+                          <div className="flex items-center gap-2">
+                            <User className="h-4 w-4 text-muted-foreground" />
+                            <div>
+                              <div className="font-medium">
+                                {getStudentName(assignment)}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                {assignment.studentId.email}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </TableCell>
+                        </TableCell>
 
-                      <TableCell
-                        className="text-xs font-medium cursor-pointer"
-                        onClick={() => handleViewAssignment(assignment)}
-                      >
-                        <div className="flex items-center gap-2">
-                          <FileText className="h-4 w-4 text-muted-foreground" />
-                          {assignment.assignmentName}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-xs">
-                        <div className="flex justify-end">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleViewAssignment(assignment)}
-                            className="flex items-center gap-1 bg-watney text-xs text-white hover:bg-watney/90"
-                          >
-                            View
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                        <TableCell
+                          className="text-xs font-medium cursor-pointer"
+                          onClick={() => handleViewAssignment(assignment)}
+                        >
+                          <div className="flex items-center gap-2">
+                            <FileText className="h-4 w-4 text-muted-foreground" />
+                            {assignmentTitle}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-xs">
+                          <div className="flex justify-end">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleViewAssignment(assignment)}
+                              className="flex items-center gap-1 bg-watney text-xs text-white hover:bg-watney/90"
+                            >
+                              View
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>

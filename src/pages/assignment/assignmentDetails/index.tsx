@@ -77,6 +77,7 @@ interface Assignment {
     name: string;
     email: string;
   };
+  courseMaterialAssignmentId:string;
   assignmentName: string;
   submissions: Submission[];
   feedbacks: Feedback[];
@@ -209,15 +210,25 @@ const AssignmentDetailPage = () => {
     return 0;
   };
 
+  // const getAssignmentContent = () => {
+  //   if (!selectedAssignment || !unitMaterial?.assignments) return null;
+
+  //   const materialAssignment = unitMaterial.assignments.find(
+  //     (a: any) => a.title === selectedAssignment.assignmentName
+  //   );
+
+  //   return materialAssignment?.content || null;
+  // };
+
   const getAssignmentContent = () => {
-    if (!selectedAssignment || !unitMaterial?.assignments) return null;
+  if (!selectedAssignment || !unitMaterial?.assignments) return null;
 
-    const materialAssignment = unitMaterial.assignments.find(
-      (a: any) => a.title === selectedAssignment.assignmentName
-    );
+  const materialAssignment = unitMaterial.assignments.find(
+    (a: any) => a._id.toString() === selectedAssignment.courseMaterialAssignmentId
+  );
 
-    return materialAssignment?.content || null;
-  };
+  return materialAssignment?.content || null;
+};
 
   const markItemsAsSeen = async (assignment: Assignment) => {
     if (!assignment) return;
@@ -307,133 +318,6 @@ const AssignmentDetailPage = () => {
     }
   };
 
-  // const fetchData = async () => {
-  //   try {
-  //     setLoading(true);
-
-  //     // Store the current selected assignment ID before refetching
-  //     const currentSelectedId = selectedAssignment?._id;
-
-  //     const studentRes = await axiosInstance.get(`/users/${studentId}`);
-  //     setStudentName(studentRes.data.data.name || 'Unknown');
-
-  //     const unitRes = await axiosInstance.get(`/course-unit/${unitId}`);
-  //     setCourseUnit(unitRes.data.data);
-
-  //     const unitMaterialRes = await axiosInstance.get(`/unit-material`, {
-  //       params: { unitId, limit: 'all' }
-  //     });
-
-  //     const existingAssignmentsRes = await axiosInstance.get(`/assignment`, {
-  //       params: { applicationId, unitId, studentId, limit: 'all' }
-  //     });
-
-  //     const existingAssignments = existingAssignmentsRes.data.data.result || [];
-  //     const unitMaterial = unitMaterialRes.data.data.result[0];
-  //     setUnitMaterial(unitMaterial);
-  //     let assignmentsData: Assignment[] = [];
-
-  //     if (
-  //       unitMaterial &&
-  //       unitMaterial.assignments &&
-  //       unitMaterial.assignments.length > 0
-  //     ) {
-  //       assignmentsData = unitMaterial.assignments.map(
-  //         (materialAssignment: any, index: number) => {
-  //           const existingAssignment = existingAssignments.find(
-  //             (ea: Assignment) => ea.assignmentName === materialAssignment.title
-  //           );
-
-  //           if (existingAssignment) {
-  //             return existingAssignment;
-  //           }
-
-  //           return {
-  //             _id: materialAssignment._id || `material-${index}`,
-  //             applicationId: applicationId || '',
-  //             unitId: {
-  //               _id: unitId || '',
-  //               title: courseUnit?.title || '',
-  //               unitReference: courseUnit?.unitReference || '',
-  //               level: courseUnit?.level || '',
-  //               gls: courseUnit?.gls || '',
-  //               credit: courseUnit?.credit || ''
-  //             },
-  //             studentId: {
-  //               _id: studentId || '',
-  //               name: studentName,
-  //               email: ''
-  //             },
-  //             assignmentName:
-  //               materialAssignment.title || `Assignment ${index + 1}`,
-  //             submissions: [],
-  //             feedbacks: [],
-  //             status: 'not_submitted',
-  //             deadline: materialAssignment.deadline,
-  //             requireResubmit: false,
-  //             createdAt: new Date().toISOString(),
-  //             updatedAt: new Date().toISOString()
-  //           };
-  //         }
-  //       );
-  //     }
-
-  //     setAssignments(assignmentsData);
-
-  //     let assignmentToSelect: Assignment | null = null;
-
-  //     // Priority 1: Use current selected assignment if it still exists
-  //     if (currentSelectedId && assignmentsData.length > 0) {
-  //       assignmentToSelect =
-  //         assignmentsData.find(
-  //           (assignment) => assignment._id === currentSelectedId
-  //         ) || null;
-  //     }
-
-  //     // Priority 2: Use assignment from state (for navigation)
-  //     if (
-  //       !assignmentToSelect &&
-  //       assignmentIdFromState &&
-  //       assignmentsData.length > 0
-  //     ) {
-  //       assignmentToSelect =
-  //         assignmentsData.find(
-  //           (assignment) => assignment._id === assignmentIdFromState
-  //         ) || null;
-  //     }
-
-  //     // Priority 3: Fall back to first assignment
-  //     if (!assignmentToSelect && assignmentsData.length > 0) {
-  //       assignmentToSelect = assignmentsData[0];
-  //     }
-
-  //     if (assignmentToSelect) {
-  //       setSelectedAssignment(assignmentToSelect);
-  //       markItemsAsSeen(assignmentToSelect);
-  //       if (!formState[assignmentToSelect._id]) {
-  //         setFormState((prev) => ({
-  //           ...prev,
-  //           [assignmentToSelect!._id]: {
-  //             comment: '',
-  //             files: [],
-  //             requireResubmit: false,
-  //             resubmissionDeadline: undefined,
-  //             isAdminSubmission: false
-  //           }
-  //         }));
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.error('Error fetching data:', error);
-  //     toast({
-  //       title: 'Error',
-  //       description: 'Failed to load assignment data.',
-  //       variant: 'destructive'
-  //     });
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   const fetchData = async () => {
     try {
@@ -469,7 +353,7 @@ const AssignmentDetailPage = () => {
         assignmentsData = unitMaterial.assignments.map(
           (materialAssignment: any, index: number) => {
             const existingAssignment = existingAssignments.find(
-              (ea: Assignment) => ea.assignmentName === materialAssignment.title
+              (ea: Assignment) => ea.courseMaterialAssignmentId === materialAssignment?._id.toString()
             );
 
             if (existingAssignment) {
@@ -492,8 +376,10 @@ const AssignmentDetailPage = () => {
                 name: studentName,
                 email: ''
               },
+              unitMaterialId: unitMaterial?._id,
+              courseMaterialAssignmentId:materialAssignment._id.toString(),
               assignmentName:
-                materialAssignment.title || `Assignment ${index + 1}`,
+              materialAssignment.title || `Assignment ${index + 1}`,
               submissions: [],
               feedbacks: [],
               status: 'not_submitted',
@@ -533,18 +419,18 @@ const AssignmentDetailPage = () => {
       // Priority 3: Use assignment from unit-material (when coming from StudentAssignmentsPage)
       if (
         !assignmentToSelect &&
-        location.state?.assignmentId &&
+        assignmentIdFromState &&
         assignmentsData.length > 0
       ) {
         // Find assignment by matching the unit-material assignment ID
         assignmentToSelect =
           assignmentsData.find(
-            (assignment) => assignment._id === location.state.assignmentId
+            (assignment) => assignment._id === assignmentIdFromState
           ) ||
           // If not found by ID, try to find by assignment name from state
           assignmentsData.find(
             (assignment) =>
-              assignment.assignmentName === location.state.assignmentName
+              assignment.assignmentName === assignmentIdFromState
           ) ||
           null;
       }
@@ -1218,9 +1104,10 @@ const AssignmentDetailPage = () => {
           let submissionDeadline: string | undefined;
 
           if (selectedAssignment.status === 'not_submitted') {
-            const materialAssignment = unitMaterial?.assignments?.find(
-              (a: any) => a.title === selectedAssignment.assignmentName
-            );
+             const materialAssignment = unitMaterial?.assignments?.find(
+            (a: any) => a._id.toString() === selectedAssignment.courseMaterialAssignmentId
+          );
+
             submissionDeadline = materialAssignment?.deadline;
           } else if (selectedAssignment.requireResubmit) {
             const latestFeedbackWithDeadline = selectedAssignment.feedbacks
@@ -1285,7 +1172,9 @@ const AssignmentDetailPage = () => {
                 applicationId,
                 unitId,
                 studentId,
-                assignmentName: selectedAssignment.assignmentName,
+                unitMaterialId: unitMaterial?._id,
+                courseMaterialAssignmentId: selectedAssignment.courseMaterialAssignmentId, 
+                // assignmentName: selectedAssignment.assignmentName,
                 submissions: [backendSubmission],
                 status: 'submitted',
                 requireResubmit: false
@@ -1347,9 +1236,9 @@ const AssignmentDetailPage = () => {
             };
 
             if (selectedAssignment.status === 'not_submitted') {
-              const materialAssignment = unitMaterial?.assignments?.find(
-                (a: any) => a.title === selectedAssignment.assignmentName
-              );
+                const materialAssignment = unitMaterial?.assignments?.find(
+              (a: any) => a._id.toString() === selectedAssignment.courseMaterialAssignmentId
+            );
               if (materialAssignment?.deadline) {
                 backendSubmission.deadline = materialAssignment.deadline;
               }
@@ -1392,7 +1281,9 @@ const AssignmentDetailPage = () => {
                   applicationId,
                   unitId,
                   studentId,
-                  assignmentName: selectedAssignment.assignmentName,
+                  unitMaterialId: unitMaterial?._id,
+                  // assignmentName: selectedAssignment.assignmentName,
+                   courseMaterialAssignmentId: selectedAssignment.courseMaterialAssignmentId,
                   submissions: [backendSubmission],
                   status: 'submitted',
                   requireResubmit: false
@@ -1685,8 +1576,7 @@ const AssignmentDetailPage = () => {
             <>
               {/* Assignment Post Header */}
               <AssignmentContent
-                assignmentName={selectedAssignment.assignmentName}
-                effectiveDeadline={effectiveDeadline}
+  courseMaterialAssignmentId={selectedAssignment.courseMaterialAssignmentId}                 effectiveDeadline={effectiveDeadline}
                 isDeadlinePassed={isDeadlinePassed || false}
                 assignmentContent={getAssignmentContent()}
                 isTeacher={isTeacher}
