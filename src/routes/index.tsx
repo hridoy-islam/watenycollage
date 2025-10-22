@@ -24,6 +24,8 @@ import CharacterReferencePage from '@/pages/character-reference';
 import EmploymentReferencePage from '@/pages/employment-reference';
 import ProfessionalReferencePage from '@/pages/professional-reference';
 import PersonalReferencePage from '@/pages/personal-reference';
+import ApplicantReferencePage from '@/pages/applicant-reference';
+import ReferenceDetailsPage from '@/pages/applicant-reference/referenceDetails';
 
 
 const SignInPage = lazy(() => import('@/pages/auth/signin/index'));
@@ -74,6 +76,14 @@ export default function AppRouter() {
       {
         path: 'career-application/:id/:userId',
         element: withRole(<ViewCareerApplicationPage />, ['admin','applicant'])
+      },
+       {
+        path: 'career-application/:id/references/:userId',
+        element: withRole(<ApplicantReferencePage />, ['admin','applicant'])
+      },
+       {
+        path: 'user/:id/reference/:refId/:refType',
+        element: withRole(<ReferenceDetailsPage />, ['admin','applicant'])
       },
       
       {

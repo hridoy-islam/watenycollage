@@ -49,7 +49,7 @@ const characterReferenceSchema = z.object({
   commonSense: z.enum(["very_good", "good", "satisfactory", "poor"], {
     required_error: "Please select an option",
   }),
-  relatesWellWithUsers: z.enum(["yes", "no", "unsure"], {
+  relatesWell: z.enum(["yes", "no", "unsure"], {
     required_error: "Please select an option",
   }),
   cautionsConvictions: z.enum(["yes", "no"], { required_error: "Please select an option" }),
@@ -438,7 +438,7 @@ export default function CharacterReferencePage() {
 
           <FormField
             control={form.control}
-            name="relatesWellWithUsers"
+            name="relatesWell"
             render={({ field }) => (
               <FormItem className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-6">
                 <div className="flex-1">
@@ -452,11 +452,11 @@ export default function CharacterReferencePage() {
                   {["yes", "no", "unsure"].map((option) => (
                     <div key={option} className="flex items-center gap-2">
                       <Checkbox
-                        id={`relatesWellWithUsers-${option}`}
+                        id={`relatesWell-${option}`}
                         checked={field.value === option}
                         onCheckedChange={(checked) => checked && field.onChange(option)}
                       />
-                      <Label htmlFor={`relatesWellWithUsers-${option}`} className="font-normal capitalize">
+                      <Label htmlFor={`relatesWell-${option}`} className="font-normal capitalize">
                         {option}
                       </Label>
                     </div>
@@ -503,7 +503,7 @@ export default function CharacterReferencePage() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>
-                  <div>Would you like to make any other comments about the suitability of the applicant for this post? <span className="text-red-500">*</span></div>
+                  <div>Would you like to make any other comments about the suitability of the applicant for this post? </div>
                   <HelperTooltip text="Optional: Add any other observations regarding the applicant. e.g., Very suitable for the role" />
                 </FormLabel>
                 <FormControl>

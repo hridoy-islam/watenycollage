@@ -9,7 +9,7 @@ import {
   TableRow
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Briefcase, ClipboardPenLine, Eye, MoveLeft } from 'lucide-react';
+import { Briefcase, ClipboardPenLine, Eye, MoveLeft, Users } from 'lucide-react';
 import moment from 'moment';
 import { DataTablePagination } from '@/components/shared/data-table-pagination';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -19,10 +19,8 @@ import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-
-
+  TooltipTrigger
+} from '@/components/ui/tooltip';
 
 interface CareerApplication {
   _id: string;
@@ -38,64 +36,63 @@ interface CareerApplication {
 }
 
 export default function CareerApplicationsPage() {
-  const [allApplications, setAllApplications] = useState<CareerApplication[]>([]);
+  const [allApplications, setAllApplications] = useState<CareerApplication[]>(
+    []
+  );
 
   const [loading, setLoading] = useState(true);
 
-
-  const [searchTerm, setSearchTerm] = useState("");
-  const [jobTitle, setJobTitle] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
+  const [jobTitle, setJobTitle] = useState('');
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(10);
-  const {id} = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
 
+  const fetchAllApplications = async (
+    page,
+    entriesPerPage,
+    searchTerm = ''
+  ) => {
+    setLoading(true);
+    try {
+      // Parallel API calls using Promise.all
+      const [applicationsRes, jobRes] = await Promise.all([
+        axiosInstance.get(`/application-job?jobId=${id}`, {
+          params: {
+            page,
+            limit: entriesPerPage,
+            ...(searchTerm ? { searchTerm } : {})
+          }
+        }),
+        axiosInstance.get(`/jobs/${id}`)
+      ]);
 
-  const fetchAllApplications = async (page, entriesPerPage, searchTerm = "") => {
-  setLoading(true);
-  try {
-    // Parallel API calls using Promise.all
-    const [applicationsRes, jobRes] = await Promise.all([
-      axiosInstance.get(`/application-job?jobId=${id}`, {
-        params: {
-          page,
-          limit: entriesPerPage,
-          ...(searchTerm ? { searchTerm } : {}),
-        },
-      }),
-      axiosInstance.get(`/jobs/${id}`),
-    ]);
+      // Handle applications data
+      const applicationsData = applicationsRes.data.data;
+      setAllApplications(applicationsData.result || []);
+      setTotalPages(applicationsData.meta.totalPage);
 
-    // Handle applications data
-    const applicationsData = applicationsRes.data.data;
-    setAllApplications(applicationsData.result || []);
-    setTotalPages(applicationsData.meta.totalPage);
-
-    setJobTitle(jobRes?.data?.data?.jobTitle);
-
-  } catch (error) {
-    console.error('Error fetching applications or job details:', error);
-  } finally {
-    setLoading(false);
-  }
-};
-
+      setJobTitle(jobRes?.data?.data?.jobTitle);
+    } catch (error) {
+      console.error('Error fetching applications or job details:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchAllApplications(currentPage, entriesPerPage);
   }, [currentPage, entriesPerPage]);
 
-
-
   // Handle Search
   const handleSearch = () => {
-     fetchAllApplications(currentPage, entriesPerPage,searchTerm);
-  }
+    fetchAllApplications(currentPage, entriesPerPage, searchTerm);
+  };
 
-
-return (
+  return (
     <div className="space-y-3">
       {/* Header with Search + Back Button */}
       <div className="flex items-center justify-between">
@@ -156,56 +153,79 @@ return (
                   <TableCell>{app.applicantId?.email ?? 'N/A'}</TableCell>
                   <TableCell>{app.jobId?.jobTitle ?? 'N/A'}</TableCell>
 
+                  <TableCell className="text-center">
+                    <div className="flex flex-row gap-4">
 
-<TableCell className="text-center">
-  <div className="flex flex-row gap-4">
-    {/* Interview Button */}
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            variant="ghost"
-            className="bg-watney hover:bg-watney/90 text-white border-none"
-            size="icon"
-            onClick={() =>
-              navigate(
-                `/dashboard/career-application/${app?._id}/${app.applicantId?._id}/interview`
-              )
-            }
-          >
-            <ClipboardPenLine className="h-4 w-4" />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>Interview</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+                       {/* Interview Button */}
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              className="border-none bg-watney text-white hover:bg-watney/90"
+                              size="icon"
+                              onClick={() =>
+                                navigate(
+                                  `/dashboard/career-application/${app?._id}/references/${app.applicantId?._id}`
+                                )
+                              }
+                            >
+                              <Users  className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Referance Details</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
 
-    {/* View Details Button */}
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            variant="ghost"
-            className="bg-watney hover:bg-watney/90 text-white border-none"
-            size="icon"
-            onClick={() =>
-              navigate(
-                `/dashboard/career-application/${app?._id}/${app.applicantId?._id}`
-              )
-            }
-          >
-            <Eye className="h-4 w-4" />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>View Details</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  </div>
-</TableCell>
+                      {/* Interview Button */}
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              className="border-none bg-watney text-white hover:bg-watney/90"
+                              size="icon"
+                              onClick={() =>
+                                navigate(
+                                  `/dashboard/career-application/${app?._id}/${app.applicantId?._id}/interview`
+                                )
+                              }
+                            >
+                              <ClipboardPenLine className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Interview</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+
+                      {/* View Details Button */}
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              className="border-none bg-watney text-white hover:bg-watney/90"
+                              size="icon"
+                              onClick={() =>
+                                navigate(
+                                  `/dashboard/career-application/${app?._id}/${app.applicantId?._id}`
+                                )
+                              }
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>View Details</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
