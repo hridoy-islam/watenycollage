@@ -135,12 +135,17 @@ export function StudentAssignmentFeedbackList() {
     setFilteredAssignments(filtered);
   }, [assignments, searchTerm]);
 
+  // const handleViewAssignment = (assignment: Assignment) => {
+  //   navigate(
+  //     `/dashboard/student-applications/${assignment.applicationId?._id}/assignment/${assignment.studentId._id}/unit-assignments/${assignment.unitId?._id}`,
+  //     { state: { assignmentId: assignment._id } }
+  //   );
+  // };
+
   const handleViewAssignment = (assignment: Assignment) => {
-    navigate(
-      `/dashboard/student-applications/${assignment.applicationId?._id}/assignment/${assignment.studentId._id}/unit-assignments/${assignment.unitId?._id}`,
-      { state: { assignmentId: assignment._id } }
-    );
-  };
+  const url = `/dashboard/student-applications/${assignment.applicationId?._id}/assignment/${assignment.studentId._id}/unit-assignments/${assignment.unitId?._id}?assignmentId=${assignment._id}`;
+  window.open(url, "_blank");
+};
 
   return (
     <div className="space-y-6">

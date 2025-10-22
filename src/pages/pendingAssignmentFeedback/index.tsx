@@ -169,13 +169,19 @@ export function AssignmentFeedbackList() {
     fetchAssignments();
   }, []);
 
-  const handleViewAssignment = (assignment: Assignment) => {
-    // Navigate to assignment detail page
-    navigate(
-      `/dashboard/student-applications/${assignment.applicationId?._id}/assignment/${assignment.studentId._id}/unit-assignments/${assignment.unitId?._id}`,
-      { state: { assignmentId: assignment._id } }
-    );
-  };
+  // const handleViewAssignment = (assignment: Assignment) => {
+  //   // Navigate to assignment detail page
+  //   navigate(
+  //     `/dashboard/student-applications/${assignment.applicationId?._id}/assignment/${assignment.studentId._id}/unit-assignments/${assignment.unitId?._id}`,
+  //     { state: { assignmentId: assignment._id } }
+  //   );
+  // };
+
+
+const handleViewAssignment = (assignment: Assignment) => {
+  const url = `/dashboard/student-applications/${assignment.applicationId?._id}/assignment/${assignment.studentId._id}/unit-assignments/${assignment.unitId?._id}?assignmentId=${assignment._id}`;
+  window.open(url, "_blank");
+};
 
   const getStudentName = (assignment: Assignment) => {
     if (assignment.studentId.name) {

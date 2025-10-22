@@ -1,6 +1,11 @@
 import type React from 'react';
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import {
+  useParams,
+  useNavigate,
+  useLocation,
+  useSearchParams
+} from 'react-router-dom';
 import axiosInstance from '@/lib/axios';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -155,6 +160,7 @@ const canStudentEditSubmission = (
 
 const AssignmentDetailPage = () => {
   const { id: applicationId, studentId, unitId } = useParams();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useSelector((state: any) => state.auth);
@@ -184,7 +190,7 @@ const AssignmentDetailPage = () => {
   const isTeacher = user?.role === 'admin';
 
   const location = useLocation();
-  const assignmentIdFromState = location.state?.assignmentId;
+  const assignmentIdFromState = searchParams.get('assignmentId') || location.state?.assignmentId;;
   const [completionDialogOpen, setCompletionDialogOpen] = useState(false);
   const [markingCompleted, setMarkingCompleted] = useState(false);
 
@@ -1649,141 +1655,141 @@ const AssignmentDetailPage = () => {
     : null;
 
   return (
-   <div className="mx-auto flex flex-col overflow-auto rounded-lg bg-white p-4 shadow-md">
-  {/* Header */}
-  <AssignmentHeader
-    isStudent={isStudent}
-    studentName={studentName}
-    courseUnit={courseUnit}
-    onBack={() => navigate(-1)}
-  />
-
-  {/* Responsive layout: column on mobile, row on medium+ */}
-  <div className="mt-4 flex flex-col md:flex-row">
-    {/* Assignment List */}
-    <div className="w-full md:w-auto md:mr-4 mb-4 md:mb-0">
-      <AssignmentList
-        assignments={assignments}
-        selectedAssignment={selectedAssignment}
-        onSelectAssignment={handleSelectAssignment}
-        getStatusBadge={getStatusBadge}
-        getUnseenCounts={getUnseenCounts}
+    <div className="mx-auto flex flex-col overflow-auto rounded-lg bg-white p-4 shadow-md">
+      {/* Header */}
+      <AssignmentHeader
         isStudent={isStudent}
-        unitMaterial={unitMaterial}
+        studentName={studentName}
+        courseUnit={courseUnit}
+        onBack={() => navigate(-1)}
       />
-    </div>
 
-    {/* Right Content Area - Forum Style */}
-    <div className="flex flex-1 flex-col rounded-lg bg-white">
-      {selectedAssignment ? (
-        <>
-          {/* Assignment Post Header */}
-          <AssignmentContent
-            assignmentName={selectedAssignment.assignmentName}
-            effectiveDeadline={effectiveDeadline}
-            isDeadlinePassed={isDeadlinePassed || false}
-            assignmentContent={getAssignmentContent()}
-            isTeacher={isTeacher}
-            isCompleted={selectedAssignment.status === 'completed'}
-            onMarkCompleted={handleMarkAsCompleted}
-            completionDialogOpen={completionDialogOpen}
-            setCompletionDialogOpen={setCompletionDialogOpen}
-            markingCompleted={markingCompleted}
-            studentName={studentName}
-            selectedAssignmentName={selectedAssignment.assignmentName}
-            unitMaterial={unitMaterial}
-            actionButton={
-              selectedAssignment.status !== 'completed' &&
-              ((isStudent && canStudentSubmitCurrent) || isTeacher) && (
-                <Button
-                  onClick={() => {
-                    setEditingItem(null);
-                    setDialogOpen(true);
-                  }}
-                  size={'sm'}
-                  className="bg-watney text-white hover:bg-watney/90"
-                >
-                  <Plus className="mr-2 h-4 w-4" />
-                  {isStudent ? 'Submit Assignment' : 'Add Feedback'}
-                </Button>
-              )
-            }
-          />
-
-          {/* Forum Comments Section */}
-          <AssignmentTimeline
-            timeline={getTimeline(selectedAssignment)}
-            isTeacher={isTeacher}
-            isStudent={isStudent}
+      {/* Responsive layout: column on mobile, row on medium+ */}
+      <div className="mt-4 flex flex-col md:flex-row">
+        {/* Assignment List */}
+        <div className="mb-4 w-full md:mb-0 md:mr-4 md:w-auto">
+          <AssignmentList
+            assignments={assignments}
             selectedAssignment={selectedAssignment}
-            onEditItem={handleEditItem}
-            onDeleteItem={handleDeleteItem}
-            hasSelectedAssignment={!!selectedAssignment}
-            loadingItems={loadingItems}
+            onSelectAssignment={handleSelectAssignment}
+            getStatusBadge={getStatusBadge}
+            getUnseenCounts={getUnseenCounts}
+            isStudent={isStudent}
+            unitMaterial={unitMaterial}
           />
+        </div>
 
-          <SubmissionDialog
-            isOpen={dialogOpen}
-            onOpenChange={(open) => {
-              console.log('Dialog onOpenChange called with:', open);
-              setDialogOpen(open);
-              if (!open) {
-                setEditingItem(null);
-                if (selectedAssignment) {
+        {/* Right Content Area - Forum Style */}
+        <div className="flex flex-1 flex-col rounded-lg bg-white">
+          {selectedAssignment ? (
+            <>
+              {/* Assignment Post Header */}
+              <AssignmentContent
+                assignmentName={selectedAssignment.assignmentName}
+                effectiveDeadline={effectiveDeadline}
+                isDeadlinePassed={isDeadlinePassed || false}
+                assignmentContent={getAssignmentContent()}
+                isTeacher={isTeacher}
+                isCompleted={selectedAssignment.status === 'completed'}
+                onMarkCompleted={handleMarkAsCompleted}
+                completionDialogOpen={completionDialogOpen}
+                setCompletionDialogOpen={setCompletionDialogOpen}
+                markingCompleted={markingCompleted}
+                studentName={studentName}
+                selectedAssignmentName={selectedAssignment.assignmentName}
+                unitMaterial={unitMaterial}
+                actionButton={
+                  selectedAssignment.status !== 'completed' &&
+                  ((isStudent && canStudentSubmitCurrent) || isTeacher) && (
+                    <Button
+                      onClick={() => {
+                        setEditingItem(null);
+                        setDialogOpen(true);
+                      }}
+                      size={'sm'}
+                      className="bg-watney text-white hover:bg-watney/90"
+                    >
+                      <Plus className="mr-2 h-4 w-4" />
+                      {isStudent ? 'Submit Assignment' : 'Add Feedback'}
+                    </Button>
+                  )
+                }
+              />
+
+              {/* Forum Comments Section */}
+              <AssignmentTimeline
+                timeline={getTimeline(selectedAssignment)}
+                isTeacher={isTeacher}
+                isStudent={isStudent}
+                selectedAssignment={selectedAssignment}
+                onEditItem={handleEditItem}
+                onDeleteItem={handleDeleteItem}
+                hasSelectedAssignment={!!selectedAssignment}
+                loadingItems={loadingItems}
+              />
+
+              <SubmissionDialog
+                isOpen={dialogOpen}
+                onOpenChange={(open) => {
+                  console.log('Dialog onOpenChange called with:', open);
+                  setDialogOpen(open);
+                  if (!open) {
+                    setEditingItem(null);
+                    if (selectedAssignment) {
+                      setFormState((prev) => ({
+                        ...prev,
+                        [selectedAssignment._id]: {
+                          comment: '',
+                          files: [],
+                          requireResubmit: false,
+                          resubmissionDeadline: undefined,
+                          isAdminSubmission: false
+                        }
+                      }));
+                    }
+                  }
+                }}
+                isStudent={isStudent}
+                isTeacher={isTeacher}
+                studentName={studentName}
+                formState={currentForm || { comment: '', files: [] }}
+                onFormChange={(updates) =>
                   setFormState((prev) => ({
                     ...prev,
                     [selectedAssignment._id]: {
-                      comment: '',
-                      files: [],
-                      requireResubmit: false,
-                      resubmissionDeadline: undefined,
-                      isAdminSubmission: false
+                      ...prev[selectedAssignment._id],
+                      ...updates
                     }
-                  }));
+                  }))
                 }
-              }
-            }}
-            isStudent={isStudent}
-            isTeacher={isTeacher}
-            studentName={studentName}
-            formState={currentForm || { comment: '', files: [] }}
-            onFormChange={(updates) =>
-              setFormState((prev) => ({
-                ...prev,
-                [selectedAssignment._id]: {
-                  ...prev[selectedAssignment._id],
-                  ...updates
+                onFileSelect={handleFileSelect}
+                onRemoveFile={removeFile}
+                onSubmit={handleSubmit}
+                uploadingFiles={uploadingFiles}
+                submitting={submitting}
+                isFormDisabled={
+                  isStudent && !canStudentSubmitCurrent && !editingItem
                 }
-              }))
-            }
-            onFileSelect={handleFileSelect}
-            onRemoveFile={removeFile}
-            onSubmit={handleSubmit}
-            uploadingFiles={uploadingFiles}
-            submitting={submitting}
-            isFormDisabled={
-              isStudent && !canStudentSubmitCurrent && !editingItem
-            }
-            editingItem={editingItem}
-            assignment={selectedAssignment}
-            triggerButton={null}
-          />
-        </>
-      ) : (
-        <AssignmentTimeline
-          timeline={getTimeline(selectedAssignment)}
-          isTeacher={isTeacher}
-          isStudent={isStudent}
-          selectedAssignment={selectedAssignment}
-          onEditItem={handleEditItem}
-          onDeleteItem={handleDeleteItem}
-          hasSelectedAssignment={!!selectedAssignment}
-          loadingItems={loadingItems}
-        />
-      )}
+                editingItem={editingItem}
+                assignment={selectedAssignment}
+                triggerButton={null}
+              />
+            </>
+          ) : (
+            <AssignmentTimeline
+              timeline={getTimeline(selectedAssignment)}
+              isTeacher={isTeacher}
+              isStudent={isStudent}
+              selectedAssignment={selectedAssignment}
+              onEditItem={handleEditItem}
+              onDeleteItem={handleDeleteItem}
+              hasSelectedAssignment={!!selectedAssignment}
+              loadingItems={loadingItems}
+            />
+          )}
+        </div>
+      </div>
     </div>
-  </div>
-</div>
   );
 };
 
