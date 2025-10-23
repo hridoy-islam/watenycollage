@@ -818,10 +818,10 @@ export default function CareerApplicationForm() {
                 <div className="flex gap-1">
                   <strong>Email:</strong>
                   <a
-                    href="mailto:info@everycare.co.uk"
+                    href="mailto:admin@everycareromford.co.uk"
                     className="underline hover:text-orange-600 transition-colors"
                   >
-                    info@everycare.co.uk
+                    admin@everycareromford.co.uk
                   </a>
                 </div>
               </li>
@@ -829,14 +829,14 @@ export default function CareerApplicationForm() {
                 <span className="text-xl">☎</span>
                 <div className="flex gap-1">
                   <strong>Phone:</strong>
-                  <span>+44 2920 455300</span>
+                  <span>+44 1708 693057</span>
                 </div>
               </li>
               <li className="flex items-center gap-3 rounded-lg py-2 px-4">
                 <span className="text-xl">📍</span>
                 <div className="flex flex-col">
                   <strong>Address:</strong>
-                  <span>28-30 Carlisle Street, Splott, Cardiff, CF24 2DS, United Kingdom</span>
+                  <span>37 High St, Romford RM1 1JL, United Kingdom</span>
                 </div>
               </li>
             </ul>

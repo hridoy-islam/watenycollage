@@ -885,11 +885,11 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
             to the following address
           </Text>
           <Text style={{ fontWeight: 'bold', marginTop: 5 }}>
-            Watney College
+            Every Care
           </Text>
-          <Text>80-82 Nelson Street, London, E1 2DY</Text>
-          <Text>Email: admission@watneycollege.co.uk</Text>
-          <Text>Phone: +44 (0)208 004 6463</Text>
+          <Text>37 High St, Romford RM1 1JL, United Kingdom</Text>
+          <Text>Email: admin@everycareromford.co.uk</Text>
+          <Text>Phone: +44 1708 693057</Text>
         </View>
 
         <Text style={styles.footer}>
