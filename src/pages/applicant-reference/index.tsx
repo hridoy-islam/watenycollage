@@ -1,26 +1,21 @@
 import { useState, useEffect } from 'react';
 import axiosInstance from '@/lib/axios';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from '@/components/ui/table';
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Briefcase, Eye, MoveLeft } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Briefcase, User, MoveLeft } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
-} from '@/components/ui/tooltip';
-import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import moment from 'moment';
 
-// Define TypeScript interfaces
+// Interfaces remain unchanged
 interface Reference {
   _id: string;
   referenceType: string;
@@ -28,6 +23,48 @@ interface Reference {
   applicantName: string;
   relationship: string;
   refereeName?: string;
+  refereePosition?: string;
+  howLongKnown?: string;
+  employmentFrom?: string;
+  employmentTill?: string;
+  reasonLeaving?: string;
+  suitabilityOpinion?: string;
+  refereeDate?: string;
+
+  // Personal reference fields
+  seriousIllness?: boolean | string;
+  drugsDependency?: boolean | string;
+  reliable?: boolean | string;
+  punctual?: boolean | string;
+  trustworthy?: boolean | string;
+  approachable?: boolean | string;
+  tactful?: boolean | string;
+  discreet?: boolean | string;
+  selfMotivated?: boolean | string;
+  ableToWorkAlone?: boolean | string;
+  competency?: string;
+  commonSense?: string;
+  relatesWell?: string;
+  cautionsConvictions?: boolean | string;
+  additionalComments?: string;
+
+  // Professional reference fields
+  qualityOrganization?: string;
+  courteousPolite?: string;
+  willingnessFollowPolicies?: string;
+  integrityTrust?: string;
+  attitudeEqualOpportunities?: string;
+  emotionalControl?: string;
+  proactiveApproach?: string;
+  respectTeam?: string;
+  empathyClients?: string;
+  attitudesCriticism?: string;
+  groomingAppearance?: string;
+  attendancePunctuality?: string;
+  unsuitableReason?: string;
+  wouldReemploy?: boolean | string;
+  noReemployReason?: string;
+
   [key: string]: any;
 }
 
@@ -38,12 +75,35 @@ interface UserData {
   ref3Submit?: boolean;
   personalReferee?: {
     name?: string;
+    position?: string;
     relationship?: string;
+    organisation?: string;
+    address?: string;
+    tel?: string;
+    fax?: string;
+    email?: string;
+    [key: string]: any;
+  };
+  professionalReferee1?: {
+    name?: string;
+    position?: string;
+    relationship?: string;
+    organisation?: string;
+    address?: string;
+    tel?: string;
+    fax?: string;
+    email?: string;
     [key: string]: any;
   };
   professionalReferee2?: {
     name?: string;
+    position?: string;
     relationship?: string;
+    organisation?: string;
+    address?: string;
+    tel?: string;
+    fax?: string;
+    email?: string;
     [key: string]: any;
   };
   firstName?: string;
@@ -56,9 +116,10 @@ interface ReferenceListItem {
   type: string;
   referenceType: string;
   status: string;
-  data:
-    | Reference
+  data: Reference | null;
+  refereeData:
     | UserData['personalReferee']
+    | UserData['professionalReferee1']
     | UserData['professionalReferee2']
     | null;
   isSubmitted: boolean;
@@ -70,198 +131,502 @@ export default function ApplicantReferencePage() {
   const [references, setReferences] = useState<Reference[]>([]);
   const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState<UserData>({});
-  const { id, userId } = useParams();
+  const { userId } = useParams();
   const navigate = useNavigate();
 
   const fetchAllReferences = async () => {
     setLoading(true);
     try {
-      // Parallel API calls using Promise.all
       const [userRes, referenceRes] = await Promise.all([
         axiosInstance.get(
-          `/users/${userId}?fields=ref1Submit,ref2Submit,ref3Submit,personalReferee,professionalReferee2,firstName,title,initial,lastName,name`
+          `/users/${userId}?fields=ref1Submit,ref2Submit,ref3Submit,personalReferee,professionalReferee1,professionalReferee2,firstName,title,initial,lastName,name`
         ),
         axiosInstance.get(`/reference?applicantId=${userId}`)
       ]);
-
-      // Handle user data and references
       setUserData(userRes.data.data);
       setReferences(referenceRes.data.data?.result || []);
     } catch (error) {
-      console.error('Error fetching applications or job details:', error);
+      console.error('Error fetching data:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const getReferenceList = (): ReferenceListItem[] => {
-    const referenceList: ReferenceListItem[] = [];
+  const getReference = (type: string) =>
+    references.find((ref) => ref.referenceType === type);
 
-    // Reference 1 (Professional)
-    const ref1 = references.find((ref) => ref.referenceType === 'ref1');
-    referenceList.push({
-      type: 'Professional Reference 1',
-      referenceType: 'ref1',
-      status: userData.ref1Submit ? 'Submitted' : 'Pending',
-      data: ref1 || null,
-      isSubmitted: !!userData.ref1Submit,
-      refereeName:
-        ref1?.refereeName || userData.professionalReferee2?.name || 'N/A',
-      _id: ref1?._id
-    });
+  const ref1 = getReference('ref1');
+  const ref2 = getReference('ref2');
+  const ref3 = getReference('ref3');
 
-    // Reference 2 (Professional)
-    const ref2 = references.find((ref) => ref.referenceType === 'ref2');
-
-    referenceList.push({
-      type: 'Professional Reference 2',
-      referenceType: 'ref2',
-      status: userData.ref2Submit ? 'Submitted' : 'Pending',
-      data: userData.professionalReferee2 || null,
-      isSubmitted: !!userData.ref2Submit,
-      refereeName: userData.professionalReferee2?.name || 'N/A',
-      _id: ref2?._id
-    });
-
-    // Reference 3 (Personal)
-    const ref3 = references.find((ref) => ref.referenceType === 'ref3');
-    referenceList.push({
-      type: 'Personal Reference',
-      referenceType: 'ref3',
-      status: userData.ref3Submit ? 'Submitted' : 'Pending',
-      data: ref3 || userData.personalReferee || null,
-      isSubmitted: !!userData.ref3Submit,
-      refereeName: ref3?.refereeName || userData.personalReferee?.name || 'N/A',
-      _id: ref3?._id
-    });
-
-    return referenceList;
+  const toYesNo = (value: any) => {
+    if (value === true || value === 'yes') return 'Yes';
+    if (value === false || value === 'no') return 'No';
+    return 'N/A';
   };
 
-  const handleViewReference = (reference: ReferenceListItem) => {
-    if (!reference.isSubmitted) {
-      return;
-    }
-
-    navigate(
-      `/dashboard/user/${userId}/reference/${reference._id}/${reference.referenceType}`
-    );
+  const getBadgeStyle = (value: any) => {
+    if (value === true || value === 'yes') return 'bg-green-100 text-green-800';
+    if (value === false || value === 'no') return 'bg-red-100 text-red-800';
+    return 'bg-gray-100 text-gray-800';
   };
 
-  const getRelationship = (reference: ReferenceListItem): string => {
-    if (!reference.data) return 'N/A';
+  const formatRating = (value: string | null | undefined) => {
+    if (!value) return 'N/A';
+    return value.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
+  };
 
-    // Type guard to check if it's a Reference object
-    const isReference = (data: any): data is Reference => {
-      return data && typeof data === 'object' && 'relationship' in data;
-    };
-
-    if (isReference(reference.data)) {
-      return reference.data.relationship || 'N/A';
+  const formatDate = (dateString: string) => {
+    if (!dateString) return 'N/A';
+    try {
+      return new Date(dateString).toLocaleDateString();
+    } catch {
+      return dateString;
     }
-
-    // For professionalReferee2 or personalReferee objects
-    return (reference.data as any)?.relationship || 'N/A';
   };
 
   useEffect(() => {
-    if (userId) {
-      fetchAllReferences();
-    }
+    if (userId) fetchAllReferences();
   }, [userId]);
 
-  const referenceList = getReferenceList();
+  if (loading) {
+    return (
+      <div className="flex justify-center py-8">
+        <BlinkingDots size="large" color="bg-watney" />
+      </div>
+    );
+  }
 
-  return (
-    <div className="space-y-6">
-      {/* Header with Back Button */}
-      <div className="flex items-center justify-between">
-        <div className="flex flex-row items-center gap-4">
-          <h2 className="text-2xl font-bold">
-            References for {userData.title||''} {userData.firstName||''} {userData.initial||''} {userData.lastName||''}
-          </h2>
+  // Helper to render a reference card
+  const renderReferenceCard = (
+    title: string,
+    icon: React.ReactNode,
+    status: string,
+    isSubmitted: boolean,
+    refereeName: string,
+    refereeData: any,
+    referenceData: Reference | null,
+    referenceType: 'ref1' | 'ref2' | 'ref3'
+  ) => (
+    <Card className="w-full overflow-hidden rounded-none">
+      <div
+        className={`flex items-center justify-between px-4 py-2 text-white ${
+          isSubmitted ? 'bg-green-500' : 'bg-yellow-500'
+        }`}
+      >
+        <div className="flex items-center gap-2">
+          {icon}
+          <span className="text-lg font-medium">{title}</span>
         </div>
-        <Button
+      </div>
+
+      <CardContent className="pb-4 pt-4">
+        {!isSubmitted ? (
+          <p className="py-6 text-center text-lg text-muted-foreground">
+            No Feedback Yet
+          </p>
+        ) : (
+          <ReferenceContent
+            refereeData={refereeData}
+            referenceData={referenceData}
+            referenceType={referenceType}
+            toYesNo={toYesNo}
+            getBadgeStyle={getBadgeStyle}
+            formatRating={formatRating}
+            formatDate={formatDate}
+            userData={userData}
+          />
+        )}
+      </CardContent>
+    </Card>
+  );
+return (
+  <div className="space-y-6">
+    {/* Header */}
+    <div className="flex items-center justify-between">
+      <div>
+        <h1 className="text-xl font-bold">
+          References for {userData?.title} {userData?.firstName}{' '}
+          {userData?.initial} {userData?.lastName}
+        </h1>
+      </div>
+      <Button
           className="bg-watney text-white hover:bg-watney/90"
           onClick={() => navigate(-1)}
         >
           <MoveLeft className="mr-2 h-4 w-4" />
           Back
         </Button>
-      </div>
+    </div>
 
-      {/* References Table */}
-      <div className="rounded-md bg-white p-6 shadow-2xl">
-        {loading ? (
-          <div className="flex justify-center py-6">
-            <BlinkingDots size="large" color="bg-watney" />
+    {/* Reference Cards or Fallback */}
+    <div className="grid grid-cols-1 gap-6">
+      {userData.ref1Submit && renderReferenceCard(
+        'Professional Reference 1',
+        <Briefcase className="h-3.5 w-3.5" />,
+        'Submitted',
+        true,
+        ref1?.refereeName || userData.professionalReferee1?.name || 'N/A',
+        userData.professionalReferee1,
+        ref1,
+        'ref1'
+      )}
+
+      {userData.ref3Submit && renderReferenceCard(
+        'Personal Reference',
+        <User className="h-3.5 w-3.5" />,
+        'Submitted',
+        true,
+        ref3?.refereeName || userData.personalReferee?.name || 'N/A',
+        userData.personalReferee,
+        ref3,
+        'ref3'
+      )}
+
+      {userData.ref2Submit && renderReferenceCard(
+        'Professional Reference 2',
+        <Briefcase className="h-3.5 w-3.5" />,
+        'Submitted',
+        true,
+        ref2?.refereeName || userData.professionalReferee2?.name || 'N/A',
+        userData.professionalReferee2,
+        ref2,
+        'ref2'
+      )}
+
+      {/* Show fallback if no references are submitted */}
+      {!userData.ref1Submit && !userData.ref2Submit && !userData.ref3Submit && (
+        <Card className="w-full bg-transparent shadow-none">
+          <CardContent className="py-8 text-center">
+            <p className="text-lg text-muted-foreground">
+              No references submitted yet.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  </div>
+);
+}
+
+// Reusable Reference Content Component
+const ReferenceContent = ({
+  refereeData,
+  referenceData,
+  referenceType,
+  toYesNo,
+  getBadgeStyle,
+  formatRating,
+  formatDate
+}: any) => (
+  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+    {/* Referee Info (Provided by Applicant) */}
+    <Card className="border border-gray-300">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-lg">Referee Information</CardTitle>
+        <CardDescription>Provided by applicant</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-1 gap-y-3 md:grid-cols-2">
+          <InfoRow label="Name" value={refereeData?.name} />
+          <InfoRow label="Position" value={refereeData?.position} />
+          <InfoRow label="Relationship" value={refereeData?.relationship} />
+          <InfoRow label="Organization" value={refereeData?.organisation} />
+          <InfoRow label="Telephone" value={refereeData?.tel} />
+          <InfoRow label="Email" value={refereeData?.email} />
+          {refereeData?.address && (
+            <div>
+              <span className="text-lg ">Address</span>
+              <p className="mt-1 font-semibold">{refereeData.address}</p>
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+
+    {/* Referee Response */}
+    <Card className="border border-gray-300">
+      <CardHeader className="pb-2">
+        <CardTitle className="flex w-full items-center justify-between text-lg">
+          <span>Response from {referenceData?.refereeName || 'Referee'}</span>
+          <span className="">
+            Submitted At:{' '}
+            {referenceData?.createdAt
+              ? moment(referenceData.createdAt).format('DD MMM YYYY')
+              : 'N/A'}
+          </span>
+        </CardTitle>
+        {/* <CardDescription>Submitted reference</CardDescription> */}
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 gap-y-3 md:grid-cols-2">
+            <InfoRow label="Referee Name" value={referenceData?.refereeName} />
+            <InfoRow label="Position" value={referenceData?.refereePosition} />
+            <InfoRow label="Relationship" value={referenceData?.relationship} />
+            <InfoRow
+              label="How Long Known"
+              value={referenceData?.howLongKnown}
+            />
+            {(referenceType === 'ref1' || referenceType === 'ref2') && (
+              <>
+                <InfoRow
+                  label="Employment From"
+                  value={formatDate(referenceData?.employmentFrom)}
+                />
+                <InfoRow
+                  label="Employment Till"
+                  value={formatDate(referenceData?.employmentTill)}
+                />
+              </>
+            )}
           </div>
-        ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Reference Type</TableHead>
-                <TableHead>Referee Name</TableHead>
-                <TableHead>Relationship</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Action</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {referenceList.map((reference, index) => (
-                <TableRow key={index}>
-                  <TableCell className="font-medium">
-                    <div className="flex items-center gap-2">
-                      <Briefcase className="h-4 w-4 text-gray-500" />
-                      {reference.type}
-                    </div>
-                  </TableCell>
-                  <TableCell>{reference.refereeName}</TableCell>
-                  <TableCell>{getRelationship(reference)}</TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={reference.isSubmitted ? 'default' : 'secondary'}
-                      className={
-                        reference.isSubmitted
-                          ? 'bg-green-100 text-green-800 hover:bg-green-100'
-                          : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100'
-                      }
-                    >
-                      {reference.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              className="border-none bg-watney text-white hover:bg-watney/90"
-                              size="icon"
-                              onClick={() => handleViewReference(reference)}
-                              disabled={!reference.isSubmitted}
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>
-                              {reference.isSubmitted
-                                ? `View ${reference.type} Details`
-                                : `${reference.type} Not Submitted`}
-                            </p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+
+          {referenceData?.reasonLeaving && (
+            <div>
+              <span className="text-sm font-medium text-muted-foreground">
+                Reason for Leaving
+              </span>
+              <p className="mt-1 rounded bg-muted/10 p-2">
+                {referenceData.reasonLeaving}
+              </p>
+            </div>
+          )}
+
+          {referenceType === 'ref3' && (
+            <PersonalSection
+              data={referenceData}
+              toYesNo={toYesNo}
+              getBadgeStyle={getBadgeStyle}
+              formatRating={formatRating}
+            />
+          )}
+
+          {(referenceType === 'ref1' || referenceType === 'ref2') && (
+            <ProfessionalSection
+              data={referenceData}
+              toYesNo={toYesNo}
+              getBadgeStyle={getBadgeStyle}
+              formatRating={formatRating}
+            />
+          )}
+
+          {referenceData?.suitabilityOpinion && (
+            <div>
+              <span className="text-lg font-medium ">Suitability Opinion</span>
+              <p className="mt-1 rounded bg-muted/10 p-2">
+                {referenceData.suitabilityOpinion}
+              </p>
+            </div>
+          )}
+
+          {referenceData?.refereeDate && (
+            <InfoRow
+              label="Reference Date"
+              value={formatDate(referenceData.refereeDate)}
+            />
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  </div>
+);
+
+const InfoRow = ({
+  label,
+  value
+}: {
+  label: string;
+  value?: string | null;
+}) => (
+  <div>
+    <span className="text-lg ">{label}</span>
+    <p className="mt-0.5 font-semibold">{value || 'N/A'}</p>
+  </div>
+);
+
+const PersonalSection = ({
+  data,
+  toYesNo,
+  getBadgeStyle,
+  formatRating
+}: any) => (
+  <div className="space-y-2">
+    <div className="grid grid-cols-2 gap-2">
+      <TraitItem
+        label="Serious Illness"
+        value={data.seriousIllness}
+        toYesNo={toYesNo}
+        getBadgeStyle={getBadgeStyle}
+      />
+      <TraitItem
+        label="Drug Dependency"
+        value={data.drugsDependency}
+        toYesNo={toYesNo}
+        getBadgeStyle={getBadgeStyle}
+      />
+    </div>
+
+    <div>
+      <span className="text-lg ">Personal Traits</span>
+      <div className="mt-1 grid grid-cols-2 gap-2">
+        {[
+          'Reliable',
+          'Punctual',
+          'Trustworthy',
+          'Approachable',
+          'Tactful',
+          'Discreet',
+          'Self Motivated',
+          'Able to Work Alone'
+        ].map((label) => (
+          <TraitItem
+            key={label}
+            label={label}
+            value={
+              data[
+                label.replace(/\s+/g, '').charAt(0).toLowerCase() +
+                  label.replace(/\s+/g, '').slice(1)
+              ]
+            }
+            toYesNo={toYesNo}
+            getBadgeStyle={getBadgeStyle}
+          />
+        ))}
+      </div>
+    </div>
+
+    <div>
+      <span className="text-lg ">Ratings</span>
+      <div className="mt-1 grid grid-cols-2 gap-2">
+        {[
+          { label: 'Competency', value: data.competency },
+          { label: 'Common Sense', value: data.commonSense },
+          { label: 'Relates Well', value: data.relatesWell }
+        ]
+          .filter((i) => i.value)
+          .map((r) => (
+            <div key={r.label} className="flex items-center justify-between">
+              <span className="text-lg ">{r.label}</span>
+              <Badge
+                variant="outline"
+                className="border-blue-200 bg-blue-50 text-lg text-blue-700"
+              >
+                {formatRating(r.value)}
+              </Badge>
+            </div>
+          ))}
+      </div>
+    </div>
+
+    <div className="flex items-center justify-between py-2">
+      <span className="text-lg ">
+        This position is exempted from the Rehabilitation of Offenders Act 1974,
+        and any convictions must be declared. Are you aware of any cautions,
+        convictions or pending prosecutions held by the applicant?
+      </span>
+      <Badge className={getBadgeStyle(data.cautionsConvictions)}>
+        {toYesNo(data.cautionsConvictions)}
+      </Badge>
+    </div>
+
+    {data.additionalComments && (
+      <div>
+        <span className="text-lg font-medium ">Additional Comments</span>
+        <p className="mt-0.5 rounded bg-muted/10 p-2 text-lg">
+          {data.additionalComments}
+        </p>
+      </div>
+    )}
+  </div>
+);
+
+const ProfessionalSection = ({
+  data,
+  toYesNo,
+  getBadgeStyle,
+  formatRating
+}: any) => (
+  <div className="space-y-2">
+    <div className="mt-4">
+      <span className="text-lg  font-bold">Professional Characteristics</span>
+      <div className="mt-1 grid grid-cols-2 gap-2">
+        {[
+          { label: 'Quality of Work', value: data.qualityOrganization },
+          { label: 'Courteous & Polite', value: data.courteousPolite },
+          { label: 'Follows Policies', value: data.willingnessFollowPolicies },
+          { label: 'Integrity & Trust', value: data.integrityTrust },
+          {
+            label: 'Equal Opportunities',
+            value: data.attitudeEqualOpportunities
+          },
+          { label: 'Emotional Control', value: data.emotionalControl },
+          { label: 'Proactive Approach', value: data.proactiveApproach },
+          { label: 'Respect Team', value: data.respectTeam },
+          { label: 'Empathy Clients', value: data.empathyClients },
+          { label: 'Attitude Criticism', value: data.attitudesCriticism },
+          { label: 'Grooming Appearance', value: data.groomingAppearance },
+          { label: 'Attendance Punctuality', value: data.attendancePunctuality }
+        ]
+          .filter((i) => i.value)
+          .map((char) => (
+            <div key={char.label} className="flex items-center justify-between">
+              <span className="text-lg ">{char.label}</span>
+              <Badge
+                variant="outline"
+                className="border-blue-200 bg-blue-50 text-sm capitalize text-blue-700"
+              >
+                {formatRating(char.value)}
+              </Badge>
+            </div>
+          ))}
+      </div>
+    </div>
+
+    {data.unsuitableReason && (
+      <div>
+        <span className="text-lg ">Unsuitable Reasons</span>
+        <p className="mt-0.5 rounded bg-muted/50 p-2 text-lg">
+          {data.unsuitableReason}
+        </p>
+      </div>
+    )}
+
+    <div>
+      <span className="text-lg font-semibold ">Re-employment</span>
+      <div className="mt-1 grid grid-cols-2 gap-2">
+        <div className="flex items-center justify-between">
+          <span className="text-lg ">Would Re-employ</span>
+          <Badge className={getBadgeStyle(data.wouldReemploy)}>
+            {toYesNo(data.wouldReemploy)}
+          </Badge>
+        </div>
+        {data.noReemployReason && (
+          <div className="col-span-2">
+            <span className="text-lg ">Reason</span>
+            <p className="mt-0.5 rounded bg-muted/50 p-2 text-lg">
+              {data.noReemployReason}
+            </p>
+          </div>
         )}
       </div>
     </div>
-  );
-}
+  </div>
+);
+
+const TraitItem = ({
+  label,
+  value,
+  toYesNo,
+  getBadgeStyle
+}: {
+  label: string;
+  value: any;
+  toYesNo: any;
+  getBadgeStyle: any;
+}) => (
+  <div className="flex items-center justify-between">
+    <span className="text-lg ">{label}</span>
+    <Badge className={getBadgeStyle(value)}>{toYesNo(value)}</Badge>
+  </div>
+);
