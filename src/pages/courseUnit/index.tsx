@@ -68,6 +68,7 @@ function CourseUnitPage() {
 
   const [submitting, setSubmitting] = useState(false);
   const [courseName, setCourseName] = useState('');
+  const [courseDescription, setCourseDescription] = useState('');
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -88,6 +89,7 @@ function CourseUnitPage() {
       // Fetch course name
       const courseRes = await axiosInstance.get(`/courses/${courseId}`);
       setCourseName(courseRes.data?.data?.name || 'Course');
+      setCourseDescription(courseRes.data?.data?.description || '');
 
       // Fetch course units with pagination + search
       const unitsRes = await axiosInstance.get('/course-unit', {
@@ -181,32 +183,31 @@ function CourseUnitPage() {
           credit
         });
 
-          setUnits((prevUnits) =>
-        prevUnits.map((unit) =>
-          unit._id === currentUnitId
-            ? { ...unit, unitReference, title, level, gls, credit }
-            : unit
-        )
-      );
-
+        setUnits((prevUnits) =>
+          prevUnits.map((unit) =>
+            unit._id === currentUnitId
+              ? { ...unit, unitReference, title, level, gls, credit }
+              : unit
+          )
+        );
 
         toast({ title: 'Unit updated successfully!' });
       } else {
         // POST create
         const res = await axiosInstance.post('/course-unit', {
-        courseId,
-        unitReference,
-        title,
-        level,
-        gls,
-        credit
-      });
+          courseId,
+          unitReference,
+          title,
+          level,
+          gls,
+          credit
+        });
 
-      // Add new unit to local state
-      const newUnit: CourseUnit = res.data?.data;
-       if (newUnit) {
-        setUnits((prevUnits) => [...prevUnits, newUnit]);
-      }
+        // Add new unit to local state
+        const newUnit: CourseUnit = res.data?.data;
+        if (newUnit) {
+          setUnits((prevUnits) => [...prevUnits, newUnit]);
+        }
         toast({ title: 'Unit added successfully!' });
       }
 
@@ -381,6 +382,11 @@ function CourseUnitPage() {
           </DialogContent>
         </Dialog>
       </div>
+
+      <div
+        className="prose  max-w-full py-2"
+        dangerouslySetInnerHTML={{ __html: courseDescription }}
+      />
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

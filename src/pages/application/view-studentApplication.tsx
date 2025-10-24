@@ -472,7 +472,7 @@ export default function ViewStudentApplicationPage() {
         <div className="flex flex-row items-center gap-4">
           <Button
             className="bg-watney text-white hover:bg-watney/90 "
-            onClick={() => navigate('/dashboard/student-applications')}
+            onClick={() => navigate(-1)}
           >
             <MoveLeft /> Back
           </Button>

@@ -10,7 +10,7 @@ import {
 // Define styles for the PDF
 const styles = StyleSheet.create({
   page: {
-    padding: 30,
+    padding: 20,
     fontFamily: 'Helvetica',
     fontSize: 10
   },
@@ -42,26 +42,27 @@ const styles = StyleSheet.create({
     display: 'flex',
     width: '100%',
     borderStyle: 'solid',
-    borderWidth: 1,
+    borderWidth: 0.5,
     borderRightWidth: 0,
-    borderBottomWidth: 0
+    borderBottomWidth: 0,
+    borderLeftWidth: 0.5
   },
   tableRow: {
     flexDirection: 'row'
   },
   tableCol: {
     borderStyle: 'solid',
-    borderWidth: 1,
+    borderWidth: 0.5,
     borderLeftWidth: 0,
     borderTopWidth: 0,
-    padding: 5
+    padding: 8
   },
   tableColHeader: {
     borderStyle: 'solid',
-    borderWidth: 1,
+    borderWidth: 0.5,
     borderLeftWidth: 0,
     borderTopWidth: 0,
-    padding: 5,
+    padding: 8,
     fontWeight: 'bold'
   },
   footer: {
@@ -131,7 +132,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
 }) => {
   // Ensure formData is not undefined
   const data = formData || {};
-  const totalPages = data.studentType === 'eu' ? 2 : 3;
+  const totalPages = data.studentType === 'eu' ? 3 : 3;
   const PDFooter = ({
     pageNumber,
     totalPages
@@ -237,7 +238,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
           {/* Row A9 */}
           <View style={styles.tableRow}>
             <View style={[styles.tableCol, { width: '30%' }]}>
-              <Text>Home address:</Text>
+              <Text>Home Address:</Text>
             </View>
             <View style={[styles.tableCol, { width: '70%' }]}>
               <Text>
@@ -268,7 +269,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
                   {capitalizeFirstLetter(data.postalCountry || '')}
                 </Text>
               ) : (
-                <Text>Same as home address</Text>
+                <Text>Same As Home Address</Text>
               )}
             </View>
           </View>
@@ -297,7 +298,9 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
               <Text>Country Of Residence:</Text>
             </View>
             <View style={[styles.tableCol, { width: '70%' }]}>
-              <Text>{capitalizeFirstLetter(data.countryOfResidence || '')}</Text>
+              <Text>
+                {capitalizeFirstLetter(data.countryOfResidence || '')}
+              </Text>
             </View>
           </View>
           <View style={styles.tableRow}>
@@ -357,7 +360,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
               </View>
               <View style={styles.tableRow}>
                 <View style={[styles.tableCol, { width: '30%' }]}>
-                  <Text>Have you applied for Student Finance before?</Text>
+                  <Text>Have You Applied For Student Finance Before?</Text>
                 </View>
                 <View style={[styles.tableCol, { width: '70%' }]}>
                   <Text>
@@ -371,7 +374,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
             <>
               <View style={styles.tableRow}>
                 <View style={[styles.tableCol, { width: '30%' }]}>
-                  <Text>Do you require a visa to come to the UK?</Text>
+                  <Text>Do You Require A Visa To Come To The UK?</Text>
                 </View>
                 <View style={[styles.tableCol, { width: '70%' }]}>
                   <Text>{capitalizeFirstLetter(data.visaRequired || '')}</Text>
@@ -379,7 +382,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
               </View>
               <View style={styles.tableRow}>
                 <View style={[styles.tableCol, { width: '30%' }]}>
-                  <Text>From where are you making your application?</Text>
+                  <Text>From Where Are You Making Your Application?</Text>
                 </View>
                 <View style={[styles.tableCol, { width: '70%' }]}>
                   <Text>
@@ -503,6 +506,22 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
                 </View>
               )}
             </View>
+          </>
+        )}
+
+        <Text style={styles.footer}>
+          Application Form Page{' '}
+          <PDFooter pageNumber={1} totalPages={totalPages} /> -{' '}
+          {getTodaysDate()}
+        </Text>
+      </Page>
+
+      {/* Page 2 */}
+      <Page size="A4" style={styles.page}>
+        {/* <Text style={styles.header}>WATNEY COLLEGE</Text> */}
+
+        {data.studentType === 'international' && (
+          <>
             {/* Section C */}
             <Text style={styles.sectionHeader}>
               SECTION C: PREVIOUS STUDY IN THE UK (Applicable to Overseas
@@ -513,8 +532,8 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
               <View style={styles.tableRow}>
                 <View style={[styles.tableCol, { width: '80%' }]}>
                   <Text>
-                    C1. Have you ever studied or made a visa application to
-                    study in the UK?
+                    C1. Have You Ever Studied Or Made A Visa Application To
+                    Study In The UK?
                   </Text>
                 </View>
                 <View style={[styles.tableCol, { width: '20%' }]}>
@@ -528,9 +547,9 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
               <View style={styles.tableRow}>
                 <View style={[styles.tableCol, { width: '80%' }]}>
                   <Text>
-                    C2. Have you previously received a visa refusal to study in
-                    the UK? If yes, please attach a copy and indicate the reason
-                    for this refusal.
+                    C2. Have You Previously Received A Visa Refusal To Study In
+                    The UK? If Yes, Please Attach A Copy And Indicate The Reason
+                    For This Refusal.
                   </Text>
                 </View>
                 <View style={[styles.tableCol, { width: '20%' }]}>
@@ -540,7 +559,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
               {data?.visaRefusal === 'yes' && (
                 <View style={styles.tableRow}>
                   <View style={[styles.tableCol, { width: '80%' }]}>
-                    <Text>C2.1: Visa refusal Details </Text>
+                    <Text>C2.1: Visa Refusal Details </Text>
                   </View>
                   <View style={[styles.tableCol, { width: '20%' }]}>
                     <Text>
@@ -552,6 +571,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
             </View>
           </>
         )}
+
         {data.studentType === 'eu' && (
           <>
             {/* Section D */}
@@ -561,13 +581,13 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
             <View style={styles.table}>
               <View style={styles.tableRow}>
                 <View style={[styles.tableColHeader, { width: '25%' }]}>
-                  <Text>Nature of work/training</Text>
+                  <Text>Nature Of Work/Training</Text>
                 </View>
                 <View style={[styles.tableColHeader, { width: '25%' }]}>
-                  <Text>Name of organisation</Text>
+                  <Text>Name Of Organisation</Text>
                 </View>
                 <View style={[styles.tableColHeader, { width: '15%' }]}>
-                  <Text>Full-time or Part-time</Text>
+                  <Text>Full-time OR Part-time</Text>
                 </View>
                 <View style={[styles.tableColHeader, { width: '15%' }]}>
                   <Text>From (dd/mm/yyyy)</Text>
@@ -673,17 +693,6 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
             </View>
           </>
         )}
-
-        <Text style={styles.footer}>
-          Application Form Page{' '}
-          <PDFooter pageNumber={1} totalPages={totalPages} /> -{' '}
-          {getTodaysDate()}
-        </Text>
-      </Page>
-
-      {/* Page 2 */}
-      <Page size="A4" style={styles.page}>
-        {/* <Text style={styles.header}>WATNEY COLLEGE</Text> */}
         {data.studentType === 'international' && (
           <>
             {/* Section D */}
@@ -693,13 +702,13 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
             <View style={styles.table}>
               <View style={styles.tableRow}>
                 <View style={[styles.tableColHeader, { width: '25%' }]}>
-                  <Text>Nature of work/training</Text>
+                  <Text>Nature Of Work/Training</Text>
                 </View>
                 <View style={[styles.tableColHeader, { width: '25%' }]}>
-                  <Text>Name of organisation</Text>
+                  <Text>Name Of Organisation</Text>
                 </View>
                 <View style={[styles.tableColHeader, { width: '15%' }]}>
-                  <Text>Full-time or Part-time</Text>
+                  <Text>Full-time OR Part-time</Text>
                 </View>
                 <View style={[styles.tableColHeader, { width: '15%' }]}>
                   <Text>From (dd/mm/yyyy)</Text>
@@ -857,7 +866,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
         <Text style={styles.sectionHeader}>SECTION F: DISABILITIES</Text>
         <View style={{ marginBottom: 10 }}>
           <Text>
-            Do you have any known disabilities?{' '}
+            Do You Have Any Known Disabilities?{' '}
             {capitalizeFirstLetter(data.disability || 'No')}
           </Text>
         </View>
@@ -871,7 +880,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
         </Text>
         <View style={{ marginBottom: 10 }}>
           <Text>
-            Do you have any criminal convictions?{' '}
+            Do You Have Any Criminal Convictions?{' '}
             {data.criminalConviction ? 'Yes' : 'No'}
           </Text>
         </View>
@@ -931,7 +940,39 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
             </>
           )}
         </View>
-        {/* Section I */}
+       
+
+        <Text style={styles.footer}>
+          Application Form Page{' '}
+          <PDFooter pageNumber={2} totalPages={totalPages} /> -{' '}
+          {getTodaysDate()}
+        </Text>
+      </Page>
+
+      {/* Page 3 */}
+        <Page size="A4" style={styles.page}>
+          <Text style={styles.sectionHeader}>SECTION J: DATA PROTECTION</Text>
+          <View style={{ marginBottom: 10 }}>
+            <Text>
+              I consent to Watney College processing my personal data for
+              purposes related to my application, studies, health and safety,
+              and compliance with College policies. This includes academic
+              performance, learning support, disciplinary matters, CCTV usage,
+              ID card photos, and data required by the Higher Education
+              Statistics Agency (HESA) or other legitimate purposes. I consent
+              to the disclosure of this data for academic references, further
+              education, employment, council tax, or immigration matters,
+              including verification with the UK Border Agency. I understand I
+              can request a copy of my data and that details on HESA are
+              available on the College’s intranet:{' '}
+              <Text style={{ fontWeight: 'bold' }}>
+                {data.acceptDataProcessing ? 'Yes' : 'No'}
+              </Text>
+            </Text>
+          </View>
+
+
+           {/* Section I */}
         <Text style={styles.sectionHeader}>SECTION I: DECLARATION</Text>
         <View style={{ marginBottom: 10 }}>
           <Text>
@@ -948,7 +989,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
             </Text>
           </Text>
         </View>
-        {data.studentType === 'eu' && (
+        {/* {data.studentType === 'eu' && (
           <>
             <Text style={styles.sectionHeader}>SECTION J: DATA PROTECTION</Text>
             <View style={{ marginBottom: 0 }}>
@@ -970,8 +1011,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
               </Text>
             </View>
 
-            {/* Signature */}
-            {/* Signature Table */}
+     
             <View style={[styles.table, { marginTop: 10, marginBottom: 20 }]}>
               <View style={styles.tableRow}>
                 <View style={[styles.tableColHeader, { width: '70%' }]}>
@@ -991,7 +1031,6 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
               </View>
             </View>
 
-            {/* Return address */}
             <View style={styles.addressBlock}>
               <Text>
                 Thank you for completing this form. Once completed, please
@@ -1005,37 +1044,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
               <Text>Phone: +44 (0)208 004 6463</Text>
             </View>
           </>
-        )}
-
-        <Text style={styles.footer}>
-          Application Form Page{' '}
-          <PDFooter pageNumber={1} totalPages={totalPages} /> -{' '}
-          {getTodaysDate()}
-        </Text>
-      </Page>
-
-      {/* Page 3 */}
-      {data.studentType === 'international' && (
-        <Page size="A4" style={styles.page}>
-          <Text style={styles.sectionHeader}>SECTION J: DATA PROTECTION</Text>
-          <View style={{ marginBottom: 10 }}>
-            <Text>
-              I consent to Watney College processing my personal data for
-              purposes related to my application, studies, health and safety,
-              and compliance with College policies. This includes academic
-              performance, learning support, disciplinary matters, CCTV usage,
-              ID card photos, and data required by the Higher Education
-              Statistics Agency (HESA) or other legitimate purposes. I consent
-              to the disclosure of this data for academic references, further
-              education, employment, council tax, or immigration matters,
-              including verification with the UK Border Agency. I understand I
-              can request a copy of my data and that details on HESA are
-              available on the College’s intranet:{' '}
-              <Text style={{ fontWeight: 'bold' }}>
-                {data.acceptDataProcessing ? 'Yes' : 'No'}
-              </Text>
-            </Text>
-          </View>
+        )} */}
 
           {/* Signature */}
           {/* Signature Table */}
@@ -1074,11 +1083,11 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
 
           <Text style={styles.footer}>
             Application Form Page{' '}
-            <PDFooter pageNumber={1} totalPages={totalPages} /> -{' '}
+            <PDFooter pageNumber={3} totalPages={totalPages} /> -{' '}
             {getTodaysDate()}
           </Text>
         </Page>
-      )}
+     
     </Document>
   );
 };

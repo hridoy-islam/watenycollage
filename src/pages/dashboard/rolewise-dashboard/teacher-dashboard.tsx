@@ -3,8 +3,7 @@ import {
   Card,
   CardContent,
   CardHeader,
-  CardTitle,
-  CardDescription
+  CardTitle
 } from '@/components/ui/card';
 import axiosInstance from '@/lib/axios';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
@@ -21,6 +20,7 @@ interface TeacherDashboardProps {
 export function TeacherDashboard({ user }: TeacherDashboardProps) {
   const [allCourses, setAllCourses] = useState<number>(0);
   const [pendingFeedbacks, setPendingFeedbacks] = useState<number>(0);
+  const [studentListCount, setStudentListCount] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -32,7 +32,7 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
       const coursesResponse = await axiosInstance.get(`/teacher-courses`, {
         params: { teacherId: user._id, limit: 'all' }
       });
-      const courses = coursesResponse?.data?.data.meta.total || 0;
+      const courses = coursesResponse?.data?.data?.meta?.total || 0;
       setAllCourses(courses);
 
       // Fetch pending assignment feedbacks
@@ -42,6 +42,13 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
       const pending = feedbackResponse?.data?.data?.result?.length || 0;
       setPendingFeedbacks(pending);
 
+      // Fetch all students assigned to teacher
+      const studentsResponse = await axiosInstance.get(
+        `/application-course/teacher/${user._id}?limit=all`
+      );
+      const students = studentsResponse?.data?.data?.meta.total || 0;
+      setStudentListCount(students);
+
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -50,7 +57,7 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
   };
 
   useEffect(() => {
-    fetchData();
+    if (user._id) fetchData();
   }, [user._id]);
 
   if (loading) {
@@ -66,8 +73,7 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
       {/* Total Courses Card */}
       <Card onClick={() => navigate(`teachers/${user._id}`)} className='cursor-pointer'>
         <CardHeader>
-          <CardTitle>Total Courses</CardTitle>
-          <CardDescription>Number of courses assigned</CardDescription>
+          <CardTitle>All Courses</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-bold">{allCourses}</div>
@@ -78,10 +84,19 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
       <Card onClick={() => navigate(`teacher-assignments-feedback`)} className='cursor-pointer'>
         <CardHeader>
           <CardTitle>Pending Feedbacks</CardTitle>
-          <CardDescription>Assignments waiting for your feedback</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-bold">{pendingFeedbacks}</div>
+        </CardContent>
+      </Card>
+
+      {/* Student List Card */}
+      <Card onClick={() => navigate(`teacher/student-applications`)} className='cursor-pointer'>
+        <CardHeader>
+          <CardTitle>Student List</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-3xl font-bold">{studentListCount}</div>
         </CardContent>
       </Card>
     </div>

@@ -49,6 +49,7 @@ import CourseDocumentPage from '@/pages/courseDocument';
 import TeachersPage from '@/pages/teacher';
 import TeacherDetailsPage from '@/pages/teacher/teacher-course';
 import { TeacherAssignmentFeedbackList } from '@/pages/pendingAssignmentFeedbackTeacher';
+import TeacherStudentApplicationListPage from '@/pages/teacher/studentList';
 
 const SignInPage = lazy(() => import('@/pages/auth/signin/index'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
@@ -123,15 +124,15 @@ export default function AppRouter() {
       },
       {
         path: 'student-application/:id',
-        element: withRole(<ViewStudentApplicationPage />, ['admin','student'])
+        element: withRole(<ViewStudentApplicationPage />, ['admin','student','teacher'])
       },
       {
         path: 'student-application/:id/edit/eu',
-        element: withRole(<EuStudentProfile />, ['admin','student'])
+        element: withRole(<EuStudentProfile />, ['admin','student','teacher'])
       },
       {
         path: 'student-application/:id/edit/international',
-        element: withRole(<InternationalStudentProfile />, ['admin','student'])
+        element: withRole(<InternationalStudentProfile />, ['admin','student','teacher'])
       },
       {
         path: 'career-application/:id/:userId',
@@ -143,7 +144,7 @@ export default function AppRouter() {
       },
       {
         path: 'courses',
-        element: withRole(<CoursesPage />, ['admin','student']),
+        element: withRole(<CoursesPage />, ['admin','student','teacher']),
         index: true
       },
             {
@@ -213,7 +214,7 @@ export default function AppRouter() {
       },
       {
         path: 'student-application/:id/:applicationId/mails',
-        element: withRole(<StudentMailPage />, ['admin',]),
+        element: withRole(<StudentMailPage />, ['admin',,'teacher']),
         index: true
       },
       {
@@ -240,6 +241,10 @@ export default function AppRouter() {
        {
         path: 'teacher-assignments-feedback',
         element: withRole(<TeacherAssignmentFeedbackList />, ['admin','teacher']),
+        index: true
+      },{
+        path: 'teacher/student-applications',
+        element: withRole(<TeacherStudentApplicationListPage />, ['admin','teacher']),
         index: true
       },
 
