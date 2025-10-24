@@ -226,7 +226,7 @@ const fetchAssignments = async () => {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Assignment Feedbacks</CardTitle>
+              <CardTitle>Assignment Pending Feedbacks</CardTitle>
             </div>
             <div>
               <Button
