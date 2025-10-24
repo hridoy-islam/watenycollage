@@ -188,7 +188,7 @@ const AssignmentDetailPage = () => {
   };
 
   const isStudent = user?.role === 'student';
-  const isTeacher = user?.role === 'admin';
+  const isTeacher = user?.role === 'admin'||  user?.role === 'teacher';
 
   const location = useLocation();
   const assignmentIdFromState = searchParams.get('assignmentId') || location.state?.assignmentId;;

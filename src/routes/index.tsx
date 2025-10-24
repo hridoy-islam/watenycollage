@@ -46,6 +46,9 @@ import { AssignmentFeedbackList } from '@/pages/pendingAssignmentFeedback';
 import { StudentAssignmentFeedbackList } from '@/pages/pendingAssignmentFeedbackStudent';
 import { StudentAssignmentsPage } from '@/pages/studentAssignmentList';
 import CourseDocumentPage from '@/pages/courseDocument';
+import TeachersPage from '@/pages/teacher';
+import TeacherDetailsPage from '@/pages/teacher/teacher-course';
+import { TeacherAssignmentFeedbackList } from '@/pages/pendingAssignmentFeedbackTeacher';
 
 const SignInPage = lazy(() => import('@/pages/auth/signin/index'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
@@ -60,7 +63,7 @@ export default function AppRouter() {
     path: '/dashboard',
     element: (
       <AdminLayout>
-        <ProtectedRoute allowedRoles={['admin', 'student', 'applicant']}>
+        <ProtectedRoute allowedRoles={['admin', 'student', 'applicant','teacher']}>
           <Suspense>
             <Outlet />
           </Suspense>
@@ -92,7 +95,7 @@ export default function AppRouter() {
       },
        {
         path: 'assignments-feedback',
-        element: withRole(<AssignmentFeedbackList />, ['admin']),
+        element: withRole(<AssignmentFeedbackList />, ['admin','teacher']),
         index: true
       },
          {
@@ -102,12 +105,12 @@ export default function AppRouter() {
       },
            {
         path: 'student-assignments',
-        element: withRole(<StudentAssignmentsPage />, ['admin','student']),
+        element: withRole(<StudentAssignmentsPage />, ['admin','student','teacher']),
         index: true
       },
       {
         path: 'applications',
-        element: withRole(<ApplicationListPage />, ['admin']),
+        element: withRole(<ApplicationListPage />, ['admin','teacher']),
         index: true
       },
       {
@@ -200,12 +203,12 @@ export default function AppRouter() {
       },
       {
         path: 'student-applications/:id/assignment/:studentId',
-        element: withRole(<AssignmentPage />, ['admin','student']),
+        element: withRole(<AssignmentPage />, ['admin','student','teacher']),
         index: true
       },
        {
         path: 'student-applications/:id/assignment/:studentId/unit-assignments/:unitId',
-        element: withRole(<AssignmentDetailPage />, ['admin','student']),
+        element: withRole(<AssignmentDetailPage />, ['admin','student','teacher']),
         index: true
       },
       {
@@ -222,7 +225,24 @@ export default function AppRouter() {
         path: 'signature',
         element: withRole(<SignaturePage />, ['admin',]),
         index: true
-      }
+      },
+
+       {
+        path: 'teachers',
+        element: withRole(<TeachersPage />, ['admin',]),
+        index: true
+      },
+      {
+        path: 'teachers/:id',
+        element: withRole(<TeacherDetailsPage />, ['admin','teacher']),
+        index: true
+      },
+       {
+        path: 'teacher-assignments-feedback',
+        element: withRole(<TeacherAssignmentFeedbackList />, ['admin','teacher']),
+        index: true
+      },
+
     ]
   }
 ];

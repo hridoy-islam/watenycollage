@@ -7,6 +7,7 @@ import { AdminDashboard } from './rolewise-dashboard/admin-dashboard';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import VerifyPage from '../auth/verify';
+import { TeacherDashboard } from './rolewise-dashboard/teacher-dashboard';
 
 export default function DashboardPage() {
   const { user } = useSelector((state: any) => state.auth);
@@ -85,6 +86,8 @@ export default function DashboardPage() {
         return <ApplicantDashboard user={user} />;
       case 'student':
         return <StudentDashboard user={user} />;
+         case 'teacher':
+        return <TeacherDashboard user={user} />;
       case 'admin':
         return <AdminDashboard />;
       default:

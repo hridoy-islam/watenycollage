@@ -26,7 +26,8 @@ export function TopNav() {
     { path: '/dashboard/terms', label: 'Term' },
     { path: '/dashboard/jobs', label: 'Job' },
     { path: '/dashboard/template', label: 'Template' },
-    { path: '/dashboard/assignments-feedback', label: 'Assignment Feedbacks' },
+    { path: '/dashboard/assignments-feedback', label: 'Assignment' },
+     { path: '/dashboard/teachers', label: 'Teachers' },
   ];
 
   return (
