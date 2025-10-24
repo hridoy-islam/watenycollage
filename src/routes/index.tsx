@@ -148,17 +148,17 @@ export default function AppRouter() {
       },
             {
         path: 'courses/course-document/:id',
-        element: withRole(<CourseDocumentPage />, ['admin','student']),
+        element: withRole(<CourseDocumentPage />, ['admin','student','teacher']),
         index: true
       },
       {
         path: 'courses/:id/unit',
-        element: withRole(<CourseUnitPage />, ['admin','student']),
+        element: withRole(<CourseUnitPage />, ['admin','student','teacher']),
         index: true
       },
       {
         path: 'courses/:id/unit/:unitId',
-        element: withRole(<CourseResource />, ['admin','student']),
+        element: withRole(<CourseResource />, ['admin','student','teacher']),
         index: true
       },
       {

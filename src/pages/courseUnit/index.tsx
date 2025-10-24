@@ -280,7 +280,7 @@ function CourseUnitPage() {
               Back
             </Button>
 
-            {user?.role !== 'student' && (
+            {user?.role == 'admin' && (
               <DialogTrigger asChild>
                 <Button
                   className="w-full justify-center bg-watney text-white hover:bg-watney/90 sm:w-auto"
@@ -468,7 +468,7 @@ function CourseUnitPage() {
                             </Tooltip>
                           </TooltipProvider>
 
-                          {user?.role !== 'student' && (
+                          {user?.role == 'admin' && (
                             <>
                               <TooltipProvider>
                                 <Tooltip>
