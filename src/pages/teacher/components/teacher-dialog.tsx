@@ -58,19 +58,45 @@ const [submitting, setSubmitting] = useState(false);
     };
   }, [open, reset]);
 
-  useEffect(() => {
+ useEffect(() => {
+  if (open) {
+    // Fetch staff data only when dialog opens
+    const fetchData = async () => {
+      try {
+        const response = await axiosInstance.get('/users?role=staff&limit=all');
+        const options = response.data.data.result.map((staff) => ({
+          value: staff._id,
+          label: `${staff.name}`
+        }));
+        setStaffOptions(options);
+      } catch (error) {
+        console.error('Error fetching staff options:', error);
+      }
+    };
+    fetchData();
+
+    // If editing → load existing data
     if (initialData) {
       reset({
         name: initialData.name ?? '',
-
         phone: initialData.phone ?? '',
         email: initialData.email ?? '',
         address: initialData.address ?? '',
-
-        password: '' // Clear password field for editing
+        password: '' // Always blank password
+      });
+    } else {
+      // If adding → clear all fields
+      reset({
+        name: '',
+        phone: '',
+        email: '',
+        address: '',
+        password: ''
       });
     }
-  }, [initialData, reset]);
+  }
+}, [open, initialData, reset]);
+
 
    const onSubmitForm = async (data) => {
     // Password validation for new teachers

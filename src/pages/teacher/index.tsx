@@ -1,5 +1,12 @@
 import { useEffect, useState } from 'react';
-import { ClipboardPaste, FilePlus, Link2, MoveLeft, Pen, Plus } from 'lucide-react';
+import {
+  ClipboardPaste,
+  FilePlus,
+  Link2,
+  MoveLeft,
+  Pen,
+  Plus
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import {
@@ -18,6 +25,12 @@ import { Badge } from '@/components/ui/badge';
 import { Link, useNavigate } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
 import { DataTablePagination } from '@/components/shared/data-table-pagination';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/ui/tooltip';
 
 export default function TeachersPage() {
   const [teachers, setTeachers] = useState<any>([]);
@@ -141,8 +154,8 @@ export default function TeachersPage() {
     setDialogOpen(true);
   };
 
-    const handleDetails = (teacher: any) => {
-    navigate(`${teacher._id}`)
+  const handleDetails = (teacher: any) => {
+    navigate(`${teacher._id}`);
   };
 
   useEffect(() => {
@@ -233,25 +246,43 @@ export default function TeachersPage() {
                     />
                   </TableCell>
                   <TableCell className="space-x-2 text-center">
-                    <div className='flex justify-end gap-2'>
+                    <TooltipProvider>
+                      <div className="flex justify-end gap-2">
+                        {/* Details Button */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="outline"
+                              className="border-none bg-watney text-white hover:bg-watney/90"
+                              size="icon"
+                              onClick={() => handleDetails(teacher)}
+                            >
+                              <FilePlus className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Assign Course</p>
+                          </TooltipContent>
+                        </Tooltip>
 
-                    <Button
-                      variant="outline"
-                      className="border-none bg-watney text-white hover:bg-watney/90"
-                      size="icon"
-                      onClick={() => handleDetails(teacher)}
-                      >
-                      <FilePlus  className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="border-none bg-watney text-white hover:bg-watney/90"
-                      size="icon"
-                      onClick={() => handleEdit(teacher)}
-                      >
-                      <Pen className="h-4 w-4" />
-                    </Button>
+                        {/* Edit Button */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="outline"
+                              className="border-none bg-watney text-white hover:bg-watney/90"
+                              size="icon"
+                              onClick={() => handleEdit(teacher)}
+                            >
+                              <Pen className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Edit Teacher</p>
+                          </TooltipContent>
+                        </Tooltip>
                       </div>
+                    </TooltipProvider>
                   </TableCell>
                 </TableRow>
               ))}
