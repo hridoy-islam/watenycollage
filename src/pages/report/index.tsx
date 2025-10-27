@@ -88,7 +88,7 @@ const ReportPage = () => {
   const [initialLoad, setInitialLoad] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [entriesPerPage, setEntriesPerPage] = useState(2);
+  const [entriesPerPage, setEntriesPerPage] = useState(200);
 
   const fetchUsers = async () => {
     setUsersLoading(true);
