@@ -33,7 +33,7 @@ export function TopNav() {
 
   const navLinksForTeacher = [
     // { path: '/dashboard/career-applications', label: 'Career Applications' },
-    { path: `/dashboard/teachers/courses/${user._id}`, label: 'Courses' },
+    { path: `/dashboard/teachers/courses/${user?._id}`, label: 'Courses' },
     { path: '/dashboard/teacher-assignments-feedback', label: 'Feedbacks' },
     { path: '/dashboard/teacher/student-applications', label: 'Students' }
   ];
