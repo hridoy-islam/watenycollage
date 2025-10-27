@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import {
   ClipboardPaste,
+  Eye,
   FilePlus,
   Link2,
   MoveLeft,
@@ -155,6 +156,10 @@ export default function TeachersPage() {
   };
 
   const handleDetails = (teacher: any) => {
+    navigate(`courses/${teacher._id}`);
+  };
+
+  const handleView = (teacher: any) => {
     navigate(`${teacher._id}`);
   };
 
@@ -272,7 +277,9 @@ export default function TeachersPage() {
                               variant="outline"
                               className="border-none bg-watney text-white hover:bg-watney/90"
                               size="icon"
-                              onClick={() => handleEdit(teacher)}
+                              // onClick={() => handleEdit(teacher)}
+
+                              onClick={() => handleView(teacher)}
                             >
                               <Pen className="h-4 w-4" />
                             </Button>
@@ -281,6 +288,22 @@ export default function TeachersPage() {
                             <p>Edit Teacher</p>
                           </TooltipContent>
                         </Tooltip>
+
+                        {/* <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="outline"
+                              className="border-none bg-watney text-white hover:bg-watney/90"
+                              size="icon"
+                              onClick={() => handleView(teacher)}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>View Details</p>
+                          </TooltipContent>
+                        </Tooltip> */}
                       </div>
                     </TooltipProvider>
                   </TableCell>
