@@ -27,7 +27,8 @@ export function TopNav() {
     { path: '/dashboard/jobs', label: 'Job' },
     { path: '/dashboard/template', label: 'Template' },
     { path: '/dashboard/assignments-feedback', label: 'Assignment' },
-     { path: '/dashboard/teachers', label: 'Teachers' },
+    { path: '/dashboard/teachers', label: 'Teachers' },
+    { path: '/dashboard/report', label: 'Report' }
   ];
 
   return (
@@ -46,18 +47,19 @@ export function TopNav() {
         )}
       </div>
 
-   
-   {user?.role === 'admin' && <div className="flex items-center space-x-6">
-        {navLinks.map((link) => (
-          <Link
-            key={link.path}
-            to={link.path}
-            className="text-black font-semibold py-1 px-2 hover:bg-watney hover:text-white rounded-sm transition-all"
-          >
-            {link.label}
-          </Link>
-        ))}
-      </div>}
+      {user?.role === 'admin' && (
+        <div className="flex items-center space-x-4">
+          {navLinks.map((link) => (
+            <Link
+              key={link.path}
+              to={link.path}
+              className="rounded-sm px-2 py-1 text-sm font-semibold text-black transition-all hover:bg-watney hover:text-white"
+            >
+              {link.label}
+            </Link>
+          ))}
+        </div>
+      )}
 
       <div className="flex items-center space-x-4">
         <div
@@ -66,10 +68,12 @@ export function TopNav() {
             if (isCompleted) navigate('/dashboard/profile');
           }}
         >
-          <span className="text-sm font-semibold text-black max-md:hidden">{user?.name}</span>
-          <div className="text-[12px] gap-4 cursor-pointer flex flex-row items-center font-medium text-black">
-            <span className='max-md:hidden'>{user?.email}</span>
-            <span className='text-watney'>My Profile</span>
+          <span className="text-sm font-semibold text-black max-md:hidden">
+            {user?.name}
+          </span>
+          <div className="flex cursor-pointer flex-row items-center gap-4 text-[12px] font-medium text-black">
+            <span className="max-md:hidden">{user?.email}</span>
+            <span className="text-watney">My Profile</span>
           </div>
         </div>
         <Button

@@ -10,7 +10,7 @@ import {
 // Define styles for the PDF
 const styles = StyleSheet.create({
   page: {
-    padding: 20,
+    padding: 40,
     fontFamily: 'Helvetica',
     fontSize: 10
   },
@@ -42,24 +42,24 @@ const styles = StyleSheet.create({
     display: 'flex',
     width: '100%',
     borderStyle: 'solid',
-    borderWidth: 0.5,
+    borderWidth: 0.25,
     borderRightWidth: 0,
     borderBottomWidth: 0,
-    borderLeftWidth: 0.5
+    borderLeftWidth: 0.25
   },
   tableRow: {
     flexDirection: 'row'
   },
   tableCol: {
     borderStyle: 'solid',
-    borderWidth: 0.5,
+    borderWidth: 0.25,
     borderLeftWidth: 0,
     borderTopWidth: 0,
     padding: 8
   },
   tableColHeader: {
     borderStyle: 'solid',
-    borderWidth: 0.5,
+    borderWidth: 0.25,
     borderLeftWidth: 0,
     borderTopWidth: 0,
     padding: 8,
@@ -72,12 +72,12 @@ const styles = StyleSheet.create({
     left: 40,
     right: 40,
     textAlign: 'center',
-    borderTop: '1px solid #ccc',
+    borderTop: '0.25px solid #ccc',
     paddingTop: 5
   },
   signatureLine: {
     marginTop: 30,
-    borderBottom: '1px solid #000',
+    borderBottom: '0.25px solid #000',
     width: 200
   },
   addressBlock: {
@@ -870,7 +870,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
             {capitalizeFirstLetter(data.disability || 'No')}
           </Text>
         </View>
-        <View style={{ border: '1px solid #000', minHeight: 30, padding: 5 }}>
+        <View style={{ border: '0.50px solid #000', minHeight: 30, padding: 5 }}>
           <Text>{capitalizeFirstLetter(data.disabilityDetails || '')}</Text>
         </View>
 
@@ -884,7 +884,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
             {data.criminalConviction ? 'Yes' : 'No'}
           </Text>
         </View>
-        <View style={{ border: '1px solid #000', minHeight: 30, padding: 5 }}>
+        <View style={{ border: '0.50px solid #000', minHeight: 30, padding: 5 }}>
           <Text>{capitalizeFirstLetter(data.convictionDetails || '')}</Text>
         </View>
 

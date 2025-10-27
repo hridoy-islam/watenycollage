@@ -162,6 +162,7 @@ const [submitting, setSubmitting] = useState(false);
                     message: 'Invalid email format'
                   }
                 })}
+                 disabled={!!initialData}
                 placeholder="Email"
               />
               <ErrorMessage message={errors.email?.message?.toString()} />

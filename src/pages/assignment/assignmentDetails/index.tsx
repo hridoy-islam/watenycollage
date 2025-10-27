@@ -1552,7 +1552,7 @@ const AssignmentDetailPage = () => {
         isStudent={isStudent}
         studentName={studentName}
         courseUnit={courseUnit}
-        onBack={() => navigate(-1)}
+        
       />
 
       {/* Responsive layout: column on mobile, row on medium+ */}

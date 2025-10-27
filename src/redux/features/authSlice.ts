@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 import axiosInstance from '../../lib/axios';
+import moment from 'moment';
 
 interface UserCredentials {
   email: string;
@@ -222,9 +223,36 @@ export const resendOtp = createAsyncThunk(
   }
 );
 
-export const logout = createAsyncThunk<void>('user/logout', async () => {
-  localStorage.removeItem('watney');
-});
+export const logout = createAsyncThunk<void>(
+  'user/logout',
+  async (_, { getState }) => {
+    try {
+      const state: any = getState();
+      const user = state.auth.user; 
+
+
+      // console.log(user,'aaaa')
+
+      if (user?._id && user?.role === 'teacher') {
+        const payload = {
+          userId: user._id,
+          action: 'logout',
+          logoutAt: moment().toISOString(),
+        };
+
+        // Send patch request to update logs
+        await axiosInstance.patch('/logs', payload);
+        // console.log('Logout log payload:', payload);
+      }
+
+      // Clear local storage
+      localStorage.removeItem('watney');
+    } catch (error: any) {
+      console.error('Error recording logout log:', error.message);
+      localStorage.removeItem('watney'); // ensure logout even if logging fails
+    }
+  }
+);
 
 const authSlice = createSlice({
   name: 'auth',

@@ -41,6 +41,35 @@ const ResourceList: React.FC<ResourceListProps> = ({
     (r) => r.type === 'learning-outcome'
   );
 
+
+  // 🔢 Sorts items based on any serial number pattern (e.g., LO1, LOC2, STEP3, PART10)
+const sortBySerialNumber = (resources: Resource[]) => {
+  return resources.sort((a, b) => {
+    const getSerialNumber = (text: string) => {
+      // Extract first number found in the text (e.g., LO1 → 1, PART12 → 12)
+      const match = text?.match(/(\d+)/);
+      return match ? parseInt(match[1], 10) : null;
+    };
+
+    const aSerial = getSerialNumber(a.learningOutcomes || a.title || '');
+    const bSerial = getSerialNumber(b.learningOutcomes || b.title || '');
+
+    // ✅ Both have numbers — sort numerically
+    if (aSerial !== null && bSerial !== null) return aSerial - bSerial;
+
+    // ✅ Only A has a number — it comes first
+    if (aSerial !== null) return -1;
+
+    // ✅ Only B has a number — it comes first
+    if (bSerial !== null) return 1;
+
+    // ✅ Neither has a number — keep original order or sort alphabetically if needed
+    return 0;
+  });
+};
+
+  
+
   return (
     <div className="flex flex-col gap-6 lg:flex-row">
       {/* Left Column - All content except assignments */}
@@ -74,7 +103,7 @@ const ResourceList: React.FC<ResourceListProps> = ({
             </CardHeader>
             <CardContent>
               <Accordion type="multiple" className="w-full">
-                {learningOutcomes.map((loResource) => (
+                {sortBySerialNumber(learningOutcomes).map((loResource) => (
                   <ResourceCard
                     key={loResource._id}
                     resource={loResource}
@@ -107,7 +136,7 @@ const ResourceList: React.FC<ResourceListProps> = ({
             </CardHeader>
             <CardContent>
               <Accordion type="multiple" className="w-full">
-                {studyGuides.map((guide) => (
+                {sortBySerialNumber(studyGuides).map((guide) => (
                   <ResourceCard
                     key={guide._id}
                     resource={guide}
@@ -140,7 +169,7 @@ const ResourceList: React.FC<ResourceListProps> = ({
             </CardHeader>
             <CardContent>
               <Accordion type="multiple" className="w-full">
-                {lectures.map((lecture) => (
+                {sortBySerialNumber(lectures).map((lecture) => (
                   <ResourceCard
                     key={lecture._id}
                     resource={lecture}

@@ -15,7 +15,8 @@ import {
   DialogTitle,
   DialogTrigger
 } from '@/components/ui/dialog';
-
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 interface Submission {
   _id: string;
   submitBy: {
@@ -213,12 +214,12 @@ export const SubmissionDialog: React.FC<SubmissionDialogProps> = ({
   // Check if we should disable file removal
   const shouldDisableFileRemoval = (fileIndex: number) => {
     if ((isStudent && isFormDisabled) || !formState?.files) return true;
-    
+
     // For editing submissions, allow removing any file
     if (editingItem && editingItem.type === 'submission') {
       return false;
     }
-    
+
     // For new submissions, disable removing the last file
     return requiresFiles() && formState.files.length <= 1;
   };
@@ -229,14 +230,14 @@ export const SubmissionDialog: React.FC<SubmissionDialogProps> = ({
         {triggerButton}
       </DialogTrigger>
 
-      <DialogContent className="h-[80vh] max-w-6xl overflow-y-auto">
+      <DialogContent className="h-[90vh] max-w-6xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{getDialogTitle()}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           {/* Comment Input */}
-          <div>
+          {/* <div>
             <Label htmlFor="comment" className="mb-2 block">
               {isStudent || (isEditing && editingItem?.type === 'submission')
                 ? 'Submission Notes'
@@ -257,6 +258,39 @@ export const SubmissionDialog: React.FC<SubmissionDialogProps> = ({
               disabled={isStudent && isFormDisabled}
               className="resize-none"
             />
+          </div> */}
+
+          <div>
+            <Label htmlFor="comment" className="mb-2 block">
+              {isStudent || (isEditing && editingItem?.type === 'submission')
+                ? 'Submission Notes'
+                : 'Feedback/Comments'}
+            </Label>
+
+            <ReactQuill
+              theme="snow"
+              id="comment"
+              value={formState?.comment || ''}
+              onChange={(value) => onFormChange({ comment: value })}
+              readOnly={isStudent && isFormDisabled}
+              placeholder={
+                isStudent || (isEditing && editingItem?.type === 'submission')
+                  ? 'Add your submission notes...'
+                  : formState?.isAdminSubmission
+                    ? `Submit assignment on behalf of ${studentName}...`
+                    : 'Write your feedback...'
+              }
+              className={`${isStudent && isFormDisabled ? 'pointer-events-none opacity-70' : ''}`}
+              style={{ height: '300px', paddingBottom:"40px" }}
+              modules={{
+                toolbar: [
+                  [{ header: [1, 2, 3, false] }],
+                  ['bold', 'italic', 'underline', 'strike'],
+                  ['link'],
+                  ['clean']
+                ]
+              }}
+            />
           </div>
 
           {/* File Upload - Show for both new and editing modes */}
@@ -276,12 +310,11 @@ export const SubmissionDialog: React.FC<SubmissionDialogProps> = ({
               >
                 <Upload className="mr-2 h-4 w-4" />
                 <span className="text-sm">
-                  {isEditing ? 'Add More Files' : 'Upload Files'} 
+                  {isEditing ? 'Add More Files' : 'Upload Files'}
                 </span>
                 <Input
                   id="file-upload"
                   type="file"
-                  
                   onChange={handleFileUpload}
                   disabled={uploadingFiles || (isStudent && isFormDisabled)}
                   className="hidden"
@@ -298,16 +331,18 @@ export const SubmissionDialog: React.FC<SubmissionDialogProps> = ({
             {/* Upload Error Display */}
             {formState?.uploadError && (
               <div className="rounded-lg border border-red-200 bg-red-50 p-3">
-                
-                <p className="mt-1 text-xs text-red-700">{formState.uploadError}</p>
+                <p className="mt-1 text-xs text-red-700">
+                  {formState.uploadError}
+                </p>
               </div>
             )}
 
             {/* File requirement hint */}
             {requiresFiles() && (
               <p className="mt-1 text-xs text-gray-500">
-                At least one file is required for {isEditing ? 'updating' : 'submitting'} this assignment.
-                Maximum file size: 20MB.
+                At least one file is required for{' '}
+                {isEditing ? 'updating' : 'submitting'} this assignment. Maximum
+                file size: 20MB.
               </p>
             )}
           </div>
@@ -352,7 +387,6 @@ export const SubmissionDialog: React.FC<SubmissionDialogProps> = ({
           {requiresFiles() &&
             (!formState?.files || formState.files.length === 0) && (
               <div className="rounded-lg border border-amber-200 bg-amber-50 p-3">
-              
                 <p className="mt-1 text-xs text-amber-700">
                   You need to upload at least one file to{' '}
                   {isEditing ? 'update' : 'submit'} this assignment.
