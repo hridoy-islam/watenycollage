@@ -71,7 +71,7 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
   return (
     <div className="grid flex-1 grid-cols-5 gap-4">
       {/* Total Courses Card */}
-      <Card onClick={() => navigate(`teachers/${user._id}`)} className='cursor-pointer'>
+      <Card onClick={() => navigate(`teachers/courses/${user._id}`)} className='cursor-pointer'>
         <CardHeader>
           <CardTitle>All Courses</CardTitle>
         </CardHeader>

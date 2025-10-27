@@ -31,6 +31,13 @@ export function TopNav() {
     { path: '/dashboard/report', label: 'Report' }
   ];
 
+  const navLinksForTeacher = [
+    // { path: '/dashboard/career-applications', label: 'Career Applications' },
+    { path: `/dashboard/teachers/courses/${user._id}`, label: 'Courses' },
+    { path: '/dashboard/teacher-assignments-feedback', label: 'Feedbacks' },
+    { path: '/dashboard/teacher/student-applications', label: 'Students' }
+  ];
+
   return (
     <div className="flex h-16 items-center justify-between bg-white px-4 shadow-sm">
       <div className="flex items-center space-x-4">
@@ -50,6 +57,20 @@ export function TopNav() {
       {user?.role === 'admin' && (
         <div className="flex items-center space-x-4">
           {navLinks.map((link) => (
+            <Link
+              key={link.path}
+              to={link.path}
+              className="rounded-sm px-2 py-1 text-sm font-semibold text-black transition-all hover:bg-watney hover:text-white"
+            >
+              {link.label}
+            </Link>
+          ))}
+        </div>
+      )}
+
+      {user?.role === 'teacher' && (
+        <div className="flex items-center space-x-4">
+          {navLinksForTeacher.map((link) => (
             <Link
               key={link.path}
               to={link.path}
