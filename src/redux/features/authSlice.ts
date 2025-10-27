@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 import axiosInstance from '../../lib/axios';
-import moment from 'moment';
+import moment from 'moment-timezone';
 
 interface UserCredentials {
   email: string;
@@ -233,11 +233,11 @@ export const logout = createAsyncThunk<void>(
 
       // console.log(user,'aaaa')
 
-      if (user?._id && user?.role === 'teacher') {
+      if (user?._id && (user.role === 'teacher' || user.role === 'admin')) {
         const payload = {
           userId: user._id,
           action: 'logout',
-          logoutAt: moment().toISOString(),
+         logoutAt: moment.tz("Europe/London").toISOString()
         };
 
         // Send patch request to update logs

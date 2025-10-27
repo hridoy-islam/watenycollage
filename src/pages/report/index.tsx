@@ -157,17 +157,19 @@ const ReportPage = () => {
   }));
 
   return (
-    <div className="rounded-md bg-white p-4">
+    <div className="rounded-md bg-white  md:p-8">
       <div className="space-y-2">
         <Card className="rounded-md border border-gray-300 shadow-none">
           <CardHeader>
-            <CardTitle>Employee Report</CardTitle>
+            <CardTitle>Login Logout Records</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-12 lg:items-end">
               {/* From Date */}
               <div className="flex flex-col space-y-2 lg:col-span-2">
-                <Label className="text-sm font-medium">From Date</Label>
+                <Label className="text-sm font-medium">
+                  From Date (DD/MM/YYYY)
+                </Label>
                 <DatePicker
                   selected={startDate}
                   onChange={(date) => date && setStartDate(date)}
@@ -176,13 +178,18 @@ const ReportPage = () => {
                   endDate={endDate}
                   maxDate={endDate}
                   className="h-10 w-full rounded-sm border border-gray-300 px-3 py-2"
-                  dateFormat="MM/dd/yyyy"
+                  dateFormat="dd/MM/yyyy"
+                  showMonthDropdown
+                  showYearDropdown
+                  dropdownMode="select"
                 />
               </div>
 
               {/* To Date */}
               <div className="flex flex-col space-y-2 lg:col-span-2">
-                <Label className="text-sm font-medium">To Date</Label>
+                <Label className="text-sm font-medium">
+                  To Date (DD/MM/YYYY)
+                </Label>
                 <DatePicker
                   selected={endDate}
                   onChange={(date) => date && setEndDate(date)}
@@ -190,8 +197,11 @@ const ReportPage = () => {
                   startDate={startDate}
                   endDate={endDate}
                   minDate={startDate}
+                  showMonthDropdown
+                  showYearDropdown
+                  dropdownMode="select"
                   className="h-10 w-full rounded-sm border border-gray-300 px-3 py-2"
-                  dateFormat="MM/dd/yyyy"
+                  dateFormat="dd/MM/yyyy"
                 />
               </div>
 
@@ -224,7 +234,6 @@ const ReportPage = () => {
           </CardContent>
         </Card>
 
-        {/* Loading Indicator */}
         {loading && (
           <div className="flex justify-center py-10">
             <BlinkingDots size="large" color="bg-watney" />
@@ -237,39 +246,39 @@ const ReportPage = () => {
             <div className="">
               <div className="p-0">
                 <div className="">
-                  <Table className="text-xs">
+                  <Table className="">
                     <TableHeader>
                       <TableRow className="bg-gray-50">
-                        <TableHead className="px-2 py-2 text-xs font-semibold">
-                          Date
+                        <TableHead className="px-2 py-2  font-semibold">
+                          Work Date
                         </TableHead>
-                        <TableHead className="px-2 py-2 text-xs font-semibold">
-                          User
+                        <TableHead className="px-2 py-2 font-semibold">
+                          Employee Name
                         </TableHead>
-                        <TableHead className="px-2 py-2 text-xs font-semibold">
-                          Login Time
+                        <TableHead className="px-2 py-2  font-semibold">
+                          Clock-In Time
                         </TableHead>
-                        <TableHead className="px-2 py-2 text-xs font-semibold">
-                          Logout Time
+                        <TableHead className="px-2 py-2  font-semibold">
+                          Clock-Out Time
                         </TableHead>
-                        <TableHead className="px-2 py-2 text-right text-xs font-semibold">
-                          Duration
+                        <TableHead className="px-2 py-2 text-right  font-semibold">
+                          Hours Worked
                         </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {logs.map((log) => (
                         <TableRow key={log._id}>
-                          <TableCell className="whitespace-nowrap px-2 py-1.5 text-xs ">
+                          <TableCell className="whitespace-nowrap px-2 py-1.5  ">
                             {moment(log.createdAt).format('MMM DD, YYYY')}
                           </TableCell>
-                          <TableCell className="whitespace-nowrap px-2 py-1.5 text-xs ">
+                          <TableCell className="whitespace-nowrap px-2 py-1.5  ">
                             {log.userId.name}
                           </TableCell>
-                          <TableCell className="whitespace-nowrap px-2 py-1.5 text-xs">
+                          <TableCell className="whitespace-nowrap px-2 py-1.5 ">
                             {moment(log.loginAt).format('HH:mm')}
                           </TableCell>
-                          <TableCell className="whitespace-nowrap px-2 py-1.5 text-xs">
+                          <TableCell className="whitespace-nowrap px-2 py-1.5 ">
                             {moment(log.logoutAt).format('HH:mm')}
                           </TableCell>
                           <TableCell className="whitespace-nowrap px-2 py-1.5 text-right ">
