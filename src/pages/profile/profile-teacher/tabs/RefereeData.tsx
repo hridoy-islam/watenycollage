@@ -63,7 +63,7 @@ const RefereeDetails = ({
           {isEditing ? (
             <Input
               type="text"
-              value={referee.name}
+              value={referee?.name}
               onChange={(e) => handleInputChange(refereeKey, 'name', e.target.value)}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             />
@@ -78,7 +78,7 @@ const RefereeDetails = ({
           {isEditing ? (
             <Input
               type="text"
-              value={referee.organisation}
+              value={referee?.organisation}
               onChange={(e) => handleInputChange(refereeKey, 'organisation', e.target.value)}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             />
@@ -93,7 +93,7 @@ const RefereeDetails = ({
           {isEditing ? (
             <Input
               type="text"
-              value={referee.address}
+              value={referee?.address}
               onChange={(e) => handleInputChange(refereeKey, 'address', e.target.value)}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             />
@@ -108,23 +108,23 @@ const RefereeDetails = ({
           {isEditing ? (
             <Input
               type="text"
-              value={referee.relationship}
+              value={referee?.relationship}
               onChange={(e) => handleInputChange(refereeKey, 'relationship', e.target.value)}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             />
           ) : (
-            <div className="mt-1 text-gray-900">{capitalizeFirstLetter(referee.relationship) || '-'}</div>
+            <div className="mt-1 text-gray-900">{capitalizeFirstLetter(referee?.relationship) || '-'}</div>
           )}
         </div>
 
         {/* Specify Other Relationship (Conditional) */}
-        {referee.relationship?.toLowerCase() === 'other' && (
+        {referee?.relationship?.toLowerCase() === 'other' && (
           <div>
             <label className="block text-sm font-medium text-gray-700">Specify Other Relationship</label>
             {isEditing ? (
               <Input
                 type="text"
-                value={referee.otherRelationship || ''}
+                value={referee?.otherRelationship || ''}
                 onChange={(e) => handleInputChange(refereeKey, 'otherRelationship', e.target.value)}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
               />
@@ -140,7 +140,7 @@ const RefereeDetails = ({
           {isEditing ? (
             <Input
               type="email"
-              value={referee.email}
+              value={referee?.email}
               onChange={(e) => handleInputChange(refereeKey, 'email', e.target.value)}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             />
@@ -155,7 +155,7 @@ const RefereeDetails = ({
           {isEditing ? (
             <Input
               type="text"
-              value={referee.phone}
+              value={referee?.phone}
               onChange={(e) => handleInputChange(refereeKey, 'phone', e.target.value)}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             />
