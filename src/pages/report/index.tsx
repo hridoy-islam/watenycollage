@@ -288,7 +288,7 @@ const ReportPage = () => {
               </div>
             </div>
 
-            {totalPages > 2 && (
+            {totalPages > 1 && (
               <div className="mt-4">
                 <DataTablePagination
                   pageSize={entriesPerPage}
