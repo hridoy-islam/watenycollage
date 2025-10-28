@@ -9,7 +9,7 @@ import {
   TableRow
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Briefcase, ClipboardPenLine, Eye, MoveLeft, Users } from 'lucide-react';
+import { Briefcase, ClipboardPenLine, Eye, FilePlus, MoveLeft, Users } from 'lucide-react';
 import moment from 'moment';
 import { DataTablePagination } from '@/components/shared/data-table-pagination';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -154,7 +154,30 @@ export default function CareerApplicationsPage() {
                   <TableCell>{app.jobId?.jobTitle ?? 'N/A'}</TableCell>
 
                   <TableCell className="text-center">
-                    <div className="flex flex-row gap-4">
+                    <div className="flex flex-row gap-2">
+
+                       {/* Interview Button */}
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              className="border-none bg-watney text-white hover:bg-watney/90"
+                              size="icon"
+                              onClick={() =>
+                               {}
+                              }
+                            >
+                              <FilePlus  className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Recruit</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+
+
 
                        {/* Interview Button */}
                       <TooltipProvider>
