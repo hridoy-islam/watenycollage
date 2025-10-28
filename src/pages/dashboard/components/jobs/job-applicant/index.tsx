@@ -21,10 +21,22 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/ui/tooltip';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { useToast } from '@/components/ui/use-toast';
 
 interface CareerApplication {
   _id: string;
   applicantId?: {
+    _id?: string;
     name?: string;
     email?: string;
     title?: string;
@@ -33,21 +45,21 @@ interface CareerApplication {
     lastName?: string;
   };
   jobId?: { jobTitle?: string };
+  status?: string;
 }
 
 export default function CareerApplicationsPage() {
-  const [allApplications, setAllApplications] = useState<CareerApplication[]>(
-    []
-  );
-
+  const [allApplications, setAllApplications] = useState<CareerApplication[]>([]);
   const [loading, setLoading] = useState(true);
-
   const [searchTerm, setSearchTerm] = useState('');
   const [jobTitle, setJobTitle] = useState('');
-
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(10);
+  const [recruitDialogOpen, setRecruitDialogOpen] = useState(false);
+  const [selectedApplication, setSelectedApplication] = useState<CareerApplication | null>(null);
+  const [recruitLoading, setRecruitLoading] = useState(false);
+const {toast} = useToast()
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -60,7 +72,7 @@ export default function CareerApplicationsPage() {
     try {
       // Parallel API calls using Promise.all
       const [applicationsRes, jobRes] = await Promise.all([
-        axiosInstance.get(`/application-job?jobId=${id}`, {
+        axiosInstance.get(`/application-job?jobId=${id}&status=applied`, {
           params: {
             page,
             limit: entriesPerPage,
@@ -90,6 +102,54 @@ export default function CareerApplicationsPage() {
   // Handle Search
   const handleSearch = () => {
     fetchAllApplications(currentPage, entriesPerPage, searchTerm);
+  };
+
+  // Handle Recruit Action
+  const handleRecruitClick = (application: CareerApplication) => {
+    setSelectedApplication(application);
+    setRecruitDialogOpen(true);
+  };
+
+  const confirmRecruit = async () => {
+    if (!selectedApplication) return;
+
+    setRecruitLoading(true);
+    try {
+      // Make PATCH request to update status to "recruit"
+      await axiosInstance.patch(`/application-job/${selectedApplication._id}`, {
+        status: 'recruit'
+      });
+
+      // Remove the recruited application from local state
+      setAllApplications(prevApplications => 
+        prevApplications.filter(app => app._id !== selectedApplication._id)
+      );
+
+      // If this was the last item on the page and we're not on page 1, go to previous page
+      if (allApplications.length === 1 && currentPage > 1) {
+        setCurrentPage(prev => prev - 1);
+      }
+
+      // Show success message or handle as needed
+      toast({title:'Applicant has been successfully recruited'});
+    } catch (error) {
+        const message =
+      error?.response?.data?.message ||
+      "Failed to update application status. Please try again.";
+    toast({
+      title: message,
+      className: "bg-destructive text-white border-none"
+    });
+    } finally {
+      setRecruitLoading(false);
+      setRecruitDialogOpen(false);
+      setSelectedApplication(null);
+    }
+  };
+
+  const cancelRecruit = () => {
+    setRecruitDialogOpen(false);
+    setSelectedApplication(null);
   };
 
   return (
@@ -155,8 +215,7 @@ export default function CareerApplicationsPage() {
 
                   <TableCell className="text-center">
                     <div className="flex flex-row gap-2">
-
-                       {/* Interview Button */}
+                      {/* Recruit Button */}
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -164,11 +223,10 @@ export default function CareerApplicationsPage() {
                               variant="ghost"
                               className="border-none bg-watney text-white hover:bg-watney/90"
                               size="icon"
-                              onClick={() =>
-                               {}
-                              }
+                              onClick={() => handleRecruitClick(app)}
+                              disabled={recruitLoading}
                             >
-                              <FilePlus  className="h-4 w-4" />
+                              <FilePlus className="h-4 w-4" />
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>
@@ -177,9 +235,7 @@ export default function CareerApplicationsPage() {
                         </Tooltip>
                       </TooltipProvider>
 
-
-
-                       {/* Interview Button */}
+                      {/* Reference Details Button */}
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -193,11 +249,11 @@ export default function CareerApplicationsPage() {
                                 )
                               }
                             >
-                              <Users  className="h-4 w-4" />
+                              <Users className="h-4 w-4" />
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>
-                            <p>Referance Details</p>
+                            <p>Reference Details</p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
@@ -264,6 +320,31 @@ export default function CareerApplicationsPage() {
           onPageChange={setCurrentPage}
         />
       </div>
+
+      {/* Recruit Confirmation Dialog */}
+      <AlertDialog open={recruitDialogOpen} onOpenChange={setRecruitDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirm Recruitment</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to recruit {selectedApplication?.applicantId?.firstName} {selectedApplication?.applicantId?.lastName}? 
+              Once confirmed, this action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={cancelRecruit} disabled={recruitLoading}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmRecruit} 
+              disabled={recruitLoading}
+              className="bg-watney text-white hover:bg-watney/90"
+            >
+              {recruitLoading ? 'Processing...' : 'Confirm Recruit'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
