@@ -26,6 +26,7 @@ import {
   ArrowLeft
 } from 'lucide-react';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
+import { useSelector } from 'react-redux';
 
 interface Assignment {
   _id: string;
@@ -94,12 +95,14 @@ export function StudentAssignmentFeedbackList() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
+    const user = useSelector((state: any) => state.auth.user); // Get user from Redux state
+
 
   const fetchAssignments = async () => {
     try {
       setLoading(true);
       const response = await axiosInstance.get(
-        '/assignment?status=feedback_given&status=resubmission_required&status=completed&limit=all'
+        `/assignment?status=feedback_given&status=resubmission_required&status=completed&limit=all&studentId=${user?._id}`
       );
       const assignmentsData = response.data.data?.result || [];
       setAssignments(assignmentsData);
