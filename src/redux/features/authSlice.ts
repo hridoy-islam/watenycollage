@@ -233,17 +233,17 @@ export const logout = createAsyncThunk<void>(
 
       // console.log(user,'aaaa')
 
-      if (user?._id && (user.role === 'teacher' || user.role === 'admin')) {
-        const payload = {
-          userId: user._id,
-          action: 'logout',
-         logoutAt: moment.tz("Europe/London").toISOString()
-        };
+      // if (user?._id && (user.role === 'teacher' || user.role === 'admin')) {
+      //   const payload = {
+      //     userId: user._id,
+      //     action: 'logout',
+      //    logoutAt: moment.tz("Europe/London").toISOString()
+      //   };
 
-        // Send patch request to update logs
-        await axiosInstance.patch('/logs', payload);
-        // console.log('Logout log payload:', payload);
-      }
+      //   // Send patch request to update logs
+      //   await axiosInstance.patch('/logs', payload);
+      //   // console.log('Logout log payload:', payload);
+      // }
 
       // Clear local storage
       localStorage.removeItem('watney');

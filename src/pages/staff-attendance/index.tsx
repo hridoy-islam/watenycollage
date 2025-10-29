@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import Select from 'react-select';
-import moment from 'moment-timezone'; // Updated to moment-timezone
+import moment from 'moment-timezone';
 import axiosInstance from '@/lib/axios';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,18 +16,13 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Label } from '@/components/ui/label';
 import { DataTablePagination } from '@/components/shared/data-table-pagination';
+import { useSelector } from 'react-redux';
 
-// Types
-interface User {
-  _id: string;
-  name: string;
-  email: string;
-}
-
+// Define types
 interface Break {
   _id: string;
-  breakStart: string; // ISO UTC
-  breakEnd?: string; // ISO UTC
+  breakStart: string; // ISO string (UTC)
+  breakEnd?: string; // ISO string (UTC)
 }
 
 interface Log {
@@ -38,17 +32,15 @@ interface Log {
     name: string;
     email: string;
   };
-  action: 'login' | 'logout';
+  action: string;
   clockIn: string; // ISO UTC
   clockOut?: string; // ISO UTC
-  breaks?: Break[];
+  breaks: Break[];
   createdAt: string;
   updatedAt: string;
-  date?: string; // optional, may not be used
-  duration?: number; // optional
 }
 
-// BlinkingDots (same as before)
+// BlinkingDots component (unchanged)
 const BlinkingDots = ({
   size = 'medium',
   color = 'bg-watney'
@@ -80,10 +72,8 @@ const BlinkingDots = ({
   );
 };
 
-const ReportPage = () => {
+const AttendancePage = () => {
   const { toast } = useToast();
-  const [selectedUsers, setSelectedUsers] = useState<any[]>([]);
-  const [users, setUsers] = useState<User[]>([]);
   const [startDate, setStartDate] = useState<Date>(
     moment().tz('Europe/London').startOf('month').toDate()
   );
@@ -92,13 +82,13 @@ const ReportPage = () => {
   );
   const [logs, setLogs] = useState<Log[]>([]);
   const [loading, setLoading] = useState(false);
-  const [usersLoading, setUsersLoading] = useState(false);
   const [initialLoad, setInitialLoad] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(200);
+  const { user } = useSelector((state: any) => state.auth);
 
-  // Format UTC to London time
+  // Helper: Format UTC ISO string to London date/time
   const formatToLondon = (
     isoString: string | undefined,
     format = 'DD/MM/YYYY HH:mm'
@@ -107,29 +97,30 @@ const ReportPage = () => {
     return moment.utc(isoString).tz('Europe/London').format(format);
   };
 
-  const calculateNetWorkingSeconds = (log: Log): number => {
-    if (!log.clockIn) return 0;
+  // Helper: Calculate net working minutes (in UTC to avoid DST issues)
+const calculateNetWorkingSeconds = (log: Log): number => {
+  if (!log.clockIn) return 0;
 
-    const clockIn = moment.tz(log.clockIn, 'Europe/London');
-    const clockOut = log.clockOut
-      ? moment.tz(log.clockOut, 'Europe/London')
-      : moment.tz('Europe/London'); // use now in London time if no clockOut
+  const clockIn = moment.tz(log.clockIn, 'Europe/London');
+  const clockOut = log.clockOut
+    ? moment.tz(log.clockOut, 'Europe/London')
+    : moment.tz('Europe/London'); // use now in London time if no clockOut
 
-    let totalBreakMs = 0;
-    for (const brk of log.breaks || []) {
-      if (brk.breakStart && brk.breakEnd) {
-        const start = moment.tz(brk.breakStart, 'Europe/London');
-        const end = moment.tz(brk.breakEnd, 'Europe/London');
-        if (end.isAfter(start)) {
-          totalBreakMs += end.diff(start);
-        }
+  let totalBreakMs = 0;
+  for (const brk of log.breaks || []) {
+    if (brk.breakStart && brk.breakEnd) {
+      const start = moment.tz(brk.breakStart, 'Europe/London');
+      const end = moment.tz(brk.breakEnd, 'Europe/London');
+      if (end.isAfter(start)) {
+        totalBreakMs += end.diff(start);
       }
     }
+  }
 
-    const totalWorkMs = clockOut.diff(clockIn);
-    const netWorkMs = Math.max(0, totalWorkMs - totalBreakMs);
-    return Math.floor(netWorkMs / 1000);
-  };
+  const totalWorkMs = clockOut.diff(clockIn);
+  const netWorkMs = Math.max(0, totalWorkMs - totalBreakMs);
+  return Math.floor(netWorkMs / 1000);
+};
 
   const formatDurationWithSeconds = (totalSeconds: number) => {
     if (totalSeconds <= 0) return '0s';
@@ -146,24 +137,12 @@ const ReportPage = () => {
     return parts.join(' ');
   };
 
-  // Fetch users
-  const fetchUsers = async () => {
-    setUsersLoading(true);
-    try {
-      const response = await axiosInstance.get('/users?role=teacher&limit=all');
-      setUsers(response.data.data?.result || response.data || []);
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to fetch users',
-        variant: 'destructive'
-      });
-    } finally {
-      setUsersLoading(false);
-    }
+  const formatDuration = (minutes: number) => {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${hours}h ${mins}m`;
   };
 
-  // Fetch logs
   const fetchLogs = async (page: number, entriesPerPage: number) => {
     setLoading(true);
     try {
@@ -172,17 +151,15 @@ const ReportPage = () => {
         limit: entriesPerPage
       };
 
-      if (selectedUsers?.length > 0) {
-        params.userId = selectedUsers.map((u: any) => u.value).join(',');
-      }
-
       if (startDate && endDate) {
-        // Send as YYYY-MM-DD (interpreted as London dates by backend)
+        // Send dates in YYYY-MM-DD (interpreted as London dates by backend)
         params.fromDate = moment(startDate).format('YYYY-MM-DD');
         params.toDate = moment(endDate).format('YYYY-MM-DD');
       }
 
-      const response = await axiosInstance.get('/logs', { params });
+      const response = await axiosInstance.get(`/logs?userId=${user._id}`, {
+        params
+      });
       const logsData: Log[] = response.data.data?.result || [];
       setLogs(logsData);
       setTotalPages(response.data.data?.meta?.totalPage || 1);
@@ -200,24 +177,15 @@ const ReportPage = () => {
   };
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  useEffect(() => {
     fetchLogs(currentPage, entriesPerPage);
   }, [currentPage, entriesPerPage]);
-
-  const userOptions = users.map((user) => ({
-    value: user._id,
-    label: user.name || user.email
-  }));
 
   return (
     <div className="rounded-md bg-white md:p-8">
       <div className="space-y-2">
         <Card className="rounded-md border border-gray-300 shadow-none">
           <CardHeader>
-            <CardTitle>Login Logout Records</CardTitle>
+            <CardTitle>Attendances</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-12 lg:items-end">
@@ -259,20 +227,6 @@ const ReportPage = () => {
                 />
               </div>
 
-              <div className="flex flex-col space-y-2 lg:col-span-7">
-                <Label className="text-sm font-medium">Select Users</Label>
-                <Select
-                  isMulti
-                  value={selectedUsers}
-                  onChange={setSelectedUsers}
-                  options={userOptions}
-                  isLoading={usersLoading}
-                  className="react-select-container"
-                  classNamePrefix="react-select"
-                  placeholder="Select users..."
-                />
-              </div>
-
               <div className="flex flex-col space-y-2 lg:col-span-1">
                 <Button
                   onClick={() => fetchLogs(1, entriesPerPage)}
@@ -301,9 +255,6 @@ const ReportPage = () => {
                     Work Date
                   </TableHead>
                   <TableHead className="px-2 py-2 font-semibold">
-                    Employee Name
-                  </TableHead>
-                  <TableHead className="px-2 py-2 font-semibold">
                     Clock-In
                   </TableHead>
                   <TableHead className="px-2 py-2 font-semibold">
@@ -324,9 +275,6 @@ const ReportPage = () => {
                       {formatToLondon(log.createdAt, 'DD/MM/YYYY')}
                     </TableCell>
                     <TableCell className="whitespace-nowrap px-2 py-1.5">
-                      {log.userId.name}
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap px-2 py-1.5">
                       {formatToLondon(log.clockIn, 'HH:mm:ss')}
                     </TableCell>
                     <TableCell className="whitespace-nowrap px-2 py-1.5">
@@ -334,16 +282,23 @@ const ReportPage = () => {
                     </TableCell>
                     <TableCell className="whitespace-nowrap px-2 py-1.5">
                       {log.breaks && log.breaks.length > 0 ? (
-                        <div className="space-y-1 text-xs">
+                        <div className="space-y-2">
                           {log.breaks.map((brk) => (
-                            <div key={brk._id}>
+                            <div key={brk._id} className="text-xs">
                               <div>
-                                Break: {formatToLondon(brk.breakStart,  'DD-MM-YYYY HH:mm:ss')}
+                                Break:{' '}
+                                {formatToLondon(
+                                  brk.breakStart,
+                                  'DD-MM-YYYY HH:mm:ss'
+                                )}
                               </div>
                               <div>
                                 Return:{' '}
                                 {brk.breakEnd
-                                  ? formatToLondon(brk.breakEnd,  'DD-MM-YYYY HH:mm:ss')
+                                  ? formatToLondon(
+                                      brk.breakEnd,
+                                      'DD-MM-YYYY HH:mm:ss'
+                                    )
                                   : '—'}
                               </div>
                             </div>
@@ -354,9 +309,11 @@ const ReportPage = () => {
                       )}
                     </TableCell>
                     <TableCell className="whitespace-nowrap px-2 py-1.5 text-right">
-                      {formatDurationWithSeconds(
-                        calculateNetWorkingSeconds(log)
-                      )}
+                      {
+                        formatDurationWithSeconds(
+                            calculateNetWorkingSeconds(log)
+                          )
+                        }
                     </TableCell>
                   </TableRow>
                 ))}
@@ -389,4 +346,4 @@ const ReportPage = () => {
   );
 };
 
-export default ReportPage;
+export default AttendancePage;
