@@ -402,9 +402,9 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
                   className="rounded-md border border-slate-200 bg-slate-50 p-4"
                 >
                   <div className="flex items-start gap-3">
-                    <span className="mt-0.5 flex-shrink-0 font-medium text-slate-700">
+                    {/* <span className="mt-0.5 flex-shrink-0 font-medium text-slate-700">
                       {index + 1}.
-                    </span>
+                    </span> */}
                     <div className="ql-snow flex-1 text-slate-800">
                       {lo.description ? (
                         <div
