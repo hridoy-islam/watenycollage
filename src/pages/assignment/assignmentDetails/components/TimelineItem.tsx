@@ -61,16 +61,32 @@ export const TimelineItem: React.FC<TimelineItemProps> = ({
 
   const isSubmission = type === 'submission';
 
-  const showEditDeleteButtons = () => {
-    if (isTeacher) return true;
+  // const showEditDeleteButtons = () => {
+  //   if (isTeacher) return true;
 
-    if (isStudent && isSubmission) {
-      const canEdit = isLatestSubmissionItem && !hasFeedbackAfter;
-      return canEdit;
-    }
+  //   if (isStudent && isSubmission) {
+  //     const canEdit = isLatestSubmissionItem && !hasFeedbackAfter;
+  //     return canEdit;
+  //   }
 
-    return false;
-  };
+  //   return false;
+  // };
+
+
+const showEditDeleteButtons = () => {
+  if (isTeacher) return true;
+
+  if (isStudent && isSubmission) {
+    // Only allow if assignment is NOT completed AND meets edit conditions
+    return (
+      assignment?.status !== 'completed' &&
+      isLatestSubmissionItem &&
+      !hasFeedbackAfter
+    );
+  }
+
+  return false;
+};
 
   const canEditDelete = showEditDeleteButtons();
 

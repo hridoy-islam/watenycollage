@@ -102,7 +102,7 @@ export function StudentAssignmentFeedbackList() {
     try {
       setLoading(true);
       const response = await axiosInstance.get(
-        `/assignment?status=feedback_given&status=resubmission_required&status=completed&limit=all&studentId=${user?._id}`
+        `/assignment/student-feedback/${user._id}?limit=all`
       );
       const assignmentsData = response.data.data?.result || [];
       setAssignments(assignmentsData);
@@ -135,18 +135,6 @@ export function StudentAssignmentFeedbackList() {
   useEffect(() => {
     let filtered = assignments;
 
-    // Status filter: Only filter out completed assignments that have ALL feedback seen
-    filtered = filtered.filter(assignment => {
-      if (assignment.status === 'completed') {
-        // Check if there's at least one unseen feedback
-        const hasUnseenFeedback = assignment.feedbacks?.some(feedback => !feedback.seen);
-        return hasUnseenFeedback;
-      }
-      // For other statuses (feedback_given, resubmission_required), show all
-      return true;
-    });
-
-    // Search filter
     if (searchTerm) {
       const lowerSearchTerm = searchTerm.toLowerCase();
       filtered = filtered.filter(assignment => {

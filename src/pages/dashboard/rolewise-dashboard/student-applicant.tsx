@@ -143,28 +143,17 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
       // Fetch pending feedback count with proper filtering
       try {
         const pendingFeedbackRes = await axiosInstance.get(
-          `/assignment?status=feedback_given&status=resubmission_required&status=completed&limit=all&studentId=${user._id}`
+          `/assignment/student-feedback/${user._id}?limit=all`
         );
-        const pendingData: Assignment[] = pendingFeedbackRes.data?.data?.result || [];
+        const pendingData: Assignment[] = pendingFeedbackRes.data?.data?.meta.total || 0;
         
         // console.log('Raw pending feedback data:', pendingData);
         // console.log('Total assignments before filtering:', pendingData.length);
         
         // Apply the same filtering logic as in the feedback list
-        const filteredPendingData = pendingData.filter(assignment => {
-          if (assignment.status === 'completed') {
-            const hasUnseenFeedback = assignment.feedbacks?.some(feedback => !feedback.seen);
-            // console.log(`Assignment ${assignment._id} (${assignment.status}): hasUnseenFeedback = ${hasUnseenFeedback}`);
-            return hasUnseenFeedback;
-          }
-          // console.log(`Assignment ${assignment._id} (${assignment.status}): including in count`);
-          return true;
-        });
+       
 
-        // console.log('Assignments after filtering:', filteredPendingData.length);
-        // console.log('Filtered assignments:', filteredPendingData);
-
-        const finalCount = filteredPendingData.length;
+        const finalCount = pendingData;
         setPendingFeedbackCount(finalCount);
         // console.log('Final pending feedback count:', finalCount);
         

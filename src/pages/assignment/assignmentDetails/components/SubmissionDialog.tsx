@@ -183,23 +183,35 @@ export const SubmissionDialog: React.FC<SubmissionDialogProps> = ({
     await onFileSelect(e);
   };
 
+  // const handleRemoveFile = (index: number) => {
+  //   if ((isStudent && isFormDisabled) || !formState?.files) return;
+
+  //   // For editing submissions, allow removing any file including the last one
+  //   // The submit button will be disabled if no files remain
+  //   if (editingItem && editingItem.type === 'submission') {
+  //     onRemoveFile(index);
+  //     return;
+  //   }
+
+  //   // For new submissions, don't allow removing the last file
+  //   if (requiresFiles() && formState.files.length <= 1) {
+  //     return;
+  //   }
+
+  //   onRemoveFile(index);
+  // };
+
+
+  const shouldDisableFileRemoval = (fileIndex: number) => {
+  // Only disable if globally disabled (e.g., already submitted)
+  return (isStudent && isFormDisabled) || !formState?.files;
+};
+
   const handleRemoveFile = (index: number) => {
-    if ((isStudent && isFormDisabled) || !formState?.files) return;
-
-    // For editing submissions, allow removing any file including the last one
-    // The submit button will be disabled if no files remain
-    if (editingItem && editingItem.type === 'submission') {
-      onRemoveFile(index);
-      return;
-    }
-
-    // For new submissions, don't allow removing the last file
-    if (requiresFiles() && formState.files.length <= 1) {
-      return;
-    }
-
-    onRemoveFile(index);
-  };
+  if ((isStudent && isFormDisabled) || !formState?.files) return;
+  // ✅ Always allow removal — validation happens on submit
+  onRemoveFile(index);
+};
 
   const handleSubmit = () => {
     if (!isFormValid()) {
@@ -212,17 +224,17 @@ export const SubmissionDialog: React.FC<SubmissionDialogProps> = ({
   const isEditing = !!editingItem;
 
   // Check if we should disable file removal
-  const shouldDisableFileRemoval = (fileIndex: number) => {
-    if ((isStudent && isFormDisabled) || !formState?.files) return true;
+  // const shouldDisableFileRemoval = (fileIndex: number) => {
+  //   if ((isStudent && isFormDisabled) || !formState?.files) return true;
 
-    // For editing submissions, allow removing any file
-    if (editingItem && editingItem.type === 'submission') {
-      return false;
-    }
+  //   // For editing submissions, allow removing any file
+  //   if (editingItem && editingItem.type === 'submission') {
+  //     return false;
+  //   }
 
-    // For new submissions, disable removing the last file
-    return requiresFiles() && formState.files.length <= 1;
-  };
+  //   // For new submissions, disable removing the last file
+  //   return requiresFiles() && formState.files.length <= 1;
+  // };
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>

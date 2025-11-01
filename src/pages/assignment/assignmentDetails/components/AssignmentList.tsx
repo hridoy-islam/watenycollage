@@ -140,14 +140,14 @@ export const AssignmentList: React.FC<AssignmentListProps> = ({
                   )}
 
                   {/* === Unseen Counter === */}
-                  {unseenCount > 0 && (
+                  {/* {unseenCount > 0 && (
                     <div className="mt-2 flex items-center gap-1 text-xs text-blue-600">
                       <Eye className="h-3 w-3" />
                       {isStudent
                         ? `${unseenCount} new feedback${unseenCount > 1 ? 's' : ''}`
                         : `${unseenCount} new submission${unseenCount > 1 ? 's' : ''}`}
                     </div>
-                  )}
+                  )} */}
                 </div>
               );
             })

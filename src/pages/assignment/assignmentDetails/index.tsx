@@ -30,7 +30,7 @@ import { AssignmentHeader } from './components/AssignmentHeader';
 import { AssignmentContent } from './components/AssignmentContent';
 import { AssignmentTimeline } from './components/AssignmentTimeline';
 import { SubmissionDialog } from './components/SubmissionDialog';
-
+import { FinalFeedbackDialog } from './components/FinalFeedbackDialog';
 interface Submission {
   _id: string;
   submitBy: {
@@ -77,7 +77,7 @@ interface Assignment {
     name: string;
     email: string;
   };
-  courseMaterialAssignmentId:string;
+  courseMaterialAssignmentId: string;
   assignmentName: string;
   submissions: Submission[];
   feedbacks: Feedback[];
@@ -85,6 +85,8 @@ interface Assignment {
   requireResubmit: boolean;
   createdAt: string;
   updatedAt: string;
+  finalFeedback?: any; // Add this line
+  isFinalFeedback?: boolean;
 }
 
 interface CourseUnit {
@@ -182,18 +184,21 @@ const AssignmentDetailPage = () => {
   } | null>(null);
   const [loadingItems, setLoadingItems] = useState<Record<string, boolean>>({});
   const [count, setCount] = useState(0);
-
+  const [finalFeedbackDialogOpen, setFinalFeedbackDialogOpen] = useState(false);
+  const [submittingFinalFeedback, setSubmittingFinalFeedback] = useState(false);
   const counter = () => {
     setCount((prev) => prev + 1);
   };
 
   const isStudent = user?.role === 'student';
-  const isTeacher = user?.role === 'admin'||  user?.role === 'teacher';
+  const isTeacher = user?.role === 'admin' || user?.role === 'teacher';
 
   const location = useLocation();
-  const assignmentIdFromState = searchParams.get('assignmentId') || location.state?.assignmentId;;
+  const assignmentIdFromState =
+    searchParams.get('assignmentId') || location.state?.assignmentId;
   const [completionDialogOpen, setCompletionDialogOpen] = useState(false);
   const [markingCompleted, setMarkingCompleted] = useState(false);
+  const [editingFinalFeedback, setEditingFinalFeedback] = useState(false);
 
   const getUnseenCounts = (assignment: Assignment) => {
     if (isStudent) {
@@ -221,102 +226,96 @@ const AssignmentDetailPage = () => {
   // };
 
   const getAssignmentContent = () => {
-  if (!selectedAssignment || !unitMaterial?.assignments) return null;
+    if (!selectedAssignment || !unitMaterial?.assignments) return null;
 
-  const materialAssignment = unitMaterial.assignments.find(
-    (a: any) => a._id.toString() === selectedAssignment.courseMaterialAssignmentId
-  );
+    const materialAssignment = unitMaterial.assignments.find(
+      (a: any) =>
+        a._id.toString() === selectedAssignment.courseMaterialAssignmentId
+    );
 
-  return materialAssignment?.content || null;
-};
-
-  const markItemsAsSeen = async (assignment: Assignment) => {
-    if (!assignment) return;
-
-    try {
-      let itemsToUpdate: string[] = [];
-
-      if (isStudent) {
-        const unseenFeedbackIds = assignment.feedbacks
-          .filter((feedback) => !feedback.seen)
-          .map((feedback) => feedback._id);
-        itemsToUpdate = unseenFeedbackIds;
-      } else if (isTeacher) {
-        const unseenSubmissionIds = assignment.submissions
-          .filter((submission) => !submission.seen)
-          .map((submission) => submission._id);
-        itemsToUpdate = unseenSubmissionIds;
-      }
-
-      if (itemsToUpdate.length === 0) return;
-
-      const updateData: any = { $set: {} };
-
-      if (isStudent) {
-        assignment.feedbacks.forEach((feedback, index) => {
-          if (itemsToUpdate.includes(feedback._id)) {
-            updateData.$set[`feedbacks.${index}.seen`] = true;
-          }
-        });
-      } else if (isTeacher) {
-        assignment.submissions.forEach((submission, index) => {
-          if (itemsToUpdate.includes(submission._id)) {
-            updateData.$set[`submissions.${index}.seen`] = true;
-          }
-        });
-      }
-
-      if (Object.keys(updateData.$set).length === 0) return;
-
-      await axiosInstance.patch(`/assignment/${assignment._id}`, updateData);
-
-      setAssignments((prev) =>
-        prev.map((a) => {
-          if (a._id === assignment._id) {
-            const updatedAssignment = { ...a };
-            if (isStudent) {
-              updatedAssignment.feedbacks = a.feedbacks.map((feedback) =>
-                itemsToUpdate.includes(feedback._id)
-                  ? { ...feedback, seen: true }
-                  : feedback
-              );
-            } else if (isTeacher) {
-              updatedAssignment.submissions = a.submissions.map((submission) =>
-                itemsToUpdate.includes(submission._id)
-                  ? { ...submission, seen: true }
-                  : submission
-              );
-            }
-            return updatedAssignment;
-          }
-          return a;
-        })
-      );
-
-      if (selectedAssignment && selectedAssignment._id === assignment._id) {
-        setSelectedAssignment((prev) => {
-          if (!prev) return prev;
-          const updated = { ...prev };
-          if (isStudent) {
-            updated.feedbacks = prev.feedbacks.map((feedback) =>
-              itemsToUpdate.includes(feedback._id)
-                ? { ...feedback, seen: true }
-                : feedback
-            );
-          } else if (isTeacher) {
-            updated.submissions = prev.submissions.map((submission) =>
-              itemsToUpdate.includes(submission._id)
-                ? { ...submission, seen: true }
-                : submission
-            );
-          }
-          return updated;
-        });
-      }
-    } catch (error) {
-      console.error('Error marking items as seen:', error);
-    }
+    return materialAssignment?.content || null;
   };
+
+const markItemsAsSeen = async (assignment: Assignment) => {
+  if (!assignment) return;
+
+  try {
+    // Only proceed for the selected assignment
+    if (!selectedAssignment || selectedAssignment._id !== assignment._id) return;
+
+    let itemsToUpdate: string[] = [];
+
+    if (isStudent) {
+      // Handle regular feedbacks (if any)
+      const unseenFeedbackIds = assignment.feedbacks
+        .filter((feedback) => !feedback.seen)
+        .map((feedback) => feedback._id);
+      itemsToUpdate = unseenFeedbackIds;
+    } else if (isTeacher) {
+      const unseenSubmissionIds = assignment.submissions
+        .filter((submission) => !submission.seen)
+        .map((submission) => submission._id);
+      itemsToUpdate = unseenSubmissionIds;
+    }
+
+    const updateData: any = { $set: {} };
+
+    if (isStudent) {
+      // Update feedbacks
+      assignment.feedbacks.forEach((feedback, index) => {
+        if (itemsToUpdate.includes(feedback._id)) {
+          updateData.$set[`feedbacks.${index}.seen`] = true;
+        }
+      });
+
+      // Update finalFeedback if exists and unseen
+      if (assignment.finalFeedback && !assignment.finalFeedback.seen) {
+        updateData.$set['finalFeedback.seen'] = true;
+      }
+    } else if (isTeacher) {
+      assignment.submissions.forEach((submission, index) => {
+        if (itemsToUpdate.includes(submission._id)) {
+          updateData.$set[`submissions.${index}.seen`] = true;
+        }
+      });
+    }
+
+    if (Object.keys(updateData.$set).length === 0) return;
+
+    await axiosInstance.patch(`/assignment/${assignment._id}`, updateData);
+
+    // Update only the selected assignment locally
+    setAssignments((prev) =>
+      prev.map((a) => (a._id === assignment._id ? { ...a, ...updateData.$set } : a))
+    );
+
+    setSelectedAssignment((prev) => {
+      if (!prev) return prev;
+      const updated = { ...prev };
+
+      if (isStudent) {
+        updated.feedbacks = prev.feedbacks.map((feedback, index) =>
+          itemsToUpdate.includes(feedback._id)
+            ? { ...feedback, seen: true }
+            : feedback
+        );
+        if (updated.finalFeedback) {
+          updated.finalFeedback = { ...updated.finalFeedback, seen: true };
+        }
+      } else if (isTeacher) {
+        updated.submissions = prev.submissions.map((submission, index) =>
+          itemsToUpdate.includes(submission._id)
+            ? { ...submission, seen: true }
+            : submission
+        );
+      }
+
+      return updated;
+    });
+  } catch (error) {
+    console.error('Error marking items as seen:', error);
+  }
+};
 
 
   const fetchData = async () => {
@@ -326,7 +325,7 @@ const AssignmentDetailPage = () => {
       // Store the current selected assignment ID before refetching
       const currentSelectedId = selectedAssignment?._id;
 
-      const studentRes = await axiosInstance.get(`/users/${studentId}`);
+      const studentRes = await axiosInstance.get(`/users/${studentId}?fields=name,firstName,initial,lastName,email,role`);
       setStudentName(studentRes.data.data.name || 'Unknown');
 
       const unitRes = await axiosInstance.get(`/course-unit/${unitId}`);
@@ -353,7 +352,9 @@ const AssignmentDetailPage = () => {
         assignmentsData = unitMaterial.assignments.map(
           (materialAssignment: any, index: number) => {
             const existingAssignment = existingAssignments.find(
-              (ea: Assignment) => ea.courseMaterialAssignmentId === materialAssignment?._id.toString()
+              (ea: Assignment) =>
+                ea.courseMaterialAssignmentId ===
+                materialAssignment?._id.toString()
             );
 
             if (existingAssignment) {
@@ -377,9 +378,9 @@ const AssignmentDetailPage = () => {
                 email: ''
               },
               unitMaterialId: unitMaterial?._id,
-              courseMaterialAssignmentId:materialAssignment._id.toString(),
+              courseMaterialAssignmentId: materialAssignment._id.toString(),
               assignmentName:
-              materialAssignment.title || `Assignment ${index + 1}`,
+                materialAssignment.title || `Assignment ${index + 1}`,
               submissions: [],
               feedbacks: [],
               status: 'not_submitted',
@@ -429,8 +430,7 @@ const AssignmentDetailPage = () => {
           ) ||
           // If not found by ID, try to find by assignment name from state
           assignmentsData.find(
-            (assignment) =>
-              assignment.assignmentName === assignmentIdFromState
+            (assignment) => assignment.assignmentName === assignmentIdFromState
           ) ||
           null;
       }
@@ -1104,9 +1104,11 @@ const AssignmentDetailPage = () => {
           let submissionDeadline: string | undefined;
 
           if (selectedAssignment.status === 'not_submitted') {
-             const materialAssignment = unitMaterial?.assignments?.find(
-            (a: any) => a._id.toString() === selectedAssignment.courseMaterialAssignmentId
-          );
+            const materialAssignment = unitMaterial?.assignments?.find(
+              (a: any) =>
+                a._id.toString() ===
+                selectedAssignment.courseMaterialAssignmentId
+            );
 
             submissionDeadline = materialAssignment?.deadline;
           } else if (selectedAssignment.requireResubmit) {
@@ -1173,7 +1175,8 @@ const AssignmentDetailPage = () => {
                 unitId,
                 studentId,
                 unitMaterialId: unitMaterial?._id,
-                courseMaterialAssignmentId: selectedAssignment.courseMaterialAssignmentId, 
+                courseMaterialAssignmentId:
+                  selectedAssignment.courseMaterialAssignmentId,
                 // assignmentName: selectedAssignment.assignmentName,
                 submissions: [backendSubmission],
                 status: 'submitted',
@@ -1236,9 +1239,11 @@ const AssignmentDetailPage = () => {
             };
 
             if (selectedAssignment.status === 'not_submitted') {
-                const materialAssignment = unitMaterial?.assignments?.find(
-              (a: any) => a._id.toString() === selectedAssignment.courseMaterialAssignmentId
-            );
+              const materialAssignment = unitMaterial?.assignments?.find(
+                (a: any) =>
+                  a._id.toString() ===
+                  selectedAssignment.courseMaterialAssignmentId
+              );
               if (materialAssignment?.deadline) {
                 backendSubmission.deadline = materialAssignment.deadline;
               }
@@ -1283,7 +1288,8 @@ const AssignmentDetailPage = () => {
                   studentId,
                   unitMaterialId: unitMaterial?._id,
                   // assignmentName: selectedAssignment.assignmentName,
-                   courseMaterialAssignmentId: selectedAssignment.courseMaterialAssignmentId,
+                  courseMaterialAssignmentId:
+                    selectedAssignment.courseMaterialAssignmentId,
                   submissions: [backendSubmission],
                   status: 'submitted',
                   requireResubmit: false
@@ -1527,6 +1533,91 @@ const AssignmentDetailPage = () => {
     }
   };
 
+  const handleFinalFeedback = async (feedbackData: any) => {
+    if (!selectedAssignment) return;
+
+    try {
+      const response = await axiosInstance.patch(
+        `/assignment/${selectedAssignment._id}`,
+        {
+          finalFeedback: feedbackData,
+          submittedBy: user?._id,
+          status: 'completed',
+          isFinalFeedback: true
+        }
+      );
+
+      // if (response.data.success) {
+      //   // Update local state
+      //   const updatedAssignment = response.data.data;
+      //   setSelectedAssignment(updatedAssignment);
+      //   setAssignments((prev) =>
+      //     prev.map((a) =>
+      //       a._id === selectedAssignment._id ? updatedAssignment : a
+      //     )
+      //   );
+
+      //   return Promise.resolve();
+      // } else {
+      //   throw new Error('Failed to submit final feedback');
+      // }
+
+      counter();
+    } catch (error) {
+      console.error('Error submitting final feedback:', error);
+      return Promise.reject(error);
+    }
+  };
+
+  const handleEditFinalFeedback = async (feedbackData: any) => {
+    if (!selectedAssignment) return;
+
+    try {
+      setSubmittingFinalFeedback(true);
+
+      const response = await axiosInstance.patch(
+        `/assignment/${selectedAssignment._id}`,
+        {
+          finalFeedback: feedbackData,
+          submittedBy: user?._id,
+          updatedAt: new Date().toISOString()
+        }
+      );
+
+      // if (response.data.success) {
+      //   // Update local state with the updated assignment
+      //   const updatedAssignment = response.data.data;
+      //   setSelectedAssignment(updatedAssignment);
+      //   setAssignments((prev) =>
+      //     prev.map((a) =>
+      //       a._id === selectedAssignment._id ? updatedAssignment : a
+      //     )
+      //   );
+
+      //   toast({
+      //     title: 'Success',
+      //     description: 'Final feedback updated successfully!'
+      //   });
+
+      //   return Promise.resolve();
+      // } else {
+      //   throw new Error('Failed to update final feedback');
+      // }
+
+      counter();
+    } catch (error) {
+      console.error('Error updating final feedback:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update final feedback.',
+        variant: 'destructive'
+      });
+      return Promise.reject(error);
+    } finally {
+      setSubmittingFinalFeedback(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center py-10">
@@ -1552,7 +1643,6 @@ const AssignmentDetailPage = () => {
         isStudent={isStudent}
         studentName={studentName}
         courseUnit={courseUnit}
-        
       />
 
       {/* Responsive layout: column on mobile, row on medium+ */}
@@ -1570,13 +1660,16 @@ const AssignmentDetailPage = () => {
           />
         </div>
 
-        {/* Right Content Area - Forum Style */}
+        {/* Right Content Area */}
         <div className="flex flex-1 flex-col rounded-lg bg-white">
           {selectedAssignment ? (
             <>
-              {/* Assignment Post Header */}
+              {/* Assignment Content */}
               <AssignmentContent
-  courseMaterialAssignmentId={selectedAssignment.courseMaterialAssignmentId}                 effectiveDeadline={effectiveDeadline}
+                courseMaterialAssignmentId={
+                  selectedAssignment.courseMaterialAssignmentId
+                }
+                effectiveDeadline={effectiveDeadline}
                 isDeadlinePassed={isDeadlinePassed || false}
                 assignmentContent={getAssignmentContent()}
                 isTeacher={isTeacher}
@@ -1589,24 +1682,62 @@ const AssignmentDetailPage = () => {
                 selectedAssignmentName={selectedAssignment.assignmentName}
                 unitMaterial={unitMaterial}
                 actionButton={
-                  selectedAssignment.status !== 'completed' &&
-                  ((isStudent && canStudentSubmitCurrent) || isTeacher) && (
+                  isStudent
+                    ? // Student button
+                      selectedAssignment.status !== 'completed' &&
+                      canStudentSubmitCurrent && (
+                        <Button
+                          onClick={() => {
+                            setEditingItem(null);
+                            setDialogOpen(true);
+                          }}
+                          size={'sm'}
+                          className="bg-watney text-white hover:bg-watney/90"
+                        >
+                          <Plus className="mr-2 h-4 w-4" />
+                          Submit Assignment
+                        </Button>
+                      )
+                    : isTeacher
+                      ? // Teacher button
+                        selectedAssignment.status !== 'completed' &&
+                        selectedAssignment.status !== 'not_submitted' &&
+                        selectedAssignment.status !== null && (
+                          <Button
+                            onClick={() => {
+                              setEditingItem(null);
+                              setDialogOpen(true);
+                            }}
+                            size={'sm'}
+                            className="bg-watney text-white hover:bg-watney/90"
+                          >
+                            <Plus className="mr-2 h-4 w-4" />
+                            Add Feedback
+                          </Button>
+                        )
+                      : null
+                }
+                finalFeedbackButton={
+                  isTeacher &&
+                  selectedAssignment.status !== 'completed' && (
                     <Button
                       onClick={() => {
-                        setEditingItem(null);
-                        setDialogOpen(true);
+                        setEditingFinalFeedback(false); // Ensure we're not in editing mode
+                        setFinalFeedbackDialogOpen(true);
                       }}
+                      variant="outline"
                       size={'sm'}
                       className="bg-watney text-white hover:bg-watney/90"
+                      disabled={selectedAssignment.status === 'not_submitted'}
                     >
-                      <Plus className="mr-2 h-4 w-4" />
-                      {isStudent ? 'Submit Assignment' : 'Add Feedback'}
+                      <CheckCircle className="mr-2 h-4 w-4" />
+                      Final Feedback
                     </Button>
                   )
                 }
               />
 
-              {/* Forum Comments Section */}
+              {/* Timeline Section */}
               <AssignmentTimeline
                 timeline={getTimeline(selectedAssignment)}
                 isTeacher={isTeacher}
@@ -1616,12 +1747,42 @@ const AssignmentDetailPage = () => {
                 onDeleteItem={handleDeleteItem}
                 hasSelectedAssignment={!!selectedAssignment}
                 loadingItems={loadingItems}
+                isFinalFeedback={!!selectedAssignment?.isFinalFeedback}
+                onEditFinalFeedback={() => {
+                  setEditingFinalFeedback(true);
+                  setFinalFeedbackDialogOpen(true);
+                }}
               />
 
+              {/* Final Feedback Dialog */}
+              <FinalFeedbackDialog
+                isOpen={finalFeedbackDialogOpen}
+                onOpenChange={setFinalFeedbackDialogOpen}
+                unitMaterial={unitMaterial}
+                assignmentId={selectedAssignment?._id || ''}
+                onSubmit={async (feedbackData) => {
+                  setSubmittingFinalFeedback(true);
+                  try {
+                    if (editingFinalFeedback) {
+                      await handleEditFinalFeedback(feedbackData);
+                      setEditingFinalFeedback(false); // Reset editing state after successful update
+                    } else {
+                      await handleFinalFeedback(feedbackData);
+                    }
+                  } finally {
+                    setSubmittingFinalFeedback(false);
+                  }
+                }}
+                isSubmitting={submittingFinalFeedback}
+                initialData={selectedAssignment?.finalFeedback} // Pass existing data for editing
+                isEditing={editingFinalFeedback} // Pass editing state to the dialog
+              />
+
+              {/* Submission Dialog */}
               <SubmissionDialog
                 isOpen={dialogOpen}
                 onOpenChange={(open) => {
-                  console.log('Dialog onOpenChange called with:', open);
+                  // console.log('Dialog onOpenChange called with:', open);
                   setDialogOpen(open);
                   if (!open) {
                     setEditingItem(null);

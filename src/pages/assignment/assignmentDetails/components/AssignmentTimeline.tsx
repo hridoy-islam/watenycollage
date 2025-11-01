@@ -1,9 +1,230 @@
+// import React from 'react';
+// import { Card } from '@/components/ui/card';
+// import { MessageCircle, FileText } from 'lucide-react';
+// import { TimelineItem } from './TimelineItem';
+// import moment, { type Moment } from 'moment';
+// import { TimelineItemSkeleton } from './TimelineItemSkeleton';
+
+// interface Submission {
+//   _id: string;
+//   submitBy: {
+//     _id: string;
+//     name: string;
+//     email: string;
+//   };
+//   files: string[];
+//   comment?: string;
+//   seen: boolean;
+//   status: 'submitted' | 'resubmitted';
+//   deadline?: string;
+//   createdAt: string;
+// }
+
+// interface Feedback {
+//   _id: string;
+//   submitBy: {
+//     _id: string;
+//     name: string;
+//     email: string;
+//   };
+//   comment?: string;
+//   files: string[];
+//   deadline?: string;
+//   seen: boolean;
+//   createdAt: string;
+// }
+
+// interface Assignment {
+//   _id: string;
+//   applicationId: string;
+//   unitId: {
+//     _id: string;
+//     title: string;
+//     unitReference: string;
+//     level: string;
+//     gls: string;
+//     credit: string;
+//   };
+//   studentId: {
+//     _id: string;
+//     name: string;
+//     email: string;
+//   };
+//   assignmentName: string;
+//   submissions: Submission[];
+//   feedbacks: Feedback[];
+//   status: string;
+//   deadline?: string;
+//   requireResubmit: boolean;
+//   createdAt: string;
+//   updatedAt: string;
+// }
+
+// type TimelineItemType =
+//   | { type: 'submission'; data: Submission & { createdAt: Moment } }
+//   | { type: 'feedback'; data: Feedback & { createdAt: Moment } };
+
+// interface AssignmentTimelineProps {
+//   timeline: TimelineItemType[];
+//   isTeacher: boolean;
+//   isStudent?: boolean;
+//   selectedAssignment?: Assignment | null;
+//   onEditItem: (type: 'submission' | 'feedback', id: string) => void;
+//   onDeleteItem: (type: 'submission' | 'feedback', id: string) => void;
+//   hasSelectedAssignment: boolean;
+//   loadingItems?: Record<string, boolean>;
+// }
+
+// // Helper function to determine if a submission is the latest
+// const isFirstSubmission = (submissionId: string, submissions: Submission[]): boolean => {
+//   if (submissions.length === 0) return false;
+//   const firstSubmission = submissions[0];
+//   return firstSubmission._id === submissionId;
+// };
+
+// const isLatestSubmission = (submissionId: string, submissions: Submission[]): boolean => {
+//   if (submissions.length === 0) return false;
+
+//   // Sort submissions by createdAt in descending order (newest first)
+//   const sortedSubmissions = [...submissions].sort((a, b) =>
+//     moment(b.createdAt).valueOf() - moment(a.createdAt).valueOf()
+//   );
+
+//   // The first item in the sorted array is the latest submission
+//   const latestSubmission = sortedSubmissions[0];
+//   return latestSubmission._id === submissionId;
+// };
+
+// // Helper function to check if there's feedback after a submission
+// const hasFeedbackAfterSubmission = (
+//   submissionId: string,
+//   submissionCreatedAt: string,
+//   feedbacks: Feedback[]
+// ): boolean => {
+//   const submissionTime = moment(submissionCreatedAt);
+
+//   // Find all feedbacks that were created after this submission
+//   const feedbacksAfter = feedbacks.filter(feedback =>
+//     moment(feedback.createdAt).isAfter(submissionTime)
+//   );
+
+//   return feedbacksAfter.length > 0;
+// };
+
+// export const AssignmentTimeline: React.FC<AssignmentTimelineProps> = ({
+//   timeline,
+//   isTeacher,
+//   isStudent = false,
+//   selectedAssignment,
+//   onEditItem,
+//   onDeleteItem,
+//   hasSelectedAssignment,
+//   loadingItems = {}
+// }) => {
+//   if (!hasSelectedAssignment) {
+//     return (
+//       <div className="flex flex-1 items-center justify-center">
+//         <Card className="px-6 py-10 text-center">
+//           <FileText className="mx-auto mb-3 h-12 w-12 text-gray-400" />
+//           <h3 className="text-lg font-medium">No Assignment Selected</h3>
+//           <p className="text-gray-500">Select an assignment to continue.</p>
+//         </Card>
+//       </div>
+//     );
+//   }
+
+//   // Get loading item IDs
+//   const loadingItemIds = Object.keys(loadingItems);
+
+//   return (
+//     <div className="flex flex-1 flex-col">
+//       <div className="flex-1 space-y-4 overflow-y-auto p-4">
+//         {timeline.length === 0 && loadingItemIds.length === 0 ? (
+//           <div className="flex h-[100px] items-center justify-center text-gray-500">
+//             <div className="text-center">
+//               <MessageCircle className="mx-auto mb-2 h-12 w-12 text-gray-300" />
+//               <p>No submissions or feedback yet</p>
+//             </div>
+//           </div>
+//         ) : (
+//           <>
+//             {/* Show loading skeletons first */}
+//             {/* {loadingItemIds.map(loadingId => {
+//               // Determine type based on ID prefix
+//               const isSubmission = loadingId.startsWith('loading_submission');
+//               const type = isSubmission ? 'submission' : 'feedback';
+
+//               return (
+//                 <div key={loadingId} className="flex flex-col">
+//                   <TimelineItemSkeleton type={type} />
+//                 </div>
+//               );
+//             })} */}
+
+//             {/* Then show actual timeline items */}
+//             {timeline.map((item, idx) => {
+//               // Skip if this item is still loading
+//               if (loadingItems[item.data._id]) return null;
+
+//               // Calculate edit/delete permissions for submissions
+//               let isLatestSubmissionItem = false;
+//               let hasFeedbackAfter = false;
+
+//               if (item.type === 'submission' && selectedAssignment) {
+//                 // isFirstSubmissionItem = isFirstSubmission(
+//                 //   item.data._id,
+//                 //   selectedAssignment.submissions || []
+//                 // );
+
+//                 isLatestSubmissionItem = isLatestSubmission( // Use the new function
+//                   item.data._id,
+//                   selectedAssignment.submissions || []
+//                 );
+//                 hasFeedbackAfter = hasFeedbackAfterSubmission(
+//                   item.data._id,
+//                   item.data.createdAt.toISOString(),
+//                   selectedAssignment.feedbacks || []
+//                 );
+//               }
+
+//               return (
+//                 <div key={item.data._id || idx} className="flex flex-col">
+//                   <TimelineItem
+//                     type={item.type}
+//                     data={{
+//                       _id: item.data._id,
+//                       submitBy: item.data.submitBy,
+//                       comment: item.data.comment,
+//                       deadline: item?.data?.deadline,
+//                       files: item.data.files,
+//                       createdAt: item.data.createdAt.toISOString()
+//                     }}
+//                     isTeacher={isTeacher}
+//                     isStudent={isStudent}
+//                     assignment={selectedAssignment}
+//                     isLatestSubmissionItem={isLatestSubmissionItem}
+//                     hasFeedbackAfter={hasFeedbackAfter}
+//                     onEdit={onEditItem}
+//                     onDelete={onDeleteItem}
+//                     isLoading={loadingItems[item.data._id]}
+//                   />
+//                 </div>
+//               );
+//             })}
+//           </>
+//         )}
+//       </div>
+//     </div>
+//   );
+// };
+
 import React from 'react';
 import { Card } from '@/components/ui/card';
-import { MessageCircle, FileText } from 'lucide-react';
+import { MessageCircle, FileText, CheckCircle, User, Edit } from 'lucide-react';
 import { TimelineItem } from './TimelineItem';
 import moment, { type Moment } from 'moment';
 import { TimelineItemSkeleton } from './TimelineItemSkeleton';
+import { Button } from '@/components/ui/button';
 
 interface Submission {
   _id: string;
@@ -34,6 +255,25 @@ interface Feedback {
   createdAt: string;
 }
 
+interface FinalFeedback {
+  files: string[];
+  learningOutcomes: {
+    _id: string;
+    learningOutcomeId: string;
+    learningOutcomeTitle: string;
+    assessmentCriteria: {
+      _id: string;
+      criteriaId: string;
+      description: string;
+      fulfilled: boolean;
+      comment: string;
+    }[];
+  }[];
+  _id: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 interface Assignment {
   _id: string;
   applicationId: string;
@@ -53,6 +293,7 @@ interface Assignment {
   assignmentName: string;
   submissions: Submission[];
   feedbacks: Feedback[];
+  finalFeedback?: FinalFeedback; // 👈 Add optional finalFeedback
   status: string;
   deadline?: string;
   requireResubmit: boolean;
@@ -73,42 +314,43 @@ interface AssignmentTimelineProps {
   onDeleteItem: (type: 'submission' | 'feedback', id: string) => void;
   hasSelectedAssignment: boolean;
   loadingItems?: Record<string, boolean>;
+  isFinalFeedback?: boolean; // 👈 New prop
+  onEditFinalFeedback?: () => void; 
 }
 
 // Helper function to determine if a submission is the latest
-const isFirstSubmission = (submissionId: string, submissions: Submission[]): boolean => {
+const isFirstSubmission = (
+  submissionId: string,
+  submissions: Submission[]
+): boolean => {
   if (submissions.length === 0) return false;
   const firstSubmission = submissions[0];
   return firstSubmission._id === submissionId;
 };
 
-const isLatestSubmission = (submissionId: string, submissions: Submission[]): boolean => {
+const isLatestSubmission = (
+  submissionId: string,
+  submissions: Submission[]
+): boolean => {
   if (submissions.length === 0) return false;
-  
-  // Sort submissions by createdAt in descending order (newest first)
-  const sortedSubmissions = [...submissions].sort((a, b) => 
-    moment(b.createdAt).valueOf() - moment(a.createdAt).valueOf()
+
+  const sortedSubmissions = [...submissions].sort(
+    (a, b) => moment(b.createdAt).valueOf() - moment(a.createdAt).valueOf()
   );
-  
-  // The first item in the sorted array is the latest submission
+
   const latestSubmission = sortedSubmissions[0];
   return latestSubmission._id === submissionId;
 };
 
-
-// Helper function to check if there's feedback after a submission
 const hasFeedbackAfterSubmission = (
-  submissionId: string, 
-  submissionCreatedAt: string, 
+  submissionId: string,
+  submissionCreatedAt: string,
   feedbacks: Feedback[]
 ): boolean => {
   const submissionTime = moment(submissionCreatedAt);
-  
-  // Find all feedbacks that were created after this submission
-  const feedbacksAfter = feedbacks.filter(feedback => 
+  const feedbacksAfter = feedbacks.filter((feedback) =>
     moment(feedback.createdAt).isAfter(submissionTime)
   );
-  
   return feedbacksAfter.length > 0;
 };
 
@@ -120,7 +362,9 @@ export const AssignmentTimeline: React.FC<AssignmentTimelineProps> = ({
   onEditItem,
   onDeleteItem,
   hasSelectedAssignment,
-  loadingItems = {}
+  loadingItems = {},
+  isFinalFeedback = false,
+   onEditFinalFeedback 
 }) => {
   if (!hasSelectedAssignment) {
     return (
@@ -134,11 +378,14 @@ export const AssignmentTimeline: React.FC<AssignmentTimelineProps> = ({
     );
   }
 
-  // Get loading item IDs
   const loadingItemIds = Object.keys(loadingItems);
+
+  // Extract finalFeedback from selectedAssignment if not passed separately
+  const finalFeedback = selectedAssignment?.finalFeedback;
 
   return (
     <div className="flex flex-1 flex-col">
+      {/* Timeline Section */}
       <div className="flex-1 space-y-4 overflow-y-auto p-4">
         {timeline.length === 0 && loadingItemIds.length === 0 ? (
           <div className="flex h-[100px] items-center justify-center text-gray-500">
@@ -149,35 +396,14 @@ export const AssignmentTimeline: React.FC<AssignmentTimelineProps> = ({
           </div>
         ) : (
           <>
-            {/* Show loading skeletons first */}
-            {/* {loadingItemIds.map(loadingId => {
-              // Determine type based on ID prefix
-              const isSubmission = loadingId.startsWith('loading_submission');
-              const type = isSubmission ? 'submission' : 'feedback';
-              
-              return (
-                <div key={loadingId} className="flex flex-col">
-                  <TimelineItemSkeleton type={type} />
-                </div>
-              );
-            })} */}
-            
-            {/* Then show actual timeline items */}
             {timeline.map((item, idx) => {
-              // Skip if this item is still loading
               if (loadingItems[item.data._id]) return null;
-              
-              // Calculate edit/delete permissions for submissions
+
               let isLatestSubmissionItem = false;
               let hasFeedbackAfter = false;
-              
+
               if (item.type === 'submission' && selectedAssignment) {
-                // isFirstSubmissionItem = isFirstSubmission(
-                //   item.data._id, 
-                //   selectedAssignment.submissions || []
-                // );
-                
-                isLatestSubmissionItem = isLatestSubmission( // Use the new function
+                isLatestSubmissionItem = isLatestSubmission(
                   item.data._id,
                   selectedAssignment.submissions || []
                 );
@@ -215,6 +441,93 @@ export const AssignmentTimeline: React.FC<AssignmentTimelineProps> = ({
           </>
         )}
       </div>
+
+      {/* Final Feedback Table (shown below timeline) */}
+        {isFinalFeedback && finalFeedback && (
+        <Card className="m-4 border border-gray-300 p-4">
+          <div className="mb-4 flex items-center justify-between gap-3"> {/* Changed to justify-between */}
+            <div className="flex items-center gap-3">
+              {/* Avatar */}
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100">
+                <User className="h-4 w-4 text-blue-600" />
+              </div>
+
+              {/* Content */}
+              <div className="flex-1">
+                <div className="flex flex-wrap items-center gap-2 text-sm">
+                  <span className="font-semibold text-gray-900">
+                    {finalFeedback.submitBy?.name || 'Instructor'}
+                  </span>
+                  <span className="font-medium text-green-800">
+                    Feedback Provided:{' '}
+                    {moment(finalFeedback.createdAt).format('DD MMM YYYY')}
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2"> {/* Added flex container for title and button */}
+              <h1 className="text-sm font-semibold">Final Feedback</h1>
+              {isTeacher && onEditFinalFeedback && ( // Show edit button only for teachers
+                <button
+                  onClick={onEditFinalFeedback}
+                  className="p-1  text-white hover:bg-gray-100"
+                >
+                  <Edit className="h-4 w-4 text-gray-500" />
+                </button>
+              )}
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="min-w-full border-collapse border border-gray-300">
+              <thead className="text-sm">
+                <tr className="bg-watney text-white">
+                  <th className="w-[40%] border border-gray-300 px-4 py-2 text-left">
+                    Assessment Criteria
+                  </th>
+                  <th className="w-auto border border-gray-300 px-4 py-2 text-left">
+                    Achieved
+                  </th>
+                  <th className="w-[50%] border border-gray-300 px-4 py-2 text-left">
+                    Comment
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {finalFeedback.learningOutcomes.map((lo) => (
+                  <React.Fragment key={lo._id}>
+                    {/* Group Header for each Learning Outcome */}
+                    <tr className="bg-gray-50">
+                      <td
+                        colSpan={3}
+                        className="border border-gray-300 px-4 py-2 font-semibold text-gray-800"
+                      >
+                        {lo.learningOutcomeTitle}
+                      </td>
+                    </tr>
+
+                    {/* Criteria Rows */}
+                    {lo.assessmentCriteria.map((crit) => (
+                      <tr key={crit._id} className="text-xs">
+                        <td
+                          className="border ql-snow prose-sm border-gray-300 px-4 py-2"
+                          dangerouslySetInnerHTML={{ __html: crit.description }}
+                        />
+                        <td className="border border-gray-300 px-4 py-2 text-center font-semibold">
+                          {crit.fulfilled ? 'Yes' : 'No'}
+                        </td>
+                        <td className="border border-gray-300 px-4 py-2">
+                          {crit.comment}
+                        </td>
+                      </tr>
+                    ))}
+                  </React.Fragment>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      )}
     </div>
   );
 };

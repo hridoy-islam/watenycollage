@@ -14,6 +14,7 @@ interface AssignmentContentProps {
   studentName: string;
   unitMaterial: any;
   actionButton?: React.ReactNode;
+  finalFeedbackButton?: React.ReactNode;
 }
 
 export const AssignmentContent: React.FC<AssignmentContentProps> = ({
@@ -28,7 +29,8 @@ export const AssignmentContent: React.FC<AssignmentContentProps> = ({
   markingCompleted,
   studentName,
   unitMaterial,
-  actionButton
+  actionButton,
+  finalFeedbackButton
 }) => {
   // Get assignment details from unit material
   const getAssignmentDetails = () => {
@@ -58,12 +60,21 @@ export const AssignmentContent: React.FC<AssignmentContentProps> = ({
             {assignmentName}
           </h2>
 
-          {/* Action Button */}
+          <div className='flex flex-row items-center gap-4'>
+
+
           {actionButton && (
             <div className="w-full sm:w-auto flex justify-start sm:justify-end">
               {actionButton}
             </div>
           )}
+
+           {finalFeedbackButton && (
+             <div className="w-full sm:w-auto flex justify-start sm:justify-end">
+              {finalFeedbackButton}
+            </div>
+          )}
+          </div>
         </div>
 
         {/* Assignment Instructions */}
