@@ -31,6 +31,8 @@ import { AssignmentContent } from './components/AssignmentContent';
 import { AssignmentTimeline } from './components/AssignmentTimeline';
 import { SubmissionDialog } from './components/SubmissionDialog';
 import { FinalFeedbackDialog } from './components/FinalFeedbackDialog';
+import { ObservationFeedbackDialog } from './components/ObservationFeedbackDialog';
+import { set } from 'date-fns';
 interface Submission {
   _id: string;
   submitBy: {
@@ -86,7 +88,9 @@ interface Assignment {
   createdAt: string;
   updatedAt: string;
   finalFeedback?: any; // Add this line
+  observationFeedback?: any; // Add this line
   isFinalFeedback?: boolean;
+  isObservationFeedback?: boolean;
 }
 
 interface CourseUnit {
@@ -186,6 +190,9 @@ const AssignmentDetailPage = () => {
   const [count, setCount] = useState(0);
   const [finalFeedbackDialogOpen, setFinalFeedbackDialogOpen] = useState(false);
   const [submittingFinalFeedback, setSubmittingFinalFeedback] = useState(false);
+
+  const [observationDialogOpen, setObservationDialogOpen] = useState(false);
+  const [submittingObservation, setSubmittingObservation] = useState(false);
   const counter = () => {
     setCount((prev) => prev + 1);
   };
@@ -199,6 +206,7 @@ const AssignmentDetailPage = () => {
   const [completionDialogOpen, setCompletionDialogOpen] = useState(false);
   const [markingCompleted, setMarkingCompleted] = useState(false);
   const [editingFinalFeedback, setEditingFinalFeedback] = useState(false);
+  const [editingObservation, setEditingObservation] = useState(false);
 
   const getUnseenCounts = (assignment: Assignment) => {
     if (isStudent) {
@@ -236,87 +244,104 @@ const AssignmentDetailPage = () => {
     return materialAssignment?.content || null;
   };
 
-const markItemsAsSeen = async (assignment: Assignment) => {
-  if (!assignment) return;
+  const markItemsAsSeen = async (assignment: Assignment) => {
+    if (!assignment) return;
 
-  try {
-    // Only proceed for the selected assignment
-    if (!selectedAssignment || selectedAssignment._id !== assignment._id) return;
+    try {
+      // Only proceed for the selected assignment
+      if (!selectedAssignment || selectedAssignment._id !== assignment._id)
+        return;
 
-    let itemsToUpdate: string[] = [];
-
-    if (isStudent) {
-      // Handle regular feedbacks (if any)
-      const unseenFeedbackIds = assignment.feedbacks
-        .filter((feedback) => !feedback.seen)
-        .map((feedback) => feedback._id);
-      itemsToUpdate = unseenFeedbackIds;
-    } else if (isTeacher) {
-      const unseenSubmissionIds = assignment.submissions
-        .filter((submission) => !submission.seen)
-        .map((submission) => submission._id);
-      itemsToUpdate = unseenSubmissionIds;
-    }
-
-    const updateData: any = { $set: {} };
-
-    if (isStudent) {
-      // Update feedbacks
-      assignment.feedbacks.forEach((feedback, index) => {
-        if (itemsToUpdate.includes(feedback._id)) {
-          updateData.$set[`feedbacks.${index}.seen`] = true;
-        }
-      });
-
-      // Update finalFeedback if exists and unseen
-      if (assignment.finalFeedback && !assignment.finalFeedback.seen) {
-        updateData.$set['finalFeedback.seen'] = true;
-      }
-    } else if (isTeacher) {
-      assignment.submissions.forEach((submission, index) => {
-        if (itemsToUpdate.includes(submission._id)) {
-          updateData.$set[`submissions.${index}.seen`] = true;
-        }
-      });
-    }
-
-    if (Object.keys(updateData.$set).length === 0) return;
-
-    await axiosInstance.patch(`/assignment/${assignment._id}`, updateData);
-
-    // Update only the selected assignment locally
-    setAssignments((prev) =>
-      prev.map((a) => (a._id === assignment._id ? { ...a, ...updateData.$set } : a))
-    );
-
-    setSelectedAssignment((prev) => {
-      if (!prev) return prev;
-      const updated = { ...prev };
+      let itemsToUpdate: string[] = [];
 
       if (isStudent) {
-        updated.feedbacks = prev.feedbacks.map((feedback, index) =>
-          itemsToUpdate.includes(feedback._id)
-            ? { ...feedback, seen: true }
-            : feedback
-        );
-        if (updated.finalFeedback) {
-          updated.finalFeedback = { ...updated.finalFeedback, seen: true };
-        }
+        // Handle regular feedbacks (if any)
+        const unseenFeedbackIds = assignment.feedbacks
+          .filter((feedback) => !feedback.seen)
+          .map((feedback) => feedback._id);
+        itemsToUpdate = unseenFeedbackIds;
       } else if (isTeacher) {
-        updated.submissions = prev.submissions.map((submission, index) =>
-          itemsToUpdate.includes(submission._id)
-            ? { ...submission, seen: true }
-            : submission
-        );
+        const unseenSubmissionIds = assignment.submissions
+          .filter((submission) => !submission.seen)
+          .map((submission) => submission._id);
+        itemsToUpdate = unseenSubmissionIds;
       }
 
-      return updated;
-    });
-  } catch (error) {
-    console.error('Error marking items as seen:', error);
-  }
-};
+      const updateData: any = { $set: {} };
 
+      if (isStudent) {
+        // Update feedbacks
+        assignment.feedbacks.forEach((feedback, index) => {
+          if (itemsToUpdate.includes(feedback._id)) {
+            updateData.$set[`feedbacks.${index}.seen`] = true;
+          }
+        });
+
+        // Update finalFeedback if exists and unseen
+        if (assignment.finalFeedback && !assignment.finalFeedback.seen) {
+          updateData.$set['finalFeedback.seen'] = true;
+        }
+
+        // Update finalFeedback if exists and unseen
+        if (
+          assignment.observationFeedback &&
+          !assignment.observationFeedback.seen
+        ) {
+          updateData.$set['observationFeedback.seen'] = true;
+        }
+      } else if (isTeacher) {
+        assignment.submissions.forEach((submission, index) => {
+          if (itemsToUpdate.includes(submission._id)) {
+            updateData.$set[`submissions.${index}.seen`] = true;
+          }
+        });
+      }
+
+      if (Object.keys(updateData.$set).length === 0) return;
+
+      await axiosInstance.patch(`/assignment/${assignment._id}`, updateData);
+
+      // Update only the selected assignment locally
+      setAssignments((prev) =>
+        prev.map((a) =>
+          a._id === assignment._id ? { ...a, ...updateData.$set } : a
+        )
+      );
+
+      setSelectedAssignment((prev) => {
+        if (!prev) return prev;
+        const updated = { ...prev };
+
+        if (isStudent) {
+          updated.feedbacks = prev.feedbacks.map((feedback, index) =>
+            itemsToUpdate.includes(feedback._id)
+              ? { ...feedback, seen: true }
+              : feedback
+          );
+          if (updated.finalFeedback) {
+            updated.finalFeedback = { ...updated.finalFeedback, seen: true };
+          }
+
+          if (updated.observationFeedback) {
+            updated.observationFeedback = {
+              ...updated.observationFeedback,
+              seen: true
+            };
+          }
+        } else if (isTeacher) {
+          updated.submissions = prev.submissions.map((submission, index) =>
+            itemsToUpdate.includes(submission._id)
+              ? { ...submission, seen: true }
+              : submission
+          );
+        }
+
+        return updated;
+      });
+    } catch (error) {
+      console.error('Error marking items as seen:', error);
+    }
+  };
 
   const fetchData = async () => {
     try {
@@ -325,7 +350,9 @@ const markItemsAsSeen = async (assignment: Assignment) => {
       // Store the current selected assignment ID before refetching
       const currentSelectedId = selectedAssignment?._id;
 
-      const studentRes = await axiosInstance.get(`/users/${studentId}?fields=name,firstName,initial,lastName,email,role`);
+      const studentRes = await axiosInstance.get(
+        `/users/${studentId}?fields=name,firstName,initial,lastName,email,role`
+      );
       setStudentName(studentRes.data.data.name || 'Unknown');
 
       const unitRes = await axiosInstance.get(`/course-unit/${unitId}`);
@@ -1547,24 +1574,30 @@ const markItemsAsSeen = async (assignment: Assignment) => {
         }
       );
 
-      // if (response.data.success) {
-      //   // Update local state
-      //   const updatedAssignment = response.data.data;
-      //   setSelectedAssignment(updatedAssignment);
-      //   setAssignments((prev) =>
-      //     prev.map((a) =>
-      //       a._id === selectedAssignment._id ? updatedAssignment : a
-      //     )
-      //   );
-
-      //   return Promise.resolve();
-      // } else {
-      //   throw new Error('Failed to submit final feedback');
-      // }
-
       counter();
     } catch (error) {
       console.error('Error submitting final feedback:', error);
+      return Promise.reject(error);
+    }
+  };
+
+  const handleObservation = async (feedbackData: any) => {
+    if (!selectedAssignment) return;
+
+    try {
+      const response = await axiosInstance.patch(
+        `/assignment/${selectedAssignment._id}`,
+        {
+          observationFeedback: feedbackData,
+          submittedBy: user?._id,
+          status: 'feedback_given',
+          isObservationFeedback: true
+        }
+      );
+
+      counter();
+    } catch (error) {
+      console.error('Error submitting observation feedback:', error);
       return Promise.reject(error);
     }
   };
@@ -1584,26 +1617,6 @@ const markItemsAsSeen = async (assignment: Assignment) => {
         }
       );
 
-      // if (response.data.success) {
-      //   // Update local state with the updated assignment
-      //   const updatedAssignment = response.data.data;
-      //   setSelectedAssignment(updatedAssignment);
-      //   setAssignments((prev) =>
-      //     prev.map((a) =>
-      //       a._id === selectedAssignment._id ? updatedAssignment : a
-      //     )
-      //   );
-
-      //   toast({
-      //     title: 'Success',
-      //     description: 'Final feedback updated successfully!'
-      //   });
-
-      //   return Promise.resolve();
-      // } else {
-      //   throw new Error('Failed to update final feedback');
-      // }
-
       counter();
     } catch (error) {
       console.error('Error updating final feedback:', error);
@@ -1615,6 +1628,35 @@ const markItemsAsSeen = async (assignment: Assignment) => {
       return Promise.reject(error);
     } finally {
       setSubmittingFinalFeedback(false);
+    }
+  };
+
+  const handleEditObservationFeedback = async (feedbackData: any) => {
+    if (!selectedAssignment) return;
+
+    try {
+      setSubmittingObservation(true);
+
+      const response = await axiosInstance.patch(
+        `/assignment/${selectedAssignment._id}`,
+        {
+          observationFeedback: feedbackData,
+          submittedBy: user?._id,
+          updatedAt: new Date().toISOString()
+        }
+      );
+
+      counter();
+    } catch (error) {
+      console.error('Error updating observation feedback:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update observation feedback.',
+        variant: 'destructive'
+      });
+      return Promise.reject(error);
+    } finally {
+      setSubmittingObservation(false);
     }
   };
 
@@ -1730,8 +1772,26 @@ const markItemsAsSeen = async (assignment: Assignment) => {
                       className="bg-watney text-white hover:bg-watney/90"
                       disabled={selectedAssignment.status === 'not_submitted'}
                     >
-                      <CheckCircle className="mr-2 h-4 w-4" />
+                      {/* <CheckCircle className="mr-2 h-4 w-4" /> */}
                       Final Feedback
+                    </Button>
+                  )
+                }
+                observationButton={
+                  isTeacher &&
+                  selectedAssignment.status !== 'completed' && (
+                    <Button
+                      onClick={() => {
+                        setEditingObservation(false); // Ensure we're not in editing mode
+                        setObservationDialogOpen(true);
+                      }}
+                      variant="outline"
+                      size={'sm'}
+                      className="bg-watney text-white hover:bg-watney/90"
+                      disabled={selectedAssignment.status === 'not_submitted'}
+                    >
+                      {/* <CheckCircle className="mr-2 h-4 w-4" /> */}
+                      Observation Feedback
                     </Button>
                   )
                 }
@@ -1748,9 +1808,17 @@ const markItemsAsSeen = async (assignment: Assignment) => {
                 hasSelectedAssignment={!!selectedAssignment}
                 loadingItems={loadingItems}
                 isFinalFeedback={!!selectedAssignment?.isFinalFeedback}
+                isObservationFeedback={
+                  !!selectedAssignment?.isObservationFeedback
+                }
                 onEditFinalFeedback={() => {
                   setEditingFinalFeedback(true);
                   setFinalFeedbackDialogOpen(true);
+                }}
+
+                onEditObservationFeedback={() => {
+                  setEditingObservation(true);
+                  setObservationDialogOpen(true);
                 }}
               />
 
@@ -1776,6 +1844,30 @@ const markItemsAsSeen = async (assignment: Assignment) => {
                 isSubmitting={submittingFinalFeedback}
                 initialData={selectedAssignment?.finalFeedback} // Pass existing data for editing
                 isEditing={editingFinalFeedback} // Pass editing state to the dialog
+              />
+
+              {/* Final Feedback Dialog */}
+              <ObservationFeedbackDialog
+                isOpen={observationDialogOpen}
+                onOpenChange={setObservationDialogOpen}
+                unitMaterial={unitMaterial}
+                assignmentId={selectedAssignment?._id || ''}
+                onSubmit={async (feedbackData) => {
+                  setSubmittingObservation(true);
+                  try {
+                    if (editingObservation) {
+                      await handleEditObservationFeedback(feedbackData);
+                      setEditingObservation(false); // Reset editing state after successful update
+                    } else {
+                      await handleObservation(feedbackData);
+                    }
+                  } finally {
+                    setSubmittingObservation(false);
+                  }
+                }}
+                isSubmitting={submittingObservation}
+                initialData={selectedAssignment?.observationFeedback} // Pass existing data for editing
+                isEditing={editingObservation} // Pass editing state to the dialog
               />
 
               {/* Submission Dialog */}

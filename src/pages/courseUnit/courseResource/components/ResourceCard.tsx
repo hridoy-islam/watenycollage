@@ -66,7 +66,7 @@ interface ResourceCardProps {
   studentSubmission?: any;
   onEdit: (resource: Resource) => void;
   onDelete: (id: string) => void;
-  applicationId: any
+  applicationId: any;
 }
 
 const ResourceCard: React.FC<ResourceCardProps> = ({
@@ -80,18 +80,13 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
   const navigate = useNavigate();
   const { id, unitId } = useParams();
   const user = useSelector((state: any) => state.auth.user);
-  const isAdmin = user?.role === 'admin';
+  const isAdmin = user?.role === 'admin' || user?.role === 'teacher';
   const isStudent = user?.role === 'student';
 
-  // Dialog state for student submission
-
+  console.log(isAdmin);
 
   // 🔥 Delete confirmation dialog state
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-
-
-
-
 
   const getResourceTypeIcon = (type: string) => {
     switch (type) {
@@ -123,12 +118,9 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
     }
   };
 
-
-
   if (resource.type === 'assignment') {
     const [threadData, setThreadData] = useState<{
       assignment: any;
-     
     } | null>(null);
 
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -139,7 +131,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
       const loadAssignment = async () => {
         try {
           // Get Application ID
-         
+
           // Get Assignment Data
           const assignmentRes = await axiosInstance.get(
             `/assignment?studentId=${user._id}&assignmentName=${encodeURIComponent(resource.title)}&unitId=${unitId}`
@@ -150,7 +142,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
             : assignmentRes.data.data;
 
           setThreadData({
-            assignment: assignmentData,
+            assignment: assignmentData
           });
         } catch (err) {
           console.error('Failed to load assignment', err);
@@ -159,12 +151,11 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
             description: 'Could not load assignment.',
             variant: 'destructive'
           });
-        } 
+        }
       };
 
       loadAssignment();
     }, [isStudent, user?._id, id, unitId]);
-
 
     return (
       <div className="group flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4">
@@ -250,7 +241,6 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
             )}
           </div>
         </div>
-
       </div>
     );
   }
@@ -326,6 +316,8 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
 
   // === Learning Outcome ===
   if (resource.type === 'learning-outcome') {
+    console.log(resource, 'aa');
+
     return (
       <AccordionItem key={resource._id} value={resource._id}>
         <AccordionTrigger className="px-4 py-2 hover:no-underline">
@@ -337,6 +329,17 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
               <span className="font-medium">
                 {resource.learningOutcomes || ''}
               </span>
+
+              {isAdmin && (
+                <>
+                  {resource?.finalFeedback && (
+                    <Badge className="text-white bg-watney text-xs">Final Feedback</Badge>
+                  )}
+                  {resource?.observation && (
+                    <Badge className="text-white bg-watney text-xs">Observation Feedback</Badge>
+                  )}
+                </>
+              )}
             </div>
             {isAdmin && (
               <div className="flex gap-2">

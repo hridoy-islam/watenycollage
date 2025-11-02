@@ -32,6 +32,8 @@ export interface Resource {
   fileName?: string;
   deadline?: string;
   learningOutcomes?: string;
+  isFinalFeedback?: boolean;
+  isObservationFeedback?: boolean;
   description?: string;
   assessmentCriteria?: LearningOutcomeItem[];
 }

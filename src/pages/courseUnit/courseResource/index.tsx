@@ -6,7 +6,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  DialogTrigger
 } from '@/components/ui/dialog';
 import { Plus, GraduationCap, MoveLeft } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -18,7 +18,12 @@ import { allowedFileTypes, MAX_FILE_SIZE } from './components/utils';
 import axiosInstance from '@/lib/axios';
 import { useSelector } from 'react-redux';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
-import { ContentType, Resource, ResourceType, UploadState } from './components/types';
+import {
+  ContentType,
+  Resource,
+  ResourceType,
+  UploadState
+} from './components/types';
 import ResourceTypeSelector from './components/ResourceTypeSelector';
 import ResourceForm from './components/ResourceForm';
 import ResourceList from './components/ResourceList';
@@ -32,9 +37,12 @@ function CourseModule() {
   const isStudent = user?.role === 'student';
 
   const [resources, setResources] = useState<Resource[]>([]);
-  const [studentSubmissions, setStudentSubmissions] = useState<Record<string, any>>({});
+  const [studentSubmissions, setStudentSubmissions] = useState<
+    Record<string, any>
+  >({});
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [selectedResourceType, setSelectedResourceType] = useState<ResourceType | null>(null);
+  const [selectedResourceType, setSelectedResourceType] =
+    useState<ResourceType | null>(null);
   const [editingResource, setEditingResource] = useState<Resource | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -44,11 +52,14 @@ function CourseModule() {
     deadline: undefined,
     learningOutcomes: '',
     assessmentCriteria: [],
+    finalFeedback: undefined,
+    observation: undefined,
+  
   });
 
   const [uploadState, setUploadState] = useState<UploadState>({
     selectedDocument: null,
-    fileName: null,
+    fileName: null
   });
   const [uploadingFile, setUploadingFile] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -76,12 +87,16 @@ function CourseModule() {
       // Add student submissions request if student
       if (isStudent && user?._id) {
         requests.push(
-          axiosInstance.get(`/assignment?studentId=${user._id}&unitId=${unitId}`)
+          axiosInstance.get(
+            `/assignment?studentId=${user._id}&unitId=${unitId}`
+          )
         );
 
-         requests.push(
-        axiosInstance.get(`/application-course?studentId=${user._id}&courseId=${id}`)
-      );
+        requests.push(
+          axiosInstance.get(
+            `/application-course?studentId=${user._id}&courseId=${id}`
+          )
+        );
       }
 
       const responses = await Promise.all(requests);
@@ -103,7 +118,7 @@ function CourseModule() {
             type: 'introduction',
             content: material.introduction.content || '',
             title: undefined,
-            unitId,
+            unitId
           });
         }
 
@@ -111,7 +126,7 @@ function CourseModule() {
           studyGuides: 'study-guide',
           lectures: 'lecture',
           learningOutcomes: 'learning-outcome',
-          assignments: 'assignment',
+          assignments: 'assignment'
         };
 
         Object.entries(typeMap).forEach(([key, resourceType]) => {
@@ -129,9 +144,12 @@ function CourseModule() {
               assessmentCriteria:
                 item.assessmentCriteria?.map((ao: any) => ({
                   _id: ao._id,
-                  description: ao.description,
+                  description: ao.description
                 })) || [],
-              unitId,
+              finalFeedback: item.finalFeedback || false, // Added
+              observation: item.observation || false, // Added
+              
+              unitId
             });
           });
         });
@@ -149,19 +167,18 @@ function CourseModule() {
         setStudentSubmissions(grouped);
       }
 
-  if (isStudent && responses[3]) {
-      const appRes = responses[3];
-      const apps = appRes.data.data.result || [];
-      const appId = apps.length > 0 ? apps[0]._id : null;
-      setApplicationId(appId);
-    }
-
+      if (isStudent && responses[3]) {
+        const appRes = responses[3];
+        const apps = appRes.data.data.result || [];
+        const appId = apps.length > 0 ? apps[0]._id : null;
+        setApplicationId(appId);
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
       toast({
         title: 'Error',
         description: 'Failed to load course data.',
-        variant: 'destructive',
+        variant: 'destructive'
       });
     } finally {
       setLoading(false);
@@ -175,6 +192,7 @@ function CourseModule() {
   }, [unitId, isStudent, user?._id]);
 
   // Initialize form when editing
+  // Initialize form when editing
   useEffect(() => {
     if (editingResource) {
       setFormData({
@@ -183,10 +201,12 @@ function CourseModule() {
         deadline: editingResource.deadline || null,
         learningOutcomes: editingResource.learningOutcomes || '',
         assessmentCriteria: editingResource.assessmentCriteria || [],
+        finalFeedback: editingResource.finalFeedback || false,
+        observation: editingResource.observation || false
       });
       setUploadState({
         selectedDocument: editingResource.fileUrl || null,
-        fileName: editingResource.fileName || null,
+        fileName: editingResource.fileName || null
       });
       setContentType(editingResource.content ? 'text' : 'upload');
       setSelectedResourceType(editingResource.type);
@@ -197,12 +217,13 @@ function CourseModule() {
         deadline: null,
         learningOutcomes: '',
         assessmentCriteria: [],
+        finalFeedback: false,
+        observation: false
       });
       setUploadState({ selectedDocument: null, fileName: null });
       setContentType('text');
     }
   }, [editingResource]);
-
   // ✅ File upload handler
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -216,7 +237,7 @@ function CourseModule() {
       toast({
         title: 'File too large',
         description: 'File must be less than 20MB.',
-        variant: 'destructive',
+        variant: 'destructive'
       });
       setUploadingFile(false);
       return;
@@ -236,7 +257,7 @@ function CourseModule() {
             );
             setUploadProgress(percentCompleted);
           }
-        },
+        }
       });
 
       if (
@@ -248,7 +269,7 @@ function CourseModule() {
 
         setUploadState({
           selectedDocument: fileUrl,
-          fileName: file.name,
+          fileName: file.name
         });
 
         setContentType('upload');
@@ -266,7 +287,7 @@ function CourseModule() {
       toast({
         title: 'Upload failed',
         description: 'Could not upload your document.',
-        variant: 'destructive',
+        variant: 'destructive'
       });
     } finally {
       setUploadingFile(false);
@@ -282,7 +303,7 @@ function CourseModule() {
       content: '',
       deadline: undefined,
       learningOutcomes: '',
-      assessmentCriteria: [],
+      assessmentCriteria: []
     });
     setUploadState({ selectedDocument: null, fileName: null });
     setContentType('text');
@@ -297,209 +318,230 @@ function CourseModule() {
       content: '',
       deadline: undefined,
       learningOutcomes: '',
-      assessmentCriteria: [],
+      assessmentCriteria: []
     });
     setUploadState({ selectedDocument: null, fileName: null });
     setContentType('text');
   };
 
-const validateAndSaveResource = async () => {
-  if (!id || !unitId) {
-    toast({
-      title: 'Error',
-      description: 'Course ID or Unit ID is missing.',
-      variant: 'destructive',
-    });
-    return;
-  }
+  const validateAndSaveResource = async () => {
+    if (!id || !unitId) {
+      toast({
+        title: 'Error',
+        description: 'Course ID or Unit ID is missing.',
+        variant: 'destructive'
+      });
+      return;
+    }
 
-  // === Handle Assignment Definition (Admin only) ===
-  if (selectedResourceType === 'assignment') {
+    // === Handle Assignment Definition (Admin only) ===
+    if (selectedResourceType === 'assignment') {
+      if (!isAdmin) {
+        toast({
+          title: 'Access Denied',
+          description: 'Only instructors can create assignments.',
+          variant: 'destructive'
+        });
+        return;
+      }
+
+      if (!formData.title?.trim()) {
+        toast({
+          title: 'Error',
+          description: 'Assignment title is required.',
+          variant: 'destructive'
+        });
+        return;
+      }
+      if (!formData.deadline) {
+        toast({
+          title: 'Error',
+          description: 'Deadline is required.',
+          variant: 'destructive'
+        });
+        return;
+      }
+
+      try {
+        let existingMaterial: any = null;
+        let isNewMaterial = false;
+
+        try {
+          const res = await axiosInstance.get(
+            `/unit-material?unitId=${unitId}&limit=1`
+          );
+          existingMaterial = res.data.data.result[0] || null;
+        } catch (err) {
+          // OK if not exists
+        }
+
+        const newAssignment = {
+          title: formData.title.trim(),
+          deadline: formData.deadline,
+          content: formData.content?.trim() || '',
+          type: 'assignment'
+        };
+
+        const payload: any = {
+          courseId: id,
+          unitId
+        };
+
+        let currentAssignments = existingMaterial?.assignments || [];
+
+        if (editingResource) {
+          currentAssignments = currentAssignments.map((item: any) =>
+            item._id === editingResource._id
+              ? { ...newAssignment, _id: item._id }
+              : item
+          );
+        } else {
+          currentAssignments = [...currentAssignments, newAssignment];
+        }
+
+        payload.assignments = currentAssignments;
+
+        let response;
+        if (existingMaterial) {
+          response = await axiosInstance.patch(
+            `/unit-material/${existingMaterial._id}`,
+            payload
+          );
+          toast({
+            title: editingResource
+              ? 'Assignment updated successfully!'
+              : 'Assignment added successfully!'
+          });
+        } else {
+          response = await axiosInstance.post('/unit-material', payload);
+          toast({ title: 'Assignment created successfully!' });
+        }
+
+        fetchData();
+        resetForm();
+        return;
+      } catch (error) {
+        console.error('Save assignment definition error:', error);
+        toast({
+          title: 'Failed to save assignment.',
+          variant: 'destructive'
+        });
+        return;
+      }
+    }
+
+    // === Handle other unit-material resources ===
     if (!isAdmin) {
       toast({
         title: 'Access Denied',
-        description: 'Only instructors can create assignments.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    if (!formData.title?.trim()) {
-      toast({
-        title: 'Error',
-        description: 'Assignment title is required.',
-        variant: 'destructive',
-      });
-      return;
-    }
-    if (!formData.deadline) {
-      toast({
-        title: 'Error',
-        description: 'Deadline is required.',
-        variant: 'destructive',
+        description: 'Only instructors can create this type of resource.',
+        variant: 'destructive'
       });
       return;
     }
 
     try {
       let existingMaterial: any = null;
-      let isNewMaterial = false;
-      
       try {
-        const res = await axiosInstance.get(`/unit-material?unitId=${unitId}&limit=1`);
+        const res = await axiosInstance.get(
+          `/unit-material?unitId=${unitId}&limit=1`
+        );
         existingMaterial = res.data.data.result[0] || null;
       } catch (err) {
-        // OK if not exists
+        // OK
       }
 
-      const newAssignment = {
-        title: formData.title.trim(),
-        deadline: formData.deadline,
-        content: formData.content?.trim() || '',
-        type: 'assignment',
-      };
+      const payload: any = { courseId: id, unitId };
 
-      const payload: any = {
-        courseId: id,
-        unitId,
-      };
-
-      let currentAssignments = existingMaterial?.assignments || [];
-
-      if (editingResource) {
-        currentAssignments = currentAssignments.map((item: any) =>
-          item._id === editingResource._id
-            ? { ...newAssignment, _id: item._id }
-            : item
-        );
+      if (selectedResourceType === 'introduction') {
+        payload.introduction = {
+          type: 'introduction',
+          content: formData.content || ''
+        };
       } else {
-        currentAssignments = [...currentAssignments, newAssignment];
+        const fieldMap: Record<
+          Exclude<ResourceType, 'introduction' | 'assignment'>,
+          string
+        > = {
+          'study-guide': 'studyGuides',
+          lecture: 'lectures',
+          'learning-outcome': 'learningOutcomes'
+        };
+
+        const targetField =
+          fieldMap[
+            selectedResourceType as Exclude<
+              ResourceType,
+              'introduction' | 'assignment'
+            >
+          ];
+
+        if (!targetField) {
+          throw new Error(`Unsupported resource type: ${selectedResourceType}`);
+        }
+
+        const newResource: any = {
+          type: selectedResourceType,
+          title: formData.title?.trim() || undefined,
+          content: formData.content?.trim() || undefined,
+          learningOutcomes: formData.learningOutcomes?.trim() || undefined,
+          assessmentCriteria:
+            formData.assessmentCriteria.length > 0
+              ? formData.assessmentCriteria
+              : undefined
+        };
+
+        if (selectedResourceType === 'learning-outcome') {
+        newResource.finalFeedback = formData.finalFeedback;
+        newResource.observation = formData.observation;
       }
 
-      payload.assignments = currentAssignments;
+        if (uploadState.selectedDocument) {
+          newResource.fileUrl = uploadState.selectedDocument;
+        }
+        if (uploadState.fileName) {
+          newResource.fileName = uploadState.fileName;
+        }
+
+        let currentArray: any[] = existingMaterial?.[targetField] || [];
+
+        if (editingResource) {
+          currentArray = currentArray.map((item: any) =>
+            item._id === editingResource._id
+              ? { ...newResource, _id: item._id }
+              : item
+          );
+        } else {
+          currentArray = [...currentArray, newResource];
+        }
+
+        payload[targetField] = currentArray;
+      }
 
       let response;
       if (existingMaterial) {
-        response = await axiosInstance.patch(`/unit-material/${existingMaterial._id}`, payload);
-        toast({ 
-          title: editingResource ? 'Assignment updated successfully!' : 'Assignment added successfully!' 
+        response = await axiosInstance.patch(
+          `/unit-material/${existingMaterial._id}`,
+          payload
+        );
+        toast({
+          title: editingResource ? 'Resource updated!' : 'Resource added!'
         });
       } else {
         response = await axiosInstance.post('/unit-material', payload);
-        toast({ title: 'Assignment created successfully!' });
+        toast({ title: 'Resource created!' });
       }
 
       fetchData();
       resetForm();
-      return;
     } catch (error) {
-      console.error('Save assignment definition error:', error);
+      console.error('Save resource error:', error);
       toast({
-        title: 'Failed to save assignment.',
-        variant: 'destructive',
+        title: 'Failed to save resource.',
+        variant: 'destructive'
       });
-      return;
     }
-  }
-
-  // === Handle other unit-material resources ===
-  if (!isAdmin) {
-    toast({
-      title: 'Access Denied',
-      description: 'Only instructors can create this type of resource.',
-      variant: 'destructive',
-    });
-    return;
-  }
-
-  try {
-    let existingMaterial: any = null;
-    try {
-      const res = await axiosInstance.get(`/unit-material?unitId=${unitId}&limit=1`);
-      existingMaterial = res.data.data.result[0] || null;
-    } catch (err) {
-      // OK
-    }
-
-    const payload: any = { courseId: id, unitId };
-
-    if (selectedResourceType === 'introduction') {
-      payload.introduction = {
-        type: 'introduction',
-        content: formData.content || '',
-      };
-    } else {
-      const fieldMap: Record<
-        Exclude<ResourceType, 'introduction' | 'assignment'>,
-        string
-      > = {
-        'study-guide': 'studyGuides',
-        lecture: 'lectures',
-        'learning-outcome': 'learningOutcomes',
-      };
-
-      const targetField = fieldMap[
-        selectedResourceType as Exclude<ResourceType, 'introduction' | 'assignment'>
-      ];
-
-      if (!targetField) {
-        throw new Error(`Unsupported resource type: ${selectedResourceType}`);
-      }
-
-      const newResource: any = {
-        type: selectedResourceType,
-        title: formData.title?.trim() || undefined,
-        content: formData.content?.trim() || undefined,
-        learningOutcomes: formData.learningOutcomes?.trim() || undefined,
-        assessmentCriteria:
-          formData.assessmentCriteria.length > 0
-            ? formData.assessmentCriteria
-            : undefined,
-      };
-
-      if (uploadState.selectedDocument) {
-        newResource.fileUrl = uploadState.selectedDocument;
-      }
-      if (uploadState.fileName) {
-        newResource.fileName = uploadState.fileName;
-      }
-
-      let currentArray: any[] = existingMaterial?.[targetField] || [];
-
-      if (editingResource) {
-        currentArray = currentArray.map((item: any) =>
-          item._id === editingResource._id
-            ? { ...newResource, _id: item._id }
-            : item
-        );
-      } else {
-        currentArray = [...currentArray, newResource];
-      }
-
-      payload[targetField] = currentArray;
-    }
-
-    let response;
-    if (existingMaterial) {
-      response = await axiosInstance.patch(`/unit-material/${existingMaterial._id}`, payload);
-      toast({ 
-        title: editingResource ? 'Resource updated!' : 'Resource added!' 
-      });
-    } else {
-      response = await axiosInstance.post('/unit-material', payload);
-      toast({ title: 'Resource created!' });
-    }
-
-    fetchData();
-    resetForm();
-  } catch (error) {
-    console.error('Save resource error:', error);
-    toast({
-      title: 'Failed to save resource.',
-      variant: 'destructive',
-    });
-  }
-};
+  };
 
   const handleDeleteResource = async (id: string) => {
     const resource = resources.find((r) => r._id === id);
@@ -521,24 +563,30 @@ const validateAndSaveResource = async () => {
       } else {
         toast({
           title: 'Unsupported resource type',
-          variant: 'destructive',
+          variant: 'destructive'
         });
         return;
       }
 
-      const response = await axiosInstance.patch(`/unit-material/${unitMaterial?._id}`, updatePayload);
+      const response = await axiosInstance.patch(
+        `/unit-material/${unitMaterial?._id}`,
+        updatePayload
+      );
 
       if (response.status === 200) {
         toast({
-          title: 'Resource deleted successfully',
+          title: 'Resource deleted successfully'
         });
-        setResources(resources.filter(r => r._id !== id));
+        setResources(resources.filter((r) => r._id !== id));
       }
     } catch (error: any) {
       toast({
         title: 'Failed to delete resource',
-        description: error?.response?.data?.message || error.message || 'Please try again.',
-        variant: 'destructive',
+        description:
+          error?.response?.data?.message ||
+          error.message ||
+          'Please try again.',
+        variant: 'destructive'
       });
     }
   };
@@ -559,7 +607,7 @@ const validateAndSaveResource = async () => {
   // ✅ Single loading state at the top
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="flex justify-center py-6">
             <BlinkingDots size="large" color="bg-watney" />
@@ -570,20 +618,26 @@ const validateAndSaveResource = async () => {
   }
 
   return (
-    <div className="min-h-screen bg-white p-6 rounded-2xl ">
+    <div className="min-h-screen rounded-2xl bg-white p-6 ">
       <div className="space-y-2">
         <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
+          <div className="mb-4 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
             <div className="space-y-1">
               <div className="flex items-center gap-2 text-sm text-slate-600">
                 <GraduationCap className="h-4 w-4" />
                 <span className="font-medium">{courseName}</span>
               </div>
-              <h1 className="text-2xl font-bold text-slate-900 tracking-tight">{unitTitle}</h1>
+              <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+                {unitTitle}
+              </h1>
             </div>
-            </div>
+          </div>
           <div className="flex gap-4">
-            <Button onClick={() => navigate(-1)} size="sm" className='bg-watney text-white hover:bg-watney/90'>
+            <Button
+              onClick={() => navigate(-1)}
+              size="sm"
+              className="bg-watney text-white hover:bg-watney/90"
+            >
               <MoveLeft className="mr-2 h-4 w-4" /> Back
             </Button>
 
@@ -597,14 +651,19 @@ const validateAndSaveResource = async () => {
                 }}
               >
                 <DialogTrigger asChild>
-                  <Button size="sm" className="bg-watney text-white hover:bg-watney/90">
+                  <Button
+                    size="sm"
+                    className="bg-watney text-white hover:bg-watney/90"
+                  >
                     <Plus className="mr-2 h-5 w-5" /> Add Resource
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="z-[9999] max-h-[90vh] max-w-4xl overflow-y-auto ">
                   <DialogHeader>
                     <DialogTitle className="text-2xl">
-                      {editingResource ? 'Edit Resource' : 'Create New Resource'}
+                      {editingResource
+                        ? 'Edit Resource'
+                        : 'Create New Resource'}
                     </DialogTitle>
                   </DialogHeader>
                   {!selectedResourceType ? (

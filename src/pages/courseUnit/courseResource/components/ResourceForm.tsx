@@ -75,6 +75,27 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
     }
   }, [selectedResourceType]);
 
+   const handleCheckboxChange = (field: 'finalFeedback' | 'observation') => {
+    setFormData((prev) => {
+      const currentFinalFeedback = prev.finalFeedback || false;
+      const currentObservation = prev.observation || false;
+
+      // If trying to uncheck the only checked box, prevent it
+      if (field === 'finalFeedback' && currentFinalFeedback && !currentObservation) {
+        return prev; 
+      }
+      if (field === 'observation' && currentObservation && !currentFinalFeedback) {
+        return prev; 
+      }
+
+      // Toggle the field
+      return {
+        ...prev,
+        [field]: !prev[field]
+      };
+    });
+  };
+
   // ===== FORM RENDERERS =====
 
   useEffect(() => {
@@ -245,10 +266,10 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
       );
     }
 
-    // Step 2: Assessment Criteria
+    // Step 2: Assessment Criteria with checkboxes
     return (
-      <div className="space-y-2">
-        <div className="-mt-6 flex items-center justify-between">
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
           <Button
             type="button"
             variant="default"
@@ -260,163 +281,12 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
           </Button>
         </div>
 
-        <div className="space-y-2">
-          {/* Render existing criteria */}
-          {(formData.assessmentCriteria || []).map((item, index) => (
-            <div
-              key={index}
-              className="flex flex-col rounded-lg border bg-white p-3"
-            >
-              {editingIndex === index ? (
-                // Edit mode
-                <div className="space-y-3">
-                  <div>
-                    <Label>Assessment Criteria Description *</Label>
-                    <div className="mt-2">
-                      <ReactQuill
-                        theme="snow"
-                        value={editContent}
-                        onChange={setEditContent}
-                        modules={quillModules}
-                        className="[&_.ql-editor]:min-h-[100px]"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex justify-end gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
-                        setEditingIndex(null);
-                        setEditContent('');
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={() => {
-                        if (!editContent.trim()) return;
-                        setFormData((prev) => {
-                          const updated = [...(prev.assessmentCriteria || [])];
-                          updated[index] = {
-                            ...updated[index],
-                            description: editContent
-                          };
-                          return { ...prev, assessmentCriteria: updated };
-                        });
-                        setEditingIndex(null);
-                        setEditContent('');
-                      }}
-                      className="bg-watney text-white hover:bg-watney/90"
-                    >
-                      Update
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                // View mode
-                <div className="flex items-start justify-between">
-                  <div className="flex flex-row gap-4">
-                    <span className="font-medium text-slate-700">
-                      {index + 1}.
-                    </span>
-                    <div
-                      className="ql-snow text-slate-800"
-                      dangerouslySetInnerHTML={{
-                        __html: item.description || ''
-                      }}
-                    />
-                  </div>
-                  <div className="ml-4 flex gap-1">
-                    <Button
-                      variant="default"
-                      size="sm"
-                      className="hover:bg-blue-50"
-                      onClick={() => {
-                        setEditingIndex(index);
-                        setEditContent(item.description || '');
-                      }}
-                    >
-                      <Pencil className="h-4 w-4 text-blue-600" />
-                    </Button>
-                    <Button
-                      variant="default"
-                      size="sm"
-                      className="hover:bg-red-50"
-                      onClick={() => {
-                        setFormData((prev) => ({
-                          ...prev,
-                          assessmentCriteria: (
-                            prev.assessmentCriteria || []
-                          ).filter((_, i) => i !== index)
-                        }));
-                        if (editingIndex === index) {
-                          setEditingIndex(null);
-                          setEditContent('');
-                        }
-                      }}
-                    >
-                      <Trash2 className="h-4 w-4 text-red-500" />
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
+       
 
-          {/* New Criterion Editor */}
-          {isAddingNew && (
-            <div className="space-y-3 rounded-lg border bg-white p-3">
-              <div>
-                <Label>Assessment Criteria Description *</Label>
-                <div className="mt-2">
-                  <ReactQuill
-                    theme="snow"
-                    value={editContent}
-                    onChange={setEditContent}
-                    modules={quillModules}
-                    className="[&_.ql-editor]:min-h-[100px]"
-                  />
-                </div>
-              </div>
-              <div className="flex justify-end gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => {
-                    setIsAddingNew(false);
-                    setEditContent('');
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={() => {
-                    if (!editContent.trim()) return;
-                    setFormData((prev) => ({
-                      ...prev,
-                      assessmentCriteria: [
-                        ...(prev.assessmentCriteria || []),
-                        { description: editContent }
-                      ]
-                    }));
-                    setIsAddingNew(false);
-                    setEditContent('');
-                  }}
-                  className="bg-watney text-white hover:bg-watney/90"
-                >
-                  Save
-                </Button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Add New Criterion Button */}
-        {!isAddingNew && (
-          <div className="flex justify-end">
+        {/* Assessment Criteria Section */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="font-medium text-slate-700">Assessment Criteria</h3>
             <Button
               type="button"
               variant="outline"
@@ -432,7 +302,205 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
               Add Assessment Criteria
             </Button>
           </div>
-        )}
+
+          {/* Render existing criteria */}
+          <div className="space-y-3">
+            {(formData.assessmentCriteria || []).map((item, index) => (
+              <div
+                key={index}
+                className="flex flex-col rounded-lg border bg-white p-3"
+              >
+                {editingIndex === index ? (
+                  // Edit mode
+                  <div className="space-y-3">
+                    <div>
+                      <Label>Assessment Criteria Description *</Label>
+                      <div className="mt-2">
+                        <ReactQuill
+                          theme="snow"
+                          value={editContent}
+                          onChange={setEditContent}
+                          modules={quillModules}
+                          className="[&_.ql-editor]:min-h-[100px]"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setEditingIndex(null);
+                          setEditContent('');
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          if (!editContent.trim()) return;
+                          setFormData((prev) => {
+                            const updated = [...(prev.assessmentCriteria || [])];
+                            updated[index] = {
+                              ...updated[index],
+                              description: editContent
+                            };
+                            return { ...prev, assessmentCriteria: updated };
+                          });
+                          setEditingIndex(null);
+                          setEditContent('');
+                        }}
+                        className="bg-watney text-white hover:bg-watney/90"
+                      >
+                        Update
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  // View mode
+                  <div className="flex items-start justify-between">
+                    <div className="flex flex-row gap-4">
+                      <span className="font-medium text-slate-700">
+                        {index + 1}.
+                      </span>
+                      <div
+                        className="ql-snow text-slate-800"
+                        dangerouslySetInnerHTML={{
+                          __html: item.description || ''
+                        }}
+                      />
+                    </div>
+                    <div className="ml-4 flex gap-1">
+                      <Button
+                        variant="default"
+                        size="sm"
+                        className="hover:bg-blue-50"
+                        onClick={() => {
+                          setEditingIndex(index);
+                          setEditContent(item.description || '');
+                        }}
+                      >
+                        <Pencil className="h-4 w-4 text-blue-600" />
+                      </Button>
+                      <Button
+                        variant="default"
+                        size="sm"
+                        className="hover:bg-red-50"
+                        onClick={() => {
+                          setFormData((prev) => ({
+                            ...prev,
+                            assessmentCriteria: (
+                              prev.assessmentCriteria || []
+                            ).filter((_, i) => i !== index)
+                          }));
+                          if (editingIndex === index) {
+                            setEditingIndex(null);
+                            setEditContent('');
+                          }
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4 text-red-500" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+
+            {/* New Criterion Editor */}
+            {isAddingNew && (
+              <div className="space-y-3 rounded-lg border bg-white p-3">
+                <div>
+                  <Label>Assessment Criteria Description *</Label>
+                  <div className="mt-2">
+                    <ReactQuill
+                      theme="snow"
+                      value={editContent}
+                      onChange={setEditContent}
+                      modules={quillModules}
+                      className="[&_.ql-editor]:min-h-[100px]"
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setIsAddingNew(false);
+                      setEditContent('');
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      if (!editContent.trim()) return;
+                      setFormData((prev) => ({
+                        ...prev,
+                        assessmentCriteria: [
+                          ...(prev.assessmentCriteria || []),
+                          { description: editContent }
+                        ]
+                      }));
+                      setIsAddingNew(false);
+                      setEditContent('');
+                    }}
+                    className="bg-watney text-white hover:bg-watney/90"
+                  >
+                    Save
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+         {/* Checkboxes Section */}
+        <div className="space-y-2 ">
+          <h3 className="font-semibold text-lg  text-slate-700">Assessment Options ( Select at least one assessment method)</h3>
+         
+          
+          <div className="flex gap-6">
+            {/* Final Feedback Checkbox */}
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="finalFeedback"
+                checked={formData.finalFeedback || false}
+                onChange={() => handleCheckboxChange('finalFeedback')}
+                className="h-5 w-5 rounded border-slate-300 text-watney focus:ring-watney"
+              />
+              <Label
+                htmlFor="finalFeedback"
+                className="text-md font-medium text-slate-700"
+              >
+                Final Feedback
+              </Label>
+            </div>
+
+            {/* Observation Checkbox */}
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="observation"
+                checked={formData.observation || false}
+                onChange={() => handleCheckboxChange('observation')}
+                className="h-5 w-5 rounded border-slate-300 text-watney focus:ring-watney"
+              />
+              <Label
+                htmlFor="observation"
+                className="text-md font-medium text-slate-700"
+              >
+                Observation
+              </Label>
+            </div>
+          </div>
+
+         
+        </div>
       </div>
     );
   };
@@ -473,7 +541,8 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
         } else {
           return (
             formData.learningOutcomes?.trim() &&
-            (formData.assessmentCriteria?.length || 0) > 0
+            (formData.assessmentCriteria?.length || 0) > 0 &&
+            (formData.finalFeedback || formData.observation) 
           );
         }
       case 'introduction':

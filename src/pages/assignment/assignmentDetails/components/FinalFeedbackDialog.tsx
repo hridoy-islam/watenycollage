@@ -71,33 +71,123 @@ export const FinalFeedbackDialog: React.FC<FinalFeedbackDialogProps> = ({
   }>({});
   const { user } = useSelector((state: any) => state.auth);
 
-  useEffect(() => {
-    if (isOpen) {
-      if (initialData) {
-        setFeedbackData(initialData);
-      } else {
-        // Initialize with data from unitMaterial
-        const initialLearningOutcomes = unitMaterial.learningOutcomes.map(
-          (lo) => ({
-            learningOutcomeId: lo._id,
-            learningOutcomeTitle: lo.learningOutcomes,
-            assessmentCriteria: lo.assessmentCriteria.map((ac) => ({
-              criteriaId: ac._id,
-              description: ac.description,
-              fulfilled: undefined,
-              comment: ''
-            }))
-          })
-        );
+  // useEffect(() => {
+  //   if (!isOpen || !unitMaterial) return;
 
-        setFeedbackData({
-          learningOutcomes: initialLearningOutcomes
-        });
-      }
-      // Clear validation errors when dialog opens
-      setValidationErrors({});
-    }
-  }, [isOpen, unitMaterial, initialData]);
+  //   if (initialData) {
+  //     // 🟢 Merge updated learning outcomes & criteria with existing feedback data
+  //     setFeedbackData((prev) => {
+  //       const baseData = prev?.learningOutcomes?.length ? prev : initialData; // fallback if prev empty
+
+  //       const mergedLearningOutcomes = unitMaterial.learningOutcomes
+  //         .filter((lo) => lo.finalFeedback === true)
+  //         .map((lo) => {
+  //           const existingLO = baseData.learningOutcomes?.find(
+  //             (l) => l.learningOutcomeId === lo._id
+  //           );
+
+  //           return {
+  //             learningOutcomeId: lo._id,
+  //             learningOutcomeTitle: lo.learningOutcomes,
+  //             assessmentCriteria: lo.assessmentCriteria.map((ac) => {
+  //               const existingAC = existingLO?.assessmentCriteria?.find(
+  //                 (a) => a.criteriaId === ac._id
+  //               );
+
+  //               return {
+  //                 criteriaId: ac._id,
+  //                 description: ac.description,
+  //                 fulfilled: existingAC?.fulfilled ?? undefined,
+  //                 comment: existingAC?.comment ?? ''
+  //               };
+  //             })
+  //           };
+  //         });
+
+  //       return { learningOutcomes: mergedLearningOutcomes };
+  //     });
+  //   } else {
+  //     const filteredLearningOutcomes = unitMaterial.learningOutcomes.filter(
+  //       (lo) => lo.finalFeedback === true
+  //     );
+
+  //     const initialLearningOutcomes = filteredLearningOutcomes.map((lo) => ({
+  //       learningOutcomeId: lo._id,
+  //       learningOutcomeTitle: lo.learningOutcomes,
+  //       assessmentCriteria: lo.assessmentCriteria.map((ac) => ({
+  //         criteriaId: ac._id,
+  //         description: ac.description,
+  //         fulfilled: undefined,
+  //         comment: ''
+  //       }))
+  //     }));
+
+  //     setFeedbackData({ learningOutcomes: initialLearningOutcomes });
+  //   }
+
+  //   // 🧹 Clear validation errors every time dialog opens or data changes
+  //   setValidationErrors({});
+  // }, [isOpen, unitMaterial, initialData]);
+
+
+
+  useEffect(() => {
+  if (!isOpen || !unitMaterial) return;
+
+  // 🧹 Always reset before building new data when switching assignments
+  setFeedbackData({ learningOutcomes: [] });
+
+  const filteredLearningOutcomes = unitMaterial.learningOutcomes.filter(
+    (lo) => lo?.finalFeedback === true
+  );
+
+  if (initialData && initialData.learningOutcomes?.length > 0) {
+    // 🟢 Edit mode: build from initialData, ensuring sync with unitMaterial
+    const mergedLearningOutcomes = filteredLearningOutcomes.map((lo) => {
+      const existingLO = initialData.learningOutcomes?.find(
+        (l) => l.learningOutcomeId === lo._id
+      );
+
+      return {
+        learningOutcomeId: lo._id,
+        learningOutcomeTitle: lo.learningOutcomes,
+        assessmentCriteria: lo.assessmentCriteria.map((ac) => {
+          const existingAC = existingLO?.assessmentCriteria?.find(
+            (a) => a.criteriaId === ac._id
+          );
+
+          return {
+            criteriaId: ac._id,
+            description: ac.description,
+            fulfilled: existingAC?.fulfilled ?? undefined,
+            comment: existingAC?.comment ?? '',
+          };
+        }),
+      };
+    });
+
+    setFeedbackData({ learningOutcomes: mergedLearningOutcomes });
+  } else {
+    // 🆕 Add mode: initialize from scratch
+    const initialLearningOutcomes = filteredLearningOutcomes.map((lo) => ({
+      learningOutcomeId: lo._id,
+      learningOutcomeTitle: lo.learningOutcomes,
+      assessmentCriteria: lo.assessmentCriteria.map((ac) => ({
+        criteriaId: ac._id,
+        description: ac.description,
+        fulfilled: undefined,
+        comment: '',
+      })),
+    }));
+
+    setFeedbackData({ learningOutcomes: initialLearningOutcomes });
+  }
+
+  // 🧹 Reset validation each time dialog opens or assignment changes
+  setValidationErrors({});
+}, [isOpen, unitMaterial, initialData, assignmentId]);
+
+
 
   const handleCriteriaChange = (
     loIndex: number,
@@ -128,7 +218,7 @@ export const FinalFeedbackDialog: React.FC<FinalFeedbackDialogProps> = ({
     // Clear validation error for this field when user makes a change
     const criteriaKey = `lo-${loIndex}-ac-${acIndex}`;
     if (validationErrors[criteriaKey]) {
-      setValidationErrors(prev => {
+      setValidationErrors((prev) => {
         const newErrors = { ...prev };
         delete newErrors[criteriaKey];
         return newErrors;
@@ -142,15 +232,15 @@ export const FinalFeedbackDialog: React.FC<FinalFeedbackDialogProps> = ({
     feedbackData.learningOutcomes.forEach((learningOutcome, loIndex) => {
       learningOutcome.assessmentCriteria.forEach((criteria, acIndex) => {
         const criteriaKey = `lo-${loIndex}-ac-${acIndex}`;
-        
+
         // Check if fulfilled is undefined (not selected)
         if (criteria.fulfilled === undefined) {
           errors[criteriaKey] = 'Please select Yes or No for this criteria';
         }
-        
+
         // Check if comment is empty
         if (!criteria.comment.trim()) {
-          errors[criteriaKey] = errors[criteriaKey] 
+          errors[criteriaKey] = errors[criteriaKey]
             ? `${errors[criteriaKey]} and add a comment`
             : 'Please add a comment for this criteria';
         }
@@ -163,20 +253,17 @@ export const FinalFeedbackDialog: React.FC<FinalFeedbackDialogProps> = ({
 
   const handleSubmit = async () => {
     if (!validateForm()) {
-     
       return;
     }
 
     try {
-
-       const finalData = {
-      ...feedbackData,
-      submitBy: user?._id,
-    };
+      const finalData = {
+        ...feedbackData,
+        submitBy: user?._id
+      };
       await onSubmit(finalData);
       toast({
-        title:
-          'Final feedback submitted successfully!'
+        title: 'Final feedback submitted successfully!'
       });
       onOpenChange(false);
     } catch (error) {
@@ -194,15 +281,17 @@ export const FinalFeedbackDialog: React.FC<FinalFeedbackDialogProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[95%] max-h-[90vh] flex flex-col overflow-hidden">
+      <DialogContent className="flex max-h-[90vh] max-w-[95%] flex-col overflow-hidden">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold">{isEditing ? 'Edit Final Feedback' : 'Final Feedback Assessment'}</DialogTitle>
+          <DialogTitle className="text-xl font-semibold">
+            {isEditing ? 'Edit Final Feedback' : 'Final Feedback Assessment'}
+          </DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 pr-2 overflow-y-auto">
-          <Card className="rounded-none overflow-hidden">
+        <ScrollArea className="flex-1 overflow-y-auto pr-2">
+          <Card className="overflow-hidden rounded-none">
             {/* Table Header */}
-            <div className="grid grid-cols-[40%_auto_50%] gap-4 px-6 py-3 bg-watney text-white text-sm font-semibold">
+            <div className="grid grid-cols-[40%_auto_50%] gap-4 bg-watney px-6 py-3 text-sm font-semibold text-white">
               <div>Assessment Criteria</div>
               <div className="text-center">Achieved</div>
               <div>Comments</div>
@@ -213,12 +302,11 @@ export const FinalFeedbackDialog: React.FC<FinalFeedbackDialogProps> = ({
               {feedbackData.learningOutcomes.map((learningOutcome, loIndex) => (
                 <div key={learningOutcome.learningOutcomeId}>
                   {/* Learning Outcome Header */}
-                  <div className="px-6 py-3 bg-watney/30 border-b border-gray-200">
+                  <div className="border-b border-gray-200 bg-watney/30 px-6 py-3">
                     <h3 className="text-sm font-medium">
-                     
                       <span
                         dangerouslySetInnerHTML={{
-                          __html: learningOutcome.learningOutcomeTitle,
+                          __html: learningOutcome.learningOutcomeTitle
                         }}
                       />
                     </h3>
@@ -226,86 +314,97 @@ export const FinalFeedbackDialog: React.FC<FinalFeedbackDialogProps> = ({
 
                   {/* Criteria Rows */}
                   <div>
-                    {learningOutcome.assessmentCriteria.map((criteria, acIndex) => {
-                      const criteriaKey = getCriteriaKey(loIndex, acIndex);
-                      const hasError = !!validationErrors[criteriaKey];
-                      
-                      return (
-                        <div
-                          key={criteria.criteriaId}
-                          className={`grid grid-cols-[40%_auto_50%] gap-4 px-6 py-4 items-start`}
-                        >
-                          {/* Criteria Description */}
-                          <div className="text-xs min-w-0">
-                            <span dangerouslySetInnerHTML={{ __html: criteria.description }} />
-                            {hasError && (
-                              <p className="text-destructive text-xs mt-1 font-medium">
-                                {validationErrors[criteriaKey]}
-                              </p>
-                            )}
-                          </div>
+                    {learningOutcome.assessmentCriteria.map(
+                      (criteria, acIndex) => {
+                        const criteriaKey = getCriteriaKey(loIndex, acIndex);
+                        const hasError = !!validationErrors[criteriaKey];
 
-                          {/* Yes/No Checkboxes */}
-                          <div className="flex items-start justify-center space-x-4">
-                            <div className="flex items-center space-x-2">
-                              <Checkbox
-                                id={`yes-${loIndex}-${acIndex}`}
-                                checked={criteria.fulfilled === true}
-                                onCheckedChange={(checked) =>
+                        return (
+                          <div
+                            key={criteria.criteriaId}
+                            className={`grid grid-cols-[40%_auto_50%] items-start gap-4 px-6 py-4`}
+                          >
+                            {/* Criteria Description */}
+                            <div className="min-w-0 text-xs">
+                              <span
+                                dangerouslySetInnerHTML={{
+                                  __html: criteria.description
+                                }}
+                              />
+                              {hasError && (
+                                <p className="mt-1 text-xs font-medium text-destructive">
+                                  {validationErrors[criteriaKey]}
+                                </p>
+                              )}
+                            </div>
+
+                            {/* Yes/No Checkboxes */}
+                            <div className="flex items-start justify-center space-x-4">
+                              <div className="flex items-center space-x-2">
+                                <Checkbox
+                                  id={`yes-${loIndex}-${acIndex}`}
+                                  checked={criteria.fulfilled === true}
+                                  onCheckedChange={(checked) =>
+                                    handleCriteriaChange(
+                                      loIndex,
+                                      acIndex,
+                                      'fulfilled',
+                                      checked ? true : undefined
+                                    )
+                                  }
+                                  className="rounded"
+                                />
+                                <Label
+                                  htmlFor={`yes-${loIndex}-${acIndex}`}
+                                  className="cursor-pointer text-sm font-normal"
+                                >
+                                  Yes
+                                </Label>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <Checkbox
+                                  id={`no-${loIndex}-${acIndex}`}
+                                  checked={criteria.fulfilled === false}
+                                  onCheckedChange={(checked) =>
+                                    handleCriteriaChange(
+                                      loIndex,
+                                      acIndex,
+                                      'fulfilled',
+                                      checked ? false : undefined
+                                    )
+                                  }
+                                  className="rounded"
+                                />
+                                <Label
+                                  htmlFor={`no-${loIndex}-${acIndex}`}
+                                  className="cursor-pointer text-sm font-normal"
+                                >
+                                  No
+                                </Label>
+                              </div>
+                            </div>
+
+                            {/* Comment Textarea */}
+                            <div className="w-full">
+                              <Textarea
+                                placeholder="Add comments..."
+                                value={criteria.comment}
+                                onChange={(e) =>
                                   handleCriteriaChange(
                                     loIndex,
                                     acIndex,
-                                    'fulfilled',
-                                    checked ? true : undefined
+                                    'comment',
+                                    e.target.value
                                   )
                                 }
-                                className="rounded"
+                                rows={2}
+                                className={`h-[140px] w-full resize-none border border-gray-300 text-sm`}
                               />
-                              <Label
-                                htmlFor={`yes-${loIndex}-${acIndex}`}
-                                className="text-sm font-normal cursor-pointer"
-                              >
-                                Yes
-                              </Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <Checkbox
-                                id={`no-${loIndex}-${acIndex}`}
-                                checked={criteria.fulfilled === false}
-                                onCheckedChange={(checked) =>
-                                  handleCriteriaChange(
-                                    loIndex,
-                                    acIndex,
-                                    'fulfilled',
-                                    checked ? false : undefined
-                                  )
-                                }
-                                className="rounded"
-                              />
-                              <Label
-                                htmlFor={`no-${loIndex}-${acIndex}`}
-                                className="text-sm font-normal cursor-pointer"
-                              >
-                                No
-                              </Label>
                             </div>
                           </div>
-
-                          {/* Comment Textarea */}
-                          <div className="w-full">
-                            <Textarea
-                              placeholder="Add comments..."
-                              value={criteria.comment}
-                              onChange={(e) =>
-                                handleCriteriaChange(loIndex, acIndex, 'comment', e.target.value)
-                              }
-                              rows={2}
-                              className={`w-full text-sm resize-none border h-[140px] border-gray-300`}
-                            />
-                          </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      }
+                    )}
                   </div>
                 </div>
               ))}
@@ -314,7 +413,7 @@ export const FinalFeedbackDialog: React.FC<FinalFeedbackDialogProps> = ({
         </ScrollArea>
 
         <DialogFooter className="flex-shrink-0 pt-2">
-           <Button
+          <Button
             variant="outline"
             onClick={() => {
               onOpenChange(false);
@@ -327,14 +426,13 @@ export const FinalFeedbackDialog: React.FC<FinalFeedbackDialogProps> = ({
           <Button
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="bg-watney hover:bg-watney/90 text-white"
+            className="bg-watney text-white hover:bg-watney/90"
           >
-            {isSubmitting 
-              ? 'Submitting...' 
-              : isEditing 
-                ? 'Update Feedback' 
-                : 'Submit Feedback'
-            }
+            {isSubmitting
+              ? 'Submitting...'
+              : isEditing
+                ? 'Update Feedback'
+                : 'Submit Feedback'}
           </Button>
         </DialogFooter>
       </DialogContent>

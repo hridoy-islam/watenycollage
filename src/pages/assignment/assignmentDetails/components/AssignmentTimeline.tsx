@@ -314,8 +314,11 @@ interface AssignmentTimelineProps {
   onDeleteItem: (type: 'submission' | 'feedback', id: string) => void;
   hasSelectedAssignment: boolean;
   loadingItems?: Record<string, boolean>;
-  isFinalFeedback?: boolean; // 👈 New prop
-  onEditFinalFeedback?: () => void; 
+    isFinalFeedback?: boolean;
+
+isObservationFeedback?: boolean;
+  onEditFinalFeedback?: () => void;
+  onEditObservationFeedback?: () => void;
 }
 
 // Helper function to determine if a submission is the latest
@@ -364,7 +367,11 @@ export const AssignmentTimeline: React.FC<AssignmentTimelineProps> = ({
   hasSelectedAssignment,
   loadingItems = {},
   isFinalFeedback = false,
-   onEditFinalFeedback 
+   onEditFinalFeedback,
+  isObservationFeedback = false,
+
+  onEditObservationFeedback
+   
 }) => {
   if (!hasSelectedAssignment) {
     return (
@@ -382,6 +389,7 @@ export const AssignmentTimeline: React.FC<AssignmentTimelineProps> = ({
 
   // Extract finalFeedback from selectedAssignment if not passed separately
   const finalFeedback = selectedAssignment?.finalFeedback;
+  const observationFeedback = selectedAssignment?.observationFeedback;
 
   return (
     <div className="flex flex-1 flex-col">
@@ -441,6 +449,92 @@ export const AssignmentTimeline: React.FC<AssignmentTimelineProps> = ({
           </>
         )}
       </div>
+  {/* Final Feedback Table (shown below timeline) */}
+        {isObservationFeedback  && observationFeedback && (
+        <Card className="m-4 border border-gray-300 p-4">
+          <div className="mb-4 flex items-center justify-between gap-3"> {/* Changed to justify-between */}
+            <div className="flex items-center gap-3">
+              {/* Avatar */}
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100">
+                <User className="h-4 w-4 text-blue-600" />
+              </div>
+
+              {/* Content */}
+              <div className="flex-1">
+                <div className="flex flex-wrap items-center gap-2 text-sm">
+                  <span className="font-semibold text-gray-900">
+                    {observationFeedback.submitBy?.name || 'Instructor'}
+                  </span>
+                  <span className="font-medium text-green-800">
+                    Feedback Provided:{' '}
+                    {moment(observationFeedback.createdAt).format('DD MMM YYYY')}
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2"> {/* Added flex container for title and button */}
+              <h1 className="text-sm font-semibold">Observation Feedback</h1>
+              {isTeacher && onEditObservationFeedback && ( // Show edit button only for teachers
+                <button
+                  onClick={onEditObservationFeedback}
+                  className="p-1  text-white hover:bg-gray-100"
+                >
+                  <Edit className="h-4 w-4 text-gray-500" />
+                </button>
+              )}
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="min-w-full border-collapse border border-gray-300">
+              <thead className="text-sm">
+                <tr className="bg-watney text-white">
+                  <th className="w-[40%] border border-gray-300 px-4 py-2 text-left">
+                    Assessment Criteria
+                  </th>
+                  <th className="w-auto border border-gray-300 px-4 py-2 text-left">
+                    Achieved
+                  </th>
+                  <th className="w-[50%] border border-gray-300 px-4 py-2 text-left">
+                    Comment
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {observationFeedback.learningOutcomes.map((lo) => (
+                  <React.Fragment key={lo._id}>
+                    {/* Group Header for each Learning Outcome */}
+                    <tr className="bg-gray-50">
+                      <td
+                        colSpan={3}
+                        className="border border-gray-300 px-4 py-2 font-semibold text-gray-800"
+                      >
+                        {lo.learningOutcomeTitle}
+                      </td>
+                    </tr>
+
+                    {/* Criteria Rows */}
+                    {lo.assessmentCriteria.map((crit) => (
+                      <tr key={crit._id} className="text-xs">
+                        <td
+                          className="border ql-snow prose-sm border-gray-300 px-4 py-2"
+                          dangerouslySetInnerHTML={{ __html: crit.description }}
+                        />
+                        <td className="border border-gray-300 px-4 py-2 text-center font-semibold">
+                          {crit.fulfilled ? 'Yes' : 'No'}
+                        </td>
+                        <td className="border border-gray-300 px-4 py-2">
+                          {crit.comment}
+                        </td>
+                      </tr>
+                    ))}
+                  </React.Fragment>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      )}
 
       {/* Final Feedback Table (shown below timeline) */}
         {isFinalFeedback && finalFeedback && (
@@ -528,6 +622,8 @@ export const AssignmentTimeline: React.FC<AssignmentTimelineProps> = ({
           </div>
         </Card>
       )}
+
+
     </div>
   );
 };
