@@ -33,7 +33,7 @@ function CourseModule() {
   const navigate = useNavigate();
   const { id, unitId } = useParams();
   const user = useSelector((state: any) => state.auth.user);
-  const isAdmin = user?.role === 'admin';
+  const isAdmin = user?.role === 'admin'|| user?.role === 'teacher';
   const isStudent = user?.role === 'student';
 
   const [resources, setResources] = useState<Resource[]>([]);
