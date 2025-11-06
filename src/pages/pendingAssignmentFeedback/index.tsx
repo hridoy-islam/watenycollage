@@ -103,7 +103,9 @@ interface Assignment {
 
 export function AssignmentFeedbackList() {
   const [assignments, setAssignments] = useState<Assignment[]>([]);
-  const [filteredAssignments, setFilteredAssignments] = useState<Assignment[]>([]);
+  const [filteredAssignments, setFilteredAssignments] = useState<Assignment[]>(
+    []
+  );
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [courseFilter, setCourseFilter] = useState('all');
@@ -118,8 +120,9 @@ export function AssignmentFeedbackList() {
       // Build query parameters
       const params: any = {
         limit: 'all',
-        sort: `-createdAt`,
-        fields: 'applicationId,studentId,unitId,status,courseMaterialAssignmentId,unitMaterialId'
+        sort: `-updatedAt`,
+        fields:
+          'applicationId,studentId,unitId,status,courseMaterialAssignmentId,unitMaterialId'
       };
 
       const response = await axiosInstance.get('/assignment?status=submitted', {
@@ -138,7 +141,10 @@ export function AssignmentFeedbackList() {
 
   // Get assignment title from unitMaterialId.assignments
   const getAssignmentTitle = (assignment: Assignment): string => {
-    if (!assignment.unitMaterialId?.assignments || !assignment.courseMaterialAssignmentId) {
+    if (
+      !assignment.unitMaterialId?.assignments ||
+      !assignment.courseMaterialAssignmentId
+    ) {
       return 'Unknown Assignment';
     }
 
@@ -158,11 +164,13 @@ export function AssignmentFeedbackList() {
     // Apply search filter
     if (searchTerm) {
       const searchLower = searchTerm.toLowerCase();
-      filtered = filtered.filter(assignment => {
+      filtered = filtered.filter((assignment) => {
         const assignmentTitle = getAssignmentTitle(assignment);
         return (
           assignmentTitle.toLowerCase().includes(searchLower) ||
-          assignment.applicationId?.courseId?.name?.toLowerCase().includes(searchLower) ||
+          assignment.applicationId?.courseId?.name
+            ?.toLowerCase()
+            .includes(searchLower) ||
           assignment.unitId?.title?.toLowerCase().includes(searchLower) ||
           getStudentName(assignment).toLowerCase().includes(searchLower) ||
           assignment.studentId?.email?.toLowerCase().includes(searchLower)
@@ -172,15 +180,16 @@ export function AssignmentFeedbackList() {
 
     // Apply course filter
     if (courseFilter !== 'all') {
-      filtered = filtered.filter(assignment => 
-        assignment.applicationId?.courseId?.name === courseFilter
+      filtered = filtered.filter(
+        (assignment) =>
+          assignment.applicationId?.courseId?.name === courseFilter
       );
     }
 
     // Apply unit filter
     if (unitFilter !== 'all') {
-      filtered = filtered.filter(assignment => 
-        assignment.unitId?.title === unitFilter
+      filtered = filtered.filter(
+        (assignment) => assignment.unitId?.title === unitFilter
       );
     }
 
@@ -193,7 +202,7 @@ export function AssignmentFeedbackList() {
 
   const handleViewAssignment = (assignment: Assignment) => {
     const url = `/dashboard/student-applications/${assignment.applicationId?._id}/assignment/${assignment.studentId._id}/unit-assignments/${assignment.unitId?._id}?assignmentId=${assignment._id}`;
-    window.open(url, "_blank");
+    window.open(url, '_blank');
   };
 
   const getStudentName = (assignment: Assignment) => {
@@ -207,17 +216,19 @@ export function AssignmentFeedbackList() {
   };
 
   // Get unique courses and units for filters
-  const uniqueCourses = Array.from(new Set(
-    assignments
-      .map(assignment => assignment.applicationId?.courseId?.name)
-      .filter(Boolean)
-  ));
+  const uniqueCourses = Array.from(
+    new Set(
+      assignments
+        .map((assignment) => assignment.applicationId?.courseId?.name)
+        .filter(Boolean)
+    )
+  );
 
-  const uniqueUnits = Array.from(new Set(
-    assignments
-      .map(assignment => assignment.unitId?.title)
-      .filter(Boolean)
-  ));
+  const uniqueUnits = Array.from(
+    new Set(
+      assignments.map((assignment) => assignment.unitId?.title).filter(Boolean)
+    )
+  );
 
   return (
     <div className="space-y-6">
@@ -227,7 +238,7 @@ export function AssignmentFeedbackList() {
             <div>
               <CardTitle>Assignment Feedbacks</CardTitle>
             </div>
-            <div>
+            <div className='flex items-center gap-2'>
               <Button
                 variant="default"
                 size="sm"
@@ -235,6 +246,14 @@ export function AssignmentFeedbackList() {
                 className="bg-watney text-white hover:bg-watney/90"
               >
                 <ArrowLeft className="mr-2 h-4 w-4" /> Back
+              </Button>
+              <Button
+                variant="default"
+                size="sm"
+                onClick={() => navigate("/dashboard/assignment-report")}
+                className="bg-watney text-white hover:bg-watney/90"
+              >
+                Assignment Reports
               </Button>
             </div>
           </div>
@@ -298,11 +317,13 @@ export function AssignmentFeedbackList() {
             <div className="flex flex-col items-center justify-center py-8 text-center">
               <FileText className="mb-4 h-12 w-12 text-muted-foreground" />
               <h3 className="text-lg font-semibold">
-                {assignments.length === 0 ? 'No pending feedback' : 'No assignments match your filters'}
+                {assignments.length === 0
+                  ? 'No pending feedback'
+                  : 'No assignments match your filters'}
               </h3>
               <p className="text-sm text-muted-foreground">
-                {assignments.length === 0 
-                  ? 'All assignments have been reviewed.' 
+                {assignments.length === 0
+                  ? 'All assignments have been reviewed.'
                   : 'Try adjusting your search or filters.'}
               </p>
             </div>
@@ -323,11 +344,11 @@ export function AssignmentFeedbackList() {
                 <TableBody>
                   {filteredAssignments.map((assignment) => {
                     const assignmentTitle = getAssignmentTitle(assignment);
-                    
+
                     return (
                       <TableRow key={assignment._id} className="group">
                         <TableCell
-                          className="text-xs cursor-pointer"
+                          className="cursor-pointer text-xs"
                           onClick={() => handleViewAssignment(assignment)}
                         >
                           <div className="flex items-center gap-2">
@@ -336,13 +357,13 @@ export function AssignmentFeedbackList() {
                           </div>
                         </TableCell>
                         <TableCell
-                          className="text-xs cursor-pointer"
+                          className="cursor-pointer text-xs"
                           onClick={() => handleViewAssignment(assignment)}
                         >
                           {assignment.unitId?.title || 'N/A'}
                         </TableCell>
                         <TableCell
-                          className="text-xs cursor-pointer"
+                          className="cursor-pointer text-xs"
                           onClick={() => handleViewAssignment(assignment)}
                         >
                           <div className="flex items-center gap-2">
@@ -359,7 +380,7 @@ export function AssignmentFeedbackList() {
                         </TableCell>
 
                         <TableCell
-                          className="text-xs font-medium cursor-pointer"
+                          className="cursor-pointer text-xs font-medium"
                           onClick={() => handleViewAssignment(assignment)}
                         >
                           <div className="flex items-center gap-2">

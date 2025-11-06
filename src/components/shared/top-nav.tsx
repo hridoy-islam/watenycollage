@@ -28,7 +28,8 @@ export function TopNav() {
     { path: '/dashboard/template', label: 'Template' },
     { path: '/dashboard/assignments-feedback', label: 'Assignment' },
     { path: '/dashboard/teachers', label: 'Teachers' },
-    { path: '/dashboard/report', label: 'Report' }
+    { path: '/dashboard/report', label: 'Report' },
+    { path: '/dashboard/assignment-report', label: 'Assignment Report' }
   ];
 
   const navLinksForTeacher = [

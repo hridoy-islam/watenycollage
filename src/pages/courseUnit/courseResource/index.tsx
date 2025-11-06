@@ -620,80 +620,80 @@ function CourseModule() {
   return (
     <div className="min-h-screen rounded-2xl bg-white p-6 ">
       <div className="space-y-2">
-        <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-          <div className="mb-4 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 text-sm text-slate-600">
-                <GraduationCap className="h-4 w-4" />
-                <span className="font-medium">{courseName}</span>
-              </div>
-              <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-                {unitTitle}
-              </h1>
-            </div>
-          </div>
-          <div className="flex gap-4">
-            <Button
-              onClick={() => navigate(-1)}
-              size="sm"
-              className="bg-watney text-white hover:bg-watney/90"
-            >
-              <MoveLeft className="mr-2 h-4 w-4" /> Back
-            </Button>
+       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+  {/* Left Section (Course + Unit Info) */}
+  <div className="flex flex-col items-start gap-2 text-center sm:text-left">
+    <div className="flex items-center gap-2 text-sm text-slate-600">
+      <GraduationCap className="h-4 w-4" />
+      <span className="font-medium">{courseName}</span>
+    </div>
+    <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+      {unitTitle}
+    </h1>
+  </div>
 
-            {/* Admin: Full resource creation */}
-            {isAdmin && (
-              <Dialog
-                open={isCreateDialogOpen}
-                onOpenChange={(open) => {
-                  setIsCreateDialogOpen(open);
-                  if (!open) resetForm();
-                }}
-              >
-                <DialogTrigger asChild>
-                  <Button
-                    size="sm"
-                    className="bg-watney text-white hover:bg-watney/90"
-                  >
-                    <Plus className="mr-2 h-5 w-5" /> Add Resource
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="z-[9999] max-h-[90vh] max-w-4xl overflow-y-auto ">
-                  <DialogHeader>
-                    <DialogTitle className="text-2xl">
-                      {editingResource
-                        ? 'Edit Resource'
-                        : 'Create New Resource'}
-                    </DialogTitle>
-                  </DialogHeader>
-                  {!selectedResourceType ? (
-                    <ResourceTypeSelector
-                      onSelect={handleResourceTypeSelect}
-                      hasIntroduction={introductionExists}
-                      editingResource={!!editingResource}
-                    />
-                  ) : (
-                    <ResourceForm
-                      selectedResourceType={selectedResourceType}
-                      formData={formData}
-                      setFormData={setFormData}
-                      contentType={contentType}
-                      setContentType={setContentType}
-                      uploadState={uploadState}
-                      uploadingFile={uploadingFile}
-                      uploadProgress={uploadProgress}
-                      uploadError={uploadError}
-                      onFileChange={handleFileChange}
-                      onSave={validateAndSaveResource}
-                      onCancel={resetForm}
-                      editingResource={!!editingResource}
-                    />
-                  )}
-                </DialogContent>
-              </Dialog>
-            )}
-          </div>
-        </div>
+  {/* Right Section (Buttons) */}
+  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4 w-full sm:w-auto">
+    <Button
+      onClick={() => navigate(-1)}
+      size="sm"
+      className="w-full sm:w-auto bg-watney text-white hover:bg-watney/90"
+    >
+      <MoveLeft className="mr-2 h-4 w-4" /> Back
+    </Button>
+
+    {isAdmin && (
+      <Dialog
+        open={isCreateDialogOpen}
+        onOpenChange={(open) => {
+          setIsCreateDialogOpen(open);
+          if (!open) resetForm();
+        }}
+      >
+        <DialogTrigger asChild>
+          <Button
+            size="sm"
+            className="w-full sm:w-auto bg-watney text-white hover:bg-watney/90"
+          >
+            <Plus className="mr-2 h-5 w-5" /> Add Resource
+          </Button>
+        </DialogTrigger>
+
+        <DialogContent className="z-[9999] max-h-[90vh] max-w-4xl overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl">
+              {editingResource ? 'Edit Resource' : 'Create New Resource'}
+            </DialogTitle>
+          </DialogHeader>
+
+          {!selectedResourceType ? (
+            <ResourceTypeSelector
+              onSelect={handleResourceTypeSelect}
+              hasIntroduction={introductionExists}
+              editingResource={!!editingResource}
+            />
+          ) : (
+            <ResourceForm
+              selectedResourceType={selectedResourceType}
+              formData={formData}
+              setFormData={setFormData}
+              contentType={contentType}
+              setContentType={setContentType}
+              uploadState={uploadState}
+              uploadingFile={uploadingFile}
+              uploadProgress={uploadProgress}
+              uploadError={uploadError}
+              onFileChange={handleFileChange}
+              onSave={validateAndSaveResource}
+              onCancel={resetForm}
+              editingResource={!!editingResource}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+    )}
+  </div>
+</div>
 
         {resources.length > 0 ? (
           <ResourceList

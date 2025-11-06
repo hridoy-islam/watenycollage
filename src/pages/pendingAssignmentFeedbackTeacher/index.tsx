@@ -184,7 +184,11 @@ const fetchAssignments = async () => {
         assignment.unitId?.title === unitFilter
       );
     }
-
+filtered = [...filtered].sort((a, b) => {
+    const dateA = new Date(a.updatedAt).getTime();
+    const dateB = new Date(b.updatedAt).getTime();
+    return  dateA-dateB; 
+  });
     setFilteredAssignments(filtered);
   }, [assignments, searchTerm, courseFilter, unitFilter]);
 

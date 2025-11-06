@@ -200,96 +200,120 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
   return (
     <div className="flex-1 space-y-4">
       {/* Applied Courses Table */}
-      <Card className="shadow-none">
-        <CardHeader>
-          <CardTitle>Your Courses</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="block overflow-x-auto rounded-md border border-gray-300 max-md:hidden">
-            <Table className="min-w-full">
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Course Name</TableHead>
-                  <TableHead>Intake</TableHead>
-                  <TableHead>Application Date</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Course Details</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {applications.length > 0 ? (
-                  applications.map((application) => (
-                    <TableRow key={application._id}>
-                      <TableCell>
-                        {application.courseId?.name || 'Unnamed'}
-                      </TableCell>
-                      <TableCell>
-                        {application.intakeId?.termName || 'N/A'}
-                      </TableCell>
-                      <TableCell>
-                        {moment(application.createdAt).format('MM-DD-YYYY')}
-                      </TableCell>
-                     
-                      <TableCell>
-                        <Badge
-                          className={clsx(
-                            'capitalize text-white',
-                            application.status === 'applied' && 'bg-blue-500',
-                            application.status === 'approved' && 'bg-green-500',
-                            application.status === 'cancelled' && 'bg-red-500'
-                          )}
-                        >
-                          {application.status === 'approved'
-                            ? 'Enrolled'
-                            : application.status === 'cancelled'
-                              ? 'Rejected'
-                              : application.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {application.status === 'approved' ? (
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  size="sm"
-                                  variant="default"
-                                  onClick={() =>
-                                    navigate(
-                                      `/dashboard/courses/${application.courseId._id}/unit`
-                                    )
-                                  }
-                                  className="bg-watney text-white hover:bg-watney/90"
-                                >
-                                  <FileText className="h-4 w-4 mr-2" /> View
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>View Course Details</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        ) : (
-                          <>Not Available</>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell
-                      colSpan={6}
-                      className="py-6 text-center text-gray-500"
-                    >
-                      No applications found.
-                    </TableCell>
-                  </TableRow>
+     <div className="hidden md:block overflow-x-auto rounded-md  bg-white p-4 shadow-md">
+      <h1 className='font-semibold mb-4'>Your Course</h1>
+  <Table className="min-w-full rounded-md border border-gray-300">
+    <TableHeader>
+      <TableRow>
+        <TableHead>Course Name</TableHead>
+        <TableHead>Intake</TableHead>
+        <TableHead>Application Date</TableHead>
+        <TableHead>Status</TableHead>
+        <TableHead className="text-right">Course Details</TableHead>
+      </TableRow>
+    </TableHeader>
+    <TableBody>
+      {applications.length > 0 ? (
+        applications.map((application) => (
+          <TableRow key={application._id}>
+            <TableCell>{application.courseId?.name || 'Unnamed'}</TableCell>
+            <TableCell>{application.intakeId?.termName || 'N/A'}</TableCell>
+            <TableCell>{moment(application.createdAt).format('MM-DD-YYYY')}</TableCell>
+            <TableCell>
+              <Badge
+                className={clsx(
+                  'capitalize text-white',
+                  application.status === 'applied' && 'bg-blue-500',
+                  application.status === 'approved' && 'bg-green-500',
+                  application.status === 'cancelled' && 'bg-red-500'
                 )}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
+              >
+                {application.status === 'approved'
+                  ? 'Enrolled'
+                  : application.status === 'cancelled'
+                    ? 'Rejected'
+                    : application.status}
+              </Badge>
+            </TableCell>
+            <TableCell className="text-right">
+              {application.status === 'approved' ? (
+                <Button
+                  size="sm"
+                  variant="default"
+                  onClick={() =>
+                    navigate(`/dashboard/courses/${application.courseId._id}/unit`)
+                  }
+                  className="bg-watney text-white hover:bg-watney/90"
+                >
+                  <FileText className="h-4 w-4 mr-2" /> View
+                </Button>
+              ) : (
+                <>Not Available</>
+              )}
+            </TableCell>
+          </TableRow>
+        ))
+      ) : (
+        <TableRow>
+          <TableCell colSpan={6} className="py-6 text-center text-gray-500">
+            No applications found.
+          </TableCell>
+        </TableRow>
+      )}
+    </TableBody>
+  </Table>
+</div>
+
+      <div className="grid gap-4 md:hidden">
+  {applications.length > 0 ? (
+    applications.map((application) => (
+      <Card key={application._id} className="p-4 border border-gray-300">
+        <div className="space-y-2">
+          <h3 className="font-semibold text-gray-800">
+            {application.courseId?.name || 'Unnamed'}
+          </h3>
+          <p className="text-sm text-gray-600">
+            <strong>Intake:</strong> {application.intakeId?.termName || 'N/A'}
+          </p>
+          <p className="text-sm text-gray-600">
+            <strong>Applied:</strong> {moment(application.createdAt).format('MM-DD-YYYY')}
+          </p>
+          <Badge
+            className={clsx(
+              'capitalize text-white',
+              application.status === 'applied' && 'bg-blue-500',
+              application.status === 'approved' && 'bg-green-500',
+              application.status === 'cancelled' && 'bg-red-500'
+            )}
+          >
+            {application.status === 'approved'
+              ? 'Enrolled'
+              : application.status === 'cancelled'
+                ? 'Rejected'
+                : application.status}
+          </Badge>
+
+          {application.status === 'approved' ? (
+            <Button
+              size="sm"
+              variant="default"
+              onClick={() =>
+                navigate(`/dashboard/courses/${application.courseId._id}/unit`)
+              }
+              className="w-full bg-watney text-white hover:bg-watney/90 mt-2"
+            >
+              <FileText className="h-4 w-4 mr-2" /> View Course
+            </Button>
+          ) : (
+            <p className="text-xs text-gray-500 mt-2 text-center">Not Available</p>
+          )}
+        </div>
       </Card>
+    ))
+  ) : (
+    <p className="text-center text-gray-500">No applications found.</p>
+  )}
+</div>
 
       <div className="grid gap-4 md:grid-cols-4">
         {/* Total Assignments Card */}

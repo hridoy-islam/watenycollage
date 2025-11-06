@@ -260,283 +260,349 @@ function CourseUnitPage() {
   });
 
   return (
-    <div className="">
-      {/* Header */}
-      <div className="mb-4 flex flex-col items-stretch space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
-        <div className="flex items-center">
-          <FileText className="mr-2 h-5 w-5" />
-          <h1 className="text-xl font-bold tracking-tight sm:text-2xl">
-            {courseName} Units
-          </h1>
+  <div className="w-full">
+    {/* Header */}
+    <div className="mb-4 flex flex-col items-stretch gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="flex items-center">
+        <FileText className="mr-2 h-5 w-5 flex-shrink-0" />
+        <h1 className="text-xl font-bold tracking-tight sm:text-2xl truncate">
+          {courseName} Units
+        </h1>
+      </div>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
+          <Button
+            className="w-full justify-center bg-watney text-white hover:bg-watney/90 sm:w-auto"
+            onClick={() => navigate(-1)}
+            size="sm"
+          >
+            <MoveLeft className="mr-2 h-4 w-4 flex-shrink-0" />
+            Back
+          </Button>
+
+          {user?.role === 'admin' && (
+            <DialogTrigger asChild>
+              <Button
+                className="w-full justify-center bg-watney text-white hover:bg-watney/90 sm:w-auto"
+                onClick={openAddDialog}
+                size="sm"
+              >
+                <Plus className="mr-2 h-4 w-4 flex-shrink-0" />
+                Add Unit
+              </Button>
+            </DialogTrigger>
+          )}
         </div>
 
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
-            <Button
-              className="w-full justify-center bg-watney text-white hover:bg-watney/90 sm:w-auto"
-              onClick={() => navigate(-1)}
-              size="sm"
-            >
-              <MoveLeft className="mr-2 h-4 w-4" />
-              Back
-            </Button>
-
-            {user?.role == 'admin' && (
-              <DialogTrigger asChild>
-                <Button
-                  className="w-full justify-center bg-watney text-white hover:bg-watney/90 sm:w-auto"
-                  onClick={openAddDialog}
-                  size="sm"
-                >
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Unit
-                </Button>
-              </DialogTrigger>
-            )}
-          </div>
-
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>
-                {isEditing ? 'Edit Course Unit' : 'Add New Course Unit'}
-              </DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="grid grid-cols-1 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="unitRef">Unit Reference</Label>
-                  <Input
-                    id="unitRef"
-                    value={unitReference}
-                    onChange={(e) => setUnitReference(e.target.value)}
-                    placeholder="e.g., CS101"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="title">Title</Label>
-                  <Input
-                    id="title"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="e.g., Introduction to Programming"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="level">Level</Label>
-                  <Input
-                    id="level"
-                    value={level}
-                    type="number"
-                    min="0"
-                    onChange={(e) => setLevel(e.target.value)}
-                    placeholder="e.g., 4"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="gls">GLS</Label>
-                  <Input
-                    id="gls"
-                    type="number"
-                    min="0"
-                    value={gls}
-                    onChange={(e) => setGls(e.target.value)}
-                    placeholder="e.g., 3"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="credit">Credit</Label>
-                  <Input
-                    id="credit"
-                    type="number"
-                    min="0"
-                    value={credit}
-                    onChange={(e) => setCredit(e.target.value)}
-                    placeholder="e.g., 15"
-                  />
-                </div>
-              </div>
-
-              <div className="flex flex-col-reverse justify-between gap-2 pt-4 sm:flex-row sm:justify-end sm:gap-2">
-                <Button variant="outline" onClick={() => setDialogOpen(false)}>
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleSubmit}
-                  disabled={submitting}
-                  className="bg-watney text-white hover:bg-watney/90"
-                >
-                  {submitting
-                    ? isEditing
-                      ? 'Updating...'
-                      : 'Adding...'
-                    : isEditing
-                      ? 'Update'
-                      : 'Add Unit'}
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      <div
-        className="prose  max-w-full py-2"
-        dangerouslySetInnerHTML={{ __html: courseDescription }}
-      />
-
-      {/* Delete Confirmation Dialog */}
-      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Are you sure?</DialogTitle>
-            <DialogDescription>
-              This action cannot be undone. This will permanently delete the
-              unit{' '}
-              <span className="font-semibold">"{unitToDelete?.title}"</span> and
-              remove all associated data.
-            </DialogDescription>
+            <DialogTitle>
+              {isEditing ? 'Edit Course Unit' : 'Add New Course Unit'}
+            </DialogTitle>
           </DialogHeader>
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button
-              variant="outline"
-              onClick={() => setDeleteDialogOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleDelete}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              Delete
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Units Table */}
-      <div className="rounded-lg bg-white p-6 shadow-md">
-        {loading ? (
-          <div className="flex items-center justify-center py-8">
-            <BlinkingDots size="large" color="bg-watney" />
-          </div>
-        ) : units.length === 0 ? (
-          <div className="py-8 text-center">
-            <FileText className="mx-auto h-12 w-12 text-muted-foreground" />
-            <h3 className="mt-2 text-sm font-medium text-muted-foreground">
-              No course units added yet
-            </h3>
-          </div>
-        ) : (
-          <>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Unit Reference</TableHead>
-                    <TableHead>Title</TableHead>
-                    <TableHead>Level</TableHead>
-                    <TableHead>GLS</TableHead>
-                    <TableHead>Credit</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {sortedUnits.map((unit) => (
-                    <TableRow key={unit._id}>
-                      <TableCell>{unit.unitReference}</TableCell>
-                      <TableCell>{unit.title}</TableCell>
-                      <TableCell>{unit.level}</TableCell>
-                      <TableCell>{unit.gls}</TableCell>
-                      <TableCell>{unit.credit}</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  size="sm"
-                                  variant="default"
-                                  onClick={() => handleModule(unit)}
-                                  className="flex flex-row items-center gap-2 bg-watney text-white hover:bg-watney/90"
-                                >
-                                  <FileText className="h-4 w-4" />
-                                  View Details
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Details</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-
-                          {user?.role == 'admin' && (
-                            <>
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button
-                                      size="sm"
-                                      variant="default"
-                                      onClick={() => openEditDialog(unit)}
-                                      className="bg-watney text-white hover:bg-watney/90"
-                                    >
-                                      <Pen className="h-4 w-4" />
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>Edit</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button
-                                      size="sm"
-                                      variant="destructive"
-                                      onClick={() => openDeleteDialog(unit)}
-                                      className="bg-red-600 hover:bg-red-700"
-                                    >
-                                      <Trash2 className="h-4 w-4" />
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>Delete</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            </>
-                          )}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-
-            {units.length > entriesPerPage && (
-              <div className="mt-4 w-full max-md:flex max-md:scale-75 max-md:justify-center">
-                <DataTablePagination
-                  pageSize={entriesPerPage}
-                  setPageSize={setEntriesPerPage}
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  onPageChange={setCurrentPage}
+          <div className="space-y-4 py-4">
+            <div className="grid grid-cols-1 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="unitRef">Unit Reference</Label>
+                <Input
+                  id="unitRef"
+                  value={unitReference}
+                  onChange={(e) => setUnitReference(e.target.value)}
+                  placeholder="e.g., CS101"
                 />
               </div>
-            )}
-          </>
-        )}
-      </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="title">Title</Label>
+                <Input
+                  id="title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="e.g., Introduction to Programming"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="level">Level</Label>
+                <Input
+                  id="level"
+                  value={level}
+                  type="number"
+                  min="0"
+                  onChange={(e) => setLevel(e.target.value)}
+                  placeholder="e.g., 4"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="gls">GLS</Label>
+                <Input
+                  id="gls"
+                  type="number"
+                  min="0"
+                  value={gls}
+                  onChange={(e) => setGls(e.target.value)}
+                  placeholder="e.g., 3"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="credit">Credit</Label>
+                <Input
+                  id="credit"
+                  type="number"
+                  min="0"
+                  value={credit}
+                  onChange={(e) => setCredit(e.target.value)}
+                  placeholder="e.g., 15"
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col-reverse gap-2 pt-4 sm:flex-row sm:justify-end">
+              <Button variant="outline" onClick={() => setDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSubmit}
+                disabled={submitting}
+                className="bg-watney text-white hover:bg-watney/90"
+              >
+                {submitting
+                  ? isEditing
+                    ? 'Updating...'
+                    : 'Adding...'
+                  : isEditing
+                    ? 'Update'
+                    : 'Add Unit'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
-  );
+
+    <div
+      className="prose max-w-full py-2 text-sm sm:text-base"
+      dangerouslySetInnerHTML={{ __html: courseDescription }}
+    />
+
+    {/* Delete Confirmation Dialog */}
+    <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Are you sure?</DialogTitle>
+          <DialogDescription>
+            This action cannot be undone. This will permanently delete the unit{' '}
+            <span className="font-semibold">"{unitToDelete?.title}"</span> and
+            remove all associated data.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter className="gap-2 sm:gap-0">
+          <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+            Cancel
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={handleDelete}
+            className="bg-red-600 hover:bg-red-700"
+          >
+            Delete
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+
+    {/* Units Display */}
+    <div className="rounded-lg bg-white p-4 sm:p-6 shadow-md overflow-hidden">
+      {loading ? (
+        <div className="flex items-center justify-center py-8">
+          <BlinkingDots size="large" color="bg-watney" />
+        </div>
+      ) : units.length === 0 ? (
+        <div className="py-8 text-center">
+          <FileText className="mx-auto h-10 w-10 text-muted-foreground" />
+          <h3 className="mt-2 text-sm font-medium text-muted-foreground">
+            No course units added yet
+          </h3>
+        </div>
+      ) : (
+        <>
+          {/* Desktop Table — hidden on mobile */}
+          <div className="hidden md:block -mx-4 overflow-x-auto px-4">
+            <Table className="min-w-full">
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="whitespace-nowrap">Unit Ref</TableHead>
+                  <TableHead className="whitespace-nowrap">Title</TableHead>
+                  <TableHead className="whitespace-nowrap">Level</TableHead>
+                  <TableHead className="whitespace-nowrap">GLS</TableHead>
+                  <TableHead className="whitespace-nowrap">Credit</TableHead>
+                  <TableHead className="text-right whitespace-nowrap">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {sortedUnits.map((unit) => (
+                  <TableRow key={unit._id}>
+                    <TableCell className="whitespace-nowrap">{unit.unitReference}</TableCell>
+                    <TableCell className="max-w-[150px] truncate sm:max-w-none">
+                      {unit.title}
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap">{unit.level}</TableCell>
+                    <TableCell className="whitespace-nowrap">{unit.gls}</TableCell>
+                    <TableCell className="whitespace-nowrap">{unit.credit}</TableCell>
+                    <TableCell>
+                      <div className="flex justify-end gap-1 sm:gap-2">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="default"
+                                onClick={() => handleModule(unit)}
+                                className="bg-watney text-white hover:bg-watney/90 h-8 w-8 p-0 sm:w-auto sm:px-3"
+                              >
+                                <FileText className="h-4 w-4" />
+                                <span className="sr-only sm:not-sr-only sm:ml-1">Details</span>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>View Details</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+
+                        {user?.role === 'admin' && (
+                          <>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    size="sm"
+                                    variant="default"
+                                    onClick={() => openEditDialog(unit)}
+                                    className="bg-watney text-white hover:bg-watney/90 h-8 w-8 p-0 sm:w-auto sm:px-3"
+                                  >
+                                    <Pen className="h-4 w-4" />
+                                    <span className="sr-only sm:not-sr-only sm:ml-1">Edit</span>
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Edit</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    size="sm"
+                                    variant="destructive"
+                                    onClick={() => openDeleteDialog(unit)}
+                                    className="bg-red-600 hover:bg-red-700 h-8 w-8 p-0 sm:w-auto sm:px-3"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                    <span className="sr-only sm:not-sr-only sm:ml-1">Delete</span>
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Delete</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Mobile Card View — shown on small screens */}
+          <div className="md:hidden space-y-4">
+            {sortedUnits.map((unit) => (
+              <div
+                key={unit._id}
+                className="border rounded-lg p-4 shadow-sm "
+              >
+                <div className="grid grid-cols-2 gap-y-1 text-sm">
+                  <span className="font-medium">Unit Ref:</span>
+                  <span>{unit.unitReference}</span>
+
+                  <span className="font-medium">Title:</span>
+                  <span className="truncate">{unit.title}</span>
+
+                  <span className="font-medium">Level:</span>
+                  <span>{unit.level}</span>
+
+                  <span className="font-medium">GLS:</span>
+                  <span>{unit.gls}</span>
+
+                  <span className="font-medium">Credit:</span>
+                  <span>{unit.credit}</span>
+                </div>
+
+               <div className="mt-3 flex w-full gap-2">
+  <Button
+    size="sm"
+    variant="default"
+    onClick={() => handleModule(unit)}
+    className="flex-1 bg-watney text-white hover:bg-watney/90 h-10"
+    aria-label="View Details"
+  >
+    <FileText className="h-4 w-4" /> Details
+  </Button>
+
+  {user?.role === 'admin' && (
+    <>
+      <Button
+        size="sm"
+        variant="default"
+        onClick={() => openEditDialog(unit)}
+        className="flex-1 bg-watney text-white hover:bg-watney/90 h-10"
+        aria-label="Edit"
+      >
+        <Pen className="h-4 w-4" /> Edit
+      </Button>
+
+      <Button
+        size="sm"
+        variant="destructive"
+        onClick={() => openDeleteDialog(unit)}
+        className="flex-1 bg-red-600 hover:bg-red-700 h-10"
+        aria-label="Delete"
+      >
+        <Trash2 className="h-4 w-4" /> Delete
+      </Button>
+    </>
+  )}
+</div>
+
+              </div>
+            ))}
+          </div>
+
+          {/* Pagination (shared) */}
+          {units.length > entriesPerPage && (
+            <div className="mt-6 flex justify-center">
+              <DataTablePagination
+                pageSize={entriesPerPage}
+                setPageSize={setEntriesPerPage}
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  </div>
+);
 }
 
 export default CourseUnitPage;
