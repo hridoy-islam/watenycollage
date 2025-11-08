@@ -573,7 +573,7 @@ const AssignmentDetailPage = () => {
         );
 
       return feedbacksWithDeadline.length > 0
-        ? moment(feedbacksWithDeadline[0].deadline)
+        ? moment(feedbacksWithDeadline[0].deadline).endOf('day')
         : null;
     };
 
@@ -586,7 +586,7 @@ const AssignmentDetailPage = () => {
       );
 
       return materialAssignment?.deadline
-        ? moment(materialAssignment.deadline)
+        ? moment(materialAssignment.deadline).endOf('day')
         : null;
     };
 
@@ -598,8 +598,10 @@ const AssignmentDetailPage = () => {
 
     // Scenario 1: First time submission (no submissions yet)
     if (!hasStudentSubmittedBefore) {
-      // REMOVED: Deadline check for first submission
-      // Allow submission even if deadline has passed
+      // Allow only if unit material deadline not passed
+      if (unitMaterialDeadline && moment().isAfter(unitMaterialDeadline)) {
+        return false; // deadline passed, cannot submit
+      }
       return true;
     }
 
@@ -607,16 +609,16 @@ const AssignmentDetailPage = () => {
     if (requiresResubmission) {
       // Check feedback deadline first
       if (feedbackDeadline) {
-        // REMOVED: Deadline check for resubmission
-        // Allow resubmission even if feedback deadline has passed
-        return true;
+        if (feedbackDeadline && moment().isAfter(feedbackDeadline)) {
+          return false; // feedback deadline passed
+        }
       }
-      // If no feedback deadline but resubmission required, allow submission
+       // within deadline, allow resubmission
       return true;
     }
 
-    // Scenario 3: Student has submitted before but no resubmission required
-    // In this case, student cannot submit again unless teacher requires resubmission
+     // Scenario 3: Already submitted and no resubmission required
+
     return false;
   };
 
@@ -1815,7 +1817,6 @@ const AssignmentDetailPage = () => {
                   setEditingFinalFeedback(true);
                   setFinalFeedbackDialogOpen(true);
                 }}
-
                 onEditObservationFeedback={() => {
                   setEditingObservation(true);
                   setObservationDialogOpen(true);

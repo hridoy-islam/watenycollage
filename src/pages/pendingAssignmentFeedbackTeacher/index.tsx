@@ -232,7 +232,7 @@ filtered = [...filtered].sort((a, b) => {
             <div>
               <CardTitle>Assignment Pending Feedbacks</CardTitle>
             </div>
-            <div>
+           <div className='flex items-center gap-2'>
               <Button
                 variant="default"
                 size="sm"
@@ -240,6 +240,14 @@ filtered = [...filtered].sort((a, b) => {
                 className="bg-watney text-white hover:bg-watney/90"
               >
                 <ArrowLeft className="mr-2 h-4 w-4" /> Back
+              </Button>
+              <Button
+                variant="default"
+                size="sm"
+                onClick={() => navigate("/dashboard/assignment-report")}
+                className="bg-watney text-white hover:bg-watney/90"
+              >
+                Assignment Reports
               </Button>
             </div>
           </div>

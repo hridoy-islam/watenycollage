@@ -267,7 +267,7 @@ if (resource.type === 'introduction') {
                 variant="default"
                 size="icon"
                 onClick={() => onEdit(resource)}
-                className="text-watney hover:text-watney/90 border border-watney bg-transparent hover:bg-watney/10 transition-colors"
+                className="text-watney hover:text-watney/90  bg-transparent hover:bg-watney/10 transition-colors"
               >
                 <Pencil className="h-4 w-4" />
               </Button>
@@ -277,7 +277,7 @@ if (resource.type === 'introduction') {
                   <Button
                     variant="destructive"
                     size="icon"
-                    className="bg-red-600 hover:bg-red-700 transition-colors"
+                    className="bg-destructive hover:bg-destructive/90 transition-colors"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -337,7 +337,7 @@ if (resource.type === 'introduction') {
               <Badge className="bg-indigo-500 p-2 text-white">
                 <Target className="h-4 w-4" />
               </Badge>
-              <span className="font-medium">
+              <span className="font-medium text-start">
                 {resource.learningOutcomes || ''}
               </span>
 
