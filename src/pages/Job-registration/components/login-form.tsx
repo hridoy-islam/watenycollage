@@ -15,19 +15,17 @@ import {
 import { useDispatch } from 'react-redux';
 import type { AppDispatch } from '@/redux/store';
 import { loginUser } from '@/redux/features/authSlice';
+import { useState } from 'react';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters')
 });
 
-interface LoginFormProps {
-  onSuccess: () => void;
-}
-
 export default function LoginForm() {
   const { toast } = useToast();
   const dispatch = useDispatch<AppDispatch>();
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(loginSchema),
@@ -38,6 +36,7 @@ export default function LoginForm() {
   });
 
   const handleLoginSubmit = async (values: z.infer<typeof loginSchema>) => {
+    setIsLoading(true);
     try {
       const normalizedData = { ...values, email: values.email.toLowerCase() };
 
@@ -55,8 +54,6 @@ export default function LoginForm() {
         return;
       }
 
-      // Login was successful
-      // onSuccess()
       toast({
         title: 'Login Successful',
         description: 'You have been logged in successfully.'
@@ -68,6 +65,8 @@ export default function LoginForm() {
           'Something went wrong during the login process. Please try again later.',
         variant: 'destructive'
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -87,6 +86,7 @@ export default function LoginForm() {
                 <Input
                   type="email"
                   placeholder="your.email@example.com"
+                  disabled={isLoading}
                   {...field}
                 />
               </FormControl>
@@ -94,6 +94,7 @@ export default function LoginForm() {
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="password"
@@ -101,22 +102,52 @@ export default function LoginForm() {
             <FormItem>
               <div className="flex items-center justify-between">
                 <FormLabel>Password*</FormLabel>
-                {/* <a href="#" className="text-sm text-blue-600 hover:underline">
-                  Forgotten Password
-                </a> */}
               </div>
               <FormControl>
-                <Input type="password" placeholder="••••••••" {...field} />
+                <Input
+                  type="password"
+                  placeholder="••••••••"
+                  disabled={isLoading}
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
+
         <Button
           type="submit"
-          className="w-full bg-watney text-white hover:bg-watney/90"
+          disabled={isLoading}
+          className="w-full bg-watney text-white hover:bg-watney/90 flex items-center justify-center"
         >
-          Log in
+          {isLoading ? (
+            <>
+              <svg
+                className="animate-spin h-5 w-5 text-white mr-2"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                ></path>
+              </svg>
+              Logging in...
+            </>
+          ) : (
+            'Log in'
+          )}
         </Button>
       </form>
     </Form>
