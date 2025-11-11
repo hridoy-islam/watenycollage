@@ -76,7 +76,7 @@ export function TeacherAssignmentFeedbackList() {
   const [selectedTerm, setSelectedTerm] = useState<SelectOption | null>(null);
   const [selectedUnit, setSelectedUnit] = useState<SelectOption | null>(null);
   const [selectedAssignment, setSelectedAssignment] = useState<SelectOption | null>(null);
-  const [counter,setCounter] = useState(0)
+  const [counter, setCounter] = useState(0)
   const count = () => setCounter(prev => prev + 1);
 
 
@@ -138,46 +138,46 @@ export function TeacherAssignmentFeedbackList() {
     fetchTeacherCoursesAndTerms();
   }, [user]);
 
-// 🔹 2. Load units ONLY when both course AND term are selected
-useEffect(() => {
-  // Reset if either is missing
-  if (!selectedCourse?.value || !selectedTerm?.value) {
-    setUnits([]);
-    setSelectedUnit(null);
-    setAssignmentOptions([]);
-    setSelectedAssignment(null);
-    return;
-  }
-
-  const fetchUnits = async () => {
-    try {
-      // Pass both courseId and termId (if your backend supports termId)
-      const res = await axiosInstance.get('/course-unit', {
-        params: {
-          courseId: selectedCourse.value,
-          limit: 'all'
-        }
-      });
-
-      const sortedUnits = sortBySerialNumber(res.data.data.result);
-      const unitOptions = sortedUnits.map((u: any) => ({
-        value: u._id,
-        label: u.title || u.unitName
-      }));
-
-      setUnits(unitOptions);
+  // 🔹 2. Load units ONLY when both course AND term are selected
+  useEffect(() => {
+    // Reset if either is missing
+    if (!selectedCourse?.value || !selectedTerm?.value) {
+      setUnits([]);
       setSelectedUnit(null);
       setAssignmentOptions([]);
       setSelectedAssignment(null);
-    } catch (err) {
-      console.error('Failed to load units', err);
-      setError('Failed to load units');
-      setUnits([]);
+      return;
     }
-  };
 
-  fetchUnits();
-}, [selectedCourse, selectedTerm]); // ✅ Depend on both
+    const fetchUnits = async () => {
+      try {
+        // Pass both courseId and termId (if your backend supports termId)
+        const res = await axiosInstance.get('/course-unit', {
+          params: {
+            courseId: selectedCourse.value,
+            limit: 'all'
+          }
+        });
+
+        const sortedUnits = sortBySerialNumber(res.data.data.result);
+        const unitOptions = sortedUnits.map((u: any) => ({
+          value: u._id,
+          label: u.title || u.unitName
+        }));
+
+        setUnits(unitOptions);
+        setSelectedUnit(null);
+        setAssignmentOptions([]);
+        setSelectedAssignment(null);
+      } catch (err) {
+        console.error('Failed to load units', err);
+        setError('Failed to load units');
+        setUnits([]);
+      }
+    };
+
+    fetchUnits();
+  }, [selectedCourse, selectedTerm]); // ✅ Depend on both
   // 🔹 3. Load assignments when unit selected
   useEffect(() => {
     if (!selectedUnit?.value) {
@@ -245,9 +245,9 @@ useEffect(() => {
     }
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     searchAssignments()
-  },[counter])
+  }, [counter])
 
   const getAssignmentTitle = (assignment: Assignment) => {
     const material = assignment.unitMaterialId?.assignments?.find(
@@ -285,7 +285,8 @@ useEffect(() => {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>Assignment Pending Feedbacks</CardTitle>
-            <Button
+            <div className='flex items-center gap-4'>
+              <Button
               variant="default"
               size="sm"
               onClick={() => navigate(-1)}
@@ -293,6 +294,16 @@ useEffect(() => {
             >
               <ArrowLeft className="mr-2 h-4 w-4" /> Back
             </Button>
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => navigate("/dashboard/assignment-report")}
+              className="bg-watney text-white hover:bg-watney/90"
+            >
+              Assignment Reports
+            </Button>
+            </div>
+            
           </div>
         </CardHeader>
         <CardContent>
@@ -376,13 +387,13 @@ useEffect(() => {
             <div className="flex flex-col items-center justify-center py-8 text-center">
               <FileText className="mb-4 h-12 w-12 text-muted-foreground" />
               <h3 className="text-lg font-semibold">Set filters and click "Search"</h3>
-              
+
             </div>
           ) : assignments.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 text-center">
               <FileText className="mb-4 h-12 w-12 text-muted-foreground" />
               <h3 className="text-lg font-semibold">No pending feedbacks found</h3>
-             
+
             </div>
           ) : (
             <Table>
