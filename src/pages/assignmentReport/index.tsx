@@ -102,7 +102,9 @@ export default function AssignmentReportsPage() {
     { value: '1', label: 'Students Who Submitted Assignments' },
     { value: '2', label: 'Students With Teacher Feedback' },
     { value: '3', label: 'Students Who Did Not Submit' },
-    { value: '4', label: 'Students Without Feedback' }
+    { value: '4', label: 'Students Without Feedback' },
+    { value: '5', label: 'Students With Resubmission Feedback' },
+
   ];
 
   // Fetch courses and terms on mount
@@ -133,26 +135,35 @@ export default function AssignmentReportsPage() {
           );
         } else if (user?.role === 'teacher') {
           // Teacher: Fetch only assigned courses
-          const [teacherCoursesRes, termsRes] = await Promise.all([
+          const [teacherCoursesRes] = await Promise.all([
             axiosInstance.get('/teacher-courses', {
               params: { teacherId: user._id, limit: 'all' }
             }),
-          
           ]);
 
-          setCourses(
-            teacherCoursesRes.data.data.result.map((c: Course) => ({
-              value: c.courseId?._id,
-              label: `${c.courseId?.name}`
-            }))
-          );
+          const teacherCourses = teacherCoursesRes.data.data.result || [];
 
-          setTerms(
-            teacherCoursesRes.data.data.result.map((t: Term) => ({
-              value: t.termId?._id,
-              label: t.termId?.termName
-            }))
-          );
+          // ✅ Extract unique courses
+          const uniqueCoursesMap = new Map<string, SelectOption>();
+          teacherCourses.forEach((c: any) => {
+            const courseId = c.courseId?._id;
+            const courseName = c.courseId?.name;
+            if (courseId && !uniqueCoursesMap.has(courseId)) {
+              uniqueCoursesMap.set(courseId, { value: courseId, label: courseName });
+            }
+          });
+          setCourses(Array.from(uniqueCoursesMap.values()));
+
+          // ✅ Extract unique terms
+          const uniqueTermsMap = new Map<string, SelectOption>();
+          teacherCourses.forEach((t: any) => {
+            const termId = t.termId?._id;
+            const termName = t.termId?.termName;
+            if (termId && !uniqueTermsMap.has(termId)) {
+              uniqueTermsMap.set(termId, { value: termId, label: termName });
+            }
+          });
+          setTerms(Array.from(uniqueTermsMap.values()));
         }
       } catch (err) {
         setError('Failed to load courses/terms');
@@ -287,6 +298,9 @@ export default function AssignmentReportsPage() {
         case '4':
           endpoint = `/assignment/no-feedback/${courseId}/${termId}/${unitId}/${assignmentId}?limit=all`;
           break;
+           case '5':
+          endpoint = `/assignment/resubmission-feedback/${courseId}/${termId}/${unitId}/${assignmentId}?limit=all`;
+          break;
         default:
           throw new Error('Invalid report type');
       }
@@ -386,6 +400,14 @@ export default function AssignmentReportsPage() {
           { label: 'Total Without Feedback', value: meta.totalNoFeedback || 0 }
         );
         break;
+
+        case '5': // resubmission Feedback
+        rows.push(
+          { label: 'Total Students', value: meta.totalStudents||0 },
+        
+          { label: 'Total Resubmission Assignments', value: meta.totalResubmissionAssignments || 0 },
+        );
+        break;
     }
 
     return (
@@ -438,9 +460,9 @@ export default function AssignmentReportsPage() {
                 setSelectedAssignment(null);
               }}
               placeholder={
-                courses.length === 0 
-                  ? user?.role === 'teacher' 
-                    ? 'No assigned courses found' 
+                courses.length === 0
+                  ? user?.role === 'teacher'
+                    ? 'No assigned courses found'
                     : 'No courses available'
                   : 'Select course'
               }
@@ -609,10 +631,10 @@ export default function AssignmentReportsPage() {
                   <TableHead>Assignment</TableHead>
                   {(activeReportType?.value === '1' ||
                     activeReportType?.value === '3') && (
-                    <TableHead className="text-right">
-                      Assignment Submitted
-                    </TableHead>
-                  )}
+                      <TableHead className="text-right">
+                        Assignment Submitted
+                      </TableHead>
+                    )}
                   {activeReportType?.value === '2' && (
                     <TableHead className="text-right">Teacher Name</TableHead>
                   )}
@@ -659,7 +681,7 @@ export default function AssignmentReportsPage() {
                     : 'N/A';
                   return (
                     <TableRow key={item._id || student?._id || index}>
-                      <TableCell className='hover:cursor-pointer' onClick={()=>handleViewStudentAllAssignment(item)}>
+                      <TableCell className='hover:cursor-pointer' onClick={() => handleViewStudentAllAssignment(item)}>
                         <h1 className="font-semibold">
                           {student?.name ||
                             `${student?.firstName || ''} ${student?.lastName || ''}`.trim() ||
@@ -670,15 +692,15 @@ export default function AssignmentReportsPage() {
                         </h2>
                       </TableCell>
 
-                      <TableCell className='hover:cursor-pointer' onClick={()=>handleViewStudentAllAssignment(item)}>{courseName}</TableCell>
-                      <TableCell className='hover:cursor-pointer' onClick={()=>handleViewStudentAllAssignment(item)}>{termName}</TableCell>
-                      <TableCell className='hover:cursor-pointer' onClick={()=>handleViewStudentAllAssignment(item)}>{unitName}</TableCell>
+                      <TableCell className='hover:cursor-pointer' onClick={() => handleViewStudentAllAssignment(item)}>{courseName}</TableCell>
+                      <TableCell className='hover:cursor-pointer' onClick={() => handleViewStudentAllAssignment(item)}>{termName}</TableCell>
+                      <TableCell className='hover:cursor-pointer' onClick={() => handleViewStudentAllAssignment(item)}>{unitName}</TableCell>
                       <TableCell>{assignmentName}</TableCell>
 
                       {(activeReportType?.value === '1' ||
                         activeReportType?.value === '3') && (
-                        <TableCell className="text-center">{status}</TableCell>
-                      )}
+                          <TableCell className="text-center">{status}</TableCell>
+                        )}
                       {activeReportType?.value === '2' && (
                         <TableCell className="text-right">
                           {teacherName}
