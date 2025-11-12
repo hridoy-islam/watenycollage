@@ -406,7 +406,7 @@ export default function StudentVerificationPage() {
                   <TableCell>
                     {verification?.documents &&
                     verification.documents.length > 0 ? (
-                      <div className="flex flex-wrap gap-1">
+                      <div className="flex flex-wrap gap-4">
                         {verification.documents.map(
                           (doc: string, index: number) => {
                             const displayName = doc.replace(
@@ -425,7 +425,7 @@ export default function StudentVerificationPage() {
                                   {displayName}
                                 </a>
                                 {index < verification.documents.length - 1 && (
-                                  <span>, </span>
+                                  <span>,{  }</span>
                                 )}
                               </span>
                             );
