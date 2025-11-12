@@ -166,21 +166,21 @@ export default function StudentVerificationPage() {
 
         // Add to form data documents array
         setValue('documents', [...(watchedDocuments || []), fileUrl]);
-        toast({
-          title: 'Success',
-          description: 'Document uploaded successfully!'
-        });
+        // toast({
+        //   title: 'Success',
+        //   description: 'Document uploaded successfully!'
+        // });
       } else {
         throw new Error('Upload failed: Invalid API response');
       }
     } catch (error) {
       console.error('Upload error:', error);
       setUploadError('Failed to upload document. Please try again.');
-      toast({
-        title: 'Upload failed',
-        description: 'Could not upload your document.',
-        variant: 'destructive'
-      });
+      // toast({
+      //   title: 'Upload failed',
+      //   description: 'Could not upload your document.',
+      //   variant: 'destructive'
+      // });
     } finally {
       setUploadingFile(false);
       setUploadProgress(0);
@@ -532,18 +532,17 @@ export default function StudentVerificationPage() {
                     onFileChange={handleFileChange}
                     onRemoveFile={handleRemoveDocument}
                     uploadedFiles={watchedDocuments.map((doc, index) => {
-  // Clean up the display name from the GCS URL
-  const displayName = doc.replace(
-    /^https:\/\/storage\.googleapis\.com\/watney\/[^-]+-/,
-    ''
-  );
+                      // Clean up the display name from the GCS URL
+                      const displayName = doc.replace(
+                        /^https:\/\/storage\.googleapis\.com\/watney\/[^-]+-/,
+                        ''
+                      );
 
-  return {
-    fileName: displayName,
-    url: doc
-  };
-})}
-
+                      return {
+                        fileName: displayName,
+                        url: doc
+                      };
+                    })}
                   />
                   {errors.documents && (
                     <p className="mt-1 text-sm text-red-500">
