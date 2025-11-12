@@ -29,6 +29,7 @@ export function TopNav() {
     { path: '/dashboard/assignments-feedback', label: 'Assignment' },
     { path: '/dashboard/teachers', label: 'Teachers' },
     { path: '/dashboard/report', label: 'Report' },
+    { path: '/dashboard/verification', label: 'Verification' },
     // { path: '/dashboard/assignment-report', label: 'Assignment Report' }
   ];
 

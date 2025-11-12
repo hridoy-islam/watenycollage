@@ -54,6 +54,7 @@ import ReportPage from '@/pages/report';
 import TeacherProfile from '@/pages/profile/profile-teacher';
 import AttendancePage from '@/pages/staff-attendance';
 import AssignmentReportsPage from '@/pages/assignmentReport';
+import StudentVerificationPage from '@/pages/studentVerification';
 
 const SignInPage = lazy(() => import('@/pages/auth/signin/index'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
@@ -327,6 +328,13 @@ export default function AppRouter() {
           path: 'assignment-report',
           element: withRole(<AssignmentReportsPage />, [
             'admin','teacher'
+          ]),
+          index: true
+        },
+         {
+          path: 'verification',
+          element: withRole(<StudentVerificationPage />, [
+            'admin'
           ]),
           index: true
         }
