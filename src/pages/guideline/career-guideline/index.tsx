@@ -48,7 +48,7 @@ const steps: React.ReactNode[] = [
     <h3 className={headingClass}>📋 What You’ll Need</h3>
     <p className={textClass}>To complete your application successfully, please prepare the following:</p>
     <ul className={`list-disc pl-6 space-y-2 ${textClass}`}>
-      <li><strong>Personal & Background:</strong> Full name, date of birth, gender, address, right-to-work code (if applicable), phone, and email.</li>
+      <li><strong>Personal & Background:</strong> Full name, date of birth, gender, address, Right to work Share Code (if applicable), phone, and email.</li>
       <li><strong>Availability:</strong> Earliest start date, weekly availability, and preferred shifts.</li>
       <li><strong>Education & Training:</strong> Qualifications, awarding body, grades, dates, and care-related training.</li>
       <li><strong>Employment History:</strong> Most recent employer details and responsibilities.</li>

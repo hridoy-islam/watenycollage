@@ -126,6 +126,32 @@ export default function RegistrationForm({
                     }
                     onChange={(option) => field.onChange(option?.value)}
                     placeholder="Select title"
+                      styles={{
+                              placeholder: (provided) => ({
+                                ...provided,
+                                fontSize: '1.125rem',
+                                color: '#9CA3AF'
+                              }),
+                              control: (provided) => ({
+                                ...provided,
+                                borderRadius: '16px',
+                                fontSize: '1.125rem',
+                                minHeight: '3rem', // h-12 = 48px
+                                height: '3rem'
+                              }),
+                              singleValue: (provided) => ({
+                                ...provided,
+                                fontSize: '1.125rem'
+                              }),
+                              input: (provided) => ({
+                                ...provided,
+                                fontSize: '1.125rem'
+                              }),
+                              valueContainer: (provided) => ({
+                                ...provided,
+                                padding: '0 0.75rem' // px-3 for better spacing
+                              })
+                            }}
                   />
                 </FormControl>
                 <FormMessage />
@@ -213,6 +239,32 @@ export default function RegistrationForm({
                     }
                     onChange={(option) => field.onChange(option?.value)}
                     placeholder="Select nationality"
+                      styles={{
+                              placeholder: (provided) => ({
+                                ...provided,
+                                fontSize: '1.125rem',
+                                color: '#9CA3AF'
+                              }),
+                              control: (provided) => ({
+                                ...provided,
+                                borderRadius: '16px',
+                                fontSize: '1.125rem',
+                                minHeight: '3rem', // h-12 = 48px
+                                height: '3rem'
+                              }),
+                              singleValue: (provided) => ({
+                                ...provided,
+                                fontSize: '1.125rem'
+                              }),
+                              input: (provided) => ({
+                                ...provided,
+                                fontSize: '1.125rem'
+                              }),
+                              valueContainer: (provided) => ({
+                                ...provided,
+                                padding: '0 0.75rem' // px-3 for better spacing
+                              })
+                            }}
                   />
                 </FormControl>
                 <FormMessage />
