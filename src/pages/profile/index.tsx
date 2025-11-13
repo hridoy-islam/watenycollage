@@ -23,6 +23,7 @@ const ProfilePage: React.FC = () => {
     }
   }, [user]);
 
+  console.log(user)
   return (
     <div>
       {user.role === 'student' && userData?.studentType === 'eu' && (
@@ -31,7 +32,7 @@ const ProfilePage: React.FC = () => {
       {user.role === 'student' && userData?.studentType === 'international' && (
         <InternationalStudentProfile />
       )}
-      {user.role === 'applicant' || user.role === 'teacher' && <ApplicantProfile />}
+      {user.role === 'applicant'  && <ApplicantProfile />}
     </div>
   );
 };
