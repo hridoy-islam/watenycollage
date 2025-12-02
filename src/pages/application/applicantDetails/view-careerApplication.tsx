@@ -96,7 +96,6 @@ type Application = {
   dateOfBirth?: string
   nationality?: string
   countryOfResidence?: string
-  countryOfBirth?: string
   shareCode?: string
   nationalInsuranceNumber?: string
   postalAddressLine1?: string

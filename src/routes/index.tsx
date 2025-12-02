@@ -26,7 +26,20 @@ import ProfessionalReferencePage from '@/pages/professional-reference';
 import PersonalReferencePage from '@/pages/personal-reference';
 import ApplicantReferencePage from '@/pages/applicant-reference';
 import ReferenceDetailsPage from '@/pages/applicant-reference/referenceDetails';
-
+import TemplatePage from '@/pages/template';
+import SignaturePage from '@/pages/signature';
+import ApplicantMailPage from '@/pages/applicantMail';
+import PostEmploymentMedicalForm from '@/pages/postMedicalForm';
+import BankDetailsForm from '@/pages/bankDetailsForm';
+import DBSDetailsForm from '@/pages/dbsForm';
+import StarterChecklistForm from '@/pages/starterChecklistForm';
+import TrainingCertificatesPage from '@/pages/EcertFormPage';
+import EcertsPage from '@/pages/ecertPage';
+import AdminDBSDetails from '@/pages/applicantModulesAdmin/dbsDetails';
+import AdminStarterChecklist from '@/pages/applicantModulesAdmin/starterCheckList';
+import AdminBankDetails from '@/pages/applicantModulesAdmin/BankDetails';
+import AdminEcertsPage from '@/pages/applicantModulesAdmin/ecertDetails';
+import AdminMedicalForm from '@/pages/applicantModulesAdmin/medicalQuestion';
 
 const SignInPage = lazy(() => import('@/pages/auth/signin/index'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
@@ -37,89 +50,162 @@ export default function AppRouter() {
     <ProtectedRoute allowedRoles={roles}>{element}</ProtectedRoute>
   );
   const adminRoutes = [
-  {
-    path: '/dashboard',
-    element: (
-      <AdminLayout>
-        <ProtectedRoute allowedRoles={['admin', 'applicant']}>
-          <Suspense>
-            <Outlet />
-          </Suspense>
-        </ProtectedRoute>
-      </AdminLayout>
-    ),
-    children: [
-      {
-        element: <DashboardPage />,
-        index: true
-      },
-      {
-        path: 'profile',
-        element: <ProfilePage />
-      },
-      {
-        path: 'notifications',
-        element: <NotificationsPage />
-      },
-     
-      {
-        path: 'applications',
-        element: withRole(<ApplicationListPage />, ['admin']),
-        index: true
-      },
-      
-      {
-        path: 'job-application/:id',
-        element: withRole(<JobApplicationPage />, ['admin', 'applicant'])
-      },
-      
-      {
-        path: 'career-application/:id/:userId',
-        element: withRole(<ViewCareerApplicationPage />, ['admin','applicant'])
-      },
-       {
-        path: 'career-application/:id/references/:userId',
-        element: withRole(<ApplicantReferencePage />, ['admin','applicant'])
-      },
-       {
-        path: 'user/:id/reference/:refId/:refType',
-        element: withRole(<ReferenceDetailsPage />, ['admin','applicant'])
-      },
-      
-      {
-        path: 'career-application/:id/:userId/interview',
-        element: withRole(<InterviewPage />, ['admin'])
-      },
-      
-      {
-        path: 'jobs',
-        element: withRole(<JobPage />, ['admin','applicant']),
-        index: true
-      },
-      {
-        path: 'jobs/:id',
-        element: withRole(<CareerApplicationsPage />, ['admin','applicant']),
-        index: true
-      },
-      {
-        path: 'career-application',
-        element: withRole(<CareerPage />, ['admin', 'applicant']),
-        index: true
-      },
-      // {
-      //   path: 'career',
-      //   element: withRole(<CareerResumeUpload />, ['applicant','admin']),
-      //   index: true
-      // },
-      {
-        path: 'career-guideline',
-        element: withRole(<CareerGuideline />, ['admin','applicant']),
-        index: true
-      },
-      
-    ]
-  }
-];
+    {
+      path: '/dashboard',
+      element: (
+        <AdminLayout>
+          <ProtectedRoute allowedRoles={['admin', 'applicant']}>
+            <Suspense>
+              <Outlet />
+            </Suspense>
+          </ProtectedRoute>
+        </AdminLayout>
+      ),
+      children: [
+        {
+          element: <DashboardPage />,
+          index: true
+        },
+        {
+          path: 'profile',
+          element: <ProfilePage />
+        },
+        {
+          path: 'notifications',
+          element: <NotificationsPage />
+        },
+
+        {
+          path: 'applications',
+          element: withRole(<ApplicationListPage />, ['admin']),
+          index: true
+        },
+
+        {
+          path: 'job-application/:id',
+          element: withRole(<JobApplicationPage />, ['admin', 'applicant'])
+        },
+
+        {
+          path: 'career-application/:id/:userId',
+          element: withRole(<ViewCareerApplicationPage />, [
+            'admin',
+            'applicant'
+          ])
+        },
+        {
+          path: 'career-application/:id/references/:userId',
+          element: withRole(<ApplicantReferencePage />, ['admin', 'applicant'])
+        },
+        {
+          path: 'user/:id/reference/:refId/:refType',
+          element: withRole(<ReferenceDetailsPage />, ['admin', 'applicant'])
+        },
+
+        {
+          path: 'career-application/:id/:userId/interview',
+          element: withRole(<InterviewPage />, ['admin'])
+        },
+
+        {
+          path: 'career-application/:id/mail/:userId',
+          element: withRole(<ApplicantMailPage />, ['admin'])
+        },
+
+        {
+          path: 'jobs',
+          element: withRole(<JobPage />, ['admin', 'applicant']),
+          index: true
+        },
+        {
+          path: 'jobs/:id',
+          element: withRole(<CareerApplicationsPage />, ['admin', 'applicant']),
+          index: true
+        },
+        {
+          path: 'career-application',
+          element: withRole(<CareerPage />, ['admin', 'applicant']),
+          index: true
+        },
+        // {
+        //   path: 'career',
+        //   element: withRole(<CareerResumeUpload />, ['applicant','admin']),
+        //   index: true
+        // },
+        {
+          path: 'career-guideline',
+          element: withRole(<CareerGuideline />, ['admin', 'applicant']),
+          index: true
+        },
+
+        {
+          path: 'template',
+          element: withRole(<TemplatePage />, ['admin', 'applicant']),
+          index: true
+        },
+        {
+          path: 'signature',
+          element: withRole(<SignaturePage />, ['admin', 'applicant']),
+          index: true
+        },
+        {
+          path: 'medical-form/:id',
+          element: <PostEmploymentMedicalForm />,
+          index: true
+        },
+        {
+          path: 'admin/medical-form/:id',
+          element: <AdminMedicalForm />,
+          index: true
+        },
+        {
+          path: 'bank-details/:id',
+          element: <BankDetailsForm />,
+          index: true
+        },
+        {
+          path: 'admin/bank-details/:id',
+          element: <AdminBankDetails />,
+          index: true
+        },
+        {
+          path: 'dbs-form/:id',
+          element: <DBSDetailsForm />,
+          index: true
+        },
+        {
+          path: 'admin/dbs-form/:id',
+          element: <AdminDBSDetails />,
+          index: true
+        },
+        {
+          path: 'starter-checklist-form/:id',
+          element: <StarterChecklistForm />,
+          index: true
+        },
+        {
+          path: 'admin/starter-checklist-form/:id',
+          element: <AdminStarterChecklist />,
+          index: true
+        },
+        {
+          path: 'ecert-form/:id',
+          element: <TrainingCertificatesPage />,
+          index: true
+        },
+        {
+          path: 'admin/ecert-form/:id',
+          element: <AdminEcertsPage />,
+          index: true
+        },
+        {
+          path: 'ecerts',
+          element: withRole(<EcertsPage />, ['admin']),
+          index: true
+        },
+      ]
+    }
+  ];
 
   const publicRoutes = [
     // {
@@ -127,7 +213,7 @@ export default function AppRouter() {
     //   element: <StudentApplication />,
     //   index: true
     // },
-    
+
     {
       path: 'jobs/apply/:id',
       element: <JobApplication />,
@@ -153,7 +239,7 @@ export default function AppRouter() {
       element: <Otp />,
       index: true
     },
-      {
+    {
       path: '/personal',
       element: <PersonalReferencePage />,
       index: true
@@ -163,6 +249,7 @@ export default function AppRouter() {
       element: <ProfessionalReferencePage />,
       index: true
     },
+
     {
       path: '/new-password',
       element: <NewPassword />,

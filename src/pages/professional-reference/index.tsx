@@ -42,19 +42,19 @@ const employmentReferenceSchema = z
       .date({ required_error: 'Employment end date is required' })
       .refine((date) => !isNaN(date.getTime()), { message: 'Invalid date' }),
     reasonForLeaving: z.string().optional(),
-    qualityOfWork: z.enum(['very_good', 'good', 'poor'], {
+    qualityOrganization: z.enum(['very_good', 'good', 'poor'], {
       required_error: 'Please select an option'
     }),
     courteousPolite: z.enum(['very_good', 'good', 'poor'], {
       required_error: 'Please select an option'
     }),
-    followPolicies: z.enum(['very_good', 'good', 'poor'], {
+    willingnessFollowPolicies: z.enum(['very_good', 'good', 'poor'], {
       required_error: 'Please select an option'
     }),
     integrityTrust: z.enum(['very_good', 'good', 'poor'], {
       required_error: 'Please select an option'
     }),
-    equalOpportunities: z.enum(['very_good', 'good', 'poor'], {
+    attitudeEqualOpportunities: z.enum(['very_good', 'good', 'poor'], {
       required_error: 'Please select an option'
     }),
     emotionalControl: z.enum(['very_good', 'good', 'poor'], {
@@ -66,10 +66,10 @@ const employmentReferenceSchema = z
     respectTeam: z.enum(['very_good', 'good', 'poor'], {
       required_error: 'Please select an option'
     }),
-    empathyServiceUser: z.enum(['very_good', 'good', 'poor'], {
+    empathyClients: z.enum(['very_good', 'good', 'poor'], {
       required_error: 'Please select an option'
     }),
-    attitudeCriticism: z.enum(['very_good', 'good', 'poor'], {
+    attitudesCriticism: z.enum(['very_good', 'good', 'poor'], {
       required_error: 'Please select an option'
     }),
     groomingAppearance: z.enum(['very_good', 'good', 'poor'], {
@@ -78,11 +78,11 @@ const employmentReferenceSchema = z
     attendancePunctuality: z.enum(['very_good', 'good', 'poor'], {
       required_error: 'Please select an option'
     }),
-    unsuitableReasons: z.string().optional(),
+    unsuitableReason: z.string().optional(),
     wouldReemploy: z.enum(['yes', 'no'], {
       required_error: 'Please select an option'
     }),
-    reemployReason: z.string().optional(),
+    noReemployReason: z.string().optional(),
     suitabilityOpinion: z.string().min(1, 'This field is required'),
     refereePosition: z.string().min(1, 'This field is required'),
     refereeName: z.string().min(1, 'This field is required')
@@ -90,10 +90,10 @@ const employmentReferenceSchema = z
   .refine(
     (data) =>
       data.wouldReemploy !== 'no' ||
-      (data.reemployReason && data.reemployReason.length > 0),
+      (data.noReemployReason && data.noReemployReason.length > 0),
     {
       message: 'Please provide a reason',
-      path: ['reemployReason']
+      path: ['noReemployReason']
     }
   );
 
@@ -437,7 +437,7 @@ export default function ProfessionalReferencePage() {
 
                   {[
                     {
-                      name: 'qualityOfWork',
+                      name: 'qualityOrganization',
                       label: '1. Quality and organization of work',
                       tooltip:
                         'Rate the applicant’s quality and organization of work. e.g., Very Good'
@@ -449,7 +449,7 @@ export default function ProfessionalReferencePage() {
                         'Evaluate how polite and respectful the applicant is. e.g., Good'
                     },
                     {
-                      name: 'followPolicies',
+                      name: 'willingnessFollowPolicies',
                       label: '3. Willingness to follow policies',
                       tooltip:
                         'Assess adherence to company rules and procedures. e.g., Very Good'
@@ -461,7 +461,7 @@ export default function ProfessionalReferencePage() {
                         'Consider honesty, reliability, and ethical conduct. e.g., Very Good'
                     },
                     {
-                      name: 'equalOpportunities',
+                      name: 'attitudeEqualOpportunities',
                       label:
                         '5. Attitude towards equal opportunities i.e. sex, race, religion, age',
                       tooltip:
@@ -486,13 +486,13 @@ export default function ProfessionalReferencePage() {
                         'Consider teamwork and collaboration. e.g., Very Good'
                     },
                     {
-                      name: 'empathyServiceUser',
+                      name: 'empathyClients',
                       label: '9. Empathy towards service user / clients',
                       tooltip:
                         'Assess ability to understand and respond to client needs. e.g., Good'
                     },
                     {
-                      name: 'attitudeCriticism',
+                      name: 'attitudesCriticism',
                       label: '10. Attitudes towards criticism',
                       tooltip: 'Evaluate receptiveness to feedback. e.g., Poor'
                     },
@@ -573,7 +573,7 @@ export default function ProfessionalReferencePage() {
                 <div className="space-y-4 border-t pt-6">
                   <FormField
                     control={form.control}
-                    name="unsuitableReasons"
+                    name="unsuitableReason"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
@@ -636,7 +636,7 @@ export default function ProfessionalReferencePage() {
                   {form.watch('wouldReemploy') === 'no' && (
                     <FormField
                       control={form.control}
-                      name="reemployReason"
+                      name="noReemployReason"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>

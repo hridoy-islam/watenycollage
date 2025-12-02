@@ -9,11 +9,12 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Briefcase, User, MoveLeft } from 'lucide-react';
+import { Briefcase, User, MoveLeft, Download } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
-import { Separator } from '@/components/ui/separator';
 import moment from 'moment';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import { ReferencePdfDocument } from './components/ReferencePdfDocument';
 
 // Interfaces remain unchanged
 interface Reference {
@@ -112,21 +113,6 @@ interface UserData {
   lastName?: string;
 }
 
-interface ReferenceListItem {
-  type: string;
-  referenceType: string;
-  status: string;
-  data: Reference | null;
-  refereeData:
-    | UserData['personalReferee']
-    | UserData['professionalReferee1']
-    | UserData['professionalReferee2']
-    | null;
-  isSubmitted: boolean;
-  refereeName: string;
-  _id?: string;
-}
-
 export default function ApplicantReferencePage() {
   const [references, setReferences] = useState<Reference[]>([]);
   const [loading, setLoading] = useState(true);
@@ -209,16 +195,38 @@ export default function ApplicantReferencePage() {
     referenceType: 'ref1' | 'ref2' | 'ref3'
   ) => (
     <Card className="w-full overflow-hidden rounded-none">
-      <div
-        className={`flex items-center justify-between px-4 py-2 text-white bg-watney`}
-      >
+      <div className={`flex items-center justify-between px-4 py-2 text-white bg-watney`}>
         <div className="flex items-center gap-2">
           {icon}
           <span className="text-lg font-medium">{title}</span>
         </div>
-        {/* <Badge variant="secondary" className="text-sm">
-          {isSubmitted ? 'Submitted' : 'Pending Response'}
-        </Badge> */}
+        
+        {/* PDF Download Button - Only show if submitted */}
+        {isSubmitted && referenceData && (
+            <PDFDownloadLink
+                document={
+                    <ReferencePdfDocument
+                        type={referenceType === 'ref3' ? 'personal' : 'professional'}
+                        data={referenceData}
+                        refereeData={refereeData}
+                    />
+                }
+                fileName={`${referenceData.applicantName || 'Applicant'}_${referenceType}_Reference.pdf`}
+            >
+                {/* @ts-ignore */}
+                {({ blob, url, loading, error }) => (
+                    <Button 
+                        variant="secondary" 
+                        size="sm" 
+                        disabled={loading}
+                        className="flex items-center gap-2 bg-white text-watney hover:bg-gray-100"
+                    >
+                        <Download className="h-4 w-4" />
+                        {loading ? 'Generating...' : 'Download PDF'}
+                    </Button>
+                )}
+            </PDFDownloadLink>
+        )}
       </div>
 
       <CardContent className="pb-4 pt-4">
@@ -236,7 +244,6 @@ export default function ApplicantReferencePage() {
       </CardContent>
     </Card>
   );
-
   return (
     <div className="space-y-2">
       {/* Header */}
@@ -256,9 +263,8 @@ export default function ApplicantReferencePage() {
         </Button>
       </div>
 
-      {/* Reference Cards - Always show all references provided by applicant */}
+      {/* Reference Cards */}
       <div className="grid grid-cols-1 gap-6">
-        {/* Professional Reference 1 - Always show if referee data exists */}
         {userData.professionalReferee1 && renderReferenceCard(
           'Professional Reference 1',
           <Briefcase className="h-3.5 w-3.5" />,
@@ -270,8 +276,6 @@ export default function ApplicantReferencePage() {
           'ref1'
         )}
 
-
-        {/* Professional Reference 2 - Always show if referee data exists */}
         {userData.professionalReferee2 && renderReferenceCard(
           'Professional Reference 2',
           <Briefcase className="h-3.5 w-3.5" />,
@@ -282,7 +286,7 @@ export default function ApplicantReferencePage() {
           ref2,
           'ref2'
         )}
-        {/* Personal Reference - Always show if referee data exists */}
+
         {userData.personalReferee && renderReferenceCard(
           'Personal Reference',
           <User className="h-3.5 w-3.5" />,
@@ -294,7 +298,6 @@ export default function ApplicantReferencePage() {
           'ref3'
         )}
 
-        {/* Show fallback if no references are provided at all */}
         {!userData.professionalReferee1 && !userData.personalReferee && !userData.professionalReferee2 && (
           <Card className="w-full bg-transparent shadow-none">
             <CardContent className="py-8 text-center">
@@ -309,7 +312,6 @@ export default function ApplicantReferencePage() {
   );
 }
 
-// Updated Reference Content Component to handle both submitted and pending states
 const ReferenceContent = ({
   refereeData,
   referenceData,
@@ -321,7 +323,7 @@ const ReferenceContent = ({
   isSubmitted
 }: any) => (
   <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-    {/* Referee Info (Provided by Applicant) - Always show this */}
+    {/* Referee Info */}
     <Card className="border border-gray-300">
       <CardHeader className="pb-2">
         <CardTitle className="text-lg">Referee Information</CardTitle>
@@ -345,7 +347,7 @@ const ReferenceContent = ({
       </CardContent>
     </Card>
 
-    {/* Referee Response - Conditionally show based on submission status */}
+    {/* Referee Response */}
     <Card className="border border-gray-300">
       <CardHeader className="pb-2">
         <CardTitle className="text-lg">
@@ -361,9 +363,6 @@ const ReferenceContent = ({
             <div className="mb-4 text-watney">
               <Briefcase className="mx-auto h-12 w-12" />
             </div>
-            {/* <p className="text-lg font-medium text-muted-foreground">
-              Waiting for referee response
-            </p> */}
             <p className="mt-2 text-sm text-muted-foreground">
               The referee has not yet submitted their reference feedback.
             </p>
@@ -373,9 +372,9 @@ const ReferenceContent = ({
             <div className="grid grid-cols-1 gap-y-3 md:grid-cols-2">
               <InfoRow label="Referee Name" value={referenceData?.refereeName} />
               <InfoRow label="Position" value={referenceData?.refereePosition} />
-              <InfoRow label="Relationship" value={referenceData?.relationship} />
+              <InfoRow label="Relationship to applicant" value={referenceData?.relationship} />
               <InfoRow
-                label="How Long Known"
+                label="How long have you known the applicant?"
                 value={referenceData?.howLongKnown}
               />
               {(referenceType === 'ref1' || referenceType === 'ref2') && (
@@ -392,13 +391,13 @@ const ReferenceContent = ({
               )}
             </div>
 
-            {referenceData?.reasonLeaving && (
+            {referenceData?.reasonForLeaving && (
               <div>
                 <span className="text-sm font-medium text-muted-foreground">
-                  Reason for Leaving
+                  Reason for leaving:
                 </span>
                 <p className="mt-1 rounded bg-muted/10 p-2">
-                  {referenceData.reasonLeaving}
+                  {referenceData.reasonForLeaving}
                 </p>
               </div>
             )}
@@ -422,9 +421,11 @@ const ReferenceContent = ({
             )}
 
             {referenceData?.suitabilityOpinion && (
-              <div>
-                <span className="text-sm font-medium text-muted-foreground">Suitability Opinion</span>
-                <p className="mt-1 rounded bg-muted/10 p-2">
+              <div className="pt-2">
+                <span className="text-sm font-medium text-muted-foreground block mb-1">
+                  Please give your opinion of the applicant's suitability for the post applied for
+                </span>
+                <p className="rounded bg-muted/10 p-2 text-sm">
                   {referenceData.suitabilityOpinion}
                 </p>
               </div>
@@ -432,7 +433,7 @@ const ReferenceContent = ({
 
             {referenceData?.refereeDate && (
               <InfoRow
-                label="Reference Date"
+                label="Date"
                 value={formatDate(referenceData.refereeDate)}
               />
             )}
@@ -458,7 +459,7 @@ const InfoRow = ({
 }) => (
   <div>
     <span className="text-sm font-medium text-muted-foreground">{label}</span>
-    <p className="mt-0.5 font-semibold">{value || 'N/A'}</p>
+    <p className="mt-0.5 font-semibold text-sm">{value || 'N/A'}</p>
   </div>
 );
 
@@ -468,16 +469,16 @@ const PersonalSection = ({
   getBadgeStyle,
   formatRating
 }: any) => (
-  <div className="space-y-2">
-    <div className="grid grid-cols-2 gap-2">
+  <div className="space-y-4">
+    <div className="grid grid-cols-1 gap-2">
       <TraitItem
-        label="Serious Illness"
+        label="Does the applicant suffer from any serious or recurring illness?"
         value={data.seriousIllness}
         toYesNo={toYesNo}
         getBadgeStyle={getBadgeStyle}
       />
       <TraitItem
-        label="Drug Dependency"
+        label="Was the applicant to your personal knowledge dependent upon drugs or medication?"
         value={data.drugsDependency}
         toYesNo={toYesNo}
         getBadgeStyle={getBadgeStyle}
@@ -485,8 +486,10 @@ const PersonalSection = ({
     </div>
 
     <div>
-      <span className="text-sm font-medium text-muted-foreground">Personal Traits</span>
-      <div className="mt-1 grid grid-cols-2 gap-2">
+      <span className="text-sm font-medium text-muted-foreground block mb-2">
+        From what you know of the applicant, would you consider them to be:
+      </span>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2">
         {[
           'Reliable',
           'Punctual',
@@ -495,7 +498,7 @@ const PersonalSection = ({
           'Tactful',
           'Discreet',
           'Self Motivated',
-          'Able to Work Alone'
+          'Able To Work Alone'
         ].map((label) => (
           <TraitItem
             key={label}
@@ -514,16 +517,17 @@ const PersonalSection = ({
     </div>
 
     <div>
-      <span className="text-sm font-medium text-muted-foreground">Ratings</span>
-      <div className="mt-1 grid grid-cols-2 gap-2">
+      <span className="text-sm font-medium text-muted-foreground block mb-2">
+        Bearing in mind that the applicant will deal with a variety of situations, how would you rate their level of:
+      </span>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2">
         {[
           { label: 'Competency', value: data.competency },
-          { label: 'Common Sense', value: data.commonSense },
-          { label: 'Relates Well', value: data.relatesWell }
+          { label: 'Common sense', value: data.commonSense }
         ]
           .filter((i) => i.value)
           .map((r) => (
-            <div key={r.label} className="flex items-center justify-between">
+            <div key={r.label} className="flex items-center justify-between  pb-1">
               <span className="text-sm">{r.label}</span>
               <Badge
                 variant="outline"
@@ -536,8 +540,24 @@ const PersonalSection = ({
       </div>
     </div>
 
-    <div className="flex items-center justify-between py-2">
-      <span className="text-sm">
+    {data.relatesWell && (
+        <div className="flex flex-col gap-1">
+             <span className="text-sm text-muted-foreground">
+                Do you consider that the applicant relates well with / would relate well with service users in their care?
+            </span>
+            <div>
+                 <Badge
+                    variant="outline"
+                    className="border-blue-200 bg-blue-50 text-sm text-blue-700"
+                >
+                    {formatRating(data.relatesWell)}
+                </Badge>
+            </div>
+        </div>
+    )}
+
+    <div className="py-2 space-y-2">
+      <span className="text-sm block">
         This position is exempted from the Rehabilitation of Offenders Act 1974,
         and any convictions must be declared. Are you aware of any cautions,
         convictions or pending prosecutions held by the applicant?
@@ -549,7 +569,9 @@ const PersonalSection = ({
 
     {data.additionalComments && (
       <div>
-        <span className="text-sm font-medium text-muted-foreground">Additional Comments</span>
+        <span className="text-sm font-medium text-muted-foreground block mb-1">
+          Would you like to make any other comments about the suitability of the applicant for this post?
+        </span>
         <p className="mt-0.5 rounded bg-muted/10 p-2 text-sm">
           {data.additionalComments}
         </p>
@@ -564,34 +586,36 @@ const ProfessionalSection = ({
   getBadgeStyle,
   formatRating
 }: any) => (
-  <div className="space-y-2">
+  <div className="space-y-4">
     <div className="mt-4">
-      <span className="text-sm font-medium text-muted-foreground">Professional Characteristics</span>
-      <div className="mt-1 grid grid-cols-2 gap-2">
+      <span className="text-sm font-medium text-muted-foreground block mb-2">
+        Applicant's general ability / Characteristics
+      </span>
+      <div className="grid grid-cols-1 gap-2">
         {[
-          { label: 'Quality of Work', value: data.qualityOrganization },
-          { label: 'Courteous & Polite', value: data.courteousPolite },
-          { label: 'Follows Policies', value: data.willingnessFollowPolicies },
-          { label: 'Integrity & Trust', value: data.integrityTrust },
+          { label: 'Quality and organization of work', value: data.qualityOrganization },
+          { label: 'Courteous and polite', value: data.courteousPolite },
+          { label: 'Willingness to follow policies', value: data.willingnessFollowPolicies },
+          { label: 'Integrity and trust', value: data.integrityTrust },
           {
-            label: 'Equal Opportunities',
+            label: 'Attitude towards equal opportunities i.e. sex, race, religion, age',
             value: data.attitudeEqualOpportunities
           },
           { label: 'Emotional Control', value: data.emotionalControl },
-          { label: 'Proactive Approach', value: data.proactiveApproach },
-          { label: 'Respect Team', value: data.respectTeam },
-          { label: 'Empathy Clients', value: data.empathyClients },
-          { label: 'Attitude Criticism', value: data.attitudesCriticism },
-          { label: 'Grooming Appearance', value: data.groomingAppearance },
-          { label: 'Attendance Punctuality', value: data.attendancePunctuality }
+          { label: 'Pro-active approach to work', value: data.proactiveApproach },
+          { label: 'Respect to and from team', value: data.respectTeam },
+          { label: 'Empathy towards service user / clients', value: data.empathyClients },
+          { label: 'Attitudes towards criticism', value: data.attitudesCriticism },
+          { label: 'Grooming and Appearance', value: data.groomingAppearance },
+          { label: 'Attendance / Punctuality', value: data.attendancePunctuality }
         ]
           .filter((i) => i.value)
           .map((char) => (
-            <div key={char.label} className="flex items-center justify-between">
-              <span className="text-sm">{char.label}</span>
+            <div key={char.label} className="flex items-center justify-between border-b border-gray-100 pb-1 last:border-0">
+              <span className="text-sm pr-4">{char.label}</span>
               <Badge
                 variant="outline"
-                className="border-blue-200 bg-blue-50 text-sm capitalize text-blue-700"
+                className="border-blue-200 bg-blue-50 text-sm capitalize text-blue-700 whitespace-nowrap"
               >
                 {formatRating(char.value)}
               </Badge>
@@ -602,26 +626,29 @@ const ProfessionalSection = ({
 
     {data.unsuitableReason && (
       <div>
-        <span className="text-sm font-medium text-muted-foreground">Unsuitable Reasons</span>
-        <p className="mt-0.5 rounded bg-muted/50 p-2 text-sm">
+        <span className="text-sm font-medium text-muted-foreground block mb-1">
+          Do you know any reason(s) why, including health, which would make this applicant unsuitable for employment?
+        </span>
+        <p className="mt-0.5 rounded bg-muted/10 p-2 text-sm">
           {data.unsuitableReason}
         </p>
       </div>
     )}
 
-    <div>
-      <span className="text-sm font-medium text-muted-foreground">Re-employment</span>
-      <div className="mt-1 grid grid-cols-2 gap-2">
-        <div className="flex items-center justify-between">
-          <span className="text-sm">Would Re-employ</span>
+    <div className="border-t pt-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+        <div className="flex items-center justify-between col-span-1 md:col-span-2">
+          <span className="text-sm font-medium text-muted-foreground">Would you re-employ this applicant?</span>
           <Badge className={getBadgeStyle(data.wouldReemploy)}>
             {toYesNo(data.wouldReemploy)}
           </Badge>
         </div>
         {data.noReemployReason && (
-          <div className="col-span-2">
-            <span className="text-sm font-medium text-muted-foreground">Reason</span>
-            <p className="mt-0.5 rounded bg-muted/50 p-2 text-sm">
+          <div className="col-span-1 md:col-span-2">
+            <span className="text-sm font-medium text-muted-foreground block mb-1">
+                If 'No' please state the reason.
+            </span>
+            <p className="mt-0.5 rounded bg-muted/10 p-2 text-sm">
               {data.noReemployReason}
             </p>
           </div>
@@ -642,8 +669,8 @@ const TraitItem = ({
   toYesNo: any;
   getBadgeStyle: any;
 }) => (
-  <div className="flex items-center justify-between">
-    <span className="text-sm">{label}</span>
-    <Badge className={getBadgeStyle(value)}>{toYesNo(value)}</Badge>
+  <div className="flex items-center justify-between border-b border-gray-100 pb-1 last:border-0">
+    <span className="text-sm pr-2">{label}</span>
+    <Badge className={`${getBadgeStyle(value)} whitespace-nowrap`}>{toYesNo(value)}</Badge>
   </div>
 );
