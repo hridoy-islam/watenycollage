@@ -8,7 +8,7 @@ import {
   CardDescription,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Download, MoveLeft } from 'lucide-react';
+import { Download, MoveLeft, Pen } from 'lucide-react';
 import axiosInstance from '@/lib/axios';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
 import { PDFDownloadLink } from '@react-pdf/renderer';
@@ -127,6 +127,13 @@ export default function AdminBankDetails() {
               >
                 <MoveLeft className="h-4 w-4" />
                 Back
+              </Button>
+              <Button
+                onClick={() => navigate('edit')}
+                className="flex items-center gap-2"
+              >
+                <Pen className="h-4 w-4 mr-2" />
+                Edit
               </Button>
               {/* PDF DOWNLOAD BUTTON */}
               <PDFDownloadLink

@@ -39,10 +39,11 @@ import {
   History,
   File,
   MoreHorizontal,
-  LockOpen
+  LockOpen,
+  MoreVertical
 } from 'lucide-react';
 import { DataTablePagination } from '@/components/shared/data-table-pagination';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
 import {
   Tooltip,
@@ -731,11 +732,11 @@ export default function CareerApplicationsPage() {
                 <TableHead className="text-center">Reference Mail</TableHead>
                 <TableHead className="text-center">DBS</TableHead>
 
-                <TableHead className="text-right">Recruit</TableHead>
-                <TableHead className="text-right">Referee</TableHead>
-                <TableHead className="text-right">Interview</TableHead>
-                <TableHead className="text-right">Mail</TableHead>
-                <TableHead className="text-right">Logs</TableHead>
+                <TableHead className="text-center">Referee</TableHead>
+                <TableHead className="text-center">Interview</TableHead>
+                <TableHead className="text-center">Mail</TableHead>
+                <TableHead className="text-center">Logs</TableHead>
+                <TableHead className="text-center">Migrate To PeoplePlanner</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -745,10 +746,12 @@ export default function CareerApplicationsPage() {
                   {/* Name */}
                   <TableCell className="font-medium">
                     <div>
-                      <div>
+                      <Link to={`/dashboard/career-application/${app?._id}/${app.applicantId?._id}`} className="hover:underline">
+                      <div className='text-blue-500'>
                         {app.applicantId?.title} {app.applicantId?.firstName}{' '}
                         {app.applicantId?.initial} {app.applicantId?.lastName}
                       </div>
+                      </Link>
                       <span className="text-xs font-semibold text-gray-600">
                         {app.applicantId?.email ?? 'N/A'}
                       </span>
@@ -786,7 +789,7 @@ export default function CareerApplicationsPage() {
                       ) : (
                         <Mail className="h-4 w-4" />
                       )}
-                      {app.applicantId?.jobOfferMailSent ? 'Sent' : 'Send'}
+                      {app.applicantId?.jobOfferMailSent ? 'Done' : 'Send'}
                     </Button>
                   </TableCell>
 
@@ -808,7 +811,7 @@ export default function CareerApplicationsPage() {
                       ) : (
                         <Mail className="h-4 w-4" />
                       )}
-                      {app.applicantId?.interviewMailSent ? 'Sent' : 'Send'}
+                      {app.applicantId?.interviewMailSent ? 'Done' : 'Send'}
                     </Button>
                   </TableCell>
 
@@ -830,7 +833,7 @@ export default function CareerApplicationsPage() {
                       ) : (
                         <Mail className="h-4 w-4" />
                       )}
-                      {app.applicantId?.referenceMailSent ? 'Sent' : 'Send'}
+                      {app.applicantId?.referenceMailSent ? 'Done' : 'Send'}
                     </Button>
                   </TableCell>
 
@@ -843,14 +846,14 @@ export default function CareerApplicationsPage() {
                             <Button
                               variant="ghost"
                               className="border-none bg-watney text-white hover:bg-watney/90"
-                              size="icon"
+                              size="sm"
                               onClick={() =>
                                 navigate(
-                                  `/dashboard/dbs-form/${app.applicantId?._id}`
+                                  `/dashboard/admin/dbs-form/${app.applicantId?._id}/edit`
                                 )
                               }
                             >
-                              <File className="h-4 w-4" />
+                              <File className="h-4 w-4 mr-2" /> DBS
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>
@@ -862,28 +865,7 @@ export default function CareerApplicationsPage() {
                   </TableCell>
 
                   {/* Recruit Action */}
-                  <TableCell>
-                    <div className="flex items-center justify-end">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              className="border-none bg-watney text-white hover:bg-watney/90"
-                              size="icon"
-                              onClick={() => handleRecruitClick(app)}
-                              disabled={recruitLoading}
-                            >
-                              <FilePlus className="h-4 w-4" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Recruit</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </div>
-                  </TableCell>
+                  
 
                   {/* Referee View */}
                   <TableCell>
@@ -894,14 +876,14 @@ export default function CareerApplicationsPage() {
                             <Button
                               variant="ghost"
                               className="border-none bg-watney text-white hover:bg-watney/90"
-                              size="icon"
+                              size="sm"
                               onClick={() =>
                                 navigate(
                                   `/dashboard/career-application/${app?._id}/references/${app.applicantId?._id}`
                                 )
                               }
                             >
-                              <Users className="h-4 w-4" />
+                              <Users className="h-4 w-4 mr-2" /> Referee
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>
@@ -921,14 +903,14 @@ export default function CareerApplicationsPage() {
                             <Button
                               variant="ghost"
                               className="border-none bg-watney text-white hover:bg-watney/90"
-                              size="icon"
+                              size="sm"
                               onClick={() =>
                                 navigate(
                                   `/dashboard/career-application/${app?._id}/${app.applicantId?._id}/interview`
                                 )
                               }
                             >
-                              <ClipboardPenLine className="h-4 w-4" />
+                              <ClipboardPenLine className="h-4 w-4 mr-2" />Score
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>
@@ -948,14 +930,14 @@ export default function CareerApplicationsPage() {
                             <Button
                               variant="ghost"
                               className="border-none bg-watney text-white hover:bg-watney/90"
-                              size="icon"
+                              size="sm"
                               onClick={() =>
                                 navigate(
                                   `/dashboard/career-application/${app?._id}/mail/${app.applicantId?._id}`
                                 )
                               }
                             >
-                              <ListTodo className="h-4 w-4" />
+                              <ListTodo className="h-4 w-4 mr-2" /> Communication
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>
@@ -974,14 +956,14 @@ export default function CareerApplicationsPage() {
                             <Button
                               variant="ghost"
                               className="border-none bg-watney text-white hover:bg-watney/90"
-                              size="icon"
+                              size="sm"
                               onClick={() =>
                                 navigate(
                                   `/dashboard/career-application/${app?._id}/logs/${app.applicantId?._id}`
                                 )
                               }
                             >
-                              <History className="h-4 w-4" />
+                              <History className="h-4 w-4 mr-2" /> Activity Logs
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>
@@ -991,11 +973,33 @@ export default function CareerApplicationsPage() {
                       </TooltipProvider>
                     </div>
                   </TableCell>
+                  <TableCell>
+                    <div className="flex items-center justify-end">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              className="border-none bg-watney text-white hover:bg-watney/90"
+                              size="sm"
+                              onClick={() => handleRecruitClick(app)}
+                              disabled={recruitLoading}
+                            >
+                              <FilePlus className="h-4 w-4 mr-2" /> Migrate
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Recruit</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                  </TableCell>
 
                   {/* Action Column with Dropdown */}
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
-                      <TooltipProvider>
+                      {/* <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button
@@ -1015,12 +1019,12 @@ export default function CareerApplicationsPage() {
                             <p>View Application</p>
                           </TooltipContent>
                         </Tooltip>
-                      </TooltipProvider>
+                      </TooltipProvider> */}
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" className="h-8 w-8 p-0">
                             <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
+                            <MoreVertical className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-56">
@@ -1182,19 +1186,34 @@ export default function CareerApplicationsPage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setReferenceAlertOpen(false)}>
+            <AlertDialogCancel 
+              onClick={() => setReferenceAlertOpen(false)}
+              disabled={referenceLoading}
+            >
               Cancel
             </AlertDialogCancel>
+            
             <AlertDialogAction
-              onClick={handleSendReferenceEmail}
+              onClick={(e) => {
+                // STOP the dialog from auto-closing immediately
+                e.preventDefault(); 
+                handleSendReferenceEmail();
+              }}
               className="bg-watney text-white hover:bg-watney/90"
+              disabled={referenceLoading} // Disable button while loading
             >
-              {referenceLoading ? 'Sending...' : 'Confirm Send'}
+              {referenceLoading ? (
+                // Optional: Add a spinner icon here if you have one
+                <>Sending...</> 
+              ) : (
+                'Confirm Send'
+              )}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
+      
       {/* 3. Progress Status Dialog */}
       <Dialog open={progressDialogOpen} onOpenChange={setProgressDialogOpen}>
         <DialogContent className="sm:max-w-md">

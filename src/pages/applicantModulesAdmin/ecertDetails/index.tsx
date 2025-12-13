@@ -115,6 +115,13 @@ export default function AdminEcertsPage() {
             <MoveLeft className="mr-2 h-4 w-4" />
             Back
           </Button>
+          <Button
+            className="border-none bg-watney text-white hover:bg-watney/90"
+            onClick={() => navigate('edit')}
+          >
+            <Pen className="mr-2 h-4 w-4" />
+            Edit
+          </Button>
         </div>
       </div>
 

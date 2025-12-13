@@ -8,7 +8,7 @@ import {
   CardDescription,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { MoveLeft, Download } from 'lucide-react';
+import { MoveLeft, Download, Pen } from 'lucide-react';
 import axiosInstance from '@/lib/axios';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
 import { format } from 'date-fns';
@@ -180,6 +180,13 @@ export default function AdminStarterChecklist() {
                 >
                 <MoveLeft className="h-4 w-4" />
                 Back
+              </Button>
+              <Button
+                onClick={() => navigate('edit')}
+                className="flex items-center gap-2"
+                >
+                <Pen className="h-4 w-4 mr-2" />
+                Edit
               </Button>
                 {pdfData && (
                   <PDFDownloadLink

@@ -42,6 +42,11 @@ import AdminEcertsPage from '@/pages/applicantModulesAdmin/ecertDetails';
 import AdminMedicalForm from '@/pages/applicantModulesAdmin/medicalQuestion';
 import EditApplicantProfile from '@/pages/application/editApplicant';
 import ApplicantLogsPage from '@/pages/logsPage';
+import EditPostEmploymentMedicalForm from '@/pages/editPostMedicalForm';
+import EditBankDetailsForm from '@/pages/editBankDetailsForm';
+import EditTrainingCertificatesPage from '@/pages/editEcertFormPage';
+import EditStarterChecklistForm from '@/pages/editStarterChecklistForm';
+import EditDBSDetailsForm from '@/pages/editDBSForm';
 
 const SignInPage = lazy(() => import('@/pages/auth/signin/index'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
@@ -172,13 +177,23 @@ export default function AppRouter() {
           index: true
         },
         {
-          path: 'bank-details/:id',
+          path: 'admin/medical-form/:id/edit',
+          element: <EditPostEmploymentMedicalForm />,
+          index: true
+        },
+        {
+          path: 'bank-details/:id/edit',
           element: <BankDetailsForm />,
           index: true
         },
         {
           path: 'admin/bank-details/:id',
           element: <AdminBankDetails />,
+          index: true
+        },
+        {
+          path: 'admin/bank-details/:id/edit',
+          element: <EditBankDetailsForm />,
           index: true
         },
         {
@@ -192,6 +207,11 @@ export default function AppRouter() {
           index: true
         },
         {
+          path: 'admin/dbs-form/:id/edit',
+          element: <EditDBSDetailsForm />,
+          index: true
+        },
+        {
           path: 'starter-checklist-form/:id',
           element: <StarterChecklistForm />,
           index: true
@@ -202,6 +222,11 @@ export default function AppRouter() {
           index: true
         },
         {
+          path: 'admin/starter-checklist-form/:id/edit',
+          element: <EditStarterChecklistForm />,
+          index: true
+        },
+        {
           path: 'ecert-form/:id',
           element: <TrainingCertificatesPage />,
           index: true
@@ -209,6 +234,11 @@ export default function AppRouter() {
         {
           path: 'admin/ecert-form/:id',
           element: <AdminEcertsPage />,
+          index: true
+        },
+        {
+          path: 'admin/ecert-form/:id/edit',
+          element: <EditTrainingCertificatesPage />,
           index: true
         },
         {

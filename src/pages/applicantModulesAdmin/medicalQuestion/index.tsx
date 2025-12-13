@@ -8,7 +8,7 @@ import {
   CardDescription,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { MoveLeft, Check, X, Download } from 'lucide-react';
+import { MoveLeft, Check, X, Download, Pen } from 'lucide-react';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
 import axiosInstance from '@/lib/axios';
 import { PDFDownloadLink } from '@react-pdf/renderer';
@@ -293,6 +293,12 @@ export default function AdminMedicalForm() {
                 >
                 <MoveLeft className="h-4 w-4 mr-2" />
                 Back
+              </Button>
+              <Button
+                onClick={() => navigate('edit')}
+                >
+                <Pen className="h-4 w-4 mr-2" />
+                Edit
               </Button>
                   {/* PDF Download Link */}
                   {data && (
