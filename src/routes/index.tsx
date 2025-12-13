@@ -40,6 +40,8 @@ import AdminStarterChecklist from '@/pages/applicantModulesAdmin/starterCheckLis
 import AdminBankDetails from '@/pages/applicantModulesAdmin/BankDetails';
 import AdminEcertsPage from '@/pages/applicantModulesAdmin/ecertDetails';
 import AdminMedicalForm from '@/pages/applicantModulesAdmin/medicalQuestion';
+import EditApplicantProfile from '@/pages/application/editApplicant';
+import ApplicantLogsPage from '@/pages/logsPage';
 
 const SignInPage = lazy(() => import('@/pages/auth/signin/index'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
@@ -94,6 +96,13 @@ export default function AppRouter() {
           ])
         },
         {
+          path: 'career-application/:id/:userId/edit',
+          element: withRole(<EditApplicantProfile />, [
+            'admin',
+           
+          ])
+        },
+        {
           path: 'career-application/:id/references/:userId',
           element: withRole(<ApplicantReferencePage />, ['admin', 'applicant'])
         },
@@ -110,6 +119,10 @@ export default function AppRouter() {
         {
           path: 'career-application/:id/mail/:userId',
           element: withRole(<ApplicantMailPage />, ['admin'])
+        },
+        {
+          path: 'career-application/:id/logs/:userId',
+          element: withRole(<ApplicantLogsPage />, ['admin'])
         },
 
         {

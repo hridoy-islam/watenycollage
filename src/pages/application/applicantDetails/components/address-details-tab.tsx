@@ -11,29 +11,49 @@ interface AddressDetailsTabProps {
 
 export function AddressDetailsTab({ application, renderFieldRow }: AddressDetailsTabProps) {
   return (
-        <div className="grid grid-cols-1 gap-6 ">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-    <Card>
-      <CardContent className="pt-6">
-        <h3 className="mb-4 text-lg font-semibold">Postal Address</h3>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-1/3 text-left">Field</TableHead>
-              <TableHead className="text-right">Value</TableHead>
-              <TableHead className="w-10 text-right"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {renderFieldRow("Address Line 1", application.postalAddressLine1, "postalAddressLine1")}
-            {renderFieldRow("Address Line 2", application.postalAddressLine2, "postalAddressLine2")}
-            {renderFieldRow("City", application.postalCity, "postalCity")}
-            {renderFieldRow("Post Code", application.postalPostCode, "postalPostCode")}
-            {renderFieldRow("Country", application.postalCountry, "postalCountry")}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
+      {/* Left Column */}
+      <Card>
+        <CardContent className="pt-6">
+          <h3 className="mb-4 text-lg font-semibold">Postal Address</h3>
+          <Table>
+            <TableHeader>
+              {/* <TableRow>
+                <TableHead className="w-1/3 text-left">Field</TableHead>
+                <TableHead className="text-right">Value</TableHead>
+                <TableHead className="w-10 text-right"></TableHead>
+              </TableRow> */}
+            </TableHeader>
+            <TableBody>
+              {renderFieldRow("Address Line 1", application.postalAddressLine1, "postalAddressLine1")}
+              {renderFieldRow("Address Line 2", application.postalAddressLine2, "postalAddressLine2")}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      {/* Right Column */}
+      <Card>
+        <CardContent className="pt-6">
+          <h3 className="mb-4 text-lg font-semibold">Postal Address (cont.)</h3>
+          <Table>
+            <TableHeader>
+              {/* <TableRow>
+                <TableHead className="w-1/3 text-left">Field</TableHead>
+                <TableHead className="text-right">Value</TableHead>
+                <TableHead className="w-10 text-right"></TableHead>
+              </TableRow> */}
+            </TableHeader>
+            <TableBody>
+              {renderFieldRow("City", application.postalCity, "postalCity")}
+              {renderFieldRow("Post Code", application.postalPostCode, "postalPostCode")}
+              {renderFieldRow("Country", application.postalCountry, "postalCountry")}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
     </div>
   )
 }

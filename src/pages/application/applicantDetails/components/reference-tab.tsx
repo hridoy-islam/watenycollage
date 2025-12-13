@@ -9,113 +9,83 @@ interface ReferenceTabProps {
   renderFieldRow: (label: string, value: any, fieldPath: string) => React.ReactNode
 }
 
+// Configuration for fields to ensure consistency across all tables
+const REFERENCE_FIELDS = [
+  { label: "Name", key: "name" },
+  { label: "Position", key: "position" },
+  { label: "Relationship", key: "relationship" },
+  { label: "Organisation", key: "organisation" },
+  { label: "Address", key: "address" },
+  { label: "Phone", key: "tel" },
+  { label: "Fax", key: "fax" },
+  { label: "Email", key: "email" },
+]
+
 export function ReferenceTab({ application, renderFieldRow }: ReferenceTabProps) {
   return (
-    <div className="grid grid-cols-1 gap-6 ">
-      {application.professionalReferee1 && (
-        <Card>
-          <CardContent className="pt-6">
-            <h3 className="mb-4 text-lg font-semibold">Professional Reference 1</h3>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-1/3 text-left">Field</TableHead>
-                  <TableHead className="text-right">Value</TableHead>
-                  <TableHead className="w-10 text-right"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {renderFieldRow("Name", application.professionalReferee1.name, "professionalReferee1.name")}
-                {renderFieldRow("Position", application.professionalReferee1.position, "professionalReferee1.position")}
-                {renderFieldRow(
-                  "Relationship",
-                  application.professionalReferee1.relationship,
-                  "professionalReferee1.relationship",
-                )}
-                {renderFieldRow(
-                  "Organisation",
-                  application.professionalReferee1.organisation,
-                  "professionalReferee1.organisation",
-                )}
-                {renderFieldRow("Address", application.professionalReferee1.address, "professionalReferee1.address")}
-                {renderFieldRow("Phone", application.professionalReferee1.tel, "professionalReferee1.tel")}
-                {renderFieldRow("Fax", application.professionalReferee1.fax, "professionalReferee1.fax")}
-                {renderFieldRow("Email", application.professionalReferee1.email, "professionalReferee1.email")}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      )}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <ReferenceSection
+        title="Professional Reference 1"
+        data={application.professionalReferee1}
+        pathPrefix="professionalReferee1"
+        renderFieldRow={renderFieldRow}
+      />
 
-      {application.professionalReferee2 && (
-        <Card>
-          <CardContent className="pt-6">
-            <h3 className="mb-4 text-lg font-semibold">Professional Reference 2</h3>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-1/3 text-left">Field</TableHead>
-                  <TableHead className="text-right">Value</TableHead>
-                  <TableHead className="w-10 text-right"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {renderFieldRow("Name", application.professionalReferee2.name, "professionalReferee2.name")}
-                {renderFieldRow("Position", application.professionalReferee2.position, "professionalReferee2.position")}
-                {renderFieldRow(
-                  "Relationship",
-                  application.professionalReferee2.relationship,
-                  "professionalReferee2.relationship",
-                )}
-                {renderFieldRow(
-                  "Organisation",
-                  application.professionalReferee2.organisation,
-                  "professionalReferee2.organisation",
-                )}
-                {renderFieldRow("Address", application.professionalReferee2.address, "professionalReferee2.address")}
-                {renderFieldRow("Phone", application.professionalReferee2.tel, "professionalReferee2.tel")}
-                {renderFieldRow("Fax", application.professionalReferee2.fax, "professionalReferee2.fax")}
-                {renderFieldRow("Email", application.professionalReferee2.email, "professionalReferee2.email")}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      )}
+      <ReferenceSection
+        title="Professional Reference 2"
+        data={application.professionalReferee2}
+        pathPrefix="professionalReferee2"
+        renderFieldRow={renderFieldRow}
+      />
 
-      {application.personalReferee && (
-        <Card>
-          <CardContent className="pt-6">
-            <h3 className="mb-4 text-lg font-semibold">Personal Reference</h3>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-1/3 text-left">Field</TableHead>
-                  <TableHead className="text-right">Value</TableHead>
-                  <TableHead className="w-10 text-right"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {renderFieldRow("Name", application.personalReferee.name, "personalReferee.name")}
-                {renderFieldRow("Position", application.personalReferee.position, "personalReferee.position")}
-                {renderFieldRow(
-                  "Relationship",
-                  application.personalReferee.relationship,
-                  "personalReferee.relationship",
-                )}
-                {renderFieldRow(
-                  "Organisation",
-                  application.personalReferee.organisation,
-                  "personalReferee.organisation",
-                )}
-                {renderFieldRow("Address", application.personalReferee.address, "personalReferee.address")}
-                {renderFieldRow("Phone", application.personalReferee.tel, "personalReferee.tel")}
-                {renderFieldRow("Fax", application.personalReferee.fax, "personalReferee.fax")}
-                {renderFieldRow("Email", application.personalReferee.email, "personalReferee.email")}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      )}
+      <ReferenceSection
+        title="Personal Reference"
+        data={application.personalReferee}
+        pathPrefix="personalReferee"
+        renderFieldRow={renderFieldRow}
+      />
     </div>
+  )
+}
+
+// ----------------------------------------------------------------------
+// Reusable Sub-component
+// ----------------------------------------------------------------------
+
+interface ReferenceSectionProps {
+  title: string
+  data: any // The specific referee object (e.g., application.professionalReferee1)
+  pathPrefix: string // The string path (e.g., "professionalReferee1")
+  renderFieldRow: (label: string, value: any, fieldPath: string) => React.ReactNode
+}
+
+function ReferenceSection({ title, data, pathPrefix, renderFieldRow }: ReferenceSectionProps) {
+  // If the specific referee data doesn't exist, do not render the Card
+  if (!data) return null
+
+  return (
+    <Card>
+      <CardContent className="pt-6">
+        <h3 className="mb-4 text-lg font-semibold">{title}</h3>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-1/3 text-left">Field</TableHead>
+              <TableHead className="text-right">Value</TableHead>
+              <TableHead className="w-10 text-right"></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {REFERENCE_FIELDS.map((field) =>
+              renderFieldRow(
+                field.label,
+                data[field.key],
+                `${pathPrefix}.${field.key}`
+              )
+            )}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
   )
 }

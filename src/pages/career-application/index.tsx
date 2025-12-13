@@ -31,10 +31,7 @@ import { AppDispatch } from '@/redux/store';
 import { useLocation } from 'react-router-dom';
 
 // Circular Progress
-import {
-  CircularProgressbar,
-  buildStyles
-} from 'react-circular-progressbar';
+import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 
 // Define form steps (for UI reference)
@@ -66,7 +63,10 @@ const SUB_STEP_CONFIG: Record<number, number> = {
 
 export default function CareerApplicationForm() {
   const [currentStep, setCurrentStep] = useState(1);
-  const [subStepInfo, setSubStepInfo] = useState<{ current: number; total: number }>({ current: 1, total: 1 });
+  const [subStepInfo, setSubStepInfo] = useState<{
+    current: number;
+    total: number;
+  }>({ current: 1, total: 1 });
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [formData, setFormData] = useState<Partial<TCareer>>({
     status: 'applied'
@@ -83,7 +83,7 @@ export default function CareerApplicationForm() {
   const location = useLocation();
   const [refreshCounter, setRefreshCounter] = useState(0);
   const [subStep, setSubstep] = useState(1);
-    const [submitting, setSubmitting] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const refreshData = () => {
     setRefreshCounter((prev) => prev + 1);
@@ -134,8 +134,6 @@ export default function CareerApplicationForm() {
     setSubStepInfo({ current: 1, total }); // always reset to 1
   }, [currentStep]);
 
-
-
   const applicationId = localStorage.getItem('applicationId');
 
   const handleStepClick = (stepId: number) => {
@@ -148,25 +146,26 @@ export default function CareerApplicationForm() {
       setCompletedSteps((prev) => [...prev, stepId]);
 
       const inspiringMessages: Record<number, string> = {
-        1: "Great start! Your profile picture is set.",
-        2: "Personal details locked in — looking good!",
-        3: "Address saved. One step closer to your new role!",
-        4: "Next of kin added. Safety first!",
+        1: 'Great start! Your profile picture is set.',
+        2: 'Personal details locked in — looking good!',
+        3: 'Address saved. One step closer to your new role!',
+        4: 'Next of kin added. Safety first!',
         5: "Application details submitted — you're on a roll!",
-        6: "Education history updated. Your journey matters!",
-        7: "Training recorded. Skills are power!",
-        8: "Employment info saved. Experience counts!",
-        9: "Referees added. Trusted voices in your corner!",
-        10: "Work experience logged. Impressive background!",
-        11: "Ethnicity info recorded. Diversity strengthens us.",
-        12: "Disability info saved. We’re here to support you.",
-        13: "Documents uploaded. Almost there!",
-        14: "Post-employment plans noted. Forward-thinking!",
-        15: "Payment details confirmed. Smooth sailing ahead!",
-        16: "Review complete! You’re ready to submit."
+        6: 'Education history updated. Your journey matters!',
+        7: 'Training recorded. Skills are power!',
+        8: 'Employment info saved. Experience counts!',
+        9: 'Referees added. Trusted voices in your corner!',
+        10: 'Work experience logged. Impressive background!',
+        11: 'Ethnicity info recorded. Diversity strengthens us.',
+        12: 'Disability info saved. We’re here to support you.',
+        13: 'Documents uploaded. Almost there!',
+        14: 'Post-employment plans noted. Forward-thinking!',
+        15: 'Payment details confirmed. Smooth sailing ahead!',
+        16: 'Review complete! You’re ready to submit.'
       };
 
-      const message = inspiringMessages[stepId] || `✅ Step ${stepId} completed!`;
+      const message =
+        inspiringMessages[stepId] || `✅ Step ${stepId} completed!`;
       setSuccessMessage(`🎉 ${message}`);
       setTimeout(() => setSuccessMessage(null), 3500); // Slightly longer to read
     }
@@ -323,7 +322,7 @@ export default function CareerApplicationForm() {
       await axiosInstance.patch(`/users/${user._id}`, data);
       markStepAsCompleted(13);
       setCurrentStep(14);
-      setSubstep(1)
+      setSubstep(1);
     } catch (error) {
       console.error('Failed to update documents:', error);
     }
@@ -364,41 +363,41 @@ export default function CareerApplicationForm() {
     }
   };
 
-
   const handleSaveAndLogout = async () => {
     try {
       // const { status, ...safeFetchData } = fetchData || {};
       const { status, ...safeFormData } = formData || {};
 
-
       const dataToSave = {
         ...fetchData,
-        ...safeFormData,
+        ...safeFormData
       };
 
       await axiosInstance.patch(`/users/${user._id}`, dataToSave);
 
-
-      localStorage.removeItem("applicationId");
+      localStorage.removeItem('applicationId');
       await dispatch(logout());
       navigate('/');
-
     } catch (error: any) {
       toast({
-        title: error?.response?.data?.message || "Failed to save and logout.",
-        className: "destructive border-none text-white",
+        title: error?.response?.data?.message || 'Failed to save and logout.',
+        className: 'destructive border-none text-white'
       });
     }
   };
-
 
   const handleDashboardRedirect = () => {
     navigate('/dashboard');
   };
 
   const handleReviewClick = () => {
-    const requiredSteps = Array.from({ length: TOTAL_FILLABLE_STEPS }, (_, i) => i + 1);
-    const missingSteps = requiredSteps.filter((step) => !completedSteps.includes(step));
+    const requiredSteps = Array.from(
+      { length: TOTAL_FILLABLE_STEPS },
+      (_, i) => i + 1
+    );
+    const missingSteps = requiredSteps.filter(
+      (step) => !completedSteps.includes(step)
+    );
 
     if (missingSteps.length > 0) {
       const missingStepNames = missingSteps.map(
@@ -420,16 +419,41 @@ export default function CareerApplicationForm() {
     setReviewModalOpen(true);
   };
 
-  const handleSubmit = async (formData: any) => {
-    console.log("🔥 formData submitted:", formData);
+  const sendApplication = async () => {
     try {
-            setSubmitting(true);
+      if (applicationId) {
+        await axiosInstance.post('/application-job', {
+          jobId: applicationId,
+          applicantId: user?._id
+        });
+      }
+
+      localStorage.removeItem('applicationId');
+    } catch (error: any) {
+      toast({
+        title: error?.response?.data?.message || 'Something went wrong.',
+        className: 'destructive border-none text-white'
+      });
+
+      localStorage.removeItem('applicationId');
+    }
+  };
+
+  useEffect(() => {
+    sendApplication();
+  }, []);
+
+  const handleSubmit = async (formData: any) => {
+    console.log('🔥 formData submitted:', formData);
+    try {
+      setSubmitting(true);
 
       await axiosInstance.patch(`/users/${user._id}`, {
         ...formData,
         declarationCorrectUpload: formData.declarationCorrectUpload,
         disciplinaryInvestigation: formData.disciplinaryInvestigation,
-        disciplinaryInvestigationDetails: formData.disciplinaryInvestigationDetails,
+        disciplinaryInvestigationDetails:
+          formData.disciplinaryInvestigationDetails,
         abuseInvestigation: formData.abuseInvestigation,
         abuseInvestigationDetails: formData.abuseInvestigationDetails,
         appliedBefore: formData.appliedBefore,
@@ -441,14 +465,14 @@ export default function CareerApplicationForm() {
       });
       dispatch(updateAuthIsCompleted(true));
 
-      if (applicationId) {
-        await axiosInstance.post('/application-job', {
-          jobId: applicationId,
-          applicantId: user?._id
-        });
-      }
+      // if (applicationId) {
+      //   await axiosInstance.post('/application-job', {
+      //     jobId: applicationId,
+      //     applicantId: user?._id
+      //   });
+      // }
 
-      localStorage.removeItem('applicationId');
+      // localStorage.removeItem('applicationId');
 
       // toast({
       //   description: 'Career application submitted successfully.'
@@ -460,9 +484,8 @@ export default function CareerApplicationForm() {
         title: error?.response?.data?.message || 'Something went wrong.',
         className: 'destructive border-none text-white'
       });
-    }finally{
-                  setSubmitting(false);
-
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -491,39 +514,38 @@ export default function CareerApplicationForm() {
   //   return Math.min(100, Math.round((completed / TOTAL_FILLABLE_STEPS) * 100));
   // };
 
-
   const calculateProgressPercentage = () => {
-  let completed = 0;
+    let completed = 0;
 
-  for (let step = 1; step <= TOTAL_FILLABLE_STEPS; step++) {
-    if (completedSteps.includes(step)) {
-      completed += 1;
-    } else if (step < currentStep) {
-      completed += 1;
-    } else if (step === currentStep) {
-      const { current: currentSub, total: totalSub } = subStepInfo;
+    for (let step = 1; step <= TOTAL_FILLABLE_STEPS; step++) {
+      if (completedSteps.includes(step)) {
+        completed += 1;
+      } else if (step < currentStep) {
+        completed += 1;
+      } else if (step === currentStep) {
+        const { current: currentSub, total: totalSub } = subStepInfo;
 
-      if (step === TOTAL_FILLABLE_STEPS && totalSub > 1) {
-        // ✅ Make last substep = 100%
-        completed += currentSub / totalSub;
-      } else if (totalSub > 1) {
-        completed += (currentSub - 1) / totalSub;
+        if (step === TOTAL_FILLABLE_STEPS && totalSub > 1) {
+          // ✅ Make last substep = 100%
+          completed += currentSub / totalSub;
+        } else if (totalSub > 1) {
+          completed += (currentSub - 1) / totalSub;
+        }
+
+        break;
+      } else {
+        break;
       }
-
-      break;
-    } else {
-      break;
     }
-  }
 
-  return Math.min(100, Math.round((completed / TOTAL_FILLABLE_STEPS) * 100));
-};
-
+    return Math.min(100, Math.round((completed / TOTAL_FILLABLE_STEPS) * 100));
+  };
 
   const progressPercentage = calculateProgressPercentage();
-  const displayStep = subStepInfo.total > 1
-    ? `${currentStep}.${subStepInfo.current}`
-    : currentStep;
+  const displayStep =
+    subStepInfo.total > 1
+      ? `${currentStep}.${subStepInfo.current}`
+      : currentStep;
 
   const renderStep = () => {
     switch (currentStep) {
@@ -544,7 +566,6 @@ export default function CareerApplicationForm() {
             onSaveAndContinue={handlePersonalDetailsSaveAndContinue}
             setCurrentStep={setCurrentStep}
             saveAndLogout={handleSaveAndLogout}
-
           />
         );
       case 3:
@@ -554,7 +575,6 @@ export default function CareerApplicationForm() {
             onSaveAndContinue={handleAdsressSaveAndContinue}
             setCurrentStep={setCurrentStep}
             saveAndLogout={handleSaveAndLogout}
-
           />
         );
       case 4:
@@ -564,7 +584,6 @@ export default function CareerApplicationForm() {
             onSaveAndContinue={handleNextToKinSaveAndContinue}
             setCurrentStep={setCurrentStep}
             saveAndLogout={handleSaveAndLogout}
-
           />
         );
       case 5:
@@ -574,7 +593,6 @@ export default function CareerApplicationForm() {
             onSaveAndContinue={handleApplicationDetailsSaveAndContinue}
             setCurrentStep={setCurrentStep}
             saveAndLogout={handleSaveAndLogout}
-
           />
         );
       case 6:
@@ -584,7 +602,6 @@ export default function CareerApplicationForm() {
             onSaveAndContinue={handleEducationSaveAndContinue}
             setCurrentStep={setCurrentStep}
             saveAndLogout={handleSaveAndLogout}
-
           />
         );
       case 7:
@@ -594,7 +611,6 @@ export default function CareerApplicationForm() {
             onSaveAndContinue={handleTrainingSaveAndContinue}
             setCurrentStep={setCurrentStep}
             saveAndLogout={handleSaveAndLogout}
-
           />
         );
       case 8:
@@ -604,7 +620,6 @@ export default function CareerApplicationForm() {
             onSaveAndContinue={handleEmploymentSaveAndContinue}
             setCurrentStep={setCurrentStep}
             saveAndLogout={handleSaveAndLogout}
-
           />
         );
       case 9:
@@ -614,7 +629,6 @@ export default function CareerApplicationForm() {
             onSaveAndContinue={handleRefereeDetailsSaveAndContinue}
             setCurrentStep={setCurrentStep}
             saveAndLogout={handleSaveAndLogout}
-
           />
         );
       case 10:
@@ -624,7 +638,6 @@ export default function CareerApplicationForm() {
             onSaveAndContinue={handleExperianceSaveAndContinue}
             setCurrentStep={setCurrentStep}
             saveAndLogout={handleSaveAndLogout}
-
           />
         );
       case 11:
@@ -634,7 +647,6 @@ export default function CareerApplicationForm() {
             onSaveAndContinue={handleEthnicitySaveAndContinue}
             setCurrentStep={setCurrentStep}
             saveAndLogout={handleSaveAndLogout}
-
           />
         );
       case 12:
@@ -644,7 +656,6 @@ export default function CareerApplicationForm() {
             onSaveAndContinue={handleDisabilityInfoSaveAndContinue}
             setCurrentStep={setCurrentStep}
             saveAndLogout={handleSaveAndLogout}
-
           />
         );
       case 13:
@@ -658,9 +669,7 @@ export default function CareerApplicationForm() {
             onSubStepChange={(current) =>
               setSubStepInfo((prev) => ({ ...prev, current }))
             }
-
             saveAndLogout={handleSaveAndLogout}
-
           />
         );
       // case 14:
@@ -706,7 +715,6 @@ export default function CareerApplicationForm() {
             }
             saveAndLogout={handleSaveAndLogout}
             loading={submitting}
-
           />
         );
       default:
@@ -801,44 +809,45 @@ export default function CareerApplicationForm() {
   //     );
   //   }
 
-
   if (formSubmitted) {
     return (
       <div className="flex min-h-[calc(100vh-150px)] items-center justify-center px-4">
-        <div className="max-w-7xl w-full flex flex-col md:flex-row items-center md:items-start justify-between gap-12 p-6 md:p-12">
-
+        <div className="flex w-full max-w-7xl flex-col items-center justify-between gap-12 p-6 md:flex-row md:items-start md:p-12">
           {/* Left Text Content */}
-          <div className="flex-1 text-center md:text-left space-y-6">
-            <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 leading-tight">
+          <div className="flex-1 space-y-6 text-center md:text-left">
+            <h1 className="text-4xl font-extrabold leading-tight text-gray-800 md:text-5xl">
               THANK YOU
             </h1>
-            <h2 className="text-xl font-semibold">Your Application Submitted Successfully!</h2>
-            <p className="text-gray-600 text-lg mt-4 max-w-2xl mx-auto md:mx-0">
-              Our team has received your career application and will get back to you shortly. Stay tuned!
+            <h2 className="text-xl font-semibold">
+              Your Application Submitted Successfully!
+            </h2>
+            <p className="mx-auto mt-4 max-w-2xl text-lg text-gray-600 md:mx-0">
+              Our team has received your career application and will get back to
+              you shortly. Stay tuned!
             </p>
 
             {/* Contact Info */}
             <ul className="mt-4 space-y-3">
-              <li className="flex items-center gap-3 rounded-lg py-2 px-4">
+              <li className="flex items-center gap-3 rounded-lg px-4 py-2">
                 <span className="text-xl">📧</span>
                 <div className="flex gap-1">
                   <strong>Email:</strong>
                   <a
                     href="mailto:admin@everycareromford.co.uk"
-                    className="underline hover:text-orange-600 transition-colors"
+                    className="underline transition-colors hover:text-orange-600"
                   >
                     admin@everycareromford.co.uk
                   </a>
                 </div>
               </li>
-              <li className="flex items-center gap-3 rounded-lg py-2 px-4">
+              <li className="flex items-center gap-3 rounded-lg px-4 py-2">
                 <span className="text-xl">☎</span>
                 <div className="flex gap-1">
                   <strong>Phone:</strong>
                   <span>+44 1708 693057</span>
                 </div>
               </li>
-              <li className="flex items-center gap-3 rounded-lg py-2 px-4">
+              <li className="flex items-center gap-3 rounded-lg px-4 py-2">
                 <span className="text-xl">📍</span>
                 <div className="flex flex-col">
                   <strong>Address:</strong>
@@ -848,10 +857,10 @@ export default function CareerApplicationForm() {
             </ul>
 
             {/* Divider */}
-            <div className="w-24 h-1 bg-orange-500 mx-auto md:mx-0 mt-6 rounded-full"></div>
+            <div className="mx-auto mt-6 h-1 w-24 rounded-full bg-orange-500 md:mx-0"></div>
 
             {/* Action Button */}
-            <div className="flex flex-wrap justify-center md:justify-start gap-4 mt-8">
+            <div className="mt-8 flex flex-wrap justify-center gap-4 md:justify-start">
               <Button
                 onClick={handleDashboardRedirect}
                 className="bg-watney text-white hover:bg-watney/90 "
@@ -862,11 +871,11 @@ export default function CareerApplicationForm() {
           </div>
 
           {/* Right: Heart Graphic */}
-          <div className="flex-1 flex justify-center mt-8 md:mt-0">
-            <div className="relative w-64 h-64 md:w-96 md:h-96">
+          <div className="mt-8 flex flex-1 justify-center md:mt-0">
+            <div className="relative h-64 w-64 md:h-96 md:w-96">
               {/* Glow layers */}
-              <div className="absolute inset-0 bg-red-400 rounded-full blur-xl opacity-10"></div>
-              <div className="absolute inset-0 bg-red-500 rounded-full blur-xl opacity-30"></div>
+              <div className="absolute inset-0 rounded-full bg-red-400 opacity-10 blur-xl"></div>
+              <div className="absolute inset-0 rounded-full bg-red-500 opacity-30 blur-xl"></div>
 
               {/* Solid heart */}
               {/* <div className="relative w-full h-full flex items-center justify-center">
@@ -888,17 +897,15 @@ export default function CareerApplicationForm() {
               <img src="/heart.png" alt="heartimg" />
             </div>
           </div>
-
         </div>
       </div>
-
     );
   }
 
   return (
     <div className="p-4">
       {/* Header with Progress Circle and Step Counter */}
-      <div className="mb-2 flex flex-col items-center justify-between gap-2 sm:flex-row w-full">
+      <div className="mb-2 flex w-full flex-col items-center justify-between gap-2 sm:flex-row">
         <div>
           <h1 className="text-xl font-semibold text-gray-800">
             Step {displayStep} of {TOTAL_FILLABLE_STEPS}
@@ -923,20 +930,20 @@ export default function CareerApplicationForm() {
   </AnimatePresence> */}
 
         {/* ✅ Linear Progress Bar with percentage inside */}
-        <div className="flex flex-col items-center w-full sm:w-1/3">
-          <div className="relative w-full bg-gray-200 rounded-full h-6 overflow-hidden">
+        <div className="flex w-full flex-col items-center sm:w-1/3">
+          <div className="relative h-6 w-full overflow-hidden rounded-full bg-gray-200">
             <div
-              className="bg-watney h-6 rounded-full transition-all duration-500 flex items-center justify-center text-white font-medium"
-              style={{ width: progressPercentage > 0 ? `${progressPercentage}%` : '2rem' }} // min width for text
+              className="flex h-6 items-center justify-center rounded-full bg-watney font-medium text-white transition-all duration-500"
+              style={{
+                width:
+                  progressPercentage > 0 ? `${progressPercentage}%` : '2rem'
+              }} // min width for text
             >
               {progressPercentage}%
             </div>
           </div>
         </div>
-
       </div>
-
-
 
       {/* Form Content */}
       <div className="">{renderStep()}</div>

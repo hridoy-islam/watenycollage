@@ -17,7 +17,7 @@ export function TrainingTab({ application, renderFieldRow }: TrainingTabProps) {
       {!application.trainingData || application.trainingData.length === 0 ? (
         <p className="italic text-muted-foreground">No training history provided</p>
       ) : (
-        <div className="grid grid-cols-1 gap-6 ">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 ">
           {application.trainingData.map((training: any, index: number) => (
             <Card key={index}>
               <CardContent className="pt-4">

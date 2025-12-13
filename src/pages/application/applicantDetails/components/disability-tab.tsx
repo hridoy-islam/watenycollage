@@ -11,7 +11,9 @@ interface DisabilityTabProps {
 
 export function DisabilityTab({ application, renderFieldRow }: DisabilityTabProps) {
   return (
-    <div className="grid grid-cols-1 gap-6 ">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+      {/* Disability Information */}
       <Card>
         <CardContent className="pt-6">
           <h3 className="mb-4 text-lg font-semibold">Disability Information</h3>
@@ -31,6 +33,7 @@ export function DisabilityTab({ application, renderFieldRow }: DisabilityTabProp
         </CardContent>
       </Card>
 
+      {/* Reasonable Adjustment */}
       <Card>
         <CardContent className="pt-6">
           <h3 className="mb-4 text-lg font-semibold">Reasonable Adjustment</h3>
@@ -57,6 +60,7 @@ export function DisabilityTab({ application, renderFieldRow }: DisabilityTabProp
           </Table>
         </CardContent>
       </Card>
+
     </div>
   )
 }

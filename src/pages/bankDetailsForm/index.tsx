@@ -41,7 +41,7 @@ type BankDetailsFormValues = z.infer<typeof bankDetailsSchema>;
 
 export default function BankDetailsForm() {
   const [submitting, setSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(true);
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const [isAlreadySubmitted, setIsAlreadySubmitted] = useState(true);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
@@ -147,7 +147,7 @@ export default function BankDetailsForm() {
           <CardDescription className="mb-6">
             You have already submitted your bank details.
           </CardDescription>
-          <Button className="mx-auto" onClick={() => navigate('/dashboard')}>
+          <Button className="mx-auto" onClick={() => navigate(-1)}>
             Go Home
           </Button>
         </Card>
@@ -166,7 +166,7 @@ export default function BankDetailsForm() {
           <CardDescription className="text-xl text-black pb-4">
            Your bank details have been securely received.
           </CardDescription>
-          <Button className="mx-auto p-6" onClick={() => navigate('/dashboard')}>
+          <Button className="mx-auto p-6" onClick={() => navigate(-1)}>
             Done
           </Button>
         </Card>

@@ -404,7 +404,12 @@ return (
         <MoveLeft /> Back
       </Button>
       <div className="font-semibold">{applicationJob?.jobId?.jobTitle}</div>
+      <div className="flex flex-row items-center  gap-4">
+      <Button className="bg-watney text-white hover:bg-watney/90" onClick={() => navigate(`edit`)}>
+        Edit
+      </Button>
       <PDFGenerator application={application} applicationJob={applicationJob} />
+      </div>
     </div>
 
     {/* Main Content with Vertical Tabs */}
@@ -459,13 +464,13 @@ return (
           <DocumentsTab application={application} renderFieldRow={renderFieldRow} />
         </TabContent>
 
-        <TabContent value="postEmployment" activeTab={activeTab}>
+        {/* <TabContent value="postEmployment" activeTab={activeTab}>
           <PostEmploymentTab application={application} renderFieldRow={renderFieldRow} />
         </TabContent>
 
         <TabContent value="paymentData" activeTab={activeTab}>
           <PaymentDetailsTab application={application} renderFieldRow={renderFieldRow} />
-        </TabContent>
+        </TabContent> */}
 
         <TabContent value="terms" activeTab={activeTab}>
           <TermTab application={application} renderFieldRow={renderFieldRow} />

@@ -11,36 +11,41 @@ interface ApplicationDetailsTabProps {
 
 export function ApplicationDetailsTab({ application, renderFieldRow }: ApplicationDetailsTabProps) {
   return (
-    <div className="grid grid-cols-1 gap-6 ">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      
+      {/* Left Column */}
       <Card>
         <CardContent className="pt-6">
           <h3 className="mb-4 text-lg font-semibold">Application Information</h3>
           <Table>
             <TableHeader>
-              <TableRow>
+              {/* <TableRow>
                 <TableHead className="w-1/3 text-left">Field</TableHead>
                 <TableHead className="text-right">Value</TableHead>
                 <TableHead className="w-10 text-right"></TableHead>
-              </TableRow>
+              </TableRow> */}
             </TableHeader>
+
             <TableBody>
               {renderFieldRow("Available From", application.availableFromDate, "availableFromDate")}
               {renderFieldRow("Source", application.source, "source")}
+
               {application.source === "referral" &&
                 renderFieldRow("Referral Employee", application.referralEmployee, "referralEmployee")}
+
               {renderFieldRow("Is Student", application.isStudent, "isStudent")}
               {renderFieldRow("Under State Pension Age", application.isUnderStatePensionAge, "isUnderStatePensionAge")}
               {renderFieldRow("Over 18", application.isOver18, "isOver18")}
               {renderFieldRow(
                 "Subject to Immigration Control",
                 application.isSubjectToImmigrationControl,
-                "isSubjectToImmigrationControl",
+                "isSubjectToImmigrationControl"
               )}
               {renderFieldRow("Can Work in UK", application.canWorkInUK, "canWorkInUK")}
               {renderFieldRow(
                 "Competent in Other Language",
                 application.competentInOtherLanguage,
-                "competentInOtherLanguage",
+                "competentInOtherLanguage"
               )}
               {renderFieldRow("Other Languages", application.otherLanguages?.join(", "), "otherLanguages")}
               {renderFieldRow("Driving License", application.drivingLicense, "drivingLicense")}
@@ -53,13 +58,14 @@ export function ApplicationDetailsTab({ application, renderFieldRow }: Applicati
               {renderFieldRow(
                 "Professional Body Details",
                 application.professionalBodyDetails,
-                "professionalBodyDetails",
+                "professionalBodyDetails"
               )}
             </TableBody>
           </Table>
         </CardContent>
       </Card>
 
+      {/* Right Column */}
       <Card>
         <CardContent className="pt-6">
           <h3 className="mb-4 text-lg font-semibold">Weekly Availability</h3>
@@ -71,15 +77,21 @@ export function ApplicationDetailsTab({ application, renderFieldRow }: Applicati
                 <TableHead className="w-10 text-right"></TableHead>
               </TableRow>
             </TableHeader>
+
             <TableBody>
               {application.availability &&
                 Object.entries(application.availability).map(([day, isAvailable]) =>
-                  renderFieldRow(day.charAt(0).toUpperCase() + day.slice(1), isAvailable, `availability.${day}`),
+                  renderFieldRow(
+                    day.charAt(0).toUpperCase() + day.slice(1),
+                    isAvailable,
+                    `availability.${day}`
+                  )
                 )}
             </TableBody>
           </Table>
         </CardContent>
       </Card>
+
     </div>
   )
 }

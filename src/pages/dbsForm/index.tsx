@@ -205,7 +205,7 @@ export default function DBSDetailsForm() {
           <CardDescription className="mb-6">
             You have already completed the DBS Certificate.
           </CardDescription>
-          <Button className="mx-auto" onClick={() => navigate('/dashboard')}>
+          <Button className="mx-auto" onClick={() => navigate(-1)}>
             Go Home
           </Button>
         </Card>
@@ -223,7 +223,7 @@ export default function DBSDetailsForm() {
           <CardDescription className="text-2xl text-black mb-6">
             The DBS certificate details have been successfully completed.
           </CardDescription>
-          <Button className="mx-auto" onClick={() => navigate('/dashboard')}>
+          <Button className="mx-auto" onClick={() => navigate(-1)}>
             Done
           </Button>
         </Card>

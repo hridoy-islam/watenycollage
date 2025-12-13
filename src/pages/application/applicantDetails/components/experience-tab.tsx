@@ -17,11 +17,11 @@ export function ExperienceTab({ application, renderFieldRow }: ExperienceTabProp
           <h3 className="mb-4 text-lg font-semibold">Experience Details</h3>
           <Table>
             <TableHeader>
-              <TableRow>
+              {/* <TableRow>
                 <TableHead className="w-1/3 text-left">Field</TableHead>
                 <TableHead className="text-right">Value</TableHead>
                 <TableHead className="w-10 text-right"></TableHead>
-              </TableRow>
+              </TableRow> */}
             </TableHeader>
             <TableBody>
               {renderFieldRow("Life Skills & Interests", application.lifeSkillsAndInterests, "lifeSkillsAndInterests")}

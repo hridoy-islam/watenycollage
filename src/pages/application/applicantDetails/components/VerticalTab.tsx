@@ -42,8 +42,8 @@ const tabs: Tab[] = [
   { id: 'disabilityData', label: 'Disability', icon: <Heart className="w-4 h-4" /> },
   { id: 'refereeData', label: 'References', icon: <Phone className="w-4 h-4" /> },
   { id: 'documentData', label: 'Documents', icon: <FileStack className="w-4 h-4" /> },
-  { id: 'postEmployment', label: 'Post Employment', icon: <UserPlus className="w-4 h-4" /> },
-  { id: 'paymentData', label: 'Payment Details', icon: <CreditCard className="w-4 h-4" /> },
+  // { id: 'postEmployment', label: 'Post Employment', icon: <UserPlus className="w-4 h-4" /> },
+  // { id: 'paymentData', label: 'Payment Details', icon: <CreditCard className="w-4 h-4" /> },
   { id: 'terms', label: 'Terms', icon: <FileCheck className="w-4 h-4" /> },
 ];
 
