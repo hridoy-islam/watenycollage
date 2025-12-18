@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     borderStyle: 'solid',
     borderWidth: 1,
-    borderColor: '#000000'
+    borderColor: '#999'
   },
   tableRow: {
     flexDirection: 'row',
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
   },
   tableBodyRow: {
     flexDirection: 'row',
-    borderTopColor: '#000000',
+    borderTopColor: '#999',
     borderTopWidth: 1,
     alignItems: 'stretch'
   },
@@ -168,12 +168,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     justifyContent: 'center',
     alignItems: 'center',
-    borderRightColor: '#000000',
+    borderRightColor: '#999',
     borderRightWidth: 1
   },
   tableCell: {
     padding: 3,
-    borderRightColor: '#000000',
+    borderRightColor: '#999',
     borderRightWidth: 1,
     justifyContent: 'center',
     alignItems: 'flex-start'

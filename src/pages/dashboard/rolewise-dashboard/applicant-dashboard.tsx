@@ -774,42 +774,55 @@ export function ApplicantDashboard({ user }: ApplicantDashboardProps) {
     Boolean(userData.bankDetailsUnlock) ||
     Boolean(userData.startDateUnlock);
 
-
-  // 2. Interview Mail Sent Message
-  // Only show if interview mail is sent AND NO tasks are unlocked
+// 1. Interview Mail Sent Message
   if (userData.interviewMailSent === true && !isAnyTaskUnlocked) {
     return (
-      <div className="flex-1 space-y-4 p-4">
-        <div className="flex w-full items-center gap-3 rounded-lg border border-watney border-l-4 border-l-watney bg-watney/5 p-4 shadow-sm transition-all animate-in fade-in slide-in-from-top-2">
-          <Info className="h-5 w-5 text-watney" />
-          <div>
-            <h3 className="font-medium ">
-              You have been invited for an interview. Please check your email for more details.
-            </h3>
+      /* 1. OUTER WRAPPER: Centers the card vertically and horizontally */
+      <div className="flex h-[80vh] w-full items-center justify-center p-4">
+        
+        {/* 2. THE CARD: Bordered box with content */}
+        <div className="flex w-full max-w-5xl flex-col items-center justify-center rounded-xl border-2 border-watney bg-white p-12 text-center shadow-sm animate-in fade-in zoom-in-95 duration-500">
+          
+          <div className="mb-8 rounded-full bg-watney/10 p-6">
+            <Info className="h-16 w-16 text-watney" />
           </div>
+          
+          <div className="max-w-3xl space-y-4">
+            <h3 className="text-3xl font-bold md:text-4xl">
+              You have been invited for an interview
+            </h3>
+            <p className="text-xl font-medium ">
+              Please check your email for more details regarding the schedule.
+            </p>
+          </div>
+
         </div>
       </div>
     );
   }
 
-  // 3. Waiting Message
-  // Only show if waiting for offer AND NO tasks are unlocked
+ 
   if (!userData?.jobOfferMailSent && !userData.interviewMailSent && !isAnyTaskUnlocked) {
     return (
-      <div className="flex-1 space-y-4 p-4">
-        <div className="flex w-full items-center gap-3 rounded-lg border border-watney border-l-4 border-l-watney bg-watney/5 p-4 shadow-sm transition-all animate-in fade-in slide-in-from-top-2">
-          <Info className="h-5 w-5 text-watney" />
-          <div>
-            <h3 className="font-medium ">
-              You will be contacted from the office regarding the next steps for
-              your application.
+      <div className="flex h-[80vh] w-full items-center justify-center p-4">
+        
+        {/* 2. THE CARD: The bordered box with your content */}
+        <div className="flex w-full max-w-5xl flex-col bg-white items-center justify-center rounded-xl border-2 border-watney  p-12 text-center shadow-sm animate-in fade-in zoom-in-95 duration-500">
+          
+          <div className="mb-8 rounded-full bg-watney/10 p-6">
+            <Info className="h-16 w-16 text-watney" />
+          </div>
+          
+          <div className="space-y-4">
+            <h3 className="text-3xl font-bold  md:text-4xl leading-tight">
+              You will be contacted from the office regarding the next steps for your application
             </h3>
           </div>
+
         </div>
       </div>
     );
   }
-
   // 4. Main Dashboard (Shows if Tasks are Unlocked OR Job Offer Sent)
   return (
     <div className="flex-1 space-y-4 p-4">

@@ -15,7 +15,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     paddingBottom: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
+    borderBottomColor: '#999',
   },
   headerLeft: {
     width: '30%',
@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
     marginTop: 30,
     paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: '#ccc',
+    borderTopColor: '#999',
     fontSize: 10,
     color: '#666',
   },

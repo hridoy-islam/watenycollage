@@ -32,8 +32,8 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     marginBottom: 20,
     paddingBottom: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
+    borderBottomWidth: 0.25,
+    borderBottomColor: '#999',
   },
   logoContainer: {
     alignItems: 'center',
@@ -80,8 +80,8 @@ const styles = StyleSheet.create({
   },
   inputLine: {
     flex: 1,
-    borderBottomWidth: 1,
-    borderBottomColor: '#000',
+    borderBottomWidth: 0.25,
+    borderBottomColor: '#999',
     paddingBottom: 2,
     marginLeft: 5,
     fontSize: 12,
@@ -105,15 +105,15 @@ const styles = StyleSheet.create({
   checkboxBox: {
     width: 12,
     height: 12,
-    borderWidth: 1,
-    borderColor: '#000',
+    borderWidth: 0.5,
+    borderColor: '#999',
     alignItems: 'center',
     justifyContent: 'center',
   },
   checked: {
     width: 8,
     height: 8,
-    backgroundColor: '#000', // Simple fill for checked
+    backgroundColor: '#00', // Simple fill for checked
   },
   // Section Headers
   sectionHeader: {
@@ -201,8 +201,8 @@ const JobRoleSection = ({ role }: { role: string }) => {
       
       {/* Line for 'Other' details */}
       <View style={{ 
-        borderBottomWidth: 1, 
-        borderBottomColor: '#000', 
+        borderBottomWidth: 0.25, 
+        borderBottomColor: '#999', 
         width: 100, 
         marginLeft: 10,
         alignSelf: 'flex-end'

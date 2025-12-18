@@ -256,7 +256,8 @@ const EmploymentData = ({
               value={yesNoOptions.find((opt) => opt.value === localData.hasPreviousEmployment)}
               onChange={(opt) => handleInputChange('hasPreviousEmployment', opt?.value || '')}
               placeholder="Select"
-              styles={{
+               classNamePrefix="react-select"
+                   styles={{
                             placeholder: (provided) => ({
                               ...provided,
                               fontSize: '1.125rem',
@@ -282,6 +283,7 @@ const EmploymentData = ({
                               padding: '0 0.75rem' // px-3 for better spacing
                             })
                           }}
+                  menuPortalTarget={document.body}
             />
           ) : (
             <div className="text-gray-900">{localData.hasPreviousEmployment || '-'}</div>

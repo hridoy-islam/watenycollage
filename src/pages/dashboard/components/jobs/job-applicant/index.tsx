@@ -476,6 +476,7 @@ export default function CareerApplicationsPage() {
   };
 
   // Enhanced replace logic
+ // Enhanced replace logic
   const replaceVariables = async (
     text: string,
     application: CareerApplication,
@@ -497,28 +498,39 @@ export default function CareerApplicationsPage() {
     );
 
     basicVariables.forEach((variable) => {
-      // @ts-ignore - dynamic access
-      let value = applicant?.[variable] || '';
+      let value = '';
 
-      if (variable === 'name') {
-        value = `${applicant?.firstName || ''} ${applicant?.lastName || ''}`;
-      }
-
-      // Formatting Rules
-      if (variable.toLowerCase().includes('email')) {
-        // Emails: Lowercase
-        value = String(value).toLowerCase();
-      } else if (
-        variable === 'dateOfBirth' ||
-        variable.toLowerCase().includes('date')
-      ) {
-        // Dates: Use moment
-        if (value && moment(value).isValid()) {
-          value = moment(value).format('DD MMM, YYYY');
+      // --- NEW: Hardcoded Admin Variables ---
+      if (variable === 'admin') {
+        value = 'Everycare Romford';
+      } else if (variable === 'adminEmail') {
+        value = 'admin@everycareromford.co.uk';
+      } 
+      // --- Standard Applicant Variables ---
+      else {
+        // @ts-ignore - dynamic access
+        value = applicant?.[variable] || '';
+  
+        if (variable === 'name') {
+          value = `${applicant?.firstName || ''} ${applicant?.lastName || ''}`;
         }
-      } else {
-        // Text: Capitalize & remove hyphens (e.g. united-kingdom -> United Kingdom)
-        value = formatText(value);
+  
+        // Formatting Rules
+        if (variable.toLowerCase().includes('email')) {
+          // Emails: Lowercase
+          value = String(value).toLowerCase();
+        } else if (
+          variable === 'dateOfBirth' ||
+          variable.toLowerCase().includes('date')
+        ) {
+          // Dates: Use moment
+          if (value && moment(value).isValid()) {
+            value = moment(value).format('DD MMM, YYYY');
+          }
+        } else {
+          // Text: Capitalize & remove hyphens
+          value = formatText(value);
+        }
       }
 
       replacedText = replacedText.replace(
@@ -997,137 +1009,109 @@ export default function CareerApplicationsPage() {
                   </TableCell>
 
                   {/* Action Column with Dropdown */}
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      {/* <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              className="border-none bg-watney text-white hover:bg-watney/90"
-                              size="icon"
-                              onClick={() =>
-                                navigate(
-                                  `/dashboard/career-application/${app?._id}/${app.applicantId?._id}`
-                                )
-                              }
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>View Application</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider> */}
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-56">
-                          <DropdownMenuLabel>Unlock Sections</DropdownMenuLabel>
+                 <TableCell className="text-right">
+  <div className="flex justify-end gap-2">
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="h-8 w-8 p-0">
+          <span className="sr-only">Open menu</span>
+          <MoreVertical className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-56">
+        <DropdownMenuLabel>Unlock Sections</DropdownMenuLabel>
 
-                          {/* Post Employment Unlock */}
-                          <DropdownMenuItem
-                            onClick={() =>
-                              handleUnlockAction(
-                                app._id,
-                                app.applicantId!._id!,
-                                'postEmploymentUnlock'
-                              )
-                            }
-                            disabled={app.applicantId?.postEmploymentUnlock}
-                          >
-                            {app.applicantId?.postEmploymentUnlock ? (
-                              <Check className="mr-2 h-4 w-4 text-green-600" />
-                            ) : (
-                              <LockOpen className="mr-2 h-4 w-4" />
-                            )}
-                            Unlock Medical
-                          </DropdownMenuItem>
+        {/* Post Employment Unlock */}
+        <DropdownMenuItem
+          onClick={() =>
+            handleUnlockAction(
+              app._id,
+              app.applicantId!._id!,
+              'postEmploymentUnlock'
+            )
+          }
+          // Added !! to ensure strict boolean
+          disabled={!!app.applicantId?.postEmploymentUnlock}
+        >
+          {app.applicantId?.postEmploymentUnlock ? (
+            <Check className="mr-2 h-4 w-4 text-green-600" />
+          ) : (
+            <LockOpen className="mr-2 h-4 w-4" />
+          )}
+          Unlock Medical
+        </DropdownMenuItem>
 
-                          {/* DBS Unlock */}
-                          <DropdownMenuItem
-                            onClick={() =>
-                              handleUnlockAction(
-                                app._id,
-                                app.applicantId!._id!,
-                                'dbsUnlock'
-                              )
-                            }
-                            disabled={app.applicantId?.dbsUnlock}
-                          >
-                            {app.applicantId?.dbsUnlock ? (
-                              <Check className="mr-2 h-4 w-4 text-green-600" />
-                            ) : (
-                              <LockOpen className="mr-2 h-4 w-4" />
-                            )}
-                            Unlock DBS
-                          </DropdownMenuItem>
+        {/* DBS Unlock */}
+        <DropdownMenuItem
+          onClick={() =>
+            handleUnlockAction(app._id, app.applicantId!._id!, 'dbsUnlock')
+          }
+          disabled={!!app.applicantId?.dbsUnlock}
+        >
+          {app.applicantId?.dbsUnlock ? (
+            <Check className="mr-2 h-4 w-4 text-green-600" />
+          ) : (
+            <LockOpen className="mr-2 h-4 w-4" />
+          )}
+          Unlock DBS
+        </DropdownMenuItem>
 
-                          {/* E-Cert Unlock */}
-                          <DropdownMenuItem
-                            onClick={() =>
-                              handleUnlockAction(
-                                app._id,
-                                app.applicantId!._id!,
-                                'ecertUnlock'
-                              )
-                            }
-                            disabled={app.applicantId?.ecertUnlock}
-                          >
-                            {app.applicantId?.ecertUnlock ? (
-                              <Check className="mr-2 h-4 w-4 text-green-600" />
-                            ) : (
-                              <LockOpen className="mr-2 h-4 w-4" />
-                            )}
-                            Unlock E-Cert
-                          </DropdownMenuItem>
+        {/* E-Cert Unlock */}
+        <DropdownMenuItem
+          onClick={() =>
+            handleUnlockAction(app._id, app.applicantId!._id!, 'ecertUnlock')
+          }
+          disabled={!!app.applicantId?.ecertUnlock}
+        >
+          {app.applicantId?.ecertUnlock ? (
+            <Check className="mr-2 h-4 w-4 text-green-600" />
+          ) : (
+            <LockOpen className="mr-2 h-4 w-4" />
+          )}
+          Unlock E-Cert
+        </DropdownMenuItem>
 
-                          {/* Bank Details Unlock */}
-                          <DropdownMenuItem
-                            onClick={() =>
-                              handleUnlockAction(
-                                app._id,
-                                app.applicantId!._id!,
-                                'bankDetailsUnlock'
-                              )
-                            }
-                            disabled={app.applicantId?.bankDetailsUnlock}
-                          >
-                            {app.applicantId?.bankDetailsUnlock ? (
-                              <Check className="mr-2 h-4 w-4 text-green-600" />
-                            ) : (
-                              <LockOpen className="mr-2 h-4 w-4" />
-                            )}
-                            Unlock Bank Details
-                          </DropdownMenuItem>
+        {/* Bank Details Unlock */}
+        <DropdownMenuItem
+          onClick={() =>
+            handleUnlockAction(
+              app._id,
+              app.applicantId!._id!,
+              'bankDetailsUnlock'
+            )
+          }
+          disabled={!!app.applicantId?.bankDetailsUnlock}
+        >
+          {app.applicantId?.bankDetailsUnlock ? (
+            <Check className="mr-2 h-4 w-4 text-green-600" />
+          ) : (
+            <LockOpen className="mr-2 h-4 w-4" />
+          )}
+          Unlock Bank Details
+        </DropdownMenuItem>
 
-                          {/* Start Date / Checklist Unlock */}
-                          <DropdownMenuItem
-                            onClick={() =>
-                              handleUnlockAction(
-                                app._id,
-                                app.applicantId!._id!,
-                                'startDateUnlock'
-                              )
-                            }
-                            disabled={app.applicantId?.startDateUnlock}
-                          >
-                            {app.applicantId?.startDateUnlock ? (
-                              <Check className="mr-2 h-4 w-4 text-green-600" />
-                            ) : (
-                              <LockOpen className="mr-2 h-4 w-4" />
-                            )}
-                            Unlock Starter Checklist
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </TableCell>
+        {/* Start Date / Checklist Unlock */}
+        <DropdownMenuItem
+          onClick={() =>
+            handleUnlockAction(
+              app._id,
+              app.applicantId!._id!,
+              'startDateUnlock'
+            )
+          }
+          disabled={!!app.applicantId?.startDateUnlock}
+        >
+          {app.applicantId?.startDateUnlock ? (
+            <Check className="mr-2 h-4 w-4 text-green-600" />
+          ) : (
+            <LockOpen className="mr-2 h-4 w-4" />
+          )}
+          Unlock Starter Checklist
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  </div>
+</TableCell>
                 </TableRow>
               ))}
             </TableBody>

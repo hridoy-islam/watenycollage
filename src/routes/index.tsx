@@ -182,6 +182,11 @@ export default function AppRouter() {
           index: true
         },
         {
+          path: 'bank-details/:id',
+          element: <BankDetailsForm />,
+          index: true
+        },
+        {
           path: 'bank-details/:id/edit',
           element: <BankDetailsForm />,
           index: true

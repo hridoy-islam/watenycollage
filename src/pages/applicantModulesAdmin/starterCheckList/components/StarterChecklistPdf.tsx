@@ -50,8 +50,8 @@ const styles = StyleSheet.create({
     marginBottom: 6, 
     backgroundColor: '#e6e6e6', 
     padding: 3, 
-    borderTop: '1px solid #000', 
-    borderBottom: '1px solid #000' 
+    borderTop: '0.5px solid #999', 
+    borderBottom: '0.5px solid #999' 
   },
   h3: { 
     fontSize: 9, 
@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
   
   // Components
   dataField: { 
-    border: '1px solid #000', 
+    border: '0.5px solid #999', 
     minHeight: 14, 
     marginTop: 2, 
     marginBottom: 6, 
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row', 
     justifyContent: 'space-between', 
     marginBottom: 12, 
-    borderBottom: '1px solid #000', 
+    borderBottom: '0.5px solid #999', 
     paddingBottom: 6,
     alignItems: 'flex-end'
   },
@@ -115,13 +115,13 @@ const styles = StyleSheet.create({
   // Statement Table
   table: { 
     flexDirection: 'row', 
-    border: '1px solid #000', 
+    border: '0.5px solid #999', 
     marginTop: 6,
     minHeight: 160
   },
   tableCol: { 
     flex: 1, 
-    borderRight: '1px solid #000', 
+    borderRight: '0.5px solid #999', 
     padding: 6
   },
   lastCol: { 
@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
   checkbox: { 
     width: 10, 
     height: 10, 
-    border: '1px solid #000', 
+    border: '0.5px solid #999', 
     marginRight: 5, 
     alignItems: 'center', 
     justifyContent: 'center',
@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
     marginTop: 8
   },
   loanOptions: {
-    border: '1px solid #000',
+    border: '0.5px solid #999',
     padding: 6,
     marginTop: 4
   }
@@ -351,10 +351,10 @@ export const StarterCheckListPdf = ({ data }: { data: starterCheckList }) => (
       </View>
 
       <View style={{ flexDirection: 'row', marginTop: 8, marginBottom: 15 }}>
-        <View style={{ width: 160, padding: 6, border: '1px solid #000', marginRight: 8 }}>
+        <View style={{ width: 160, padding: 6, border: '0.5px solid #999', marginRight: 8 }}>
           <Checkbox checked={!data.studentLoan.hasNoLoans} label="If No, tick this box and go to question 10" />
         </View>
-        <View style={{ width: 160, padding: 6, border: '1px solid #000' }}>
+        <View style={{ width: 160, padding: 6, border: '0.5px solid #999' }}>
           <Checkbox checked={data.studentLoan.hasNoLoans} label="If Yes, tick this box and go straight to the Declaration" />
         </View>
       </View>
@@ -406,7 +406,7 @@ export const StarterCheckListPdf = ({ data }: { data: starterCheckList }) => (
       <View style={[styles.row, { marginTop: 15, alignItems: 'flex-end' }]}>
         <View style={{ width: '40%', marginRight: 15 }}>
           <Text style={styles.inputLabel}>Signature</Text>
-          <View style={{ borderBottom: '1px solid #000', height: 16, marginBottom: 4 }} />
+          <View style={{ borderBottom: '0.5px solid #999', height: 16, marginBottom: 4 }} />
         </View>
         <View style={{ flex: 1 }}>
           <DataField label="Full name" value={data.declaration.fullName} smallLabel={true} />

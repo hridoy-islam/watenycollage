@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
     textAlign: 'left',
   },
   titleBox: {
-    border: '0.25px solid #000',
+    border: '0.25px solid #999',
     padding: 5,
     textAlign: 'center',
     fontWeight: 'bold',
@@ -43,13 +43,13 @@ const styles = StyleSheet.create({
     width: 'auto',
     borderStyle: 'solid',
     borderWidth: 0.25,
-    borderColor: '#000',
+    borderColor: '#999',
     marginBottom: 10,
   },
   tableRow: {
     flexDirection: 'row',
     borderBottomWidth: 0.25,
-    borderBottomColor: '#000',
+    borderBottomColor: '#999',
     borderBottomStyle: 'solid',
     alignItems: 'center',
     justifyContent: 'flex-start',
@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
   tableColLabel: {
     width: '40%',
     borderRightWidth: 0.25,
-    borderRightColor: '#000',
+    borderRightColor: '#999',
     borderRightStyle: 'solid',
     padding: 4,
     backgroundColor: '#f9f9f9',
@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
   gridRow: {
     flexDirection: 'row',
     borderBottomWidth: 0.25,
-    borderBottomColor: '#000',
+    borderBottomColor: '#999',
     borderBottomStyle: 'solid',
     minHeight: 20,
     alignItems: 'center',
@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
     width: '55%',
     padding: 4,
     borderRightWidth: 0.25,
-    borderColor: '#000',
+    borderColor: '#999',
     minHeight: 20,
     borderRightStyle: 'solid',
   },
@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
     width: '15%',
     padding: 4,
     borderRightWidth: 0.25,
-    borderColor: '#000',
+    borderColor: '#999',
     borderRightStyle: 'solid',
     minHeight: 20,
     textAlign: 'center',
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
   },
   officeBox: {
     marginTop: 20,
-    border: '0.25px solid #000',
+    border: '0.25px solid #999',
     backgroundColor: '#e0e0e0',
     padding: 10,
   },
@@ -141,7 +141,7 @@ const CheckBox = ({ label, checked }) => (
         width: 10,
         height: 10,
         borderWidth: 1,
-        borderColor: '#000',
+        borderColor: '#999',
         alignItems: 'center',
         justifyContent: 'center',
         marginRight: 4,
@@ -169,8 +169,8 @@ const SquareOption = ({
         width: 14,
         height: 14,
         borderWidth: 1,
-        borderColor: '#000',
-        backgroundColor: selected ? '#000' : '#FFF',
+        borderColor: '#999',
+        backgroundColor: selected ? '#999' : '#FFF',
       }}
     />
   </View>
@@ -529,7 +529,7 @@ const PersonalPage = ({ data }) => {
         <View
           style={{
             borderBottomWidth: 1,
-            borderBottomColor: '#000',
+            borderBottomColor: '#999',
             marginVertical: 5,
           }}
         />

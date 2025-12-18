@@ -255,7 +255,8 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
                       selected?.value || ""
                     )
                   }
-                  styles={{
+                   classNamePrefix="react-select"
+                   styles={{
                             placeholder: (provided) => ({
                               ...provided,
                               fontSize: '1.125rem',
@@ -281,6 +282,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
                               padding: '0 0.75rem' // px-3 for better spacing
                             })
                           }}
+                  menuPortalTarget={document.body}
                 />
               ) : (
                 <div className="mt-1 text-gray-900">
@@ -370,7 +372,8 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
                   onChange={(selected) =>
                     handleInputChange("nationality", selected?.value || "")
                   }
-                  styles={{
+                  classNamePrefix="react-select"
+                   styles={{
                             placeholder: (provided) => ({
                               ...provided,
                               fontSize: '1.125rem',
@@ -396,6 +399,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
                               padding: '0 0.75rem' // px-3 for better spacing
                             })
                           }}
+                  menuPortalTarget={document.body}
                 />
               ) : (
                 <div className="mt-1 text-gray-900">

@@ -9,12 +9,16 @@ import {
 import { useEffect, useState } from 'react';
 import axiosInstance from '@/lib/axios';
 // Define styles for the PDF
+const BORDER_WIDTH = 0.25;
+const BORDER_COLOR = '#999';
+
 const styles = StyleSheet.create({
   page: {
     padding: 30,
     fontFamily: 'Helvetica',
     fontSize: 10
   },
+
   header: {
     fontSize: 16,
     fontWeight: 'bold',
@@ -35,38 +39,47 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     marginTop: 8
   },
+
   subSectionHeader: {
     fontSize: 10,
     fontWeight: 'bold',
     marginBottom: 5,
     paddingTop: 10
   },
+
   table: {
     display: 'flex',
     width: '100%',
     borderStyle: 'solid',
-    borderWidth: 1,
+    borderWidth: BORDER_WIDTH,
+    borderColor: BORDER_COLOR,
     borderRightWidth: 0,
     borderBottomWidth: 0
   },
+
   tableRow: {
     flexDirection: 'row'
   },
+
   tableCol: {
     borderStyle: 'solid',
-    borderWidth: 1,
+    borderWidth: BORDER_WIDTH,
+    borderColor: BORDER_COLOR,
     borderLeftWidth: 0,
     borderTopWidth: 0,
     padding: 5
   },
+
   tableColHeader: {
     borderStyle: 'solid',
-    borderWidth: 1,
+    borderWidth: BORDER_WIDTH,
+    borderColor: BORDER_COLOR,
     borderLeftWidth: 0,
     borderTopWidth: 0,
     padding: 5,
     fontWeight: 'bold'
   },
+
   footer: {
     position: 'absolute',
     fontSize: 8,
@@ -74,25 +87,29 @@ const styles = StyleSheet.create({
     left: 40,
     right: 40,
     textAlign: 'center',
-    borderTop: '1px solid #ccc',
+    borderTopWidth: BORDER_WIDTH,
+    borderTopColor: BORDER_COLOR,
     paddingTop: 5
   },
+
   signatureLine: {
     marginTop: 30,
-    borderBottom: '1px solid #000',
+    borderBottomWidth: BORDER_WIDTH,
+    borderBottomColor: BORDER_COLOR,
     width: 200
   },
+
   addressBlock: {
     marginTop: -10,
     fontSize: 9,
     textAlign: 'center'
   },
+
   noBorderCol: {
     padding: 5,
     width: '30%'
   }
 });
-
 // Format date utility
 const formatDate = (dateString: string): string => {
   if (!dateString) return '';
@@ -794,7 +811,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
             {capitalizeFirstLetter(data.hasDisability ? 'Yes' : 'No')}
           </Text>
         </View>
-        <View style={{ border: '1px solid #000', minHeight: 30, padding: 5 }}>
+        <View style={{ border: '0.5px solid #999', minHeight: 30, padding: 5 }}>
           <Text>{capitalizeFirstLetter(data.disabilityDetails || '')}</Text>
         </View>
 
@@ -808,7 +825,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
             {data.criminalConviction ? 'Yes' : 'No'}
           </Text>
         </View>
-        <View style={{ border: '1px solid #000', minHeight: 30, padding: 5 }}>
+        <View style={{ border: '0.5px solid #999', minHeight: 30, padding: 5 }}>
           <Text>{capitalizeFirstLetter(data.convictionDetails || '')}</Text>
         </View>
 
