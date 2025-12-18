@@ -40,7 +40,7 @@
 //   _id: string;
 //   name: string;
 //   role: string;
-  
+
 //   // Task Completion Statuses
 //   dbsDone: boolean;
 //   medicalDone: boolean;
@@ -268,7 +268,6 @@
 //     );
 //   }
 
-
 //     // 2. Application Received / Waiting for Offer
 //   // If no job offer has been sent yet, show this holding message.
 //   if (!userData?.jobOfferMailSent && !userData.interviewMailSent ) {
@@ -304,14 +303,12 @@
 //     );
 //   }
 
-
-
 //   // 4. Main Dashboard (Job Offer Sent & No Interview Pending)
 //   // This is where we show the Task List (filtered by individual unlocks) and Job Tables.
 //   return (
 //     <div className="flex-1 space-y-4 p-4">
 //       <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
-        
+
 //         {/* Task List Section */}
 //         <div className="lg:col-span-5">
 //           <TaskStatusList userData={userData} userId={user._id} />
@@ -364,7 +361,6 @@
 //                     </Card>
 //                   </div>
 
-                 
 //                   <div className="max-h-[96vh] space-y-4 overflow-y-auto md:hidden">
 //                     {applications.map((application) => (
 //                       <Card key={application._id}>
@@ -392,7 +388,6 @@
 //               )}
 //             </TabsContent>
 
-            
 //             <TabsContent
 //               value="all-jobs"
 //               className="max-h-[96vh] space-y-4 overflow-y-auto"
@@ -494,12 +489,6 @@
 //   );
 // }
 
-
-
-
-
-
-
 import { useEffect, useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
@@ -542,7 +531,7 @@ interface UserData {
   _id: string;
   name: string;
   role: string;
-  
+
   // Task Completion Statuses
   dbsDone: boolean;
   medicalDone: boolean;
@@ -592,7 +581,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
   };
 
   return (
-    <div className="flex items-center justify-between p-6 border-b last:border-0 border-gray-200">
+    <div className="flex items-center justify-between border-b border-gray-200 p-6 last:border-0">
       <div className="flex items-center space-x-2">
         <div className="flex h-6 w-6 items-center justify-center">
           {isCompleted ? (
@@ -623,7 +612,10 @@ const TaskItem: React.FC<TaskItemProps> = ({
   );
 };
 
-const TaskStatusList: React.FC<{ userData: UserData; userId: string }> = ({ userData, userId }) => {
+const TaskStatusList: React.FC<{ userData: UserData; userId: string }> = ({
+  userData,
+  userId
+}) => {
   const allTasks = [
     {
       title: 'Complete Your Medical Questionnaire',
@@ -660,7 +652,7 @@ const TaskStatusList: React.FC<{ userData: UserData; userId: string }> = ({ user
   // Filter: Only return tasks where the specific unlock key is TRUE/Truthy
   const visibleTasks = allTasks.filter((task) => {
     const val = userData[task.unlockKey as keyof UserData];
-    return Boolean(val); 
+    return Boolean(val);
   });
 
   // If no tasks are visible, we render nothing (the parent handles layout)
@@ -669,19 +661,21 @@ const TaskStatusList: React.FC<{ userData: UserData; userId: string }> = ({ user
   return (
     <Card className="mb-6">
       <CardHeader>
-         <CardTitle>Onboarding Tasks</CardTitle>
-         <CardDescription>Complete the unlocked steps below.</CardDescription>
+        <CardTitle>Onboarding Tasks</CardTitle>
+        <CardDescription>Complete the unlocked steps below.</CardDescription>
       </CardHeader>
       <CardContent className="p-0">
         <div className="space-y-0">
-            {visibleTasks.map((task) => (
-              <TaskItem
-                key={task.unlockKey}
-                title={task.title}
-                isCompleted={userData[task.completeKey as keyof UserData] as boolean}
-                navigateTo={task.navigateTo}
-              />
-            ))}
+          {visibleTasks.map((task) => (
+            <TaskItem
+              key={task.unlockKey}
+              title={task.title}
+              isCompleted={
+                userData[task.completeKey as keyof UserData] as boolean
+              }
+              navigateTo={task.navigateTo}
+            />
+          ))}
         </div>
       </CardContent>
     </Card>
@@ -767,58 +761,51 @@ export function ApplicantDashboard({ user }: ApplicantDashboardProps) {
 
   // 1. CHECK FOR UNLOCKED TASKS FIRST
   // If any of these are true, we MUST show the dashboard, ignoring the messages below.
-  const isAnyTaskUnlocked = 
+  const isAnyTaskUnlocked =
     Boolean(userData.postEmploymentUnlock) ||
     Boolean(userData.dbsUnlock) ||
     Boolean(userData.ecertUnlock) ||
     Boolean(userData.bankDetailsUnlock) ||
     Boolean(userData.startDateUnlock);
 
-// 1. Interview Mail Sent Message
+  // 1. Interview Mail Sent Message
   if (userData.interviewMailSent === true && !isAnyTaskUnlocked) {
     return (
-      /* 1. OUTER WRAPPER: Centers the card vertically and horizontally */
       <div className="flex h-[80vh] w-full items-center justify-center p-4">
-        
-        {/* 2. THE CARD: Bordered box with content */}
-        <div className="flex w-full max-w-5xl flex-col items-center justify-center rounded-xl border-2 border-watney bg-white p-12 text-center shadow-sm animate-in fade-in zoom-in-95 duration-500">
-          
-          <div className="mb-8 rounded-full bg-watney/10 p-6">
-            <Info className="h-16 w-16 text-watney" />
-          </div>
-          
-          <div className="max-w-3xl space-y-4">
-            <h3 className="text-3xl font-bold md:text-4xl">
-              You have been invited for an interview
-            </h3>
-            <p className="text-xl font-medium ">
-              Please check your email for more details regarding the schedule.
-            </p>
+        <div className="max-w-8xl flex w-full flex-col items-center justify-center gap-6 rounded-xl border-2 border-watney bg-white p-6 text-center shadow-sm duration-500 animate-in fade-in zoom-in-95 md:flex-row md:gap-10 md:p-12 md:text-left">
+          <div className="shrink-0 rounded-full bg-watney/10 p-6">
+            <Info className="h-12 w-12 text-watney md:h-16 md:w-16" />
           </div>
 
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold leading-tight md:text-4xl">
+              You have been invited for an interview. Please check your email for more details regarding the schedule.
+            </h3>
+           
+          </div>
         </div>
       </div>
     );
   }
 
- 
-  if (!userData?.jobOfferMailSent && !userData.interviewMailSent && !isAnyTaskUnlocked) {
+  if (
+    !userData?.jobOfferMailSent &&
+    !userData.interviewMailSent &&
+    !isAnyTaskUnlocked
+  ) {
     return (
       <div className="flex h-[80vh] w-full items-center justify-center p-4">
-        
-        {/* 2. THE CARD: The bordered box with your content */}
-        <div className="flex w-full max-w-5xl flex-col bg-white items-center justify-center rounded-xl border-2 border-watney  p-12 text-center shadow-sm animate-in fade-in zoom-in-95 duration-500">
-          
-          <div className="mb-8 rounded-full bg-watney/10 p-6">
-            <Info className="h-16 w-16 text-watney" />
-          </div>
-          
-          <div className="space-y-4">
-            <h3 className="text-3xl font-bold  md:text-4xl leading-tight">
-              You will be contacted from the office regarding the next steps for your application
-            </h3>
+        <div className="max-w-8xl flex w-full flex-col items-center justify-center gap-6 rounded-xl border-2 border-watney bg-white p-6 text-center shadow-sm duration-500 animate-in fade-in zoom-in-95 md:flex-row md:gap-10 md:p-12 md:text-left">
+          <div className="shrink-0 rounded-full bg-watney/10 p-6">
+            <Info className="h-12 w-12 text-watney md:h-16 md:w-16" />
           </div>
 
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold leading-tight md:text-4xl">
+              You will be contacted from the office regarding the next steps for
+              your application
+            </h3>
+          </div>
         </div>
       </div>
     );
@@ -827,7 +814,6 @@ export function ApplicantDashboard({ user }: ApplicantDashboardProps) {
   return (
     <div className="flex-1 space-y-4 p-4">
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
-        
         {/* Task List Section */}
         <div className="lg:col-span-5">
           <TaskStatusList userData={userData} userId={user._id} />
