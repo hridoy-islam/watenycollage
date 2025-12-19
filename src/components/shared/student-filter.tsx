@@ -31,7 +31,7 @@ export default function StudentFilter({ onSubmit }) {
         staffResponse
       ] = await Promise.all([
         axiosInstance.get('/institutions?limit=all&status=1'),
-        axiosInstance.get('/terms?limit=all&status=1'),
+        axiosInstance.get('/terms?limit=all'),
         axiosInstance.get('/academic-years?limit=all&status=1'),
         axiosInstance.get('/users?role=agent&status=1&limit=all'),
         axiosInstance.get('/users?role=staff&status=1&limit=all')

@@ -85,7 +85,7 @@ const AddCourseDialog = ({ onAddCourses, editCourse = null }) => {
         setIsLoading(true);
         
         // Fetch courses
-        const coursesResponse = await axiosInstance.get("/courses?limit=all");
+        const coursesResponse = await axiosInstance.get("/courses?limit=all&status=1");
         const courseOptions = coursesResponse?.data?.data?.result?.map((course) => ({
           value: course._id,
           label: `${course.name} (${course.courseCode})`,
@@ -93,7 +93,7 @@ const AddCourseDialog = ({ onAddCourses, editCourse = null }) => {
         setCourses(courseOptions);
 
         // Fetch terms
-        const termsResponse = await axiosInstance.get("/terms?limit=all");
+        const termsResponse = await axiosInstance.get("/terms?limit=all&status=1");
         const termOptions = termsResponse?.data?.data?.result?.map((term) => ({
           value: term._id,
           label: term.termName,

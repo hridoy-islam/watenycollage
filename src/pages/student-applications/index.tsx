@@ -145,7 +145,7 @@ export default function StudentApplicationsPage() {
 
   const fetchTerms = async () => {
     try {
-      const res = await axiosInstance.get('/terms?status=1&limit=all');
+      const res = await axiosInstance.get('/terms?&limit=all');
       const data = res.data.data.result || [];
       const termOptions = data.map((term: any) => ({
         value: term._id,
