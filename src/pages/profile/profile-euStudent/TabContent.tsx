@@ -13,6 +13,8 @@ import { useSelector } from 'react-redux';
 import DocumentData from './tabs/DocumentData';
 import FundingData from './tabs/FundingData';
 import CourseData from './tabs/CourseData';
+import EthnicityData from './tabs/ethnicityData';
+import RefereeData from './tabs/refereeData';
 
 const TabContent: React.FC<TabContentProps> = ({ activeTab, userData,refreshData,loading }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -65,6 +67,10 @@ const TabContent: React.FC<TabContentProps> = ({ activeTab, userData,refreshData
         return <EmploymentData {...commonProps} />;
       case 'complianceData':
         return <ComplianceData {...commonProps} />;
+          case 'ethnicityData':
+        return <EthnicityData {...commonProps} />;
+      case 'refereeData':
+        return <RefereeData {...commonProps} />;
       case 'fundingData':
         return <FundingData {...commonProps} />;
       case 'courseData':

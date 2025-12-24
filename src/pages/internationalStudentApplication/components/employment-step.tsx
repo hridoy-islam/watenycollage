@@ -20,7 +20,6 @@ import {
   CardTitle
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { CustomDatePicker } from '@/components/shared/CustomDatePicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import Select from 'react-select';
@@ -51,11 +50,10 @@ const employmentSchema = z
           jobTitle: z.string({ required_error: 'Job title is required.' }),
           startDate: z.date().nullable().optional(),
           endDate: z.date().nullable().optional(),
-         
+          employmentType: z.string().optional(),
         })
       )
       .optional(),
-  
   })
   .superRefine((data, ctx) => {
     // Validate current employment if employed
@@ -76,7 +74,6 @@ const employmentSchema = z
         'jobTitle',
         'startDate',
         'employmentType',
-      
       ];
 
       requiredFields.forEach((field) => {
@@ -107,7 +104,7 @@ const employmentSchema = z
           'jobTitle',
           'startDate',
           'endDate',
-       
+          'employmentType'
         ];
 
         requiredFields.forEach((field) => {
@@ -125,8 +122,6 @@ const employmentSchema = z
         });
       });
     }
-
-   
   });
 
 type EmploymentData = z.infer<typeof employmentSchema>;
@@ -134,7 +129,6 @@ type EmploymentData = z.infer<typeof employmentSchema>;
 export function EmploymentStep({
   defaultValues,
   onSaveAndContinue,
-  onSave,
   setCurrentStep
 }: any) {
   const form = useForm<EmploymentData>({
@@ -146,16 +140,12 @@ export function EmploymentStep({
     }
   });
 
-
-
-
   const { fields, append } = useFieldArray({
     control: form.control,
     name: 'previousEmployments'
   });
 
   const watchIsEmployed = form.watch('isEmployed');
-  
 
   const onSubmit = (data: EmploymentData) => {
     onSaveAndContinue(data);
@@ -178,7 +168,6 @@ export function EmploymentStep({
     setShowFullForm(true);
   };
 
-
   useEffect(() => {
     if (form.watch('hasPreviousEmployment') === 'yes' && fields.length === 0) {
       append({
@@ -186,7 +175,7 @@ export function EmploymentStep({
         jobTitle: '',
         startDate: undefined,
         endDate: undefined,
-      
+        employmentType: '' // Initialize with empty string
       });
     }
   }, [form.watch('hasPreviousEmployment')]);
@@ -205,44 +194,34 @@ export function EmploymentStep({
     { value: 'Freelance', label: 'Freelance' }
   ];
 
-  const contactPermissionOptions = [
-    { value: 'yes', label: 'Yes' },
-    { value: 'no', label: 'No' }
-  ];
-
   const previousEmploymentOptions = [
     { value: 'yes', label: 'Yes' },
     { value: 'no', label: 'No' }
   ];
 
-  const employmentGapOptions = [
-    { value: 'yes', label: 'Yes' },
-    { value: 'no', label: 'No' }
-  ];
-
   useEffect(() => {
-      if (defaultValues) {
-        form.reset({
-          ...defaultValues,
-          currentEmployment: {
-            ...defaultValues.currentEmployment,
-            startDate: defaultValues.currentEmployment?.startDate
-              ? new Date(defaultValues.currentEmployment.startDate)
+    if (defaultValues) {
+      form.reset({
+        ...defaultValues,
+        currentEmployment: {
+          ...defaultValues.currentEmployment,
+          startDate: defaultValues.currentEmployment?.startDate
+            ? new Date(defaultValues.currentEmployment.startDate)
+            : undefined
+        },
+        previousEmployments:
+          defaultValues.previousEmployments?.map((employment: any) => ({
+            ...employment,
+            startDate: employment.startDate
+              ? new Date(employment.startDate)
+              : undefined,
+            endDate: employment.endDate
+              ? new Date(employment.endDate)
               : undefined
-          },
-          previousEmployments:
-            defaultValues.previousEmployments?.map((employment) => ({
-              ...employment,
-              startDate: employment.startDate
-                ? new Date(employment.startDate)
-                : undefined,
-              endDate: employment.endDate
-                ? new Date(employment.endDate)
-                : undefined
-            })) || []
-        });
-      }
-    }, [defaultValues, form]);
+          })) || []
+      });
+    }
+  }, [defaultValues, form]);
 
   return (
     <Card className="border-none shadow-none ">
@@ -282,7 +261,7 @@ export function EmploymentStep({
                         }
                         onChange={(option) => {
                           field.onChange(option ? option.value : '');
-                          handleEmploymentStatusChange(option?.value);
+                          handleEmploymentStatusChange(option?.value || '');
                         }}
                         className="text-sm"
                       />
@@ -424,8 +403,6 @@ export function EmploymentStep({
                             </FormItem>
                           )}
                         />
-
-                       
                       </div>
                     </div>
                   )}
@@ -498,8 +475,7 @@ export function EmploymentStep({
                                     />
                                   </FormControl>
                                   <p className="text-xs  text-gray-400">
-                                    Enter the name of your current employer
-                                    (e.g., NHS Trust){' '}
+                                    Enter the name of your employer
                                   </p>
                                   <FormMessage />
                                 </FormItem>
@@ -517,11 +493,13 @@ export function EmploymentStep({
                                     <span className="text-red-500">*</span>
                                   </FormLabel>
                                   <FormControl>
-                                    <Input {...field} placeholder="Position" />
+                                    <Input
+                                      {...field}
+                                      placeholder="Position"
+                                    />
                                   </FormControl>
                                   <p className="text-xs  text-gray-400">
-                                    State your current job title (e.g., Support
-                                    Worker)
+                                    State your job title
                                   </p>
                                   <FormMessage />
                                 </FormItem>
@@ -554,7 +532,6 @@ export function EmploymentStep({
                                     </FormControl>
                                     <p className="text-xs  text-gray-400">
                                       Select the date you started this position
-                                      (e.g. 11/01/2000)
                                     </p>{' '}
                                     <FormMessage />
                                   </FormItem>
@@ -587,7 +564,7 @@ export function EmploymentStep({
                                       />
                                     </FormControl>
                                     <p className="mt-1 text-xs text-gray-400">
-                                      Select the end date (e.g. 11/01/2000)
+                                      Select the end date
                                     </p>
                                     <FormMessage />
                                   </FormItem>
@@ -595,8 +572,46 @@ export function EmploymentStep({
                               }}
                             />
 
-                           
+                            {/* ADDED: Employment Type for Previous Employment */}
+                            <FormField
+                              name={`previousEmployments.${index}.employmentType`}
+                              control={form.control}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>
+                                    Employment Type{' '}
+                                    <span className="text-red-500">*</span>
+                                  </FormLabel>
 
+                                  <FormControl>
+                                    <Select
+                                      options={employmentTypeOptions}
+                                      placeholder="Select Type of Employment"
+                                      isClearable
+                                      value={
+                                        employmentTypeOptions.find(
+                                          (option) =>
+                                            option.value === field.value
+                                        ) || null
+                                      }
+                                      onChange={(option) =>
+                                        field.onChange(
+                                          option ? option.value : ''
+                                        )
+                                      }
+                                      className="text-sm"
+                                    />
+                                  </FormControl>
+
+                                  <p className="mt-1 text-xs text-gray-400">
+                                    Select from options: Full-Time, Part-Time,
+                                    Contract, Freelance
+                                  </p>
+
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
                           </div>
                         </div>
                       ))}
@@ -610,17 +625,15 @@ export function EmploymentStep({
                             jobTitle: '',
                             startDate: undefined,
                             endDate: undefined,
-                           
+                            employmentType: '' // Ensure new entries get this field
                           })
                         }
                         className="bg-watney text-white hover:bg-watney/90"
                       >
-                        Add More Experiance
+                        Add More Experience
                       </Button>
                     </div>
                   )}
-
-                 
 
                   {/* Navigation Buttons */}
                   <div className="flex justify-between pt-4">

@@ -29,6 +29,8 @@ import {
 import { updateUserProfile } from '@/redux/features/profileSlice';
 import { updateAuthIsCompleted } from '@/redux/features/authSlice';
 import { FundingInformation } from './components/fundingInformation';
+import { EthnicityStep } from './components/EthnicityStep';
+import { RefereeDetailsStep } from './components/referee-details-step';
 
 export default function HomeStudentApplication() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -260,12 +262,34 @@ export default function HomeStudentApplication() {
     }
   };
 
-  const handleDocumentsSaveAndContinue = async (data: any) => {
+
+  const handleEthnicitySaveAndContinue = async (data: any) => {
     try {
       setFormData((prev) => ({ ...prev, ...data }));
       await axiosInstance.patch(`/users/${user._id}`, data);
       markStepAsCompleted(7);
       setCurrentStep(8);
+    } catch (error) {
+      console.error('Failed to update compliance details:', error);
+    }
+  };
+  const handleRefereeSaveAndContinue = async (data: any) => {
+    try {
+      setFormData((prev) => ({ ...prev, ...data }));
+      await axiosInstance.patch(`/users/${user._id}`, data);
+      markStepAsCompleted(8);
+      setCurrentStep(9);
+    } catch (error) {
+      console.error('Failed to update compliance details:', error);
+    }
+  };
+
+  const handleDocumentsSaveAndContinue = async (data: any) => {
+    try {
+      setFormData((prev) => ({ ...prev, ...data }));
+      await axiosInstance.patch(`/users/${user._id}`, data);
+      markStepAsCompleted(9);
+      setCurrentStep(10);
     } catch (error) {
       console.error('Failed to update documents:', error);
     }
@@ -274,8 +298,8 @@ export default function HomeStudentApplication() {
     try {
       setFormData((prev) => ({ ...prev, ...data }));
       await axiosInstance.patch(`/users/${user._id}`, data);
-      markStepAsCompleted(8);
-      setCurrentStep(9);
+      markStepAsCompleted(10);
+      setCurrentStep(11);
     } catch (error) {
       console.error('Failed to update documents:', error);
     }
@@ -297,7 +321,7 @@ export default function HomeStudentApplication() {
     try {
       setFormData((prev) => ({ ...prev, ...data }));
       await axiosInstance.patch(`/users/${user._id}`, data);
-      markStepAsCompleted(9);
+      markStepAsCompleted(11);
       handleSubmit();
       // toast({
       //   description: 'Terms acceptance saved successfully.'
@@ -360,8 +384,7 @@ export default function HomeStudentApplication() {
 
         localStorage.removeItem('termId');
         localStorage.removeItem('courseId');
-                setCourseSubmitted(true);
-
+        setCourseSubmitted(true);
       } catch (err: any) {
         console.error('Error submitting application course:', err);
         toast({
@@ -504,6 +527,24 @@ export default function HomeStudentApplication() {
 
       case 7:
         return (
+          <EthnicityStep
+            defaultValues={{ ...fetchData, ...formData }}
+            onSaveAndContinue={handleEthnicitySaveAndContinue}
+            setCurrentStep={setCurrentStep}
+          />
+        );
+
+      case 8:
+        return (
+          <RefereeDetailsStep
+            defaultValues={{ ...fetchData, ...formData }}
+            onSaveAndContinue={handleRefereeSaveAndContinue}
+            setCurrentStep={setCurrentStep}
+          />
+        );
+
+      case 9:
+        return (
           <DocumentsStep
             defaultValues={{ ...fetchData, ...formData }}
             onSaveAndContinue={handleDocumentsSaveAndContinue}
@@ -511,7 +552,7 @@ export default function HomeStudentApplication() {
             onSave={handleDocumentSave}
           />
         );
-      case 8:
+      case 10:
         return (
           <FundingInformation
             defaultValues={{ ...fetchData, ...formData }}
@@ -520,7 +561,7 @@ export default function HomeStudentApplication() {
           />
         );
 
-      case 9:
+      case 11:
         return (
           <TermsSubmitStep
             defaultValues={{ ...fetchData, ...formData }}
@@ -570,24 +611,23 @@ export default function HomeStudentApplication() {
     }
   };
 
-    if (formSubmitted) {
+  if (formSubmitted) {
     const isCourseSubmission = courseSubmitted;
 
     return (
       <div className="flex items-center justify-center px-4">
-        <Card className="rounded-lg border bg-watney/90 p-14 md:p-24 shadow-lg">
+        <Card className="rounded-lg border bg-watney/90 p-14 shadow-lg md:p-24">
           <div className="flex flex-col items-center gap-6 text-center">
             <div className="rounded-full bg-white p-8">
               <Check size={84} className="text-watney" />
             </div>
             <div>
-              <CardTitle className="text-lg md:text-2xl font-semibold text-white">
+              <CardTitle className="text-lg font-semibold text-white md:text-2xl">
                 {isCourseSubmission
                   ? 'Application Submitted Successfully'
                   : 'Great job! You’ve completed your profile.'}
               </CardTitle>
               <CardDescription className="mt-2 text-base leading-relaxed text-white">
-               
                 {isCourseSubmission ? (
                   <div className="mt-2 w-full rounded-md text-center text-base text-white">
                     <p>
@@ -640,7 +680,6 @@ export default function HomeStudentApplication() {
       </div>
     );
   }
-
 
   return (
     <div className=" w-full ">

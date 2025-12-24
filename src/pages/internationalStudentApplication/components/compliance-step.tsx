@@ -15,12 +15,14 @@ import { Input } from '@/components/ui/input';
 
 import { Textarea } from '@/components/ui/textarea';
 import ReactSelect from 'react-select';
+import { CustomDatePicker } from '@/components/shared/CustomDatePicker';
 
 const complianceSchema = z
   .object({
     disability: z.string().min(1, { message: 'Please select an option' }),
     disabilityDetails: z.string().optional(),
     hearAboutUs: z.string().optional(),
+    firstEnterDate: z.string().optional(),
 
     visaRefusalDetail: z.string().optional(),
     visaRequired: z.string().min(1, { message: 'Please select an option' }),
@@ -58,15 +60,15 @@ export function ComplianceStep({
   const form = useForm<ComplianceData>({
     resolver: zodResolver(complianceSchema),
     defaultValues: {
-    
       disability: defaultValues?.disability || '',
       disabilityDetails: defaultValues?.disabilityDetails || '',
-      hearAboutUs:defaultValues?.hearAboutUs || "",
+      hearAboutUs: defaultValues?.hearAboutUs || '',
       visaRequired: defaultValues?.visaRequired || '',
       enteredUKBefore: defaultValues?.enteredUKBefore || '',
       completedUKCourse: defaultValues?.completedUKCourse || '',
       visaRefusal: defaultValues?.visaRefusal || '',
-      visaRefusalDetail: defaultValues?.visaRefusalDetail || ''
+      visaRefusalDetail: defaultValues?.visaRefusalDetail || '',
+      firstEnterDate: defaultValues?.firstEnterDate || ''
     }
   });
 
@@ -120,7 +122,6 @@ export function ComplianceStep({
     { label: 'Other', value: 'other' }
   ];
 
-
   const statusOptions = [
     { value: 'uk-citizen', label: 'UK Citizen' },
     { value: 'eu-settled', label: 'EU Settled Status' },
@@ -150,7 +151,9 @@ export function ComplianceStep({
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <div>
           <CardContent>
-            <h2 className="mb-6 text-2xl font-semibold">Additional Information</h2>
+            <h2 className="mb-6 text-2xl font-semibold">
+              Additional Information
+            </h2>
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <FormField
@@ -194,8 +197,8 @@ export function ComplianceStep({
                 render={({ field }) => (
                   <FormItem className="mt-2 flex w-full flex-col">
                     <FormLabel>
-                      Have you entered into the UK before?{' '}
-                      <span className="text-red-500">*</span>
+                      Have you ever studied or made a visa application to study
+                      in the UK? <span className="text-red-500">*</span>
                     </FormLabel>
                     <FormControl>
                       <ReactSelect
@@ -223,7 +226,36 @@ export function ComplianceStep({
                   </FormItem>
                 )}
               />
+<FormField
+                control={form.control}
+                name="firstEnterDate"
+                render={({ field }) => {
+                  const selectedDate = field.value
+                    ? new Date(field.value)
+                    : null;
 
+                  return (
+                    <FormItem className="mt-2 flex w-full flex-col">
+                      <FormLabel>
+                        Date of first entry in UK (MM/DD/YYYY)
+                      </FormLabel>
+                      <FormControl>
+                        <CustomDatePicker
+                          selected={selectedDate}
+                          onChange={(date) => field.onChange(date)}
+                          placeholder=""
+                          futureDate={false}
+                        />
+                      </FormControl>
+                      <p className="text-xs  text-gray-400">
+                        Example: 01/06/2025
+                      </p>
+
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
+              />
               <FormField
                 control={form.control}
                 name="completedUKCourse"
@@ -299,8 +331,8 @@ export function ComplianceStep({
                 render={({ field }) => (
                   <FormItem className="flex w-full flex-col">
                     <FormLabel>
-                      Do you have any visa refusal?{' '}
-                      <span className="text-red-500">*</span>
+                      Have you previously received a visa refusal to study in
+                      the UK? <span className="text-red-500">*</span>
                     </FormLabel>
                     <FormControl>
                       <ReactSelect
@@ -357,14 +389,33 @@ export function ComplianceStep({
                   )}
                 />
               )}
-
+              <div className="col-span-1 mt-4 space-y-4 rounded-md bg-gray-50 p-4 text-sm text-gray-700 md:col-span-2">
+                <h3 className="font-semibold text-gray-900">
+                  Equality Act 2010 Declaration
+                </h3>
+                <p>
+                  The Equality Act 2010 protects employees, job applicants,
+                  contract workers and students who fall within the new
+                  definition of disability. The Act defines disability as a
+                  physical or mental impairment, which has a substantial and
+                  long-term adverse effect on a person’s ability to carry out
+                  normal day to day activities. Long term is taken to mean
+                  lasting for a period greater than twelve months or where the
+                  total period is likely to last at least twelve months. This
+                  definition includes people with heart disease, diabetes,
+                  epilepsy, severe disfigurement, depression, schizophrenia,
+                  Down’s syndrome, dyslexia, for example.
+                </p>
+                
+              </div>
               <FormField
                 control={form.control}
                 name="disability"
                 render={({ field }) => (
                   <FormItem className="flex w-full flex-col">
                     <FormLabel>
-                     Do you have any known disability?{' '}
+                      Do you consider yourself to be disabled within the
+                      definition of the Equality Act 2010?{' '}
                       <span className="text-red-500">*</span>
                     </FormLabel>
                     <FormControl>
@@ -422,6 +473,21 @@ export function ComplianceStep({
                   )}
                 />
               )}
+
+                <div className="col-span-1 mt-4 space-y-4 rounded-md bg-gray-50 p-4 text-sm text-gray-700 md:col-span-2">
+               
+               
+                <p>
+                  You are not obliged to declare a disability and the EQAC
+                  recognises that many people who may be considered disabled
+                  under the terms of the (Disability and Discrimination Act
+                  (DDA) do not require any assistance or support. However for
+                  those who may, equipment, computer software, flexible working,
+                  other support or reasonable adjustment may be available, so an
+                  individual’s impairment would have little or no bearing on
+                  their capability to realise their employment potential.
+                </p>
+              </div>
             </div>
           </CardContent>
         </div>

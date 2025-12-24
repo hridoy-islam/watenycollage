@@ -85,7 +85,7 @@ export function DocumentsStep({
   };
 
   const handleBack = () => {
-    setCurrentStep(6);
+    setCurrentStep(8);
   };
 
   const handleSubmit = () => {

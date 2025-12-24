@@ -130,11 +130,11 @@ export default function CoursesPage() {
     setDialogOpen(true);
   };
   const handleUnit = (course) => {
-    navigate(`${course._id}/unit`)
+    navigate(`${course._id}/unit`);
   };
 
-   const handleDocument = (course) => {
-    navigate(`course-document/${course._id}`)
+  const handleDocument = (course) => {
+    navigate(`course-document/${course._id}`);
   };
 
   useEffect(() => {
@@ -292,69 +292,74 @@ export default function CoursesPage() {
                   </TableCell>
 
                   <TableCell className="text-center">
-                    <Switch
-                      checked={course.status == 1}
-                      onCheckedChange={(checked) =>
-                        handleStatusChange(course._id, checked)
-                      }
-                      className="mx-auto"
-                    />
+                    <div className="flex flex-row items-center justify-center gap-1">
+                      <Switch
+                        checked={course.status === 1}
+                        onCheckedChange={(checked) =>
+                          handleStatusChange(course._id, checked)
+                        }
+                        className="mx-auto"
+                      />
+                      <span className="text-sm font-medium">
+                        {course.status === 1 ? 'Active' : 'Inactive'}
+                      </span>
+                    </div>
                   </TableCell>
+
                   <TableCell className="space-x-3 text-center">
-                    <div className='flex flex-row items-center gap-2'>
+                    <div className="flex flex-row items-center gap-2">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              className="flex border-none bg-watney text-white hover:bg-watney/90 "
+                              size="sm"
+                              onClick={() => handleDocument(course)}
+                            >
+                              <File className="mr-2 h-4 w-4" />
+                              Document
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Course Document</p>
+                          </TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              className="flex border-none bg-watney text-white hover:bg-watney/90 "
+                              size="sm"
+                              onClick={() => handleUnit(course)}
+                            >
+                              <FileText className="mr-2 h-4 w-4" />
+                              Units
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Units</p>
+                          </TooltipContent>
+                        </Tooltip>
 
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            className="border-none bg-watney text-white hover:bg-watney/90 flex "
-                            size="sm"
-                            onClick={() => handleDocument(course)}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              className="space-x-2 border-none bg-watney text-white hover:bg-watney/90"
+                              size="sm"
+                              onClick={() => handleEdit(course)}
                             >
-                            <File className="h-4 w-4 mr-2" />
-                            Document
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Course Document</p>
-                        </TooltipContent>
-                      </Tooltip>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            className="border-none bg-watney text-white hover:bg-watney/90 flex "
-                            size="sm"
-                            onClick={() => handleUnit(course)}
-                            >
-                            <FileText className="h-4 w-4 mr-2" />
-                            Units
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Units</p>
-                        </TooltipContent>
-                      </Tooltip>
-
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            className="border-none bg-watney text-white hover:bg-watney/90 space-x-2"
-                            size="sm"
-                            onClick={() => handleEdit(course)}
-                            >
-                            <Pen className="h-4 w-4 mr-2" />
-                            Edit
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Edit</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                            </div>
+                              <Pen className="mr-2 h-4 w-4" />
+                              Edit
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Edit</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}

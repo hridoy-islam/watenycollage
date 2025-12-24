@@ -39,8 +39,8 @@ const personalDetailsSchema = z
       .string()
       .min(1, { message: 'Please select Country of Residence' }),
     nationality: z.string().optional(),
-    ethnicity: z.string().min(1, { message: 'Please select an ethnicity' }),
-    customEthnicity: z.string().optional(),
+    // ethnicity: z.string().min(1, { message: 'Please select an ethnicity' }),
+    // customEthnicity: z.string().optional(),
     countryOfBirth: z
       .string()
       .min(1, { message: 'Please select country of birth' }),
@@ -50,16 +50,16 @@ const personalDetailsSchema = z
     applicationLocation: z.string().optional()
   })
   .superRefine((data, ctx) => {
-    if (
-      data.ethnicity === 'Other' &&
-      (!data.customEthnicity || data.customEthnicity.trim() === '')
-    ) {
-      ctx.addIssue({
-        path: ['customEthnicity'],
-        code: z.ZodIssueCode.custom,
-        message: 'Please specify your ethnicity'
-      });
-    }
+    // if (
+    //   data.ethnicity === 'Other' &&
+    //   (!data.customEthnicity || data.customEthnicity.trim() === '')
+    // ) {
+    //   ctx.addIssue({
+    //     path: ['customEthnicity'],
+    //     code: z.ZodIssueCode.custom,
+    //     message: 'Please specify your ethnicity'
+    //   });
+    // }
 
     // If studentType is not 'eu', then require these fields
     if (data.studentType !== 'eu') {
@@ -147,7 +147,7 @@ export function PersonalDetailsStep({
     value: country,
     label: country
   }));
-  const nationalityOptions = countries.map((nationality) => ({
+  const nationalityOptions = nationalities.map((nationality) => ({
     value: nationality,
     label: nationality
   }));
@@ -451,21 +451,20 @@ export function PersonalDetailsStep({
                   )}
                 />
 
-                {/* Ethnicity */}
-                <FormField
+                 <FormField
                   control={form.control}
-                  name="ethnicity"
+                  name="nationality"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        Ethnicity <span className="text-red-500">*</span>
+                        Nationality <span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>
                         <Select
-                          options={ethnicityOptions}
+                          options={nationalityOptions}
                           value={
                             field.value
-                              ? ethnicityOptions.find(
+                              ? nationalityOptions.find(
                                   (option) => option.value === field.value
                                 )
                               : null
@@ -473,38 +472,25 @@ export function PersonalDetailsStep({
                           onChange={(selected) =>
                             field.onChange(selected?.value)
                           }
-                          placeholder="Select Ethnicity"
+                          placeholder="Please select your nationality."
                           isClearable
+                          styles={{
+                            placeholder: (provided) => ({
+                              ...provided,
+                              fontSize: '0.75rem',
+                              color: '#9CA3AF'
+                            })
+                          }}
                         />
                       </FormControl>
+                      <p className="mt-1 text-xs text-gray-400">
+                        Example: Indonesian
+                      </p>
+
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
-                {/* Custom Ethnicity */}
-                {ethnicity === 'other' && (
-                  <FormField
-                    control={form.control}
-                    name="customEthnicity"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          Specify Ethnicity{' '}
-                          <span className="text-red-500">*</span>
-                        </FormLabel>
-                        <FormControl>
-                          <Textarea
-                            {...field}
-                            className="!placeholder:text-gray-500 border-gray-200 p-1  text-sm placeholder:text-xs placeholder:text-gray-500"
-                            placeholder="This is collected for equal opportunity monitoring. It will not affect your application."
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                )}
 
                 {/* Country of Birth */}
                 <FormField

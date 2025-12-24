@@ -267,13 +267,33 @@ export function ComplianceStep({
                 )}
               />
 
+               <div className="col-span-1 mt-4 space-y-4 rounded-md bg-gray-50 p-4 text-sm text-gray-700 md:col-span-2">
+                <h3 className="font-semibold text-gray-900">
+                  Equality Act 2010 Declaration
+                </h3>
+                <p>
+                  The Equality Act 2010 protects employees, job applicants,
+                  contract workers and students who fall within the new
+                  definition of disability. The Act defines disability as a
+                  physical or mental impairment, which has a substantial and
+                  long-term adverse effect on a person’s ability to carry out
+                  normal day to day activities. Long term is taken to mean
+                  lasting for a period greater than twelve months or where the
+                  total period is likely to last at least twelve months. This
+                  definition includes people with heart disease, diabetes,
+                  epilepsy, severe disfigurement, depression, schizophrenia,
+                  Down’s syndrome, dyslexia, for example.
+                </p>
+                
+              </div>
               <FormField
                 control={form.control}
                 name="disability"
                 render={({ field }) => (
                   <FormItem className="flex w-full flex-col">
                     <FormLabel>
-                      Do you have any known disability?{' '}
+                      Do you consider yourself to be disabled within the
+                      definition of the Equality Act 2010?{' '}
                       <span className="text-red-500">*</span>
                     </FormLabel>
                     <FormControl>
@@ -331,6 +351,21 @@ export function ComplianceStep({
                   )}
                 />
               )}
+
+                <div className="col-span-1 mt-4 space-y-4 rounded-md bg-gray-50 p-4 text-sm text-gray-700 md:col-span-2">
+               
+               
+                <p>
+                  You are not obliged to declare a disability and the EQAC
+                  recognises that many people who may be considered disabled
+                  under the terms of the (Disability and Discrimination Act
+                  (DDA) do not require any assistance or support. However for
+                  those who may, equipment, computer software, flexible working,
+                  other support or reasonable adjustment may be available, so an
+                  individual’s impairment would have little or no bearing on
+                  their capability to realise their employment potential.
+                </p>
+              </div>
             </div>
           </CardContent>
         </div>

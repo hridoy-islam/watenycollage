@@ -14,6 +14,8 @@ import DocumentData from './tabs/DocumentData';
 import FundingData from './tabs/FundingData';
 import CourseData from './tabs/CourseData';
 import { useNavigate, useParams } from 'react-router-dom';
+import EthnicityData from './tabs/ethnicityData';
+import RefereeData from './tabs/refereeData';
 
 const TabContent: React.FC<TabContentProps> = ({ activeTab, userData,refreshData,loading }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -65,6 +67,10 @@ const navigate = useNavigate();
           return <ComplianceData {...commonProps} />;
       case 'emergencyContactData':
         return <EmergencyContactData {...commonProps} />;
+         case 'ethnicityData':
+        return <EthnicityData {...commonProps} />;
+      case 'refereeData':
+        return <RefereeData {...commonProps} />;
         case 'documentData':
           return <DocumentData {...commonProps} />;
       case 'employmentData':

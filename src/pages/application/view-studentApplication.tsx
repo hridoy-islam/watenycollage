@@ -18,14 +18,7 @@ import {
   DialogTrigger,
   DialogClose
 } from '@/components/ui/dialog';
-import {
-  AlertCircle,
-  Check,
-
-  MoveLeft,
-  Copy,
-
-} from 'lucide-react';
+import { AlertCircle, Check, MoveLeft, Copy } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -466,6 +459,165 @@ export default function ViewStudentApplicationPage() {
     );
   }
 
+  const ethnicityOptions = [
+    { group: 'White or White British', value: 'english', label: 'English' },
+    { group: 'White or White British', value: 'scottish', label: 'Scottish' },
+    { group: 'White or White British', value: 'welsh', label: 'Welsh' },
+    { group: 'White or White British', value: 'irish', label: 'Irish' },
+    {
+      group: 'White or White British',
+      value: 'gypsy_traveller',
+      label: 'Gypsy or Traveller'
+    },
+    {
+      group: 'White or White British',
+      value: 'other_white',
+      label: 'Other White Background'
+    },
+    {
+      group: 'Mixed',
+      value: 'white_black_caribbean',
+      label: 'White & Black Caribbean'
+    },
+    {
+      group: 'Mixed',
+      value: 'white_black_african',
+      label: 'White & Black African'
+    },
+    { group: 'Mixed', value: 'white_asian', label: 'White & Asian' },
+    { group: 'Mixed', value: 'other_mixed', label: 'Other mixed background' },
+    { group: 'Asian or Asian British', value: 'indian', label: 'Indian' },
+    { group: 'Asian or Asian British', value: 'pakistani', label: 'Pakistani' },
+    {
+      group: 'Asian or Asian British',
+      value: 'bangladeshi',
+      label: 'Bangladeshi'
+    },
+    {
+      group: 'Asian or Asian British',
+      value: 'sri_lankan',
+      label: 'Sri Lankan'
+    },
+    { group: 'Asian or Asian British', value: 'nepali', label: 'Nepali' },
+    {
+      group: 'Asian or Asian British',
+      value: 'other_asian',
+      label: 'Other Asian Background'
+    },
+    { group: 'Black or Black British', value: 'caribbean', label: 'Caribbean' },
+    { group: 'Black or Black British', value: 'african', label: 'African' },
+    {
+      group: 'Black or Black British',
+      value: 'other_black',
+      label: 'Other Black Background'
+    },
+    { group: 'Chinese or Chinese British', value: 'chinese', label: 'Chinese' },
+    { group: 'Other Ethnic Background', value: 'arab', label: 'Arab' },
+    {
+      group: 'Other Ethnic Background',
+      value: 'other_ethnic',
+      label: 'Other Ethnic Background'
+    },
+    {
+      group: 'Prefer Not to Say',
+      value: 'prefer_not_to_say',
+      label: 'Prefer Not to Say'
+    }
+  ];
+
+  const religionOptions = [
+    { value: 'no_religion', label: 'No Religion' },
+    { value: 'buddhist', label: 'Buddhist' },
+    { value: 'christian', label: 'Christian' },
+    {
+      value: 'christian_church_of_scotland',
+      label: 'Christian – Church of Scotland'
+    },
+    { value: 'christian_roman_catholic', label: 'Christian – Roman Catholic' },
+    {
+      value: 'christian_presbyterian',
+      label: 'Christian – Presbyterian Church in Ireland'
+    },
+    {
+      value: 'christian_church_of_ireland',
+      label: 'Christian – Church of Ireland'
+    },
+    {
+      value: 'christian_methodist',
+      label: 'Christian – Methodist Church in Ireland'
+    },
+    { value: 'christian_other', label: 'Christian – Other Denomination' },
+    { value: 'hindu', label: 'Hindu' },
+    { value: 'jewish', label: 'Jewish' },
+    { value: 'muslim', label: 'Muslim' },
+    { value: 'sikh', label: 'Sikh' },
+    { value: 'spiritual', label: 'Spiritual' },
+    { value: 'other_religion', label: 'Any other Religion or Belief' },
+    {
+      value: 'prefer_not_to_say',
+      label: 'Prefer Not to Say / Information Refused'
+    }
+  ];
+
+  const sexualOrientationOptions = [
+    { value: 'bisexual', label: 'Bisexual' },
+    { value: 'gay_man', label: 'Gay Man' },
+    { value: 'gay_woman_lesbian', label: 'Gay Woman/Lesbian' },
+    { value: 'heterosexual', label: 'Heterosexual' },
+    { value: 'other', label: 'Other' },
+    {
+      value: 'prefer_not_to_say',
+      label: 'Prefer Not to Say / Information Refused'
+    }
+  ];
+
+  const genderIdentityOptions = [
+    { value: 'yes', label: 'Yes' },
+    { value: 'no', label: 'No' },
+    {
+      value: 'prefer_not_to_say',
+      label: 'Prefer Not to Say / Information Refused'
+    }
+  ];
+
+  // --- Helper function to find Label by Value ---
+  const getLabel = (value: string | undefined, options: any[]) => {
+    if (!value) return '-';
+    const found = options.find((opt) => opt.value === value);
+    return found ? found.label : value;
+  };
+
+  // --- Helper to format Ethnicity specifically ---
+  const formatEthnicity = (app: any) => {
+    // 1. Get the main label (e.g., "White & Black Caribbean")
+    const baseLabel = getLabel(app.ethnicityValue, ethnicityOptions);
+
+    // 2. If it's "Prefer Not to Say", just return that
+    if (app.ethnicityValue === 'prefer_not_to_say') return baseLabel;
+
+    // 3. Construct the display string
+    // Format: "Group: Specific" or just "Specific"
+    let display = baseLabel;
+    if (app.ethnicityGroup && baseLabel !== '-') {
+      display = `${app.ethnicityGroup}: ${baseLabel}`;
+    }
+
+    // 4. Append user typed "Other" details if applicable
+    const isOther = [
+      'other_white',
+      'other_mixed',
+      'other_asian',
+      'other_black',
+      'other_ethnic'
+    ].includes(app.ethnicityValue);
+
+    if (isOther && app.ethnicityOther) {
+      display += ` (${app.ethnicityOther})`;
+    }
+
+    return display;
+  };
+
   return (
     <div className="w-full">
       <div className="flex items-center justify-between px-4">
@@ -517,12 +669,14 @@ export default function ViewStudentApplicationPage() {
           value={activeTab}
           onValueChange={setActiveTab}
         >
-          <TabsList className="mb-6 grid grid-cols-2 gap-x-2 gap-y-3 rounded-md bg-white p-2 text-xs shadow-lg sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-10">
+          <TabsList className="mb-6 grid grid-cols-2 gap-x-2 gap-y-3 rounded-md bg-white p-2 text-xs shadow-lg sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-12">
             {[
               { value: 'personal', label: 'Personal' },
               { value: 'address', label: 'Address' },
               { value: 'other-information', label: 'Additional' },
-              { value: 'emergency', label: 'Emergency Contact' },
+              { value: 'emergency', label: 'Emergency' },
+              { value: 'ethnicity', label: 'Equality' },
+              { value: 'referee', label: 'Referee' },
               { value: 'documents', label: 'Documents' },
               { value: 'employment', label: 'Employment' },
               { value: 'education', label: 'Education' },
@@ -604,7 +758,7 @@ export default function ViewStudentApplicationPage() {
                         application?.nationality,
                         'nationality'
                       )}
-                    {renderFieldRow(
+                    {/* {renderFieldRow(
                       'Ethnicity',
                       application?.ethnicity,
                       'ethnicity'
@@ -615,7 +769,7 @@ export default function ViewStudentApplicationPage() {
                         'Specify Ethnicity',
                         application?.customEthnicity,
                         'customEthnicity'
-                      )}
+                      )} */}
 
                     {renderFieldRow(
                       'Country of Birth',
@@ -776,9 +930,14 @@ export default function ViewStudentApplicationPage() {
                             'visaRequired'
                           )}
                           {renderFieldRow(
-                            'Have you entered into the UK before?',
+                            ' Have you ever studied or made a visa application to study in the UK?',
                             application?.enteredUKBefore,
                             'enteredUKBefore'
+                          )}
+                          {renderFieldRow(
+                            'Date of first entry in UK',
+                            application?.firstEnterDate,
+                            'firstEnterDate'
                           )}
                           {renderFieldRow(
                             'Have you completed any course from the UK before?',
@@ -887,7 +1046,7 @@ export default function ViewStudentApplicationPage() {
               <Card>
                 <CardContent className="pt-6">
                   <h3 className="mb-4 text-lg font-semibold">
-                    Other Information
+                    Emergency Contact Information
                   </h3>
                   <Table>
                     <TableHeader>
@@ -929,6 +1088,157 @@ export default function ViewStudentApplicationPage() {
               </Card>
             </div>
           </TabsContent>
+          <TabsContent value="ethnicity">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <Card>
+                <CardContent className="pt-6">
+                  <h3 className="mb-4 text-lg font-semibold">
+                    Diversity and Equality
+                  </h3>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-1/3 text-left">Field</TableHead>
+                        <TableHead className="text-right">Value</TableHead>
+                        <TableHead className="w-10 text-right"></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {/* Ethnicity */}
+                      {renderFieldRow(
+                        'Ethnicity',
+                        formatEthnicity(application),
+                        'ethnicityValue' // Link to the main value field for editing
+                      )}
+
+                      {/* Religion */}
+                      {renderFieldRow(
+                        'Religion',
+                        getLabel(application.religion, religionOptions),
+                        'religion'
+                      )}
+
+                      {/* Sexual Orientation */}
+                      {renderFieldRow(
+                        'Sexual Orientation',
+                        getLabel(
+                          application.sexualOrientation,
+                          sexualOrientationOptions
+                        ),
+                        'sexualOrientation'
+                      )}
+
+                      {/* Gender Identity */}
+                      {renderFieldRow(
+                        'Gender Identity same as birth?',
+                        getLabel(
+                          application.genderIdentitySameAtBirth,
+                          genderIdentityOptions
+                        ),
+                        'genderIdentitySameAtBirth'
+                      )}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="referee">
+  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+    
+    {/* --- Referee 1: Professional Reference --- */}
+    <Card>
+      <CardContent className="pt-6">
+        <h3 className="mb-4 text-lg font-semibold">
+          Professional Reference
+        </h3>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-1/3 text-left">Field</TableHead>
+              <TableHead className="text-right">Value</TableHead>
+              <TableHead className="w-10 text-right"></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {renderFieldRow(
+              'Full Name',
+              application.referee1?.name,
+              'referee1.name'
+            )}
+            {renderFieldRow(
+              'Email',
+              application.referee1?.email,
+              'referee1.email'
+            )}
+            {renderFieldRow(
+              'Phone',
+              application.referee1?.phone,
+              'referee1.phone'
+            )}
+            {renderFieldRow(
+              'Address',
+              application.referee1?.address,
+              'referee1.address'
+            )}
+            {renderFieldRow(
+              'Post Code',
+              application.referee1?.postCode,
+              'referee1.postCode'
+            )}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+
+    {/* --- Referee 2: Academic/Personal Reference --- */}
+    <Card>
+      <CardContent className="pt-6">
+        <h3 className="mb-4 text-lg font-semibold">
+          Academic / Personal Reference
+        </h3>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-1/3 text-left">Field</TableHead>
+              <TableHead className="text-right">Value</TableHead>
+              <TableHead className="w-10 text-right"></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {renderFieldRow(
+              'Full Name',
+              application.referee2?.name,
+              'referee2.name'
+            )}
+            {renderFieldRow(
+              'Email',
+              application.referee2?.email,
+              'referee2.email'
+            )}
+            {renderFieldRow(
+              'Phone',
+              application.referee2?.phone,
+              'referee2.phone'
+            )}
+            {renderFieldRow(
+              'Address',
+              application.referee2?.address,
+              'referee2.address'
+            )}
+            {renderFieldRow(
+              'Post Code',
+              application.referee2?.postCode,
+              'referee2.postCode'
+            )}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+
+  </div>
+</TabsContent>
 
           <TabsContent value="documents">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -1188,7 +1498,7 @@ export default function ViewStudentApplicationPage() {
                 </h3>
 
                 {!application.educationData ||
-                  application.educationData.length === 0 ? (
+                application.educationData.length === 0 ? (
                   <p className="italic text-muted-foreground">
                     No education history provided
                   </p>
@@ -1325,13 +1635,10 @@ export default function ViewStudentApplicationPage() {
 
                               <div className="py-6">
                                 <div className="mb-4 flex flex-row items-center gap-4">
-                                  <Label
-                                    htmlFor="course"
-                                    className="text-left"
-                                  >
+                                  <Label htmlFor="course" className="text-left">
                                     Course
                                   </Label>
-                                  <div className='w-full'>
+                                  <div className="w-full">
                                     <Select
                                       id="course"
                                       value={selectedCourse}
@@ -1350,13 +1657,10 @@ export default function ViewStudentApplicationPage() {
                                 </div>
 
                                 <div className=" flex flex-row  items-center gap-4">
-                                  <Label
-                                    htmlFor="intake"
-                                    className="text-left"
-                                  >
+                                  <Label htmlFor="intake" className="text-left">
                                     Intake
                                   </Label>
-                                  <div className='w-full' >
+                                  <div className="w-full">
                                     <Select
                                       id="intake"
                                       value={selectedIntake}
@@ -1387,21 +1691,31 @@ export default function ViewStudentApplicationPage() {
                                     !selectedIntake ||
                                     isFetchingData
                                   }
-
-                                  className='bg-watney text-white hover:bg-watney/90'
+                                  className="bg-watney text-white hover:bg-watney/90"
                                 >
                                   {isUpdatingCourse ? (
                                     <span className="flex items-center gap-2">
                                       <svg
-                                        className="w-5 h-5 animate-spin text-white"
+                                        className="h-5 w-5 animate-spin text-white"
                                         xmlns="http://www.w3.org/2000/svg"
                                         fill="none"
                                         viewBox="0 0 24 24"
                                         aria-hidden="true"
                                         role="img"
                                       >
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                                        <circle
+                                          className="opacity-25"
+                                          cx="12"
+                                          cy="12"
+                                          r="10"
+                                          stroke="currentColor"
+                                          strokeWidth="4"
+                                        ></circle>
+                                        <path
+                                          className="opacity-75"
+                                          fill="currentColor"
+                                          d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                                        ></path>
                                       </svg>
 
                                       <span>Saving...</span>
@@ -1409,7 +1723,6 @@ export default function ViewStudentApplicationPage() {
                                   ) : (
                                     'Save Changes'
                                   )}
-
                                 </Button>
                               </DialogFooter>
                             </DialogContent>
@@ -1448,32 +1761,36 @@ export default function ViewStudentApplicationPage() {
                               : 'Approve'}
                           </Button>
 
-
-
                           <Button
                             className="mb-4 bg-red-600 text-white hover:bg-red-700"
                             variant="default"
                             size="sm"
-                            disabled={courseEntry.status === "cancelled"}
+                            disabled={courseEntry.status === 'cancelled'}
                             onClick={async () => {
                               try {
-                                await axiosInstance.patch(`/application-course/${courseEntry._id}`, {
-                                  status: "cancelled", 
-                                });
+                                await axiosInstance.patch(
+                                  `/application-course/${courseEntry._id}`,
+                                  {
+                                    status: 'cancelled'
+                                  }
+                                );
                                 toast({
-                                  title: "Course rejected successfully!",
+                                  title: 'Course rejected successfully!'
                                 });
                                 fetchCourse();
                               } catch (error) {
-                                console.error("Error rejecting course:", error);
+                                console.error('Error rejecting course:', error);
                                 toast({
-                                  title: "Failed to reject course.",
-                                  className: "bg-destructive text-white border-none",
+                                  title: 'Failed to reject course.',
+                                  className:
+                                    'bg-destructive text-white border-none'
                                 });
                               }
                             }}
                           >
-                            {courseEntry.status === "cancelled" ? "Rejected" : "Reject"}
+                            {courseEntry.status === 'cancelled'
+                              ? 'Rejected'
+                              : 'Reject'}
                           </Button>
                         </div>
                       </div>

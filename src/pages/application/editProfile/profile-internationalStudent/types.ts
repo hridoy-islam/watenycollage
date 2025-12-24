@@ -6,6 +6,8 @@ export type TabType =
   | 'emergencyContactData'
   | 'educationData'
   | 'employmentData'
+  | 'ethnicityData'
+  | 'refereeData'
   | 'complianceData'
   | 'documentData'
   | 'fundingData'
