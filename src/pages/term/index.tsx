@@ -182,13 +182,17 @@ export default function TermPage() {
                 <TableRow key={term._id}>
                   <TableCell>{term.termName}</TableCell>
                   <TableCell className="text-center">
-                    <Switch
-                      checked={term.status == 1}
-                      onCheckedChange={(checked) =>
-                        handleStatusChange(term._id, checked)
-                      }
-                      className="mx-auto"
-                    />
+                    <div className="flex flex-row items-center justify-center gap-1">
+                      <Switch
+                        checked={term.status === 1}
+                        onCheckedChange={(checked) =>
+                          handleStatusChange(term._id, checked)
+                        }
+                      />
+                      <span className="text-sm font-medium">
+                        {term.status === 1 ? 'Active' : 'Inactive'}
+                      </span>
+                    </div>
                   </TableCell>
                   <TableCell className="text-center">
                     <Button

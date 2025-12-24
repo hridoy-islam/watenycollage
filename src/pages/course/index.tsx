@@ -292,13 +292,18 @@ export default function CoursesPage() {
                   </TableCell>
 
                   <TableCell className="text-center">
-                    <Switch
-                      checked={course.status == 1}
-                      onCheckedChange={(checked) =>
-                        handleStatusChange(course._id, checked)
-                      }
-                      className="mx-auto"
-                    />
+                    <div className="flex flex-row items-center justify-center gap-1">
+                      <Switch
+                        checked={course.status === 1}
+                        onCheckedChange={(checked) =>
+                          handleStatusChange(course._id, checked)
+                        }
+                        className="mx-auto"
+                      />
+                      <span className="text-sm font-medium">
+                        {course.status === 1 ? 'Active' : 'Inactive'}
+                      </span>
+                    </div>
                   </TableCell>
                   <TableCell className="space-x-3 text-center">
                     <div className='flex flex-row items-center gap-2'>
