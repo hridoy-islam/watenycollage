@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     color: '#666'
   },
   signatureLine: {
-    marginTop: 15,
+    marginTop: 35,
     borderBottom: `${BORDER_WIDTH} solid ${BORDER_COLOR}`,
     width: 180
   },
@@ -147,7 +147,7 @@ interface Props {
 
 const ApplicationFormPDF: React.FC<Props> = ({ formData }) => {
   const data = formData || {};
-  const totalPages = 4;
+  const totalPages = 3;
 
   const PDFooter = ({ page }: { page: number }) => (
     <Text style={styles.footer}>
@@ -433,8 +433,13 @@ const ApplicationFormPDF: React.FC<Props> = ({ formData }) => {
               <Text>Grade</Text>
             </View>
           </View>
-          {(data.educationData || [{}, {}, {}])
-            .slice(0, 3)
+
+          {/* LOGIC: Use real data if it exists, otherwise use 3 empty objects */}
+          {(data.educationData && data.educationData.length > 0 
+              ? data.educationData 
+              : [{}, {}, {}, {}, {}]
+            )
+            .slice(0, 5)
             .map((edu: any, i: number) => (
               <View key={i} style={styles.tableRow}>
                 <View style={[styles.tableCol, { width: '30%' }]}>
@@ -485,6 +490,7 @@ const ApplicationFormPDF: React.FC<Props> = ({ formData }) => {
         </View>
 
         {/* SECTION D */}
+       {/* SECTION D: EMPLOYMENT INFORMATION */}
         <Text style={styles.sectionHeader}>
           SECTION D: EMPLOYMENT INFORMATION
         </Text>
@@ -506,50 +512,44 @@ const ApplicationFormPDF: React.FC<Props> = ({ formData }) => {
               <Text>To</Text>
             </View>
           </View>
-          {data.currentEmployment && (
-            <View style={styles.tableRow}>
-              <View style={[styles.tableCol, { width: '25%' }]}>
-                <Text>
-                  {capitalizeFirstLetter(data.currentEmployment.jobTitle)}
-                </Text>
+
+          {(() => {
+            // 1. Merge Current and Previous jobs into one array
+            const allJobs = [];
+            if (data.currentEmployment) {
+              allJobs.push({ ...data.currentEmployment, isCurrent: true });
+            }
+            if (data.previousEmployments && data.previousEmployments.length > 0) {
+              allJobs.push(...data.previousEmployments);
+            }
+
+            // 2. Determine render list: Real data OR 3 empty placeholders
+            const renderList = allJobs.length > 0 ? allJobs : [{}, {}, {}, {}, {}];
+
+            // 3. Render (Slicing to 3 ensures we don't overflow if that's a requirement, remove slice if you want all jobs)
+            return renderList.slice(0, 5).map((job: any, i: number) => (
+              <View key={i} style={styles.tableRow}>
+                <View style={[styles.tableCol, { width: '25%' }]}>
+                  <Text>{capitalizeFirstLetter(job.jobTitle)}</Text>
+                </View>
+                <View style={[styles.tableCol, { width: '25%' }]}>
+                  <Text>{capitalizeFirstLetter(job.employer)}</Text>
+                </View>
+                <View style={[styles.tableCol, { width: '15%' }]}>
+                  <Text>{capitalizeFirstLetter(job.employmentType)}</Text>
+                </View>
+                <View style={[styles.tableCol, { width: '15%' }]}>
+                  <Text>{formatDate(job.startDate)}</Text>
+                </View>
+                <View style={[styles.tableCol, { width: '20%' }]}>
+                  <Text>
+                    {/* Logic: If it's the current job, show 'Present', otherwise show End Date */}
+                    {job.isCurrent ? 'Present' : formatDate(job.endDate)}
+                  </Text>
+                </View>
               </View>
-              <View style={[styles.tableCol, { width: '25%' }]}>
-                <Text>
-                  {capitalizeFirstLetter(data.currentEmployment.employer)}
-                </Text>
-              </View>
-              <View style={[styles.tableCol, { width: '15%' }]}>
-                <Text>
-                  {capitalizeFirstLetter(data.currentEmployment.employmentType)}
-                </Text>
-              </View>
-              <View style={[styles.tableCol, { width: '15%' }]}>
-                <Text>{formatDate(data.currentEmployment.startDate)}</Text>
-              </View>
-              <View style={[styles.tableCol, { width: '20%' }]}>
-                <Text>Present</Text>
-              </View>
-            </View>
-          )}
-          {(data.previousEmployments || [{}, {}]).map((job: any, i: number) => (
-            <View key={i} style={styles.tableRow}>
-              <View style={[styles.tableCol, { width: '25%' }]}>
-                <Text>{capitalizeFirstLetter(job.jobTitle)}</Text>
-              </View>
-              <View style={[styles.tableCol, { width: '25%' }]}>
-                <Text>{capitalizeFirstLetter(job.employer)}</Text>
-              </View>
-              <View style={[styles.tableCol, { width: '15%' }]}>
-                <Text>{capitalizeFirstLetter(job.employmentType)}</Text>
-              </View>
-              <View style={[styles.tableCol, { width: '15%' }]}>
-                <Text>{formatDate(job.startDate)}</Text>
-              </View>
-              <View style={[styles.tableCol, { width: '20%' }]}>
-                <Text>{formatDate(job.endDate)}</Text>
-              </View>
-            </View>
-          ))}
+            ));
+          })()}
         </View>
 
         <PDFooter page={1} />
@@ -564,12 +564,12 @@ const ApplicationFormPDF: React.FC<Props> = ({ formData }) => {
           SECTION E: Diversity and Equality Policy Statement
         </Text>
         <Text style={styles.textBlock}>
-          WC is committed to equality of opportunity and to a pro-active and
-          inclusive approach to equality, which supports and encourages all
-          under-represented groups, promotes an inclusive culture, and values
-          diversity. In pursuit of this it is essential that no person shall
-          experience more or less favourable treatment on the grounds of
-          disability, gender, gender expression and identity, sexual
+          Watney College is committed to equality of opportunity and to a
+          pro-active and inclusive approach to equality, which supports and
+          encourages all under-represented groups, promotes an inclusive
+          culture, and values diversity. In pursuit of this it is essential that
+          no person shall experience more or less favourable treatment on the
+          grounds of disability, gender, gender expression and identity, sexual
           orientation, marital or parental status, age, race, colour, ethnic
           origin, nationality, trade union membership and activity, political or
           religious beliefs, socio-economic background and any other
@@ -599,7 +599,7 @@ const ApplicationFormPDF: React.FC<Props> = ({ formData }) => {
         </Text>
 
         <Text style={styles.sectionHeader}>
-          SECTION I: EQUALITY AND DIVERSITY MONITORING
+          SECTION F: EQUALITY AND DIVERSITY MONITORING
         </Text>
 
         {/* Logic to determine if a field is selected */}
@@ -643,7 +643,7 @@ const ApplicationFormPDF: React.FC<Props> = ({ formData }) => {
               ]}
             >
               {check(field, match) ? (
-                <Svg viewBox="0 0 24 24" style={{ width: 12, height: 12 }}>
+                <Svg viewBox="0 0 24 24" style={{ width: 18, height: 18 }}>
                   <Polyline
                     points="20 6 9 17 4 12"
                     stroke="black"
@@ -947,8 +947,8 @@ const ApplicationFormPDF: React.FC<Props> = ({ formData }) => {
                           <Text style={{ marginRight: 5 }}>Yes</Text>
                           <View
                             style={{
-                              width: 15,
-                              height: 15,
+                              width: 24,
+                              height: 24,
                               border: `1px solid ${BORDER_COLOR}`,
                               alignItems: 'center',
                               justifyContent: 'center'
@@ -960,7 +960,7 @@ const ApplicationFormPDF: React.FC<Props> = ({ formData }) => {
                             ]) && (
                               <Svg
                                 viewBox="0 0 24 24"
-                                style={{ width: 12, height: 12 }}
+                                style={{ width: 18, height: 18 }}
                               >
                                 <Polyline
                                   points="20 6 9 17 4 12"
@@ -980,8 +980,8 @@ const ApplicationFormPDF: React.FC<Props> = ({ formData }) => {
                           <Text style={{ marginRight: 5 }}>No</Text>
                           <View
                             style={{
-                              width: 15,
-                              height: 15,
+                              width: 24,
+                              height: 24,
                               border: `1px solid ${BORDER_COLOR}`,
                               alignItems: 'center',
                               justifyContent: 'center'
@@ -993,7 +993,7 @@ const ApplicationFormPDF: React.FC<Props> = ({ formData }) => {
                             ]) && (
                               <Svg
                                 viewBox="0 0 24 24"
-                                style={{ width: 12, height: 12 }}
+                                style={{ width: 18, height: 18 }}
                               >
                                 <Polyline
                                   points="20 6 9 17 4 12"
@@ -1041,18 +1041,24 @@ const ApplicationFormPDF: React.FC<Props> = ({ formData }) => {
 
       <Page size="A4" style={styles.page}>
         {/* SECTION F */}
-        <Text style={styles.sectionHeader}>SECTION F: DISABILITY</Text>
+        <Text style={styles.sectionHeader}>SECTION G: DISABILITY</Text>
         <Text style={styles.textBlock}>
-          The Equality Act 2010 protects employees, job applicants, contract
-          workers and students who fall within the new definition of disability.
-          The Act defines disability as a physical or mental impairment, which
-          has a substantial and long-term adverse effect on a person’s ability
-          to carry out normal day to day activities. Long term is taken to mean
-          lasting for a period greater than twelve months or where the total
-          period is likely to last at least twelve months. This definition
-          includes people with heart disease, diabetes, epilepsy, severe
-          disfigurement, depression, schizophrenia, Down’s syndrome, dyslexia,
-          for example.
+          Watney College is committed to equality of opportunity and to creating
+          an inclusive environment. No applicant will be treated less favourably
+          on the grounds of any protected characteristic as defined by the
+          Equality Act 2010, including age, disability, gender reassignment,
+          marriage or civil partnership, pregnancy or maternity, race, religion
+          or belief, sex, or sexual orientation. Watney College is a Disability
+          Confident employer and will offer an interview to disabled applicants
+          who meet the minimum criteria for the role.
+        </Text>
+        <Text style={styles.textBlock}>
+          The Equality Act 2010 defines disability as a physical or mental
+          impairment that has a substantial and long-term adverse effect on a
+          person’s ability to carry out normal day-to-day activities.
+          Information provided on this form is confidential, used for monitoring
+          purposes only, and will not be shared with those involved in selection
+          decisions.
         </Text>
         <View
           style={{
@@ -1098,7 +1104,7 @@ const ApplicationFormPDF: React.FC<Props> = ({ formData }) => {
         {/* SECTION G */}
         {/* SECTION G: REFEREES */}
 
-        <Text style={styles.sectionHeader}>SECTION G: REFEREES</Text>
+        <Text style={styles.sectionHeader}>SECTION H: REFEREES</Text>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
           {[data.referee1, data.referee2].map((ref, idx) => (
             <View
@@ -1136,29 +1142,112 @@ const ApplicationFormPDF: React.FC<Props> = ({ formData }) => {
         </View>
 
         {/* SECTION H */}
-        <Text style={styles.sectionHeader}>SECTION H: CONSENT</Text>
+        <Text style={styles.sectionHeader}>
+          SECTION I: CONSENT & DATA PROTECTION
+        </Text>
         <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-          <View>
+          
+        </View>
+
+        <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+          {/* Checkbox Column */}
+          <View style={{ width: '7%', paddingTop: 30 }}>
+            <View
+              style={[
+                styles.checkbox,
+                {
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 26,
+                  height: 26
+                }
+              ]}
+            >
+              {(data.acceptDataProcessing === true ||
+                data.acceptDataProcessing === 'yes') && (
+                <Svg viewBox="0 0 24 24" style={{ width: 18, height: 18 }}>
+                  <Polyline
+                    points="20 6 9 17 4 12"
+                    stroke="black"
+                    strokeWidth={3}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </Svg>
+              )}
+            </View>
+          </View>
+
+          <View style={{ width: '95%' }}>
             <Text style={styles.textBlock}>
-              I hereby give my consent to EQAC to record and process my personal
-              information and sensitive personal data in line with the terms of
-              the Data Protection Act 1988 and all other legislative provisions.
-              My consent is conditional upon EQAC complying with their legal
-              duties and obligations relating to the recording and use of this
-              information. I understand that if I have sent this application
-              form via e-mail it will automatically be deemed that I have
-              provided my consent.
+              I confirm that I have read and understood how Watney College will
+              use and process my personal data for purposes related to my
+              application, enrolment, studies, student support, health and
+              safety, and compliance with College policies and legal
+              obligations. This includes academic records, learning support
+              information, disciplinary matters, CCTV images, ID card
+              photographs, and statutory data returns to the Higher Education
+              Statistics Agency (HESA) and other relevant authorities.
             </Text>{' '}
             <Text style={styles.textBlock}>
-              You should be aware that when you email EQAC the possibility
-              exists, however minimal, that unauthorised individuals may be able
-              to intercept your message. We recommend as a result you should not
-              use unsecure forms and email to send personal data, such as
-              personal financial information to EQAC.
+              I understand that my personal data may be shared where necessary
+              for academic references, further or higher education, employment
+              verification, council tax purposes, or immigration compliance,
+              including verification with the UK Home Office.
+            </Text>
+
+             <Text style={styles.textBlock}>
+              I understand that my data will be processed in accordance with UK
+              GDPR and the Data Protection Act 2018, and that I have the right
+              to request access to my personal data.
+            </Text>
+          </View>
+
+         
+        </View>
+
+        <Text style={styles.sectionHeader}>SECTION J: DECLARATION</Text>
+        <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+          {/* Checkbox Column */}
+          <View style={{ width: '6%', paddingTop: 2 }}>
+            <View
+              style={[
+                styles.checkbox,
+                {
+                  width: 26,
+                  height: 26,
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }
+              ]}
+            >
+              {(data.acceptTerms === true || data.acceptTerms === 'yes') && (
+                <Svg viewBox="0 0 24 24" style={{ width: 18, height: 18 }}>
+                  <Polyline
+                    points="20 6 9 17 4 12"
+                    stroke="black"
+                    strokeWidth={3}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </Svg>
+              )}
+            </View>
+          </View>
+
+          <View style={{ width: '95%' }}>
+            <Text style={{ textAlign: 'justify' }}>
+              I confirm that the information given on this form is true,
+              complete and accurate and that none of the information requested
+              or other material information has been omitted. I accept that if
+              it is discovered that I have supplied false, inaccurate or
+              misleading information, WATNEY COLLEGE reserves the right to
+              cancel my application, withdraw its offer of a place or terminate
+              attendance at the College and I shall have no claim against WATNEY
+              COLLEGE in relation thereto.
             </Text>
           </View>
         </View>
-
         <View
           style={{
             marginTop: 30,
@@ -1175,69 +1264,39 @@ const ApplicationFormPDF: React.FC<Props> = ({ formData }) => {
             <View style={styles.signatureLine} />
           </View>
         </View>
-       <Text style={[styles.sectionHeader, { marginTop: 40 }]}>
-          SECTION I: DATA PROTECTION
+        <Text style={{ marginBottom: 5, marginTop: 35 }}>
+          Thank you for completing this form. Once completed, please return it
+          to the following address
         </Text>
-        <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-          {/* Checkbox Column */}
-          <View style={{ width: '5%', paddingTop: 2 }}>
-            <View
-              style={[
-                styles.checkbox,
-                { alignItems: 'center', justifyContent: 'center' }
-              ]}
-            >
-              {(data.acceptDataProcessing === true ||
-                data.acceptDataProcessing === 'yes') && (
-                <Svg viewBox="0 0 24 24" style={{ width: 12, height: 12 }}>
-                  <Polyline
-                    points="20 6 9 17 4 12"
-                    stroke="black"
-                    strokeWidth={3}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </Svg>
-              )}
-            </View>
-          </View>
-
-          {/* Text Content Column */}
-          <View style={{ width: '95%' }}>
-            <Text style={{ textAlign: 'justify' }}>
-              I consent to Watney College processing my personal data for
-              purposes related to my application, studies, health and safety,
-              and compliance with College policies. This includes academic
-              performance, learning support, disciplinary matters, CCTV usage,
-              ID card photos, and data required by the Higher Education
-              Statistics Agency (HESA) or other legitimate purposes. I consent
-              to the disclosure of this data for academic references, further
-              education, employment, council tax, or immigration matters,
-              including verification with the UK Border Agency. I understand I
-              can request a copy of my data and that details on HESA are
-              available on the College’s intranet.
-            </Text>
-          </View>
+        <View>
+          <Text style={{ fontWeight: 'bold' }}>Watney College</Text>
+          <Text>80-82 Nelson Street, London, E1 2DY</Text>
+          <Text>
+            Email: admission@watneycollege.co.uk | Phone: +44 (0)208 004 6463
+          </Text>
         </View>
         <PDFooter page={3} />
       </Page>
 
-      <Page size="A4" style={styles.page}>
+      {/* <Page size="A4" style={styles.page}>
         <HeaderLogo />
 
-        {/* SECTION J: DECLARATION */}
         <Text style={styles.sectionHeader}>SECTION J: DECLARATION</Text>
         <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-          {/* Checkbox Column */}
-          <View style={{ width: '5%', paddingTop: 2 }}>
+          <View style={{ width: '6%', paddingTop: 2 }}>
             <View
               style={[
                 styles.checkbox,
-                { alignItems: 'center', justifyContent: 'center' }
+                {
+                  width: 26,
+                  height: 26,
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }
               ]}
             >
               {(data.acceptTerms === true || data.acceptTerms === 'yes') && (
-                <Svg viewBox="0 0 24 24" style={{ width: 12, height: 12 }}>
+                <Svg viewBox="0 0 24 24" style={{ width: 18, height: 18 }}>
                   <Polyline
                     points="20 6 9 17 4 12"
                     stroke="black"
@@ -1250,7 +1309,6 @@ const ApplicationFormPDF: React.FC<Props> = ({ formData }) => {
             </View>
           </View>
 
-          {/* Text Content Column */}
           <View style={{ width: '95%' }}>
             <Text style={{ textAlign: 'justify' }}>
               I confirm that the information given on this form is true,
@@ -1293,7 +1351,7 @@ const ApplicationFormPDF: React.FC<Props> = ({ formData }) => {
         </View>
 
         <PDFooter page={4} />
-      </Page>
+      </Page> */}
     </Document>
   );
 };
