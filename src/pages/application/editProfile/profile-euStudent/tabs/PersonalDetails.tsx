@@ -255,7 +255,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
               )}
             </div>
 
-            <div>
+            {/* <div>
               <label className="block text-sm font-medium text-gray-700">
                 Ethnicity
               </label>
@@ -294,7 +294,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
                   </div>
                 )}
               </div>
-            )}
+            )} */}
 
             <div>
               <label className="block text-sm font-medium text-gray-700">

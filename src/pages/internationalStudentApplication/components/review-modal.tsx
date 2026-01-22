@@ -438,6 +438,7 @@ export function ReviewModal({
           return renderSection('Additional Information', {
             visaRequired: getDataValue('visaRequired'),
             enteredUKBefore: getDataValue('enteredUKBefore'),
+            firstEnterDate: getDataValue('firstEnterDate'),
             completedUKCourse: getDataValue('completedUKCourse'),
             hearAboutUs: getDataValue('hearAboutUs'),
             visaRefusal: getDataValue('visaRefusal'),

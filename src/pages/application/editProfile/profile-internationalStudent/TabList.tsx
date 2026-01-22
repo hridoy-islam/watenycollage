@@ -10,7 +10,9 @@ import {
   ChevronRight,
   File,
   BadgePoundSterling,
-  BookCheck
+  BookCheck,
+  UserCog,
+  UsersRound
 } from 'lucide-react';
 import { TabListProps, TabItemProps, TabType } from './types';
 
@@ -64,6 +66,16 @@ const TabList: React.FC<TabListProps> = ({ activeTab, setActiveTab,userData }) =
         id: 'emergencyContactData' as TabType,
         label: 'Emergency Contact',
         icon: <Phone size={20} />
+      },
+      {
+        id: 'ethnicityData' as TabType,
+        label: 'Diversity and Equality',
+        icon: <UserCog size={20} />
+      },
+      {
+        id: 'refereeData' as TabType,
+        label: 'Referee',
+        icon: <UsersRound size={20} />
       },
         
       {

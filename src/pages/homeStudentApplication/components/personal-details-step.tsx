@@ -41,8 +41,8 @@ const personalDetailsSchema = z
     nationality: z
       .string()
       .min(1, { message: 'Please select your nationality' }),
-    ethnicity: z.string().min(1, { message: 'Please select an ethnicity' }),
-    customEthnicity: z.string().optional(),
+    // ethnicity: z.string().min(1, { message: 'Please select an ethnicity' }),
+    // customEthnicity: z.string().optional(),
     countryOfBirth: z
       .string()
       .min(1, { message: 'Please select country of birth' }),
@@ -52,18 +52,18 @@ const personalDetailsSchema = z
     requireVisa: z.string().optional(),
     applicationLocation: z.string().optional()
   })
-  .superRefine((data, ctx) => {
-    if (
-      data.ethnicity === 'Other' &&
-      (!data.customEthnicity || data.customEthnicity.trim() === '')
-    ) {
-      ctx.addIssue({
-        path: ['customEthnicity'],
-        code: z.ZodIssueCode.custom,
-        message: 'Please specify your ethnicity'
-      });
-    }
-  });
+  // .superRefine((data, ctx) => {
+  //   if (
+  //     data.ethnicity === 'Other' &&
+  //     (!data.customEthnicity || data.customEthnicity.trim() === '')
+  //   ) {
+  //     ctx.addIssue({
+  //       path: ['customEthnicity'],
+  //       code: z.ZodIssueCode.custom,
+  //       message: 'Please specify your ethnicity'
+  //     });
+  //   }
+  // });
 
 type PersonalDetailsData = z.infer<typeof personalDetailsSchema>;
 
@@ -94,7 +94,7 @@ export function PersonalDetailsStep({
       dateOfBirth: '',
       email: '',
       nationality: defaultValues?.nationality || '',
-      ethnicity: '',
+      // ethnicity: '',
       countryOfBirth: '',
       maritalStatus: '',
       countryOfResidence: '',
@@ -172,7 +172,7 @@ export function PersonalDetailsStep({
           </div>
         ) : (
           <>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-6 pt-5">
               <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
                 <FormField
                   control={form.control}
@@ -483,8 +483,7 @@ export function PersonalDetailsStep({
                   )}
                 />
 
-                {/* Ethnicity */}
-                <FormField
+                {/* <FormField
                   control={form.control}
                   name="ethnicity"
                   render={({ field }) => (
@@ -514,7 +513,6 @@ export function PersonalDetailsStep({
                   )}
                 />
 
-                {/* Custom Ethnicity */}
                 {ethnicity === 'other' && (
                   <FormField
                     control={form.control}
@@ -536,7 +534,7 @@ export function PersonalDetailsStep({
                       </FormItem>
                     )}
                   />
-                )}
+                )} */}
 
                 {/* Country of Birth */}
                 <FormField

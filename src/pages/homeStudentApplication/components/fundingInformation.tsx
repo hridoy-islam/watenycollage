@@ -97,7 +97,7 @@ export function FundingInformation({
   }
 
   function handleBack() {
-    setCurrentStep(7);
+    setCurrentStep(9);
   }
 
   useEffect(() => {

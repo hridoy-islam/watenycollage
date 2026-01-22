@@ -4,157 +4,172 @@ import {
   Text,
   View,
   StyleSheet,
-  Image
+  Image,
+  Polyline,
+  Svg
 } from '@react-pdf/renderer';
 
-// Define styles for the PDF
+// Standardized constants for Professional Look
+const BORDER_COLOR = '#bfbfbf';
+const BORDER_WIDTH = 0.25;
+const FONT_SIZE = 9;
+const HEADER_SIZE = 10;
+
 const styles = StyleSheet.create({
   page: {
-    padding: 40,
+    padding: 25,
     fontFamily: 'Helvetica',
-    fontSize: 10
+    fontSize: FONT_SIZE,
+    paddingBottom: 40,
+    color: '#000'
   },
   header: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 8
+    marginBottom: 5
   },
   sectionHeader: {
-    fontSize: 12,
+    fontSize: HEADER_SIZE,
     fontWeight: 'bold',
-    marginBottom: 8,
-    marginTop: 8
-  },
-  logo: {
-    width: 60,
-    height: 60,
-    position: 'absolute',
-    top: 10,
-    right: 40
+    marginTop: 8,
+    marginBottom: 4,
+    backgroundColor: '#f2f2f2',
+    padding: 3,
+    borderTop: `${BORDER_WIDTH} solid ${BORDER_COLOR}`,
+    borderBottom: `${BORDER_WIDTH} solid ${BORDER_COLOR}`
   },
   subSectionHeader: {
-    fontSize: 10,
+    fontSize: FONT_SIZE,
     fontWeight: 'bold',
-    marginBottom: 5
+    marginBottom: 2,
+    marginTop: 4,
+    textDecoration: 'underline'
+  },
+  logo: {
+    width: 40,
+    height: 40,
+    position: 'absolute',
+    top: -15,
+    right: 25
   },
   table: {
     display: 'flex',
     width: '100%',
     borderStyle: 'solid',
-    borderWidth: 0.25,
+    borderWidth: BORDER_WIDTH,
+    borderColor: BORDER_COLOR,
     borderRightWidth: 0,
     borderBottomWidth: 0,
-    borderLeftWidth: 0.25
+    borderLeftWidth: BORDER_WIDTH,
+    marginBottom: 5
   },
   tableRow: {
-    flexDirection: 'row'
+    flexDirection: 'row',
+    minHeight: 14,
+    borderBottom: `${BORDER_WIDTH} solid ${BORDER_COLOR}` // Ensure row borders
   },
   tableCol: {
     borderStyle: 'solid',
-    borderWidth: 0.25,
+    borderWidth: BORDER_WIDTH,
+    borderColor: BORDER_COLOR,
     borderLeftWidth: 0,
     borderTopWidth: 0,
-    padding: 8
+    borderBottomWidth: 0, // Handled by row
+    padding: 3,
+    justifyContent: 'center'
   },
   tableColHeader: {
     borderStyle: 'solid',
-    borderWidth: 0.25,
+    borderWidth: BORDER_WIDTH,
+    borderColor: BORDER_COLOR,
     borderLeftWidth: 0,
     borderTopWidth: 0,
-    padding: 8,
-    fontWeight: 'bold'
+    borderBottomWidth: 0,
+    padding: 3,
+    fontWeight: 'bold',
+    backgroundColor: '#f9f9f9',
+    justifyContent: 'center'
   },
   footer: {
     position: 'absolute',
-    fontSize: 8,
-    bottom: 20,
-    left: 40,
-    right: 40,
+    fontSize: 7,
+    bottom: 15,
+    left: 25,
+    right: 25,
     textAlign: 'center',
-    borderTop: '0.25px solid #ccc',
-    paddingTop: 5
+    borderTop: `${BORDER_WIDTH} solid ${BORDER_COLOR}`,
+    paddingTop: 4,
+    color: '#666'
   },
   signatureLine: {
-    marginTop: 30,
-    borderBottom: '0.25px solid #000',
-    width: 200
+    marginTop: 35,
+    borderBottom: `${BORDER_WIDTH} solid ${BORDER_COLOR}`,
+    width: 180
   },
-  addressBlock: {
-    marginTop: -10,
-    fontSize: 9,
-    textAlign: 'center'
+  textBlock: {
+    marginBottom: 4,
+    textAlign: 'justify'
+  },
+  checkbox: {
+    width: 8,
+    height: 8,
+    border: `${BORDER_WIDTH} solid ${BORDER_COLOR}`,
+    marginRight: 5
   }
 });
 
-// Format date utility
+// Helper functions
 const formatDate = (dateString: string): string => {
   if (!dateString) return '';
   try {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-GB');
+    return new Date(dateString).toLocaleDateString('en-GB');
   } catch {
     return dateString;
   }
 };
 
-// Get today's date
-const getTodaysDate = (): string => {
-  return new Date().toLocaleDateString('en-GB');
-};
-
-// Capitalize first letter utility
 const capitalizeFirstLetter = (str: string): string => {
   if (!str) return '';
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 };
 
-// Safe access to nested properties
-const safeGet = (obj: any, path: string, defaultValue: string = ''): string => {
-  if (!obj) return defaultValue;
-  const keys = path.split('.');
-  const result = keys.reduce(
-    (acc, key) => (acc && acc[key] !== undefined ? acc[key] : defaultValue),
-    obj
-  );
-  return typeof result === 'string'
-    ? capitalizeFirstLetter(result)
-    : String(result);
+const safeGet = (obj: any, path: string) => {
+  const res = path
+    .split('.')
+    .reduce((acc, k) => (acc && acc[k] ? acc[k] : ''), obj);
+  return typeof res === 'string' ? capitalizeFirstLetter(res) : res;
 };
 
-// Main PDF Component
-interface ApplicationFormPDFProps {
+interface Props {
   formData: any;
 }
 
-const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
-  formData
-}) => {
-  // Ensure formData is not undefined
+const ApplicationFormPDF: React.FC<Props> = ({ formData }) => {
   const data = formData || {};
-  const totalPages = data.studentType === 'eu' ? 3 : 3;
-  const PDFooter = ({
-    pageNumber,
-    totalPages
-  }: {
-    pageNumber: number;
-    totalPages: number;
-  }) => (
+  const totalPages = 3;
+
+  const PDFooter = ({ page }: { page: number }) => (
     <Text style={styles.footer}>
-      Application Form Page {pageNumber} of {totalPages} - {getTodaysDate()}
+      Page {page} of {totalPages} - {new Date().toLocaleDateString('en-GB')}
     </Text>
+  );
+
+  const HeaderLogo = () => (
+    <View style={{ marginBottom: 10 }}>
+      <Text style={styles.header}>WATNEY COLLEGE</Text>
+      <Image style={styles.logo} src="/logo.png" />
+    </View>
   );
 
   return (
     <Document>
-      {/* Page 1 */}
+      {/* ================= PAGE 1: Sections A, B, C ================= */}
       <Page size="A4" style={styles.page}>
-        <Text style={styles.header}>WATNEY COLLEGE</Text>
-        <Image style={styles.logo} src="/logo.png" />
-        <Text style={styles.sectionHeader}>APPLICATION FORM</Text>
-        <Text style={styles.subSectionHeader}>SECTION A: PERSONAL DETAILS</Text>
+        <HeaderLogo />
 
-        {/* Personal Details Table */}
+        {/* SECTION A: PERSONAL DETAILS (Updated with User Request) */}
+        <Text style={styles.sectionHeader}>SECTION A: PERSONAL DETAILS</Text>
         <View style={styles.table}>
           {/* Row A1 */}
           <View style={styles.tableRow}>
@@ -293,6 +308,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
               <Text>{data.email || ''}</Text>
             </View>
           </View>
+
           <View style={styles.tableRow}>
             <View style={[styles.tableCol, { width: '30%' }]}>
               <Text>Country Of Residence:</Text>
@@ -303,6 +319,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
               </Text>
             </View>
           </View>
+          {/* 
           <View style={styles.tableRow}>
             <View style={[styles.tableCol, { width: '30%' }]}>
               <Text>Ethnicity:</Text>
@@ -311,6 +328,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
               <Text>{capitalizeFirstLetter(data.ethnicity || '')}</Text>
             </View>
           </View>
+
           {data.ethnicity === 'other' && (
             <View style={styles.tableRow}>
               <View style={[styles.tableCol, { width: '30%' }]}>
@@ -320,7 +338,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
                 <Text>{capitalizeFirstLetter(data.customEthnicity || '')}</Text>
               </View>
             </View>
-          )}
+          )} */}
 
           <View style={styles.tableRow}>
             <View style={[styles.tableCol, { width: '30%' }]}>
@@ -330,6 +348,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
               <Text>{capitalizeFirstLetter(data.maritalStatus || '')}</Text>
             </View>
           </View>
+
           {data.studentType === 'eu' && (
             <>
               <View style={styles.tableRow}>
@@ -370,6 +389,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
               </View>
             </>
           )}
+
           {data.studentType === 'international' && (
             <>
               <View style={styles.tableRow}>
@@ -394,14 +414,14 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
           )}
         </View>
 
-        {/* Section B */}
+        {/* SECTION B */}
         <Text style={styles.sectionHeader}>
           SECTION B: QUALIFICATIONS OBTAINED
         </Text>
         <View style={styles.table}>
           <View style={styles.tableRow}>
             <View style={[styles.tableColHeader, { width: '30%' }]}>
-              <Text>Level / Qualification</Text>
+              <Text>Qualification</Text>
             </View>
             <View style={[styles.tableColHeader, { width: '20%' }]}>
               <Text>Award Date</Text>
@@ -410,684 +430,928 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
               <Text>College/ University</Text>
             </View>
             <View style={[styles.tableColHeader, { width: '20%' }]}>
-              <Text>Results</Text>
+              <Text>Grade</Text>
             </View>
           </View>
 
-          {Array.isArray(data.educationData) && data.educationData.length > 0
-            ? data.educationData.map((edu: any, index: number) => (
-                <View key={index} style={styles.tableRow}>
-                  <View style={[styles.tableCol, { width: '30%' }]}>
-                    <Text>
-                      {capitalizeFirstLetter(safeGet(edu, 'qualification'))}
-                    </Text>
-                  </View>
-                  <View style={[styles.tableCol, { width: '20%' }]}>
-                    <Text>{formatDate(safeGet(edu, 'awardDate'))}</Text>
-                  </View>
-                  <View style={[styles.tableCol, { width: '30%' }]}>
-                    <Text>
-                      {capitalizeFirstLetter(safeGet(edu, 'institution'))}
-                    </Text>
-                  </View>
-                  <View style={[styles.tableCol, { width: '20%' }]}>
-                    <Text>
-                      {capitalizeFirstLetter(safeGet(edu, 'grade', ''))}
-                    </Text>
-                  </View>
+          {/* LOGIC: Use real data if it exists, otherwise use 3 empty objects */}
+          {(data.educationData && data.educationData.length > 0 
+              ? data.educationData 
+              : [{}, {}, {}, {}, {}]
+            )
+            .slice(0, 5)
+            .map((edu: any, i: number) => (
+              <View key={i} style={styles.tableRow}>
+                <View style={[styles.tableCol, { width: '30%' }]}>
+                  <Text>{capitalizeFirstLetter(edu.qualification)}</Text>
                 </View>
-              ))
-            : [...Array(3)].map((_, i) => (
-                <View key={`empty-edu-${i}`} style={styles.tableRow}>
-                  <View style={[styles.tableCol, { width: '30%' }]}>
-                    <Text></Text>
-                  </View>
-                  <View style={[styles.tableCol, { width: '20%' }]}>
-                    <Text></Text>
-                  </View>
-                  <View style={[styles.tableCol, { width: '30%' }]}>
-                    <Text></Text>
-                  </View>
-                  <View style={[styles.tableCol, { width: '20%' }]}>
-                    <Text></Text>
-                  </View>
+                <View style={[styles.tableCol, { width: '20%' }]}>
+                  <Text>{formatDate(edu.awardDate)}</Text>
                 </View>
-              ))}
-        </View>
-
-        {/* Conditional rendering for English Qualification */}
-        {data.studentType === 'international' && (
-          <>
-            <Text style={styles.sectionHeader}>ENGLISH QUALIFICATION</Text>
-            <View style={styles.table}>
-              <View style={styles.tableRow}>
-                <View style={[styles.tableColHeader, { width: '35%' }]}>
-                  <Text>Test Type</Text>
+                <View style={[styles.tableCol, { width: '30%' }]}>
+                  <Text>{capitalizeFirstLetter(edu.institution)}</Text>
                 </View>
-                <View style={[styles.tableColHeader, { width: '35%' }]}>
-                  <Text>Score</Text>
-                </View>
-                <View style={[styles.tableColHeader, { width: '30%' }]}>
-                  <Text>Test Date</Text>
+                <View style={[styles.tableCol, { width: '20%' }]}>
+                  <Text>{capitalizeFirstLetter(edu.grade)}</Text>
                 </View>
               </View>
+            ))}
+        </View>
 
-              {/* Display English Qualification Data */}
-              {data.englishQualification ? (
-                <View style={styles.tableRow}>
-                  <View style={[styles.tableCol, { width: '35%' }]}>
-                    <Text>
-                      {capitalizeFirstLetter(
-                        data.englishQualification.englishTestType
-                      )}
-                    </Text>
-                  </View>
-                  <View style={[styles.tableCol, { width: '35%' }]}>
-                    <Text>{data.englishQualification.englishTestScore}</Text>
-                  </View>
-                  <View style={[styles.tableCol, { width: '30%' }]}>
-                    <Text>
-                      {formatDate(data.englishQualification.englishTestDate)}
-                    </Text>
-                  </View>
-                </View>
-              ) : (
-                // Empty row if no English qualification data
-                <View style={styles.tableRow}>
-                  <View style={[styles.tableCol, { width: '35%' }]}>
-                    <Text></Text>
-                  </View>
-                  <View style={[styles.tableCol, { width: '35%' }]}>
-                    <Text></Text>
-                  </View>
-                  <View style={[styles.tableCol, { width: '30%' }]}>
-                    <Text></Text>
-                  </View>
-                </View>
-              )}
-            </View>
-          </>
-        )}
-
-        <Text style={styles.footer}>
-          Application Form Page{' '}
-          <PDFooter pageNumber={1} totalPages={totalPages} /> -{' '}
-          {getTodaysDate()}
+        {/* SECTION C */}
+        <Text style={styles.sectionHeader}>
+          SECTION C: PREVIOUS STUDY IN UK
         </Text>
+        <View style={styles.table}>
+          <View style={styles.tableRow}>
+            <View style={[styles.tableCol, { width: '85%' }]}>
+              <Text>Have you studied or applied to study in the UK?</Text>
+            </View>
+            <View style={[styles.tableCol, { width: '15%' }]}>
+              <Text>{capitalizeFirstLetter(data.enteredUKBefore)}</Text>
+            </View>
+          </View>
+          <View style={styles.tableRow}>
+            <View style={[styles.tableCol, { width: '85%' }]}>
+              <Text>Have you received a visa refusal?</Text>
+            </View>
+            <View style={[styles.tableCol, { width: '15%' }]}>
+              <Text>{capitalizeFirstLetter(data.visaRefusal)}</Text>
+            </View>
+          </View>
+          <View style={styles.tableRow}>
+            <View style={[styles.tableCol, { width: '85%' }]}>
+              <Text>Date of first entry (if applicable)</Text>
+            </View>
+            <View style={[styles.tableCol, { width: '15%' }]}>
+              <Text>{formatDate(data.firstEnterDate)}</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* SECTION D */}
+       {/* SECTION D: EMPLOYMENT INFORMATION */}
+        <Text style={styles.sectionHeader}>
+          SECTION D: EMPLOYMENT INFORMATION
+        </Text>
+        <View style={styles.table}>
+          <View style={styles.tableRow}>
+            <View style={[styles.tableColHeader, { width: '25%' }]}>
+              <Text>Nature of work/training</Text>
+            </View>
+            <View style={[styles.tableColHeader, { width: '25%' }]}>
+              <Text>Name of organisation</Text>
+            </View>
+            <View style={[styles.tableColHeader, { width: '15%' }]}>
+              <Text>Full-time or Part-time</Text>
+            </View>
+            <View style={[styles.tableColHeader, { width: '15%' }]}>
+              <Text>From</Text>
+            </View>
+            <View style={[styles.tableColHeader, { width: '20%' }]}>
+              <Text>To</Text>
+            </View>
+          </View>
+
+          {(() => {
+            // 1. Merge Current and Previous jobs into one array
+            const allJobs = [];
+            if (data.currentEmployment) {
+              allJobs.push({ ...data.currentEmployment, isCurrent: true });
+            }
+            if (data.previousEmployments && data.previousEmployments.length > 0) {
+              allJobs.push(...data.previousEmployments);
+            }
+
+            // 2. Determine render list: Real data OR 3 empty placeholders
+            const renderList = allJobs.length > 0 ? allJobs : [{}, {}, {}, {}, {}];
+
+            // 3. Render (Slicing to 3 ensures we don't overflow if that's a requirement, remove slice if you want all jobs)
+            return renderList.slice(0, 5).map((job: any, i: number) => (
+              <View key={i} style={styles.tableRow}>
+                <View style={[styles.tableCol, { width: '25%' }]}>
+                  <Text>{capitalizeFirstLetter(job.jobTitle)}</Text>
+                </View>
+                <View style={[styles.tableCol, { width: '25%' }]}>
+                  <Text>{capitalizeFirstLetter(job.employer)}</Text>
+                </View>
+                <View style={[styles.tableCol, { width: '15%' }]}>
+                  <Text>{capitalizeFirstLetter(job.employmentType)}</Text>
+                </View>
+                <View style={[styles.tableCol, { width: '15%' }]}>
+                  <Text>{formatDate(job.startDate)}</Text>
+                </View>
+                <View style={[styles.tableCol, { width: '20%' }]}>
+                  <Text>
+                    {/* Logic: If it's the current job, show 'Present', otherwise show End Date */}
+                    {job.isCurrent ? 'Present' : formatDate(job.endDate)}
+                  </Text>
+                </View>
+              </View>
+            ));
+          })()}
+        </View>
+
+        <PDFooter page={1} />
       </Page>
 
-      {/* Page 2 */}
+      {/* ================= PAGE 2: Sections D, E, F ================= */}
       <Page size="A4" style={styles.page}>
-        {/* <Text style={styles.header}>WATNEY COLLEGE</Text> */}
+        <HeaderLogo />
 
-        {data.studentType === 'international' && (
-          <>
-            {/* Section C */}
-            <Text style={styles.sectionHeader}>
-              SECTION C: PREVIOUS STUDY IN THE UK (Applicable to Overseas
-              Students)
-            </Text>
-            <View style={styles.table}>
-              {/* Row C1 */}
-              <View style={styles.tableRow}>
-                <View style={[styles.tableCol, { width: '80%' }]}>
-                  <Text>
-                    C1. Have You Ever Studied Or Made A Visa Application To
-                    Study In The UK?
-                  </Text>
-                </View>
-                <View style={[styles.tableCol, { width: '20%' }]}>
-                  <Text>
-                    {capitalizeFirstLetter(data.enteredUKBefore || '')}
-                  </Text>
-                </View>
-              </View>
-
-              {/* Row C2 */}
-              <View style={styles.tableRow}>
-                <View style={[styles.tableCol, { width: '80%' }]}>
-                  <Text>
-                    C2. Have You Previously Received A Visa Refusal To Study In
-                    The UK? If Yes, Please Attach A Copy And Indicate The Reason
-                    For This Refusal.
-                  </Text>
-                </View>
-                <View style={[styles.tableCol, { width: '20%' }]}>
-                  <Text>{capitalizeFirstLetter(data.visaRefusal || '')}</Text>
-                </View>
-              </View>
-              {data?.visaRefusal === 'yes' && (
-                <View style={styles.tableRow}>
-                  <View style={[styles.tableCol, { width: '80%' }]}>
-                    <Text>C2.1: Visa Refusal Details </Text>
-                  </View>
-                  <View style={[styles.tableCol, { width: '20%' }]}>
-                    <Text>
-                      {capitalizeFirstLetter(data.visaRefusalDetail) || ''}
-                    </Text>
-                  </View>
-                </View>
-              )}
-            </View>
-          </>
-        )}
-
-        {data.studentType === 'eu' && (
-          <>
-            {/* Section D */}
-            <Text style={styles.sectionHeader}>
-              SECTION D: EMPLOYMENT INFORMATION (IF APPLICABLE)
-            </Text>
-            <View style={styles.table}>
-              <View style={styles.tableRow}>
-                <View style={[styles.tableColHeader, { width: '25%' }]}>
-                  <Text>Nature Of Work/Training</Text>
-                </View>
-                <View style={[styles.tableColHeader, { width: '25%' }]}>
-                  <Text>Name Of Organisation</Text>
-                </View>
-                <View style={[styles.tableColHeader, { width: '15%' }]}>
-                  <Text>Full-time OR Part-time</Text>
-                </View>
-                <View style={[styles.tableColHeader, { width: '15%' }]}>
-                  <Text>From (dd/mm/yyyy)</Text>
-                </View>
-                <View style={[styles.tableColHeader, { width: '20%' }]}>
-                  <Text>To (dd/mm/yyyy)</Text>
-                </View>
-              </View>
-
-              {/* Employment Rows */}
-              {data.currentEmployment ||
-              (Array.isArray(data.previousEmployments) &&
-                data.previousEmployments.length > 0) ? (
-                <>
-                  {/* Current Employment */}
-                  {data.currentEmployment && (
-                    <View style={styles.tableRow}>
-                      <View style={[styles.tableCol, { width: '25%' }]}>
-                        <Text>
-                          {capitalizeFirstLetter(
-                            safeGet(data.currentEmployment, 'jobTitle')
-                          )}
-                        </Text>
-                      </View>
-                      <View style={[styles.tableCol, { width: '25%' }]}>
-                        <Text>
-                          {capitalizeFirstLetter(
-                            safeGet(data.currentEmployment, 'employer')
-                          )}
-                        </Text>
-                      </View>
-                      <View style={[styles.tableCol, { width: '15%' }]}>
-                        <Text>
-                          {capitalizeFirstLetter(
-                            safeGet(data.currentEmployment, 'employmentType')
-                          )}
-                        </Text>
-                      </View>
-                      <View style={[styles.tableCol, { width: '15%' }]}>
-                        <Text>
-                          {formatDate(
-                            safeGet(data.currentEmployment, 'startDate')
-                          )}
-                        </Text>
-                      </View>
-                      <View style={[styles.tableCol, { width: '20%' }]}>
-                        <Text>Present</Text>
-                      </View>
-                    </View>
-                  )}
-
-                  {/* Previous Employments */}
-                  {Array.isArray(data.previousEmployments) &&
-                    data.previousEmployments.map((job: any, index: number) => (
-                      <View key={`prev-job-${index}`} style={styles.tableRow}>
-                        <View style={[styles.tableCol, { width: '25%' }]}>
-                          <Text>
-                            {capitalizeFirstLetter(safeGet(job, 'jobTitle'))}
-                          </Text>
-                        </View>
-                        <View style={[styles.tableCol, { width: '25%' }]}>
-                          <Text>
-                            {capitalizeFirstLetter(safeGet(job, 'employer'))}
-                          </Text>
-                        </View>
-                        <View style={[styles.tableCol, { width: '15%' }]}>
-                          <Text>
-                            {capitalizeFirstLetter(
-                              safeGet(job, 'employmentType')
-                            )}
-                          </Text>
-                        </View>
-                        <View style={[styles.tableCol, { width: '15%' }]}>
-                          <Text>{formatDate(safeGet(job, 'startDate'))}</Text>
-                        </View>
-                        <View style={[styles.tableCol, { width: '20%' }]}>
-                          <Text>{formatDate(safeGet(job, 'endDate'))}</Text>
-                        </View>
-                      </View>
-                    ))}
-                </>
-              ) : (
-                Array.from({ length: 2 }).map((_, idx) => (
-                  <View key={`empty-row-${idx}`} style={styles.tableRow}>
-                    <View style={[styles.tableCol, { width: '25%' }]}>
-                      <Text>&nbsp;</Text>
-                    </View>
-                    <View style={[styles.tableCol, { width: '25%' }]}>
-                      <Text>&nbsp;</Text>
-                    </View>
-                    <View style={[styles.tableCol, { width: '15%' }]}>
-                      <Text>&nbsp;</Text>
-                    </View>
-                    <View style={[styles.tableCol, { width: '15%' }]}>
-                      <Text>&nbsp;</Text>
-                    </View>
-                    <View style={[styles.tableCol, { width: '20%' }]}>
-                      <Text>&nbsp;</Text>
-                    </View>
-                  </View>
-                ))
-              )}
-            </View>
-          </>
-        )}
-        {data.studentType === 'international' && (
-          <>
-            {/* Section D */}
-            <Text style={styles.sectionHeader}>
-              SECTION D: EMPLOYMENT INFORMATION (IF APPLICABLE)
-            </Text>
-            <View style={styles.table}>
-              <View style={styles.tableRow}>
-                <View style={[styles.tableColHeader, { width: '25%' }]}>
-                  <Text>Nature Of Work/Training</Text>
-                </View>
-                <View style={[styles.tableColHeader, { width: '25%' }]}>
-                  <Text>Name Of Organisation</Text>
-                </View>
-                <View style={[styles.tableColHeader, { width: '15%' }]}>
-                  <Text>Full-time OR Part-time</Text>
-                </View>
-                <View style={[styles.tableColHeader, { width: '15%' }]}>
-                  <Text>From (dd/mm/yyyy)</Text>
-                </View>
-                <View style={[styles.tableColHeader, { width: '20%' }]}>
-                  <Text>To (dd/mm/yyyy)</Text>
-                </View>
-              </View>
-
-              {/* Employment Rows */}
-              {data.currentEmployment ||
-              (Array.isArray(data.previousEmployments) &&
-                data.previousEmployments.length > 0) ? (
-                <>
-                  {/* Current Employment */}
-                  {data.currentEmployment && (
-                    <View style={styles.tableRow}>
-                      <View style={[styles.tableCol, { width: '25%' }]}>
-                        <Text>
-                          {capitalizeFirstLetter(
-                            safeGet(data.currentEmployment, 'jobTitle')
-                          )}
-                        </Text>
-                      </View>
-                      <View style={[styles.tableCol, { width: '25%' }]}>
-                        <Text>
-                          {capitalizeFirstLetter(
-                            safeGet(data.currentEmployment, 'employer')
-                          )}
-                        </Text>
-                      </View>
-                      <View style={[styles.tableCol, { width: '15%' }]}>
-                        <Text>
-                          {capitalizeFirstLetter(
-                            safeGet(data.currentEmployment, 'employmentType')
-                          )}
-                        </Text>
-                      </View>
-                      <View style={[styles.tableCol, { width: '15%' }]}>
-                        <Text>
-                          {formatDate(
-                            safeGet(data.currentEmployment, 'startDate')
-                          )}
-                        </Text>
-                      </View>
-                      <View style={[styles.tableCol, { width: '20%' }]}>
-                        <Text>Present</Text>
-                      </View>
-                    </View>
-                  )}
-
-                  {/* Previous Employments */}
-                  {Array.isArray(data.previousEmployments) &&
-                    data.previousEmployments.map((job: any, index: number) => (
-                      <View key={`prev-job-${index}`} style={styles.tableRow}>
-                        <View style={[styles.tableCol, { width: '25%' }]}>
-                          <Text>
-                            {capitalizeFirstLetter(safeGet(job, 'jobTitle'))}
-                          </Text>
-                        </View>
-                        <View style={[styles.tableCol, { width: '25%' }]}>
-                          <Text>
-                            {capitalizeFirstLetter(safeGet(job, 'employer'))}
-                          </Text>
-                        </View>
-                        <View style={[styles.tableCol, { width: '15%' }]}>
-                          <Text>
-                            {capitalizeFirstLetter(
-                              safeGet(job, 'employmentType')
-                            )}
-                          </Text>
-                        </View>
-                        <View style={[styles.tableCol, { width: '15%' }]}>
-                          <Text>{formatDate(safeGet(job, 'startDate'))}</Text>
-                        </View>
-                        <View style={[styles.tableCol, { width: '20%' }]}>
-                          <Text>{formatDate(safeGet(job, 'endDate'))}</Text>
-                        </View>
-                      </View>
-                    ))}
-                </>
-              ) : (
-                Array.from({ length: 2 }).map((_, idx) => (
-                  <View key={`empty-row-${idx}`} style={styles.tableRow}>
-                    <View style={[styles.tableCol, { width: '25%' }]}>
-                      <Text>&nbsp;</Text>
-                    </View>
-                    <View style={[styles.tableCol, { width: '25%' }]}>
-                      <Text>&nbsp;</Text>
-                    </View>
-                    <View style={[styles.tableCol, { width: '15%' }]}>
-                      <Text>&nbsp;</Text>
-                    </View>
-                    <View style={[styles.tableCol, { width: '15%' }]}>
-                      <Text>&nbsp;</Text>
-                    </View>
-                    <View style={[styles.tableCol, { width: '20%' }]}>
-                      <Text>&nbsp;</Text>
-                    </View>
-                  </View>
-                ))
-              )}
-            </View>
-          </>
-        )}
-
-        {/* Section E */}
-        <Text style={styles.sectionHeader}>SECTION E: EMERGENCY CONTACT</Text>
-        <View style={[styles.table, { marginBottom: 15 }]}>
-          <View style={styles.tableRow}>
-            <View style={[styles.tableCol, { width: '30%' }]}>
-              <Text>Full Name:</Text>
-            </View>
-            <View style={[styles.tableCol, { width: '70%' }]}>
-              <Text>{capitalizeFirstLetter(data.emergencyFullName || '')}</Text>
-            </View>
-          </View>
-          <View style={styles.tableRow}>
-            <View style={[styles.tableCol, { width: '30%' }]}>
-              <Text>Relationship:</Text>
-            </View>
-            <View style={[styles.tableCol, { width: '70%' }]}>
-              <Text>
-                {capitalizeFirstLetter(data.emergencyRelationship || '')}
-              </Text>
-            </View>
-          </View>
-          <View style={styles.tableRow}>
-            <View style={[styles.tableCol, { width: '30%' }]}>
-              <Text>Address:</Text>
-            </View>
-            <View style={[styles.tableCol, { width: '70%' }]}>
-              <Text>{capitalizeFirstLetter(data.emergencyAddress || '')}</Text>
-            </View>
-          </View>
-          <View style={styles.tableRow}>
-            <View style={[styles.tableCol, { width: '30%' }]}>
-              <Text>Contact Number:</Text>
-            </View>
-            <View style={[styles.tableCol, { width: '70%' }]}>
-              <Text>{data.emergencyContactNumber || ''}</Text>
-            </View>
-          </View>
-          <View style={styles.tableRow}>
-            <View style={[styles.tableCol, { width: '30%' }]}>
-              <Text>Email:</Text>
-            </View>
-            <View style={[styles.tableCol, { width: '70%' }]}>
-              <Text>{data.emergencyEmail || ''}</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Section F */}
-        <Text style={styles.sectionHeader}>SECTION F: DISABILITIES</Text>
-        <View style={{ marginBottom: 10 }}>
-          <Text>
-            Do You Have Any Known Disabilities?{' '}
-            {capitalizeFirstLetter(data.disability || 'No')}
-          </Text>
-        </View>
-        <View style={{ border: '0.50px solid #000', minHeight: 30, padding: 5 }}>
-          <Text>{capitalizeFirstLetter(data.disabilityDetails || '')}</Text>
-        </View>
-
-        {/* Section G */}
+        {/* SECTION E */}
         <Text style={styles.sectionHeader}>
-          SECTION G: CRIMINAL CONVICTIONS
+          SECTION E: Diversity and Equality Policy Statement
         </Text>
-        <View style={{ marginBottom: 10 }}>
-          <Text>
-            Do You Have Any Criminal Convictions?{' '}
-            {data.criminalConviction ? 'Yes' : 'No'}
-          </Text>
-        </View>
-        <View style={{ border: '0.50px solid #000', minHeight: 30, padding: 5 }}>
-          <Text>{capitalizeFirstLetter(data.convictionDetails || '')}</Text>
-        </View>
+        <Text style={styles.textBlock}>
+          Watney College is committed to equality of opportunity and to a
+          pro-active and inclusive approach to equality, which supports and
+          encourages all under-represented groups, promotes an inclusive
+          culture, and values diversity. In pursuit of this it is essential that
+          no person shall experience more or less favourable treatment on the
+          grounds of disability, gender, gender expression and identity, sexual
+          orientation, marital or parental status, age, race, colour, ethnic
+          origin, nationality, trade union membership and activity, political or
+          religious beliefs, socio-economic background and any other
+          distinction. Protected groups are defined in the Equality Act 2010 as
+          regarding gender, gender re-assignment, marriage or civil partnership,
+          pregnancy or maternity, race (including ethnic or national origin,
+          nationality or colour), disability, sexual orientation, age, or
+          religion or belief In order to ensure the effective implementation of
+          this policy, the WC will monitor its employment related policies,
+          practices and procedures on a continuing basis. Where appropriate,
+          action will be taken to address any matters arising from monitoring.
+          As an approved user of the disability symbol we are committed to
+          employing disabled people and will interview all applicants with a
+          disability recognised within the definition of the Equality Act 2010,
+          who meet the minimum criteria for a job vacancy and consider them on
+          their abilities. The Act defines disability as a physical or mental
+          impairment, which has a substantial and long-term adverse effect on a
+          person’s ability to carry out normal day to day activities. Long term
+          is taken to mean lasting for a period greater than twelve months or
+          where the total period is likely to last at least twelve months. If
+          you are in any doubt about whether you meet this definition please
+          contact Human Resources. Please complete all relevant questions on the
+          form below. This information is confidential and will be stored
+          electronically and manually in Human Resources for monitoring purposes
+          only. This form will not be passed on to those making a selection
+          decision.
+        </Text>
 
-        {/* Section H */}
-        <Text style={styles.sectionHeader}>SECTION H: FUNDING INFORMATION</Text>
-        <View style={[styles.table, { marginBottom: 15 }]}>
-          <View style={styles.tableRow}>
-            <View style={[styles.tableCol, { width: '30%' }]}>
-              <Text>Funding Type:</Text>
+        <Text style={styles.sectionHeader}>
+          SECTION F: EQUALITY AND DIVERSITY MONITORING
+        </Text>
+
+        {/* Logic to determine if a field is selected */}
+        {(() => {
+          // Normalize input for comparison
+          const check = (
+            field: string,
+            targetValues: string | string[]
+          ): boolean => {
+            const value = data[field];
+            if (!value) return false;
+            const normalizedInput = value.toLowerCase().trim();
+
+            if (Array.isArray(targetValues)) {
+              return targetValues.some(
+                (v) => v.toLowerCase().trim() === normalizedInput
+              );
+            }
+            return normalizedInput === targetValues.toLowerCase().trim();
+          };
+
+          // Helper to render the Tick (Using SVG)
+          // Accepts optional style/width overrides
+          const RenderTick = ({
+            field,
+            match,
+            style,
+            noBorderRight
+          }: {
+            field: string;
+            match: string | string[];
+            style?: any;
+            noBorderRight?: boolean;
+          }) => (
+            <View
+              style={[
+                styles.tableCol,
+                { alignItems: 'center', justifyContent: 'center' },
+                style, // Apply width overrides
+                noBorderRight ? { borderRightWidth: 0 } : {}
+              ]}
+            >
+              {check(field, match) ? (
+                <Svg viewBox="0 0 24 24" style={{ width: 18, height: 18 }}>
+                  <Polyline
+                    points="20 6 9 17 4 12"
+                    stroke="black"
+                    strokeWidth={3}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </Svg>
+              ) : null}
             </View>
-            <View style={[styles.tableCol, { width: '70%' }]}>
-              <Text>{capitalizeFirstLetter(data.fundingType || '')}</Text>
+          );
+
+          // Helper to render a 4-column Row for Ethnicity/Religion
+          const DoubleRow = (
+            label1: string,
+            match1: string | string[],
+            label2: string,
+            match2: string | string[],
+            field: string = 'ethnicityValue'
+          ) => (
+            <View style={styles.tableRow}>
+              {/* Col 1 */}
+              <View style={[styles.tableCol, { width: '40%' }]}>
+                <Text>{label1}</Text>
+              </View>
+              <RenderTick
+                field={field}
+                match={match1}
+                style={{ width: '10%' }}
+              />
+
+              {/* Col 2 */}
+              <View style={[styles.tableCol, { width: '40%' }]}>
+                <Text>{label2}</Text>
+              </View>
+              <RenderTick
+                field={field}
+                match={match2}
+                style={{ width: '10%', borderRightWidth: 0 }}
+              />
             </View>
-          </View>
-          {data.fundingType === 'Employer-sponsored' && (
+          );
+
+          return (
             <>
-              <View style={styles.tableRow}>
-                <View style={[styles.tableCol, { width: '30%' }]}>
-                  <Text>Company Name:</Text>
+              <Text
+                style={[
+                  styles.subSectionHeader,
+                  { marginTop: 5, marginBottom: 5 }
+                ]}
+              >
+                Ethnicity
+              </Text>
+              <View style={styles.table}>
+                {DoubleRow(
+                  'White',
+                  ['english', 'scottish', 'welsh', 'irish', 'other_white'],
+                  'Other Asian background',
+                  'other_asian'
+                )}
+                {DoubleRow(
+                  'Gypsy or Traveller',
+                  'gypsy_traveller',
+                  'Mixed – White and Black Caribbean',
+                  'white_black_caribbean'
+                )}
+                {DoubleRow(
+                  'Black or Black British - Caribbean',
+                  'caribbean',
+                  'Mixed – White and Black African',
+                  'white_black_african'
+                )}
+                {DoubleRow(
+                  'Black or Black British – African',
+                  'african',
+                  'Mixed – White and Asian',
+                  'white_asian'
+                )}
+                {DoubleRow(
+                  'Other Black background',
+                  'other_black',
+                  'Other mixed background',
+                  'other_mixed'
+                )}
+                {DoubleRow(
+                  'Asian or Asian British – Indian',
+                  'indian',
+                  'Arab',
+                  'arab'
+                )}
+                {DoubleRow(
+                  'Asian or Asian British – Sri Lankan',
+                  'sri_lankan',
+                  'Other ethnic background',
+                  'other_ethnic'
+                )}
+                {DoubleRow(
+                  'Asian or Asian British - Nepali',
+                  'nepali',
+                  'Prefer Not to Say/ Information Refused',
+                  'prefer_not_to_say'
+                )}
+                {/* Final partial row for Chinese */}
+                <View style={styles.tableRow}>
+                  <View style={[styles.tableCol, { width: '40%' }]}>
+                    <Text>Chinese</Text>
+                  </View>
+                  <RenderTick
+                    field="ethnicityValue"
+                    match="chinese"
+                    style={{ width: '10%' }}
+                  />
+                  <View
+                    style={[
+                      styles.tableCol,
+                      { width: '50%', borderRightWidth: 0 }
+                    ]}
+                  />
                 </View>
-                <View style={[styles.tableCol, { width: '70%' }]}>
-                  <Text>
-                    {capitalizeFirstLetter(data.fundingCompanyName || '')}
+              </View>
+
+              {/* --- RELIGION TABLE --- */}
+              <Text
+                style={[
+                  styles.subSectionHeader,
+                  { marginTop: 5, marginBottom: 5 }
+                ]}
+              >
+                Religion or Belief
+              </Text>
+              <View style={styles.table}>
+                {DoubleRow(
+                  'No Religion',
+                  'no_religion',
+                  'Christian – Other Denomination',
+                  'christian_other',
+                  'religion'
+                )}
+                {DoubleRow(
+                  'Buddhist',
+                  'buddhist',
+                  'Hindu',
+                  'hindu',
+                  'religion'
+                )}
+                {DoubleRow(
+                  'Christian',
+                  'christian',
+                  'Jewish',
+                  'jewish',
+                  'religion'
+                )}
+                {DoubleRow(
+                  'Christian – Church of Scotland',
+                  'christian_church_of_scotland',
+                  'Muslim',
+                  'muslim',
+                  'religion'
+                )}
+                {DoubleRow(
+                  'Christian – Roman Catholic',
+                  'christian_roman_catholic',
+                  'Sikh',
+                  'sikh',
+                  'religion'
+                )}
+                {DoubleRow(
+                  'Christian – Presbyterian Church in Ireland',
+                  'christian_presbyterian',
+                  'Spiritual',
+                  'spiritual',
+                  'religion'
+                )}
+                {DoubleRow(
+                  'Christian – Church of Ireland',
+                  'christian_church_of_ireland',
+                  'Any other Religion or Belief',
+                  'other_religion',
+                  'religion'
+                )}
+                {DoubleRow(
+                  'Christian – Methodist Church in Ireland',
+                  'christian_methodist',
+                  'Prefer Not to Say/ Information Refused',
+                  'prefer_not_to_say',
+                  'religion'
+                )}
+              </View>
+
+              {/* --- SECTION 10 & 11 HEADER --- */}
+              <View style={{ flexDirection: 'row', width: '100%' }}>
+                <View style={{ width: '50%' }}>
+                  <Text
+                    style={[
+                      styles.subSectionHeader,
+                      { marginTop: 5, marginBottom: 5 }
+                    ]}
+                  >
+                    Sexual Orientation
+                  </Text>
+                </View>
+                <View style={{ width: '50%', paddingLeft: 5 }}>
+                  <Text
+                    style={[
+                      styles.subSectionHeader,
+                      { marginTop: 5, marginBottom: 5 }
+                    ]}
+                  >
+                    Gender Identity
                   </Text>
                 </View>
               </View>
-              <View style={styles.tableRow}>
-                <View style={[styles.tableCol, { width: '30%' }]}>
-                  <Text>Contact Person:</Text>
-                </View>
-                <View style={[styles.tableCol, { width: '70%' }]}>
-                  <Text>
-                    {capitalizeFirstLetter(data.fundingContactPerson || '')}
-                  </Text>
-                </View>
-              </View>
-              <View style={styles.tableRow}>
-                <View style={[styles.tableCol, { width: '30%' }]}>
-                  <Text>Email:</Text>
-                </View>
-                <View style={[styles.tableCol, { width: '70%' }]}>
-                  <Text>{data.fundingEmail || ''}</Text>
-                </View>
-              </View>
-              <View style={styles.tableRow}>
-                <View style={[styles.tableCol, { width: '30%' }]}>
-                  <Text>Phone Number:</Text>
-                </View>
-                <View style={[styles.tableCol, { width: '70%' }]}>
-                  <Text>{data.fundingPhoneNumber || ''}</Text>
+
+              {/* --- SPLIT TABLE (Section 10 Left | Section 11 Right) --- */}
+              <View
+                style={[
+                  styles.table,
+                  {
+                    borderRightWidth: BORDER_WIDTH,
+                    borderBottomWidth: BORDER_WIDTH
+                  }
+                ]}
+              >
+                <View style={{ flexDirection: 'row' }}>
+                  {/* LEFT COLUMN: Section 10 (Sexual Orientation) - STRICTLY 2 COLUMNS */}
+                  <View
+                    style={{
+                      width: '50%',
+                      borderRight: `${BORDER_WIDTH} solid ${BORDER_COLOR}`
+                    }}
+                  >
+                    {[
+                      { l: 'Bisexual', v: 'bisexual' },
+                      { l: 'Gay Man', v: 'gay_man' },
+                      { l: 'Gay Woman/Lesbian', v: 'gay_woman_lesbian' },
+                      { l: 'Heterosexual', v: 'heterosexual' },
+                      { l: 'Other', v: 'other' }
+                    ].map((item) => (
+                      <View
+                        key={item.v}
+                        style={[
+                          styles.tableRow,
+                          {
+                            borderBottom: `${BORDER_WIDTH} solid ${BORDER_COLOR}`
+                          }
+                        ]}
+                      >
+                        {/* Label Column: 85% */}
+                        <View style={[styles.tableCol, { width: '85%' }]}>
+                          <Text>{item.l}</Text>
+                        </View>
+                        {/* Tick Column: 15% (No Right Border to align with container) */}
+                        <RenderTick
+                          field="sexualOrientation"
+                          match={item.v}
+                          style={{ width: '15%' }}
+                          noBorderRight={true}
+                        />
+                      </View>
+                    ))}
+
+                    {/* Prefer Not to Say Row */}
+                    <View style={[styles.tableRow, { borderBottom: 0 }]}>
+                      <View style={[styles.tableCol, { width: '85%' }]}>
+                        <Text>Prefer Not to Say/ Information Refused</Text>
+                      </View>
+                      <RenderTick
+                        field="sexualOrientation"
+                        match="prefer_not_to_say"
+                        style={{ width: '15%' }}
+                        noBorderRight={true}
+                      />
+                    </View>
+                  </View>
+
+                  {/* RIGHT COLUMN: Section 11 (Gender Identity) */}
+                  <View style={{ width: '50%' }}>
+                    <View
+                      style={{
+                        padding: 3,
+                        borderBottom: `${BORDER_WIDTH} solid ${BORDER_COLOR}`,
+                        flexGrow: 1
+                      }}
+                    >
+                      <Text style={{ marginBottom: 10 }}>
+                        Is your gender identity the same gender as you were
+                        originally assigned at birth?
+                      </Text>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-around',
+                          alignItems: 'center',
+                          marginBottom: 15
+                        }}
+                      >
+                        {/* YES Box */}
+                        <View
+                          style={{ flexDirection: 'row', alignItems: 'center' }}
+                        >
+                          <Text style={{ marginRight: 5 }}>Yes</Text>
+                          <View
+                            style={{
+                              width: 24,
+                              height: 24,
+                              border: `1px solid ${BORDER_COLOR}`,
+                              alignItems: 'center',
+                              justifyContent: 'center'
+                            }}
+                          >
+                            {check('genderIdentitySameAtBirth', [
+                              'yes',
+                              'true'
+                            ]) && (
+                              <Svg
+                                viewBox="0 0 24 24"
+                                style={{ width: 18, height: 18 }}
+                              >
+                                <Polyline
+                                  points="20 6 9 17 4 12"
+                                  stroke="black"
+                                  strokeWidth={3}
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </Svg>
+                            )}
+                          </View>
+                        </View>
+                        {/* NO Box */}
+                        <View
+                          style={{ flexDirection: 'row', alignItems: 'center' }}
+                        >
+                          <Text style={{ marginRight: 5 }}>No</Text>
+                          <View
+                            style={{
+                              width: 24,
+                              height: 24,
+                              border: `1px solid ${BORDER_COLOR}`,
+                              alignItems: 'center',
+                              justifyContent: 'center'
+                            }}
+                          >
+                            {check('genderIdentitySameAtBirth', [
+                              'no',
+                              'false'
+                            ]) && (
+                              <Svg
+                                viewBox="0 0 24 24"
+                                style={{ width: 18, height: 18 }}
+                              >
+                                <Polyline
+                                  points="20 6 9 17 4 12"
+                                  stroke="black"
+                                  strokeWidth={3}
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </Svg>
+                            )}
+                          </View>
+                        </View>
+                      </View>
+                    </View>
+
+                    {/* Prefer Not to Say (Section 11) */}
+                    <View style={[styles.tableRow, { borderBottom: 0 }]}>
+                      <View style={[styles.tableCol, { width: '85%' }]}>
+                        <Text>Prefer Not to Say/ Information Refused</Text>
+                      </View>
+                      <RenderTick
+                        field="genderIdentitySameAtBirth"
+                        match="prefer_not_to_say"
+                        style={{ width: '15%' }}
+                        noBorderRight={true}
+                      />
+                    </View>
+                  </View>
                 </View>
               </View>
             </>
-          )}
-        </View>
-       
+          );
+        })()}
 
-        <Text style={styles.footer}>
-          Application Form Page{' '}
-          <PDFooter pageNumber={2} totalPages={totalPages} /> -{' '}
-          {getTodaysDate()}
-        </Text>
+        <PDFooter page={2} />
       </Page>
 
-      {/* Page 3 */}
-        <Page size="A4" style={styles.page}>
-          <Text style={styles.sectionHeader}>SECTION J: DATA PROTECTION</Text>
-          <View style={{ marginBottom: 10 }}>
-            <Text>
-              I consent to Watney College processing my personal data for
-              purposes related to my application, studies, health and safety,
-              and compliance with College policies. This includes academic
-              performance, learning support, disciplinary matters, CCTV usage,
-              ID card photos, and data required by the Higher Education
-              Statistics Agency (HESA) or other legitimate purposes. I consent
-              to the disclosure of this data for academic references, further
-              education, employment, council tax, or immigration matters,
-              including verification with the UK Border Agency. I understand I
-              can request a copy of my data and that details on HESA are
-              available on the College’s intranet:{' '}
-              <Text style={{ fontWeight: 'bold' }}>
-                {data.acceptDataProcessing ? 'Yes' : 'No'}
-              </Text>
-            </Text>
-          </View>
+      {/* ================= PAGE 3: Sections I, G ================= */}
+      {/* <Page size="A4" style={styles.page}>
+        <HeaderLogo />
+        
+       
+        <PDFooter page={3} />
+      </Page> */}
 
-
-           {/* Section I */}
-        <Text style={styles.sectionHeader}>SECTION I: DECLARATION</Text>
-        <View style={{ marginBottom: 10 }}>
-          <Text>
-            I confirm that the information given on this form is true, complete
-            and accurate and that none of the information requested or other
-            material information has been omitted. I accept that if it is
-            discovered that I have supplied false, inaccurate or misleading
-            information, WATNEY COLLEGE reserves the right to cancel my
-            application, withdraw its offer of a place or terminate attendance
-            at the College and I shall have no claim against WATNEY COLLEGE in
-            relation thereto:{' '}
-            <Text style={{ fontWeight: 'bold' }}>
-              {data.acceptTerms ? 'Yes' : 'No'}
-            </Text>
+      <Page size="A4" style={styles.page}>
+        {/* SECTION F */}
+        <Text style={styles.sectionHeader}>SECTION G: DISABILITY</Text>
+        <Text style={styles.textBlock}>
+          Watney College is committed to equality of opportunity and to creating
+          an inclusive environment. No applicant will be treated less favourably
+          on the grounds of any protected characteristic as defined by the
+          Equality Act 2010, including age, disability, gender reassignment,
+          marriage or civil partnership, pregnancy or maternity, race, religion
+          or belief, sex, or sexual orientation. Watney College is a Disability
+          Confident employer and will offer an interview to disabled applicants
+          who meet the minimum criteria for the role.
+        </Text>
+        <Text style={styles.textBlock}>
+          The Equality Act 2010 defines disability as a physical or mental
+          impairment that has a substantial and long-term adverse effect on a
+          person’s ability to carry out normal day-to-day activities.
+          Information provided on this form is confidential, used for monitoring
+          purposes only, and will not be shared with those involved in selection
+          decisions.
+        </Text>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            marginVertical: 5
+          }}
+        >
+          <Text style={{ marginRight: 10 }}>
+            Do you consider yourself to be disabled within the definition of the
+            Equality Act 2010?
+          </Text>
+          <Text
+            style={{ fontWeight: 'bold', border: `1px solid #000`, padding: 2 }}
+          >
+            {' '}
+            {data.disability === 'yes' ? 'YES' : 'NO'}{' '}
           </Text>
         </View>
-        {/* {data.studentType === 'eu' && (
-          <>
-            <Text style={styles.sectionHeader}>SECTION J: DATA PROTECTION</Text>
-            <View style={{ marginBottom: 0 }}>
-              <Text>
-                I consent to Watney College processing my personal data for
-                purposes related to my application, studies, health and safety,
-                and compliance with College policies. This includes academic
-                performance, learning support, disciplinary matters, CCTV usage,
-                ID card photos, and data required by the Higher Education
-                Statistics Agency (HESA) or other legitimate purposes. I consent
-                to the disclosure of this data for academic references, further
-                education, employment, council tax, or immigration matters,
-                including verification with the UK Border Agency. I understand I
-                can request a copy of my data and that details on HESA are
-                available on the College’s intranet:{' '}
-                <Text style={{ fontWeight: 'bold' }}>
-                  {data.acceptDataProcessing ? 'Yes' : 'No'}
+        <Text style={{ marginBottom: 2 }}>
+          If you wish please give further details here{' '}
+        </Text>
+        <View
+          style={{
+            border: `${BORDER_WIDTH} solid ${BORDER_COLOR}`,
+            height: 40,
+            padding: 3,
+            margin: 3
+          }}
+        >
+          <Text>{capitalizeFirstLetter(data.disabilityDetails)}</Text>
+        </View>
+        <Text style={styles.textBlock}>
+          You are not obliged to declare a disability and the EQAC recognises
+          that many people who may be considered disabled under the terms of the
+          (Disability and Discrimination Act (DDA) do not require any assistance
+          or support. However for those who may, equipment, computer software,
+          flexible working, other support or reasonable adjustment may be
+          available, so an individual’s impairment would have little or no
+          bearing on their capability to realise their employment potential.
+        </Text>
+
+        {/* SECTION G */}
+        {/* SECTION G: REFEREES */}
+
+        <Text style={styles.sectionHeader}>SECTION H: REFEREES</Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+          {[data.referee1, data.referee2].map((ref, idx) => (
+            <View
+              key={idx}
+              style={[
+                styles.table,
+                {
+                  width: '49%',
+                  borderRightWidth: BORDER_WIDTH,
+                  borderBottomWidth: BORDER_WIDTH
+                }
+              ]}
+            >
+              <View style={styles.tableColHeader}>
+                <Text>Referee {idx + 1}</Text>
+              </View>
+              <View style={styles.tableCol}>
+                <Text>Name: {ref?.name || ''}</Text>
+              </View>
+              <View style={styles.tableCol}>
+                <Text>Phone: {ref?.phone || ''}</Text>
+              </View>
+              <View style={styles.tableCol}>
+                <Text>Email: {ref?.email || ''}</Text>
+              </View>
+              {/* Added styles.tableCol here to ensure the bottom border appears */}
+              <View style={styles.tableCol}>
+                <Text>
+                  Address And Post Code:{' '}
+                  {[ref?.address, ref?.postCode].filter(Boolean).join(', ')}
                 </Text>
-              </Text>
+              </View>
             </View>
+          ))}
+        </View>
 
-     
-            <View style={[styles.table, { marginTop: 10, marginBottom: 20 }]}>
-              <View style={styles.tableRow}>
-                <View style={[styles.tableColHeader, { width: '70%' }]}>
-                  <Text>Signature</Text>
-                </View>
-                <View style={[styles.tableColHeader, { width: '30%' }]}>
-                  <Text>Date (dd/mm/yy)</Text>
-                </View>
-              </View>
-              <View style={[styles.tableRow, { minHeight: 25 }]}>
-                <View style={[styles.tableCol, { width: '70%' }]}>
-                  <Text>&nbsp;</Text>
-                </View>
-                <View style={[styles.tableCol, { width: '30%' }]}>
-                  <Text>&nbsp;</Text>
-                </View>
-              </View>
-            </View>
+        {/* SECTION H */}
+        <Text style={styles.sectionHeader}>
+          SECTION I: CONSENT & DATA PROTECTION
+        </Text>
+        <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+          
+        </View>
 
-            <View style={styles.addressBlock}>
-              <Text>
-                Thank you for completing this form. Once completed, please
-                return it to the following address
-              </Text>
-              <Text style={{ fontWeight: 'bold', marginTop: 5 }}>
-                Watney College
-              </Text>
-              <Text>80-82 Nelson Street, London, E1 2DY</Text>
-              <Text>Email: admission@watneycollege.co.uk</Text>
-              <Text>Phone: +44 (0)208 004 6463</Text>
-            </View>
-          </>
-        )} */}
-
-          {/* Signature */}
-          {/* Signature Table */}
-          <View style={[styles.table, { marginTop: 30, marginBottom: 20 }]}>
-            <View style={styles.tableRow}>
-              <View style={[styles.tableColHeader, { width: '70%' }]}>
-                <Text>Signature</Text>
-              </View>
-              <View style={[styles.tableColHeader, { width: '30%' }]}>
-                <Text>Date (dd/mm/yy)</Text>
-              </View>
-            </View>
-            <View style={[styles.tableRow, { minHeight: 50 }]}>
-              <View style={[styles.tableCol, { width: '70%' }]}>
-                <Text>&nbsp;</Text>
-              </View>
-              <View style={[styles.tableCol, { width: '30%' }]}>
-                <Text>&nbsp;</Text>
-              </View>
+        <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+          {/* Checkbox Column */}
+          <View style={{ width: '7%', paddingTop: 30 }}>
+            <View
+              style={[
+                styles.checkbox,
+                {
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 26,
+                  height: 26
+                }
+              ]}
+            >
+              {(data.acceptDataProcessing === true ||
+                data.acceptDataProcessing === 'yes') && (
+                <Svg viewBox="0 0 24 24" style={{ width: 18, height: 18 }}>
+                  <Polyline
+                    points="20 6 9 17 4 12"
+                    stroke="black"
+                    strokeWidth={3}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </Svg>
+              )}
             </View>
           </View>
 
-          {/* Return address */}
-          <View style={styles.addressBlock}>
-            <Text>
-              Thank you for completing this form. Once completed, please return
-              it to the following address
+          <View style={{ width: '95%' }}>
+            <Text style={styles.textBlock}>
+              I confirm that I have read and understood how Watney College will
+              use and process my personal data for purposes related to my
+              application, enrolment, studies, student support, health and
+              safety, and compliance with College policies and legal
+              obligations. This includes academic records, learning support
+              information, disciplinary matters, CCTV images, ID card
+              photographs, and statutory data returns to the Higher Education
+              Statistics Agency (HESA) and other relevant authorities.
+            </Text>{' '}
+            <Text style={styles.textBlock}>
+              I understand that my personal data may be shared where necessary
+              for academic references, further or higher education, employment
+              verification, council tax purposes, or immigration compliance,
+              including verification with the UK Home Office.
             </Text>
-            <Text style={{ fontWeight: 'bold', marginTop: 5 }}>
-              Watney College
+
+             <Text style={styles.textBlock}>
+              I understand that my data will be processed in accordance with UK
+              GDPR and the Data Protection Act 2018, and that I have the right
+              to request access to my personal data.
             </Text>
-            <Text>80-82 Nelson Street, London, E1 2DY</Text>
-            <Text>Email: admission@watneycollege.co.uk</Text>
-            <Text>Phone: +44 (0)208 004 6463</Text>
           </View>
 
-          <Text style={styles.footer}>
-            Application Form Page{' '}
-            <PDFooter pageNumber={3} totalPages={totalPages} /> -{' '}
-            {getTodaysDate()}
+         
+        </View>
+
+        <Text style={styles.sectionHeader}>SECTION J: DECLARATION</Text>
+        <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+          {/* Checkbox Column */}
+          <View style={{ width: '6%', paddingTop: 2 }}>
+            <View
+              style={[
+                styles.checkbox,
+                {
+                  width: 26,
+                  height: 26,
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }
+              ]}
+            >
+              {(data.acceptTerms === true || data.acceptTerms === 'yes') && (
+                <Svg viewBox="0 0 24 24" style={{ width: 18, height: 18 }}>
+                  <Polyline
+                    points="20 6 9 17 4 12"
+                    stroke="black"
+                    strokeWidth={3}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </Svg>
+              )}
+            </View>
+          </View>
+
+          <View style={{ width: '95%' }}>
+            <Text style={{ textAlign: 'justify' }}>
+              I confirm that the information given on this form is true,
+              complete and accurate and that none of the information requested
+              or other material information has been omitted. I accept that if
+              it is discovered that I have supplied false, inaccurate or
+              misleading information, WATNEY COLLEGE reserves the right to
+              cancel my application, withdraw its offer of a place or terminate
+              attendance at the College and I shall have no claim against WATNEY
+              COLLEGE in relation thereto.
+            </Text>
+          </View>
+        </View>
+        <View
+          style={{
+            marginTop: 30,
+            flexDirection: 'row',
+            justifyContent: 'space-between'
+          }}
+        >
+          <View>
+            <Text>Applicant Signature</Text>
+            <View style={styles.signatureLine} />
+          </View>
+          <View>
+            <Text>Date</Text>
+            <View style={styles.signatureLine} />
+          </View>
+        </View>
+        <Text style={{ marginBottom: 5, marginTop: 35 }}>
+          Thank you for completing this form. Once completed, please return it
+          to the following address
+        </Text>
+        <View>
+          <Text style={{ fontWeight: 'bold' }}>Watney College</Text>
+          <Text>80-82 Nelson Street, London, E1 2DY</Text>
+          <Text>
+            Email: admission@watneycollege.co.uk | Phone: +44 (0)208 004 6463
           </Text>
-        </Page>
-     
+        </View>
+        <PDFooter page={3} />
+      </Page>
+
+      {/* <Page size="A4" style={styles.page}>
+        <HeaderLogo />
+
+        <Text style={styles.sectionHeader}>SECTION J: DECLARATION</Text>
+        <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+          <View style={{ width: '6%', paddingTop: 2 }}>
+            <View
+              style={[
+                styles.checkbox,
+                {
+                  width: 26,
+                  height: 26,
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }
+              ]}
+            >
+              {(data.acceptTerms === true || data.acceptTerms === 'yes') && (
+                <Svg viewBox="0 0 24 24" style={{ width: 18, height: 18 }}>
+                  <Polyline
+                    points="20 6 9 17 4 12"
+                    stroke="black"
+                    strokeWidth={3}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </Svg>
+              )}
+            </View>
+          </View>
+
+          <View style={{ width: '95%' }}>
+            <Text style={{ textAlign: 'justify' }}>
+              I confirm that the information given on this form is true,
+              complete and accurate and that none of the information requested
+              or other material information has been omitted. I accept that if
+              it is discovered that I have supplied false, inaccurate or
+              misleading information, WATNEY COLLEGE reserves the right to
+              cancel my application, withdraw its offer of a place or terminate
+              attendance at the College and I shall have no claim against WATNEY
+              COLLEGE in relation thereto.
+            </Text>
+          </View>
+        </View>
+        <View
+          style={{
+            marginTop: 30,
+            flexDirection: 'row',
+            justifyContent: 'space-between'
+          }}
+        >
+          <View>
+            <Text>Applicant Signature</Text>
+            <View style={styles.signatureLine} />
+          </View>
+          <View>
+            <Text>Date</Text>
+            <View style={styles.signatureLine} />
+          </View>
+        </View>
+        <Text style={{ marginBottom: 5, marginTop: 35 }}>
+          Thank you for completing this form. Once completed, please return it
+          to the following address
+        </Text>
+        <View>
+          <Text style={{ fontWeight: 'bold' }}>Watney College</Text>
+          <Text>80-82 Nelson Street, London, E1 2DY</Text>
+          <Text>
+            Email: admission@watneycollege.co.uk | Phone: +44 (0)208 004 6463
+          </Text>
+        </View>
+
+        <PDFooter page={4} />
+      </Page> */}
     </Document>
   );
 };

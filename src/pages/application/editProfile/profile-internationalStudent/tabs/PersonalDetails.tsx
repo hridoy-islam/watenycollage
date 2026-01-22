@@ -262,7 +262,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
               )}
             </div>
 
-            <div>
+            {/* <div>
               <label className="block text-sm font-medium text-gray-700">
                 Ethnicity
               </label>
@@ -301,7 +301,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
                   </div>
                 )}
               </div>
-            )}
+            )} */}
 
             <div>
               <label className="block text-sm font-medium text-gray-700">
@@ -486,7 +486,40 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
               )}
             </div>
 
-            
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Nationality
+              </label>
+              {isEditing ? (
+                <Select
+                  id="nationality"
+                  options={nationalityOptions}
+                  value={nationalityOptions.find(
+                    (option) =>
+                      option.value.toLowerCase() ===
+                      localData?.nationality?.toLowerCase()
+                  )}
+                  onChange={(selectedOption) =>
+                    handleInputChange(
+                      'nationality',
+                      selectedOption?.value || ''
+                    )
+                  }
+                  className="react-select-container mt-1"
+                  classNamePrefix="react-select"
+                  placeholder="Select country"
+                  menuPortalTarget={document.body}
+                  menuPosition="fixed"
+                  styles={{
+                    menuPortal: (base) => ({ ...base, zIndex: 9999 })
+                  }}
+                />
+              ) : (
+                <div className="mt-1 text-gray-900">
+                  {capitalizeFirstLetter(localData?.nationality || '-')}
+                </div>
+              )}
+            </div>
           </div>
         </div>
         <ImageUploader

@@ -5,6 +5,8 @@ export type TabType =
   | 'addressData'
   | 'emergencyContactData'
   | 'educationData'
+  | 'ethnicityData'
+  | 'refereeData'
   | 'employmentData'
   | 'complianceData'
   | 'documentData'

@@ -13,13 +13,19 @@ import { useSelector } from 'react-redux';
 import DocumentData from './tabs/DocumentData';
 import FundingData from './tabs/FundingData';
 import CourseData from './tabs/CourseData';
+import EthnicityData from './tabs/ethnicityData';
+import RefereeData from './tabs/refereeData';
 
-
-const TabContent: React.FC<TabContentProps> = ({ activeTab, userData,refreshData,loading }) => {
+const TabContent: React.FC<TabContentProps> = ({
+  activeTab,
+  userData,
+  refreshData,
+  loading
+}) => {
   const [isEditing, setIsEditing] = useState(false);
   const { user } = useSelector((state: any) => state.auth);
 
- const { toast } = useToast();
+  const { toast } = useToast();
 
   const handleSave = async (updatedUserData) => {
     try {
@@ -27,10 +33,12 @@ const TabContent: React.FC<TabContentProps> = ({ activeTab, userData,refreshData
 
       setIsEditing(false);
       toast({ title: 'Changes saved successfully!' });
-
     } catch (error) {
       console.error('Error updating user data:', error);
-      toast({title:'Failed to save changes. Please try again.', className:"destructive"});
+      toast({
+        title: 'Failed to save changes. Please try again.',
+        className: 'destructive'
+      });
     }
   };
   const handleCancel = () => {
@@ -49,8 +57,8 @@ const TabContent: React.FC<TabContentProps> = ({ activeTab, userData,refreshData
       onSave: handleSave,
       onCancel: handleCancel,
       onEdit: handleEdit,
-       refreshData,
-       loading
+      refreshData,
+      loading
     };
 
     switch (activeTab) {
@@ -66,6 +74,10 @@ const TabContent: React.FC<TabContentProps> = ({ activeTab, userData,refreshData
         return <EmploymentData {...commonProps} />;
       case 'complianceData':
         return <ComplianceData {...commonProps} />;
+      case 'ethnicityData':
+        return <EthnicityData {...commonProps} />;
+      case 'refereeData':
+        return <RefereeData {...commonProps} />;
       case 'fundingData':
         return <FundingData {...commonProps} />;
       case 'courseData':

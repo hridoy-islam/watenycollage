@@ -83,7 +83,7 @@ export function DocumentsStep({
   };
 
   const handleBack = () => {
-    setCurrentStep(6);
+    setCurrentStep(8);
   };
 
   const handleSubmit = () => {
@@ -293,7 +293,7 @@ export function DocumentsStep({
  <div className="w-full">
   <Card className="border-0 shadow-none">
     {/* Header Section */}
-    <CardHeader className="px-0">
+    <CardHeader className="">
       <div className="space-y-5">
         {/* Title & Description */}
         <div>
@@ -356,7 +356,7 @@ export function DocumentsStep({
     </CardHeader>
 
     {/* Upload Sections */}
-    <CardContent className="px-0 pt-4">
+    <CardContent className="p-5 pt-4">
       <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
         {documentTypes.map(
           ({ id, label, required, instructions, formats, error, icon: Icon, uploadLabel }) => {
