@@ -19,50 +19,50 @@ import { useEffect } from 'react';
 const fundingSchema = z
   .object({
     fundingType: z.string().min(1, { message: 'Funding type is required' }),
-    grantDetails: z.string().optional(),
+    // grantDetails: z.string().optional(),
     fundingCompanyName: z.string().optional(),
-    fundingContactPerson: z.string().optional(),
-    fundingEmail: z.string().optional(),
-    fundingPhoneNumber: z.string().optional()
+    // fundingContactPerson: z.string().optional(),
+    // fundingEmail: z.string().optional(),
+    // fundingPhoneNumber: z.string().optional()
   })
   .superRefine((data, ctx) => {
-    if (data.fundingType === 'Bursary/Grant' && !data.grantDetails?.trim()) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Please specify the bursary or grant details',
-        path: ['grantDetails']
-      });
-    }
+    // if (data.fundingType === 'Bursary/Grant' && !data.grantDetails?.trim()) {
+    //   ctx.addIssue({
+    //     code: z.ZodIssueCode.custom,
+    //     message: 'Please specify the bursary or grant details',
+    //     path: ['grantDetails']
+    //   });
+    // }
 
-    if (data.fundingType === 'Employer-sponsored') {
+    if (data.fundingType === 'Employer') {
       if (!data.fundingCompanyName?.trim()) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: 'Company name is required for employer-sponsored funding',
+          message: 'Employer name is required for employer funding',
           path: ['fundingCompanyName']
         });
       }
-      if (!data.fundingContactPerson?.trim()) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Contact person is required for employer-sponsored funding',
-          path: ['fundingContactPerson']
-        });
-      }
-      if (!data.fundingEmail?.trim()) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Email is required for employer-sponsored funding',
-          path: ['fundingEmail']
-        });
-      }
-      if (!data.fundingPhoneNumber?.trim()) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Phone number is required for employer-sponsored funding',
-          path: ['fundingPhoneNumber']
-        });
-      }
+      // if (!data.fundingContactPerson?.trim()) {
+      //   ctx.addIssue({
+      //     code: z.ZodIssueCode.custom,
+      //     message: 'Contact person is required for employer funding',
+      //     path: ['fundingContactPerson']
+      //   });
+      // }
+      // if (!data.fundingEmail?.trim()) {
+      //   ctx.addIssue({
+      //     code: z.ZodIssueCode.custom,
+      //     message: 'Email is required for employer-sponsored funding',
+      //     path: ['fundingEmail']
+      //   });
+      // }
+      // if (!data.fundingPhoneNumber?.trim()) {
+      //   ctx.addIssue({
+      //     code: z.ZodIssueCode.custom,
+      //     message: 'Phone number is required for employer-sponsored funding',
+      //     path: ['fundingPhoneNumber']
+      //   });
+      // }
     }
   });
 
@@ -84,11 +84,11 @@ export function FundingInformation({
     resolver: zodResolver(fundingSchema),
     defaultValues: {
       fundingType: defaultValues?.fundingType || '',
-      grantDetails: defaultValues?.grantDetails || '',
+      // grantDetails: defaultValues?.grantDetails || '',
       fundingCompanyName: defaultValues?.fundingCompanyName || '',
-      fundingContactPerson: defaultValues?.fundingContactPerson || '',
-      fundingEmail: defaultValues?.fundingEmail || '',
-      fundingPhoneNumber: defaultValues?.fundingPhoneNumber || ''
+      // fundingContactPerson: defaultValues?.fundingContactPerson || '',
+      // fundingEmail: defaultValues?.fundingEmail || '',
+      // fundingPhoneNumber: defaultValues?.fundingPhoneNumber || ''
     }
   });
 
@@ -109,12 +109,12 @@ export function FundingInformation({
   }, [defaultValues, form]);
 
   const fundingOptions = [
-    { value: 'Self-funded', label: 'Self-funded' },
-    { value: 'Student Loan', label: 'Student Loan' },
-    { value: 'Employer-sponsored', label: 'Employer-sponsored' },
+    { value: 'Self', label: 'Self' },
+    // { value: 'Student Loan', label: 'Student Loan' },
+    { value: 'Employer', label: 'Employer' },
     {
-      value: 'Bursary/Grant',
-      label: 'Bursary/Grant'
+      value: 'SLC',
+      label: 'SLC'
     }
   ];
 
@@ -134,7 +134,7 @@ export function FundingInformation({
               render={({ field }) => (
                 <FormItem className="md:w-1/2">
                   <FormLabel>
-                    Who is funding your course?{' '}
+                    Who is funding the course?{' '}
                     <span className="text-red-500">*</span>
                   </FormLabel>
                   <FormControl>
@@ -163,7 +163,7 @@ export function FundingInformation({
               )}
             />
 
-            {form.watch('fundingType') === 'Bursary/Grant' && (
+            {/* {form.watch('fundingType') === 'Bursary/Grant' && (
               <FormField
                 control={form.control}
                 name="grantDetails"
@@ -185,28 +185,28 @@ export function FundingInformation({
                   </FormItem>
                 )}
               />
-            )}
+            )} */}
 
-            {form.watch('fundingType') === 'Employer-sponsored' && (
+            {form.watch('fundingType') === 'Employer' && (
               <div className="grid gap-4 md:grid-cols-2">
                 <FormField
                   control={form.control}
                   name="fundingCompanyName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Company Name <span className="text-red-500">*</span></FormLabel>
+                      <FormLabel>Employer Name <span className="text-red-500">*</span></FormLabel>
                       <FormControl>
                         <input
                           {...field}
                           className="w-full rounded-md border border-gray-300 p-2 text-sm"
-                          placeholder="Enter company name"
+                          placeholder="Enter Employer name"
                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <FormField
+                {/* <FormField
                   control={form.control}
                   name="fundingContactPerson"
                   render={({ field }) => (
@@ -258,7 +258,7 @@ export function FundingInformation({
                       <FormMessage />
                     </FormItem>
                   )}
-                />
+                /> */}
               </div>
             )}
           </div>

@@ -14,10 +14,10 @@ interface FundingDataProps {
 }
 
 const fundingOptions = [
-  { value: 'Self-funded', label: 'Self-funded' },
-  { value: 'Student Loan', label: 'Student Loan' },
-  { value: 'Employer-sponsored', label: 'Employer-sponsored' },
-  { value: 'Bursary/Grant', label: 'Bursary/Grant' }
+  { value: 'Self', label: 'Self' },
+  // { value: 'Student Loan', label: 'Student Loan' },
+  { value: 'Employer', label: 'Employer' },
+  { value: 'SLC', label: 'SLC' }
 ];
 
 const FundingData: React.FC<FundingDataProps> = ({
@@ -68,7 +68,7 @@ const FundingData: React.FC<FundingDataProps> = ({
           {/* Funding Type */}
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              Funding Type
+             Who is funding your course?
             </label>
             {isEditing ? (
               <Select
@@ -92,7 +92,7 @@ const FundingData: React.FC<FundingDataProps> = ({
           </div>
 
           {/* Grant Details */}
-          {localData?.fundingType === 'Bursary/Grant' && (
+          {/* {localData?.fundingType === 'Bursary/Grant' && (
             <div>
               <label className="block text-sm font-medium text-gray-700">
                 Grant Details
@@ -110,14 +110,14 @@ const FundingData: React.FC<FundingDataProps> = ({
                 </div>
               )}
             </div>
-          )}
+          )} */}
 
           {/* Employer-sponsored Fields */}
-          {localData?.fundingType === 'Employer-sponsored' && (
+          {localData?.fundingType === 'Employer' && (
             <>
               <div>
                 <label className="block text-sm font-medium text-gray-700">
-                  Funding Company Name
+                  Funding Employer Name
                 </label>
                 {isEditing ? (
                   <Input
@@ -134,7 +134,7 @@ const FundingData: React.FC<FundingDataProps> = ({
                 )}
               </div>
 
-              <div>
+              {/* <div>
                 <label className="block text-sm font-medium text-gray-700">
                   Contact Person
                 </label>
@@ -189,7 +189,7 @@ const FundingData: React.FC<FundingDataProps> = ({
                     {localData?.fundingPhoneNumber || '-'}
                   </div>
                 )}
-              </div>
+              </div> */}
             </>
           )}
         </div>
