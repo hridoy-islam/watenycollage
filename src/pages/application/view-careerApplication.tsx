@@ -362,7 +362,7 @@ export default function ViewCareerApplicationPage() {
 
   return (
     <div className="w-full">
-      <div className="flex items-center justify-between px-4">
+      <div className="flex items-center justify-between ">
         <Button
           className="bg-watney text-white hover:bg-watney/90 "
           onClick={() => navigate(-1)}
@@ -386,7 +386,7 @@ export default function ViewCareerApplicationPage() {
         />
           </div>
       </div>
-      <div className=" p-4 pb-5">
+      <div className=" py-4">
         <Tabs
           defaultValue="personal"
           value={activeTab}

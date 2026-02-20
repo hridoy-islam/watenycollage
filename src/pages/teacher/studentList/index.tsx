@@ -278,7 +278,7 @@ export default function TeacherStudentApplicationListPage() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 ">
       {/* Header with Search & Back Button */}
       <div className="flex flex-row items-center justify-between">
         <div className="flex flex-row flex-nowrap items-center gap-4">
@@ -401,13 +401,13 @@ export default function TeacherStudentApplicationListPage() {
           </div>
         ) : (
           <>
-            <Table>
+            <Table className='text-xs'>
               <TableHeader>
                 <TableRow>
                   <TableHead>Student ID</TableHead>
                   <TableHead>Student Name</TableHead>
                   <TableHead>Student Type</TableHead>
-                  <TableHead>Email</TableHead>
+                  {/* <TableHead>Email</TableHead> */}
                   <TableHead>Course</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="w-32 text-center">Action</TableHead>
@@ -424,8 +424,15 @@ export default function TeacherStudentApplicationListPage() {
                     <TableCell
                       className="cursor-pointer font-medium"
                     >
+                      <div>
+
                       {app.studentId?.title} {app.studentId?.firstName}{' '}
                       {app.studentId?.initial} {app.studentId?.lastName}
+                      </div>
+                      <span className='text-[10px] text-gray-600'>
+
+                       {app.studentId?.email ?? 'N/A'}
+                      </span>
                     </TableCell>
                     <TableCell
                       className="cursor-pointer"
@@ -439,11 +446,11 @@ export default function TeacherStudentApplicationListPage() {
                             app.studentId?.studentType?.slice(1)}
                       </Badge>
                     </TableCell>
-                    <TableCell
+                    {/* <TableCell
                       className="cursor-pointer"
                     >
                       {app.studentId?.email ?? 'N/A'}
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell
                       className="cursor-pointer"
                     >

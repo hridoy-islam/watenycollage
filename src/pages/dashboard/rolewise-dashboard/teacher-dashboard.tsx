@@ -272,10 +272,53 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Time & Action Card (Half-width on md+) */}
+    <div className="space-y-6 bg-white p-5 rounded-md shadow-sm">
+     
+
+      {/* Dashboard Summary Cards (unchanged) */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-5">
+        {/* Courses */}
+        <Card
+          onClick={() => navigate(`teachers/courses/${user._id}`)}
+          className="cursor-pointer transition-colors hover:bg-gray-50"
+        >
+          <CardHeader>
+            <CardTitle>All Courses</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">{allCourses}</div>
+          </CardContent>
+        </Card>
+
+        {/* Feedbacks */}
+        <Card
+          onClick={() => navigate(`teacher-assignments-feedback`)}
+          className="cursor-pointer transition-colors hover:bg-gray-50"
+        >
+          <CardHeader>
+            <CardTitle>Pending Feedbacks</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">{pendingFeedbacks}</div>
+          </CardContent>
+        </Card>
+
+        {/* Students */}
+        <Card
+          onClick={() => navigate(`teacher/student-applications`)}
+          className="cursor-pointer transition-colors hover:bg-gray-50"
+        >
+          <CardHeader>
+            <CardTitle>Student List</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">{studentListCount}</div>
+          </CardContent>
+        </Card>
+      </div>
+ {/* Time & Action Card (Half-width on md+) */}
       <div className="">
-        <Card className="bg-gray-100  shadow-none">
+        <Card className="  shadow-none">
           <CardHeader className='p-0 pb-4'>
             <CardTitle className="text-xl text-gray-700">
               <div className="flex flex-row items-center gap-20">
@@ -350,49 +393,6 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
         {/* Placeholder to maintain half-width layout */}
         <div></div>
       </div>
-
-      {/* Dashboard Summary Cards (unchanged) */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-5">
-        {/* Courses */}
-        <Card
-          onClick={() => navigate(`teachers/courses/${user._id}`)}
-          className="cursor-pointer transition-colors hover:bg-gray-50"
-        >
-          <CardHeader>
-            <CardTitle>All Courses</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{allCourses}</div>
-          </CardContent>
-        </Card>
-
-        {/* Feedbacks */}
-        <Card
-          onClick={() => navigate(`teacher-assignments-feedback`)}
-          className="cursor-pointer transition-colors hover:bg-gray-50"
-        >
-          <CardHeader>
-            <CardTitle>Pending Feedbacks</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{pendingFeedbacks}</div>
-          </CardContent>
-        </Card>
-
-        {/* Students */}
-        <Card
-          onClick={() => navigate(`teacher/student-applications`)}
-          className="cursor-pointer transition-colors hover:bg-gray-50"
-        >
-          <CardHeader>
-            <CardTitle>Student List</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{studentListCount}</div>
-          </CardContent>
-        </Card>
-      </div>
-
       {/* Confirmation Dialog */}
       <AlertDialog open={showConfirm} onOpenChange={setShowConfirm}>
         <AlertDialogContent>

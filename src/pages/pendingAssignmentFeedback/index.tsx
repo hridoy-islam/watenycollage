@@ -364,7 +364,7 @@ count();
                 options={units}
                 value={selectedUnit}
                 onChange={(option: any) => setSelectedUnit(option)}
-                placeholder={!selectedCourse || !selectedTerm ? 'Select course & term first' : 'Select unit'}
+                placeholder={!selectedCourse || !selectedTerm ? 'Select course & term' : 'Select unit'}
                 isClearable
                 isDisabled={!units.length}
               />
@@ -421,7 +421,7 @@ count();
               
             </div>
           ) : (
-            <Table>
+            <Table className='text-xs'>
               <TableHeader>
                 <TableRow>
                   <TableHead>Course</TableHead>

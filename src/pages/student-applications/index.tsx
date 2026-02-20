@@ -240,7 +240,7 @@ export default function StudentApplicationsPage() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 ">
       {/* Header with Search & Back Button */}
       <div className="flex flex-row items-center justify-between">
         <div className="flex flex-row flex-nowrap items-center gap-4">
@@ -350,7 +350,7 @@ export default function StudentApplicationsPage() {
       </div>
       
       {/* Unified Table Container */}
-      <div className="rounded-md bg-white p-4 shadow-2xl">
+      <div className="rounded-md bg-white p-4 shadow-sm">
         {loading ? (
           <div className="flex justify-center py-6">
             <BlinkingDots size="large" color="bg-watney" />
@@ -363,13 +363,13 @@ export default function StudentApplicationsPage() {
           </div>
         ) : (
           <>
-            <Table>
+            <Table className='text-xs'>
               <TableHeader>
                 <TableRow>
                   <TableHead>Student ID</TableHead>
                   <TableHead>Student Name</TableHead>
                   <TableHead>Student Type</TableHead>
-                  <TableHead>Email</TableHead>
+                  {/* <TableHead>Email</TableHead> */}
                   <TableHead>Course</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="w-32 text-center">Action</TableHead>
@@ -396,8 +396,15 @@ export default function StudentApplicationsPage() {
                         )
                       }
                     >
+                      <div>
+
                       {app.studentId?.title} {app.studentId?.firstName}{' '}
                       {app.studentId?.initial} {app.studentId?.lastName}
+                      </div>
+                      <span className='text-[10px] text-gray-600'>
+
+                       {app.studentId?.email ?? 'N/A'}
+                      </span>
                     </TableCell>
                     <TableCell
                       className="cursor-pointer"
@@ -416,7 +423,7 @@ export default function StudentApplicationsPage() {
                             app.studentId?.studentType?.slice(1)}
                       </Badge>
                     </TableCell>
-                    <TableCell
+                    {/* <TableCell
                       className="cursor-pointer"
                       onClick={() =>
                         navigate(
@@ -425,7 +432,7 @@ export default function StudentApplicationsPage() {
                       }
                     >
                       {app.studentId?.email ?? 'N/A'}
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell
                       className="cursor-pointer"
                       onClick={() =>

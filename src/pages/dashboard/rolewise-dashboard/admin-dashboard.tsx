@@ -37,16 +37,47 @@ interface TimeLog {
 }
 
 // --- Optional types for Admin dashboard data ---
-interface StudentApplication { _id: string; studentId?: { name?: string; email?: string }; courseId?: { title?: string }; status?: string; }
-interface CareerApplication { _id: string; applicantId?: { name?: string; email?: string }; jobId?: { jobTitle?: string; company?: string }; status?: string; }
-interface Course { _id: string; name?: string; }
-interface Term { _id: string; name?: string; termName?: string; startDate?: string; endDate?: string; description?: string; }
-interface Job { _id: string; jobTitle?: string; company?: string; location?: string; type?: string; applicationDeadline?: string; }
+interface StudentApplication {
+  _id: string;
+  studentId?: { name?: string; email?: string };
+  courseId?: { title?: string };
+  status?: string;
+}
+interface CareerApplication {
+  _id: string;
+  applicantId?: { name?: string; email?: string };
+  jobId?: { jobTitle?: string; company?: string };
+  status?: string;
+}
+interface Course {
+  _id: string;
+  name?: string;
+}
+interface Term {
+  _id: string;
+  name?: string;
+  termName?: string;
+  startDate?: string;
+  endDate?: string;
+  description?: string;
+}
+interface Job {
+  _id: string;
+  jobTitle?: string;
+  company?: string;
+  location?: string;
+  type?: string;
+  applicationDeadline?: string;
+}
 
 export function AdminDashboard() {
   // --- Existing admin dashboard state ---
-  const [studentApplications, setStudentApplications] = useState<StudentApplication[]>([]);
-  const [careerApplications, setCareerApplications] = useState<CareerApplication[]>([]);
+  const [studentApplications, setStudentApplications] = useState<
+    StudentApplication[]
+  >([]);
+  const [careerApplications, setCareerApplications] = useState<
+    CareerApplication[]
+  >([]);
   const [courses, setCourses] = useState<Course[]>([]);
   const [terms, setTerms] = useState<Term[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -64,7 +95,9 @@ export function AdminDashboard() {
   // --- Clock system state ---
   const [timeLog, setTimeLog] = useState<TimeLog | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [pendingAction, setPendingAction] = useState<'clockIn' | 'clockOut' | 'breakStart' | 'breakEnd' | null>(null);
+  const [pendingAction, setPendingAction] = useState<
+    'clockIn' | 'clockOut' | 'breakStart' | 'breakEnd' | null
+  >(null);
   const [currentTime, setCurrentTime] = useState<string>('');
 
   // --- Get London time ---
@@ -208,7 +241,9 @@ export function AdminDashboard() {
   };
 
   // --- Confirm / Execute Actions ---
-  const confirmAction = (action: 'clockIn' | 'clockOut' | 'breakStart' | 'breakEnd') => {
+  const confirmAction = (
+    action: 'clockIn' | 'clockOut' | 'breakStart' | 'breakEnd'
+  ) => {
     setPendingAction(action);
     setShowConfirm(true);
   };
@@ -235,7 +270,7 @@ export function AdminDashboard() {
     setPendingAction(null);
   };
 
-  const isOnBreak = timeLog?.breaks?.some(b => b.breakStart && !b.breakEnd);
+  const isOnBreak = timeLog?.breaks?.some((b) => b.breakStart && !b.breakEnd);
 
   // --- Fetch dashboard + time log ---
   const fetchData = async () => {
@@ -290,19 +325,90 @@ export function AdminDashboard() {
     return (
       <div className="flex items-center justify-center p-4">
         <Clock className="mr-2 h-4 w-4 animate-spin" />
-        <span className="text-sm text-muted-foreground">
+        <span className="text-sm ">
           Loading dashboard data...
         </span>
       </div>
     );
   }
 
-  return (
-    <div className="flex-1 space-y-6">
-      {/* Time & Action Card */}
-      <div className="">
-        <Card className="bg-gray-100 shadow-none">
-          <CardHeader className='p-0 pb-4'>
+return (
+    <Card className="flex-1 bg-white rounded-md shadow-sm p-2 h-auto min-h-[97.5vh] space-y-8 border-none">
+      
+
+      {/* Bottom Section: Stats Cards Grid */}
+      <div>
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+          <Card
+            onClick={() => navigate('/dashboard/student-applications')}
+            className="cursor-pointer hover:border-watney/50 transition-colors group"
+          >
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium ">Student Applications</CardTitle>
+              <GraduationCap className="h-4 w-4  group-hover:text-watney transition-colors" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{totalStudent}</div>
+            </CardContent>
+          </Card>
+
+          <Card
+            onClick={() => navigate('/dashboard/courses')}
+            className="cursor-pointer hover:border-watney/50 transition-colors group"
+          >
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium ">Total Courses</CardTitle>
+              <BookOpen className="h-4 w-4  group-hover:text-watney transition-colors" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{totalCourse}</div>
+            </CardContent>
+          </Card>
+
+          <Card
+            onClick={() => navigate('/dashboard/terms')}
+            className="cursor-pointer hover:border-watney/50 transition-colors group"
+          >
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium ">Total Intakes</CardTitle>
+              <Users className="h-4 w-4  group-hover:text-watney transition-colors" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{totalTerm}</div>
+            </CardContent>
+          </Card>
+
+          <Card
+            onClick={() => navigate('/dashboard/jobs')}
+            className="cursor-pointer hover:border-watney/50 transition-colors group"
+          >
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium ">Total Jobs</CardTitle>
+              <FolderOpen className="h-4 w-4  group-hover:text-watney transition-colors" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{totalJob}</div>
+            </CardContent>
+          </Card>
+
+          <Card
+            onClick={() => navigate('/dashboard/assignments-feedback')}
+            className="cursor-pointer hover:border-watney/50 transition-colors group"
+          >
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium ">Assignment Feedbacks</CardTitle>
+              <MessageSquare className="h-4 w-4  group-hover:text-watney transition-colors" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{pendingFeedbackCount}</div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+        <div className="">
+        <Card className=" shadow-none">
+          <CardHeader className="p-0 pb-4">
             <CardTitle className="text-xl text-gray-700">
               <div className="flex flex-row items-center gap-20">
                 <div>
@@ -315,8 +421,8 @@ export function AdminDashboard() {
                 {/* Working Time (if clocked in) */}
                 {timeLog && (
                   <div>
-                    <div className="text-lg text-gray-600 flex flex-row items-center gap-2">
-                      Working Time 
+                    <div className="flex flex-row items-center gap-2 text-lg text-gray-600">
+                      Working Time
                       {isOnBreak && (
                         <div className="text-lg font-medium text-orange-600">
                           On Break
@@ -339,7 +445,7 @@ export function AdminDashboard() {
               {!timeLog ? (
                 <Button
                   onClick={() => confirmAction('clockIn')}
-                  className="h-20 bg-watney text-xl text-white hover:bg-watney/90 font-semibold"
+                  className="h-20 bg-watney text-xl font-semibold text-white hover:bg-watney/90"
                 >
                   Clock In
                 </Button>
@@ -348,14 +454,14 @@ export function AdminDashboard() {
                   {!isOnBreak ? (
                     <Button
                       onClick={() => confirmAction('breakStart')}
-                      className="h-20 bg-blue-600 text-xl text-white hover:bg-blue-700 font-semibold"
+                      className="h-20 bg-blue-600 text-xl font-semibold text-white hover:bg-blue-700"
                     >
                       Start Break
                     </Button>
                   ) : (
                     <Button
                       onClick={() => confirmAction('breakEnd')}
-                      className="h-20 bg-orange-600 text-xl text-white hover:bg-orange-700 font-semibold"
+                      className="h-20 bg-orange-600 text-xl font-semibold text-white hover:bg-orange-700"
                     >
                       End Break
                     </Button>
@@ -363,7 +469,7 @@ export function AdminDashboard() {
                   {!isOnBreak && (
                     <Button
                       onClick={() => confirmAction('clockOut')}
-                      className="h-20 bg-destructive text-xl text-white hover:bg-destructive/90 font-semibold"
+                      className="h-20 bg-destructive text-xl font-semibold text-white hover:bg-destructive/90"
                     >
                       Clock Out
                     </Button>
@@ -375,60 +481,7 @@ export function AdminDashboard() {
         </Card>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-5">
-        <Card onClick={() => navigate('/dashboard/student-applications')} className="cursor-pointer">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Student Applications</CardTitle>
-            <GraduationCap className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalStudent}</div>
-          </CardContent>
-        </Card>
-
-        <Card onClick={() => navigate('/dashboard/courses')} className="cursor-pointer">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Courses</CardTitle>
-            <BookOpen className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalCourse}</div>
-          </CardContent>
-        </Card>
-
-        <Card onClick={() => navigate('/dashboard/terms')} className="cursor-pointer">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Intakes</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalTerm}</div>
-          </CardContent>
-        </Card>
-
-        <Card onClick={() => navigate('/dashboard/jobs')} className="cursor-pointer">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Jobs</CardTitle>
-            <FolderOpen className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalJob}</div>
-          </CardContent>
-        </Card>
-
-        <Card onClick={() => navigate('/dashboard/assignments-feedback')} className="cursor-pointer">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Assignment Feedbacks</CardTitle>
-            <MessageSquare className="h-4 w-4" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{pendingFeedbackCount}</div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* --- Confirmation Dialog --- */}
+      {/* --- Confirmation Dialog (Logic Unchanged) --- */}
       <AlertDialog open={showConfirm} onOpenChange={setShowConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -442,12 +495,15 @@ export function AdminDashboard() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={executeAction} className="bg-watney text-white hover:bg-watney/90">
+            <AlertDialogAction
+              onClick={executeAction}
+              className="bg-watney text-white hover:bg-watney/90"
+            >
               Confirm
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </Card>
   );
 }

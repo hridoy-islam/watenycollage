@@ -39,7 +39,7 @@ const [refreshCounter, setRefreshCounter] = useState(0);
 
   return (
     <div className="min-h-full ">
-      <div className=" mx-auto  px-4 ">
+      <div className=" mx-auto  p-2 ">
         {/* <h1 className="text-3xl font-bold text-gray-900 mb-8">My Profile</h1> */}
 
         <div className="flex flex-col overflow-hidden rounded-xl bg-white shadow-md md:flex-row">
@@ -47,7 +47,7 @@ const [refreshCounter, setRefreshCounter] = useState(0);
             <TabList activeTab={activeTab} setActiveTab={setActiveTab} userData={userData}/>
           </div>
 
-          <div className="flex-1 p-6">
+          <div className="flex-1 p-2">
             <TabContent
               activeTab={activeTab}
               userData={userData}

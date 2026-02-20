@@ -620,7 +620,7 @@ export default function ViewStudentApplicationPage() {
 
   return (
     <div className="w-full">
-      <div className="flex items-center justify-between px-4">
+      <div className="flex items-center justify-between ">
         <div className="flex flex-row items-center gap-4">
           <Button
             className="bg-watney text-white hover:bg-watney/90 "
@@ -663,40 +663,45 @@ export default function ViewStudentApplicationPage() {
           <PDFGenerator application={application} />
         </div>
       </div>
-      <div className=" p-4 pb-5">
+      <div className=" py-4">
         <Tabs
           defaultValue="personal"
           value={activeTab}
           onValueChange={setActiveTab}
+          className="flex flex-col items-start gap-2 md:flex-row"
         >
-          <TabsList className="mb-6 grid grid-cols-2 gap-x-2 gap-y-3 rounded-md bg-white p-2 text-xs shadow-lg sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-12">
-            {[
-              { value: 'personal', label: 'Personal' },
-              { value: 'address', label: 'Address' },
-              { value: 'other-information', label: 'Additional' },
-              { value: 'emergency', label: 'Emergency' },
-              { value: 'ethnicity', label: 'Equality' },
-              { value: 'referee', label: 'Referee' },
-              { value: 'documents', label: 'Documents' },
-              { value: 'employment', label: 'Employment' },
-              { value: 'education', label: 'Education' },
-              { value: 'course', label: 'Course' },
-              { value: 'funding', label: 'Funding ' },
-              { value: 'terms', label: 'Terms' }
-            ].map(({ value, label }) => (
-              <TabsTrigger
-                key={value}
-                value={value}
-                className="flex items-center justify-center rounded px-2 py-1 text-xs transition-colors duration-200 ease-in-out focus:bg-watney active:bg-watney data-[state=active]:bg-watney"
-              >
-                <span className="text-center">{label}</span>
-              </TabsTrigger>
-            ))}
-          </TabsList>
+         <div className="w-full shrink-0 md:w-56">
+            <TabsList className="sticky mt-2  flex h-auto w-full flex-col gap-1.5 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+              {[
+                { value: 'personal', label: 'Personal' },
+                { value: 'address', label: 'Address' },
+                { value: 'other-information', label: 'Additional' },
+                { value: 'emergency', label: 'Emergency' },
+                { value: 'ethnicity', label: 'Equality' },
+                { value: 'referee', label: 'Referee' },
+                { value: 'documents', label: 'Documents' },
+                { value: 'employment', label: 'Employment' },
+                { value: 'education', label: 'Education' },
+                { value: 'course', label: 'Course' },
+                { value: 'funding', label: 'Funding' },
+                { value: 'terms', label: 'Terms' }
+              ].map(({ value, label }) => (
+                <TabsTrigger
+                  key={value}
+                  value={value}
+                  className="flex w-full items-center justify-start rounded-lg px-4 py-2.5 text-sm font-medium  transition-all duration-200 hover:bg-slate-100 hover:text-slate-900 data-[state=active]:bg-watney data-[state=active]:text-white data-[state=active]:shadow-md"
+                >
+                  {label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </div>
+          <div className="flex-1 w-full min-w-0">
 
+         
           <TabsContent
             value="personal"
-            className="flex w-full flex-row justify-between gap-x-6"
+            className="flex w-full flex-row justify-between gap-x-2"
           >
             {/* First Card */}
             <Card className="w-1/2">
@@ -799,7 +804,7 @@ export default function ViewStudentApplicationPage() {
 
           <TabsContent
             value="address"
-            className="flex w-full flex-row justify-between gap-x-6"
+            className="flex w-full flex-row justify-between gap-x-2 mt-0"
           >
             {/* Residential Address Card */}
             <Card className="w-1/2">
@@ -907,7 +912,7 @@ export default function ViewStudentApplicationPage() {
           </TabsContent>
 
           <TabsContent value="other-information">
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-2 md:grid-cols-2 -mt-2">
               <Card>
                 <CardContent className="pt-6">
                   <h3 className="mb-4 text-lg font-semibold">
@@ -1042,7 +1047,7 @@ export default function ViewStudentApplicationPage() {
             </div>
           </TabsContent>
           <TabsContent value="emergency">
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-2 md:grid-cols-2 -mt-2">
               <Card>
                 <CardContent className="pt-6">
                   <h3 className="mb-4 text-lg font-semibold">
@@ -1089,7 +1094,7 @@ export default function ViewStudentApplicationPage() {
             </div>
           </TabsContent>
           <TabsContent value="ethnicity">
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-2 md:grid-cols-2 -mt-2">
               <Card>
                 <CardContent className="pt-6">
                   <h3 className="mb-4 text-lg font-semibold">
@@ -1145,103 +1150,101 @@ export default function ViewStudentApplicationPage() {
           </TabsContent>
 
           <TabsContent value="referee">
-  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-    
-    {/* --- Referee 1: Professional Reference --- */}
-    <Card>
-      <CardContent className="pt-6">
-        <h3 className="mb-4 text-lg font-semibold">
-          Professional Reference
-        </h3>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-1/3 text-left">Field</TableHead>
-              <TableHead className="text-right">Value</TableHead>
-              <TableHead className="w-10 text-right"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {renderFieldRow(
-              'Full Name',
-              application.referee1?.name,
-              'referee1.name'
-            )}
-            {renderFieldRow(
-              'Email',
-              application.referee1?.email,
-              'referee1.email'
-            )}
-            {renderFieldRow(
-              'Phone',
-              application.referee1?.phone,
-              'referee1.phone'
-            )}
-            {renderFieldRow(
-              'Address',
-              application.referee1?.address,
-              'referee1.address'
-            )}
-            {renderFieldRow(
-              'Post Code',
-              application.referee1?.postCode,
-              'referee1.postCode'
-            )}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
+            <div className="grid grid-cols-1 gap-2 md:grid-cols-2 -mt-2">
+              {/* --- Referee 1: Professional Reference --- */}
+              <Card>
+                <CardContent className="pt-6">
+                  <h3 className="mb-4 text-lg font-semibold">
+                    Professional Reference
+                  </h3>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-1/3 text-left">Field</TableHead>
+                        <TableHead className="text-right">Value</TableHead>
+                        <TableHead className="w-10 text-right"></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {renderFieldRow(
+                        'Full Name',
+                        application.referee1?.name,
+                        'referee1.name'
+                      )}
+                      {renderFieldRow(
+                        'Email',
+                        application.referee1?.email,
+                        'referee1.email'
+                      )}
+                      {renderFieldRow(
+                        'Phone',
+                        application.referee1?.phone,
+                        'referee1.phone'
+                      )}
+                      {renderFieldRow(
+                        'Address',
+                        application.referee1?.address,
+                        'referee1.address'
+                      )}
+                      {renderFieldRow(
+                        'Post Code',
+                        application.referee1?.postCode,
+                        'referee1.postCode'
+                      )}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
 
-    {/* --- Referee 2: Academic/Personal Reference --- */}
-    <Card>
-      <CardContent className="pt-6">
-        <h3 className="mb-4 text-lg font-semibold">
-          Academic / Personal Reference
-        </h3>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-1/3 text-left">Field</TableHead>
-              <TableHead className="text-right">Value</TableHead>
-              <TableHead className="w-10 text-right"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {renderFieldRow(
-              'Full Name',
-              application.referee2?.name,
-              'referee2.name'
-            )}
-            {renderFieldRow(
-              'Email',
-              application.referee2?.email,
-              'referee2.email'
-            )}
-            {renderFieldRow(
-              'Phone',
-              application.referee2?.phone,
-              'referee2.phone'
-            )}
-            {renderFieldRow(
-              'Address',
-              application.referee2?.address,
-              'referee2.address'
-            )}
-            {renderFieldRow(
-              'Post Code',
-              application.referee2?.postCode,
-              'referee2.postCode'
-            )}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
-
-  </div>
-</TabsContent>
+              {/* --- Referee 2: Academic/Personal Reference --- */}
+              <Card>
+                <CardContent className="pt-6">
+                  <h3 className="mb-4 text-lg font-semibold">
+                    Academic / Personal Reference
+                  </h3>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-1/3 text-left">Field</TableHead>
+                        <TableHead className="text-right">Value</TableHead>
+                        <TableHead className="w-10 text-right"></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {renderFieldRow(
+                        'Full Name',
+                        application.referee2?.name,
+                        'referee2.name'
+                      )}
+                      {renderFieldRow(
+                        'Email',
+                        application.referee2?.email,
+                        'referee2.email'
+                      )}
+                      {renderFieldRow(
+                        'Phone',
+                        application.referee2?.phone,
+                        'referee2.phone'
+                      )}
+                      {renderFieldRow(
+                        'Address',
+                        application.referee2?.address,
+                        'referee2.address'
+                      )}
+                      {renderFieldRow(
+                        'Post Code',
+                        application.referee2?.postCode,
+                        'referee2.postCode'
+                      )}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
 
           <TabsContent value="documents">
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-2 md:grid-cols-2 -mt-2">
               <Card>
                 <CardContent className="pt-6">
                   <h3 className="mb-4 text-lg font-semibold">Documents</h3>
@@ -1340,7 +1343,7 @@ export default function ViewStudentApplicationPage() {
           </TabsContent>
 
           <TabsContent value="employment">
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-2 md:grid-cols-2 -mt-2">
               <Card>
                 <CardContent className="pt-6">
                   <h3 className="mb-2 text-lg font-semibold">
@@ -1503,7 +1506,7 @@ export default function ViewStudentApplicationPage() {
                     No education history provided
                   </p>
                 ) : (
-                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                  <div className="grid grid-cols-1 gap-2 md:grid-cols-2 -mt-2">
                     {application.educationData.map((education, index) => (
                       <Card key={index}>
                         <CardContent className="pt-4">
@@ -1556,7 +1559,7 @@ export default function ViewStudentApplicationPage() {
                   <>
                     {/* English Qualification Card */}
                     {application.englishQualification && (
-                      <div className="mt-4 grid grid-cols-1 gap-6 md:grid-cols-2">
+                      <div className="mt-4 grid grid-cols-1 gap-2 md:grid-cols-2">
                         <Card>
                           <CardContent className="pt-4">
                             <div className="mb-2 flex items-center">
@@ -1604,7 +1607,7 @@ export default function ViewStudentApplicationPage() {
           </TabsContent>
 
           <TabsContent value="course">
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-2 md:grid-cols-2 -mt-2">
               {applicationCourse && applicationCourse.length > 0 ? (
                 applicationCourse?.map((courseEntry, index) => (
                   <Card key={courseEntry._id || index}>
@@ -1840,7 +1843,7 @@ export default function ViewStudentApplicationPage() {
           </TabsContent>
 
           <TabsContent value="funding">
-            <Card className="w-1/2">
+            <Card className="w-1/2 -mt-2">
               <CardContent className="pt-6">
                 <h3 className="mb-4 text-lg font-semibold">
                   Funding Information
@@ -1896,7 +1899,7 @@ export default function ViewStudentApplicationPage() {
           </TabsContent>
 
           <TabsContent value="terms">
-            <Card className="w-1/2">
+            <Card className="w-1/2 -mt-2">
               <CardContent className="pt-6">
                 <h3 className="mb-4 text-lg font-semibold">Terms Acceptance</h3>
                 <Table>
@@ -1923,6 +1926,7 @@ export default function ViewStudentApplicationPage() {
               </CardContent>
             </Card>
           </TabsContent>
+           </div>
         </Tabs>
       </div>
     </div>

@@ -1,14 +1,19 @@
+import { Suspense, lazy } from 'react';
+import { Navigate, Outlet, useRoutes } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+
+// --- Imports ---
 import ProtectedRoute from '@/components/shared/ProtectedRoute';
+import AdminLayout from '@/components/layout/admin-layout';
+import StudentLayout from '@/components/layout/student-layout';
+
 import ForgotPassword from '@/pages/auth/forget-password';
 import SignUpPage from '@/pages/auth/sign-up';
 import NotFound from '@/pages/not-found';
 import ProfilePage from '@/pages/profile';
-import { Suspense, lazy } from 'react';
-import { Navigate, Outlet, useRoutes } from 'react-router-dom';
 import NotificationsPage from '@/pages/notification';
 import Otp from '@/pages/auth/otp';
 import NewPassword from '@/pages/new-password';
-import AdminLayout from '@/components/layout/admin-layout';
 import StudentApplication from '@/pages/homeStudentApplication';
 import ResumeUpload from '@/pages/uploadResume';
 import ApplicationListPage from '@/pages/application/applications-list';
@@ -61,340 +66,141 @@ const DashboardPage = lazy(() => import('@/pages/dashboard'));
 
 // ----------------------------------------------------------------------
 export default function AppRouter() {
+  // 1. Get user role from Redux
+  const user = useSelector((state) => state.auth.user);
+  const role = user?.role;
+
   const withRole = (element, roles) => (
     <ProtectedRoute allowedRoles={roles}>{element}</ProtectedRoute>
   );
+
+  // --- Admin & Teacher Routes ---
   const adminRoutes = [
     {
       path: '/dashboard',
       element: (
         <AdminLayout>
-          <ProtectedRoute
-            allowedRoles={['admin', 'student', 'applicant', 'teacher']}
-          >
-            <Suspense>
+          <ProtectedRoute allowedRoles={['admin', 'teacher']}>
+            <Suspense fallback={<div>Loading...</div>}>
               <Outlet />
             </Suspense>
           </ProtectedRoute>
         </AdminLayout>
       ),
       children: [
-        {
-          element: <DashboardPage />,
-          index: true
-        },
-        {
-          path: 'profile',
-          element: <ProfilePage />
-        },
-        {
-          path: 'notifications',
-          element: <NotificationsPage />
-        },
-        {
-          path: 'eu/student-form',
-          element: withRole(<HomeStudentApplication />, ['admin', 'student']),
-          index: true
-        },
-        {
-          path: 'international/student-form',
-          element: withRole(<InternationalStudentApplication />, [
-            'admin',
-            'student'
-          ]),
-          index: true
-        },
-        {
-          path: 'assignments-feedback',
-          element: withRole(<AssignmentFeedbackList />, ['admin', 'teacher']),
-          index: true
-        },
-        {
-          path: 'student-assignments-feedback',
-          element: withRole(<StudentAssignmentFeedbackList />, [
-            'admin',
-            'student'
-          ]),
-          index: true
-        },
-        {
-          path: 'student-assignments',
-          element: withRole(<StudentAssignmentsPage />, [
-            'admin',
-            'student',
-            'teacher'
-          ]),
-          index: true
-        },
-        {
-          path: 'applications',
-          element: withRole(<ApplicationListPage />, ['admin', 'teacher']),
-          index: true
-        },
-        {
-          path: 'course-application/:id',
-          element: withRole(<CourseApplicationPage />, ['admin', 'student'])
-        },
-        {
-          path: 'job-application/:id',
-          element: withRole(<JobApplicationPage />, ['admin', 'applicant'])
-        },
-        {
-          path: 'student-application/:id',
-          element: withRole(<ViewStudentApplicationPage />, [
-            'admin',
-            'student',
-            'teacher'
-          ])
-        },
-        {
-          path: 'student-application/:id/edit/eu',
-          element: withRole(<EuStudentProfile />, [
-            'admin',
-            'student',
-            'teacher'
-          ])
-        },
-        {
-          path: 'student-application/:id/edit/international',
-          element: withRole(<InternationalStudentProfile />, [
-            'admin',
-            'student',
-            'teacher'
-          ])
-        },
-        {
-          path: 'career-application/:id/:userId',
-          element: withRole(<ViewCareerApplicationPage />, [
-            'admin',
-            'applicant'
-          ])
-        },
-        {
-          path: 'career-application/:id/:userId/edit',
-          element: withRole(<ApplicantEditProfile />, ['admin', 'applicant'])
-        },
-        {
-          path: 'courses',
-          element: withRole(<CoursesPage />, ['admin', 'student', 'teacher']),
-          index: true
-        },
-        {
-          path: 'courses/course-document/:id',
-          element: withRole(<CourseDocumentPage />, [
-            'admin',
-            'student',
-            'teacher'
-          ]),
-          index: true
-        },
-        {
-          path: 'courses/:id/unit',
-          element: withRole(<CourseUnitPage />, [
-            'admin',
-            'student',
-            'teacher'
-          ]),
-          index: true
-        },
-        {
-          path: 'courses/:id/unit/:unitId',
-          element: withRole(<CourseResource />, [
-            'admin',
-            'student',
-            'teacher'
-          ]),
-          index: true
-        },
-        {
-          path: 'terms',
-          element: withRole(<TermPage />, ['admin', 'student']),
-          index: true
-        },
-        {
-          path: 'jobs',
-          element: withRole(<JobPage />, ['admin', 'applicant']),
-          index: true
-        },
-        {
-          path: 'jobs/:id',
-          element: withRole(<CareerApplicationsPage />, ['admin', 'applicant']),
-          index: true
-        },
-        {
-          path: 'career-application',
-          element: withRole(<CareerPage />, ['admin', 'applicant']),
-          index: true
-        },
-        {
-          path: 'career',
-          element: withRole(<CareerResumeUpload />, ['applicant', 'admin']),
-          index: true
-        },
-        {
-          path: 'career-guideline',
-          element: withRole(<CareerGuideline />, ['admin', 'applicant']),
-          index: true
-        },
-        {
-          path: 'student-guideline',
-          element: withRole(<StudentGuideline />, ['student', 'admin']),
-          index: true
-        },
-        {
-          path: 'student-applications',
-          element: withRole(<StudentApplicationsPage />, ['admin', 'student']),
-          index: true
-        },
-        {
-          path: 'student-applications/:id/assignment/:studentId',
-          element: withRole(<AssignmentPage />, [
-            'admin',
-            'student',
-            'teacher'
-          ]),
-          index: true
-        },
-        {
-          path: 'student-applications/:id/assignment/:studentId/unit-assignments/:unitId',
-          element: withRole(<AssignmentDetailPage />, [
-            'admin',
-            'student',
-            'teacher'
-          ]),
-          index: true
-        },
-        {
-          path: 'student-application/:id/:applicationId/mails',
-          element: withRole(<StudentMailPage />, ['admin', , 'teacher']),
-          index: true
-        },
-        {
-          path: 'template',
-          element: withRole(<TemplatePage />, ['admin']),
-          index: true
-        },
-        {
-          path: 'signature',
-          element: withRole(<SignaturePage />, ['admin']),
-          index: true
-        },
-
-        {
-          path: 'teachers',
-          element: withRole(<TeachersPage />, ['admin']),
-          index: true
-        },
-         {
-          path: 'teachers/:userId',
-          element: withRole(<TeacherProfile />, ['admin', 'teacher'])
-        },
-        {
-          path: 'teachers/courses/:id',
-          element: withRole(<TeacherDetailsPage />, ['admin', 'teacher']),
-          index: true
-        },
-        {
-          path: 'teacher-assignments-feedback',
-          element: withRole(<TeacherAssignmentFeedbackList />, [
-            'admin',
-            'teacher'
-          ]),
-          index: true
-        },
-        {
-          path: 'teacher/student-applications',
-          element: withRole(<TeacherStudentApplicationListPage />, [
-            'admin',
-            'teacher'
-          ]),
-          index: true
-        },
-        {
-          path: 'report',
-          element: withRole(<ReportPage />, [
-            'admin',
-          ]),
-          index: true
-        },
-         {
-          path: 'attendance',
-          element: withRole(<AttendancePage />, [
-            'admin','teacher'
-          ]),
-          index: true
-        },
-         {
-          path: 'assignment-report',
-          element: withRole(<AssignmentReportsPage />, [
-            'admin','teacher'
-          ]),
-          index: true
-        },
-         {
-          path: 'verification',
-          element: withRole(<StudentVerificationPage />, [
-            'admin'
-          ]),
-          index: true
-        }
+        { element: <DashboardPage />, index: true },
+        { path: 'profile', element: <ProfilePage /> },
+        { path: 'eu/student-form', element: withRole(<HomeStudentApplication />, ['admin']) },
+        { path: 'international/student-form', element: withRole(<InternationalStudentApplication />, ['admin']) },
+        { path: 'assignments-feedback', element: withRole(<AssignmentFeedbackList />, ['admin', 'teacher']) },
+        { path: 'student-assignments-feedback', element: withRole(<StudentAssignmentFeedbackList />, ['admin']) },
+        { path: 'student-assignments', element: withRole(<StudentAssignmentsPage />, ['admin', 'teacher']) },
+        { path: 'applications', element: withRole(<ApplicationListPage />, ['admin', 'teacher']) },
+        { path: 'course-application/:id', element: withRole(<CourseApplicationPage />, ['admin']) },
+        { path: 'job-application/:id', element: withRole(<JobApplicationPage />, ['admin']) },
+        { path: 'student-application/:id', element: withRole(<ViewStudentApplicationPage />, ['admin', 'teacher']) },
+        { path: 'student-application/:id/edit/eu', element: withRole(<EuStudentProfile />, ['admin', 'teacher']) },
+        { path: 'student-application/:id/edit/international', element: withRole(<InternationalStudentProfile />, ['admin', 'teacher']) },
+        { path: 'career-application/:id/:userId', element: withRole(<ViewCareerApplicationPage />, ['admin', 'applicant']) },
+        { path: 'career-application/:id/:userId/edit', element: withRole(<ApplicantEditProfile />, ['admin']) },
+        { path: 'courses', element: withRole(<CoursesPage />, ['admin', 'teacher']) },
+        { path: 'courses/course-document/:id', element: withRole(<CourseDocumentPage />, ['admin', 'teacher']) },
+        { path: 'courses/:id/unit', element: withRole(<CourseUnitPage />, ['admin', 'teacher']) },
+        { path: 'courses/:id/unit/:unitId', element: withRole(<CourseResource />, ['admin', 'teacher']) },
+        { path: 'terms', element: withRole(<TermPage />, ['admin']) },
+        { path: 'jobs', element: withRole(<JobPage />, ['admin']) },
+        { path: 'jobs/:id', element: withRole(<CareerApplicationsPage />, ['admin']) },
+        { path: 'career-application', element: withRole(<CareerPage />, ['admin']) },
+        { path: 'career', element: withRole(<CareerResumeUpload />, ['admin']) },
+        { path: 'career-guideline', element: withRole(<CareerGuideline />, ['admin']) },
+        { path: 'student-guideline', element: withRole(<StudentGuideline />, ['admin']) },
+        { path: 'student-applications', element: withRole(<StudentApplicationsPage />, ['admin']) },
+        { path: 'student-applications/:id/assignment/:studentId', element: withRole(<AssignmentPage />, ['admin', 'teacher']) },
+        { path: 'student-applications/:id/assignment/:studentId/unit-assignments/:unitId', element: withRole(<AssignmentDetailPage />, ['admin', 'teacher']) },
+        { path: 'student-application/:id/:applicationId/mails', element: withRole(<StudentMailPage />, ['admin', 'teacher']) },
+        { path: 'template', element: withRole(<TemplatePage />, ['admin']) },
+        { path: 'signature', element: withRole(<SignaturePage />, ['admin']) },
+        { path: 'teachers', element: withRole(<TeachersPage />, ['admin']) },
+        { path: 'teachers/:userId', element: withRole(<TeacherProfile />, ['admin', 'teacher']) },
+        { path: 'teachers/courses/:id', element: withRole(<TeacherDetailsPage />, ['admin', 'teacher']) },
+        { path: 'teacher-assignments-feedback', element: withRole(<TeacherAssignmentFeedbackList />, ['admin', 'teacher']) },
+        { path: 'teacher/student-applications', element: withRole(<TeacherStudentApplicationListPage />, ['admin', 'teacher']) },
+        { path: 'report', element: withRole(<ReportPage />, ['admin']) },
+        { path: 'attendance', element: withRole(<AttendancePage />, ['admin', 'teacher']) },
+        { path: 'assignment-report', element: withRole(<AssignmentReportsPage />, ['admin', 'teacher']) },
+        { path: 'verification', element: withRole(<StudentVerificationPage />, ['admin']) }
       ]
     }
   ];
 
-  const publicRoutes = [
-    // {
-    //   path: '/',
-    //   element: <StudentApplication />,
-    //   index: true
-    // },
+  const studentRoutes = [
     {
-      path: 'courses/apply/:id',
-      element: <CourseRegistration />,
-      index: true
-    },
-    {
-      path: 'jobs/apply/:id',
-      element: <JobApplication />,
-      index: true
-    },
-    {
-      path: '/',
-      element: <SignInPage />,
-      index: true
-    },
-    {
-      path: '/signup',
-      element: <SignUpPage />,
-      index: true
-    },
-    {
-      path: '/forgot-password',
-      element: <ForgotPassword />,
-      index: true
-    },
-    {
-      path: '/otp',
-      element: <Otp />,
-      index: true
-    },
-    {
-      path: '/new-password',
-      element: <NewPassword />,
-      index: true
-    },
-    {
-      path: '/404',
-      element: <NotFound />
-    },
-
-    {
-      path: '*',
-      element: <Navigate to="/404" replace />
+      path: '/dashboard',
+      element: (
+        <StudentLayout>
+          <ProtectedRoute allowedRoles={['student', 'applicant']}>
+            <Suspense fallback={<div>Loading...</div>}>
+              <Outlet />
+            </Suspense>
+          </ProtectedRoute>
+        </StudentLayout>
+      ),
+      children: [
+        { element: withRole(<DashboardPage />, ['student','applicant']), index: true },
+        { path: 'profile', element: withRole(<ProfilePage />, ['student','applicant']) },
+        { path: 'eu/student-form', element: withRole(<HomeStudentApplication />, ['student']) },
+        { path: 'international/student-form', element: withRole(<InternationalStudentApplication />, ['student']) },
+        { path: 'student-assignments-feedback', element: withRole(<StudentAssignmentFeedbackList />, ['student']) },
+        { path: 'student-assignments', element: withRole(<StudentAssignmentsPage />, ['student']) },
+        { path: 'course-application/:id', element: withRole(<CourseApplicationPage />, ['student']) },
+        { path: 'job-application/:id', element: withRole(<JobApplicationPage />, ['applicant']) },
+        { path: 'student-application/:id', element: withRole(<ViewStudentApplicationPage />, ['student']) },
+        { path: 'student-application/:id/edit/eu', element: withRole(<EuStudentProfile />, ['student']) },
+        { path: 'student-application/:id/edit/international', element: withRole(<InternationalStudentProfile />, ['student']) },
+        { path: 'career-application/:id/:userId', element: withRole(<ViewCareerApplicationPage />, ['applicant']) },
+        { path: 'career-application/:id/:userId/edit', element: withRole(<ApplicantEditProfile />, ['applicant']) },
+        { path: 'courses', element: withRole(<CoursesPage />, ['student']) },
+        { path: 'courses/course-document/:id', element: withRole(<CourseDocumentPage />, ['student']) },
+        { path: 'courses/:id/unit', element: withRole(<CourseUnitPage />, ['student']) },
+        { path: 'courses/:id/unit/:unitId', element: withRole(<CourseResource />, ['student']) },
+        { path: 'terms', element: withRole(<TermPage />, ['student']) },
+        { path: 'jobs', element: withRole(<JobPage />, ['applicant']) },
+        { path: 'jobs/:id', element: withRole(<CareerApplicationsPage />, ['applicant']) },
+        { path: 'career-application', element: withRole(<CareerPage />, ['applicant']) },
+        { path: 'career', element: withRole(<CareerResumeUpload />, ['applicant']) },
+        { path: 'career-guideline', element: withRole(<CareerGuideline />, ['applicant']) },
+        { path: 'student-guideline', element: withRole(<StudentGuideline />, ['student']) },
+        { path: 'student-applications', element: withRole(<StudentApplicationsPage />, ['student']) },
+        { path: 'student-applications/:id/assignment/:studentId', element: withRole(<AssignmentPage />, ['student']) },
+        { path: 'student-applications/:id/assignment/:studentId/unit-assignments/:unitId', element: withRole(<AssignmentDetailPage />, ['student']) }
+      ]
     }
   ];
 
-  const routes = useRoutes([...publicRoutes, ...adminRoutes]);
+  // --- Public Routes ---
+  const publicRoutes = [
+    { path: 'courses/apply/:id', element: <CourseRegistration /> },
+    { path: 'jobs/apply/:id', element: <JobApplication /> },
+    { path: '/', element: <SignInPage />, index: true },
+    { path: '/signup', element: <SignUpPage /> },
+    { path: '/forgot-password', element: <ForgotPassword /> },
+    { path: '/otp', element: <Otp /> },
+    { path: '/new-password', element: <NewPassword /> },
+    { path: '/404', element: <NotFound /> },
+    { path: '*', element: <Navigate to="/404" replace /> }
+  ];
+
+  // 2. Select route set based on active role
+  let authenticatedRoutes:any = [];
+  
+  if (role === 'admin' || role === 'teacher') {
+    authenticatedRoutes = adminRoutes;
+  } else if (role === 'student' || role === 'applicant') {
+    authenticatedRoutes = studentRoutes;
+  }
+
+  // 3. Compile and return routes
+  const routes = useRoutes([...publicRoutes, ...authenticatedRoutes]);
 
   return routes;
 }

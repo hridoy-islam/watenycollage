@@ -1,228 +1,178 @@
-import {
-  HomeIcon,
-  UsersIcon,
-  Settings2Icon,
-  FileTextIcon,
-  UserIcon,
-  ClipboardListIcon,
-  ChevronDown,
-  Settings2,
-  CalendarCheck,
-  RefreshCw,
-  BookOpenCheck,
-  Landmark,
-  Users,
-  CircleUser,
-  Link2,
-  AtSign,
-  DraftingCompass,
-  ClipboardPaste
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Link, useNavigate } from 'react-router-dom';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger
-} from '../ui/dropdown-menu';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { useEffect } from 'react';
+import { AppDispatch } from '@/redux/store';
 import { logout } from '@/redux/features/authSlice';
-const navItems = [
-  { icon: HomeIcon, label: 'Dashboard', href: '/dashboard' },
-  {
-    icon: ClipboardListIcon,
-    label: 'Management',
-    href: '/management',
-    subItems: [
-      { icon: Users, label: 'Agents', href: 'agents' },
-      { icon: Link2, label: 'Course Relation', href: 'course-fee' }
-    ]
-  },
-  { icon: UsersIcon, label: 'Students', href: 'students' },
-  { icon: UserIcon, label: 'Enrolled', href: '#' },
-  { icon: FileTextIcon, label: 'Invoices', href: 'invoice' },
-  { icon: ClipboardPaste, label: 'Remit', href: 'remit' },
-  {
-    icon: Settings2Icon,
-    label: 'Settings',
-    href: '/settings',
-    subItems: [
-      {
-        icon: Settings2,
-        label: 'Perameters',
-        href: '/settings/',
-        subItems: [
-          { icon: Landmark, label: 'Institution', href: 'institution' },
-          { icon: BookOpenCheck, label: 'Courses', href: 'courses' },
-          { icon: RefreshCw, label: 'Terms', href: 'terms' },
-          { icon: CalendarCheck, label: 'Academic Year', href: 'academic-year' }
-        ]
-      },
-      { icon: CircleUser, label: 'Staffs', href: 'staff' },
-      { icon: AtSign, label: 'Emails', href: 'emails' },
-      { icon: DraftingCompass, label: 'Drafts', href: 'drafts' }
-    ]
-  }
-];
-const NavItem = ({ item, depth = 0 }) => {
-  if (!item) return null; // Ensure no invalid items render
-  if (item.subItems) {
-    return (
-      <DropdownMenuSub>
-        <DropdownMenuSubTrigger className="flex w-full cursor-pointer items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <item.icon className="h-5 w-5" />
-            <span>{item.label}</span>
-          </div>
-        </DropdownMenuSubTrigger>
-        <DropdownMenuSubContent className="border-none bg-supperagent">
-          {item.subItems.map((subItem) => (
-            <NavItem key={subItem.href} item={subItem} depth={depth + 1} />
-          ))}
-        </DropdownMenuSubContent>
-      </DropdownMenuSub>
-    );
-  }
+import logo from '@/assets/imges/home/logo.png';
+import {
+  Users,
+  BookOpen,
+  Calendar,
+  Briefcase,
+  LayoutTemplate,
+  ClipboardList,
+  GraduationCap,
+  BarChart2,
+  ShieldCheck,
+  LogOut,
+  LayoutDashboard,
+  MessageSquare,
+  UserCheck,
+  Menu,
+  X,
+} from 'lucide-react';
+import { Button } from '../ui/button';
+import { cn } from '@/lib/utils';
+import { useState } from 'react';
 
-  return (
-    <DropdownMenuItem asChild>
-      <Link
-        to={item.href}
-        className="flex w-full cursor-pointer items-center space-x-2 text-sm font-medium text-white hover:text-supperagent"
-      >
-        <item.icon className="h-5 w-5" />
-        <span>{item.label}</span>
-      </Link>
-    </DropdownMenuItem>
-  );
-};
+const adminLinks = [
+  { path: '/dashboard/student-applications', label: 'Student Applications', icon: Users },
+  { path: '/dashboard/courses', label: 'Course', icon: BookOpen },
+  { path: '/dashboard/assignments-feedback', label: 'Assignment', icon: ClipboardList },
+  { path: '/dashboard/teachers', label: 'Teachers', icon: GraduationCap },
+  { path: '/dashboard/terms', label: 'Term', icon: Calendar },
+  { path: '/dashboard/jobs', label: 'Job', icon: Briefcase },
+  { path: '/dashboard/report', label: 'Report', icon: BarChart2 },
+  { path: '/dashboard/template', label: 'Template', icon: LayoutTemplate },
+  { path: '/dashboard/verification', label: 'Verification', icon: ShieldCheck },
+];
 
 export function SideNav() {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const user = useSelector((state) => state.auth?.user) || null;
+  const { user } = useSelector((state: any) => state.auth);
+  const isCompleted = user?.isCompleted;
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-  // Auto logout if user is null
-  useEffect(() => {
-    if (!user) {
-      dispatch(logout()); // Dispatch logout action
-      navigate('/'); // Redirect to login page
-    }
-  }, [user, dispatch, navigate]);
+  const teacherLinks = [
+    { path: `/dashboard/teachers/courses/${user?._id}`, label: 'Courses', icon: BookOpen },
+    { path: '/dashboard/teacher-assignments-feedback', label: 'Feedbacks', icon: MessageSquare },
+    { path: '/dashboard/teacher/student-applications', label: 'Students', icon: Users },
+    { path: '/dashboard/attendance', label: 'Attendance', icon: UserCheck },
+  ];
 
-  if (!user) return null; // Prevent rendering if user is missing
+  const navItems = [
+    ...(isCompleted ? [{ path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard }] : []),
+    ...(user?.role === 'admin' ? adminLinks : user?.role === 'teacher' ? teacherLinks : []),
+  ];
 
-  //Filter out Management & Settings for agents
-  // const filteredNavItems =
-  //   user.role === 'agent'
-  //     ? navItems.filter(
-  //         (item) => !['Management', 'Settings', 'Invoices'].includes(item.label)
-  //       )
-  //     : navItems;
-
-  const filterForAgent = (navItems) =>
-    navItems.filter(
-      (item) => !['Management', 'Settings', 'Invoices'].includes(item.label)
-    );
-
-  const filterForStaff = (navItems, user) => {
-    if (!user?.privileges?.management) return navItems; // If no privileges, return default nav
-
-    const management = user.privileges.management;
-
-    return navItems
-      .map((item) => {
-        if (item.label === 'Management' && item.subItems) {
-          const allowedSubItems = item.subItems.filter(
-            (subItem) =>
-              (subItem.label === 'Agents' && management.agent) ||
-              (subItem.label === 'Course Relation' && management.courseRelation)
-          );
-
-          return allowedSubItems.length > 0
-            ? { ...item, subItems: allowedSubItems }
-            : null;
-        }
-
-        if (item.label === 'Settings' && item.subItems) {
-          const allowedSubItems = item.subItems
-            .map((subItem) => {
-              if (subItem.label === 'Perameters' && subItem.subItems) {
-                const allowedParameters = subItem.subItems.filter(
-                  (param) =>
-                    (param.label === 'Institution' && management.institution) ||
-                    (param.label === 'Courses' && management.course) ||
-                    (param.label === 'Terms' && management.term) ||
-                    (param.label === 'Academic Year' && management.academicYear)
-                );
-
-                return allowedParameters.length > 0
-                  ? { ...subItem, subItems: allowedParameters }
-                  : null;
-              }
-
-              return ['Staffs', 'Emails', 'Drafts'].includes(subItem.label) &&
-                management[subItem.label.toLowerCase()]
-                ? subItem
-                : null;
-            })
-            .filter(Boolean);
-
-          return allowedSubItems.length > 0
-            ? { ...item, subItems: allowedSubItems }
-            : null;
-        }
-
-        return item.label === 'Invoices' && !management.invoices ? null : item;
-      })
-      .filter(Boolean); // Remove null items
+  const handleLogout = async () => {
+    await dispatch(logout());
+    navigate('/');
   };
 
-  const filteredNavItems =
-    user.role === 'agent'
-      ? filterForAgent(navItems)
-      : user.role === 'staff'
-        ? filterForStaff(navItems, user)
-        : navItems;
+  const sidebarContent = (
+    // ✅ w-56 = 224px — must match lg:pl-56 in AdminLayout
+    <aside className="flex h-full w-56 flex-col border-r border-gray-100 bg-white shadow-lg">
+      {/* Header / Logo */}
+      <div className="flex h-16 flex-shrink-0 items-center gap-3 border-b border-gray-100 px-5">
+        {isCompleted ? (
+          <a href="/dashboard" className="flex items-center gap-3">
+            <img src={logo} className="h-10 w-10 object-contain" alt="Logo" />
+          </a>
+        ) : (
+          <div className="flex items-center gap-3">
+            <img src={logo} className="h-10 w-10 object-contain" alt="Logo" />
+            <span className="text-base font-bold text-gray-800 tracking-tight">Dashboard</span>
+          </div>
+        )}
+      </div>
+
+      {/* Navigation */}
+      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-0.5 scrollbar-thin scrollbar-thumb-gray-100 hover:scrollbar-thumb-gray-200">
+        {navItems.map(({ path, label, icon: Icon }) => (
+          <NavLink
+            key={path}
+            to={path}
+            end={path === '/dashboard'}
+            onClick={() => setMobileOpen(false)}
+            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-xs font-medium transition-all  hover:bg-watney hover:text-white group"
+          >
+            <Icon className="h-4 w-4 flex-shrink-0" />
+            <span className="flex-1">{label}</span>
+          </NavLink>
+        ))}
+      </nav>
+
+      {/* Footer / User Info */}
+      <div className="flex-shrink-0 border-t border-gray-100 p-4 space-y-3 bg-white">
+        <div
+          className={cn('flex flex-col gap-0.5', isCompleted && 'cursor-pointer group')}
+          onClick={() => {
+            if (isCompleted) {
+              navigate('/dashboard/profile');
+              setMobileOpen(false);
+            }
+          }}
+        >
+          <span className="text-sm font-semibold text-gray-800 truncate group-hover:text-watney transition-colors">
+            {user?.name}
+          </span>
+          <div className="flex items-center justify-between">
+            <span className="text-[9px] text-gray-500 truncate max-w-[130px]">{user?.email}</span>
+            {isCompleted && (
+              <span className="text-[11px] font-medium text-watney hover:underline">
+                My Profile
+              </span>
+            )}
+          </div>
+        </div>
+
+        <Button
+          onClick={handleLogout}
+          className="w-full flex items-center justify-center gap-2 bg-watney text-white hover:bg-watney/90 rounded-lg py-2 text-sm font-semibold transition-all shadow-sm"
+        >
+          <LogOut className="h-4 w-4" />
+          Log out
+        </Button>
+      </div>
+    </aside>
+  );
 
   return (
-    <nav className="flex space-x-6 bg-white px-4 py-4 shadow-sm">
-      {filteredNavItems.map((item) => (
-        <div key={item.href}>
-          {item.subItems ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <div className="flex cursor-pointer items-center space-x-2 text-sm font-medium text-gray-600 hover:text-supperagent">
-                  <item.icon className="h-5 w-5" />
-                  <span>{item.label}</span>
-                  <ChevronDown className="h-4 w-4" />
-                </div>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="border-none bg-supperagent">
-                {item.subItems.map((subItem) => (
-                  <NavItem key={subItem.href} item={subItem} />
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <Link
-              to={item.href}
-              className={cn(
-                'flex cursor-pointer items-center space-x-2 text-sm font-medium text-gray-600 hover:text-supperagent',
-                item.href === '/students' && 'text-supperagent'
-              )}
+    <>
+      {/* Mobile top bar */}
+      <div className="fixed top-0 left-0 right-0 z-50 flex h-14 items-center justify-between border-b border-gray-100 bg-white px-4 shadow-sm lg:hidden">
+        <a href="/dashboard" className="flex items-center gap-2">
+          <img src={logo} className="h-8 w-8 object-contain" alt="Logo" />
+          <span className="text-base font-bold text-gray-800 tracking-tight">Dashboard</span>
+        </a>
+        <button
+          onClick={() => setMobileOpen(true)}
+          className="rounded-md p-2 text-gray-600 hover:bg-gray-100 transition-colors"
+          aria-label="Open menu"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+      </div>
+
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-black/40 lg:hidden"
+          onClick={() => setMobileOpen(false)}
+        >
+          {/* ✅ Mobile drawer matches w-56 of sidebarContent */}
+          <div
+            className="absolute inset-y-0 left-0 flex w-56 flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close button */}
+            <button
+              onClick={() => setMobileOpen(false)}
+              className="absolute top-3 right-3 z-10 rounded-md p-1.5  hover:bg-gray-100 transition-colors"
+              aria-label="Close menu"
             >
-              <item.icon className="h-5 w-5" />
-              <span>{item.label}</span>
-            </Link>
-          )}
+              <X className="h-4 w-4" />
+            </button>
+            {sidebarContent}
+          </div>
         </div>
-      ))}
-    </nav>
+      )}
+
+      {/* Desktop sidebar */}
+      <div className="fixed inset-y-0 left-0 z-50 hidden lg:flex">
+        {sidebarContent}
+      </div>
+    </>
   );
 }
