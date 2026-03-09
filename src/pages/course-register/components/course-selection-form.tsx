@@ -20,7 +20,7 @@ export interface Term {
 }
 
 const studentTypes = [
-  { label: 'Overseas', value: 'international' },
+  // { label: 'Overseas', value: 'international' },
   { label: 'Home Student', value: 'eu' }
 ];
 
