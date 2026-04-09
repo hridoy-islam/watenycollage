@@ -243,7 +243,7 @@ export default function ViewCareerApplicationPage() {
       (typeof value === 'string' &&
         moment(value, moment.ISO_8601, true).isValid())
     ) {
-      return moment(value).format('MM-DD-YYYY'); // Customize format as needed
+      return moment(value).format('DD-MM-YYYY'); // Customize format as needed
     }
 
     if (typeof value === 'object') {

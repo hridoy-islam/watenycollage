@@ -241,7 +241,7 @@ export default function JobPage() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    {moment(job.applicationDeadline).format('MM/DD/YYYY')}
+                    {moment(job.applicationDeadline).format('DD/MM/YYYY')}
                   </TableCell>
                   <TableCell>
                     <Button

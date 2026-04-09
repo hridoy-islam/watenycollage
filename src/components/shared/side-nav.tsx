@@ -31,7 +31,7 @@ const adminLinks = [
   { path: '/dashboard/teachers', label: 'Teachers', icon: GraduationCap },
   { path: '/dashboard/terms', label: 'Term', icon: Calendar },
   { path: '/dashboard/jobs', label: 'Job', icon: Briefcase },
-  { path: '/dashboard/report', label: 'Report', icon: BarChart2 },
+  { path: '/dashboard/report', label: 'Attendance', icon: BarChart2 },
   { path: '/dashboard/template', label: 'Template', icon: LayoutTemplate },
   { path: '/dashboard/verification', label: 'Verification', icon: ShieldCheck },
 ];

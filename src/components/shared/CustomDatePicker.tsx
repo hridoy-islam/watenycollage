@@ -42,7 +42,7 @@ export function CustomDatePicker({
       <DatePicker
         selected={selected}
         onChange={onChange}
-        dateFormat="MM/dd/yyyy"
+        dateFormat="dd/MM/yyyy"
         disabled={disabled}
         popperClassName="z-[1001]"
         maxDate={futureDate ? new Date(): undefined  }
