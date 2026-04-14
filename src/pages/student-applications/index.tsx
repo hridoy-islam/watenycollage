@@ -18,7 +18,8 @@ import {
   MoreHorizontal,
   CheckCircle,
   XCircle,
-  Search
+  Search,
+  Download
 } from 'lucide-react';
 import { DataTablePagination } from '@/components/shared/data-table-pagination';
 import { useNavigate } from 'react-router-dom';
@@ -84,6 +85,125 @@ export default function StudentApplicationsPage() {
   const [selectedTerm, setSelectedTerm] = useState<CourseOption | null>(null);
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
   const { toast } = useToast();
+  const [isExporting, setIsExporting] = useState(false);
+
+ const handleExport = async () => {
+    try {
+      setIsExporting(true);
+
+      const params: Record<string, string> = {};
+      if (selectedCourse?.value) params.courseId = selectedCourse.value;
+      if (selectedTerm?.value) params.intakeId = selectedTerm.value;
+      if (searchTerm) params.searchTerm = searchTerm;
+
+      const res = await axiosInstance.get('/application-course/export', { params });
+      const allData: any[] = res.data?.data?.result || [];
+
+      // Exclude rejected (cancelled) — only applied & enrolled (approved)
+      const filtered = allData.filter(
+        (app: any) => app.status === 'applied' || app.status === 'approved'
+      );
+
+      if (filtered.length === 0) {
+        toast({ title: 'No data to export.', className: 'bg-destructive text-white border-none' });
+        return;
+      }
+
+      const escapeCell = (value: any): string => {
+        if (value === null || value === undefined) return '';
+        const str = String(value);
+        return str.includes(',') || str.includes('"') || str.includes('\n')
+          ? `"${str.replace(/"/g, '""')}"` : str;
+      };
+
+      const headers = [
+        'Ref ID', 'Title', 'First Name', 'Initial', 'Last Name', 'Email', 'Phone',
+        'Date of Birth', 'Gender', 'Nationality', 'Country of Birth', 'Country of Residence',
+        'Ethnicity', 'Marital Status', 'Disability', 'Disability Details', 'NI Number',
+        'Student Type',
+        'Residential Address Line 1', 'Residential Address Line 2', 'Residential City',
+        'Residential Country', 'Residential Post Code',
+        'Postal Address Line 1', 'Postal Address Line 2', 'Postal City',
+        'Postal Country', 'Postal Post Code',
+        'Course Name', 'Course Code', 'Term', 'Application Status',
+        'Institution 1', 'Qualification 1', 'Award Date 1', 'Grade 1',
+        'Institution 2', 'Qualification 2', 'Award Date 2', 'Grade 2',
+        'Institution 3', 'Qualification 3', 'Award Date 3', 'Grade 3',
+        'Employer', 'Job Title', 'Employment Start Date', 'Employment Type',
+        'Emergency Full Name', 'Emergency Relationship', 'Emergency Contact Number',
+        'Emergency Email', 'Emergency Address',
+        'Referee 1 Name', 'Referee 1 Address', 'Referee 1 Post Code', 'Referee 1 Email', 'Referee 1 Phone',
+        'Referee 2 Name', 'Referee 2 Address', 'Referee 2 Post Code', 'Referee 2 Email', 'Referee 2 Phone'
+      ];
+
+      const rows = filtered.map((app: any) => {
+        const s = app.studentId || {};
+        const educationArr = s.educationData || [];
+        const emp = s.currentEmployment || {};
+        const course = app.courseId || {};
+        const intake = app.intakeId || {};
+        const ref1 = s.referee1 || {};
+        const ref2 = s.referee2 || {};
+
+        const studentTypeLabel =
+          s.studentType === 'eu' ? 'Home'
+          : s.studentType ? s.studentType.charAt(0).toUpperCase() + s.studentType.slice(1)
+          : '';
+
+        const statusLabel =
+          app.status === 'approved' ? 'Enrolled' : app.status === 'applied' ? 'Applied' : '';
+
+        // Extract up to 3 education records
+        const edu1 = educationArr[0] || {};
+        const edu2 = educationArr[1] || {};
+        const edu3 = educationArr[2] || {};
+
+        const formatDate = (dateString: string) => 
+          dateString ? new Date(dateString).toLocaleDateString('en-GB') : '';
+
+        return [
+          app.refId, s.title, s.firstName, s.initial, s.lastName, s.email, s.phone,
+          formatDate(s.dateOfBirth),
+          s.gender, s.nationality, s.countryOfBirth, s.countryOfResidence,
+          s.ethnicity, s.maritalStatus, s.disability, s.disabilityDetails, s.niNumber,
+          studentTypeLabel,
+          s.residentialAddressLine1, s.residentialAddressLine2, s.residentialCity,
+          s.residentialCountry, s.residentialPostCode,
+          s.postalAddressLine1, s.postalAddressLine2, s.postalCity,
+          s.postalCountry, s.postalPostCode,
+          course.name, course.courseCode, intake.termName, statusLabel,
+          // Education 1
+          edu1.institution, edu1.qualification, formatDate(edu1.awardDate), edu1.grade,
+          // Education 2
+          edu2.institution, edu2.qualification, formatDate(edu2.awardDate), edu2.grade,
+          // Education 3
+          edu3.institution, edu3.qualification, formatDate(edu3.awardDate), edu3.grade,
+          // Employment & Emergency
+          emp.employer, emp.jobTitle, formatDate(emp.startDate), emp.employmentType,
+          s.emergencyFullName, s.emergencyRelationship, s.emergencyContactNumber,
+          s.emergencyEmail, s.emergencyAddress,
+          // Referees
+          ref1.name, ref1.address, ref1.postCode, ref1.email, ref1.phone,
+          ref2.name, ref2.address, ref2.postCode, ref2.email, ref2.phone
+        ].map(escapeCell);
+      });
+
+      const csvContent = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `student-applications-${new Date().toISOString().slice(0, 10)}.csv`;
+      link.click();
+      URL.revokeObjectURL(url);
+
+    } catch (error) {
+      console.error('Export error:', error);
+      toast({ title: 'Failed to export data.', className: 'bg-destructive text-white border-none' });
+    } finally {
+      setIsExporting(false);
+    }
+  };
   
   const fetchData = async (
     page = 1,
@@ -248,13 +368,16 @@ export default function StudentApplicationsPage() {
             Student Applications
           </h2>
         </div>
-        <Button
-          className="bg-watney text-white hover:bg-watney/90"
-          onClick={() => navigate('/dashboard')}
-        >
-          <MoveLeft className="mr-2 h-4 w-4" />
-          Back
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            className="bg-watney text-white hover:bg-watney/90"
+            onClick={() => navigate('/dashboard')}
+          >
+            <MoveLeft className="mr-2 h-4 w-4" />
+            Back
+          </Button>
+         
+        </div>
       </div>
       
       {/* Filters Section */}
@@ -347,6 +470,14 @@ export default function StudentApplicationsPage() {
           <Search className="mr-2 h-4 w-4" />
           Search
         </Button>
+         <Button
+            onClick={handleExport}
+            disabled={isExporting}
+            variant="outline"
+          >
+            <Download className="mr-2 h-4 w-4" />
+            {isExporting ? 'Exporting...' : 'Export CSV'}
+          </Button>
       </div>
       
       {/* Unified Table Container */}
