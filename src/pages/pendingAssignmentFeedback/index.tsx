@@ -9,12 +9,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Select from 'react-select';
 import {
@@ -44,6 +39,9 @@ interface Assignment {
     courseId: {
       _id: string;
       name: string;
+    };
+    intakeId?: {
+      termName: string;
     };
   };
   unitId: {
@@ -81,19 +79,25 @@ export function AssignmentFeedbackList() {
   const [terms, setTerms] = useState<SelectOption[]>([]);
   const [units, setUnits] = useState<SelectOption[]>([]);
   const [assignments, setAssignments] = useState<SelectOption[]>([]);
+  const [students, setStudents] = useState<SelectOption[]>([]); // 🔹 Added students state
 
-  const [selectedCourse, setSelectedCourse] = useState<SelectOption | null>(null);
+  const [selectedCourse, setSelectedCourse] = useState<SelectOption | null>(
+    null
+  );
   const [selectedTerm, setSelectedTerm] = useState<SelectOption | null>(null);
   const [selectedUnit, setSelectedUnit] = useState<SelectOption | null>(null);
-  const [selectedAssignment, setSelectedAssignment] = useState<SelectOption | null>(null);
+  const [selectedAssignment, setSelectedAssignment] =
+    useState<SelectOption | null>(null);
+  const [selectedStudent, setSelectedStudent] = useState<SelectOption | null>(
+    null
+  ); // 🔹 Added selectedStudent state
 
   const [assignmentList, setAssignmentList] = useState<Assignment[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
-  const [counter,setCounter] = useState(0)
-  const count = () => setCounter(prev => prev + 1);
-
+  const [counter, setCounter] = useState(0);
+  const count = () => setCounter((prev) => prev + 1);
 
   // 🔹 Sort units by serial number
   const sortBySerialNumber = (resources: any[]) => {
@@ -113,29 +117,56 @@ export function AssignmentFeedbackList() {
     });
   };
 
-  // Load courses and terms
+  // Load courses, terms, and students
   useEffect(() => {
     const fetchData = async () => {
       try {
         if (user?.role === 'admin') {
-          const [coursesRes, termsRes] = await Promise.all([
-            axiosInstance.get('/courses', { params: { status: 1, limit: 'all' } }),
-            axiosInstance.get('/terms', { params: { limit: 'all' } })
+          const [coursesRes, termsRes, studentRes] = await Promise.all([
+            axiosInstance.get('/courses', {
+              params: { status: 1, limit: 'all' }
+            }),
+            axiosInstance.get('/terms', { params: { limit: 'all' } }),
+            axiosInstance.get('/users?role=student', {
+              params: { limit: 'all' }
+            }) // 🔹 Fetch students
           ]);
 
-          setCourses(coursesRes.data.data.result.map((c: any) => ({
-            value: c._id,
-            label: c?.name
-          })));
+          setCourses(
+            coursesRes.data.data.result.map((c: any) => ({
+              value: c._id,
+              label: c?.name
+            }))
+          );
 
-          setTerms(termsRes.data.data.result.map((t: any) => ({
-            value: t._id,
-            label: t?.termName
-          })));
+          setTerms(
+            termsRes.data.data.result.map((t: any) => ({
+              value: t._id,
+              label: t?.termName
+            }))
+          );
+
+          // 🔹 Set student options
+          setStudents(
+            studentRes.data.data.result.map((s: any) => ({
+              value: s._id,
+              label:
+                s.name ||
+                (s.firstName && s.lastName
+                  ? `${s.firstName} ${s.lastName}`
+                  : s.email) ||
+                'Unknown Student'
+            }))
+          );
         } else if (user?.role === 'teacher') {
-          const res = await axiosInstance.get('/teacher-courses', {
-            params: { teacherId: user._id, limit: 'all' }
-          });
+          const [res, studentRes] = await Promise.all([
+            axiosInstance.get('/teacher-courses', {
+              params: { teacherId: user._id, limit: 'all' }
+            }),
+            axiosInstance.get('/users?role=student', {
+              params: { limit: 'all' }
+            }) // 🔹 Fetch students for teacher as well
+          ]);
 
           const teacherCourses = res.data.data.result;
           const uniqueCoursesMap = new Map();
@@ -158,10 +189,23 @@ export function AssignmentFeedbackList() {
 
           setCourses(Array.from(uniqueCoursesMap.values()));
           setTerms(Array.from(uniqueTermsMap.values()));
+
+          // 🔹 Set student options
+          setStudents(
+            studentRes.data.data.result.map((s: any) => ({
+              value: s._id,
+              label:
+                s.name ||
+                (s.firstName && s.lastName
+                  ? `${s.firstName} ${s.lastName}`
+                  : s.email) ||
+                'Unknown Student'
+            }))
+          );
         }
       } catch (err) {
-        console.error('Failed to load courses/terms', err);
-        setError('Failed to load courses/terms');
+        console.error('Failed to load initial data', err);
+        setError('Failed to load courses/terms/students');
       }
     };
 
@@ -227,7 +271,7 @@ export function AssignmentFeedbackList() {
           }
         });
 
-        const assignmentOptions = allAssignments.map(a => ({
+        const assignmentOptions = allAssignments.map((a) => ({
           value: a._id,
           label: a.title
         }));
@@ -253,13 +297,15 @@ export function AssignmentFeedbackList() {
       const params: Record<string, string> = {
         limit: 'all',
         sort: '-updatedAt',
-        status: 'submitted',
+        status: 'submitted'
       };
 
       if (selectedCourse?.value) params.courseId = selectedCourse.value;
       if (selectedUnit?.value) params.unitId = selectedUnit.value;
       if (selectedTerm?.value) params.termId = selectedTerm.value;
-      if (selectedAssignment?.value) params.assignmentId = selectedAssignment.value;
+      if (selectedAssignment?.value)
+        params.assignmentId = selectedAssignment.value;
+      if (selectedStudent?.value) params.studentId = selectedStudent.value; // 🔹 Added studentId mapping
 
       const response = await axiosInstance.get('/assignment', { params });
       setAssignmentList(response.data.data?.result || []);
@@ -284,10 +330,12 @@ export function AssignmentFeedbackList() {
   };
 
   const getStudentName = (assignment: Assignment) => {
-    return assignment.studentId?.name ||
+    return (
+      assignment.studentId?.name ||
       (assignment.studentId?.firstName && assignment.studentId?.lastName
         ? `${assignment.studentId?.firstName} ${assignment.studentId?.lastName}`
-        : 'Unknown Student');
+        : 'Unknown Student')
+    );
   };
 
   const handleViewAssignment = (assignment: Assignment) => {
@@ -296,15 +344,15 @@ export function AssignmentFeedbackList() {
   };
 
   const clearFilters = () => {
-  setSelectedCourse(null);
-  setSelectedTerm(null);
-  setSelectedUnit(null);
-  setSelectedAssignment(null);
-count();
-  setHasSearched(false); 
-  setError(null); 
-};
-
+    setSelectedCourse(null);
+    setSelectedTerm(null);
+    setSelectedUnit(null);
+    setSelectedAssignment(null);
+    setSelectedStudent(null); // 🔹 Clear student filter
+    count();
+    setHasSearched(false);
+    setError(null);
+  };
 
   return (
     <div className="space-y-6">
@@ -324,7 +372,7 @@ count();
               <Button
                 variant="default"
                 size="sm"
-                onClick={() => navigate("/dashboard/assignment-report")}
+                onClick={() => navigate('/dashboard/assignment-report')}
                 className="bg-watney text-white hover:bg-watney/90"
               >
                 Assignment Reports
@@ -333,9 +381,41 @@ count();
           </div>
         </CardHeader>
         <CardContent>
-          {/* 🔹 Flex layout for filters */}
-          <div className="flex flex-wrap gap-4 mb-4 items-end">
-            <div className="flex-1 min-w-[150px]">
+          <div className="mb-4 flex flex-wrap items-end gap-4">
+            {/* 🔹 Added Student Filter Dropdown */}
+            <div className="min-w-[150px] flex-1">
+              <label className="text-sm font-medium">Student</label>
+              <Select
+                options={students}
+                value={selectedStudent}
+                onChange={(option: any) => setSelectedStudent(option)}
+                placeholder="Select student"
+                isClearable
+                styles={{
+                  placeholder: (provided) => ({
+                    ...provided,
+                    fontSize: '12px'
+                  }),
+                  singleValue: (provided) => ({
+                    ...provided,
+                    fontSize: '12px'
+                  }),
+                  input: (provided) => ({
+                    ...provided,
+                    fontSize: '12px'
+                  }),
+                  option: (provided) => ({
+                    ...provided,
+                    fontSize: '12px'
+                  }),
+                  menu: (provided) => ({
+                    ...provided,
+                    fontSize: '12px'
+                  })
+                }}
+              />
+            </div>
+            <div className="min-w-[150px] flex-1">
               <label className="text-sm font-medium">Course</label>
               <Select
                 options={courses}
@@ -343,10 +423,32 @@ count();
                 onChange={(option: any) => setSelectedCourse(option)}
                 placeholder="Select course"
                 isClearable
+                styles={{
+                  placeholder: (provided) => ({
+                    ...provided,
+                    fontSize: '12px'
+                  }),
+                  singleValue: (provided) => ({
+                    ...provided,
+                    fontSize: '12px'
+                  }),
+                  input: (provided) => ({
+                    ...provided,
+                    fontSize: '12px'
+                  }),
+                  option: (provided) => ({
+                    ...provided,
+                    fontSize: '12px'
+                  }),
+                  menu: (provided) => ({
+                    ...provided,
+                    fontSize: '12px'
+                  })
+                }}
               />
             </div>
 
-            <div className="flex-1 min-w-[150px]">
+            <div className="min-w-[150px] flex-1">
               <label className="text-sm font-medium">Term</label>
               <Select
                 options={terms}
@@ -355,45 +457,121 @@ count();
                 placeholder="Select term"
                 isClearable
                 isDisabled={!courses.length}
+                styles={{
+                  placeholder: (provided) => ({
+                    ...provided,
+                    fontSize: '12px'
+                  }),
+                  singleValue: (provided) => ({
+                    ...provided,
+                    fontSize: '12px'
+                  }),
+                  input: (provided) => ({
+                    ...provided,
+                    fontSize: '12px'
+                  }),
+                  option: (provided) => ({
+                    ...provided,
+                    fontSize: '12px'
+                  }),
+                  menu: (provided) => ({
+                    ...provided,
+                    fontSize: '12px'
+                  })
+                }}
               />
             </div>
 
-            <div className="flex-1 min-w-[150px]">
+            <div className="min-w-[150px] flex-1">
               <label className="text-sm font-medium">Unit</label>
               <Select
                 options={units}
                 value={selectedUnit}
                 onChange={(option: any) => setSelectedUnit(option)}
-                placeholder={!selectedCourse || !selectedTerm ? 'Select course & term' : 'Select unit'}
+                placeholder={
+                  !selectedCourse || !selectedTerm
+                    ? 'Select course & term'
+                    : 'Select unit'
+                }
                 isClearable
                 isDisabled={!units.length}
+                styles={{
+                  placeholder: (provided) => ({
+                    ...provided,
+                    fontSize: '10px'
+                  }),
+                  singleValue: (provided) => ({
+                    ...provided,
+                    fontSize: '12px'
+                  }),
+                  input: (provided) => ({
+                    ...provided,
+                    fontSize: '12px'
+                  }),
+                  option: (provided) => ({
+                    ...provided,
+                    fontSize: '12px'
+                  }),
+                  menu: (provided) => ({
+                    ...provided,
+                    fontSize: '12px'
+                  })
+                }}
               />
             </div>
 
-            <div className="flex-1 min-w-[150px]">
+            <div className="min-w-[150px] flex-1">
               <label className="text-sm font-medium">Assignment</label>
               <Select
                 options={assignments}
                 value={selectedAssignment}
                 onChange={(option: any) => setSelectedAssignment(option)}
-                placeholder={!selectedUnit ? 'Select unit first' : assignments.length === 0 ? 'No assignments' : 'Select assignment'}
+                placeholder={
+                  !selectedUnit
+                    ? 'Select unit first'
+                    : assignments.length === 0
+                      ? 'No assignments'
+                      : 'Select assignment'
+                }
                 isClearable
                 isDisabled={!assignments.length}
+                styles={{
+                  placeholder: (provided) => ({
+                    ...provided,
+                    fontSize: '12px'
+                  }),
+                  singleValue: (provided) => ({
+                    ...provided,
+                    fontSize: '12px'
+                  }),
+                  input: (provided) => ({
+                    ...provided,
+                    fontSize: '12px'
+                  }),
+                  option: (provided) => ({
+                    ...provided,
+                    fontSize: '12px'
+                  }),
+                  menu: (provided) => ({
+                    ...provided,
+                    fontSize: '12px'
+                  })
+                }}
               />
             </div>
 
             <div className="flex gap-2">
               <Button
                 onClick={fetchAssignmentsData}
-                disabled={!selectedAssignment}
-                className="bg-watney text-white hover:bg-watney/90"
+                disabled={!selectedAssignment && !selectedStudent} // 🔹 Enabled if either assignment OR student is selected
+                className="bg-watney text-white hover:bg-watney/90 h-10"
               >
                 <Search className="mr-2 h-4 w-4" /> Search
               </Button>
               <Button
                 onClick={clearFilters}
                 variant="outline"
-                className="flex items-center gap-1"
+                className="flex items-center gap-1 h-10"
               >
                 <X className="h-4 w-4" /> Clear Filters
               </Button>
@@ -405,28 +583,29 @@ count();
               <BlinkingDots size="large" color="bg-watney" />
             </div>
           ) : error ? (
-            <div className="text-center py-4 text-red-500">{error}</div>
+            <div className="py-4 text-center text-red-500">{error}</div>
           ) : !hasSearched ? (
             <div className="flex flex-col items-center justify-center py-8 text-center">
               <FileText className="mb-4 h-12 w-12 text-muted-foreground" />
-              <h3 className="text-lg font-semibold">Set filters and click "Search"</h3>
+              <h3 className="text-lg font-semibold">
+                Set filters and click "Search"
+              </h3>
               <p className="text-sm text-muted-foreground">
-                Select course, term, unit, and assignment to view submissions.
+                Select course, term, unit, assignment, or student to view
+                submissions.
               </p>
             </div>
           ) : assignmentList.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 text-center">
               <FileText className="mb-4 h-12 w-12 text-muted-foreground" />
               <h3 className="text-lg font-semibold">No submissions found</h3>
-              
             </div>
           ) : (
-            <Table className='text-xs'>
+            <Table className="text-xs">
               <TableHeader>
                 <TableRow>
                   <TableHead>Course</TableHead>
-                                    <TableHead>Term</TableHead>
-
+                  <TableHead>Term</TableHead>
                   <TableHead>Unit</TableHead>
                   <TableHead>Student</TableHead>
                   <TableHead>Assignment</TableHead>
@@ -436,31 +615,50 @@ count();
               <TableBody>
                 {assignmentList.map((assignment) => (
                   <TableRow key={assignment._id} className="group">
-                    <TableCell className="cursor-pointer" onClick={() => handleViewAssignment(assignment)}>
+                    <TableCell
+                      className="cursor-pointer"
+                      onClick={() => handleViewAssignment(assignment)}
+                    >
                       <div className="flex items-center gap-2">
                         <BookOpen className="h-4 w-4 text-muted-foreground" />
                         {assignment.applicationId?.courseId?.name || 'N/A'}
                       </div>
                     </TableCell>
-                    <TableCell className="cursor-pointer" onClick={() => handleViewAssignment(assignment)}>
+                    <TableCell
+                      className="cursor-pointer"
+                      onClick={() => handleViewAssignment(assignment)}
+                    >
                       <div className="flex items-center gap-2">
                         <BookOpen className="h-4 w-4 text-muted-foreground" />
                         {assignment.applicationId?.intakeId?.termName || 'N/A'}
                       </div>
                     </TableCell>
-                    <TableCell className="cursor-pointer" onClick={() => handleViewAssignment(assignment)}>
+                    <TableCell
+                      className="cursor-pointer"
+                      onClick={() => handleViewAssignment(assignment)}
+                    >
                       {assignment.unitId?.title || 'N/A'}
                     </TableCell>
-                    <TableCell className="cursor-pointer" onClick={() => handleViewAssignment(assignment)}>
+                    <TableCell
+                      className="cursor-pointer"
+                      onClick={() => handleViewAssignment(assignment)}
+                    >
                       <div className="flex items-center gap-2">
                         <User className="h-4 w-4 text-muted-foreground" />
                         <div>
-                          <div className="font-medium">{getStudentName(assignment)}</div>
-                          <div className="text-xs text-muted-foreground">{assignment.studentId?.email}</div>
+                          <div className="font-medium">
+                            {getStudentName(assignment)}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {assignment.studentId?.email}
+                          </div>
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell className="cursor-pointer font-medium" onClick={() => handleViewAssignment(assignment)}>
+                    <TableCell
+                      className="cursor-pointer font-medium"
+                      onClick={() => handleViewAssignment(assignment)}
+                    >
                       <div className="flex items-center gap-2">
                         <FileText className="h-4 w-4 text-muted-foreground" />
                         {getAssignmentTitle(assignment)}
