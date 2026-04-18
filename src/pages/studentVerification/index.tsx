@@ -408,7 +408,7 @@ export default function StudentVerificationPage() {
   const formatDate = (dateStr: string) => {
     if (!dateStr) return 'N/A';
     try {
-      return format(new Date(dateStr), 'dd-MM-yyyy');
+      return format(new Date(dateStr), 'dd/MM/yyyy');
     } catch {
       return dateStr;
     }
