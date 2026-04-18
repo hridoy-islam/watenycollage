@@ -317,7 +317,7 @@ export default function StudentVerificationPage() {
         fetchData(currentPage, entriesPerPage);
       } else {
         response = await axiosInstance.post('/verification', dataToSend);
-        setVerifications((prev: any) => [response.data.data, ...prev]);
+          fetchData(currentPage, entriesPerPage);
       }
 
       toast({
