@@ -1,6 +1,6 @@
 import type React from 'react';
 import { motion } from 'framer-motion';
-import { BookAIcon, Calendar, MapPin } from 'lucide-react';
+import { BookAIcon, Calendar, MapPin, MoveLeft } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -8,6 +8,11 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+
+// Import your logo here (adjust the path as needed)
+import logo from '@/assets/imges/home/logo.png';
 
 export interface Course {
   _id: string;
@@ -71,40 +76,48 @@ export default function CourseSelectionForm({
   isPreselectedCourse
 }: CourseSelectionFormProps) {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-white p-2">
+    <div className="relative flex min-h-screen items-center justify-center bg-white p-2">
+      
+      {/* --- Top Right Back Button --- */}
+      <Button
+        onClick={() => window.location.href = 'https://www.watneycollege.co.uk/'}
+        variant={'default'}
+        className={cn(
+          'absolute right-4 top-4 md:right-8 md:top-8 bg-watney text-white hover:bg-watney/90 transition-colors'
+        )}
+      >
+        <MoveLeft className="mr-2 w-5 h-5" /> Back To Website
+      </Button>
+
       <motion.div
         initial="hidden"
         animate="visible"
         variants={containerVariants}
-        className="container flex w-full flex-col items-center justify-center text-center"
+        className="container flex w-full flex-col items-center justify-center text-center mt-12 md:mt-0"
       >
+        {/* --- Logo and Title --- */}
+        <motion.div variants={itemVariants} className="mb-8 flex flex-row items-center justify-center gap-4">
+          <img src={logo} alt="Watney College Logo" className="w-12 md:w-16" />
+          <div className="border-l-2 border-gray-300 h-12"></div>
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900">
+            Watney College
+          </h1>
+        </motion.div>
+
         {/* Conditional Heading */}
         <motion.div variants={itemVariants} className="mb-3">
           {isPreselectedCourse ? (
-            // Show course-specific heading when course is preselected
             <>
-              <h1 className="mb-2 text-3xl font-bold text-gray-900 md:text-4xl">
+              <h2 className="mb-2 text-2xl font-bold text-gray-900 md:text-3xl">
                 Apply for
                 <span className="mt-1 block bg-gradient-to-r from-watney to-blue-700 bg-clip-text text-transparent">
                   {formData.courseName}
                 </span>
-              </h1>
-              {/* <p className="mx-auto max-w-2xl text-base font-medium text-gray-600">
-                Complete your application for this world-class program
-              </p> */}
+              </h2>
             </>
           ) : (
-            // Show generic heading when no course is preselected
             <>
-              {/* <h1 className="mb-2 text-3xl font-bold text-gray-900 md:text-4xl">
-                Shape Your Future
-                <span className="mt-1 block bg-gradient-to-r from-watney to-blue-700 bg-clip-text text-transparent">
-                  With World-Class Global Education Today
-                </span>
-              </h1>
-              <p className="mx-auto max-w-2xl text-base font-medium text-gray-600">
-                Transform your dreams into reality with our world-class programs
-              </p> */}
+              {/* Optional generic heading space */}
             </>
           )}
         </motion.div>
