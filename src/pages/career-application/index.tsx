@@ -569,9 +569,15 @@ export default function CareerApplicationForm() {
                           contact@cyberpeers.co.uk
                         </a>
                       </li>
-                      <li>
-                        <strong>Phone:</strong> +44 020 8090 4806
-                        <strong>Address:</strong>9 Town Quay, Barking IG11 7BZ, United Kingdom
+                      <li className="flex flex-wrap justify-center gap-5">
+                        <span>
+                          <strong>Phone:</strong> +44 020 8090 4806
+                        </span>
+
+                        <span>
+                          <strong>Address:</strong> 9 Town Quay, Barking IG11
+                          7BZ, United Kingdom
+                        </span>
                       </li>
                     </ul>
                   </div>

@@ -75,7 +75,7 @@ export default function JobApplication() {
         navigate(`/dashboard/job-application/${applicationId}`);
       }
     }else{
-      navigate('/dashboard/career')
+      navigate('/dashboard/career-application')
     }
     
     

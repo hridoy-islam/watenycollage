@@ -145,7 +145,7 @@ export default function CareerGuideline() {
       if (user?.isCompleted && user?.role === 'applicant') {
         navigate(`/dashboard/job-application/${applicationId}`);
       } else {
-        navigate('/dashboard/career');
+        navigate('/dashboard/career-application');
       }
     }
   };
