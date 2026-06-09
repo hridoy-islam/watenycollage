@@ -311,7 +311,7 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
           ))}
 
           {/* Solely for Everycare */}
-          {renderField('Will you be working solely for Everycare?', true, isEditing ? (
+          {renderField('Will you be working solely for Medicare Link?', true, isEditing ? (
             <Select
               options={yesNoOptions}
               value={yesNoOptions.find(opt => opt.value === localData.solelyForEverycare) || null}

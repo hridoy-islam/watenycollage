@@ -844,7 +844,7 @@ case 1:
         <div className="rounded-lg border border-gray-300 p-4">
           <div className="mb-4">
             <span className="text-lg font-medium">
-              I understand and accept that if I do not comply with the above obligations or should any information come to light following my employment with Everycare Romford which shows that medical information disclosed by myself was misleading or false, Everycare Romford may terminate my employment.
+              I understand and accept that if I do not comply with the above obligations or should any information come to light following my employment with Medicare Link which shows that medical information disclosed by myself was misleading or false, Medicare Link may terminate my employment.
               <span className="text-red-500">*</span>
             </span>
             <HelperTooltip text="Providing false or misleading medical information may result in termination of employment." />
@@ -993,7 +993,7 @@ case 1:
           <tr className="border-b border-gray-300">
             <td className="w-2/3 px-2 py-4 align-top">
               <span className="text-lg font-medium">
-                I understand and accept that if I do not comply with the above obligations or should any information come to light following my employment with Everycare Romford which shows that medical information disclosed by myself was misleading or false, Everycare Romford may terminate my employment.
+                I understand and accept that if I do not comply with the above obligations or should any information come to light following my employment with Medicare Link which shows that medical information disclosed by myself was misleading or false, Medicare Link may terminate my employment.
                 <span className="text-red-500">*</span>
               </span>
               <HelperTooltip text="Providing false or misleading medical information may result in termination of employment." />
@@ -1052,7 +1052,7 @@ case 1:
                 {defaultValues?.title} {defaultValues?.firstName}{' '}
                 {defaultValues?.initial} {defaultValues?.lastName}
               </span>
-              , hereby authorize Everycare Romford to contact the mentioned referees to avail my reference as a part of the recruitment process.
+              , hereby authorize Medicare Link to contact the mentioned referees to avail my reference as a part of the recruitment process.
               <span className="text-red-500">*</span>
             </span>
             <HelperTooltip text="This authorizes us to contact your references as part of the recruitment process under GDPR guidelines." />
@@ -1112,7 +1112,7 @@ case 1:
           {
             name: "appliedBefore",
             label: "Have you previously applied for a role with this organisation?",
-            tooltip: "Have you applied to Everycare Romford before for any position?"
+            tooltip: "Have you applied to Medicare Link before for any position?"
           }
         ].map((item, index) => (
           <div key={item.name} className="rounded-lg border border-gray-300 p-4">
@@ -1227,7 +1227,7 @@ case 1:
                   {defaultValues?.title} {defaultValues?.firstName}{' '}
                   {defaultValues?.initial} {defaultValues?.lastName}
                 </span>
-                , hereby authorize Everycare Romford to contact the mentioned referees to avail my reference as a part of the recruitment process.
+                , hereby authorize Medicare Link to contact the mentioned referees to avail my reference as a part of the recruitment process.
                 <span className="text-red-500">*</span>
               </span>
               <HelperTooltip text="This authorizes us to contact your references as part of the recruitment process under GDPR guidelines." />
@@ -1294,7 +1294,7 @@ case 1:
             {
               name: "appliedBefore",
               label: "Have you previously applied for a role with this organisation?",
-              tooltip: "Have you applied to Everycare Romford before for any position?"
+              tooltip: "Have you applied to Medicare Link before for any position?"
             }
           ].map((item, index) => (
             <tr key={item.name} className="border-b border-gray-300">

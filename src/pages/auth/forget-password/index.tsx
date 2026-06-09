@@ -70,7 +70,7 @@ export default function ForgotPassword() {
               <div className="mb-2 flex flex-col space-y-2 text-left">
                 <div className="flex flex-row items-center gap-4 space-y-2 text-center">
                   <Link to="/">
-                    <img src={logo} alt="logo" className="w-24 " />
+                    <img src={logo} alt="logo" className="w-24 scale-150" />
                   </Link>
                   <div className="h-12 border"></div>
                   <h1 className="text-2xl font-semibold tracking-tight">

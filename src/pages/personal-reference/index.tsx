@@ -226,7 +226,7 @@ export default function CharacterReferencePage() {
     <div className="min-h-screen p-6">
       <div className="mx-auto">
         <div className="flex flex-row items-center justify-between mb-6">
-          <img src="/logo.png" alt="Everycare logo" className="h-16" />
+          <img src="/logo.png" alt="Medicare logo" className="h-16 scale-150" />
         </div>
 
       <Card className="border border-gray-300">

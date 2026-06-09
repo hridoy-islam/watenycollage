@@ -52,7 +52,7 @@ export function ApplicationDetailsTab({ application, renderFieldRow }: Applicati
               {renderFieldRow("License Number", application.licenseNumber, "licenseNumber")}
               {renderFieldRow("Car Owner", application.carOwner, "carOwner")}
               {renderFieldRow("Travel Areas", application.travelAreas, "travelAreas")}
-              {renderFieldRow("Solely for Everycare", application.solelyForEverycare, "solelyForEverycare")}
+              {renderFieldRow("Solely for Medicare Link", application.solelyForEverycare, "solelyForEverycare")}
               {renderFieldRow("Other Employers", application.otherEmployers, "otherEmployers")}
               {renderFieldRow("Professional Body", application.professionalBody, "professionalBody")}
               {renderFieldRow(

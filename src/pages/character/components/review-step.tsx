@@ -871,9 +871,9 @@ export function ReviewStep({
                     <span className="text-lg font-medium">
                       I understand and accept that if I do not comply with the
                       above obligations or should any information come to light
-                      following my employment with Everycare Romford which shows
+                      following my employment with Medicare Link which shows
                       that medical information disclosed by myself was
-                      misleading or false, Everycare Romford may terminate my
+                      misleading or false, Medicare Link may terminate my
                       employment.
                       <span className="text-red-500">*</span>
                     </span>
@@ -930,7 +930,7 @@ export function ReviewStep({
                         {defaultValues?.title} {defaultValues?.firstName}{' '}
                         {defaultValues?.initial} {defaultValues?.lastName}
                       </span>
-                      , hereby authorize Everycare Romford to contact the
+                      , hereby authorize Medicare Link to contact the
                       mentioned referees to avail my reference as a part of the
                       recruitment process.
                       <span className="text-red-500">*</span>

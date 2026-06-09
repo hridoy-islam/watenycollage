@@ -323,9 +323,9 @@ const InterviewPDF: React.FC<PDFProps> = ({
           <View style={styles.headerTop}>
             {/* Left: Company Contact Info */}
             <View style={styles.companyInfoLeft}>
-              <Text>Everycare Romford</Text>
-              <Text>37 High Street, Romford, Essex, RM1 1JL</Text>
-              <Text>Tel: 0170 8690 3057</Text>
+              <Text>Medicare Link</Text>
+              <Text>65 Cranbrook Road,Ilford, London, IG1 4PG, United Kingdom</Text>
+              <Text>Tel: 02030111145</Text>
             </View>
 
             {/* Center: Logo + Company Name */}
@@ -335,9 +335,8 @@ const InterviewPDF: React.FC<PDFProps> = ({
 
             {/* Right: Contact Details */}
             <View style={{ flex: 1, fontSize: 9, textAlign: 'right' }}>
-              <Text>Email: romford@everycare.co.uk</Text>
-              <Text>Website: www.everycare.co.uk/romford</Text>
-              <Text>Registered by CQC</Text>
+              <Text>Email: info@medicarelink.co.uk</Text>
+              <Text>Website: www.medicarelink.co.uk</Text>
             </View>
           </View>
         </View>

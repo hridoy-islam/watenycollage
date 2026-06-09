@@ -32,7 +32,7 @@ export function TermTab({ application, renderFieldRow }: TermTabProps) {
               )}
 
               {renderFieldRow(
-                "I authorize Everycare Romford to contact my referees as part of the recruitment process",
+                "I authorize Medicare Link to contact my referees as part of the recruitment process",
                 application.declarationContactReferee,
                 "declarationContactReferee"
               )}

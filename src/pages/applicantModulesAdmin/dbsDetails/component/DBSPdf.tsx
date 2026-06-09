@@ -71,9 +71,9 @@ const styles = StyleSheet.create({
 const HeaderComponent = () => (
   <View style={styles.headerContainer}>
     <View style={styles.headerLeft}>
-      <Text>Everycare Romford</Text>
-      <Text>37 High Street, Romford, RM1 1JL</Text>
-      <Text>Tel: 0170 8690 3057</Text>
+      <Text>Medicare Link</Text>
+      <Text>65 Cranbrook Road,Ilford, London, IG1 4PG, United Kingdom</Text>
+      <Text>Tel: 02030111145</Text>
     </View>
 
     <View style={styles.headerCenter}>
@@ -85,12 +85,11 @@ const HeaderComponent = () => (
 
     <View style={styles.headerRight}>
       <Text>
-        Email: <Text style={styles.linkText}>romford@everycare.co.uk</Text>
+        Email: <Text style={styles.linkText}>info@medicarelink.co.uk</Text>
       </Text>
       <Text>
-        Website: <Text style={styles.linkText}>www.everycare.co.uk/romford</Text>
+        Website: <Text style={styles.linkText}>www.medicarelink.co.uk</Text>
       </Text>
-      <Text>Registered by CQC</Text>
     </View>
   </View>
 );

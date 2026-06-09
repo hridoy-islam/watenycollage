@@ -25,10 +25,10 @@ const textClass = "text-base text-gray-700";
 const steps: React.ReactNode[] = [
   // Step 1: Welcome & Introduction
   <div key="step-1" className="space-y-4 text-start">
-    <h2 className={headingClass}>Welcome to Everycare Romford</h2>
+    <h2 className={headingClass}>Welcome to Medicare Link</h2>
     <p className={textClass}>
-      We are part of <strong>Everycare UK</strong>, a trusted home care provider established in 1993 
-      with over 20 branches nationwide. Everycare Romford delivers CQC-registered domiciliary care across 
+      We are part of <strong>Medicare Link UK</strong>, a trusted home care provider established in 1993 
+      with over 20 branches nationwide. Medicare Link delivers CQC-registered domiciliary care across 
       Havering, Romford, Hornchurch, Rainham, and Upminster. We are rated 
       <strong> Good </strong> by the Care Quality Commission.
     </p>
@@ -73,7 +73,7 @@ const steps: React.ReactNode[] = [
   <div key="step-4" className="space-y-4 text-start">
     <h3 className={headingClass}>🔒 Privacy & Consent</h3>
     <p className={textClass}>
-      Everycare Romford handles your information securely and in line with UK GDPR. 
+      Medicare Link handles your information securely and in line with UK GDPR. 
       Your data will only be used for recruitment, onboarding, and statutory checks 
       such as references, DBS, and right-to-work verification.
     </p>

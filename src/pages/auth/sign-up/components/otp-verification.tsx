@@ -175,7 +175,7 @@ const handleOtpSubmit = async (e: React.FormEvent) => {
             {/* Info Text */}
             <div className="w-full space-y-2 text-center">
               <p className="font-medium text-gray-700">
-                Thank you for registering with Everycare Romford.
+                Thank you for registering with Medicare Link.
               </p>
               <p className="text-sm text-gray-600">
                 We've sent a 4-digit verification code to

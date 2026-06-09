@@ -286,7 +286,7 @@ export default function ProfessionalReferencePage() {
     <div className="min-h-screen p-6">
       <div className="mx-auto">
         <div className="mb-6 flex flex-row items-center justify-between">
-          <img src="/logo.png" alt="Everycare logo" className="h-16" />
+          <img src="/logo.png" alt="Medicare Link logo" className="h-16" />
         </div>
 
         <Card className="border border-gray-300">

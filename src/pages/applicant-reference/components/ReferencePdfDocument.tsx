@@ -232,11 +232,11 @@ const ProfessionalPage = ({ data }) => {
     <Page style={styles.page}>
       <View style={styles.headerContainer}>
         <View style={{ width: '33%' }}>
-          <Text style={styles.headerText}>Everycare Romford</Text>
+          <Text style={styles.headerText}>Medicare Link</Text>
           <Text style={styles.headerText}>
-            Office 37 High Street, Romford, Essex, RM1 1JL
+            Office: 65 Cranbrook Road,Ilford, London, IG1 4PG, United Kingdom
           </Text>
-          <Text style={styles.headerText}>Tel: 0170 8690 3057</Text>
+          <Text style={styles.headerText}>Tel: 02030111145</Text>
         </View>
         <View
           style={{
@@ -257,9 +257,9 @@ const ProfessionalPage = ({ data }) => {
           />
         </View>
         <View style={{ width: '33%', alignItems: 'flex-end' }}>
-          <Text style={styles.headerText}>Email: romford@everycare.co.uk</Text>
+          <Text style={styles.headerText}>Email: info@medicarelink.co.uk</Text>
           <Text style={styles.headerText}>
-            Website: www.everycare.co.uk/romford
+            Website: www.medicarelink.co.uk
           </Text>
           <Text style={styles.headerText}>Registered by CQC</Text>
         </View>

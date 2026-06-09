@@ -465,7 +465,7 @@ export function ApplicationDetailsStep({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      Will you be working solely for Everycare?
+                      Will you be working solely for Medicare Link?
                       <span className="text-red-500">*</span>
                     </FormLabel>
                     <Select

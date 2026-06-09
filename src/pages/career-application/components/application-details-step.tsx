@@ -524,10 +524,10 @@ export function ApplicationDetailsStep({
                   <FormItem>
                     <FormLabel>
                       <div>
-                        Will you be working solely for Everycare?
+                        Will you be working solely for Medicare Link?
                         <span className="text-red-500">*</span>
                       </div>
-                      <HelperTooltip text="Select 'Yes' if you intend to work exclusively for Everycare and not for any other employer. e.g., Yes" />
+                      <HelperTooltip text="Select 'Yes' if you intend to work exclusively for Medicare Link and not for any other employer. e.g., Yes" />
                     </FormLabel>
                     <Select
                       options={yesNoOptions}

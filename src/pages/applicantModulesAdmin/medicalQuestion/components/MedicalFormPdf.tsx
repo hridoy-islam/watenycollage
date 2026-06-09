@@ -235,9 +235,9 @@ const HeaderComponent = () => (
   <View style={styles.headerContainer}>
     {/* Left Column */}
     <View style={styles.headerLeft}>
-      <Text>Everycare Romford</Text>
-      <Text>37 High Street, Romford,RM1 1JL</Text>
-      <Text>Tel: 0170 8690 3057</Text>
+      <Text>Medicare Link</Text>
+      <Text>65 Cranbrook Road,Ilford, London, IG1 4PG, United Kingdom</Text>
+      <Text>02030111145</Text>
     </View>
 
     {/* Center Column - Logo */}
@@ -250,9 +250,8 @@ const HeaderComponent = () => (
 
     {/* Right Column */}
     <View style={styles.headerRight}>
-      <Text>Email: <Text style={styles.linkText}>romford@everycare.co.uk</Text></Text>
-      <Text>Website: <Text style={styles.linkText}>www.everycare.co.uk/romford</Text></Text>
-      <Text>Registered by CQC</Text>
+      <Text>Email: <Text style={styles.linkText}>info@medicarelink.co.uk</Text></Text>
+      <Text>Website: <Text style={styles.linkText}>www.medicarelink.co.uk</Text></Text>
     </View>
   </View>
 );
@@ -593,7 +592,7 @@ const MedicalFormPdf = ({ data }: { data: MedicalFormData }) => {
           <Text style={{ fontSize: 8, marginTop: 5 }}>
             Please read carefully before completing. The information contained
             within the completed questionnaire will remain confidential. However
-            Everycare Romford may disclose the data to its occupational health
+            Medicare Link may disclose the data to its occupational health
             provider and any false information given may render you liable to a
             summary dismissal.
           </Text>
@@ -804,7 +803,7 @@ const MedicalFormPdf = ({ data }: { data: MedicalFormData }) => {
 
           <Text style={{ marginBottom: 5 }}>
             I consent that this information may be held and processed by
-            Everycare Romfrord under the Data Protection Act 1998.
+            Medicare Link under the Data Protection Act 1998.
             <Text style={{ fontWeight: 'bold' }}>
               {data.declDataProcessing ? 'Yes' : 'No'}
             </Text>
@@ -834,9 +833,9 @@ const MedicalFormPdf = ({ data }: { data: MedicalFormData }) => {
           <Text style={{ marginBottom: 5 }}>
             I understand and accept that if I do not comply with the above
             obligations or should any information come to light following my
-            employment with Everycare Romford which shows that medical
+            employment with Medicare Link which shows that medical
             information disclosed by myself was misleading or false,
-            Everycare Romford may terminate my employment.{' '}
+            Medicare Link may terminate my employment.{' '}
             <Text style={{ fontWeight: 'bold' }}>
               {data.declTermination ? 'Yes' : 'No'}
             </Text>

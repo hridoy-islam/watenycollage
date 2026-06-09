@@ -902,11 +902,11 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
             to the following address
           </Text>
           <Text style={{ fontWeight: 'bold', marginTop: 5 }}>
-            Every Care
+            Medicare Link
           </Text>
-          <Text>37 High St, Romford RM1 1JL, United Kingdom</Text>
-          <Text>Email: admin@everycareromford.co.uk</Text>
-          <Text>Phone: +44 1708 693057</Text>
+          <Text>65 Cranbrook Road,Ilford, London, IG1 4PG, United Kingdom</Text>
+          <Text>Email: info@medicarelink.co.uk</Text>
+          <Text>Phone: 02030111145</Text>
         </View>
 
         <Text style={styles.footer}>

@@ -502,9 +502,9 @@ export default function CareerApplicationsPage() {
 
       // --- NEW: Hardcoded Admin Variables ---
       if (variable === 'admin') {
-        value = 'Everycare Romford';
+        value = 'Medicare Link';
       } else if (variable === 'adminEmail') {
-        value = 'admin@everycareromford.co.uk';
+        value = 'info@medicarelink.co.uk';
       } 
       // --- Standard Applicant Variables ---
       else {
