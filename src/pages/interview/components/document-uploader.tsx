@@ -10,7 +10,7 @@ import { FileIcon, ImageIcon, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import axiosInstance from '@/lib/axios';
 
-export function ImageUploader({
+export function DocumentUploader({
   open,
   onOpenChange,
   onUploadComplete,

@@ -43,14 +43,21 @@ const dbsCertificateSchema = z
     dateOfIssue: z.date({
       required_error: 'Date of Issue is required'
     }),
-    expiryDate: z.date({
-      required_error: 'Expiry Date is required'
-    })
+    expiryDate: z.date().optional()
   })
-  .refine((data) => data.expiryDate > data.dateOfIssue, {
-    message: 'Expiry date must be after the date of issue',
-    path: ['expiryDate']
-  });
+  .refine(
+    (data) => {
+      // Only validate if both dates are provided
+      if (data.dateOfIssue && data.expiryDate) {
+        return data.expiryDate > data.dateOfIssue;
+      }
+      return true; // Skip validation if expiryDate is not provided
+    },
+    {
+      message: 'Expiry date must be after the date of issue',
+      path: ['expiryDate']
+    }
+  );
 
 type DBSFormValues = z.infer<typeof dbsCertificateSchema>;
 
@@ -164,7 +171,7 @@ export default function DBSDetailsForm() {
       return;
     }
 
-    setSubmitting(false);
+    setSubmitting(true);
 
     try {
       const payload = {
@@ -181,7 +188,7 @@ export default function DBSDetailsForm() {
     } catch (error) {
       console.error('Error submitting DBS form:', error);
     } finally {
-      setSubmitting(true);
+      setSubmitting(false);
     }
   };
 
@@ -335,9 +342,7 @@ export default function DBSDetailsForm() {
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
                         <FormLabel className="mb-1 flex items-center gap-2 text-base">
-                          <div>
-                            Expiry Date <span className="text-red-500">*</span>
-                          </div>
+                          <div>Expiry Date</div>
                         </FormLabel>
                         <FormControl>
                           <CustomDatePicker

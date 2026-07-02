@@ -29,7 +29,7 @@ export default function JobPage() {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [entriesPerPage, setEntriesPerPage] = useState(10);
+  const [entriesPerPage, setEntriesPerPage] = useState(100);
 
   const fetchData = async (page, entriesPerPage, searchTerm = '') => {
     try {
@@ -136,7 +136,7 @@ export default function JobPage() {
       }
     );
   };
-  
+
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
@@ -282,13 +282,19 @@ export default function JobPage() {
             </TableBody>
           </Table>
         )}
-        <DataTablePagination
-          pageSize={entriesPerPage}
-          setPageSize={setEntriesPerPage}
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-        />
+
+{totalPages > 1 && (
+  <div className='mt-5'>
+    <DataTablePagination
+      pageSize={entriesPerPage}
+      setPageSize={setEntriesPerPage}
+      currentPage={currentPage}
+      totalPages={totalPages}
+      onPageChange={setCurrentPage}
+    />
+  </div>
+)}
+
       </div>
       <JobDialog
         open={dialogOpen}

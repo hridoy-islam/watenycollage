@@ -245,6 +245,7 @@ interface PDFProps {
   jobTitle: string;
   interviewDate: Date;
   interviewerName: string;
+  interviewerSignature?: string;
   assessments: Record<string, { score: number; comment: string }>;
   decision: string;
   decisionReason: string;
@@ -308,6 +309,7 @@ const InterviewPDF: React.FC<PDFProps> = ({
   jobTitle,
   interviewDate,
   interviewerName,
+  interviewerSignature,
   assessments,
   decision,
   decisionReason,
@@ -593,6 +595,12 @@ const InterviewPDF: React.FC<PDFProps> = ({
             </View>
             <View style={styles.tableCell3}>
               <Text style={styles.fieldLabel}>SIGNATURE:</Text>
+              {interviewerSignature && (
+                <Image
+                  src={interviewerSignature}
+                  style={{ width: 100, height: 40, marginTop: 4 }}
+                />
+              )}
             </View>
           </View>
         </View>

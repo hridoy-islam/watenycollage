@@ -12,6 +12,18 @@ import axiosInstance from '@/lib/axios';
 const BORDER_WIDTH = 0.25;
 const BORDER_COLOR = '#999';
 
+const CheckboxView = ({ checked }: { checked: boolean | undefined }) => (
+  <View style={{
+    width: 16,
+    height: 16,
+    borderWidth: 1.5,
+    borderColor: '#000',
+    marginTop: 1,
+    flexShrink: 0,
+    backgroundColor: checked === true ? '#000' : 'transparent'
+  }} />
+);
+
 const styles = StyleSheet.create({
   page: {
     padding: 30,
@@ -113,14 +125,14 @@ const styles = StyleSheet.create({
 // Format date utility
 const formatDate = (dateString: string): string => {
   if (!dateString) return '';
+
   try {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-GB');
+    return date.toLocaleDateString('en-US');
   } catch {
     return dateString;
   }
 };
-
 // Get today's date
 const getTodaysDate = (): string => {
   return new Date().toLocaleDateString('en-GB');
@@ -302,7 +314,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
           {/* Row A6 */}
           <View style={styles.tableRow}>
             <View style={[styles.tableCol, { width: '30%' }]}>
-              <Text>Date Of Birth (dd/mm/yyyy)</Text>
+              <Text>Date Of Birth(mm/dd/yyyy)</Text>
             </View>
             <View style={[styles.tableCol, { width: '70%' }]}>
               <Text>{formatDate(data.dateOfBirth)}</Text>
@@ -436,10 +448,10 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
                 <Text>Full-time or Part-time</Text>
               </View>
               <View style={[styles.tableColHeader, { width: '15%' }]}>
-                <Text>From (dd/mm/yyyy)</Text>
+                <Text>From (mm/dd/yyyy)</Text>
               </View>
               <View style={[styles.tableColHeader, { width: '20%' }]}>
-                <Text>To (dd/mm/yyyy)</Text>
+                <Text>To (mm/dd/yyyy)</Text>
               </View>
             </View>
 
@@ -526,10 +538,10 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
               </View>
 
               <View style={[styles.tableColHeader, { width: '20%' }]}>
-                <Text>From (dd/mm/yyyy)</Text>
+                <Text>From (mm/dd/yyyy)</Text>
               </View>
               <View style={[styles.tableColHeader, { width: '20%' }]}>
-                <Text>To (dd/mm/yyyy)</Text>
+                <Text>To (mm/dd/yyyy)</Text>
               </View>
             </View>
 
@@ -606,7 +618,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
               <Text>Level / Qualification</Text>
             </View>
             <View style={[styles.tableColHeader, { width: '20%' }]}>
-              <Text>Award Date</Text>
+              <Text>Award Date (mm/dd/yyyy)</Text>
             </View>
             <View style={[styles.tableColHeader, { width: '30%' }]}>
               <Text>College/ University</Text>
@@ -665,96 +677,128 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
           with a character referee (non-relative) if you have never been in paid
           employment.
         </Text>
-        <View style={styles.table}>
-          <View style={styles.tableRow}>
-            {/* Referee 01 */}
-            <View style={[styles.tableColHeader, { width: '50%' }]}>
-              <Text>Referee 01:</Text>
-            </View>
-            {/* Referee 02 */}
-            <View style={[styles.tableColHeader, { width: '50%' }]}>
-              <Text>Referee 02:</Text>
-            </View>
-          </View>
-          {/* Full Name */}
-          <View style={styles.tableRow}>
-            <View style={[styles.tableCol, { width: '50%' }]}>
-              <Text>
-                Full Name: {capitalizeFirstLetter(data.referee1?.name || '')}
-              </Text>
-            </View>
-            <View style={[styles.tableCol, { width: '50%' }]}>
-              <Text>
-                Full Name: {capitalizeFirstLetter(data.referee2?.name || '')}
-              </Text>
-            </View>
-          </View>
 
-          {/* Work Relationship */}
-          <View style={styles.tableRow}>
-            <View style={[styles.tableCol, { width: '50%' }]}>
-              <Text>
-                Work Relationship:{' '}
-                {capitalizeFirstLetter(data.referee1?.relationship || '')}
-              </Text>
+        <View style={{ flexDirection: 'row', gap: 10 }}>
+          {data.professionalReferee1 && (
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 10, fontWeight: 'bold', marginTop: 8, marginBottom: 2 }}>Professional Referee 1</Text>
+              <View style={styles.table}>
+                <View style={styles.tableRow}>
+                  <View style={[styles.tableCol, { width: '35%' }]}><Text>Full Name</Text></View>
+                  <View style={[styles.tableCol, { width: '65%' }]}><Text>{capitalizeFirstLetter(data.professionalReferee1?.name || '')}</Text></View>
+                </View>
+                <View style={styles.tableRow}>
+                  <View style={[styles.tableCol, { width: '35%' }]}><Text>Position</Text></View>
+                  <View style={[styles.tableCol, { width: '65%' }]}><Text>{capitalizeFirstLetter(data.professionalReferee1?.position || '')}</Text></View>
+                </View>
+                <View style={styles.tableRow}>
+                  <View style={[styles.tableCol, { width: '35%' }]}><Text>Relationship</Text></View>
+                  <View style={[styles.tableCol, { width: '65%' }]}><Text>{capitalizeFirstLetter(data.professionalReferee1?.relationship || '')}</Text></View>
+                </View>
+                <View style={styles.tableRow}>
+                  <View style={[styles.tableCol, { width: '35%' }]}><Text>Organisation</Text></View>
+                  <View style={[styles.tableCol, { width: '65%' }]}><Text>{capitalizeFirstLetter(data.professionalReferee1?.organisation || '')}</Text></View>
+                </View>
+                <View style={styles.tableRow}>
+                  <View style={[styles.tableCol, { width: '35%' }]}><Text>Address</Text></View>
+                  <View style={[styles.tableCol, { width: '65%' }]}><Text>{capitalizeFirstLetter(data.professionalReferee1?.address || '')}</Text></View>
+                </View>
+                <View style={styles.tableRow}>
+                  <View style={[styles.tableCol, { width: '35%' }]}><Text>Tel No</Text></View>
+                  <View style={[styles.tableCol, { width: '65%' }]}><Text>{data.professionalReferee1?.tel || ''}</Text></View>
+                </View>
+                <View style={styles.tableRow}>
+                  <View style={[styles.tableCol, { width: '35%' }]}><Text>Fax</Text></View>
+                  <View style={[styles.tableCol, { width: '65%' }]}><Text>{data.professionalReferee1?.fax || ''}</Text></View>
+                </View>
+                <View style={styles.tableRow}>
+                  <View style={[styles.tableCol, { width: '35%' }]}><Text>Email</Text></View>
+                  <View style={[styles.tableCol, { width: '65%' }]}><Text>{data.professionalReferee1?.email || ''}</Text></View>
+                </View>
+              </View>
             </View>
-            <View style={[styles.tableCol, { width: '50%' }]}>
-              <Text>
-                Work Relationship:{' '}
-                {capitalizeFirstLetter(data.referee2?.relationship || '')}
-              </Text>
-            </View>
-          </View>
-          {/* Organisation */}
-          <View style={styles.tableRow}>
-            <View style={[styles.tableCol, { width: '50%' }]}>
-              <Text>
-                Organisation:{' '}
-                {capitalizeFirstLetter(data.referee1?.organisation || '')}
-              </Text>
-            </View>
-            <View style={[styles.tableCol, { width: '50%' }]}>
-              <Text>
-                Organisation:{' '}
-                {capitalizeFirstLetter(data.referee2?.organisation || '')}
-              </Text>
-            </View>
-          </View>
-          {/* Full Address */}
-          <View style={styles.tableRow}>
-            <View style={[styles.tableCol, { width: '50%' }]}>
-              <Text>
-                Full Address:{' '}
-                {capitalizeFirstLetter(data.referee1?.address || '')}
-              </Text>
-            </View>
-            <View style={[styles.tableCol, { width: '50%' }]}>
-              <Text>
-                Full Address:{' '}
-                {capitalizeFirstLetter(data.referee2?.address || '')}
-              </Text>
-            </View>
-          </View>
+          )}
 
-          {/* Tel No */}
-          <View style={styles.tableRow}>
-            <View style={[styles.tableCol, { width: '50%' }]}>
-              <Text>Tel No: {data.referee1?.phone || ''}</Text>
+          {data.professionalReferee2 && (
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 10, fontWeight: 'bold', marginTop: 8, marginBottom: 2 }}>Professional Referee 2</Text>
+              <View style={styles.table}>
+                <View style={styles.tableRow}>
+                  <View style={[styles.tableCol, { width: '35%' }]}><Text>Full Name</Text></View>
+                  <View style={[styles.tableCol, { width: '65%' }]}><Text>{capitalizeFirstLetter(data.professionalReferee2?.name || '')}</Text></View>
+                </View>
+                <View style={styles.tableRow}>
+                  <View style={[styles.tableCol, { width: '35%' }]}><Text>Position</Text></View>
+                  <View style={[styles.tableCol, { width: '65%' }]}><Text>{capitalizeFirstLetter(data.professionalReferee2?.position || '')}</Text></View>
+                </View>
+                <View style={styles.tableRow}>
+                  <View style={[styles.tableCol, { width: '35%' }]}><Text>Relationship</Text></View>
+                  <View style={[styles.tableCol, { width: '65%' }]}><Text>{capitalizeFirstLetter(data.professionalReferee2?.relationship || '')}</Text></View>
+                </View>
+                <View style={styles.tableRow}>
+                  <View style={[styles.tableCol, { width: '35%' }]}><Text>Organisation</Text></View>
+                  <View style={[styles.tableCol, { width: '65%' }]}><Text>{capitalizeFirstLetter(data.professionalReferee2?.organisation || '')}</Text></View>
+                </View>
+                <View style={styles.tableRow}>
+                  <View style={[styles.tableCol, { width: '35%' }]}><Text>Address</Text></View>
+                  <View style={[styles.tableCol, { width: '65%' }]}><Text>{capitalizeFirstLetter(data.professionalReferee2?.address || '')}</Text></View>
+                </View>
+                <View style={styles.tableRow}>
+                  <View style={[styles.tableCol, { width: '35%' }]}><Text>Tel No</Text></View>
+                  <View style={[styles.tableCol, { width: '65%' }]}><Text>{data.professionalReferee2?.tel || ''}</Text></View>
+                </View>
+                <View style={styles.tableRow}>
+                  <View style={[styles.tableCol, { width: '35%' }]}><Text>Fax</Text></View>
+                  <View style={[styles.tableCol, { width: '65%' }]}><Text>{data.professionalReferee2?.fax || ''}</Text></View>
+                </View>
+                <View style={styles.tableRow}>
+                  <View style={[styles.tableCol, { width: '35%' }]}><Text>Email</Text></View>
+                  <View style={[styles.tableCol, { width: '65%' }]}><Text>{data.professionalReferee2?.email || ''}</Text></View>
+                </View>
+              </View>
             </View>
-            <View style={[styles.tableCol, { width: '50%' }]}>
-              <Text>Tel No: {data.referee2?.phone || ''}</Text>
-            </View>
-          </View>
-          {/* E-mail */}
-          <View style={styles.tableRow}>
-            <View style={[styles.tableCol, { width: '50%' }]}>
-              <Text>E-mail: {data.referee1?.email || ''}</Text>
-            </View>
-            <View style={[styles.tableCol, { width: '50%' }]}>
-              <Text>E-mail: {data.referee2?.email || ''}</Text>
-            </View>
-          </View>
+          )}
         </View>
+
+        {data.personalReferee && (
+          <View style={{ marginTop: 8 }}>
+            <Text style={{ fontSize: 10, fontWeight: 'bold', marginBottom: 2 }}>Personal Referee</Text>
+            <View style={styles.table}>
+              <View style={styles.tableRow}>
+                <View style={[styles.tableCol, { width: '30%' }]}><Text>Full Name</Text></View>
+                <View style={[styles.tableCol, { width: '70%' }]}><Text>{capitalizeFirstLetter(data.personalReferee?.name || '')}</Text></View>
+              </View>
+              <View style={styles.tableRow}>
+                <View style={[styles.tableCol, { width: '30%' }]}><Text>Position</Text></View>
+                <View style={[styles.tableCol, { width: '70%' }]}><Text>{capitalizeFirstLetter(data.personalReferee?.position || '')}</Text></View>
+              </View>
+              <View style={styles.tableRow}>
+                <View style={[styles.tableCol, { width: '30%' }]}><Text>Relationship</Text></View>
+                <View style={[styles.tableCol, { width: '70%' }]}><Text>{capitalizeFirstLetter(data.personalReferee?.relationship || '')}</Text></View>
+              </View>
+              <View style={styles.tableRow}>
+                <View style={[styles.tableCol, { width: '30%' }]}><Text>Organisation</Text></View>
+                <View style={[styles.tableCol, { width: '70%' }]}><Text>{capitalizeFirstLetter(data.personalReferee?.organisation || '')}</Text></View>
+              </View>
+              <View style={styles.tableRow}>
+                <View style={[styles.tableCol, { width: '30%' }]}><Text>Address</Text></View>
+                <View style={[styles.tableCol, { width: '70%' }]}><Text>{capitalizeFirstLetter(data.personalReferee?.address || '')}</Text></View>
+              </View>
+              <View style={styles.tableRow}>
+                <View style={[styles.tableCol, { width: '30%' }]}><Text>Tel No</Text></View>
+                <View style={[styles.tableCol, { width: '70%' }]}><Text>{data.personalReferee?.tel || ''}</Text></View>
+              </View>
+              <View style={styles.tableRow}>
+                <View style={[styles.tableCol, { width: '30%' }]}><Text>Fax</Text></View>
+                <View style={[styles.tableCol, { width: '70%' }]}><Text>{data.personalReferee?.fax || ''}</Text></View>
+              </View>
+              <View style={styles.tableRow}>
+                <View style={[styles.tableCol, { width: '30%' }]}><Text>Email</Text></View>
+                <View style={[styles.tableCol, { width: '70%' }]}><Text>{data.personalReferee?.email || ''}</Text></View>
+              </View>
+            </View>
+          </View>
+        )}
 
         {/* Section E */}
         <Text style={styles.sectionHeader}>EMERGENCY CONTACT</Text>
@@ -803,7 +847,18 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
           </View>
         </View>
 
-        {/* Section F */}
+       
+
+        <Text style={styles.footer}>
+          Application Form Page{' '}
+          <PDFooter pageNumber={1} totalPages={totalPages} /> -{' '}
+          {getTodaysDate()}
+        </Text>
+      </Page>
+
+      <Page size="A4" style={styles.page}>
+
+         {/* Section F */}
         <Text style={styles.sectionHeader}>DISABILITIES</Text>
         <View style={{ marginBottom: 10 }}>
           <Text>
@@ -829,49 +884,42 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
           <Text>{capitalizeFirstLetter(data.convictionDetails || '')}</Text>
         </View>
 
-        <Text style={styles.footer}>
-          Application Form Page{' '}
-          <PDFooter pageNumber={1} totalPages={totalPages} /> -{' '}
-          {getTodaysDate()}
-        </Text>
-      </Page>
-
-      <Page size="A4" style={styles.page}>
+        
         <Text style={styles.sectionHeader}>DECLARATION</Text>
-        <View style={{ marginBottom: 10 }}>
-          <Text>
-            I confirm that the information given on this form is true, complete
-            and accurate and that none of the information requested or other
-            material information has been omitted. I accept that if it is
-            discovered that I have supplied false, inaccurate or misleading
-            information, WATNEY COLLEGE reserves the right to cancel my
-            application, withdraw its offer of a place or terminate attendance
-            at the College and I shall have no claim against WATNEY COLLEGE in
-            relation thereto:{' '}
-            <Text style={{ fontWeight: 'bold' }}>
-              {data.termsAccepted ? 'Yes' : 'No'}
+        <View style={{ marginBottom: 10, flexDirection: 'row', alignItems: 'flex-start' }}>
+          <CheckboxView checked={data.termsAccepted} />
+          <View style={{ marginLeft: 6, flex: 1 }}>
+            <Text>
+              I confirm that the information given on this form is true, complete
+              and accurate and that none of the information requested or other
+              material information has been omitted. I accept that if it is
+              discovered that I have supplied false, inaccurate or misleading
+              information, Everycare Romford reserves the right to cancel my
+              application, withdraw its offer of a place or terminate attendance
+              at the College and I shall have no claim against Everycare Romford in
+              relation thereto.
             </Text>
-          </Text>
+          </View>
         </View>
 
         <Text style={styles.sectionHeader}>DATA PROTECTION</Text>
-        <View style={{ marginBottom: 10 }}>
-          <Text>
-            I consent to Watney College processing my personal data for purposes
-            related to my application, studies, health and safety, and
-            compliance with College policies. This includes academic
-            performance, learning support, disciplinary matters, CCTV usage, ID
-            card photos, and data required by the Higher Education Statistics
-            Agency (HESA) or other legitimate purposes. I consent to the
-            disclosure of this data for academic references, further education,
-            employment, council tax, or immigration matters, including
-            verification with the UK Border Agency. I understand I can request a
-            copy of my data and that details on HESA are available on the
-            College’s intranet:{' '}
-            <Text style={{ fontWeight: 'bold' }}>
-              {data.dataProcessingAccepted ? 'Yes' : 'No'}
+        <View style={{ marginBottom: 10, flexDirection: 'row', alignItems: 'flex-start' }}>
+          <CheckboxView checked={data.dataProcessingAccepted} />
+          <View style={{ marginLeft: 6, flex: 1 }}>
+            <Text>
+              I consent to Everycare Romford processing my personal data for purposes
+              related to my application, studies, health and safety, and
+              compliance with College policies. This includes academic
+              performance, learning support, disciplinary matters, CCTV usage, ID
+              card photos, and data required by the Higher Education Statistics
+              Agency (HESA) or other legitimate purposes. I consent to the
+              disclosure of this data for academic references, further education,
+              employment, council tax, or immigration matters, including
+              verification with the UK Border Agency. I understand I can request a
+              copy of my data and that details on HESA are available on the
+              College's intranet.
             </Text>
-          </Text>
+          </View>
         </View>
 
         {/* Signature */}
@@ -882,15 +930,19 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
               <Text>Signature</Text>
             </View>
             <View style={[styles.tableColHeader, { width: '30%' }]}>
-              <Text>Date (dd/mm/yy)</Text>
+              <Text>Date (mm/dd/yyyy)</Text>
             </View>
           </View>
           <View style={[styles.tableRow, { minHeight: 50 }]}>
             <View style={[styles.tableCol, { width: '70%' }]}>
-              <Text>&nbsp;</Text>
+              {data.signatureUrl ? (
+                <Image src={data.signatureUrl} style={{ width: 180, height: 45 }} />
+              ) : (
+                <Text>&nbsp;</Text>
+              )}
             </View>
             <View style={[styles.tableCol, { width: '30%' }]}>
-              <Text>&nbsp;</Text>
+              <Text>{data.createdAt ? formatDate(data.createdAt) : ''}</Text>
             </View>
           </View>
         </View>
@@ -902,7 +954,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
             to the following address
           </Text>
           <Text style={{ fontWeight: 'bold', marginTop: 5 }}>
-            Every Care
+            Everycare Romford
           </Text>
           <Text>37 High St, Romford RM1 1JL, United Kingdom</Text>
           <Text>Email: admin@everycareromford.co.uk</Text>

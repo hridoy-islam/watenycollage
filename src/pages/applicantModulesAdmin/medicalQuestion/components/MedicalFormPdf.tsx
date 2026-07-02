@@ -120,6 +120,7 @@ interface MedicalFormData {
   hivTestDetails?: string;
   inocOther: boolean;
   inocOtherDetails?: string;
+  signatureUrl?: string;
   declTrueAccount: boolean;
   declDataProcessing: boolean;
   declVaccination: boolean;
@@ -845,15 +846,19 @@ const MedicalFormPdf = ({ data }: { data: MedicalFormData }) => {
 
         {/* Signature Block */}
         <View style={[styles.flexRow, { marginTop: 40 }]}>
+          <View style={styles.flexItem}>
+            <Text>Signed (Applicant):</Text>
+            {data.signatureUrl ? (
+              <Image
+                src={data.signatureUrl}
+                style={{ width: 120, height: 35, marginTop: 4 }}
+              />
+            ) : (
+              <View style={{ borderBottom: '1px dashed black', width: '100%', height: 20, marginTop: 4 }} />
+            )}
+          </View>
           <Text style={styles.flexItem}>
-            Signed (Applicant):
-            <Text style={[styles.line, { width: 'auto', flexGrow: 1 }]}> </Text>
-          </Text>
-
-          <Text style={styles.flexItem}>
-            Date:
-            <Text style={[styles.line, { width: 'auto', flexGrow: 1 }]}>
-            </Text>
+            Date: {data.createdAt ? formatDate(data.createdAt) : ''}
           </Text>
         </View>
       </Page>

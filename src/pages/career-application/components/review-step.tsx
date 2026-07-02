@@ -1,6 +1,6 @@
 // ReviewStep.tsx — Updated with Multi-Step & Progress Bar (3 Steps)
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import moment from 'moment';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -8,14 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter
-} from '@/components/ui/dialog';
+
 import {
   Form,
   FormField,
@@ -30,6 +23,9 @@ import { Progress } from '@/components/ui/progress';
 import type { TCareer } from '@/types/career';
 import React from 'react';
 import { HelperTooltip } from '@/helper/HelperTooltip';
+import SignatureCanvas from 'react-signature-canvas';
+import axiosInstance from '@/lib/axios';
+import { Trash2 } from 'lucide-react';
 
 const careerSchema = z
   .object({
@@ -69,7 +65,8 @@ const careerSchema = z
     }),
     consentVaccination: z.boolean({
       required_error: 'This field is required'
-    })
+    }),
+    signatureUrl: z.string().min(1, 'Signature is required')
   })
   .superRefine((data, ctx) => {
     if (
@@ -128,7 +125,12 @@ const STEPS = [
   {
     id: 3,
     // title: 'Terms & Submission',
-    fields: ['termsAccepted', 'dataProcessingAccepted']
+    fields: ['termsAccepted', 'dataProcessingAccepted', 'signatureUrl']
+  },
+  {
+    id: 4,
+    // title: 'Application Preview',
+    fields: []
   }
 ];
 
@@ -146,7 +148,6 @@ export function ReviewStep({
   const [currentStep, setCurrentStepState] = useState(1);
   const totalSteps = STEPS.length;
 
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const form = useForm<TFormValues>({
     resolver: zodResolver(careerSchema),
     defaultValues: {
@@ -165,7 +166,8 @@ export function ReviewStep({
       roaDeclarationDetails: '',
       appliedBefore: undefined,
       termsAccepted: false,
-      dataProcessingAccepted: false
+      dataProcessingAccepted: false,
+      signatureUrl: defaultValues?.signatureUrl || ''
     }
   });
 
@@ -175,6 +177,40 @@ export function ReviewStep({
   const watchROA = form.watch('roaDeclaration');
   const termsAccepted = form.watch('termsAccepted');
   const dataProcessingAccepted = form.watch('dataProcessingAccepted');
+  const [signatureSaving, setSignatureSaving] = useState(false);
+  const [showSignaturePad, setShowSignaturePad] = useState(false);
+  const signatureRef = useRef<SignatureCanvas>(null);
+
+  const handleSaveSignature = async () => {
+    if (!signatureRef.current) return;
+    const dataUrl = signatureRef.current.toDataURL();
+    if (!dataUrl || dataUrl === 'data:,') return;
+    const blob = await (await fetch(dataUrl)).blob();
+    const file = new File([blob], 'signature.png', { type: 'image/png' });
+    const formData = new FormData();
+    formData.append('entityId', (defaultValues as any)?._id || '');
+    formData.append('file_type', 'careerDoc');
+    formData.append('file', file);
+    setSignatureSaving(true);
+    try {
+      const response = await axiosInstance.post('/documents', formData);
+      if (response.status === 200) {
+        const url = response.data?.data?.fileUrl || response.data?.data?.url || response.data?.url;
+        if (url) {
+          form.setValue('signatureUrl', url, { shouldValidate: true });
+          setShowSignaturePad(false);
+        }
+      }
+    } catch (error) {
+      console.error('Error uploading signature:', error);
+    } finally {
+      setSignatureSaving(false);
+    }
+  };
+
+  const handleClearSignature = () => {
+    signatureRef.current?.clear();
+  };
   // Handle Back
   const handleBack = () => {
     if (currentStep === 1) {
@@ -505,158 +541,19 @@ export function ReviewStep({
         proofOfAddress1: defaultValues.proofOfAddress1,
         proofOfAddress2: defaultValues.proofOfAddress2,
         idDocuments: defaultValues.idDocuments,
-        utilityBills: defaultValues.utilityBills,
-        bankStatement: defaultValues.bankStatement,
         proofOfNI: defaultValues.proofOfNI,
-        immigrationDocument: defaultValues.immigrationDocument
+        immigrationDocument: defaultValues.immigrationDocument,
+        rtwDocument: defaultValues.rtwDocument,
+        shareCodeDocument: defaultValues.shareCodeDocument,
         // proofOfAddress: defaultValues.proofOfAddress,
         // passport: defaultValues.passport,
         // workExperience: defaultValues.workExperience,
         // personalStatement: defaultValues.personalStatement,
       })}
 
-      {/* Health & Medical */}
       {renderSection(
-        'Health & Medical Information',
-        filterEmptyFields({
-          sex: defaultValues.sex,
-          advisedMedicalWorkRestriction:
-            defaultValues.advisedMedicalWorkRestriction,
-          advisedMedicalWorkRestrictionComment:
-            defaultValues.advisedMedicalWorkRestrictionComment,
-          undueFatigue: defaultValues.undueFatigue,
-          undueFatigueDetails: defaultValues.undueFatigueDetails,
-          bronchitis: defaultValues.bronchitis,
-          bronchitisDetails: defaultValues.bronchitisDetails,
-          breathlessness: defaultValues.breathlessness,
-          breathlessnessDetails: defaultValues.breathlessnessDetails,
-          allergies: defaultValues.allergies,
-          allergiesDetails: defaultValues.allergiesDetails,
-          pneumonia: defaultValues.pneumonia,
-          pneumoniaDetails: defaultValues.pneumoniaDetails,
-          hayFever: defaultValues.hayFever,
-          hayFeverDetails: defaultValues.hayFeverDetails,
-          shortnessOfBreath: defaultValues.shortnessOfBreath,
-          shortnessOfBreathDetails: defaultValues.shortnessOfBreathDetails,
-          jundice: defaultValues.jundice,
-          jundiceDetails: defaultValues.jundiceDetails,
-          stomachProblems: defaultValues.stomachProblems,
-          stomachProblemsDetails: defaultValues.stomachProblemsDetails,
-          stomachUlcer: defaultValues.stomachUlcer,
-          stomachUlcerDetails: defaultValues.stomachUlcerDetails,
-          hernias: defaultValues.hernias,
-          herniasDetails: defaultValues.herniasDetails,
-          bowelProblem: defaultValues.bowelProblem,
-          bowelProblemDetails: defaultValues.bowelProblemDetails,
-          diabetesMellitus: defaultValues.diabetesMellitus,
-          diabetesMellitusDetails: defaultValues.diabetesMellitusDetails,
-          nervousDisorder: defaultValues.nervousDisorder,
-          nervousDisorderDetails: defaultValues.nervousDisorderDetails,
-          dizziness: defaultValues.dizziness,
-          dizzinessDetails: defaultValues.dizzinessDetails,
-          earProblems: defaultValues.earProblems,
-          earProblemsDetails: defaultValues.earProblemsDetails,
-          hearingDefect: defaultValues.hearingDefect,
-          hearingDefectDetails: defaultValues.hearingDefectDetails,
-          epilepsy: defaultValues.epilepsy,
-          epilepsyDetails: defaultValues.epilepsyDetails,
-          eyeProblems: defaultValues.eyeProblems,
-          eyeProblemsDetails: defaultValues.eyeProblemsDetails,
-          ppeAllergy: defaultValues.ppeAllergy,
-          ppeAllergyDetails: defaultValues.ppeAllergyDetails,
-          rheumaticFever: defaultValues.rheumaticFever,
-          rheumaticFeverDetails: defaultValues.rheumaticFeverDetails,
-          highBloodPressure: defaultValues.highBloodPressure,
-          highBloodPressureDetails: defaultValues.highBloodPressureDetails,
-          lowBloodPressure: defaultValues.lowBloodPressure,
-          lowBloodPressureDetails: defaultValues.lowBloodPressureDetails,
-          palpitations: defaultValues.palpitations,
-          palpitationsDetails: defaultValues.palpitationsDetails,
-          heartAttack: defaultValues.heartAttack,
-          heartAttackDetails: defaultValues.heartAttackDetails,
-          angina: defaultValues.angina,
-          anginaDetails: defaultValues.anginaDetails,
-          asthma: defaultValues.asthma,
-          asthmaDetails: defaultValues.asthmaDetails,
-          chronicLungProblems: defaultValues.chronicLungProblems,
-          chronicLungProblemsDetails: defaultValues.chronicLungProblemsDetails,
-          stroke: defaultValues.stroke,
-          strokeDetails: defaultValues.strokeDetails,
-          heartMurmur: defaultValues.heartMurmur,
-          heartMurmurDetails: defaultValues.heartMurmurDetails,
-          backProblems: defaultValues.backProblems,
-          backProblemsDetails: defaultValues.backProblemsDetails,
-          jointProblems: defaultValues.jointProblems,
-          jointProblemsDetails: defaultValues.jointProblemsDetails,
-          swollenLegs: defaultValues.swollenLegs,
-          swollenLegsDetails: defaultValues.swollenLegsDetails,
-          varicoseVeins: defaultValues.varicoseVeins,
-          varicoseVeinsDetails: defaultValues.varicoseVeinsDetails,
-          rheumatism: defaultValues.rheumatism,
-          rheumatismDetails: defaultValues.rheumatismDetails,
-          migraine: defaultValues.migraine,
-          migraineDetails: defaultValues.migraineDetails,
-          drugReaction: defaultValues.drugReaction,
-          drugReactionDetails: defaultValues.drugReactionDetails,
-          visionCorrection: defaultValues.visionCorrection,
-          visionCorrectionDetails: defaultValues.visionCorrectionDetails,
-          skinConditions: defaultValues.skinConditions,
-          skinConditionsDetails: defaultValues.skinConditionsDetails,
-          alcoholHealthProblems: defaultValues.alcoholHealthProblems,
-          alcoholHealthProblemsDetails:
-            defaultValues.alcoholHealthProblemsDetails,
-          seriousIllnessDetails: defaultValues.seriousIllnessDetails,
-          recentIllHealth: defaultValues.recentIllHealth,
-          recentIllHealthComment: defaultValues.recentIllHealthComment,
-          attendingClinic: defaultValues.attendingClinic,
-          attendingClinicComment: defaultValues.attendingClinicComment,
-          hadChickenPox: defaultValues.hadChickenPox,
-          hadChickenPoxComment: defaultValues.hadChickenPoxComment,
-          otherCommunicableDisease: defaultValues.otherCommunicableDisease,
-          otherCommunicableDiseaseComment:
-            defaultValues.otherCommunicableDiseaseComment
-        })
-      )}
-      {/* Vaccinations & Inoculations */}
-      {renderSection('Vaccinations & Inoculations', {
-        inocDiphtheria: defaultValues.inocDiphtheria,
-        inocDiphtheriaComment: defaultValues.inocDiphtheriaComment,
-        inocHepatitisB: defaultValues.inocHepatitisB,
-        inocHepatitisBComment: defaultValues.inocHepatitisBComment,
-        inocTuberculosis: defaultValues.inocTuberculosis,
-        inocTuberculosisComment: defaultValues.inocTuberculosisComment,
-        inocRubella: defaultValues.inocRubella,
-        inocRubellaComment: defaultValues.inocRubellaComment,
-        inocVaricella: defaultValues.inocVaricella,
-        inocVaricellaComment: defaultValues.inocVaricellaComment,
-        inocPolio: defaultValues.inocPolio,
-        inocPolioComment: defaultValues.inocPolioComment,
-        inocTetanus: defaultValues.inocTetanus,
-        inocTetanusComment: defaultValues.inocTetanusComment,
-        testedHIV: defaultValues.testedHIV,
-        testedHIVComment: defaultValues.testedHIVComment,
-        inocOther: defaultValues.inocOther,
-        inocOtherComment: defaultValues.inocOtherComment,
-        daysSickLastYear: defaultValues.daysSickLastYear
-      })}
-      {renderSection('Payment Details', {
-        houseNumberOrName: defaultValues.houseNumberOrName,
-        postCode: defaultValues.postCode,
-        jobRole: defaultValues.jobRole,
-        otherJobRole: defaultValues.otherJobRole,
-        accountNumber: defaultValues.accountNumber,
-        sortCode: defaultValues.sortCode,
-        bankName: defaultValues.bankName,
-        branchName: defaultValues.branchName,
-        buildingSocietyRollNo: defaultValues.buildingSocietyRollNo
-      })}
-
-      {/* Declarations */}
-      {/* {renderSection(
         'Consent & Declarations',
         filterEmptyFields({
-
-          authorizeReferees: defaultValues.authorizeReferees,
           declarationCorrectUpload: defaultValues.declarationCorrectUpload,
           declarationContactReferee: defaultValues.declarationContactReferee,
           disciplinaryInvestigation: defaultValues.disciplinaryInvestigation,
@@ -667,13 +564,27 @@ export function ReviewStep({
           roaDeclaration: defaultValues.roaDeclaration,
           roaDeclarationDetails: defaultValues.roaDeclarationDetails,
           appliedBefore: defaultValues.appliedBefore,
-          termsAccepted: defaultValues.termsAccepted,
-          dataProcessingAccepted: defaultValues.dataProcessingAccepted,
           consentMedicalDeclaration: defaultValues.consentMedicalDeclaration,
           consentVaccination: defaultValues.consentVaccination,
           consentTerminationClause: defaultValues.consentTerminationClause,
+          termsAccepted: form.watch('termsAccepted'),
+          dataProcessingAccepted: form.watch('dataProcessingAccepted')
         })
-      )} */}
+      )}
+
+      {/* Signature Preview */}
+      {form.watch('signatureUrl') && (
+        <div className="md:w-[25%]">
+          <h3 className="mb-2 text-sm font-semibold md:text-lg">Signature</h3>
+          <div className="rounded-md border border-gray-300 p-1 md:p-4">
+            <img
+              src={form.watch('signatureUrl')}
+              alt="Signature"
+              className="h-16 max-w-md rounded"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 
@@ -1115,99 +1026,100 @@ case 1:
             tooltip: "Have you applied to Everycare Romford before for any position?"
           }
         ].map((item, index) => (
-          <div key={item.name} className="rounded-lg border border-gray-300 p-4">
-            <div className="mb-4">
-              <span className="text-lg font-medium">
-                {item.label} <span className="text-red-500">*</span>
-              </span>
-              <HelperTooltip text={item.tooltip} />
+          <div key={item.name}>
+            <div className="rounded-lg border border-gray-300 p-4">
+              <div className="mb-4">
+                <span className="text-lg font-medium">
+                  {item.label} <span className="text-red-500">*</span>
+                </span>
+                <HelperTooltip text={item.tooltip} />
+              </div>
+              <FormField
+                control={form.control}
+                name={item.name as any}
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex gap-4">
+                      <FormControl>
+                        <label className="flex cursor-pointer items-center">
+                          <Checkbox
+                            checked={field.value === true}
+                            onCheckedChange={() => field.onChange(true)}
+                          />
+                          <FormLabel className="ml-2 cursor-pointer text-lg">
+                            Yes
+                          </FormLabel>
+                        </label>
+                      </FormControl>
+                      <FormControl>
+                        <label className="flex cursor-pointer items-center">
+                          <Checkbox
+                            checked={field.value === false}
+                            onCheckedChange={() => field.onChange(false)}
+                          />
+                          <FormLabel className="ml-2 cursor-pointer text-lg">
+                            No
+                          </FormLabel>
+                        </label>
+                      </FormControl>
+                    </div>
+                    <FormMessage className="text-md" />
+                  </FormItem>
+                )}
+              />
             </div>
-            <FormField
-              control={form.control}
-              name={item.name as any}
-              render={({ field }) => (
-                <FormItem>
-                  <div className="flex gap-4">
-                    <FormControl>
-                      <label className="flex cursor-pointer items-center">
-                        <Checkbox
-                          checked={field.value === true}
-                          onCheckedChange={() => field.onChange(true)}
+
+            {item.name === 'disciplinaryInvestigation' && watchDisciplinary && (
+              <div className="rounded-lg border border-gray-300 p-4 mt-2">
+                <FormField
+                  control={form.control}
+                  name="disciplinaryInvestigationDetails"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-watney">
+                        Please provide details and outcome <span className="text-red-500">*</span>
+                        <HelperTooltip text="Provide specific details about the disciplinary process and its final outcome." />
+                      </FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Enter details here..."
+                          className="mt-2 min-h-[100px] w-full p-4 text-lg"
+                          {...field}
                         />
-                        <FormLabel className="ml-2 cursor-pointer text-lg">
-                          Yes
-                        </FormLabel>
-                      </label>
-                    </FormControl>
-                    <FormControl>
-                      <label className="flex cursor-pointer items-center">
-                        <Checkbox
-                          checked={field.value === false}
-                          onCheckedChange={() => field.onChange(false)}
+                      </FormControl>
+                      <FormMessage className="text-md" />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            )}
+
+            {item.name === 'abuseInvestigation' && watchAbuse && (
+              <div className="rounded-lg border border-gray-300 p-4 mt-2">
+                <FormField
+                  control={form.control}
+                  name="abuseInvestigationDetails"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-watney">
+                        Please provide details and outcome <span className="text-red-500">*</span>
+                        <HelperTooltip text="Describe the nature of the investigation and its final results." />
+                      </FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Enter details here..."
+                          className="mt-2 min-h-[100px] w-full p-4 text-lg"
+                          {...field}
                         />
-                        <FormLabel className="ml-2 cursor-pointer text-lg">
-                          No
-                        </FormLabel>
-                      </label>
-                    </FormControl>
-                  </div>
-                  <FormMessage className="text-md" />
-                </FormItem>
-              )}
-            />
+                      </FormControl>
+                      <FormMessage className="text-md" />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            )}
           </div>
         ))}
-
-        {/* Conditional fields for mobile */}
-        {watchDisciplinary && (
-          <div className="rounded-lg border border-gray-300 p-4">
-            <FormField
-              control={form.control}
-              name="disciplinaryInvestigationDetails"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-watney">
-                    Please provide details and outcome <span className="text-red-500">*</span>
-                    <HelperTooltip text="Provide specific details about the disciplinary process and its final outcome." />
-                  </FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Enter details here..."
-                      className="mt-2 min-h-[100px] w-full p-4 text-lg"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage className="text-md" />
-                </FormItem>
-              )}
-            />
-          </div>
-        )}
-
-        {watchAbuse && (
-          <div className="rounded-lg border border-gray-300 p-4">
-            <FormField
-              control={form.control}
-              name="abuseInvestigationDetails"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-watney">
-                    Please provide details and outcome <span className="text-red-500">*</span>
-                    <HelperTooltip text="Describe the nature of the investigation and its final results." />
-                  </FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Enter details here..."
-                      className="mt-2 min-h-[100px] w-full p-4 text-lg"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage className="text-md" />
-                </FormItem>
-              )}
-            />
-          </div>
-        )}
       </div>
 
       {/* GDPR Section - Desktop */}
@@ -1297,106 +1209,113 @@ case 1:
               tooltip: "Have you applied to Everycare Romford before for any position?"
             }
           ].map((item, index) => (
-            <tr key={item.name} className="border-b border-gray-300">
-              <td className="px-2 py-4 align-top">
-                <span className="text-lg font-medium">
-                  {item.label} <span className="text-red-500">*</span>
-                </span>
-                <HelperTooltip text={item.tooltip} />
-              </td>
-              <td className="px-2 py-4 align-top">
-                <FormField
-                  control={form.control}
-                  name={item.name as any}
-                  render={({ field }) => (
-                    <FormItem>
-                      <div className="flex gap-4">
-                        <FormControl>
-                          <label className="flex cursor-pointer items-center">
-                            <Checkbox
-                              checked={field.value === true}
-                              onCheckedChange={() => field.onChange(true)}
+            <React.Fragment key={item.name}>
+              <tr className="border-b border-gray-300">
+                <td className="px-2 py-4 align-top">
+                  <span className="text-lg font-medium">
+                    {item.label} <span className="text-red-500">*</span>
+                  </span>
+                  <HelperTooltip text={item.tooltip} />
+                </td>
+                <td className="px-2 py-4 align-top">
+                  <FormField
+                    control={form.control}
+                    name={item.name as any}
+                    render={({ field }) => (
+                      <FormItem>
+                        <div className="flex gap-4">
+                          <FormControl>
+                            <label className="flex cursor-pointer items-center">
+                              <Checkbox
+                                checked={field.value === true}
+                                onCheckedChange={() => field.onChange(true)}
+                              />
+                              <FormLabel className="ml-2 cursor-pointer text-lg">
+                                Yes
+                              </FormLabel>
+                            </label>
+                          </FormControl>
+                          <FormControl>
+                            <label className="flex cursor-pointer items-center">
+                              <Checkbox
+                                checked={field.value === false}
+                                onCheckedChange={() => field.onChange(false)}
+                              />
+                              <FormLabel className="ml-2 cursor-pointer text-lg">
+                                No
+                              </FormLabel>
+                            </label>
+                          </FormControl>
+                        </div>
+                        <FormMessage className="text-md" />
+                      </FormItem>
+                    )}
+                  />
+                </td>
+                <td className="px-2 py-4 align-top"></td>
+              </tr>
+
+              {item.name === 'disciplinaryInvestigation' && watchDisciplinary && (
+                <tr className="border-b border-gray-300">
+                  <td colSpan={3} className="px-2 py-4">
+                    <FormField
+                      control={form.control}
+                      name="disciplinaryInvestigationDetails"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-watney">
+                            <div>
+
+                            Please provide details and outcome <span className="text-red-500">*</span>
+                            </div>
+                            <HelperTooltip text="Provide specific details about the disciplinary process and its final outcome." />
+                          </FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder="Enter details here..."
+                              className="mt-2 min-h-[100px] w-full p-4 text-lg"
+                              {...field}
                             />
-                            <FormLabel className="ml-2 cursor-pointer text-lg">
-                              Yes
-                            </FormLabel>
-                          </label>
-                        </FormControl>
-                        <FormControl>
-                          <label className="flex cursor-pointer items-center">
-                            <Checkbox
-                              checked={field.value === false}
-                              onCheckedChange={() => field.onChange(false)}
+                          </FormControl>
+                          <FormMessage className="text-md" />
+                        </FormItem>
+                      )}
+                    />
+                  </td>
+                </tr>
+              )}
+
+              {item.name === 'abuseInvestigation' && watchAbuse && (
+                <tr className="border-b border-gray-300">
+                  <td colSpan={3} className="px-2 py-4">
+                    <FormField
+                      control={form.control}
+                      name="abuseInvestigationDetails"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-watney">
+                            <div>
+
+                            Please provide details and outcome <span className="text-red-500">*</span>
+                            </div>
+                            <HelperTooltip text="Describe the nature of the investigation and its final results." />
+                          </FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder="Enter details here..."
+                              className="mt-2 min-h-[100px] w-full p-4 text-lg"
+                              {...field}
                             />
-                            <FormLabel className="ml-2 cursor-pointer text-lg">
-                              No
-                            </FormLabel>
-                          </label>
-                        </FormControl>
-                      </div>
-                      <FormMessage className="text-md" />
-                    </FormItem>
-                  )}
-                />
-              </td>
-              <td className="px-2 py-4 align-top"></td>
-            </tr>
+                          </FormControl>
+                          <FormMessage className="text-md" />
+                        </FormItem>
+                      )}
+                    />
+                  </td>
+                </tr>
+              )}
+            </React.Fragment>
           ))}
-
-          {/* Conditional fields for desktop */}
-          {watchDisciplinary && (
-            <tr className="border-b border-gray-300">
-              <td colSpan={3} className="px-2 py-4">
-                <FormField
-                  control={form.control}
-                  name="disciplinaryInvestigationDetails"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-watney">
-                        Please provide details and outcome <span className="text-red-500">*</span>
-                        <HelperTooltip text="Provide specific details about the disciplinary process and its final outcome." />
-                      </FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Enter details here..."
-                          className="mt-2 min-h-[100px] w-full p-4 text-lg"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage className="text-md" />
-                    </FormItem>
-                  )}
-                />
-              </td>
-            </tr>
-          )}
-
-          {watchAbuse && (
-            <tr className="border-b border-gray-300">
-              <td colSpan={3} className="px-2 py-4">
-                <FormField
-                  control={form.control}
-                  name="abuseInvestigationDetails"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-watney">
-                        Please provide details and outcome <span className="text-red-500">*</span>
-                        <HelperTooltip text="Describe the nature of the investigation and its final results." />
-                      </FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Enter details here..."
-                          className="mt-2 min-h-[100px] w-full p-4 text-lg"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage className="text-md" />
-                    </FormItem>
-                  )}
-                />
-              </td>
-            </tr>
-          )}
         </tbody>
       </table>
     </div>
@@ -1472,8 +1391,11 @@ case 2:
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-watney">
+                    <div>
+
                     Please specify the type, number and dates of all offences{' '}
                     <span className="text-red-500">*</span>
+                    </div>
                     <HelperTooltip text="Include offence types, case numbers, dates, and outcomes. Be specific and complete for each incident." />
                   </FormLabel>
                   <FormControl>
@@ -1545,8 +1467,11 @@ case 2:
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-watney">
+                    <div>
+
                     Please specify the type, number and dates of all offences{' '}
                     <span className="text-red-500">*</span>
+                    </div>
                     <HelperTooltip text="Include offence types, case numbers, dates, and outcomes. Be specific and complete for each incident." />
                   </FormLabel>
                   <FormControl>
@@ -1636,37 +1561,93 @@ case 2:
               />
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-col justify-between gap-4 pt-6 sm:flex-row">
-              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full  text-lg sm:w-auto"
-                  >
-                    Preview Application
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-h-[80vh] w-full overflow-y-auto sm:min-w-[600px] lg:min-w-[800px]">
-                  <DialogHeader>
-                    <DialogTitle className="text-lg font-medium">
-                      Application Preview
-                    </DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-6">{sections}</div>
-                  <DialogFooter>
-                    <Button
-                      variant="outline"
-                      onClick={() => setIsDialogOpen(false)}
-                      className=" bg-watney text-lg text-white hover:bg-watney/90"
-                    >
-                      Close
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
+            {/* Signature */}
+            <div className="mt-8">
+              <h2 className="mb-4 text-xl font-semibold sm:text-2xl">
+                Signature <span className="text-red-500">*</span>
+              </h2>
+
+              <FormField
+                control={form.control}
+                name="signatureUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      {showSignaturePad || !field.value ? (
+                        <div className="space-y-2">
+                          <div className="w-full max-w-md" style={{ height: 128 }}>
+                            <div className="rounded-lg border border-gray-300 overflow-hidden h-full">
+                              <SignatureCanvas
+                                ref={signatureRef}
+                                penColor="black"
+                                velocityFilterWeight={0.2}
+                                minWidth={0.5}
+                                maxWidth={2}
+                                canvasProps={{
+                                  style: { background: 'transparent', width: '100%', height: '100%' }
+                                }}
+                              />
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              onClick={handleClearSignature}
+                            >
+                              <Trash2 className="mr-1 h-3 w-3" />
+                              Clear
+                            </Button>
+                            <Button
+                              type="button"
+                              size="sm"
+                              className="bg-watney text-white hover:bg-watney/90"
+                              onClick={handleSaveSignature}
+                              disabled={signatureSaving}
+                            >
+                              {signatureSaving ? 'Saving...' : 'Save Signature'}
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <img
+                            src={field.value}
+                            alt="Signature"
+                            className="h-16 max-w-md rounded border border-gray-200"
+                          />
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setShowSignaturePad(true);
+                              setTimeout(() => signatureRef.current?.clear(), 0);
+                            }}
+                          >
+                            <Trash2 className="mr-1 h-3 w-3" />
+                            Update Signature
+                          </Button>
+                        </div>
+                      )}
+                    </FormControl>
+                    <FormMessage className="text-md" />
+                  </FormItem>
+                )}
+              />
             </div>
+
+          </>
+        );
+
+      case 4:
+        return (
+          <>
+            <h2 className="text-xl font-semibold text-gray-900 py-4">
+              Application Preview
+            </h2>
+            <div className="space-y-6">{sections}</div>
           </>
         );
 
@@ -1740,7 +1721,7 @@ case 2:
                   type="button"
                   onClick={handleNext}
                   disabled={
-                    !termsAccepted || !dataProcessingAccepted || loading
+                    !termsAccepted || !dataProcessingAccepted || !form.watch('signatureUrl') || loading
                   }
                   className="w-full bg-watney text-lg text-white hover:bg-watney/90 sm:w-auto"
                 >

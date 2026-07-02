@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   useForm,
   Control,
@@ -28,11 +28,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { CustomDatePicker } from '@/components/shared/CustomDatePicker';
-import { MoveLeft } from 'lucide-react';
+import { MoveLeft, Trash2, Pencil } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axiosInstance from '@/lib/axios';
 import { useSelector } from 'react-redux';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
+import SignatureCanvas from 'react-signature-canvas';
 
 // --- Zod Schema ---
 const simpleBoolean = z
@@ -169,7 +170,8 @@ const medicalHistorySchema = z
     declTrueAccount: simpleBoolean,
     declDataProcessing: simpleBoolean,
     declVaccination: simpleBoolean,
-    declTermination: simpleBoolean
+    declTermination: simpleBoolean,
+    signatureUrl: z.string().min(1, 'Signature is required')
   })
   
 
@@ -285,6 +287,10 @@ export default function PostEmploymentMedicalForm() {
   const { user } = useSelector((state: any) => state.auth);
   const {id} = useParams()
 
+  const [signatureUrl, setSignatureUrl] = useState<string>('');
+  const [signatureSaving, setSignatureSaving] = useState(false);
+  const [showSignaturePad, setShowSignaturePad] = useState(false);
+  const signatureRef = useRef<SignatureCanvas>(null);
 
   const isAdmin= user.role==='admin' 
 
@@ -409,7 +415,8 @@ export default function PostEmploymentMedicalForm() {
       hivTestDetails: '',
       inocOther: undefined,
       inocOtherDetails: '',
-      daysSickness: ''
+      daysSickness: '',
+      signatureUrl: ''
     }
   });
 
@@ -462,11 +469,43 @@ export default function PostEmploymentMedicalForm() {
     fetchUser();
   }, [id]);
 
+  const handleSaveSignature = async () => {
+    if (!signatureRef.current) return;
+    const dataUrl = signatureRef.current.toDataURL();
+    if (!dataUrl) return;
+    const blob = await (await fetch(dataUrl)).blob();
+    const file = new File([blob], 'signature.png', { type: 'image/png' });
+    const formData = new FormData();
+    formData.append('entityId', id || '');
+    formData.append('file_type', 'careerDoc');
+    formData.append('file', file);
+    setSignatureSaving(true);
+    try {
+      const response = await axiosInstance.post('/documents', formData);
+      if (response.status === 200) {
+        const url = response.data?.data?.fileUrl || response.data?.data?.url || response.data?.url;
+        if (url) {
+          setSignatureUrl(url);
+          form.setValue('signatureUrl', url, { shouldValidate: true });
+          setShowSignaturePad(false);
+        }
+      }
+    } catch (error) {
+      console.error('Error uploading signature:', error);
+    } finally {
+      setSignatureSaving(false);
+    }
+  };
+
+  const handleClearSignature = () => {
+    signatureRef.current?.clear();
+  };
+
   const onSubmit = async (data: FormValues) => {
     if (!id) return;
     setSubmitting(true);
     try {
-      await axiosInstance.post('/medical-form', { ...data, userId: id });
+      await axiosInstance.post('/medical-form', { ...data, userId: id, signatureUrl: signatureUrl || undefined });
       await axiosInstance.patch(`/users/${id}`, { medicalDone: true });
       setIsSubmitted(true);
     } catch (err) {
@@ -1366,6 +1405,57 @@ export default function PostEmploymentMedicalForm() {
                     )}
                   />
                 </section>
+
+                <div className="space-y-4 border-t pt-6">
+                  <h3 className="text-lg font-semibold">Signature</h3>
+                  <p className="text-sm text-muted-foreground">Please sign below to confirm the information provided is accurate.</p>
+                  <FormField
+                    control={form.control}
+                    name="signatureUrl"
+                    render={() => (
+                      <FormItem>
+                        {showSignaturePad || !signatureUrl ? (
+                          <div className="space-y-2">
+                            <div className="w-full max-w-md" style={{ height: 128 }}>
+                              <div className="rounded-lg border border-gray-300 overflow-hidden h-full">
+                                <SignatureCanvas
+                                  ref={signatureRef}
+                                  penColor="black"
+                                  velocityFilterWeight={0.2}
+                                  minWidth={0.5}
+                                  maxWidth={2}
+                                  canvasProps={{
+                                    style: { background: 'transparent', width: '100%', height: '100%' }
+                                  }}
+                                />
+                              </div>
+                            </div>
+                            <div className="flex gap-2">
+                              <Button type="button" size="sm" variant="outline" onClick={handleClearSignature}>
+                                <Trash2 className="mr-1 h-3 w-3" /> Clear
+                              </Button>
+                              <Button type="button" size="sm" className="bg-watney text-white hover:bg-watney/90" onClick={handleSaveSignature} disabled={signatureSaving}>
+                                {signatureSaving ? 'Saving...' : 'Save Signature'}
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            {signatureUrl && (
+                              <>
+                                <img src={signatureUrl} alt="Signature" className="h-16 max-w-md rounded border border-gray-200" />
+                                <Button type="button" size="sm" variant="outline" onClick={() => { setShowSignaturePad(true); setTimeout(() => signatureRef.current?.clear(), 0); }}>
+                                  <Pencil className="mr-1 h-3 w-3" /> Update Signature
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        )}
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
                 <div className="flex justify-end pt-4">
                   <Button

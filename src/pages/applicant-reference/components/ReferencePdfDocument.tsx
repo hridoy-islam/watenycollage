@@ -6,6 +6,8 @@ import {
   Document,
   StyleSheet,
   Image,
+  Svg,
+  Path,
 } from '@react-pdf/renderer';
 import moment from 'moment';
 
@@ -96,13 +98,15 @@ const styles = StyleSheet.create({
     borderColor: '#999',
     borderRightStyle: 'solid',
     minHeight: 20,
-    textAlign: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   colRatingLast: {
     width: '15%',
     padding: 4,
     minHeight: 20,
-    textAlign: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   // Personal Reference Specific
   checkboxContainer: {
@@ -221,6 +225,19 @@ const isNo = (val: any) =>
   String(val || '').toLowerCase() === 'no' ||
   val === false ||
   String(val || '').toLowerCase() === 'false';
+
+const Tick = () => (
+  <Svg width={12} height={12} viewBox="0 0 12 12">
+    <Path
+      d="M2 6 L5 9 L10 3"
+      stroke="#333"
+      strokeWidth={2}
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </Svg>
+);
 
 // --- Page Components (Moved OUTSIDE main component) ---
 
@@ -375,15 +392,15 @@ const ProfessionalPage = ({ data }) => {
           return (
             <View style={styles.gridRow} key={idx}>
               <Text style={styles.colTrait}>{item.label}</Text>
-              <Text style={styles.colRating}>
-                {isRating(val, 'very good') ? 'X' : ''}
-              </Text>
-              <Text style={styles.colRating}>
-                {isRating(val, 'good') ? 'X' : ''}
-              </Text>
-              <Text style={styles.colRatingLast}>
-                {isRating(val, 'poor') ? 'X' : ''}
-              </Text>
+              <View style={styles.colRating}>
+                {isRating(val, 'very good') ? <Tick /> : null}
+              </View>
+              <View style={styles.colRating}>
+                {isRating(val, 'good') ? <Tick /> : null}
+              </View>
+              <View style={styles.colRatingLast}>
+                {isRating(val, 'poor') ? <Tick /> : null}
+              </View>
             </View>
           );
         })}
@@ -427,48 +444,43 @@ const ProfessionalPage = ({ data }) => {
         style={[
           styles.table,
           {
-            flexDirection: 'row',
-            flexWrap: 'wrap',
             padding: 5,
             borderBottomWidth: 0.25,
           },
         ]}
       >
-        <View style={{ width: '50%', padding: 3 }}>
-          <Text>
+        <View style={{ flexDirection: 'row', marginBottom: 4 }}>
+          <Text style={{ width: '50%' }}>
+            Name:
+            <Text style={{ fontFamily: 'Helvetica-Bold' }}>
+              {' '}
+              {safeData.refereeName}
+            </Text>
+          </Text>
+          <Text style={{ width: '50%' }}>
             Position:
-            <Text style={{ fontFamily: 'Helvetica-Bold', marginLeft: 6 }}>
+            <Text style={{ fontFamily: 'Helvetica-Bold' }}>
               {' '}
               {safeData.refereePosition}
             </Text>
           </Text>
         </View>
 
-        <View style={{ width: '50%', padding: 3 }}>
-          <Text>
-            Sign:
-            <Text
-              style={{ fontFamily: 'Helvetica-Bold', marginLeft: 6 }}
-            ></Text>
-          </Text>
-        </View>
-
-        <View style={{ width: '50%', padding: 3 }}>
-          <Text>
-            Name:
-            <Text style={{ fontFamily: 'Helvetica-Bold', marginLeft: 6 }}>
-              {' '}
-              {safeData.refereeName}
-            </Text>
-          </Text>
-        </View>
-
-        <View style={{ width: '50%', padding: 3 }}>
-          <Text>
+        <View style={{ flexDirection: 'row' }}>
+          <View style={{ width: '50%' }}>
+            <Text>Sign:</Text>
+            {safeData.signatureUrl ? (
+              <Image
+                src={safeData.signatureUrl}
+                style={{ width: 100, height: 30, marginTop: 2 }}
+              />
+            ) : null}
+          </View>
+          <Text style={{ width: '50%' }}>
             Date:
-            <Text style={{ fontFamily: 'Helvetica-Bold', marginLeft: 6 }}>
+            <Text style={{ fontFamily: 'Helvetica-Bold' }}>
               {' '}
-              {fmtDate(safeData.refereeDate || safeData.createdAt)}
+              {fmtDate(safeData.createdAt || safeData.refereeDate)}
             </Text>
           </Text>
         </View>
@@ -684,24 +696,29 @@ const PersonalPage = ({ data }) => {
 
       {/* Referee Details */}
       <View style={{ marginTop: 20 }}>
-        <Text>Name: {safeData.refereeName}</Text>
-        <TextOrLine text={safeData.refereeName} style={{ height: 1 }} />
+        <View style={{ flexDirection: 'row', marginBottom: 8 }}>
+          <Text style={{ width: '50%' }}>
+            Name: <Text style={{ fontFamily: 'Helvetica-Bold' }}>{safeData.refereeName}</Text>
+          </Text>
+          <Text style={{ width: '50%' }}>
+            Position held: <Text style={{ fontFamily: 'Helvetica-Bold' }}>{safeData.refereePosition}</Text>
+          </Text>
+        </View>
 
-        <Text style={{ marginTop: 5 }}>Signed:  </Text>
-        <TextOrLine text={safeData.refereeName} style={{ height: 1 }} />
-
-        <Text style={{ marginTop: 5 }}>
-          Position held: {safeData.refereePosition}
-        </Text>
-        <TextOrLine text={safeData.refereePosition} style={{ height: 1 }} />
-
-        <Text style={{ marginTop: 5 }}>
-          Date: {fmtDate(safeData.refereeDate || safeData.createdAt)}
-        </Text>
-        <TextOrLine
-          text={fmtDate(safeData.refereeDate || safeData.createdAt)}
-          style={{ height: 1 }}
-        />
+        <View style={{ flexDirection: 'row' }}>
+          <View style={{ width: '50%' }}>
+            <Text>Signed:</Text>
+            {safeData.signatureUrl ? (
+              <Image
+                src={safeData.signatureUrl}
+                style={{ width: 120, height: 35, marginTop: 2 }}
+              />
+            ) : null}
+          </View>
+          <Text style={{ width: '50%' }}>
+            Date: <Text style={{ fontFamily: 'Helvetica-Bold' }}>{fmtDate(safeData.createdAt || safeData.refereeDate)}</Text>
+          </Text>
+        </View>
       </View>
 
       <Text style={{ marginTop: 50, fontWeight: 'bold' }}>

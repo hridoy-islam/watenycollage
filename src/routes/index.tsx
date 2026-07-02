@@ -13,12 +13,12 @@ import ApplicationListPage from '@/pages/application/applications-list';
 import CareerPage from '@/pages/career-application';
 import CareerResumeUpload from '@/pages/career-application/uploadResume/index';
 
-import JobPage from '@/pages/dashboard/components/jobs';
+import JobPage from '@/pages/jobs';
 import JobApplication from '@/pages/Job-registration';
 import CareerGuideline from '@/pages/guideline/career-guideline';
 import JobApplicationPage from '@/pages/dashboard-application/job-application';
 import ViewCareerApplicationPage from '@/pages/application/applicantDetails/view-careerApplication';
-import CareerApplicationsPage from '@/pages/dashboard/components/jobs/job-applicant';
+import CareerApplicationsPage from '@/pages/jobs/job-applicant';
 import InterviewPage from '@/pages/interview';
 import CharacterReferencePage from '@/pages/character-reference';
 import EmploymentReferencePage from '@/pages/employment-reference';
@@ -42,6 +42,7 @@ import AdminEcertsPage from '@/pages/applicantModulesAdmin/ecertDetails';
 import AdminMedicalForm from '@/pages/applicantModulesAdmin/medicalQuestion';
 import EditApplicantProfile from '@/pages/application/editApplicant';
 import ApplicantLogsPage from '@/pages/logsPage';
+import ProgressPage from '@/pages/jobs/job-applicant/progress';
 import EditPostEmploymentMedicalForm from '@/pages/editPostMedicalForm';
 import EditBankDetailsForm from '@/pages/editBankDetailsForm';
 import EditTrainingCertificatesPage from '@/pages/editEcertFormPage';
@@ -119,6 +120,10 @@ export default function AppRouter() {
         {
           path: 'career-application/:id/:userId/interview',
           element: withRole(<InterviewPage />, ['admin'])
+        },
+        {
+          path: 'career-application/:id/:userId/progress',
+          element: withRole(<ProgressPage />, ['admin', 'applicant'])
         },
 
         {

@@ -14,7 +14,9 @@ import {
   FileStack,
   UserPlus,
   CreditCard,
-  FileCheck
+  FileCheck,
+  Settings,
+  UserCircle
 } from 'lucide-react';
 
 interface Tab {
@@ -30,6 +32,7 @@ interface VerticalTabsProps {
 }
 
 const tabs: Tab[] = [
+  // { id: 'actions', label: 'Actions', icon: <Settings className="w-4 h-4" /> },
   { id: 'personalDetails', label: 'Personal Details', icon: <User className="w-4 h-4" /> },
   { id: 'addressDetails', label: 'Address Details', icon: <MapPin className="w-4 h-4" /> },
   { id: 'nextToKin', label: 'Next of Kin', icon: <Users className="w-4 h-4" /> },
@@ -41,6 +44,7 @@ const tabs: Tab[] = [
   { id: 'employmentData', label: 'Employment', icon: <UserCheck className="w-4 h-4" /> },
   { id: 'disabilityData', label: 'Disability', icon: <Heart className="w-4 h-4" /> },
   { id: 'refereeData', label: 'References', icon: <Phone className="w-4 h-4" /> },
+  // { id: 'referee', label: 'References ', icon: <UserCircle className="w-4 h-4" /> },
   { id: 'documentData', label: 'Documents', icon: <FileStack className="w-4 h-4" /> },
   // { id: 'postEmployment', label: 'Post Employment', icon: <UserPlus className="w-4 h-4" /> },
   // { id: 'paymentData', label: 'Payment Details', icon: <CreditCard className="w-4 h-4" /> },

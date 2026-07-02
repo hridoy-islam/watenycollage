@@ -26,7 +26,21 @@ import {
 } from '@/components/ui/dialog';
 import Select, { SingleValue } from 'react-select';
 
-// ✅ Schema (unchanged)
+// ✅ Proof of Address sub-types
+const PROOF_OF_ADDRESS_SUBTYPES = [
+  { value: 'bankStatement', label: 'Bank Statement' },
+  { value: 'utilityBill', label: 'Utility Bill' },
+  { value: 'drivingLicense', label: 'Driving License' }
+] as const;
+
+type ProofOfAddressType = (typeof PROOF_OF_ADDRESS_SUBTYPES)[number]['value'];
+
+const PROOF_TYPE_LABELS: Record<ProofOfAddressType, string> = {
+  bankStatement: 'Bank Statement',
+  utilityBill: 'Utility Bill',
+  drivingLicense: 'Driving License'
+};
+
 export const createDocumentSchema = (
   hasExistingResume = false,
   nationality?: string
@@ -35,12 +49,20 @@ export const createDocumentSchema = (
     cvResume: z.string().optional(),
     idDocuments: z.array(z.string()).optional(),
     image: z.string().optional(),
-    utilityBills: z.array(z.string()).optional(),
     proofOfAddress1: z.string().optional(),
     proofOfAddress2: z.string().optional(),
-    bankStatement: z.array(z.string()).optional(),
+    proofOfAddress1Type: z
+      .enum(['bankStatement', 'utilityBill', 'drivingLicense'])
+      .optional()
+      .or(z.literal('')),
+    proofOfAddress2Type: z
+      .enum(['bankStatement', 'utilityBill', 'drivingLicense'])
+      .optional()
+      .or(z.literal('')),
     proofOfNI: z.array(z.string()).optional(),
-    immigrationDocument: z.array(z.string()).optional()
+    immigrationDocument: z.array(z.string()).optional(),
+    rtwDocument: z.string().optional(),
+    shareCodeDocument: z.string().optional()
   });
 
 export type DocumentFile = z.infer<ReturnType<typeof createDocumentSchema>>;
@@ -71,25 +93,15 @@ const documentTypes = [
     id: 'proofOfAddress1',
     label: 'Proof of Address 1',
     required: true,
-    formats: 'PDF, JPG, PNG'
+    formats: 'PDF, JPG, PNG',
+    hasSubtype: true
   },
   {
     id: 'proofOfAddress2',
     label: 'Proof of Address 2',
     required: true,
-    formats: 'PDF, JPG, PNG'
-  },
-  {
-    id: 'utilityBills',
-    label: 'Utility Bills',
-    required: true,
-    formats: 'PDF, JPG, PNG'
-  },
-  {
-    id: 'bankStatement',
-    label: 'Bank Statement',
-    required: true,
-    formats: 'PDF, JPG, PNG'
+    formats: 'PDF, JPG, PNG',
+    hasSubtype: true
   },
   {
     id: 'proofOfNI',
@@ -102,6 +114,18 @@ const documentTypes = [
     label: 'Immigration Details / Work Permit',
     required: false,
     formats: 'PDF, JPG, PNG'
+  },
+  {
+    id: 'rtwDocument',
+    label: 'Right to Work Document',
+    required: false,
+    formats: 'PDF, JPG, PNG'
+  },
+  {
+    id: 'shareCodeDocument',
+    label: 'Share Code Document',
+    required: false,
+    formats: 'PDF, JPG, PNG'
   }
 ];
 
@@ -109,6 +133,11 @@ interface DocOption {
   value: keyof DocumentFile;
   label: string;
   required: boolean;
+}
+
+interface ProofTypeOption {
+  value: ProofOfAddressType;
+  label: string;
 }
 
 export function DocumentStep({
@@ -128,12 +157,14 @@ export function DocumentStep({
     cvResume: '',
     image: '',
     idDocuments: [],
-    utilityBills: [],
     proofOfAddress1: '',
     proofOfAddress2: '',
-    bankStatement: [],
+    proofOfAddress1Type: '',
+    proofOfAddress2Type: '',
     proofOfNI: [],
-    immigrationDocument: []
+    immigrationDocument: [],
+    rtwDocument: '',
+    shareCodeDocument: ''
   });
 
   useEffect(() => {
@@ -142,12 +173,14 @@ export function DocumentStep({
         cvResume: defaultValues.cvResume ?? '',
         idDocuments: defaultValues.idDocuments ?? [],
         image: defaultValues.image ?? '',
-        utilityBills: defaultValues.utilityBills ?? [],
         proofOfAddress1: defaultValues.proofOfAddress1 ?? '',
         proofOfAddress2: defaultValues.proofOfAddress2 ?? '',
-        bankStatement: defaultValues.bankStatement ?? [],
+        proofOfAddress1Type: defaultValues.proofOfAddress1Type ?? '',
+        proofOfAddress2Type: defaultValues.proofOfAddress2Type ?? '',
         proofOfNI: defaultValues.proofOfNI ?? [],
-        immigrationDocument: defaultValues.immigrationDocument ?? []
+        immigrationDocument: defaultValues.immigrationDocument ?? [],
+        rtwDocument: defaultValues.rtwDocument ?? '',
+        shareCodeDocument: defaultValues.shareCodeDocument ?? ''
       });
     }
   }, [defaultValues]);
@@ -162,13 +195,36 @@ export function DocumentStep({
   >({});
   const { user } = useSelector((state: any) => state.auth);
 
+  // Fields whose value is a single string (not an array of files)
+  const singleValueFields: (keyof DocumentFile)[] = [
+    'cvResume',
+    'image',
+    'proofOfAddress1',
+    'proofOfAddress2',
+    'rtwDocument',
+    'shareCodeDocument'
+  ];
+
+  // Deleting a file never splices an array for these fields — it just
+  // resets the field to '' (or undefined). Deleting a proof-of-address
+  // slot also clears its tracked subtype and, if that subtype had mirrored
+  // into Utility Bill / Bank Statement, clears that mirrored field too —
+  // reopening both the subtype option and the standalone requirement.
   const handleRemoveFile = (field: keyof DocumentFile, fileName: string) => {
-    if (
-      ['cvResume', 'image', 'proofOfAddress1', 'proofOfAddress2'].includes(
-        field
-      )
-    ) {
-      setDocuments((prev) => ({ ...prev, [field]: '' }));
+    if (singleValueFields.includes(field)) {
+      setDocuments((prev) => {
+        const updated: DocumentFile = { ...prev, [field]: '' };
+
+        if (field === 'proofOfAddress1') {
+          updated.proofOfAddress1Type = '';
+        }
+
+        if (field === 'proofOfAddress2') {
+          updated.proofOfAddress2Type = '';
+        }
+
+        return updated;
+      });
     } else {
       setDocuments((prev) => ({
         ...prev,
@@ -193,14 +249,16 @@ export function DocumentStep({
     onSaveAndContinue(validationResult.data);
   };
 
+  const visibleDocumentTypes = documentTypes;
+
   const allDocumentsUploaded =
     documents.cvResume &&
     documents.idDocuments.length > 0 &&
     documents.image &&
-    documents.utilityBills.length > 0 &&
     documents.proofOfAddress1 &&
+    documents.proofOfAddress1Type &&
     documents.proofOfAddress2 &&
-    documents.bankStatement.length > 0 &&
+    documents.proofOfAddress2Type &&
     documents.proofOfNI.length > 0;
 
   const renderUploadedFiles = (field: keyof DocumentFile) => {
@@ -220,11 +278,6 @@ export function DocumentStep({
               key={`${fileUrl}-${index}`}
               className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:gap-6"
             >
-              {/* File name */}
-              {/* <span className="text-gray-900 truncate text-base sm:text-lg w-full sm:flex-1">
-              {fileName}
-            </span> */}
-
               <div className="flex flex-wrap gap-2 sm:gap-4">
                 {/* View button */}
                 <Button
@@ -237,8 +290,8 @@ export function DocumentStep({
 
                 {/* Delete button */}
                 <Button
+                  variant={'destructive'}
                   onClick={() => handleRemoveFile(field, fileUrl)}
-                  className="text-gray-500 hover:text-red-600 "
                 >
                   <Trash2 className="h-4 w-4 sm:h-5 sm:w-5" />
                 </Button>
@@ -264,13 +317,43 @@ export function DocumentStep({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedDocOption, setSelectedDocOption] =
     useState<SingleValue<DocOption> | null>(null);
+  const [selectedProofAddressType, setSelectedProofAddressType] =
+    useState<SingleValue<ProofTypeOption> | null>(null);
   const [fileToUpload, setFileToUpload] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadedFileUrl, setUploadedFileUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const uploadableOptions: DocOption[] = documentTypes
+  const isProofOfAddressField =
+    selectedDocOption?.value === 'proofOfAddress1' ||
+    selectedDocOption?.value === 'proofOfAddress2';
+
+  // A subtype is unavailable if:
+  // - the matching standalone requirement (Utility Bill / Bank Statement)
+  //   has already been satisfied (mirrored from the other slot, or
+  //   uploaded on its own), or
+  // - it's Driving License and the OTHER proof-of-address slot already
+  //   used Driving License
+  const isSubtypeUnavailable = (subtype: ProofOfAddressType): boolean => {
+    if (selectedDocOption?.value === 'proofOfAddress1') {
+      return documents.proofOfAddress2Type === subtype;
+    }
+    if (selectedDocOption?.value === 'proofOfAddress2') {
+      return documents.proofOfAddress1Type === subtype;
+    }
+    return false;
+  };
+
+  const proofOfAddressSubtypeOptions: ProofTypeOption[] =
+    PROOF_OF_ADDRESS_SUBTYPES.filter((opt) => !isSubtypeUnavailable(opt.value)).map(
+      (opt) => ({ value: opt.value, label: opt.label })
+    );
+
+  const canShowUploadArea =
+    !!selectedDocOption && (!isProofOfAddressField || !!selectedProofAddressType);
+
+  const uploadableOptions: DocOption[] = visibleDocumentTypes
     .map((doc) => ({
       value: doc.id,
       label: `${doc.label}${doc.required ? ' *' : ''}`,
@@ -282,6 +365,7 @@ export function DocumentStep({
     setIsDialogOpen(open);
     if (!open) {
       setSelectedDocOption(null);
+      setSelectedProofAddressType(null);
       setFileToUpload(null);
       setIsUploading(false);
       setUploadError(null);
@@ -289,32 +373,20 @@ export function DocumentStep({
     }
   };
 
+  const handleDocOptionChange = (option: SingleValue<DocOption>) => {
+    setSelectedDocOption(option);
+    setSelectedProofAddressType(null);
+    setFileToUpload(null);
+    setUploadedFileUrl(null);
+    setUploadError(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
   const validateFile = (file: File, docId: keyof DocumentFile): boolean => {
     if (file.size > 5 * 1024 * 1024) {
       setUploadError('File must be less than 5MB.');
       return false;
     }
-
-    const allowedTypes =
-      documentTypes
-        .find((d) => d.id === docId)
-        ?.formats.split(', ')
-        .map((f) => f.toLowerCase()) || [];
-    const fileExt = file.name.split('.').pop()?.toLowerCase();
-    const mimeType = file.type;
-
-    // const valid = allowedTypes.some(type => {
-    //   if (type.startsWith('.')) {
-    //     return fileExt === type.slice(1);
-    //   }
-    //   return mimeType.includes(type.toLowerCase());
-    // });
-
-    // if (!valid) {
-    //   setUploadError(`Invalid file type. Allowed: ${documentTypes.find(d => d.id === docId)?.formats}`);
-    //   return false;
-    // }
-
     return true;
   };
 
@@ -323,6 +395,7 @@ export function DocumentStep({
   ) => {
     const file = event.target.files?.[0];
     if (!file || !selectedDocOption || !user?._id) return;
+    if (isProofOfAddressField && !selectedProofAddressType) return;
 
     if (!validateFile(file, selectedDocOption.value)) return;
 
@@ -352,15 +425,25 @@ export function DocumentStep({
 
   const handleSubmitDocument = () => {
     if (!uploadedFileUrl || !selectedDocOption) return;
+    if (isProofOfAddressField && !selectedProofAddressType) return;
 
     const field = selectedDocOption.value;
+    const proofType = selectedProofAddressType?.value;
+
     setDocuments((prev) => {
-      if (
-        ['cvResume', 'image', 'proofOfAddress1', 'proofOfAddress2'].includes(
-          field
-        )
-      ) {
-        return { ...prev, [field]: uploadedFileUrl };
+      const updated: DocumentFile = { ...prev };
+
+      if (singleValueFields.includes(field)) {
+        updated[field] = uploadedFileUrl as any;
+
+        if (field === 'proofOfAddress1') {
+          updated.proofOfAddress1Type = proofType as ProofOfAddressType;
+        }
+        if (field === 'proofOfAddress2') {
+          updated.proofOfAddress2Type = proofType as ProofOfAddressType;
+        }
+
+        return updated;
       } else {
         return {
           ...prev,
@@ -373,6 +456,7 @@ export function DocumentStep({
     setUploadedFileUrl(null);
     setFileToUpload(null);
     setSelectedDocOption(null);
+    setSelectedProofAddressType(null);
     setUploadError(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
     setIsDialogOpen(false);
@@ -389,6 +473,16 @@ export function DocumentStep({
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
+  };
+
+  const getProofTypeLabel = (id: keyof DocumentFile): string | null => {
+    if (id === 'proofOfAddress1' && documents.proofOfAddress1Type) {
+      return PROOF_TYPE_LABELS[documents.proofOfAddress1Type as ProofOfAddressType];
+    }
+    if (id === 'proofOfAddress2' && documents.proofOfAddress2Type) {
+      return PROOF_TYPE_LABELS[documents.proofOfAddress2Type as ProofOfAddressType];
+    }
+    return null;
   };
 
   return (
@@ -435,7 +529,7 @@ export function DocumentStep({
                         <Select<DocOption>
                           inputId="docType"
                           value={selectedDocOption}
-                          onChange={setSelectedDocOption}
+                          onChange={handleDocOptionChange}
                           options={uploadableOptions}
                           placeholder="Choose document type"
                           isClearable={false}
@@ -445,7 +539,43 @@ export function DocumentStep({
                         />
                       </div>
 
-                      {selectedDocOption && (
+                      {/* Proof of Address subtype selector */}
+                      {selectedDocOption && isProofOfAddressField && (
+                        <div>
+                          <Label
+                            htmlFor="proofType"
+                            className="mb-2 block text-sm font-medium"
+                          >
+                            Proof Type
+                          </Label>
+                          <Select<ProofTypeOption>
+                            inputId="proofType"
+                            value={selectedProofAddressType}
+                            onChange={(option) => {
+                              setSelectedProofAddressType(option);
+                              setFileToUpload(null);
+                              setUploadedFileUrl(null);
+                              setUploadError(null);
+                              if (fileInputRef.current)
+                                fileInputRef.current.value = '';
+                            }}
+                            options={proofOfAddressSubtypeOptions}
+                            placeholder="Bank Statement, Utility Bill, or Driving License"
+                            isClearable={false}
+                            isSearchable={false}
+                            className="basic-single"
+                            classNamePrefix="select"
+                          />
+                          {proofOfAddressSubtypeOptions.length === 0 && (
+                            <p className="mt-1 text-xs text-amber-600">
+                              All proof types have already been used or
+                              satisfied elsewhere.
+                            </p>
+                          )}
+                        </div>
+                      )}
+
+                      {canShowUploadArea && (
                         <div>
                           <Label className="mb-2 block text-sm font-medium">
                             Upload File
@@ -566,7 +696,11 @@ export function DocumentStep({
                       </Button>
                       <Button
                         onClick={handleSubmitDocument}
-                        disabled={!uploadedFileUrl || isUploading}
+                        disabled={
+                          !uploadedFileUrl ||
+                          isUploading ||
+                          (isProofOfAddressField && !selectedProofAddressType)
+                        }
                         className="bg-watney text-white hover:bg-watney/90"
                       >
                         Submit Document
@@ -578,9 +712,11 @@ export function DocumentStep({
                 {/* Uploaded Documents List */}
                 {hasUploadedDocuments && (
                   <div className="space-y-4">
-                    {documentTypes.map(({ id, label, required }) => {
+                    {visibleDocumentTypes.map(({ id, label, required }) => {
                       const isUploaded = isDocumentUploaded(id);
                       if (!isUploaded) return null;
+
+                      const proofTypeLabel = getProofTypeLabel(id);
 
                       return (
                         <div
@@ -596,6 +732,11 @@ export function DocumentStep({
                             <div className="mb-1 flex flex-wrap items-center gap-1">
                               <span className="text-lg font-medium text-gray-900">
                                 {label}
+                                {proofTypeLabel && (
+                                  <span className="ml-1 text-sm font-normal text-gray-500">
+                                    ({proofTypeLabel})
+                                  </span>
+                                )}
                                 {required && (
                                   <span className="ml-0.5 text-red-500">*</span>
                                 )}
@@ -611,22 +752,6 @@ export function DocumentStep({
                     })}
                   </div>
                 )}
-
-                {/* {!hasUploadedDocuments && (
-                  <div className="text-center py-12 border-2 border-dashed border-gray-300 rounded-xl">
-                    <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">No documents uploaded yet</h3>
-                    <p className="text-gray-600 mb-4">Get started by uploading your first document</p>
-                    <Dialog open={isDialogOpen} onOpenChange={handleDialogOpenChange}>
-                      <DialogTrigger asChild>
-                        <Button className=" bg-watney text-lg text-white hover:bg-watney/90 flex items-center gap-2">
-                          <Plus className="h-5 w-5" />
-                          Upload First Document
-                        </Button>
-                      </DialogTrigger>
-                    </Dialog>
-                  </div>
-                )} */}
               </div>
             </div>
 
@@ -639,17 +764,17 @@ export function DocumentStep({
                   </h3>
                   <p className="text-sm text-gray-600">
                     {
-                      documentTypes.filter(
+                      visibleDocumentTypes.filter(
                         (d) => d.required && isDocumentUploaded(d.id)
                       ).length
                     }{' '}
-                    of {documentTypes.filter((d) => d.required).length}{' '}
+                    of {visibleDocumentTypes.filter((d) => d.required).length}{' '}
                     completed
                   </p>
                 </CardHeader>
                 <CardContent className="pt-0">
                   <div className="space-y-3">
-                    {documentTypes
+                    {visibleDocumentTypes
                       .filter((doc) => doc.required)
                       .map(({ id, label }) => {
                         const uploaded = isDocumentUploaded(id);

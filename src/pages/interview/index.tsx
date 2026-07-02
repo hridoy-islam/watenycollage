@@ -2,7 +2,7 @@
 import { RadioGroupItem } from '@/components/ui/radio-group';
 import { RadioGroup } from '@/components/ui/radio-group';
 import type React from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,6 +12,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import axiosInstance from '@/lib/axios';
 import 'react-datepicker/dist/react-datepicker.css';
 import { PDFDownloadLink } from '@react-pdf/renderer';
+import moment from 'moment';
 
 // Import Table Components
 import {
@@ -23,8 +24,9 @@ import {
   TableRow
 } from '@/components/ui/table';
 import DatePicker from 'react-datepicker';
-import { Download, MoveLeft, Pencil } from 'lucide-react';
+import { Download, MoveLeft, Pencil, Trash2 } from 'lucide-react';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
+import SignatureCanvas from 'react-signature-canvas';
 
 // ZOD IMPORTS
 import { z } from 'zod';
@@ -121,6 +123,13 @@ const assessmentCriteria: AssessmentCriteria[] = [
 
 const interviewSchema = z.object({
   interviewDate: z.date({ message: 'Interview date is required' }),
+  interviewTime: z
+    .string()
+    .min(1, 'Interview time is required')
+    .regex(
+      /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/,
+      'Please enter a valid time in HH:mm format'
+    ),
   interviewerName: z.string().min(1, 'Interviewer name is required'),
   decision: z.enum(['reject', 'appointed', 'second-choice'], {
     message: 'Decision is required'
@@ -129,8 +138,6 @@ const interviewSchema = z.object({
   candidateAdvised: z.enum(['yes', 'no'], {
     message: 'Candidate advised status is required'
   }),
-  // Replace the existing assessments validation in your interviewSchema with this:
-
   assessments: z
     .record(
       z.string(),
@@ -169,6 +176,16 @@ const interviewSchema = z.object({
 
 type InterviewFormType = z.infer<typeof interviewSchema>;
 
+// Time formatting helper function
+const handleTimeBlur = (value: string, onChange: (val: string) => void) => {
+  let clean = value.trim();
+  if (clean) {
+    const m = moment(clean, ['HH:mm', 'H:mm', 'HHmm', 'Hmm', 'H']);
+    if (m.isValid()) clean = m.format('HH:mm');
+  }
+  onChange(clean);
+};
+
 export default function InterviewAssessmentPage() {
   const params = useParams();
   const { id, userId } = params; // jobId and candidateId
@@ -179,6 +196,10 @@ export default function InterviewAssessmentPage() {
   const [loading, setLoading] = useState(true);
   const [interviewId, setInterviewId] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [interviewerSignature, setInterviewerSignature] = useState<string>('');
+  const [signatureSaving, setSignatureSaving] = useState(false);
+  const [showSignaturePad, setShowSignaturePad] = useState(false);
+  const signatureRef = useRef<SignatureCanvas>(null);
   const { toast } = useToast();
 
   // Initialize react-hook-form with Zod resolver
@@ -193,6 +214,7 @@ export default function InterviewAssessmentPage() {
     resolver: zodResolver(interviewSchema),
     defaultValues: {
       interviewDate: new Date(),
+      interviewTime: '',
       interviewerName: '',
       decision: undefined,
       decisionReason: '',
@@ -200,7 +222,7 @@ export default function InterviewAssessmentPage() {
       assessments: assessmentCriteria.reduce(
         (acc, c) => ({
           ...acc,
-          [c.id]: { score: undefined, comment: '' } // ✅ undefined score
+          [c.id]: { score: undefined, comment: '' }
         }),
         {}
       )
@@ -231,7 +253,9 @@ export default function InterviewAssessmentPage() {
 
           // Populate form fields
           setValue('interviewDate', new Date(interview.interviewDate));
+          setValue('interviewTime', interview.interviewTime || '');
           setValue('interviewerName', interview.interviewerName || '');
+          setInterviewerSignature(interview.interviewerSignature || '');
           setValue('decision', interview.decision || '');
           setValue('decisionReason', interview.decisionReason || '');
           setValue('candidateAdvised', interview.candidateAdvised || '');
@@ -283,11 +307,13 @@ export default function InterviewAssessmentPage() {
       candidateId: userId,
       jobId: id,
       interviewDate: data.interviewDate.toISOString(),
+      interviewTime: data.interviewTime,
       interviewerName: data.interviewerName.trim() || 'Unknown',
       assessments: data.assessments,
       decision: data.decision,
       decisionReason: data.decisionReason.trim(),
-      candidateAdvised: data.candidateAdvised
+      candidateAdvised: data.candidateAdvised,
+      interviewerSignature: interviewerSignature || undefined
     };
 
     try {
@@ -323,10 +349,6 @@ export default function InterviewAssessmentPage() {
     }
   };
 
-  const handleDownloadPDF = () => {
-    alert('Download PDF clicked');
-  };
-
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center p-4">
@@ -338,7 +360,44 @@ export default function InterviewAssessmentPage() {
   const candidateName = user
     ? `${user.title} ${user.firstName} ${user.initial} ${user.lastName}`
     : 'N/A';
-  const jobTitle = job?.jobId.jobTitle || 'N/A'; // ✅ Fixed typo: was job.jobId.jobTitle
+  const jobTitle = job?.jobId?.jobTitle || 'N/A';
+
+  const handleSaveSignature = async () => {
+    if (!signatureRef.current) return;
+    const dataUrl = signatureRef.current.toDataURL();
+    if (!dataUrl) return;
+    const blob = await (await fetch(dataUrl)).blob();
+    const file = new File([blob], 'signature.png', { type: 'image/png' });
+    const formData = new FormData();
+    formData.append('entityId', userId || '');
+    formData.append('file_type', 'careerDoc');
+    formData.append('file', file);
+    setSignatureSaving(true);
+    try {
+      const response = await axiosInstance.post('/documents', formData);
+      if (response.status === 200) {
+        const url = response.data?.data?.fileUrl || response.data?.data?.url || response.data?.url;
+        if (url) {
+          setInterviewerSignature(url);
+          setShowSignaturePad(false);
+          toast({ title: 'Success', description: 'Signature uploaded.' });
+        }
+      }
+    } catch (error) {
+      console.error('Error uploading signature:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to upload signature.',
+        variant: 'destructive'
+      });
+    } finally {
+      setSignatureSaving(false);
+    }
+  };
+
+  const handleClearSignature = () => {
+    signatureRef.current?.clear();
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -360,16 +419,7 @@ export default function InterviewAssessmentPage() {
             </div>
 
             <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
-              {/* <Button
-                variant="outline"
-                size="sm"
-                className="w-full sm:w-auto"
-                onClick={handleDownloadPDF}
-              >
-                <Download className="mr-1 h-4 w-4" />
-                Download PDF
-              </Button> */}
-
+              {interviewId && (
               <PDFDownloadLink
                 document={
                   <InterviewPDF
@@ -377,6 +427,7 @@ export default function InterviewAssessmentPage() {
                     jobTitle={jobTitle}
                     interviewDate={watch('interviewDate') || new Date()}
                     interviewerName={watch('interviewerName') || ''}
+                    interviewerSignature={interviewerSignature}
                     assessments={watch('assessments') || {}}
                     decision={watch('decision') || ''}
                     decisionReason={watch('decisionReason') || ''}
@@ -427,6 +478,7 @@ export default function InterviewAssessmentPage() {
                   );
                 }}
               </PDFDownloadLink>
+              )}
               {/* Edit Button: Only shown if interview exists AND not editing */}
               {interviewId && !isEditing && (
                 <Button
@@ -471,7 +523,7 @@ export default function InterviewAssessmentPage() {
         <CardContent className="space-y-8">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
             {/* Candidate & Job Info */}
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
               {/* Candidate Name */}
               <div className="space-y-1">
                 <Label
@@ -501,7 +553,7 @@ export default function InterviewAssessmentPage() {
                   htmlFor="interview-date"
                   className="text-sm font-semibold"
                 >
-                  Date and time:
+                  Date:
                 </Label>
                 <div className="mt-1">
                   <DatePicker
@@ -514,20 +566,69 @@ export default function InterviewAssessmentPage() {
                         });
                     }}
                     dateFormat="dd-MM-yyyy"
-                    className={`w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    className={`w-full rounded-2xl h-12 border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                       !isEditing ? 'cursor-not-allowed bg-gray-100' : ''
                     }`}
                     placeholderText="Select interview date"
                     showMonthDropdown
                     showYearDropdown
                     dropdownMode="select"
-                    wrapperClassName="w-full"
-                    disabled={!isEditing} // ✅ Disable if not editing
+                    wrapperClassName="w-full "
+                    disabled={!isEditing}
                   />
                 </div>
                 {errors.interviewDate && (
                   <p className="mt-1 text-xs text-red-500">
                     {errors.interviewDate.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Interview Time */}
+              <div className="space-y-1">
+                <Label
+                  htmlFor="interview-time"
+                  className="text-sm font-semibold"
+                >
+                  Time:
+                </Label>
+                <div className="mt-1">
+                  <Input
+                    id="interview-time"
+                    value={watch('interviewTime')}
+                    placeholder="09:00"
+                    maxLength={5}
+                    className={`font-mono ${
+                      !isEditing ? 'cursor-not-allowed bg-gray-100' : ''
+                    }`}
+                    disabled={!isEditing}
+                    onChange={(e) => {
+                      let val = e.target.value
+                        .replace(/[^0-9:]/g, '')
+                        .slice(0, 5);
+                      if (
+                        val.length === 2 &&
+                        watch('interviewTime')?.length === 1 &&
+                        !val.includes(':')
+                      ) {
+                        val += ':';
+                      }
+                      setValue('interviewTime', val, {
+                        shouldValidate: true
+                      });
+                    }}
+                    onBlur={(e) =>
+                      handleTimeBlur(e.target.value, (val) =>
+                        setValue('interviewTime', val, {
+                          shouldValidate: true
+                        })
+                      )
+                    }
+                  />
+                </div>
+                {errors.interviewTime && (
+                  <p className="mt-1 text-xs text-red-500">
+                    {errors.interviewTime.message}
                   </p>
                 )}
               </div>
@@ -639,7 +740,7 @@ export default function InterviewAssessmentPage() {
                             !isEditing ? 'cursor-not-allowed bg-gray-100' : ''
                           }`}
                           rows={3}
-                          disabled={!isEditing} // ✅ Disable if not editing
+                          disabled={!isEditing}
                         />
                       </TableCell>
                     </TableRow>
@@ -670,7 +771,7 @@ export default function InterviewAssessmentPage() {
                       })
                     }
                     className="space-y-2"
-                    disabled={!isEditing} // ✅ Disable if not editing
+                    disabled={!isEditing}
                   >
                     {['reject', 'appointed', 'second-choice'].map((option) => (
                       <div
@@ -805,6 +906,80 @@ export default function InterviewAssessmentPage() {
                     <p className="mt-1 text-xs text-red-500">
                       {errors.interviewerName.message}
                     </p>
+                  )}
+                </div>
+
+                <div>
+                  <Label className="mb-2 block text-sm font-semibold text-gray-700">
+                    Interviewer Signature
+                  </Label>
+                  {isEditing && (showSignaturePad || !interviewerSignature) ? (
+                    <div className="space-y-2">
+                      <div className="w-full max-w-md" style={{ height: 128 }}>
+                        <div className="rounded-lg border border-gray-300 overflow-hidden h-full">
+                          <SignatureCanvas
+                            ref={signatureRef}
+                            penColor="black"
+                            velocityFilterWeight={0.2}
+                            minWidth={0.5}
+                            maxWidth={2}
+                            canvasProps={{
+                              style: { background: 'transparent', width: '100%', height: '100%' }
+                            }}
+                          />
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          onClick={handleClearSignature}
+                        >
+                          <Trash2 className="mr-1 h-3 w-3" />
+                          Clear
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          className="bg-watney text-white hover:bg-watney/90"
+                          onClick={handleSaveSignature}
+                          disabled={signatureSaving}
+                        >
+                          {signatureSaving ? 'Saving...' : 'Save Signature'}
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="mt-2 space-y-2">
+                      {interviewerSignature ? (
+                        <>
+                          <img
+                            src={interviewerSignature}
+                            alt="Interviewer signature"
+                            className="h-16 max-w-md rounded border border-gray-200"
+                          />
+                          {isEditing && (
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                setShowSignaturePad(true);
+                                setTimeout(() => signatureRef.current?.clear(), 0);
+                              }}
+                            >
+                              <Pencil className="mr-1 h-3 w-3" />
+                              Update Signature
+                            </Button>
+                          )}
+                        </>
+                      ) : (
+                        <p className="text-sm italic text-gray-400">
+                          No signature provided
+                        </p>
+                      )}
+                    </div>
                   )}
                 </div>
               </div>

@@ -55,29 +55,36 @@ const applicationDetailsSchema = z
       .refine((data) => Object.values(data).some((val) => val), {
         message: 'Please select at least one day of availability'
       }),
-    isStudent: z.boolean().refine((val) => val === true || val === false, {
-      message: 'Please select if you are a student'
+    isStudent: z.boolean({
+      required_error: 'Please select if you are a student',
+      invalid_type_error: 'Please select if you are a student'
     }),
     referralEmployee: z.string().optional(),
-    isUnderStatePensionAge: z
-      .boolean()
-      .refine((val) => val === true || val === false, {
-        message: 'Please indicate if you are under the state pension age'
-      }),
-    isOver18: z.boolean().refine((val) => val === true || val === false, {
-      message: 'Please confirm if you are aged 18 or over'
+    isUnderStatePensionAge: z.boolean({
+      required_error: 'Please indicate if you are under the state pension age',
+      invalid_type_error: 'Please indicate if you are under the state pension age'
     }),
-    isSubjectToImmigrationControl: z
-      .boolean()
-      .refine((val) => val === true || val === false, {
-        message: 'Please confirm if you are subject to immigration control'
-      }),
-    canWorkInUK: z.boolean().refine((val) => val === true || val === false, {
-      message: 'Please confirm if you are free to work in the UK'
+    isOver18: z.boolean({
+      required_error: 'Please confirm if you are aged 18 or over',
+      invalid_type_error: 'Please confirm if you are aged 18 or over'
     }),
-    competentInOtherLanguage: z.boolean(),
+    isSubjectToImmigrationControl: z.boolean({
+      required_error: 'Please confirm if you are subject to immigration control',
+      invalid_type_error: 'Please confirm if you are subject to immigration control'
+    }),
+    canWorkInUK: z.boolean({
+      required_error: 'Please confirm if you are free to work in the UK',
+      invalid_type_error: 'Please confirm if you are free to work in the UK'
+    }),
+    competentInOtherLanguage: z.boolean({
+      required_error: 'Please select if you are competent in another language',
+      invalid_type_error: 'Please select if you are competent in another language'
+    }),
     otherLanguages: z.array(z.string()).optional(),
-    drivingLicense: z.boolean(),
+    drivingLicense: z.boolean({
+      required_error: 'Please select if you hold a driving license',
+      invalid_type_error: 'Please select if you hold a driving license'
+    }),
     licenseNumber: z
       .string()
       .regex(/^[A-Za-z0-9]{16}$/, {
@@ -86,11 +93,20 @@ const applicationDetailsSchema = z
       .or(z.literal(''))
       .nullable(),
 
-    carOwner: z.boolean(),
+    carOwner: z.boolean({
+      required_error: 'Please select if you own a car',
+      invalid_type_error: 'Please select if you own a car'
+    }),
     travelAreas: z.string().min(1, { message: 'Please specify travel areas' }),
-    solelyForEverycare: z.boolean(),
+    solelyForEverycare: z.boolean({
+      required_error: 'Please select if you will work solely for Everycare',
+      invalid_type_error: 'Please select if you will work solely for Everycare'
+    }),
     otherEmployers: z.string().optional(),
-    professionalBody: z.boolean(),
+    professionalBody: z.boolean({
+      required_error: 'Please select if you are a member of a professional body',
+      invalid_type_error: 'Please select if you are a member of a professional body'
+    }),
     professionalBodyDetails: z.string().optional()
   })
   .superRefine((data, ctx) => {
@@ -105,7 +121,7 @@ const applicationDetailsSchema = z
       });
     }
     if (data.drivingLicense) {
-      if (!data.licenseNumber) {
+      if (!data.licenseNumber || data.licenseNumber === '') {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: 'Please provide your driving license number',
@@ -114,7 +130,7 @@ const applicationDetailsSchema = z
       }
     }
 
-    if (!data.solelyForEverycare && !data.otherEmployers) {
+    if (data.solelyForEverycare === false && !data.otherEmployers) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'Please provide other employer(s)',
@@ -147,51 +163,55 @@ export function ApplicationDetailsStep({
   setCurrentStep,
   saveAndLogout
 }) {
-  const form = useForm<ApplicationDetailsFormValues>({
-    resolver: zodResolver(applicationDetailsSchema),
-    defaultValues: {
-      availableFromDate: undefined,
-      source: '',
 
-      availability: {
-        monday: false,
-        tuesday: false,
-        wednesday: false,
-        thursday: false,
-        friday: false,
-        saturday: false,
-        sunday: false
-      },
-      isStudent: undefined,
-      referralEmployee: '',
-      isUnderStatePensionAge: undefined,
-      isOver18: undefined,
-      isSubjectToImmigrationControl: undefined,
-      canWorkInUK: undefined,
-      competentInOtherLanguage: undefined,
-      otherLanguages: [],
-      drivingLicense: undefined,
-      licenseNumber: '',
-      carOwner: undefined,
-      travelAreas: '',
-      solelyForEverycare: undefined,
-      otherEmployers: '',
-      professionalBody: undefined,
-      professionalBodyDetails: ''
-    },
-    ...defaultValues
-  });
 
-  useEffect(() => {
-    if (defaultValues) {
-      form.reset({
-        ...defaultValues,
-        availableFromDate: defaultValues.availableFromDate
-          ? new Date(defaultValues.availableFromDate)
-          : undefined
-      });
-    }
-  }, [defaultValues, form]);
+  const defaultFormValues: ApplicationDetailsFormValues = {
+  availableFromDate: undefined as any,
+  source: '',
+  availability: {
+    monday: false,
+    tuesday: false,
+    wednesday: false,
+    thursday: false,
+    friday: false,
+    saturday: false,
+    sunday: false
+  },
+  isStudent: undefined as any,
+  referralEmployee: '',
+  isUnderStatePensionAge: undefined as any,
+  isOver18: undefined as any,
+  isSubjectToImmigrationControl: undefined as any,
+  canWorkInUK: undefined as any,
+  competentInOtherLanguage: undefined as any,
+  otherLanguages: [],
+  drivingLicense: undefined as any,
+  licenseNumber: '',
+  carOwner: undefined as any,
+  travelAreas: '',
+  solelyForEverycare: undefined as any,
+  otherEmployers: '',
+  professionalBody: undefined as any,
+  professionalBodyDetails: ''
+};
+
+
+ const form = useForm<ApplicationDetailsFormValues>({
+  resolver: zodResolver(applicationDetailsSchema),
+  defaultValues: defaultValues || defaultFormValues
+});
+
+useEffect(() => {
+  if (defaultValues) {
+    form.reset({
+      ...defaultFormValues,
+      ...defaultValues,
+      availableFromDate: defaultValues.availableFromDate
+        ? new Date(defaultValues.availableFromDate)
+        : undefined
+    });
+  }
+}, [defaultValues, form]);
 
   const options = [
     { value: 'website', label: 'Company Website' },

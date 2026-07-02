@@ -44,6 +44,8 @@ import { PostEmploymentTab } from "./components/post-employment-tab"
 import { ReferenceTab } from "./components/reference-tab"
 import { TrainingTab } from "./components/training-tab"
 import { TermTab } from "./components/terms-tab"
+import { RecruitmentActionsTab } from "../../jobs/job-applicant/progress/components/recruitment-actions-tab"
+import { RefereeConfirmationTab } from "../../jobs/job-applicant/progress/components/referee-confirmation-tab"
 import { TabContent, VerticalTabs } from "./components/VerticalTab"
 
 
@@ -63,6 +65,8 @@ type TabType =
   | "documentData"
   | "postEmployment"
   | "paymentData"
+  | "actions"
+  | "refereeConfirmation"
 
 const tabs = [
   { id: "personalDetails" as TabType, label: "Personal Details", icon: <User size={20} /> },
@@ -80,6 +84,8 @@ const tabs = [
   { id: "postEmployment" as TabType, label: "Post Employment", icon: <ClipboardList size={20} /> },
   { id: "paymentData" as TabType, label: "Payment Details", icon: <Wallet size={20} /> },
     { id: "terms" as TabType, label: "Terms", icon: <FileText size={20} /> },
+    { id: "actions" as TabType, label: "Actions", icon: <Briefcase size={20} /> },
+    { id: "refereeConfirmation" as TabType, label: "Referee Confirmation", icon: <UserCircle size={20} /> },
 
 ]
 
@@ -474,6 +480,19 @@ return (
 
         <TabContent value="terms" activeTab={activeTab}>
           <TermTab application={application} renderFieldRow={renderFieldRow} />
+        </TabContent>
+
+        <TabContent value="actions" activeTab={activeTab}>
+          <RecruitmentActionsTab
+            application={application}
+            applicationJob={applicationJob}
+            userId={userId}
+            applicationId={id}
+          />
+        </TabContent>
+
+        <TabContent value="referee" activeTab={activeTab}>
+          <RefereeConfirmationTab application={application} />
         </TabContent>
       </VerticalTabs>
     </div>
