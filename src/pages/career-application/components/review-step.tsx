@@ -543,7 +543,7 @@ export function ReviewStep({
         idDocuments: defaultValues.idDocuments,
         proofOfNI: defaultValues.proofOfNI,
         immigrationDocument: defaultValues.immigrationDocument,
-        rtwDocument: defaultValues.rtwDocument,
+        // rtwDocument: defaultValues.rtwDocument,
         shareCodeDocument: defaultValues.shareCodeDocument,
         // proofOfAddress: defaultValues.proofOfAddress,
         // passport: defaultValues.passport,

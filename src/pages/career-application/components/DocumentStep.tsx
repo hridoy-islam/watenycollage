@@ -61,7 +61,7 @@ export const createDocumentSchema = (
       .or(z.literal('')),
     proofOfNI: z.array(z.string()).optional(),
     immigrationDocument: z.array(z.string()).optional(),
-    rtwDocument: z.string().optional(),
+    // rtwDocument: z.string().optional(),
     shareCodeDocument: z.string().optional()
   });
 
@@ -115,15 +115,15 @@ const documentTypes = [
     required: false,
     formats: 'PDF, JPG, PNG'
   },
-  {
-    id: 'rtwDocument',
-    label: 'Right to Work Document',
-    required: false,
-    formats: 'PDF, JPG, PNG'
-  },
+  // {
+  //   id: 'rtwDocument',
+  //   label: 'Right to Work Document',
+  //   required: false,
+  //   formats: 'PDF, JPG, PNG'
+  // },
   {
     id: 'shareCodeDocument',
-    label: 'Share Code Document',
+    label: 'Right To Work Share Code Document',
     required: false,
     formats: 'PDF, JPG, PNG'
   }
@@ -163,7 +163,7 @@ export function DocumentStep({
     proofOfAddress2Type: '',
     proofOfNI: [],
     immigrationDocument: [],
-    rtwDocument: '',
+    // rtwDocument: '',
     shareCodeDocument: ''
   });
 
@@ -179,7 +179,7 @@ export function DocumentStep({
         proofOfAddress2Type: defaultValues.proofOfAddress2Type ?? '',
         proofOfNI: defaultValues.proofOfNI ?? [],
         immigrationDocument: defaultValues.immigrationDocument ?? [],
-        rtwDocument: defaultValues.rtwDocument ?? '',
+        // rtwDocument: defaultValues.rtwDocument ?? '',
         shareCodeDocument: defaultValues.shareCodeDocument ?? ''
       });
     }
@@ -201,7 +201,7 @@ export function DocumentStep({
     'image',
     'proofOfAddress1',
     'proofOfAddress2',
-    'rtwDocument',
+    // 'rtwDocument',
     'shareCodeDocument'
   ];
 

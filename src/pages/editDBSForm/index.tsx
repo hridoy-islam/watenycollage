@@ -360,7 +360,7 @@ export default function EditDBSDetailsForm() {
                       <FormItem className="flex flex-col">
                         <FormLabel className="mb-1 flex items-center gap-2 text-base">
                           <div>
-                            Expiry Date <span className="text-red-500">*</span>
+                            Expiry Date 
                           </div>
                         </FormLabel>
                         <FormControl>
@@ -368,6 +368,7 @@ export default function EditDBSDetailsForm() {
                             selected={field.value}
                             onChange={field.onChange}
                             placeholder="e.g. 15/10/2028"
+                            futureDate={false}
                           />
                         </FormControl>
                         <FormMessage />

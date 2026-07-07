@@ -18,10 +18,17 @@ export function CustomDatePicker({
   futureDate = true 
 
 }: CustomDatePickerProps) {
-  const years = Array.from(
-    { length: 100 },
-    (_, i) => new Date().getFullYear() - i
-  );
+  // const years = Array.from(
+  //   { length: 100 },
+  //   (_, i) => new Date().getFullYear() - i
+  // );
+
+  const currentYear = new Date().getFullYear();
+
+const years = futureDate
+  ? Array.from({ length: 100 }, (_, i) => currentYear - i)
+  : Array.from({ length: 151 }, (_, i) => currentYear - 50 + i);
+  
   const months = [
     'Jan',
     'Feb',
