@@ -9,7 +9,8 @@ import {
   Landmark,
   ShieldCheck,
   ClipboardCheck,
-  File
+  File,
+  FileX2
 } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -39,9 +40,9 @@ const tabs = [
   { id: "dbs" as TabType, label: "DBS Certificate", icon: <ShieldCheck size={20} /> },
   { id: "checklist" as TabType, label: "Starter Checklist", icon: <ClipboardCheck size={20} /> },
   { id: "ecert" as TabType, label: "Training Certificates", icon: <File size={20} /> },
-  { id: "employmentContract" as TabType, label: "Employment Contract", icon: <File size={20} /> },
-  { id: "jobContract" as TabType, label: "Job Contract", icon: <File size={20} /> },
-  { id: "confidentiality" as TabType, label: "Confidentiality", icon: <File size={20} /> },
+  { id: "employmentContract" as TabType, label: "Employment Contract", icon: <FileText size={20} /> },
+  { id: "jobContract" as TabType, label: "Job Contract", icon: <FileText size={20} /> },
+  { id: "confidentiality" as TabType, label: "Confidentiality", icon: <FileText size={20} /> },
   { id: "documents" as TabType, label: "Documents", icon: <FileText size={20} /> },
 ]
 
