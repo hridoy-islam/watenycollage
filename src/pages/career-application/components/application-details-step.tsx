@@ -263,7 +263,7 @@ useEffect(() => {
                     <FormItem className="mt-2 flex w-full flex-col">
                       <FormLabel>
                         <div>
-                          Available From Date (MM/DD/YYYY)
+                          Available From Date (MM/dd/yyyy)
                           <span className="text-red-500">*</span>
                         </div>
                         <HelperTooltip text="Enter the date you’re available to start work. e.g., 01/06/2025" />

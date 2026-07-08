@@ -232,7 +232,7 @@ export function EducationStep({
                       <span className="text-red-500">*</span>
                     </TableHead>
                     <TableHead className='text-lg'>
-                      Date of Award (MM/DD/YYYY){' '}
+                      Date of Award (MM/dd/yyyy){' '}
                       <span className="text-red-500">*</span>
                     </TableHead>
                     <TableHead className='text-lg'>

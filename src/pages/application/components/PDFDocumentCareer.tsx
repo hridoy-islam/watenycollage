@@ -314,7 +314,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
           {/* Row A6 */}
           <View style={styles.tableRow}>
             <View style={[styles.tableCol, { width: '30%' }]}>
-              <Text>Date Of Birth(mm/dd/yyyy)</Text>
+              <Text>Date Of Birth(MM/dd/yyyy)</Text>
             </View>
             <View style={[styles.tableCol, { width: '70%' }]}>
               <Text>{formatDate(data.dateOfBirth)}</Text>
@@ -448,10 +448,10 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
                 <Text>Full-time or Part-time</Text>
               </View>
               <View style={[styles.tableColHeader, { width: '15%' }]}>
-                <Text>From (mm/dd/yyyy)</Text>
+                <Text>From (MM/dd/yyyy)</Text>
               </View>
               <View style={[styles.tableColHeader, { width: '20%' }]}>
-                <Text>To (mm/dd/yyyy)</Text>
+                <Text>To (MM/dd/yyyy)</Text>
               </View>
             </View>
 
@@ -538,10 +538,10 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
               </View>
 
               <View style={[styles.tableColHeader, { width: '20%' }]}>
-                <Text>From (mm/dd/yyyy)</Text>
+                <Text>From (MM/dd/yyyy)</Text>
               </View>
               <View style={[styles.tableColHeader, { width: '20%' }]}>
-                <Text>To (mm/dd/yyyy)</Text>
+                <Text>To (MM/dd/yyyy)</Text>
               </View>
             </View>
 
@@ -618,7 +618,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
               <Text>Level / Qualification</Text>
             </View>
             <View style={[styles.tableColHeader, { width: '20%' }]}>
-              <Text>Award Date (mm/dd/yyyy)</Text>
+              <Text>Award Date (MM/dd/yyyy)</Text>
             </View>
             <View style={[styles.tableColHeader, { width: '30%' }]}>
               <Text>College/ University</Text>
@@ -930,7 +930,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
               <Text>Signature</Text>
             </View>
             <View style={[styles.tableColHeader, { width: '30%' }]}>
-              <Text>Date (mm/dd/yyyy)</Text>
+              <Text>Date (MM/dd/yyyy)</Text>
             </View>
           </View>
           <View style={[styles.tableRow, { minHeight: 50 }]}>

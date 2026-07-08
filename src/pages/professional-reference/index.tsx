@@ -404,7 +404,7 @@ export default function ProfessionalReferencePage() {
                           <FormItem>
                             <FormLabel>
                               <div>
-                                When did the applicant start the job?{' '}(mm/dd/yyyy)
+                                When did the applicant start the job?{' '}(MM/dd/yyyy)
                                 <span className="text-red-500">*</span>
                               </div>{' '}
                               <HelperTooltip text="The official start date of the applicant's employment. e.g., 01/06/2020" />
@@ -415,7 +415,7 @@ export default function ProfessionalReferencePage() {
                                 onChange={(date: Date | null) =>
                                   field.onChange(date)
                                 }
-                                placeholder="MM/DD/YYYY"
+                                placeholder="MM/dd/yyyy"
                               />
                             </FormControl>
                             <FormMessage />
@@ -429,7 +429,7 @@ export default function ProfessionalReferencePage() {
                           <FormItem>
                             <FormLabel>
                               <div className="flex items-center gap-1">
-                                When did the applicant leave the job?{' '}(mm/dd/yyyy)
+                                When did the applicant leave the job?{' '}(MM/dd/yyyy)
                                 <span className="text-red-500">*</span>
                               </div>
                               <HelperTooltip text="The official last working day of the applicant. e.g., 31/12/2023" />
@@ -440,7 +440,7 @@ export default function ProfessionalReferencePage() {
                                 onChange={(date: Date | null) =>
                                   field.onChange(date)
                                 }
-                                placeholder="MM/DD/YYYY"
+                                placeholder="MM/dd/yyyy"
                               />
                             </FormControl>
                             <FormMessage />

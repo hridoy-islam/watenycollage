@@ -171,7 +171,7 @@ export default function AdminDBSDetails() {
               </p>
               <p className="mt-2 text-lg text-gray-900">
                 {dbsDetails.dateOfIssue
-                  ? format(new Date(dbsDetails.dateOfIssue), 'dd/MM/yyyy')
+                  ? format(new Date(dbsDetails.dateOfIssue), 'MM/dd/yyyy')
                   : '—'}
               </p>
             </div>
@@ -182,7 +182,7 @@ export default function AdminDBSDetails() {
               </p>
               <p className="mt-2 text-lg text-gray-900">
                 {dbsDetails.expiryDate
-                  ? format(new Date(dbsDetails.expiryDate), 'dd/MM/yyyy')
+                  ? format(new Date(dbsDetails.expiryDate), 'MM/dd/yyyy')
                   : '—'}
               </p>
             </div>

@@ -225,9 +225,9 @@ export const employmentSchema = z
                 message: `Gap of ${gapMonths.toFixed(
                   1
                 )} months detected between jobs (ended ${endM.format(
-                  'MM/DD/YYYY'
+                  'MM/dd/yyyy'
                 )} → started ${startM.format(
-                  'MM/DD/YYYY'
+                  'MM/dd/yyyy'
                 )}). You must select 'Yes' for employment gaps.`,
                 path: [
                   'previousEmployments',
@@ -265,9 +265,9 @@ export const employmentSchema = z
                 message: `Gap of ${gapMonths.toFixed(
                   1
                 )} months detected between your last job (ended ${lastEnd.format(
-                  'MM/DD/YYYY'
+                  'MM/dd/yyyy'
                 )}) and your current job (started ${currentStart.format(
-                  'MM/DD/YYYY'
+                  'MM/dd/yyyy'
                 )}). You must select 'Yes' for employment gaps.`,
                 path: [
                   'previousEmployments',
@@ -298,7 +298,7 @@ export const employmentSchema = z
               message: `Gap of ${gapMonths.toFixed(
                 1
               )} months detected since your last job (ended ${lastEnd.format(
-                'MM/DD/YYYY'
+                'MM/dd/yyyy'
               )}). You must select 'Yes' for employment gaps.`,
               path: [
                 'previousEmployments',
@@ -573,10 +573,10 @@ export function EmploymentStep({
                                 <FormLabel className="text-watney">
                                   <div>
 
-                                  Start Date (MM/DD/YYYY){' '}
+                                  Start Date (MM/dd/yyyy){' '}
                                   <span className="text-red-500">*</span>
                                   </div>
-                                  <HelperTooltip text="Select the date you started this position. Format: MM/DD/YYYY. Example: 11/01/2000." /> 
+                                  <HelperTooltip text="Select the date you started this position. Format: MM/dd/yyyy. Example: 11/01/2000." /> 
 
                                 </FormLabel>
                                 <FormControl>
@@ -813,10 +813,10 @@ export function EmploymentStep({
                                     <FormLabel className="text-watney">
                                       <div>
 
-                                      Start Date (MM/DD/YYYY){' '}
+                                      Start Date (MM/dd/yyyy){' '}
                                       <span className="text-red-500">*</span>
                                       </div>
-                                      <HelperTooltip text="Select the date you started this previous job. Format: MM/DD/YYYY." /> 
+                                      <HelperTooltip text="Select the date you started this previous job. Format: MM/dd/yyyy." /> 
 
                                     </FormLabel>
                                     <FormControl>
@@ -853,10 +853,10 @@ export function EmploymentStep({
                                     <FormLabel className="text-watney">
                                       <div>
 
-                                      End Date (MM/DD/YYYY){' '}
+                                      End Date (MM/dd/yyyy){' '}
                                       <span className="text-red-500">*</span>
                                       </div>
-                                      <HelperTooltip text="Select the date you ended this previous job. Format: MM/DD/YYYY." /> 
+                                      <HelperTooltip text="Select the date you ended this previous job. Format: MM/dd/yyyy." /> 
 
                                     </FormLabel>
                                     <FormControl>

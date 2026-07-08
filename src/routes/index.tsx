@@ -48,6 +48,12 @@ import EditBankDetailsForm from '@/pages/editBankDetailsForm';
 import EditTrainingCertificatesPage from '@/pages/editEcertFormPage';
 import EditStarterChecklistForm from '@/pages/editStarterChecklistForm';
 import EditDBSDetailsForm from '@/pages/editDBSForm';
+import EmploymentContractForm from '@/pages/employmentContractForm';
+import JobContractForm from '@/pages/jobcontractform';
+import EditJobContractForm from '@/pages/editjobcontractform';
+import ConfidentialityFormPage from '@/pages/confidentialityForm';
+import EditEmploymentContractForm from '@/pages/editEmploymentContractForm';
+import EditConfidentialityForm from '@/pages/editConfidentialityForm';
 
 const SignInPage = lazy(() => import('@/pages/auth/signin/index'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
@@ -254,6 +260,36 @@ export default function AppRouter() {
         {
           path: 'ecerts',
           element: withRole(<EcertsPage />, ['admin']),
+          index: true
+        },
+        {
+          path: 'employement-contract/:id',
+          element: <EmploymentContractForm />,
+          index: true
+        },
+        {
+          path: 'admin/employement-contract/:id/edit',
+          element: <EditEmploymentContractForm />,
+          index: true
+        },
+        {
+          path: 'job-contract/:id',
+          element: <JobContractForm />,
+          index: true
+        },
+        {
+          path: 'admin/job-contract/:id/edit',
+          element: <EditJobContractForm />,
+          index: true
+        },
+        {
+          path: 'confidentiality/:id',
+          element: <ConfidentialityFormPage />,
+          index: true
+        },
+        {
+          path: 'admin/confidentiality/:id/edit',
+          element: <EditConfidentialityForm />,
           index: true
         },
       ]

@@ -212,7 +212,7 @@ const TextOrLine = ({
 };
 
 // --- Logic Helpers ---
-const fmtDate = (d: string) => (d ? moment(d).format('DD/MM/YYYY') : '');
+const fmtDate = (d: string) => (d ? moment(d).format('MM/dd/yyyy') : '');
 const isRating = (actual: string, target: string) =>
   String(actual || '')
     .toLowerCase()

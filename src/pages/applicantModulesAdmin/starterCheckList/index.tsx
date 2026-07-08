@@ -106,7 +106,7 @@ export default function AdminStarterChecklist() {
 
   // Helper to format date
   const formatDate = (dateStr?: string) =>
-    dateStr ? format(new Date(dateStr), 'dd/MM/yyyy') : '';
+    dateStr ? format(new Date(dateStr), 'MM/dd/yyyy') : '';
 
   // Helper for gender
   const renderGender = (gender: string) =>

@@ -115,6 +115,9 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
     ecertUnlock: !!application?.ecertUnlock,
     bankDetailsUnlock: !!application?.bankDetailsUnlock,
     startDateUnlock: !!application?.startDateUnlock,
+    employementContractUnlock: !!application?.employementContractUnlock,
+    jobContractUnlock: !!application?.jobContractUnlock,
+    confidentialityFormUnlock: !!application?.confidentialityFormUnlock,
   })
 
   // Update local states when application prop changes
@@ -128,6 +131,9 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
       ecertUnlock: !!application?.ecertUnlock,
       bankDetailsUnlock: !!application?.bankDetailsUnlock,
       startDateUnlock: !!application?.startDateUnlock,
+      employementContractUnlock: !!application?.employementContractUnlock,
+      jobContractUnlock: !!application?.jobContractUnlock,
+      confidentialityFormUnlock: !!application?.confidentialityFormUnlock,
     })
   }, [application])
 
@@ -323,13 +329,13 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
 
   const handleUnlockAction = async (field: string) => {
     if (!userId) return
-    // Set loading for this specific unlock button
     setUnlockLoading(prev => ({ ...prev, [field]: true }))
     try {
       const payload = { [field]: true, jobApplicationId: applicationId }
       await axiosInstace.patch(`/users/${userId}`, payload)
+
+     
       toast.success("Section Unlocked Successfully")
-      // Update local state to show "Done" immediately
       setLocalUnlocks(prev => ({ ...prev, [field]: true }))
     } catch (error: any) {
       toast.error(error?.response?.data?.message || "Failed to unlock section")
@@ -353,6 +359,9 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
     { field: "ecertUnlock", label: "Unlock E-Cert", done: localUnlocks.ecertUnlock },
     { field: "bankDetailsUnlock", label: "Unlock Bank Details", done: localUnlocks.bankDetailsUnlock },
     { field: "startDateUnlock", label: "Unlock Starter Checklist", done: localUnlocks.startDateUnlock },
+    { field: "employementContractUnlock", label: "Unlock Employment Contract", done: localUnlocks.employementContractUnlock },
+    { field: "jobContractUnlock", label: "Unlock Job Contract", done: localUnlocks.jobContractUnlock },
+    { field: "confidentialityFormUnlock", label: "Unlock Confidentiality", done: localUnlocks.confidentialityFormUnlock },
   ]
 
   const actions = [

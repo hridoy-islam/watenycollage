@@ -342,7 +342,7 @@ export function TrainingStep({
                                       onChange={(date) =>
                                         formField.onChange(date)
                                       }
-                                      placeholderText="MM/DD/YYYY"
+                                      placeholderText="MM/dd/yyyy"
                                       className=" w-full text-lg"
                                     />
                                   </FormControl>
@@ -523,7 +523,7 @@ export function TrainingStep({
                                 <CustomDatePicker
                                   selected={selectedDate}
                                   onChange={(date) => formField.onChange(date)}
-                                  placeholderText="MM/DD/YYYY"
+                                  placeholderText="MM/dd/yyyy"
                                   className="h-12 w-full rounded-2xl text-lg"
                                 />
                               </FormControl>

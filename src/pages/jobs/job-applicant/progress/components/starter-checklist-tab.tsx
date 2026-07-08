@@ -41,7 +41,7 @@ interface Props {
 }
 
 const formatDate = (dateStr?: string) =>
-  dateStr ? format(new Date(dateStr), 'dd/MM/yyyy') : '—';
+  dateStr ? format(new Date(dateStr), 'MM/dd/yyyy') : '—';
 
 export function StarterChecklistTab({ userId }: Props) {
   const navigate = useNavigate();

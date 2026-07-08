@@ -333,10 +333,10 @@ export function PersonalDetailsStep({
                       <FormItem className="mt-2 flex w-full flex-col">
                         <FormLabel>
                           <div>
-                            Date of Birth (MM/DD/YYYY)
+                            Date of Birth (MM/dd/yyyy)
                             <span className="text-red-500">*</span>
                           </div>
-                          <HelperTooltip text="Use your official birth date in MM/DD/YYYY format (e.g., 01/24/1995)." />
+                          <HelperTooltip text="Use your official birth date in MM/dd/yyyy format (e.g., 01/24/1995)." />
                         </FormLabel>
                         <FormControl className="w-full">
                           <CustomDatePicker

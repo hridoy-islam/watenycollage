@@ -257,7 +257,7 @@ export function ReviewStep({
   // Format helpers (unchanged)
   const formatDate = (date: Date | string | undefined) => {
     if (!date) return 'Not provided';
-    return moment(date).format('DD/MM/YYYY');
+    return moment(date).format('MM/dd/yyyy');
   };
 
   const formatValue = (value: any): string => {
@@ -558,7 +558,7 @@ export function ReviewStep({
           declarationContactReferee: defaultValues.declarationContactReferee,
           disciplinaryInvestigation: defaultValues.disciplinaryInvestigation,
           disciplinaryInvestigationDetails:
-            defaultValues.disciplinaryInvestigationDetails,
+          defaultValues.disciplinaryInvestigationDetails,
           abuseInvestigation: defaultValues.abuseInvestigation,
           abuseInvestigationDetails: defaultValues.abuseInvestigationDetails,
           roaDeclaration: defaultValues.roaDeclaration,

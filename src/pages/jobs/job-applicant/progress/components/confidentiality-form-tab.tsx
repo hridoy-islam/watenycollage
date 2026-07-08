@@ -8,20 +8,18 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ExternalLink, Download, Pen } from 'lucide-react';
+import { ExternalLink, Pen, Download } from 'lucide-react';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
 import axiosInstance from '@/lib/axios';
 import { format } from 'date-fns';
 import { PDFDownloadLink } from '@react-pdf/renderer';
-import DBSPdf from '@/pages/applicantModulesAdmin/dbsDetails/component/DBSPdf';
+import { ConfidentialityFormPdf } from './confidentiality-form-pdf';
 
-interface DBSDetails {
-  disclosureNumber: string;
-  dateOfIssue: string;
-  expiryDate: string;
+interface ConfidentialityForm {
+  _id: string;
+  userId: string;
   name: string;
-  jobPost: string;
-  dbsDocumentUrl?: string;
+  signatureUrl?: string;
   createdAt?: string;
 }
 
@@ -29,16 +27,16 @@ interface Props {
   userId: string;
 }
 
-export function DBSFormTab({ userId }: Props) {
+export function ConfidentialityFormTab({ userId }: Props) {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [data, setData] = useState<DBSDetails | null>(null);
+  const [data, setData] = useState<ConfidentialityForm | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const res = await axiosInstance.get(`/dbs-form?userId=${userId}`);
+        const res = await axiosInstance.get(`/confidentiality?userId=${userId}`);
         const result = res.data?.data?.result?.[0];
         setData(result || null);
       } catch {
@@ -64,11 +62,11 @@ export function DBSFormTab({ userId }: Props) {
         <CardContent className="flex flex-col items-center justify-center py-16">
           <div className="mb-4 rounded-full bg-gray-100 p-4">
             <svg className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
           </div>
-          <h3 className="text-lg font-semibold text-gray-900">DBS Certificate Not Submitted</h3>
-          <p className="mt-1 text-sm text-gray-500">The applicant has not yet submitted their DBS certificate details.</p>
+          <h3 className="text-lg font-semibold text-gray-900">Employment Confidentiality Not Submitted</h3>
+          <p className="mt-1 text-sm text-gray-500">The applicant has not yet submitted the confidentiality form.</p>
         </CardContent>
       </Card>
     );
@@ -76,33 +74,28 @@ export function DBSFormTab({ userId }: Props) {
 
   const fields = [
     { label: 'Applicant Name', value: data?.name },
-    { label: 'Applied For', value: data.jobPost },
-    { label: 'Disclosure Number', value: data.disclosureNumber },
-    { label: 'Date of Issue', value: data.dateOfIssue ? format(new Date(data.dateOfIssue), 'MM/dd/yyyy') : '—' },
-    { label: 'Expiry Date', value: data.expiryDate ? format(new Date(data.expiryDate), 'MM/dd/yyyy') : '—' },
   ];
 
   return (
     <Card>
       <CardHeader className="border-b pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg font-semibold">DBS Certificate Details</CardTitle>
+          <CardTitle className="text-lg font-semibold">Employment Confidentiality</CardTitle>
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Submitted</Badge>
-            <Button size="sm" variant="outline" onClick={() => navigate(`/dashboard/admin/dbs-form/${userId}/edit`)}>
-              <Pen className="mr-1 h-3 w-3" /> Edit
-            </Button>
             <PDFDownloadLink
-              document={<DBSPdf dbsDetails={data} />}
-              fileName={`DBS_${data.name.replace(/\s+/g, '_')}.pdf`}
+              document={<ConfidentialityFormPdf name={data.name} signatureUrl={data.signatureUrl} createdAt={data.createdAt} />}
+              fileName={`confidentiality-form-${data.name?.replace(/\s+/g, '_')}.pdf`}
             >
               {({ loading: pdfLoading }) => (
                 <Button size="sm" variant="outline" disabled={pdfLoading}>
-                  <Download className="mr-1 h-3 w-3" />
-                  {pdfLoading ? 'Generating...' : 'PDF'}
+                  <Download className="mr-1 h-3 w-3" /> PDF
                 </Button>
               )}
             </PDFDownloadLink>
+            <Button size="sm" variant="outline" onClick={() => navigate(`/dashboard/admin/confidentiality/${userId}/edit`)}>
+              <Pen className="mr-1 h-3 w-3" /> Edit
+            </Button>
           </div>
         </div>
       </CardHeader>
@@ -114,11 +107,12 @@ export function DBSFormTab({ userId }: Props) {
               <p className="mt-0.5 text-sm font-semibold text-gray-900">{field.value}</p>
             </div>
           ))}
-          {data.dbsDocumentUrl && (
+          {data.signatureUrl && (
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-gray-500 pb-1">DBS Document</p>
-              <Button size="sm"  onClick={() => window.open(data.dbsDocumentUrl, '_blank')}>
-                <ExternalLink className="mr-1 h-3 w-3" /> View Document
+              <p className="text-xs font-medium uppercase tracking-wide text-gray-500 pb-1">Signature</p>
+              <img src={data.signatureUrl} alt="Signature" className="h-12 rounded border border-gray-200" />
+              <Button size="sm" variant="link" className="h-auto p-0 text-xs" onClick={() => window.open(data.signatureUrl, '_blank')}>
+                <ExternalLink className="mr-1 h-3 w-3" /> View
               </Button>
             </div>
           )}
