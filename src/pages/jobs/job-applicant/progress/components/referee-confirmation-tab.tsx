@@ -120,13 +120,18 @@ export function RefereeConfirmationTab({ application }: RefereeConfirmationTabPr
   }
 
   const formatDate = (dateString: string) => {
-    if (!dateString) return "N/A"
-    try {
-      return new Date(dateString).toLocaleDateString()
-    } catch {
-      return dateString
-    }
+  if (!dateString) return "N/A";
+
+  try {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      month: "2-digit",
+      day: "2-digit",
+      year: "numeric",
+    });
+  } catch {
+    return dateString;
   }
+};
 
   if (loading) {
     return (

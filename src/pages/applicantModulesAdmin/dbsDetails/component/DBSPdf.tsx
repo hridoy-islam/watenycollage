@@ -124,24 +124,34 @@ const DBSPdf = ({ dbsDetails }: DBSPdfProps) => (
       </View>
 
       <View style={styles.row}>
-        <View style={styles.col}>
-          <Text style={styles.label}>Date of Issue</Text>
-          <Text style={styles.value}>
-            {dbsDetails.dateOfIssue
-              ? new Date(dbsDetails.dateOfIssue).toLocaleDateString('en-GB')
-              : '—'}
-          </Text>
-        </View>
-        <View style={styles.col}>
-          <Text style={styles.label}>Expiry Date</Text>
-          <Text style={styles.value}>
-            {dbsDetails.expiryDate
-              ? new Date(dbsDetails.expiryDate).toLocaleDateString('en-GB')
-              : '—'}
-          </Text>
-        </View>
-        <View style={styles.col} />
-      </View>
+  <View style={styles.col}>
+    <Text style={styles.label}>Date of Issue</Text>
+    <Text style={styles.value}>
+      {dbsDetails.dateOfIssue
+        ? new Date(dbsDetails.dateOfIssue).toLocaleDateString("en-US", {
+            month: "2-digit",
+            day: "2-digit",
+            year: "numeric",
+          })
+        : "—"}
+    </Text>
+  </View>
+
+  <View style={styles.col}>
+    <Text style={styles.label}>Expiry Date</Text>
+    <Text style={styles.value}>
+      {dbsDetails.expiryDate
+        ? new Date(dbsDetails.expiryDate).toLocaleDateString("en-US", {
+            month: "2-digit",
+            day: "2-digit",
+            year: "numeric",
+          })
+        : "—"}
+    </Text>
+  </View>
+
+  <View style={styles.col} />
+</View>
 
       
     </Page>

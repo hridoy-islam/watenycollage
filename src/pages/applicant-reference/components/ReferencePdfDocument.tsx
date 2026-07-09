@@ -212,7 +212,7 @@ const TextOrLine = ({
 };
 
 // --- Logic Helpers ---
-const fmtDate = (d: string) => (d ? moment(d).format('MM/dd/yyyy') : '');
+const fmtDate = (d: string) => (d ? moment(d).format('MM/DD/yyyy') : '');
 const isRating = (actual: string, target: string) =>
   String(actual || '')
     .toLowerCase()
@@ -477,7 +477,7 @@ const ProfessionalPage = ({ data }) => {
             ) : null}
           </View>
           <Text style={{ width: '50%' }}>
-            Date:
+            Date (mm/dd/yyyy):
             <Text style={{ fontFamily: 'Helvetica-Bold' }}>
               {' '}
               {fmtDate(safeData.createdAt || safeData.refereeDate)}
@@ -716,7 +716,7 @@ const PersonalPage = ({ data }) => {
             ) : null}
           </View>
           <Text style={{ width: '50%' }}>
-            Date: <Text style={{ fontFamily: 'Helvetica-Bold' }}>{fmtDate(safeData.createdAt || safeData.refereeDate)}</Text>
+            Date (mm/dd/yyyy): <Text style={{ fontFamily: 'Helvetica-Bold' }}>{fmtDate(safeData.createdAt || safeData.refereeDate)}</Text>
           </Text>
         </View>
       </View>

@@ -74,7 +74,7 @@ const documentFields: DocumentField[] = [
     maxFiles: 1
   },
   { id: "proofOfNI", label: "National Insurance", required: true, formats: "PDF, JPG, PNG", isArray: true },
-  { id: "immigrationDocument", label: "Immigration Details / Work Permit", required: false, formats: "PDF, JPG, PNG", isArray: true },
+  { id: "immigrationDocument", label: "Immigration share-code", required: false, formats: "PDF, JPG, PNG", isArray: true },
   { id: "rtwDocument", label: "Right to Work Document", required: false, formats: "PDF, JPG, PNG", maxFiles: 1 },
   { id: "shareCodeDocument", label: "Share Code Document", required: false, formats: "PDF, JPG, PNG", maxFiles: 1 }
 ]

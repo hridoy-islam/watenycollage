@@ -23,9 +23,19 @@ interface Props {
   userId: string;
 }
 
-const formatDate = (dateStr?: string) =>
-  dateStr ? new Date(dateStr).toLocaleDateString('en-GB') : '—';
+const formatDate = (dateString: string) => {
+  if (!dateString) return "N/A";
 
+  try {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      month: "2-digit",
+      day: "2-digit",
+      year: "numeric",
+    });
+  } catch {
+    return dateString;
+  }
+};
 export function MedicalFormTab({ userId }: Props) {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);

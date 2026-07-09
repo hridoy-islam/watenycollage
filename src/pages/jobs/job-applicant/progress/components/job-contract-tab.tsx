@@ -109,14 +109,14 @@ export function JobContractTab({ userId }: Props) {
               <p className="mt-0.5 text-sm font-semibold text-gray-900">{field.value}</p>
             </div>
           ))}
-          {data.signatureUrl && (
+          {/* {data.signatureUrl && (
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-gray-500 pb-1">Signed Contract</p>
               <Button size="sm" onClick={() => window.open(data.signatureUrl, '_blank')}>
                 <ExternalLink className="mr-1 h-3 w-3" /> View Document
               </Button>
             </div>
-          )}
+          )} */}
         </div>
         {data.createdAt && (
           <p className="mt-4 text-xs text-gray-400">Submitted: {format(new Date(data.createdAt), 'dd MMM yyyy')}</p>

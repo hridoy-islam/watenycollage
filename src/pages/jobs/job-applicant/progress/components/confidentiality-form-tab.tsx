@@ -107,7 +107,7 @@ export function ConfidentialityFormTab({ userId }: Props) {
               <p className="mt-0.5 text-sm font-semibold text-gray-900">{field.value}</p>
             </div>
           ))}
-          {data.signatureUrl && (
+          {/* {data.signatureUrl && (
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-gray-500 pb-1">Signature</p>
               <img src={data.signatureUrl} alt="Signature" className="h-12 rounded border border-gray-200" />
@@ -115,7 +115,7 @@ export function ConfidentialityFormTab({ userId }: Props) {
                 <ExternalLink className="mr-1 h-3 w-3" /> View
               </Button>
             </div>
-          )}
+          )} */}
         </div>
         {data.createdAt && (
           <p className="mt-4 text-xs text-gray-400">Submitted: {format(new Date(data.createdAt), 'dd MMM yyyy')}</p>

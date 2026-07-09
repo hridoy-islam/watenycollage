@@ -111,7 +111,7 @@ const documentTypes = [
   },
   {
     id: 'immigrationDocument',
-    label: 'Immigration Details / Work Permit',
+    label: 'Immigration share-code',
     required: false,
     formats: 'PDF, JPG, PNG'
   },
