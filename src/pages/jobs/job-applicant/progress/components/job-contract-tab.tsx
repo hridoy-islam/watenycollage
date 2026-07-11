@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ExternalLink, Pen, Download } from 'lucide-react';
+import { Pen, Download } from 'lucide-react';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
 import axiosInstance from '@/lib/axios';
 import { format } from 'date-fns';
@@ -18,8 +18,7 @@ import { JobContractPdf } from './job-contract-pdf';
 interface JobContract {
   _id: string;
   userId: string;
-  name: string;
-  jobStartDate?: string;
+  contractContent?: string;
   signatureUrl?: string;
   createdAt?: string;
 }
@@ -49,6 +48,93 @@ export function JobContractTab({ userId }: Props) {
     if (userId) fetchData();
   }, [userId]);
 
+  const renderFormattedText = (text: string) => {
+    const centerParts = text.split(/(<center>|<\/center>)/g);
+    const allElements: JSX.Element[] = [];
+    let isCentered = false;
+    let centerIndex = 0;
+
+    centerParts.forEach((part) => {
+      if (part === '<center>') { isCentered = true; return; }
+      if (part === '</center>') { isCentered = false; centerIndex++; return; }
+      if (!part.trim()) return;
+
+      const lines = part.split('\n');
+      const localElements: JSX.Element[] = [];
+
+      lines.forEach((line, i) => {
+        if (i > 0) localElements.push(<br key={`nl-${i}`} />);
+
+        const headerMatch = line.match(/^<header>(.*)<\/header>$/);
+        const subtitleMatch = line.match(/^<subtitle>(.*)<\/subtitle>$/);
+
+        if (headerMatch) {
+          const inner = headerMatch[1];
+          const innerEls: JSX.Element[] = [];
+          let lastIdx = 0;
+          const tagRx = /<(b|i)>(.*?)<\/\1>/g;
+          let m;
+          while ((m = tagRx.exec(inner)) !== null) {
+            if (m.index > lastIdx) innerEls.push(<span key={`h-${i}-${lastIdx}`}>{inner.slice(lastIdx, m.index)}</span>);
+            const T = m[1] === 'b' ? 'strong' : 'em';
+            innerEls.push(<T key={`h-${i}-${m.index}`}>{m[2]}</T>);
+            lastIdx = m.index + m[0].length;
+          }
+          if (lastIdx < inner.length) innerEls.push(<span key={`h-${i}-${lastIdx}`}>{inner.slice(lastIdx)}</span>);
+          localElements.push(<div key={`header-${i}`} style={{ fontWeight: 'bold', fontSize: '18px', margin: '8px 0' }}>{innerEls}</div>);
+          return;
+        }
+
+        if (subtitleMatch) {
+          const inner = subtitleMatch[1];
+          const innerEls: JSX.Element[] = [];
+          let lastIdx = 0;
+          const tagRx = /<(b|i)>(.*?)<\/\1>/g;
+          let m;
+          while ((m = tagRx.exec(inner)) !== null) {
+            if (m.index > lastIdx) innerEls.push(<span key={`s-${i}-${lastIdx}`}>{inner.slice(lastIdx, m.index)}</span>);
+            const T = m[1] === 'b' ? 'strong' : 'em';
+            innerEls.push(<T key={`s-${i}-${m.index}`}>{m[2]}</T>);
+            lastIdx = m.index + m[0].length;
+          }
+          if (lastIdx < inner.length) innerEls.push(<span key={`s-${i}-${lastIdx}`}>{inner.slice(lastIdx)}</span>);
+          localElements.push(<div key={`subtitle-${i}`} style={{ fontSize: '15px', margin: '6px 0' }}>{innerEls}</div>);
+          return;
+        }
+
+        const brParts = line.split(/(<br\s*\/?>)/g);
+        brParts.forEach((seg, j) => {
+          if (/<br\s*\/?>/.test(seg)) {
+            localElements.push(<br key={`br-${i}-${j}`} />);
+            return;
+          }
+          let lastIndex = 0;
+          const tagRegex = /<(b|i)>(.*?)<\/\1>/g;
+          let match;
+          while ((match = tagRegex.exec(seg)) !== null) {
+            if (match.index > lastIndex) {
+              localElements.push(<span key={`t-${i}-${j}-${lastIndex}`}>{seg.slice(lastIndex, match.index)}</span>);
+            }
+            const Tag = match[1] === 'b' ? 'strong' : 'em';
+            localElements.push(<Tag key={`tag-${i}-${j}-${match.index}`}>{match[2]}</Tag>);
+            lastIndex = match.index + match[0].length;
+          }
+          if (lastIndex < seg.length) {
+            localElements.push(<span key={`t-${i}-${j}-${lastIndex}`}>{seg.slice(lastIndex)}</span>);
+          }
+        });
+      });
+
+      if (isCentered) {
+        allElements.push(<div key={`center-${centerIndex}`} style={{ textAlign: 'center' }}>{localElements}</div>);
+      } else {
+        allElements.push(...localElements);
+      }
+    });
+
+    return allElements;
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center py-10">
@@ -73,11 +159,6 @@ export function JobContractTab({ userId }: Props) {
     );
   }
 
-  const fields = [
-    { label: 'Applicant Name', value: data?.name },
-    { label: 'Job Start Date', value: data.jobStartDate ? format(new Date(data.jobStartDate), 'dd MMM yyyy') : '—' },
-  ];
-
   return (
     <Card>
       <CardHeader className="border-b pb-3">
@@ -85,42 +166,27 @@ export function JobContractTab({ userId }: Props) {
           <CardTitle className="text-lg font-semibold">Job Contract</CardTitle>
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Submitted</Badge>
-            <PDFDownloadLink
-              document={<JobContractPdf name={data.name} jobStartDate={data.jobStartDate} signatureUrl={data.signatureUrl} createdAt={data.createdAt} />}
-              fileName={`job-contract-${data.name?.replace(/\s+/g, '_')}.pdf`}
-            >
-              {({ loading: pdfLoading }) => (
-                <Button size="sm" variant="outline" disabled={pdfLoading}>
-                  <Download className="mr-1 h-3 w-3" /> PDF
-                </Button>
-              )}
-            </PDFDownloadLink>
-            <Button size="sm" variant="outline" onClick={() => navigate(`/dashboard/admin/job-contract/${userId}/edit`)}>
+            <Button size="sm" variant="outline" onClick={() => navigate(`/dashboard/recruitment/admin/job-contract/${userId}/edit`)}>
               <Pen className="mr-1 h-3 w-3" /> Edit
             </Button>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="pt-4">
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-          {fields.map((field) => (
-            <div key={field.label}>
-              <p className="text-xs font-medium uppercase tracking-wide text-gray-500">{field.label}</p>
-              <p className="mt-0.5 text-sm font-semibold text-gray-900">{field.value}</p>
-            </div>
-          ))}
-          {/* {data.signatureUrl && (
-            <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-gray-500 pb-1">Signed Contract</p>
-              <Button size="sm" onClick={() => window.open(data.signatureUrl, '_blank')}>
-                <ExternalLink className="mr-1 h-3 w-3" /> View Document
+      <CardContent className="pt-4 space-y-4">
+    
+
+        <div className="flex  pt-2">
+          <PDFDownloadLink
+            document={<JobContractPdf contractContent={data.contractContent || ''} signatureUrl={data.signatureUrl} createdAt={data.createdAt} />}
+            fileName={`job-contract-${(data.userId as any)?.name}.pdf`}
+          >
+            {({ loading: pdfLoading }) => (
+              <Button size="lg" className="bg-watney text-white hover:bg-watney/90" disabled={pdfLoading}>
+                <Download className="mr-1 h-3 w-3" /> Download PDF
               </Button>
-            </div>
-          )} */}
+            )}
+          </PDFDownloadLink>
         </div>
-        {data.createdAt && (
-          <p className="mt-4 text-xs text-gray-400">Submitted: {format(new Date(data.createdAt), 'dd MMM yyyy')}</p>
-        )}
       </CardContent>
     </Card>
   );

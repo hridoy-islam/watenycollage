@@ -477,7 +477,7 @@ const ProfessionalPage = ({ data }) => {
             ) : null}
           </View>
           <Text style={{ width: '50%' }}>
-            Date (mm/dd/yyyy):
+Date (dd/MM/yyyy):
             <Text style={{ fontFamily: 'Helvetica-Bold' }}>
               {' '}
               {fmtDate(safeData.createdAt || safeData.refereeDate)}
@@ -716,7 +716,7 @@ const PersonalPage = ({ data }) => {
             ) : null}
           </View>
           <Text style={{ width: '50%' }}>
-            Date (mm/dd/yyyy): <Text style={{ fontFamily: 'Helvetica-Bold' }}>{fmtDate(safeData.createdAt || safeData.refereeDate)}</Text>
+            Date (dd/MM/yyyy): <Text style={{ fontFamily: 'Helvetica-Bold' }}>{fmtDate(safeData.createdAt || safeData.refereeDate)}</Text>
           </Text>
         </View>
       </View>

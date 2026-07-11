@@ -128,7 +128,7 @@ const DBSPdf = ({ dbsDetails }: DBSPdfProps) => (
     <Text style={styles.label}>Date of Issue</Text>
     <Text style={styles.value}>
       {dbsDetails.dateOfIssue
-        ? new Date(dbsDetails.dateOfIssue).toLocaleDateString("en-US", {
+        ? new Date(dbsDetails.dateOfIssue).toLocaleDateString("en-GB", {
             month: "2-digit",
             day: "2-digit",
             year: "numeric",
@@ -141,7 +141,7 @@ const DBSPdf = ({ dbsDetails }: DBSPdfProps) => (
     <Text style={styles.label}>Expiry Date</Text>
     <Text style={styles.value}>
       {dbsDetails.expiryDate
-        ? new Date(dbsDetails.expiryDate).toLocaleDateString("en-US", {
+        ? new Date(dbsDetails.expiryDate).toLocaleDateString("en-GB", {
             month: "2-digit",
             day: "2-digit",
             year: "numeric",

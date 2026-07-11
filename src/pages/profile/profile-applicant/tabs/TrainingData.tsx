@@ -187,7 +187,7 @@ const TrainingData = ({
                   ) : (
                     <div className="mt-1 text-gray-900">
                       {entry.completionDate
-                        ? new Date(entry.completionDate).toLocaleDateString()
+                        ? new Date(entry.completionDate).toLocaleDateString('en-GB')
                         : '-'}
                     </div>
                   )}

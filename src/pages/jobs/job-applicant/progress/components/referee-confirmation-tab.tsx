@@ -123,7 +123,7 @@ export function RefereeConfirmationTab({ application }: RefereeConfirmationTabPr
   if (!dateString) return "N/A";
 
   try {
-    return new Date(dateString).toLocaleDateString("en-US", {
+    return new Date(dateString).toLocaleDateString("en-GB", {
       month: "2-digit",
       day: "2-digit",
       year: "numeric",

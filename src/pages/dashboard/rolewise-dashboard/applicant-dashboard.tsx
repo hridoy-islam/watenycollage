@@ -49,7 +49,6 @@ interface UserData {
   ecertDone: boolean;
   bankDetailsDone: boolean;
   checkListDone: boolean;
-  employementContractDone: boolean;
   jobContractDone: boolean;
   confidentialityFormDone: boolean;
 
@@ -59,7 +58,6 @@ interface UserData {
   ecertUnlock?: boolean;
   bankDetailsUnlock?: boolean;
   startDateUnlock?: boolean;
-  employementContractUnlock?: boolean;
   jobContractUnlock?: boolean;
   confidentialityFormUnlock?: boolean;
 
@@ -165,12 +163,6 @@ const TaskStatusList: React.FC<{ userData: UserData; userId: string }> = ({
       navigateTo: `starter-checklist-form/${userId}`
     },
     {
-      title: 'Complete Your Employment Contract',
-      unlockKey: 'employementContractUnlock',
-      completeKey: 'employementContractDone',
-      navigateTo: `employement-contract/${userId}`
-    },
-    {
       title: 'Complete Employment Confidentiality',
       unlockKey: 'confidentialityFormUnlock',
       completeKey: 'confidentialityFormDone',
@@ -194,7 +186,7 @@ const TaskStatusList: React.FC<{ userData: UserData; userId: string }> = ({
   if (visibleTasks.length === 0) return null;
 
   return (
-    <Card className="mb-6">
+    <Card className="mb-6 ">
       <CardHeader>
         <CardTitle>Onboarding Tasks</CardTitle>
         <CardDescription>Complete the unlocked steps below.</CardDescription>
@@ -281,7 +273,7 @@ export function ApplicantDashboard({ user }: ApplicantDashboardProps) {
   }, [currentPage, entriesPerPage, user._id]);
 
   const handleApply = (jobId: string) => {
-    navigate(`/dashboard/job-application/${jobId}`);
+    navigate(`/dashboard/recruitment/job-application/${jobId}`);
   };
 
   // --- RENDERING LOGIC ---
@@ -302,7 +294,6 @@ export function ApplicantDashboard({ user }: ApplicantDashboardProps) {
     Boolean(userData.ecertUnlock) ||
     Boolean(userData.bankDetailsUnlock) ||
     Boolean(userData.startDateUnlock) ||
-    Boolean(userData.employementContractUnlock) ||
     Boolean(userData.jobContractUnlock) ||
     Boolean(userData.confidentialityFormUnlock);
 
@@ -350,7 +341,7 @@ export function ApplicantDashboard({ user }: ApplicantDashboardProps) {
   }
   // 4. Main Dashboard (Shows if Tasks are Unlocked OR Job Offer Sent)
   return (
-    <div className="flex-1 space-y-4 p-4">
+    <div className="flex-1 space-y-4 ">
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
         {/* Task List Section */}
         <div className="lg:col-span-5">
@@ -416,7 +407,7 @@ export function ApplicantDashboard({ user }: ApplicantDashboardProps) {
                             {application.jobId?.applicationDeadline
                               ? moment(
                                   application.jobId.applicationDeadline
-                                ).format('MM-DD-YYYY')
+                                ).format('DD-MM-YYYY')
                               : 'N/A'}
                           </CardDescription>
                         </CardHeader>
@@ -461,7 +452,7 @@ export function ApplicantDashboard({ user }: ApplicantDashboardProps) {
                                 <TableCell>
                                   {job.applicationDeadline
                                     ? moment(job.applicationDeadline).format(
-                                        'MM-DD-YYYY'
+                                        'DD-MM-YYYY'
                                       )
                                     : 'N/A'}
                                 </TableCell>
@@ -491,7 +482,7 @@ export function ApplicantDashboard({ user }: ApplicantDashboardProps) {
                             Deadline:{' '}
                             {job.applicationDeadline
                               ? moment(job.applicationDeadline).format(
-                                  'MM-DD-YYYY'
+                                  'DD-MM-YYYY'
                                 )
                               : 'N/A'}
                           </CardDescription>

@@ -221,9 +221,9 @@ export const employmentSchema = z
                 message: `Gap of ${gapMonths.toFixed(
                   1
                 )} months detected between jobs (ended ${endM.format(
-                  "MM/dd/yyyy"
+                  "DD/MM/YYYY"
                 )} → started ${startM.format(
-                  "MM/dd/yyyy"
+                  "DD/MM/YYYY"
                 )}). You must select 'Yes' for employment gaps.`,
                 path: [
                   "previousEmployments",
@@ -261,9 +261,9 @@ export const employmentSchema = z
                 message: `Gap of ${gapMonths.toFixed(
                   1
                 )} months detected between your last job (ended ${lastEnd.format(
-                  "MM/dd/yyyy"
+                  "DD/MM/YYYY"
                 )}) and your current job (started ${currentStart.format(
-                  "MM/dd/yyyy"
+                  "DD/MM/YYYY"
                 )}). You must select 'Yes' for employment gaps.`,
                 path: [
                   "previousEmployments",
@@ -294,7 +294,7 @@ export const employmentSchema = z
               message: `Gap of ${gapMonths.toFixed(
                 1
               )} months detected since your last job (ended ${lastEnd.format(
-                "MM/dd/yyyy"
+                "DD/MM/YYYY"
               )}). You must select 'Yes' for employment gaps.`,
               path: [
                 "previousEmployments",
@@ -529,7 +529,7 @@ export function EmploymentStep({
                             return (
                               <FormItem>
                                 <FormLabel className="text-watney">
-                                  Start Date (MM/dd/yyyy) <span className="text-red-500">*</span>
+                                  Start Date (DD/MM/YYYY) <span className="text-red-500">*</span>
                                 </FormLabel>
                                 <FormControl>
                                   <CustomDatePicker
@@ -714,7 +714,7 @@ export function EmploymentStep({
                                 return (
                                   <FormItem>
                                     <FormLabel className="text-watney">
-                                      Start Date (MM/dd/yyyy) <span className="text-red-500">*</span>
+                                      Start Date (DD/MM/YYYY) <span className="text-red-500">*</span>
                                     </FormLabel>
                                     <FormControl>
                                       <CustomDatePicker
@@ -726,7 +726,7 @@ export function EmploymentStep({
                                       />
                                     </FormControl>
                                     <p className="text-md text-gray-400">
-                                      Select the date you started this position (e.g. 11/01/2000)
+Select the date you started this position (e.g. 01/11/2000)
                                     </p>
                                     <FormMessage />
                                   </FormItem>
@@ -743,7 +743,7 @@ export function EmploymentStep({
                                 return (
                                   <FormItem>
                                     <FormLabel className="text-watney">
-                                      End Date (MM/dd/yyyy) <span className="text-red-500">*</span>
+                                      End Date (DD/MM/YYYY) <span className="text-red-500">*</span>
                                     </FormLabel>
                                     <FormControl>
                                       <CustomDatePicker

@@ -238,7 +238,7 @@ export function ApplicationDetailsStep({
                   return (
                     <FormItem className="mt-2 flex w-full flex-col">
                       <FormLabel>
-                        Available From Date (MM/dd/yyyy)
+                        Available From Date (DD/MM/YYYY)
                         <span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>

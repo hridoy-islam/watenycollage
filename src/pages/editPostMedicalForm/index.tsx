@@ -653,7 +653,7 @@ export default function EditPostEmploymentMedicalForm() {
                         {form.getValues('dateOfBirth')
                           ? new Date(
                               form.getValues('dateOfBirth')
-                            ).toLocaleDateString()
+                            ).toLocaleDateString('en-GB')
                           : '—'}
                       </p>
                     </div>

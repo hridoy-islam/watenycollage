@@ -257,7 +257,7 @@ export function ReviewStep({
   // Format helpers (unchanged)
   const formatDate = (date: Date | string | undefined) => {
     if (!date) return 'Not provided';
-    return moment(date).format('MM/dd/yyyy');
+    return moment(date).format('DD/MM/YYYY');
   };
 
   const formatValue = (value: any): string => {
@@ -271,7 +271,7 @@ export function ReviewStep({
       value instanceof Date ||
       moment(value, moment.ISO_8601, true).isValid()
     ) {
-      return moment(value).format('MM-DD-YYYY');
+      return moment(value).format('DD-MM-YYYY');
     }
     if (Array.isArray(value)) {
       if (value.length === 0) return 'None';

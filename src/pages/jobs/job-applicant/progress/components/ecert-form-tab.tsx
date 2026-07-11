@@ -77,10 +77,10 @@ export function EcertFormTab({ userId }: Props) {
             <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
               {ecerts.length} Certificate{ecerts.length !== 1 ? 's' : ''}
             </Badge>
-            <Button size="sm" variant="outline" onClick={() => navigate(`/dashboard/admin/ecert-form/${userId}`)}>
+            <Button size="sm" variant="outline" onClick={() => navigate(`/dashboard/recruitment/admin/ecert-form/${userId}`)}>
               <Eye className="mr-1 h-3 w-3" /> View All
             </Button>
-            <Button size="sm" variant="outline" onClick={() => navigate(`/dashboard/admin/ecert-form/${userId}/edit`)}>
+            <Button size="sm" variant="outline" onClick={() => navigate(`/dashboard/recruitment/admin/ecert-form/${userId}/edit`)}>
               <Pen className="mr-1 h-3 w-3" /> Edit
             </Button>
           </div>

@@ -253,10 +253,10 @@ export function EducationStep({
                     <TableHead className="text-lg">
                       <div className="flex flex-row items-center justify-between">
                         <div>
-                          Date of Award (MM/dd/yyyy){' '}
+                          Date of Award (DD/MM/YYYY){' '}
                           <span className="text-red-500">*</span>
                         </div>
-                        <HelperTooltip text="Select the date you were awarded this qualification. Format: MM/dd/yyyy. e.g., 01/16/2022" />
+                        <HelperTooltip text="Select the date you were awarded this qualification. Format: DD/MM/YYYY. e.g., 01/16/2022" />
                       </div>
                     </TableHead>
                     <TableHead className="text-lg">
@@ -513,7 +513,7 @@ export function EducationStep({
                         <div>
                           Date of Award <span className="text-red-500">*</span>
                         </div>
-                        <HelperTooltip text="Select the date you were awarded this qualification. Format: MM/dd/yyyy. e.g., 01/16/2022" />
+                        <HelperTooltip text="Select the date you were awarded this qualification. Format: DD/MM/YYYY. e.g., 01/16/2022" />
                       </div>
                     </Label>
                     <FormField

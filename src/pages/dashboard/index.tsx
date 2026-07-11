@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ApplicantDashboard } from './rolewise-dashboard/applicant-dashboard';
 import { AdminDashboard } from './rolewise-dashboard/admin-dashboard';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import VerifyPage from '../auth/verify';
+import { BlinkingDots } from '@/components/shared/blinking-dots';
 
 export default function DashboardPage() {
   const { user } = useSelector((state: any) => state.auth);
@@ -14,19 +14,13 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (user && user.isValided) {
-      if (!user.authorized) {
-         if (user.role === 'applicant') {
+      if (user.role === 'applicant') {
+        if (!user.authorized) {
           navigate('/dashboard/career-guideline');
-        }
-      } else {
-        if (!user.isCompleted) {
-          
-          if (user.role === 'applicant') {
-            navigate('/dashboard/career-application');
-          }
-        }
-        else{
-          navigate('/dashboard');
+        } else if (!user.isCompleted) {
+          navigate('/dashboard/career-application');
+        } else {
+          navigate('/dashboard/recruitment');
         }
       }
     }
@@ -73,28 +67,17 @@ export default function DashboardPage() {
     return <VerifyPage user={user} />;
   }
 
-  const renderDashboard = () => {
-    switch (user.role) {
-      case 'applicant':
-        return <ApplicantDashboard user={user} />;
-      // case 'student':
-      //   return <StudentDashboard user={user} />;
-      case 'admin':
-        return <AdminDashboard />;
-      default:
-        return (
-          <div className="flex flex-1 items-center justify-center">
-            <Card>
-              <CardContent className="pt-6">
-                <p className="text-center text-muted-foreground">
-                  Invalid user role.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        );
-    }
-  };
+  if (user.role !== 'admin') {
+    return (
+      <div className="flex flex-1 items-center justify-center">
+        <Card>
+          <CardContent className="pt-6">
+           <BlinkingDots/>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
-  return renderDashboard();
+  return <AdminDashboard />;
 }

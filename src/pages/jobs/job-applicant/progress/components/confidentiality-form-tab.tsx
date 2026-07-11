@@ -93,7 +93,7 @@ export function ConfidentialityFormTab({ userId }: Props) {
                 </Button>
               )}
             </PDFDownloadLink>
-            <Button size="sm" variant="outline" onClick={() => navigate(`/dashboard/admin/confidentiality/${userId}/edit`)}>
+            <Button size="sm" variant="outline" onClick={() => navigate(`/dashboard/recruitment/admin/confidentiality/${userId}/edit`)}>
               <Pen className="mr-1 h-3 w-3" /> Edit
             </Button>
           </div>

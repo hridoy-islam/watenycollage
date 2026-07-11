@@ -88,51 +88,44 @@ const renderBody = (body: string) => {
 
   return lines.map((line, i) => {
     const placeholderRegex = /\[([^\]]+)\]/g;
-    const parts: (string | JSX.Element)[] = [];
+    const segments: (string | JSX.Element)[] = [];
     let lastIndex = 0;
     let match;
+    let hasImage = false;
 
     while ((match = placeholderRegex.exec(line)) !== null) {
       const key = match[1];
       const value = MOCK_DATA[key];
 
-      // Add text before placeholder
       if (match.index > lastIndex) {
-        parts.push(line.slice(lastIndex, match.index));
+        segments.push(line.slice(lastIndex, match.index));
       }
 
       if (value) {
-        if (key.startsWith('signature')) {
-          // 👇 Render Image for signatures
-          parts.push(
+        if (key.startsWith('signature') || value.match(/\.(png|jpg|jpeg|gif|webp)$/i)) {
+          segments.push(
             <Image key={`${i}-${key}`} src={value} style={styles.signature} />
           );
-        } else if (value.match(/\.(png|jpg|jpeg|gif|webp)$/i)) {
-          // 👇 Render Image if placeholder points to any image file
-          parts.push(
-            <Image key={`${i}-${key}`} src={value} style={styles.signature} />
-          );
+          hasImage = true;
         } else {
-          // 👇 Render text replacement
-          parts.push(
-            <Text key={`${i}-${key}`} style={styles.body}>
-              {value}
-            </Text>
-          );
+          segments.push(value);
         }
       }
 
       lastIndex = match.index + match[0].length;
     }
 
-    // Add remaining text after last placeholder
     if (lastIndex < line.length) {
-      parts.push(line.slice(lastIndex));
+      segments.push(line.slice(lastIndex));
+    }
+
+    if (hasImage) {
+      return <View key={i}>{segments}</View>;
     }
 
     return (
       <Text key={i} style={styles.body}>
-        {parts}
+        {segments}
       </Text>
     );
   });

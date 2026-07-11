@@ -27,7 +27,7 @@ const formatDate = (dateString: string) => {
   if (!dateString) return "N/A";
 
   try {
-    return new Date(dateString).toLocaleDateString("en-US", {
+    return new Date(dateString).toLocaleDateString("en-GB", {
       month: "2-digit",
       day: "2-digit",
       year: "numeric",
@@ -169,7 +169,7 @@ export function MedicalFormTab({ userId }: Props) {
             <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
               Submitted
             </Badge>
-            <Button size="sm" variant="outline" onClick={() => navigate(`/dashboard/admin/medical-form/${userId}/edit`)}>
+            <Button size="sm" variant="outline" onClick={() => navigate(`/dashboard/recruitment/admin/medical-form/${userId}/edit`)}>
               <Pen className="mr-1 h-3 w-3" />
               Edit
             </Button>

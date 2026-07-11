@@ -41,7 +41,7 @@ interface Props {
 }
 
 const formatDate = (dateStr?: string) =>
-  dateStr ? format(new Date(dateStr), 'MM/dd/yyyy') : '—';
+  dateStr ? format(new Date(dateStr), 'dd/MM/yyyy') : '—';
 
 export function StarterChecklistTab({ userId }: Props) {
   const navigate = useNavigate();
@@ -140,7 +140,7 @@ export function StarterChecklistTab({ userId }: Props) {
           <CardTitle className="text-lg font-semibold">Starter Checklist</CardTitle>
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Submitted</Badge>
-            <Button size="sm" variant="outline" onClick={() => navigate(`/dashboard/admin/starter-checklist-form/${userId}/edit`)}>
+            <Button size="sm" variant="outline" onClick={() => navigate(`/dashboard/recruitment/admin/starter-checklist-form/${userId}/edit`)}>
               <Pen className="mr-1 h-3 w-3" /> Edit
             </Button>
             <PDFDownloadLink

@@ -310,7 +310,7 @@ export default function ViewCareerApplicationPage() {
       return value.length > 0 ? `${value.length} items` : "None"
     }
     if (typeof value === "string" && moment(value, moment.ISO_8601, true).isValid()) {
-      return moment(value).format("MM-DD-YYYY")
+      return moment(value).format("DD-MM-YYYY")
     }
     if (typeof value === "object") return "Complex data"
     if (typeof value === "string") {

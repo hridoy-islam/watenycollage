@@ -102,7 +102,7 @@ export function BankDetailsTab({ userId }: Props) {
           <CardTitle className="text-lg font-semibold">Bank Account Details</CardTitle>
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Submitted</Badge>
-            <Button size="sm" variant="outline" onClick={() => navigate(`/dashboard/admin/bank-details/${userId}/edit`)}>
+            <Button size="sm" variant="outline" onClick={() => navigate(`/dashboard/recruitment/admin/bank-details/${userId}/edit`)}>
               <Pen className="mr-1 h-3 w-3" /> Edit
             </Button>
             <PDFDownloadLink

@@ -335,7 +335,7 @@ export const EmploymentContractPdf = ({
       <Text style={styles.paragraph}>
         This statement dated{' '}
         {createdAt
-          ? format(new Date(createdAt), 'MM/dd/yyyy')
+          ? format(new Date(createdAt), 'dd/MM/yyyy')
           : '___/___/___'}{' '}
         sets out certain particulars of the terms and conditions which, in
         conjunction with the Staff Handbook, Policies & Procedures, Job
@@ -376,7 +376,7 @@ export const EmploymentContractPdf = ({
               }}
             >
               {jobStartDate
-                ? format(new Date(jobStartDate), 'MM/dd/yyyy')
+                ? format(new Date(jobStartDate), 'dd/MM/yyyy')
                 : '___/___/___'}
             </Text>{' '}
             (i.e. the day you undertook your first assignment). Employment with
@@ -660,7 +660,7 @@ export const EmploymentContractPdf = ({
               <View style={styles.inlineFieldLine}>
                 {createdAt && (
                   <Text style={styles.signatureDateText}>
-                    {format(new Date(createdAt), 'MM/dd/yyyy')}
+                    {format(new Date(createdAt), 'dd/MM/yyyy')}
                   </Text>
                 )}
               </View>
@@ -716,7 +716,7 @@ export const EmploymentContractPdf = ({
               <View style={styles.inlineFieldLine}>
                 {employerSignatureDate && (
                   <Text style={styles.signatureDateText}>
-                    {format(new Date(employerSignatureDate), 'MM/dd/yyyy')}
+                    {format(new Date(employerSignatureDate), 'dd/MM/yyyy')}
                   </Text>
                 )}
               </View>

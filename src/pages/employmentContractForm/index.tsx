@@ -62,7 +62,7 @@ export default function EmploymentContractForm() {
   });
   const { id } = useParams();
 
-  const todayDate = format(new Date(), 'MM/dd/yyyy');
+  const todayDate = format(new Date(), 'dd/MM/yyyy');
   const watchedJobStartDate = form.watch('jobStartDate');
 
   const fetchData = async () => {
@@ -239,7 +239,7 @@ export default function EmploymentContractForm() {
                         <FormLabel className="text-xs font-medium uppercase tracking-wide text-gray-500">
                           <div>
 
-                          Job Start Date (MM/dd/yyyy) <span className="text-red-500">*</span>
+                          Job Start Date (DD/MM/YYYY) <span className="text-red-500">*</span>
                           </div>
                         </FormLabel>
                         <FormControl>
@@ -267,7 +267,7 @@ export default function EmploymentContractForm() {
 
                     <p>Any changes or amendments to this will be confirmed in writing within one month of them occurring.</p>
 
-                    <p>Your employment began on <strong>{watchedJobStartDate ? format(new Date(watchedJobStartDate), 'MM/dd/yyyy') : '_____/_____/_____'}</strong> (i.e. the day you undertook your first assignment). Employment with your previous employer does not count as part of your continuous period of employment.</p>
+                    <p>Your employment began on <strong>{watchedJobStartDate ? format(new Date(watchedJobStartDate), 'dd/MM/yyyy') : '_____/_____/_____'}</strong> (i.e. the day you undertook your first assignment). Employment with your previous employer does not count as part of your continuous period of employment.</p>
 
                     <p>You are employed as a Health and Social Care Assistant/Health Care Assistant. As a predominantly domiciliary based worker you will organise your duties from your home base. You will not be entitled to any expenses or payment from Everycare towards the operation of your home-based office.</p>
 

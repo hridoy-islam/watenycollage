@@ -116,7 +116,7 @@ export default function JobPage() {
 
   const navigate = useNavigate();
   const handleApply = (jobId: string) => {
-    navigate(`/dashboard/job-application/${jobId}`);
+    navigate(`/dashboard/recruitment/job-application/${jobId}`);
   };
 
   const copyToClipboard = (text: string) => {
@@ -161,7 +161,7 @@ export default function JobPage() {
         <div className="flex flex-row items-center gap-4">
           <Button
             className="border-none bg-watney text-white hover:bg-watney/90"
-            onClick={() => navigate('/dashboard')}
+            onClick={() => navigate(-1)}
           >
             <MoveLeft className="mr-2 h-4 w-4" />
             Back
@@ -245,7 +245,7 @@ export default function JobPage() {
                       variant="ghost"
                       className="w-[100px] border-none bg-watney text-white hover:bg-watney/90"
                       size="icon"
-                      onClick={() => navigate(`/dashboard/jobs/${job._id}`)}
+                      onClick={() => navigate(`/dashboard/recruitment/jobs/${job._id}`)}
                     >
                       View{' '}
                     </Button>

@@ -26,7 +26,7 @@ import {
   TableHeader,
   TableRow
 } from "@/components/ui/table"
-import { Mail, MailCheck, File, ClipboardPenLine, Check, LockOpen, Loader2, Eye } from "lucide-react"
+import { Mail, MailCheck, File, ClipboardPenLine, Check, LockOpen, Loader2, Eye, FileText } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 import { useSelector } from "react-redux"
@@ -104,6 +104,13 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
   // Loading states for each action
   const [actionLoading, setActionLoading] = useState<{ [key: string]: boolean }>({})
   const [unlockLoading, setUnlockLoading] = useState<{ [key: string]: boolean }>({})
+
+  // Contract type dialog state
+  const [contractTypeDialogOpen, setContractTypeDialogOpen] = useState(false)
+  const [contractTypes, setContractTypes] = useState<{ _id: string; title: string }[]>([])
+  const [selectedContractType, setSelectedContractType] = useState<string>("")
+  const [contractTypeLoading, setContractTypeLoading] = useState(false)
+  const [contractTypeSelectError, setContractTypeSelectError] = useState("")
   
   // Local state to track sent/done status for immediate UI updates
   const [localJobOfferSent, setLocalJobOfferSent] = useState(application?.jobOfferMailSent)
@@ -115,7 +122,6 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
     ecertUnlock: !!application?.ecertUnlock,
     bankDetailsUnlock: !!application?.bankDetailsUnlock,
     startDateUnlock: !!application?.startDateUnlock,
-    employementContractUnlock: !!application?.employementContractUnlock,
     jobContractUnlock: !!application?.jobContractUnlock,
     confidentialityFormUnlock: !!application?.confidentialityFormUnlock,
   })
@@ -131,7 +137,6 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
       ecertUnlock: !!application?.ecertUnlock,
       bankDetailsUnlock: !!application?.bankDetailsUnlock,
       startDateUnlock: !!application?.startDateUnlock,
-      employementContractUnlock: !!application?.employementContractUnlock,
       jobContractUnlock: !!application?.jobContractUnlock,
       confidentialityFormUnlock: !!application?.confidentialityFormUnlock,
     })
@@ -329,6 +334,21 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
 
   const handleUnlockAction = async (field: string) => {
     if (!userId) return
+
+    if (field === "jobContractUnlock") {
+      setContractTypeLoading(true)
+      setContractTypeDialogOpen(true)
+      try {
+        const res = await axiosInstace.get("/contract-type?limit=all")
+        setContractTypes(res.data.data?.result || [])
+      } catch {
+        toast.error("Failed to load contract types")
+      } finally {
+        setContractTypeLoading(false)
+      }
+      return
+    }
+
     setUnlockLoading(prev => ({ ...prev, [field]: true }))
     try {
       const payload = { [field]: true, jobApplicationId: applicationId }
@@ -341,6 +361,27 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
       toast.error(error?.response?.data?.message || "Failed to unlock section")
     } finally {
       setUnlockLoading(prev => ({ ...prev, [field]: false }))
+    }
+  }
+
+  const handleContractTypeConfirm = async () => {
+    if (!selectedContractType) {
+      setContractTypeSelectError("Please select a contract type")
+      return
+    }
+    setContractTypeSelectError("")
+    setUnlockLoading(prev => ({ ...prev, jobContractUnlock: true }))
+    try {
+      const payload = { contractTypeId: selectedContractType, jobContractUnlock: true, jobApplicationId: applicationId }
+      await axiosInstace.patch(`/users/${userId}`, payload)
+      toast.success("Job Contract Unlocked Successfully")
+      setLocalUnlocks(prev => ({ ...prev, jobContractUnlock: true }))
+      setContractTypeDialogOpen(false)
+      setSelectedContractType("")
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "Failed to unlock job contract")
+    } finally {
+      setUnlockLoading(prev => ({ ...prev, jobContractUnlock: false }))
     }
   }
 
@@ -359,7 +400,6 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
     { field: "ecertUnlock", label: "Unlock E-Cert", done: localUnlocks.ecertUnlock },
     { field: "bankDetailsUnlock", label: "Unlock Bank Details", done: localUnlocks.bankDetailsUnlock },
     { field: "startDateUnlock", label: "Unlock Starter Checklist", done: localUnlocks.startDateUnlock },
-    { field: "employementContractUnlock", label: "Unlock Employment Contract", done: localUnlocks.employementContractUnlock },
     { field: "jobContractUnlock", label: "Unlock Job Contract", done: localUnlocks.jobContractUnlock },
     { field: "confidentialityFormUnlock", label: "Unlock Confidentiality", done: localUnlocks.confidentialityFormUnlock },
   ]
@@ -394,7 +434,7 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
       sent: false,
       loading: false,
       icon: <File className="h-4 w-4" />,
-      onClick: () => navigate(`/dashboard/admin/dbs-form/${userId}/edit`),
+      onClick: () => navigate(`/dashboard/recruitment/admin/dbs-form/${userId}/edit`),
       isViewOnly: true
     },
     {
@@ -402,7 +442,7 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
       sent: false,
       loading: false,
       icon: <ClipboardPenLine className="h-4 w-4" />,
-      onClick: () => navigate(`/dashboard/career-application/${applicationId}/${userId}/interview`),
+      onClick: () => navigate(`/dashboard/recruitment/career-application/${applicationId}/${userId}/interview`),
       isViewOnly: true
     }
   ]
@@ -625,6 +665,53 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
                 </>
               ) : (
                 "Send Email"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Contract Type Selection Dialog */}
+      <Dialog open={contractTypeDialogOpen} onOpenChange={(open) => { if (!open) { setContractTypeDialogOpen(false); setSelectedContractType(""); setContractTypeSelectError("") } }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Select Contract Type</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            {contractTypeLoading ? (
+              <div className="flex justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-watney" />
+              </div>
+            ) : (
+              <>
+                <label className="block font-medium">Contract Type <span className="text-red-500">*</span></label>
+                <Select
+                  options={contractTypes.map(ct => ({ value: ct._id, label: ct.title }))}
+                  value={selectedContractType ? { value: selectedContractType, label: contractTypes.find(ct => ct._id === selectedContractType)?.title || "" } : null}
+                  onChange={(opt) => { setSelectedContractType(opt?.value || ""); setContractTypeSelectError("") }}
+                  placeholder="Select a contract type..."
+                  isClearable
+                />
+                {contractTypeSelectError && <p className="text-sm text-red-500">{contractTypeSelectError}</p>}
+              </>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="secondary" onClick={() => { setContractTypeDialogOpen(false); setSelectedContractType(""); setContractTypeSelectError("") }} disabled={unlockLoading.jobContractUnlock}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleContractTypeConfirm}
+              className="bg-watney text-white hover:bg-watney/90"
+              disabled={contractTypeLoading || unlockLoading.jobContractUnlock}
+            >
+              {unlockLoading.jobContractUnlock ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Unlocking...
+                </>
+              ) : (
+                "Unlock Job Contract"
               )}
             </Button>
           </DialogFooter>

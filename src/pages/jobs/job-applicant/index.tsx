@@ -93,7 +93,7 @@ export default function CareerApplicationsPage() {
         <h2 className="text-xl font-bold">{jobTitle}</h2>
         <Button
           className="bg-watney text-white hover:bg-watney/90"
-          onClick={() => navigate('/dashboard/jobs')}
+          onClick={() => navigate('/dashboard/recruitment/jobs')}
         >
           <MoveLeft className="mr-2 h-4 w-4" />
           Back
@@ -129,7 +129,7 @@ export default function CareerApplicationsPage() {
                   <TableCell className="font-medium">
                     <div>
                       <Link
-                        to={`/dashboard/career-application/${app?._id}/${app.applicantId?._id}`}
+                        to={`/dashboard/recruitment/career-application/${app?._id}/${app.applicantId?._id}`}
                         className="underline"
                       >
                         <div className="text-blue-500">
@@ -145,7 +145,7 @@ export default function CareerApplicationsPage() {
                   <TableCell className="font-medium">
                     <div>
                       <Link
-                        to={`/dashboard/career-application/${app?._id}/${app.applicantId?._id}`}
+                        to={`/dashboard/recruitment/career-application/${app?._id}/${app.applicantId?._id}`}
                     
                       >
                       <span className="text-sm font-semibold text-gray-600">
@@ -164,7 +164,7 @@ export default function CareerApplicationsPage() {
                       className="gap-2 bg-watney hover:bg-watney hover:text-white"
                       onClick={() =>
                         navigate(
-                          `/dashboard/career-application/${app._id}/${app.applicantId?._id}/progress`
+                          `/dashboard/recruitment/career-application/${app._id}/${app.applicantId?._id}/progress`
                         )
                       }
                     >
@@ -179,7 +179,7 @@ export default function CareerApplicationsPage() {
                               size="sm"
                               onClick={() =>
                                 navigate(
-                                  `/dashboard/career-application/${app?._id}/mail/${app.applicantId?._id}`
+                                  `/dashboard/recruitment/career-application/${app?._id}/mail/${app.applicantId?._id}`
                                 )
                               }
                             >
@@ -197,7 +197,7 @@ export default function CareerApplicationsPage() {
                       className="gap-2 bg-watney hover:bg-watney hover:text-white"
                       onClick={() =>
                         navigate(
-                          `/dashboard/career-application/${app?._id}/logs/${app.applicantId?._id}`
+                          `/dashboard/recruitment/career-application/${app?._id}/logs/${app.applicantId?._id}`
                         )
                       }
                       >

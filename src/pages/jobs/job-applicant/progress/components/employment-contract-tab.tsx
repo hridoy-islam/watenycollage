@@ -95,7 +95,7 @@ export function EmploymentContractTab({ userId }: Props) {
                 </Button>
               )}
             </PDFDownloadLink>
-            <Button size="sm" variant="outline" onClick={() => navigate(`/dashboard/admin/employement-contract/${userId}/edit`)}>
+            <Button size="sm" variant="outline" onClick={() => navigate(`/dashboard/recruitment/admin/employement-contract/${userId}/edit`)}>
               <Pen className="mr-1 h-3 w-3" /> Edit
             </Button>
           </div>

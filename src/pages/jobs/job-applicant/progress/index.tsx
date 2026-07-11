@@ -26,11 +26,10 @@ import { BankDetailsTab } from "./components/bank-details-tab"
 import { DBSFormTab } from "./components/dbs-form-tab"
 import { StarterChecklistTab } from "./components/starter-checklist-tab"
 import { EcertFormTab } from "./components/ecert-form-tab"
-import { EmploymentContractTab } from "./components/employment-contract-tab"
 import { JobContractTab } from "./components/job-contract-tab"
 import { ConfidentialityFormTab } from "./components/confidentiality-form-tab"
 
-type TabType = "actions" | "referee" | "documents" | "medical" | "bank" | "dbs" | "checklist" | "ecert" | "employmentContract" | "jobContract" | "confidentiality"
+type TabType = "actions" | "referee" | "documents" | "medical" | "bank" | "dbs" | "checklist" | "ecert" | "jobContract" | "confidentiality"
 
 const tabs = [
   { id: "actions" as TabType, label: "Actions", icon: <Settings size={20} /> },
@@ -40,7 +39,6 @@ const tabs = [
   { id: "dbs" as TabType, label: "DBS Certificate", icon: <ShieldCheck size={20} /> },
   { id: "checklist" as TabType, label: "Starter Checklist", icon: <ClipboardCheck size={20} /> },
   { id: "ecert" as TabType, label: "Training Certificates", icon: <File size={20} /> },
-  { id: "employmentContract" as TabType, label: "Employment Contract", icon: <FileText size={20} /> },
   { id: "jobContract" as TabType, label: "Job Contract", icon: <FileText size={20} /> },
   { id: "confidentiality" as TabType, label: "Confidentiality", icon: <FileText size={20} /> },
   { id: "documents" as TabType, label: "Documents", icon: <FileText size={20} /> },
@@ -183,9 +181,6 @@ export default function ProgressPage() {
             )}
             {activeTab === "ecert" && (
               <EcertFormTab userId={userId || ''} />
-            )}
-            {activeTab === "employmentContract" && (
-              <EmploymentContractTab userId={userId || ''} />
             )}
             {activeTab === "jobContract" && (
               <JobContractTab userId={userId || ''} />

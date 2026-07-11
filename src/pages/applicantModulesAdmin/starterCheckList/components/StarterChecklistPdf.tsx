@@ -253,7 +253,7 @@ export const StarterCheckListPdf = ({ data }: { data: starterCheckList }) => (
             </View>
           </View>
 
-          <DataField label="4 Date of birth (MM/DD/YYYY)" value={data.employee.dob} />
+          <DataField label="4 Date of birth (DD/MM/YYYY)" value={data.employee.dob} />
         </View>
 
         {/* Right Column (5-7) */}
@@ -263,7 +263,7 @@ export const StarterCheckListPdf = ({ data }: { data: starterCheckList }) => (
           <DataField label="Country" value={data.employee.country} width="60%" />
           
           <DataField label="6 National Insurance number if known" value={data.employee.niNumber} />
-          <DataField label="7 Employment start date (MM/DD/YYYY" value={data.employee.startDate} />
+          <DataField label="7 Employment start date (DD/MM/YYYY" value={data.employee.startDate} />
         </View>
       </View>
 
@@ -424,10 +424,10 @@ export const StarterCheckListPdf = ({ data }: { data: starterCheckList }) => (
       
       <View style={{ width: '40%', marginTop: 8 }}>
 <DataField
-  label="Date (MM/DD/YYYY)"
+  label="Date (DD/MM/YYYY)"
   value={
     data.createdAt
-      ? new Date(data.createdAt).toLocaleDateString("en-US", {
+      ? new Date(data.createdAt).toLocaleDateString("en-GB", {
           month: "2-digit",
           day: "2-digit",
           year: "numeric",

@@ -187,7 +187,7 @@ export default function ApplicationListPage() {
                       // }
                     >
                       {moment(application.jobId?.applicationDeadline).format(
-                        'MM-DD-YYYY'
+                        'DD-MM-YYYY'
                       )}{' '}
                     </TableCell>
                   )}
@@ -217,7 +217,7 @@ export default function ApplicationListPage() {
                       <div
                         className="cursor-pointer rounded-sm  bg-watney px-2 py-[6px] text-white hover:bg-watney/90 hover:text-white"
                         onClick={() =>
-                          navigate(`/dashboard/applications/${application._id}`)
+navigate(`/dashboard/recruitment/applications/${application._id}`)
                         }
                       >
                         <Eye className="w-5 " />

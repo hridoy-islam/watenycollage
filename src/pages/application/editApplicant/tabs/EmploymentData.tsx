@@ -180,7 +180,7 @@ const EmploymentData = ({
                   ) : (
                     <div className="mt-1 text-gray-900">
                       {localData.currentEmployment?.startDate
-                        ? new Date(localData.currentEmployment.startDate).toLocaleDateString()
+                        ? new Date(localData.currentEmployment.startDate).toLocaleDateString('en-GB')
                         : '-'}
                     </div>
                   )}
@@ -350,7 +350,7 @@ const EmploymentData = ({
                           />
                         ) : (
                           <div className="mt-1 text-gray-900">
-                            {job.startDate ? new Date(job.startDate).toLocaleDateString() : '-'}
+                            {job.startDate ? new Date(job.startDate).toLocaleDateString('en-GB') : '-'}
                           </div>
                         )}
                       </div>
@@ -364,7 +364,7 @@ const EmploymentData = ({
                           />
                         ) : (
                           <div className="mt-1 text-gray-900">
-                            {job.endDate ? new Date(job.endDate).toLocaleDateString() : '-'}
+                            {job.endDate ? new Date(job.endDate).toLocaleDateString('en-GB') : '-'}
                           </div>
                         )}
                       </div>

@@ -11,7 +11,7 @@ import NewPassword from '@/pages/new-password';
 import AdminLayout from '@/components/layout/admin-layout';
 import ApplicationListPage from '@/pages/application/applications-list';
 import CareerPage from '@/pages/career-application';
-import CareerResumeUpload from '@/pages/career-application/uploadResume/index';
+import { RecruitmentDashboard } from '@/pages/dashboard/rolewise-dashboard/recruitment-dashboard';
 
 import JobPage from '@/pages/jobs';
 import JobApplication from '@/pages/Job-registration';
@@ -20,14 +20,14 @@ import JobApplicationPage from '@/pages/dashboard-application/job-application';
 import ViewCareerApplicationPage from '@/pages/application/applicantDetails/view-careerApplication';
 import CareerApplicationsPage from '@/pages/jobs/job-applicant';
 import InterviewPage from '@/pages/interview';
-import CharacterReferencePage from '@/pages/character-reference';
-import EmploymentReferencePage from '@/pages/employment-reference';
 import ProfessionalReferencePage from '@/pages/professional-reference';
 import PersonalReferencePage from '@/pages/personal-reference';
 import ApplicantReferencePage from '@/pages/applicant-reference';
 import ReferenceDetailsPage from '@/pages/applicant-reference/referenceDetails';
 import TemplatePage from '@/pages/template';
 import SignaturePage from '@/pages/signature';
+import DesignationPage from '@/pages/designation';
+import ContractTypeTemplatePage from '@/pages/contract-type-template';
 import ApplicantMailPage from '@/pages/applicantMail';
 import PostEmploymentMedicalForm from '@/pages/postMedicalForm';
 import BankDetailsForm from '@/pages/bankDetailsForm';
@@ -48,11 +48,9 @@ import EditBankDetailsForm from '@/pages/editBankDetailsForm';
 import EditTrainingCertificatesPage from '@/pages/editEcertFormPage';
 import EditStarterChecklistForm from '@/pages/editStarterChecklistForm';
 import EditDBSDetailsForm from '@/pages/editDBSForm';
-import EmploymentContractForm from '@/pages/employmentContractForm';
 import JobContractForm from '@/pages/jobcontractform';
 import EditJobContractForm from '@/pages/editjobcontractform';
 import ConfidentialityFormPage from '@/pages/confidentialityForm';
-import EditEmploymentContractForm from '@/pages/editEmploymentContractForm';
 import EditConfidentialityForm from '@/pages/editConfidentialityForm';
 
 const SignInPage = lazy(() => import('@/pages/auth/signin/index'));
@@ -88,207 +86,206 @@ export default function AppRouter() {
           path: 'notifications',
           element: <NotificationsPage />
         },
-
         {
-          path: 'applications',
+          path: 'career-application',
+          element: withRole(<CareerPage />, ['admin', 'applicant']),
+          index: true
+        },
+        {
+          path: 'career-guideline',
+          element: withRole(<CareerGuideline />, ['admin', 'applicant']),
+          index: true
+        },
+        // Recruitment routes
+        {
+          path: 'recruitment',
+          element: <RecruitmentDashboard />
+        },
+        {
+          path: 'recruitment/applications',
           element: withRole(<ApplicationListPage />, ['admin']),
           index: true
         },
 
         {
-          path: 'job-application/:id',
+          path: 'recruitment/job-application/:id',
           element: withRole(<JobApplicationPage />, ['admin', 'applicant'])
         },
 
         {
-          path: 'career-application/:id/:userId',
+          path: 'recruitment/career-application/:id/:userId',
           element: withRole(<ViewCareerApplicationPage />, [
             'admin',
             'applicant'
           ])
         },
         {
-          path: 'career-application/:id/:userId/edit',
+          path: 'recruitment/career-application/:id/:userId/edit',
           element: withRole(<EditApplicantProfile />, [
             'admin',
-           
+            
           ])
         },
         {
-          path: 'career-application/:id/references/:userId',
+          path: 'recruitment/career-application/:id/references/:userId',
           element: withRole(<ApplicantReferencePage />, ['admin', 'applicant'])
         },
         {
-          path: 'user/:id/reference/:refId/:refType',
+          path: 'recruitment/user/:id/reference/:refId/:refType',
           element: withRole(<ReferenceDetailsPage />, ['admin', 'applicant'])
         },
 
         {
-          path: 'career-application/:id/:userId/interview',
+          path: 'recruitment/career-application/:id/:userId/interview',
           element: withRole(<InterviewPage />, ['admin'])
         },
         {
-          path: 'career-application/:id/:userId/progress',
+          path: 'recruitment/career-application/:id/:userId/progress',
           element: withRole(<ProgressPage />, ['admin', 'applicant'])
         },
 
         {
-          path: 'career-application/:id/mail/:userId',
+          path: 'recruitment/career-application/:id/mail/:userId',
           element: withRole(<ApplicantMailPage />, ['admin'])
         },
         {
-          path: 'career-application/:id/logs/:userId',
+          path: 'recruitment/career-application/:id/logs/:userId',
           element: withRole(<ApplicantLogsPage />, ['admin'])
         },
 
         {
-          path: 'jobs',
+          path: 'recruitment/jobs',
           element: withRole(<JobPage />, ['admin', 'applicant']),
           index: true
         },
         {
-          path: 'jobs/:id',
+          path: 'recruitment/jobs/:id',
           element: withRole(<CareerApplicationsPage />, ['admin', 'applicant']),
-          index: true
-        },
-        {
-          path: 'career-application',
-          element: withRole(<CareerPage />, ['admin', 'applicant']),
-          index: true
-        },
-        // {
-        //   path: 'career',
-        //   element: withRole(<CareerResumeUpload />, ['applicant','admin']),
-        //   index: true
-        // },
-        {
-          path: 'career-guideline',
-          element: withRole(<CareerGuideline />, ['admin', 'applicant']),
           index: true
         },
 
         {
-          path: 'template',
+          path: 'recruitment/template',
           element: withRole(<TemplatePage />, ['admin', 'applicant']),
           index: true
         },
         {
-          path: 'signature',
+          path: 'recruitment/designation',
+          element: withRole(<DesignationPage />, ['admin']),
+          index: true
+        },
+        {
+          path: 'recruitment/contract-type-template',
+          element: withRole(<ContractTypeTemplatePage />, ['admin']),
+          index: true
+        },
+        {
+          path: 'recruitment/signature',
           element: withRole(<SignaturePage />, ['admin', 'applicant']),
           index: true
         },
         {
-          path: 'medical-form/:id',
+          path: 'recruitment/medical-form/:id',
           element: <PostEmploymentMedicalForm />,
           index: true
         },
         {
-          path: 'admin/medical-form/:id',
+          path: 'recruitment/admin/medical-form/:id',
           element: <AdminMedicalForm />,
           index: true
         },
         {
-          path: 'admin/medical-form/:id/edit',
+          path: 'recruitment/admin/medical-form/:id/edit',
           element: <EditPostEmploymentMedicalForm />,
           index: true
         },
         {
-          path: 'bank-details/:id',
+          path: 'recruitment/bank-details/:id',
           element: <BankDetailsForm />,
           index: true
         },
         {
-          path: 'bank-details/:id/edit',
+          path: 'recruitment/bank-details/:id/edit',
           element: <BankDetailsForm />,
           index: true
         },
         {
-          path: 'admin/bank-details/:id',
+          path: 'recruitment/admin/bank-details/:id',
           element: <AdminBankDetails />,
           index: true
         },
         {
-          path: 'admin/bank-details/:id/edit',
+          path: 'recruitment/admin/bank-details/:id/edit',
           element: <EditBankDetailsForm />,
           index: true
         },
         {
-          path: 'dbs-form/:id',
+          path: 'recruitment/dbs-form/:id',
           element: <DBSDetailsForm />,
           index: true
         },
         {
-          path: 'admin/dbs-form/:id',
+          path: 'recruitment/admin/dbs-form/:id',
           element: <AdminDBSDetails />,
           index: true
         },
         {
-          path: 'admin/dbs-form/:id/edit',
+          path: 'recruitment/admin/dbs-form/:id/edit',
           element: <EditDBSDetailsForm />,
           index: true
         },
         {
-          path: 'starter-checklist-form/:id',
+          path: 'recruitment/starter-checklist-form/:id',
           element: <StarterChecklistForm />,
           index: true
         },
         {
-          path: 'admin/starter-checklist-form/:id',
+          path: 'recruitment/admin/starter-checklist-form/:id',
           element: <AdminStarterChecklist />,
           index: true
         },
         {
-          path: 'admin/starter-checklist-form/:id/edit',
+          path: 'recruitment/admin/starter-checklist-form/:id/edit',
           element: <EditStarterChecklistForm />,
           index: true
         },
         {
-          path: 'ecert-form/:id',
+          path: 'recruitment/ecert-form/:id',
           element: <TrainingCertificatesPage />,
           index: true
         },
         {
-          path: 'admin/ecert-form/:id',
+          path: 'recruitment/admin/ecert-form/:id',
           element: <AdminEcertsPage />,
           index: true
         },
         {
-          path: 'admin/ecert-form/:id/edit',
+          path: 'recruitment/admin/ecert-form/:id/edit',
           element: <EditTrainingCertificatesPage />,
           index: true
         },
         {
-          path: 'ecerts',
+          path: 'recruitment/ecerts',
           element: withRole(<EcertsPage />, ['admin']),
           index: true
         },
         {
-          path: 'employement-contract/:id',
-          element: <EmploymentContractForm />,
-          index: true
-        },
-        {
-          path: 'admin/employement-contract/:id/edit',
-          element: <EditEmploymentContractForm />,
-          index: true
-        },
-        {
-          path: 'job-contract/:id',
+          path: 'recruitment/job-contract/:id',
           element: <JobContractForm />,
           index: true
         },
         {
-          path: 'admin/job-contract/:id/edit',
+          path: 'recruitment/admin/job-contract/:id/edit',
           element: <EditJobContractForm />,
           index: true
         },
         {
-          path: 'confidentiality/:id',
+          path: 'recruitment/confidentiality/:id',
           element: <ConfidentialityFormPage />,
           index: true
         },
         {
-          path: 'admin/confidentiality/:id/edit',
+          path: 'recruitment/admin/confidentiality/:id/edit',
           element: <EditConfidentialityForm />,
           index: true
         },
@@ -297,11 +294,6 @@ export default function AppRouter() {
   ];
 
   const publicRoutes = [
-    // {
-    //   path: '/',
-    //   element: <StudentApplication />,
-    //   index: true
-    // },
 
     {
       path: 'jobs/apply/:id',

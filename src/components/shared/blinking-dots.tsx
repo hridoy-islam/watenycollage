@@ -6,8 +6,8 @@ interface BlinkingDotsProps {
 }
 
 export function BlinkingDots({
-  size = 'medium',
-  color = 'bg-blue-600'
+  size = 'large',
+  color = 'bg-watney'
 }: BlinkingDotsProps) {
   const sizeClasses = {
     small: 'w-1.5 h-1.5',

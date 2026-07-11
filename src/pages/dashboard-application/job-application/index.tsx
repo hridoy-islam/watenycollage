@@ -125,7 +125,7 @@ export default function JobApplicationPage() {
         {user.role === 'admin' ? (
           <Button
             variant="outline"
-            onClick={() => navigate('/dashboard/jobs')}
+            onClick={() => navigate('/dashboard/recruitment/jobs')}
             className="y mt-4 bg-watney text-white hover:bg-watney/90"
           >
             <MoveLeft />
@@ -166,7 +166,7 @@ export default function JobApplicationPage() {
         {user.role === 'admin' ? (
           <Button
             variant="outline"
-            onClick={() => navigate('/dashboard/jobs')}
+            onClick={() => navigate('/dashboard/recruitment/jobs')}
             className="flex items-center gap-2 bg-watney text-white hover:bg-watney/90 px-4 py-2 text-sm sm:text-base"
           >
             <MoveLeft />

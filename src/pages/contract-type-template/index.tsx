@@ -14,8 +14,8 @@ import { BlinkingDots } from '@/components/shared/blinking-dots';
 import axiosInstance from '@/lib/axios';
 import { Input } from '@/components/ui/input';
 import { DataTablePagination } from '@/components/shared/data-table-pagination';
-import { downloadEmailPDF } from './components/pdf-generator';
-import { EmailDraftDialog } from './components/email-draft-dialog';
+import { downloadContractPDF } from './components/pdf-generator';
+import { ContractTypeDialog } from './components/contract-type-dialog';
 import { useNavigate } from 'react-router-dom';
 import {
   AlertDialog,
@@ -28,11 +28,11 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-const TemplatePage = () => {
-  const [drafts, setDrafts] = useState<any>([]);
+const ContractTypeTemplatePage = () => {
+  const [contracts, setContracts] = useState<any>([]);
   const [initialLoading, setInitialLoading] = useState(true);
-  const [draftDialogOpen, setDraftDialogOpen] = useState(false);
-  const [editingDraft, setEditingDraft] = useState<any>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingContract, setEditingContract] = useState<any>(null);
   const { toast } = useToast();
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -40,54 +40,53 @@ const TemplatePage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [downloadingPdf, setDownloadingPdf] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [deletingDraft, setDeletingDraft] = useState<any>(null);
+  const [deletingContract, setDeletingContract] = useState<any>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const navigate = useNavigate();
 
   const fetchData = async (page, entriesPerPage, searchTerm = '') => {
     try {
       if (initialLoading) setInitialLoading(true);
-      const response = await axiosInstance.get(`/email-drafts`, {
+      const response = await axiosInstance.get('/contract-type', {
         params: {
           page,
           limit: entriesPerPage,
           ...(searchTerm ? { searchTerm } : {})
         }
       });
-      setDrafts(response.data.data.result);
+      setContracts(response.data.data.result);
       setTotalPages(response.data.data.meta.totalPage);
     } catch (error) {
-      console.error('Error fetching institutions:', error);
+      console.error('Error fetching contract types:', error);
     } finally {
-      setInitialLoading(false); // Disable initial loading after the first fetch
+      setInitialLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchData(currentPage, entriesPerPage); // Refresh data
+    fetchData(currentPage, entriesPerPage);
   }, [currentPage, entriesPerPage]);
 
   const handleSubmit = async (data) => {
     try {
-      if (editingDraft) {
-        // Update institution
-        await axiosInstance.patch(`/email-drafts/${editingDraft?._id}`, data);
+      if (editingContract) {
+        await axiosInstance.patch(`/contract-type/${editingContract?._id}`, data);
         toast({
-          title: 'Template Updated successfully',
+          title: 'Contract Type updated successfully',
           className: 'bg-watney border-none text-white'
         });
         fetchData(currentPage, entriesPerPage);
-        setEditingDraft(null);
+        setEditingContract(null);
       } else {
-        await axiosInstance.post(`/email-drafts`, data);
+        await axiosInstance.post('/contract-type', data);
         toast({
-          title: 'Template Created successfully',
+          title: 'Contract Type created successfully',
           className: 'bg-watney border-none text-white'
         });
         fetchData(currentPage, entriesPerPage);
       }
     } catch (error) {
-      console.error('Error saving institution:', error);
+      console.error('Error saving contract type:', error);
     }
   };
 
@@ -95,44 +94,40 @@ const TemplatePage = () => {
     fetchData(currentPage, entriesPerPage, searchTerm);
   };
 
-  const handleDeleteClick = (draft: any) => {
-    setDeletingDraft(draft);
+  const handleDeleteClick = (contract: any) => {
+    setDeletingContract(contract);
     setDeleteDialogOpen(true);
   };
 
   const handleDeleteConfirm = async () => {
-    if (!deletingDraft) return;
-    
+    if (!deletingContract) return;
     try {
       setIsDeleting(true);
-      await axiosInstance.delete(`/email-drafts/${deletingDraft._id}`);
+      await axiosInstance.delete(`/contract-type/${deletingContract._id}`);
       toast({
-        title: 'Template deleted successfully',
+        title: 'Contract Type deleted successfully',
         className: 'bg-watney border-none text-white'
       });
       fetchData(currentPage, entriesPerPage);
     } catch (error) {
-      console.error('Error deleting template:', error);
+      console.error('Error deleting contract type:', error);
       toast({
-        title: 'Error deleting template',
+        title: 'Error deleting contract type',
         description: 'Please try again later',
         variant: 'destructive'
       });
     } finally {
       setIsDeleting(false);
       setDeleteDialogOpen(false);
-      setDeletingDraft(null);
+      setDeletingContract(null);
     }
   };
 
-  const handleDownloadPDF = async (draft: any) => {
+  const handleDownloadPDF = async (contract: any) => {
     try {
-      setDownloadingPdf(draft._id);
-      await downloadEmailPDF(draft.subject, draft.body);
-      toast({
-        title: 'PDF downloaded successfully',
-        className: 'bg-watney border-none text-white'
-      });
+      setDownloadingPdf(contract._id);
+      await downloadContractPDF(contract.title, contract.body);
+     
     } catch (error) {
       console.error('Error downloading PDF:', error);
       toast({
@@ -149,13 +144,13 @@ const TemplatePage = () => {
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <div className="flex flex-row items-center gap-4">
-          <h2 className="text-2xl font-semibold">Email Templates</h2>
+          <h2 className="text-2xl font-semibold">Contract Type Templates</h2>
           <div className="flex items-center space-x-4">
             <Input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search by Subject"
+              placeholder="Search by Title"
               className="h-8 max-w-[400px]"
             />
             <Button
@@ -168,20 +163,14 @@ const TemplatePage = () => {
           </div>
         </div>
         <div className='flex gap-4'>
+         
           <Button
             className="bg-watney text-white hover:bg-watney/90"
-            onClick={() => navigate('/dashboard/recruitment/signature')}
-            size={'sm'}
-          >
-            Signature
-          </Button>
-          <Button
-            className="bg-watney text-white hover:bg-watney/90"
-            onClick={() => setDraftDialogOpen(true)}
+            onClick={() => setDialogOpen(true)}
             size={'sm'}
           >
             <Plus className="mr-2 h-4 w-4" />
-            New Template
+            New Contract Type
           </Button>
         </div>
       </div>
@@ -191,33 +180,33 @@ const TemplatePage = () => {
           <div className="flex justify-center py-6">
             <BlinkingDots size="large" color="bg-watney" />
           </div>
-        ) : drafts.length === 0 ? (
+        ) : contracts.length === 0 ? (
           <div className="flex justify-center py-6 text-gray-500">
-            No drafts found.
+            No contract types found.
           </div>
         ) : (
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Subject</TableHead>
+                <TableHead>Title</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {drafts.map((draft) => (
-                <TableRow key={draft._id}>
-                  <TableCell>{draft.subject}</TableCell>
+              {contracts.map((contract) => (
+                <TableRow key={contract._id}>
+                  <TableCell>{contract.title}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Button
                         variant="outline"
                         size="icon"
-                        onClick={() => handleDownloadPDF(draft)}
-                        disabled={downloadingPdf === draft._id}
+                        onClick={() => handleDownloadPDF(contract)}
+                        disabled={downloadingPdf === contract._id}
                         className="border-green-600 bg-green-600 text-white hover:bg-green-700"
                         title="Download PDF"
                       >
-                        {downloadingPdf === draft._id ? (
+                        {downloadingPdf === contract._id ? (
                           <BlinkingDots size="small" color="bg-white" />
                         ) : (
                           <Download className="h-4 w-4" />
@@ -227,20 +216,20 @@ const TemplatePage = () => {
                         variant="outline"
                         size="icon"
                         onClick={() => {
-                          setEditingDraft(draft);
-                          setDraftDialogOpen(true);
+                          setEditingContract(contract);
+                          setDialogOpen(true);
                         }}
                         className="bg-watney text-white hover:bg-watney/90"
-                        title="Edit Template"
+                        title="Edit Contract Type"
                       >
                         <Pen className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="outline"
                         size="icon"
-                        onClick={() => handleDeleteClick(draft)}
+                        onClick={() => handleDeleteClick(contract)}
                         className="border-red-600 bg-red-600 text-white hover:bg-red-700"
-                        title="Delete Template"
+                        title="Delete Contract Type"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -264,14 +253,14 @@ const TemplatePage = () => {
         }
       </div>
 
-      <EmailDraftDialog
-        open={draftDialogOpen}
+      <ContractTypeDialog
+        open={dialogOpen}
         onOpenChange={(open) => {
-          setDraftDialogOpen(open);
-          if (!open) setEditingDraft(null);
+          setDialogOpen(open);
+          if (!open) setEditingContract(null);
         }}
         onSubmit={handleSubmit}
-        initialData={editingDraft}
+        initialData={editingContract}
       />
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
@@ -279,8 +268,8 @@ const TemplatePage = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the template
-              "{deletingDraft?.subject}" and remove it from our servers.
+              This action cannot be undone. This will permanently delete the contract type
+              "{deletingContract?.title}" and remove it from our servers.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -306,4 +295,4 @@ const TemplatePage = () => {
   );
 };
 
-export default TemplatePage;
+export default ContractTypeTemplatePage;

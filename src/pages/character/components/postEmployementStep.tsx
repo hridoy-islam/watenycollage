@@ -1017,7 +1017,7 @@ export function PostEmployementStep({
 
                 return (
                   <FormItem className="mt-2 flex w-full flex-col">
-                    <FormLabel className="text-lg font-medium">Date of Birth (MM/dd/yyyy)</FormLabel>
+                    <FormLabel className="text-lg font-medium">Date of Birth (DD/MM/YYYY)</FormLabel>
                     <FormControl className="w-full">
                       <CustomDatePicker
                         selected={value}
@@ -1033,7 +1033,7 @@ export function PostEmployementStep({
                       />
                     </FormControl>
                     <p className="text-md text-gray-400">
-                      Example: MM/dd/yyyy or 01/24/1995
+                      Example: DD/MM/YYYY or 24/01/1995
                     </p>
                     <FormMessage className="text-md" />
                   </FormItem>

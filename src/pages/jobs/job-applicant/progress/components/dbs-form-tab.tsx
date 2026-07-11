@@ -78,8 +78,8 @@ export function DBSFormTab({ userId }: Props) {
     { label: 'Applicant Name', value: data?.name },
     { label: 'Applied For', value: data.jobPost },
     { label: 'Disclosure Number', value: data.disclosureNumber },
-    { label: 'Date of Issue', value: data.dateOfIssue ? format(new Date(data.dateOfIssue), 'MM/dd/yyyy') : '—' },
-    { label: 'Expiry Date', value: data.expiryDate ? format(new Date(data.expiryDate), 'MM/dd/yyyy') : '—' },
+    { label: 'Date of Issue', value: data.dateOfIssue ? format(new Date(data.dateOfIssue), 'dd/MM/yyyy') : '—' },
+    { label: 'Expiry Date', value: data.expiryDate ? format(new Date(data.expiryDate), 'dd/MM/yyyy') : '—' },
   ];
 
   return (
@@ -89,7 +89,7 @@ export function DBSFormTab({ userId }: Props) {
           <CardTitle className="text-lg font-semibold">DBS Certificate Details</CardTitle>
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Submitted</Badge>
-            <Button size="sm" variant="outline" onClick={() => navigate(`/dashboard/admin/dbs-form/${userId}/edit`)}>
+            <Button size="sm" variant="outline" onClick={() => navigate(`/dashboard/recruitment/admin/dbs-form/${userId}/edit`)}>
               <Pen className="mr-1 h-3 w-3" /> Edit
             </Button>
             <PDFDownloadLink

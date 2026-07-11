@@ -163,7 +163,7 @@ export const ConfidentialityFormPdf = ({ name, signatureUrl, createdAt }: Confid
           <View style={styles.signatureField}>
             <Text style={styles.fieldLabel}>Date: </Text>
             <Text style={styles.fieldValue}>
-              {createdAt ? format(new Date(createdAt), 'MM/dd/yyyy') : '___/___/____'}
+              {createdAt ? format(new Date(createdAt), 'dd/MM/yyyy') : '___/___/____'}
             </Text>
           </View>
         </View>

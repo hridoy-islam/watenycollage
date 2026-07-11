@@ -165,7 +165,7 @@ export default function ApplicantReferencePage() {
   const formatDate = (dateString: string) => {
     if (!dateString) return 'N/A';
     try {
-      return new Date(dateString).toLocaleDateString();
+      return new Date(dateString).toLocaleDateString('en-GB');
     } catch {
       return dateString;
     }

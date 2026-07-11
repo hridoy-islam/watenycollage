@@ -73,10 +73,10 @@ export default function JobApplication() {
     else if (user.isCompleted) {
       const applicationId = localStorage.getItem('applicationId');
       if (applicationId) {
-        navigate(`/dashboard/job-application/${applicationId}`);
+        navigate(`/dashboard/recruitment/job-application/${applicationId}`);
       }
     }else{
-      navigate('/dashboard/career-application')
+      navigate('/dashboard/recruitment')
     }
     
     

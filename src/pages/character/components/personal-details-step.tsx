@@ -323,7 +323,7 @@ export function PersonalDetailsStep({
                     return (
                       <FormItem className="mt-2 flex w-full flex-col">
                         <FormLabel>
-                          Date of Birth (MM/dd/yyyy)
+                          Date of Birth (DD/MM/YYYY)
                           <span className="text-red-500">*</span>
                         </FormLabel>
                         <FormControl className="w-full">
@@ -335,7 +335,7 @@ export function PersonalDetailsStep({
                           />
                         </FormControl>
                         <p className="text-md text-gray-500">
-                          Example: MM/dd/yyyy or 01/24/1995
+                          Example: DD/MM/YYYY or 24/01/1995
                         </p>
                         <FormMessage />
                       </FormItem>

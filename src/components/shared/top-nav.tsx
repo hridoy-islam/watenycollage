@@ -1,15 +1,22 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { UserNav } from './user-nav';
+import { usePathname } from '@/routes/hooks';
 import logo from '@/assets/imges/home/logo.png';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch } from '@/redux/store';
 import { logout } from '@/redux/features/authSlice';
-import { Edit, Edit2, LogOut } from 'lucide-react';
+import { LogOut, ChevronDown, Settings } from 'lucide-react';
 import { Button } from '../ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '../ui/dropdown-menu';
 
 export function TopNav() {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+  const pathname = usePathname();
 
   const handleLogout = async () => {
     await dispatch(logout());
@@ -17,16 +24,7 @@ export function TopNav() {
   };
   const { user } = useSelector((state: any) => state.auth);
   const isCompleted = user?.isCompleted;
-
-  // Dynamic navigation links configuration
-  const navLinks = [
-    // { path: '/dashboard/student-applications', label: 'Student Applications' },
-    // { path: '/dashboard/career-applications', label: 'Career Applications' },
-    // { path: '/dashboard/courses', label: 'Course' },
-    { path: '/dashboard/jobs', label: 'Jobs' },
-    { path: '/dashboard/ecerts', label: 'Training' },
-    { path: '/dashboard/template', label: 'Template' },
-  ];
+  const isDashboardRoot = pathname === '/dashboard';
 
   return (
     <div className="flex h-16 items-center justify-between bg-white px-4 shadow-sm">
@@ -34,28 +32,56 @@ export function TopNav() {
         {isCompleted ? (
           <Link to="/dashboard" className="flex items-center space-x-4">
             <img src={logo} className="w-16" />
-            <span className="text-lg font-semibold text-black"></span>
           </Link>
         ) : (
           <div className="flex items-center space-x-4">
             <img src={logo} className="w-16" />
-            <span className="text-lg font-semibold text-black"></span>
           </div>
         )}
       </div>
 
-   
-   {user?.role === 'admin' && <div className="flex items-center space-x-6">
-        {navLinks.map((link) => (
+      {user?.role === 'admin' && !isDashboardRoot && (
+        <div className="flex items-center space-x-6">
           <Link
-            key={link.path}
-            to={link.path}
+            to="/dashboard/recruitment/jobs"
             className="text-black font-semibold py-1 px-2 hover:bg-watney hover:text-white rounded-sm transition-all"
           >
-            {link.label}
+            Jobs
           </Link>
-        ))}
-      </div>}
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <div className="flex cursor-pointer items-center gap-1 text-black font-semibold py-1 px-2 hover:bg-watney hover:text-white rounded-sm transition-all">
+                <Settings className="h-4 w-4" />
+                Setting
+                <ChevronDown className="h-4 w-4" />
+              </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="center" className="w-auto border-gray-300">
+              <DropdownMenuItem asChild>
+                <Link to="/dashboard/recruitment/designation" className="cursor-pointer">
+                  Designation
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/dashboard/recruitment/contract-type-template" className="cursor-pointer">
+                  Contract Type Template
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/dashboard/recruitment/ecerts" className="cursor-pointer">
+                  Training
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/dashboard/recruitment/template" className="cursor-pointer">
+                  Template
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      )}
 
       <div className="flex items-center space-x-4">
         <div
