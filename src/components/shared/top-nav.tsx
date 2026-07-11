@@ -48,6 +48,12 @@ export function TopNav() {
           >
             Jobs
           </Link>
+          <Link
+            to="/dashboard/recruitment/employee"
+            className="text-black font-semibold py-1 px-2 hover:bg-watney hover:text-white rounded-sm transition-all"
+          >
+            Employee
+          </Link>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

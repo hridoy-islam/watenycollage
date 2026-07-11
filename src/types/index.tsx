@@ -722,6 +722,20 @@ export const countries = [
   'Zimbabwe'
 ];
 
+export const relationships = [
+  'Brother',
+  'Daughter',
+  'Father',
+  'Friend',
+  'Husband',
+  'Mother',
+  'Other',
+  'Partner',
+  'Sister',
+  'Son',
+  'Wife'
+];
+
 export const languages = [
   'Afrikaans',
   'Albanian',

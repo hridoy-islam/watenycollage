@@ -52,6 +52,8 @@ import JobContractForm from '@/pages/jobcontractform';
 import EditJobContractForm from '@/pages/editjobcontractform';
 import ConfidentialityFormPage from '@/pages/confidentialityForm';
 import EditConfidentialityForm from '@/pages/editConfidentialityForm';
+import EmployeePage from '@/pages/Employee';
+import EditEmployee from '@/pages/Employee/editEmployee';
 
 const SignInPage = lazy(() => import('@/pages/auth/signin/index'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
@@ -167,6 +169,16 @@ export default function AppRouter() {
         {
           path: 'recruitment/template',
           element: withRole(<TemplatePage />, ['admin', 'applicant']),
+          index: true
+        },
+        {
+          path: 'recruitment/employee',
+          element: withRole(<EmployeePage />, ['admin']),
+          index: true
+        },
+        {
+          path: 'recruitment/employee/:eid',
+          element: withRole(<EditEmployee />, ['admin']),
           index: true
         },
         {

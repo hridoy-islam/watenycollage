@@ -21,10 +21,18 @@ import {
 } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter
+} from "@/components/ui/dialog"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { useNavigate, useParams } from "react-router-dom"
 import axiosInstace from "@/lib/axios"
+import Select from "react-select"
 import moment from "moment"
 
 import Loader from "@/components/shared/loader"
@@ -250,6 +258,11 @@ export default function ViewCareerApplicationPage() {
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<TabType>("personalDetails")
   const [copiedFields, setCopiedFields] = useState<Record<string, boolean>>({})
+  const [recruitDialogOpen, setRecruitDialogOpen] = useState(false)
+  const [designations, setDesignations] = useState<{ _id: string; title: string }[]>([])
+  const [selectedDesignationIds, setSelectedDesignationIds] = useState<string[]>([])
+  const [recruiting, setRecruiting] = useState(false)
+  const [designationError, setDesignationError] = useState("")
   const navigate = useNavigate()
   const { id, userId } = useParams()
 
@@ -286,6 +299,37 @@ export default function ViewCareerApplicationPage() {
 
     if (id) fetchJob()
   }, [id])
+
+  useEffect(() => {
+    if (recruitDialogOpen) {
+      axiosInstace.get("/designation?limit=all")
+        .then(res => setDesignations(res.data.data?.result || []))
+        .catch(() => toast.error("Failed to load designations"))
+    }
+  }, [recruitDialogOpen])
+
+  const handleRecruit = async () => {
+    if (selectedDesignationIds.length === 0) {
+      setDesignationError("Please select at least one designation")
+      return
+    }
+    setDesignationError("")
+    setRecruiting(true)
+    try {
+      await axiosInstace.patch(`/users/${userId}`, {
+        role: "employee",
+        designationId: selectedDesignationIds
+      })
+      toast.success("User recruited successfully")
+      setRecruitDialogOpen(false)
+      navigate(-1)
+    } catch (err) {
+      toast.error("Failed to recruit user")
+      console.error(err)
+    } finally {
+      setRecruiting(false)
+    }
+  }
 
   const copyToClipboard = (value: string, field: string) => {
     navigator.clipboard.writeText(value).then(
@@ -414,6 +458,9 @@ return (
       <Button className="bg-watney text-white hover:bg-watney/90" onClick={() => navigate(`edit`)}>
         Edit
       </Button>
+      <Button className="bg-watney text-white hover:bg-watney/90" onClick={() => setRecruitDialogOpen(true)}>
+        Recruit
+      </Button>
       <PDFGenerator application={application} applicationJob={applicationJob} />
       </div>
     </div>
@@ -496,6 +543,33 @@ return (
         </TabContent>
       </VerticalTabs>
     </div>
+
+    <Dialog open={recruitDialogOpen} onOpenChange={(open) => { setRecruitDialogOpen(open); if (!open) setDesignationError("") }}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Recruit Applicant</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4 py-4">
+          <label className="block font-medium">Designation <span className="text-red-500">*</span></label>
+          <Select
+            options={designations.map(d => ({ value: d._id, label: d.title }))}
+            value={designations.filter(d => selectedDesignationIds.includes(d._id)).map(d => ({ value: d._id, label: d.title }))}
+            onChange={(opts) => { setSelectedDesignationIds((opts as { value: string; label: string }[] | null)?.map(o => o.value) || []); setDesignationError("") }}
+            placeholder="Select designations..."
+            isMulti
+          />
+          {designationError && <p className="text-sm text-red-500">{designationError}</p>}
+        </div>
+        <DialogFooter>
+          <Button variant="secondary" onClick={() => { setRecruitDialogOpen(false); setDesignationError(""); setSelectedDesignationIds([]) }}>
+            Cancel
+          </Button>
+          <Button onClick={handleRecruit} disabled={recruiting} className="bg-watney text-white hover:bg-watney/90">
+            {recruiting ? "Recruiting..." : "Recruit"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   </div>
 );
 }

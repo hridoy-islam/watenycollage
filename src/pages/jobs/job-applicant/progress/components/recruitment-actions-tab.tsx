@@ -26,13 +26,13 @@ import {
   TableHeader,
   TableRow
 } from "@/components/ui/table"
-import { Mail, MailCheck, File, ClipboardPenLine, Check, LockOpen, Loader2, Eye, FileText } from "lucide-react"
+import { Mail, MailCheck, File, ClipboardPenLine, Check, LockOpen, Loader2, Eye, FileText, UserPlus } from "lucide-react"
 import { useNavigate } from "react-router-dom"
-import { toast } from "sonner"
 import { useSelector } from "react-redux"
 import axiosInstace from "@/lib/axios"
 import Select from "react-select"
 import moment from "moment"
+import { useToast } from "@/components/ui/use-toast"
 
 interface EmailDraft {
   _id: string
@@ -87,6 +87,7 @@ interface RecruitmentActionsTabProps {
 export function RecruitmentActionsTab({ application, applicationJob, userId, applicationId }: RecruitmentActionsTabProps) {
   const navigate = useNavigate()
   const user = useSelector((state: any) => state.auth?.user)
+  const { toast } = useToast()
 
   const [emailDrafts, setEmailDrafts] = useState<EmailDraft[]>([])
   const [selectedDraft, setSelectedDraft] = useState<EmailDraft | null>(null)
@@ -111,7 +112,14 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
   const [selectedContractType, setSelectedContractType] = useState<string>("")
   const [contractTypeLoading, setContractTypeLoading] = useState(false)
   const [contractTypeSelectError, setContractTypeSelectError] = useState("")
-  
+
+  // Recruit dialog state
+  const [recruitDialogOpen, setRecruitDialogOpen] = useState(false)
+  const [designations, setDesignations] = useState<{ _id: string; title: string }[]>([])
+  const [selectedDesignationIds, setSelectedDesignationIds] = useState<string[]>([])
+  const [recruiting, setRecruiting] = useState(false)
+  const [designationError, setDesignationError] = useState("")
+
   // Local state to track sent/done status for immediate UI updates
   const [localJobOfferSent, setLocalJobOfferSent] = useState(application?.jobOfferMailSent)
   const [localInterviewSent, setLocalInterviewSent] = useState(application?.interviewMailSent)
@@ -154,9 +162,26 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
     fetchDrafts()
   }, [])
 
+  // Fetch designations when recruit dialog opens
+  useEffect(() => {
+    if (recruitDialogOpen) {
+      axiosInstace.get("/designation?limit=all")
+        .then(res => setDesignations(res.data.data?.result || []))
+        .catch(() => toast({
+          title: "Error",
+          description: "Failed to load designations",
+          variant: "destructive"
+        }))
+    }
+  }, [recruitDialogOpen])
+
   const handleOpenEmailDialog = async (context: "job-offer" | "interview") => {
     if (!userId) {
-      toast.error("Applicant ID missing")
+      toast({
+        title: "Error",
+        description: "Applicant ID missing",
+        variant: "destructive"
+      })
       return
     }
     setEmailLoading(true)
@@ -295,7 +320,10 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
 
       const res = await axiosInstace.post("/email", payload)
       if (res.data.success) {
-        toast.success("Email Sent successfully")
+        toast({
+          title: "Success",
+          description: "Email Sent successfully",
+        })
         // Update local state to show "Sent" immediately
         if (activeEmailContext === "job-offer") {
           setLocalJobOfferSent(true)
@@ -305,7 +333,11 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
         setEmailDialogOpen(false)
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to send email")
+      toast({
+        title: "Error",
+        description: error.response?.data?.message || "Failed to send email",
+        variant: "destructive"
+      })
     } finally {
       setSendingEmail(false)
     }
@@ -317,14 +349,51 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
     try {
       const res = await axiosInstace.patch(`/users/${userId}`, { referenceMailSent: true, jobApplicationId: applicationId })
       if (res.data.success) {
-        toast.success("Reference Request Sent")
+        toast({
+          title: "Success",
+          description: "Reference Request Sent",
+        })
         setLocalReferenceSent(true)
         setReferenceAlertOpen(false)
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to send reference email")
+      toast({
+        title: "Error",
+        description: error.response?.data?.message || "Failed to send reference email",
+        variant: "destructive"
+      })
     } finally {
       setReferenceLoading(false)
+    }
+  }
+
+  const handleRecruit = async () => {
+    if (selectedDesignationIds.length === 0) {
+      setDesignationError("Please select at least one designation")
+      return
+    }
+    setDesignationError("")
+    setRecruiting(true)
+    try {
+      await axiosInstace.patch(`/users/${userId}`, {
+        role: "employee",
+        designationId: selectedDesignationIds
+      })
+      toast({
+        title: "Success",
+        description: "User recruited successfully",
+      })
+      setRecruitDialogOpen(false)
+      navigate(-1)
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to recruit user",
+        variant: "destructive"
+      })
+      console.error(err)
+    } finally {
+      setRecruiting(false)
     }
   }
 
@@ -342,7 +411,11 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
         const res = await axiosInstace.get("/contract-type?limit=all")
         setContractTypes(res.data.data?.result || [])
       } catch {
-        toast.error("Failed to load contract types")
+        toast({
+          title: "Error",
+          description: "Failed to load contract types",
+          variant: "destructive"
+        })
       } finally {
         setContractTypeLoading(false)
       }
@@ -354,11 +427,17 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
       const payload = { [field]: true, jobApplicationId: applicationId }
       await axiosInstace.patch(`/users/${userId}`, payload)
 
-     
-      toast.success("Section Unlocked Successfully")
+      toast({
+        title: "Success",
+        description: "Section Unlocked Successfully",
+      })
       setLocalUnlocks(prev => ({ ...prev, [field]: true }))
     } catch (error: any) {
-      toast.error(error?.response?.data?.message || "Failed to unlock section")
+      toast({
+        title: "Error",
+        description: error?.response?.data?.message || "Failed to unlock section",
+        variant: "destructive"
+      })
     } finally {
       setUnlockLoading(prev => ({ ...prev, [field]: false }))
     }
@@ -374,12 +453,19 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
     try {
       const payload = { contractTypeId: selectedContractType, jobContractUnlock: true, jobApplicationId: applicationId }
       await axiosInstace.patch(`/users/${userId}`, payload)
-      toast.success("Job Contract Unlocked Successfully")
+      toast({
+        title: "Success",
+        description: "Job Contract Unlocked Successfully",
+      })
       setLocalUnlocks(prev => ({ ...prev, jobContractUnlock: true }))
       setContractTypeDialogOpen(false)
       setSelectedContractType("")
     } catch (error: any) {
-      toast.error(error?.response?.data?.message || "Failed to unlock job contract")
+      toast({
+        title: "Error",
+        description: error?.response?.data?.message || "Failed to unlock job contract",
+        variant: "destructive"
+      })
     } finally {
       setUnlockLoading(prev => ({ ...prev, jobContractUnlock: false }))
     }
@@ -448,131 +534,153 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
   ]
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <Card className="border border-gray-200 rounded-lg">
-        <CardHeader className="border-b border-gray-200 px-6 py-4">
-          <CardTitle className="text-base font-bold text-black">Communication Mails</CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-b border-gray-200">
-                <TableHead className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-black">Action</TableHead>
-                <TableHead className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-black text-right">Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {actions.map((action, i) => (
-                <TableRow 
-                  key={action.label} 
-                  className={`cursor-pointer ${i !== actions.length - 1 ? "border-b border-gray-200" : ""}`} 
-                  onClick={action.onClick}
-                >
-                  <TableCell className="px-6 py-4">
-                    <span className="inline-flex items-center gap-3 text-sm font-medium text-black">
-                      {action.loading ? <Loader2 className="h-4 w-4 animate-spin" /> : action.icon}
-                      {action.label}
-                    </span>
-                  </TableCell>
-                  <TableCell className="px-6 py-4 text-right">
-                    {action.isViewOnly ? (
-                      <Button
-                        size="sm"
-                        className="border-watney  h-8 px-4 text-xs font-medium rounded"
-                        onClick={(e) => { e.stopPropagation(); action.onClick() }}
-                      >
-                        <Eye className="mr-1.5 h-3.5 w-3.5" />
-                        View
-                      </Button>
-                    ) : action.sent ? (
-                      <span className="inline-flex items-center gap-1.5 text-sm font-bold text-white bg-green-600 px-2.5 py-1 rounded">
-                        <Check className="h-3.5 w-3.5" /> Sent
-                      </span>
-                    ) : (
-                      <Button
-                        size="sm"
-                        className="bg-watney text-white hover:bg-watney/90 h-8 px-4 text-xs font-medium rounded"
-                        onClick={(e) => { e.stopPropagation(); action.onClick() }}
-                        disabled={action.loading || emailLoading}
-                      >
-                        {action.loading ? (
-                          <>
-                            <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-                            Sending...
-                          </>
-                        ) : (
-                          "Send"
-                        )}
-                      </Button>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+    <div className="space-y-6">
+      {/* Recruit CTA */}
+      <Card className="border border-watney/20 bg-watney/10 rounded-lg">
+        <CardContent className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-bold text-black">Ready to recruit this applicant?</p>
+            <p className="mt-0.5 text-xs text-gray-600">
+              This converts {application?.firstName || "the applicant"} into an employee.
+            </p>
+          </div>
+          <Button
+            size="lg"
+            className="w-full shrink-0 sm:w-auto"
+            onClick={() => setRecruitDialogOpen(true)}
+          >
+            <UserPlus className="mr-2 h-4 w-4" />
+            Recruit Applicant
+          </Button>
         </CardContent>
       </Card>
 
-      <Card className="border border-gray-200 rounded-lg">
-        <CardHeader className="border-b border-gray-200 px-6 py-4">
-          <CardTitle className="text-base font-bold text-black">Unlock Sections</CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-b border-gray-200">
-                <TableHead className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-black">Section</TableHead>
-                <TableHead className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-black text-right">Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {unlockItems.map((item, i) => (
-                <TableRow
-                  key={item.field}
-                  className={`cursor-pointer ${i !== unlockItems.length - 1 ? "border-b border-gray-200" : ""}`}
-                  onClick={() => !item.done && handleUnlockAction(item.field)}
-                >
-                  <TableCell className="px-6 py-4">
-                    <span className="inline-flex items-center gap-3 text-sm font-medium text-black">
-                      {unlockLoading[item.field] ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : item.done ? (
-                        <Check className="h-4 w-4" />
-                      ) : (
-                        <LockOpen className="h-4 w-4" />
-                      )}
-                      {item.label.replace("Unlock ", "")}
-                    </span>
-                  </TableCell>
-                  <TableCell className="px-6 py-4 text-right">
-                    {item.done ? (
-                      <span className="inline-flex items-center gap-1.5 text-sm font-bold text-white bg-green-600 px-2.5 py-1 rounded">
-                        <Check className="h-3.5 w-3.5" /> Done
-                      </span>
-                    ) : (
-                      <Button
-                        size="sm"
-                        className="bg-watney text-white hover:bg-watney/90 h-8 px-4 text-xs font-medium rounded"
-                        onClick={(e) => { e.stopPropagation(); handleUnlockAction(item.field) }}
-                        disabled={unlockLoading[item.field]}
-                      >
-                        {unlockLoading[item.field] ? (
-                          <>
-                            <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-                            Unlocking...
-                          </>
-                        ) : (
-                          "Unlock"
-                        )}
-                      </Button>
-                    )}
-                  </TableCell>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="border border-gray-200 rounded-lg">
+          <CardHeader className="border-b border-gray-200 px-6 py-4">
+            <CardTitle className="text-base font-bold text-black">Communication Mails</CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow className="border-b border-gray-200">
+                  <TableHead className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-black">Action</TableHead>
+                  <TableHead className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-black text-right">Status</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+              </TableHeader>
+              <TableBody>
+                {actions.map((action, i) => (
+                  <TableRow
+                    key={action.label}
+                    className={`cursor-pointer ${i !== actions.length - 1 ? "border-b border-gray-200" : ""}`}
+                    onClick={action.onClick}
+                  >
+                    <TableCell className="px-6 py-4">
+                      <span className="inline-flex items-center gap-3 text-sm font-medium text-black">
+                        {action.loading ? <Loader2 className="h-4 w-4 animate-spin" /> : action.icon}
+                        {action.label}
+                      </span>
+                    </TableCell>
+                    <TableCell className="px-6 py-4 text-right">
+                      {action.isViewOnly ? (
+                        <Button
+                          size="sm"
+                          className="border-watney h-8 px-4 text-xs font-medium rounded text-white"
+                          onClick={(e) => { e.stopPropagation(); action.onClick() }}
+                        >
+                          <Eye className="mr-1.5 h-3.5 w-3.5" />
+                          View
+                        </Button>
+                      ) : action.sent ? (
+                        <span className="inline-flex items-center gap-1.5 text-sm font-bold text-white bg-green-600 px-2.5 py-1 rounded">
+                          <Check className="h-3.5 w-3.5" /> Sent
+                        </span>
+                      ) : (
+                        <Button
+                          size="sm"
+                          className="bg-watney text-white hover:bg-watney/90 h-8 px-4 text-xs font-medium rounded"
+                          onClick={(e) => { e.stopPropagation(); action.onClick() }}
+                          disabled={action.loading || emailLoading}
+                        >
+                          {action.loading ? (
+                            <>
+                              <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                              Sending...
+                            </>
+                          ) : (
+                            "Send"
+                          )}
+                        </Button>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+
+        <Card className="border border-gray-200 rounded-lg">
+          <CardHeader className="border-b border-gray-200 px-6 py-4">
+            <CardTitle className="text-base font-bold text-black">Unlock Sections</CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow className="border-b border-gray-200">
+                  <TableHead className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-black">Section</TableHead>
+                  <TableHead className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-black text-right">Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {unlockItems.map((item, i) => (
+                  <TableRow
+                    key={item.field}
+                    className={`cursor-pointer ${i !== unlockItems.length - 1 ? "border-b border-gray-200" : ""}`}
+                    onClick={() => !item.done && handleUnlockAction(item.field)}
+                  >
+                    <TableCell className="px-6 py-4">
+                      <span className="inline-flex items-center gap-3 text-sm font-medium text-black">
+                        {unlockLoading[item.field] ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : item.done ? (
+                          <Check className="h-4 w-4" />
+                        ) : (
+                          <LockOpen className="h-4 w-4" />
+                        )}
+                        {item.label.replace("Unlock ", "")}
+                      </span>
+                    </TableCell>
+                    <TableCell className="px-6 py-4 text-right">
+                      {item.done ? (
+                        <span className="inline-flex items-center gap-1.5 text-sm font-bold text-white bg-green-600 px-2.5 py-1 rounded">
+                          <Check className="h-3.5 w-3.5" /> Done
+                        </span>
+                      ) : (
+                        <Button
+                          size="sm"
+                          className="bg-watney text-white hover:bg-watney/90 h-8 px-4 text-xs font-medium rounded"
+                          onClick={(e) => { e.stopPropagation(); handleUnlockAction(item.field) }}
+                          disabled={unlockLoading[item.field]}
+                        >
+                          {unlockLoading[item.field] ? (
+                            <>
+                              <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                              Unlocking...
+                            </>
+                          ) : (
+                            "Unlock"
+                          )}
+                        </Button>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Reference Email Confirmation Dialog */}
       <AlertDialog open={referenceAlertOpen} onOpenChange={setReferenceAlertOpen}>
@@ -713,6 +821,50 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
               ) : (
                 "Unlock Job Contract"
               )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Recruit Dialog */}
+      <Dialog open={recruitDialogOpen} onOpenChange={(open) => { setRecruitDialogOpen(open); if (!open) setDesignationError("") }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Recruit Applicant</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <label className="block font-medium">Designation <span className="text-red-500">*</span></label>
+            <Select
+              options={designations.map(d => ({ value: d._id, label: d.title }))}
+              value={designations.filter(d => selectedDesignationIds.includes(d._id)).map(d => ({ value: d._id, label: d.title }))}
+              onChange={(opts) => { setSelectedDesignationIds((opts as { value: string; label: string }[] | null)?.map(o => o.value) || []); setDesignationError("") }}
+              placeholder="Select designations..."
+              isMulti
+              styles={{
+                control: (base) => ({
+                  ...base,
+                  borderRadius: '9999px',
+                  minHeight: '40px',
+                  paddingLeft: '4px'
+                }),
+                valueContainer: (base) => ({
+                  ...base,
+                  padding: '2px 8px'
+                }),
+                indicatorsContainer: (base) => ({
+                  ...base,
+                  paddingRight: '8px'
+                })
+              }}
+            />
+            {designationError && <p className="text-sm text-red-500">{designationError}</p>}
+          </div>
+          <DialogFooter>
+            <Button variant="secondary" onClick={() => { setRecruitDialogOpen(false); setDesignationError(""); setSelectedDesignationIds([]) }}>
+              Cancel
+            </Button>
+            <Button onClick={handleRecruit} disabled={recruiting} className="bg-watney text-white hover:bg-watney/90">
+              {recruiting ? "Recruiting..." : "Recruit"}
             </Button>
           </DialogFooter>
         </DialogContent>
