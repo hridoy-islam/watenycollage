@@ -114,9 +114,7 @@ export const useEditEmployee = () => {
     notes: '',
 
     // Application
-    source: '',
     referralEmployee: '',
-    availableFromDate: null as moment.Moment | null,
     isStudent: false,
     isOver18: false,
     canWorkInUK: false,
@@ -286,11 +284,8 @@ export const useEditEmployee = () => {
           notes: data.notes || '',
 
           // Application
-          source: data.source || '',
           referralEmployee: data.referralEmployee || '',
-          availableFromDate: data.availableFromDate
-            ? moment(data.availableFromDate)
-            : null,
+         
           isStudent: data.isStudent || false,
           isOver18: data.isOver18 || false,
           canWorkInUK: data.canWorkInUK || false,
