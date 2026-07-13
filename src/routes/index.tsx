@@ -9,6 +9,7 @@ import NotificationsPage from '@/pages/notification';
 import Otp from '@/pages/auth/otp';
 import NewPassword from '@/pages/new-password';
 import AdminLayout from '@/components/layout/admin-layout';
+import PeoplePlannerLayout from '@/components/layout/people-planner-layout';
 import ApplicationListPage from '@/pages/application/applications-list';
 import CareerPage from '@/pages/career-application';
 import { RecruitmentDashboard } from '@/pages/dashboard/rolewise-dashboard/recruitment-dashboard';
@@ -54,6 +55,33 @@ import ConfidentialityFormPage from '@/pages/confidentialityForm';
 import EditConfidentialityForm from '@/pages/editConfidentialityForm';
 import EmployeePage from '@/pages/Employee';
 import EditEmployee from '@/pages/Employee/editEmployee';
+import PeoplePlannerAdminDashboardPage from '@/pages/dashboard/people-planner/AdminDashboard';
+import ServiceUserList from '@/pages/ServiceUser';
+import CreateServiceUserPage from '@/pages/ServiceUser/create';
+import ServiceuserDetailPage from '@/pages/ServiceUser/serviceUserDetail';
+import ServiceUserPlannerPage from '@/pages/ServiceUser/planner';
+import ServiceUserTask from '@/pages/ServiceUser/serviceuserSchedule';
+import GeneralCharts from '@/pages/serviceUserModules/General-Charts';
+import ChartDetailPage from '@/pages/serviceUserModules/General-Charts/components/ChartDetailPage';
+import RiskAssessmentScorePage from '@/pages/serviceUserModules/RiskAssessmentScore';
+import DocumentPage from '@/pages/serviceUserModules/Documents';
+import SupportPlanDetailPage from '@/pages/serviceUserModules/SupportPlan/components/SupportPlanDetailPage';
+import SupportPlanPage from '@/pages/serviceUserModules/SupportPlan';
+import InitialAssessmentPage from '@/pages/serviceUserModules/InitialAssessment';
+import InitialAssessmentDetailPage from '@/pages/serviceUserModules/InitialAssessment/components/InitialAssessmentDetailPage';
+import CreateRiskAssessmentPage from '@/pages/serviceUserModules/RiskAssessment/createPage';
+import RiskAssessmentPage from '@/pages/serviceUserModules/RiskAssessment';
+import ConsentPage from '@/pages/serviceUserModules/Consent';
+import AddCapacityFormPage from '@/pages/serviceUserModules/Consent/components/add-capacity-form';
+import EditCapacityFormPage from '@/pages/serviceUserModules/Consent/components/edit-capacity-form';
+import EditConsentFormPage from '@/pages/serviceUserModules/Consent/components/edit-consent-form';
+import MarChartPage from '@/pages/serviceUserModules/MARChart';
+import AddMedicationPage from '@/pages/serviceUserModules/MARChart/addMedicine';
+import RiskAssessmentDetailPage from '@/pages/serviceUserModules/RiskAssessment/components/AssessmentDetailPage';
+import StockPage from '@/pages/serviceUserModules/Stock';
+import StockDetailPage from '@/pages/serviceUserModules/Stock/components/StockDetailPage';
+import DailyLogs from '@/pages/serviceUserModules/DailyLogs';
+import AddConsentFormPage from '@/pages/serviceUserModules/Consent/components/add-consent-form';
 
 const SignInPage = lazy(() => import('@/pages/auth/signin/index'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
@@ -123,10 +151,7 @@ export default function AppRouter() {
         },
         {
           path: 'recruitment/career-application/:id/:userId/edit',
-          element: withRole(<EditApplicantProfile />, [
-            'admin',
-            
-          ])
+          element: withRole(<EditApplicantProfile />, ['admin'])
         },
         {
           path: 'recruitment/career-application/:id/references/:userId',
@@ -300,13 +325,144 @@ export default function AppRouter() {
           path: 'recruitment/admin/confidentiality/:id/edit',
           element: <EditConfidentialityForm />,
           index: true
+        }
+      ]
+    }
+  ];
+
+  const peoplePlannerAdminRoutes = [
+    // People Planner routes
+    {
+      path: '/dashboard/people-planner',
+      element: (
+        <PeoplePlannerLayout>
+          <ProtectedRoute allowedRoles={['admin']}>
+            <Suspense>
+              <Outlet />
+            </Suspense>
+          </ProtectedRoute>
+        </PeoplePlannerLayout>
+      ),
+      children: [
+        {
+          element: <PeoplePlannerAdminDashboardPage />,
+          index: true
         },
+        {
+          path: 'serviceuser',
+          element: <ServiceUserList />,
+          index: true
+        },
+        {
+          path: 'create-serviceuser',
+          element: <CreateServiceUserPage />,
+          index: true
+        },
+
+        {
+          path: 'serviceuser/:sid',
+          element: <ServiceuserDetailPage />,
+          index: true
+        },
+        {
+          path: 'serviceuser/:sid/planner',
+          element: <ServiceUserPlannerPage />,
+          index: true
+        },
+        {
+          path: 'serviceuser/:sid/schedule',
+          element: <ServiceUserTask />,
+          index: true
+        },
+        {
+          path: 'serviceuser/:sid/daily-logs',
+          element: <DailyLogs />
+        },
+        {
+          path: 'serviceuser/:sid/charts/general-charts',
+          element: <GeneralCharts />
+        },
+        {
+          path: 'serviceuser/:sid/charts/general-charts/:id',
+          element: <ChartDetailPage />
+        },
+        {
+          path: 'serviceuser/:sid/charts/risk-assessment-scores',
+          element: <RiskAssessmentScorePage />
+        },
+        {
+          path: 'serviceuser/:sid/documents',
+          element: <DocumentPage />
+        },
+        {
+          path: 'serviceuser/:sid/support-plans',
+          element: <SupportPlanPage />
+        },
+        {
+          path: 'serviceuser/:sid/support-plans/:id',
+          element: <SupportPlanDetailPage />
+        },
+        {
+          path: 'serviceuser/:sid/initial-assessment',
+          element: <InitialAssessmentPage />
+        },
+        {
+          path: 'serviceuser/:sid/initial-assessment/:id',
+          element: <InitialAssessmentDetailPage />
+        },
+        {
+          path: 'serviceuser/:sid/risk-assessments',
+          element: <RiskAssessmentPage />
+        },
+        {
+          path: 'serviceuser/:sid/risk-assessments/create',
+          element: <CreateRiskAssessmentPage />
+        },
+        {
+          path: 'serviceuser/:sid/risk-assessments/:id',
+          element: <RiskAssessmentDetailPage />
+        },
+        {
+          path: 'serviceuser/:sid/mar-chart',
+          element: <MarChartPage />
+        },
+        {
+          path: 'serviceuser/:sid/mar-chart/add-medication',
+          element: <AddMedicationPage />
+        },
+        {
+          path: 'serviceuser/:sid/stock',
+          element: <StockPage />
+        },
+        {
+          path: 'serviceuser/:sid/stock/:id',
+          element: <StockDetailPage />
+        },
+        {
+          path: 'serviceuser/:sid/consents',
+          element: <ConsentPage />
+        },
+        {
+          path: 'serviceuser/:sid/consents/add-capacity-form',
+          element: <AddCapacityFormPage />
+        },
+        {
+          path: 'serviceuser/:sid/consents/capacity-form/:capacityId',
+          element: <EditCapacityFormPage />
+        },
+        {
+          path: 'serviceuser/:sid/consents/add-consent-form',
+          element: <AddConsentFormPage />
+        },
+        {
+          path: 'serviceuser/:sid/consents/consent-form/:consentId',
+          element: <EditConsentFormPage />
+        }
       ]
     }
   ];
 
   const publicRoutes = [
-
     {
       path: 'jobs/apply/:id',
       element: <JobApplication />,
@@ -359,7 +515,11 @@ export default function AppRouter() {
     }
   ];
 
-  const routes = useRoutes([...publicRoutes, ...adminRoutes]);
+  const routes = useRoutes([
+    ...publicRoutes,
+    ...adminRoutes,
+    ...peoplePlannerAdminRoutes
+  ]);
 
   return routes;
 }
