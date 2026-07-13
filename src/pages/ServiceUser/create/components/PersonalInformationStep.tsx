@@ -186,6 +186,7 @@ export const PersonalInformationStep: React.FC = () => {
                 dropdownMode="select"
                 isClearable
                 wrapperClassName="w-full"
+                maxDate={new Date()}
               />
             )}
           />

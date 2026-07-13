@@ -67,7 +67,7 @@ export default function ServiceUserList() {
         }
       });
       setUsers(res.data.data.result || []);
-      setTotalPages(res.data.data.meta.total);
+      setTotalPages(res.data.data.meta.totalPage);
     } catch (error) {
       console.error('Failed to fetch users', error);
     } finally {
@@ -183,7 +183,7 @@ export default function ServiceUserList() {
         </div>
         <Button
           className="flex gap-2 bg-watney text-white hover:bg-watney/90"
-          onClick={() => navigate(`create-serviceuser`)}
+          onClick={() => navigate(`/dashboard/people-planner/create-serviceuser`)}
           disabled={loading}
         >
           <Plus className="h-4 w-4" />

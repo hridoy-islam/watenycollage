@@ -166,7 +166,7 @@ const onSubmit = async (data: ServiceUserFormData) => {
     });
 
     methods.reset();
-    navigate(-1)
+    navigate('/dashboard/people-planner/serviceuser')
   } catch (error: any) {
     console.error(error);
     toast({
