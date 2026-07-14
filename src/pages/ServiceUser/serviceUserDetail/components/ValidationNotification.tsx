@@ -13,7 +13,6 @@ const tabLabels: { [key: string]: string } = {
   contact: 'Contact',
   equality: 'Equality',
   emergency: 'Emergency Contact',
-
   notes: 'Note'
 };
 
@@ -22,10 +21,17 @@ export const ValidationNotification: React.FC<ValidationNotificationProps> = ({
   onTabClick,
   userId
 }) => {
-  const allTabs = Object.keys(tabLabels).map((tabId) => [
-    tabId,
-    validation[tabId] || { isValid: true, missingFields: [] }
-  ]) as [string, { isValid: boolean; missingFields: string[] }][];
+  // Filter out the notes tab and reorder it to be last
+  const allTabs = Object.keys(tabLabels)
+    .map((tabId) => [
+      tabId,
+      validation[tabId] || { isValid: true, missingFields: [] }
+    ]) as [string, { isValid: boolean; missingFields: string[] }][];
+  
+  // Separate notes from other tabs
+  const notesTab = allTabs.find(([tabId]) => tabId === 'notes');
+  const otherTabs = allTabs.filter(([tabId]) => tabId !== 'notes');
+  
   const navigate = useNavigate();
   const [expandedMenus, setExpandedMenus] = useState<{ [key: string]: boolean }>({});
 
@@ -111,7 +117,8 @@ export const ValidationNotification: React.FC<ValidationNotificationProps> = ({
   return (
     <div className="w-72 self-center rounded-lg border border-gray-200 bg-white shadow-lg">
       <div className="space-y-2 p-2">
-        {allTabs.map(([tabId, tabValidation]) => {
+        {/* Show all tabs except notes first */}
+        {otherTabs.map(([tabId, tabValidation]) => {
           const isInvalid = !tabValidation.isValid;
           const missingCount = tabValidation.missingFields.length;
 
@@ -139,8 +146,6 @@ export const ValidationNotification: React.FC<ValidationNotificationProps> = ({
             </div>
           );
         })}
-
-       
 
         {/* Additional static items */}
         <div
@@ -179,7 +184,8 @@ export const ValidationNotification: React.FC<ValidationNotificationProps> = ({
             <ChevronRight className="h-4 w-4 text-watney transition-transform group-hover:translate-x-1" />
           </div>
         </div>
-         {/* Menu items with submenus */}
+        
+        {/* Menu items with submenus */}
         {menuItems.map((item) => (
           <div key={item.id}>
             {item.isExpandable && item.subItems.length > 0 ? (
@@ -241,6 +247,37 @@ export const ValidationNotification: React.FC<ValidationNotificationProps> = ({
             <ChevronRight className="h-4 w-4 text-watney transition-transform group-hover:translate-x-1" />
           </div>
         </div>
+
+        {/* Notes tab at the very end */}
+        {notesTab && (() => {
+          const [tabId, tabValidation] = notesTab;
+          const isInvalid = !tabValidation.isValid;
+          const missingCount = tabValidation.missingFields.length;
+
+          return (
+            <div
+              key={tabId}
+              className={`group cursor-pointer rounded-md border px-2 py-1 transition-all duration-200 hover:border-watney ${
+                isInvalid ? 'border-red-300' : 'border-gray-300'
+              }`}
+              onClick={() => onTabClick(tabId)}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-black">
+                    {tabLabels[tabId] || tabId}
+                  </span>
+                  {isInvalid && (
+                    <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
+                      {missingCount}
+                    </span>
+                  )}
+                </div>
+                <ChevronRight className="h-4 w-4 text-watney transition-transform group-hover:translate-x-1" />
+              </div>
+            </div>
+          );
+        })()}
       </div>
     </div>
   );
