@@ -70,7 +70,7 @@ export const EditableField: React.FC<EditableFieldProps> = ({
   const formatDate = (dateStr: string | number) => {
     if (!dateStr) return '';
     const m = moment(dateStr);
-    return m.isValid() ? m.format('MM-DD-YYYY') : dateStr.toString();
+    return m.isValid() ? m.format('DD-MM-YYYY') : dateStr.toString();
   };
 
   const handleBlur = () => {
@@ -264,7 +264,7 @@ export const EditableField: React.FC<EditableFieldProps> = ({
             placeholderText={placeholder || 'Select date'}
             disabled={isSaving}
             className="w-full rounded-xl h-12 border border-gray-300 px-3 py-2 text-sm"
-            dateFormat="MM-dd-yyyy"
+            dateFormat="dd-MM-yyyy"
             showMonthDropdown
             showYearDropdown
             dropdownMode="select"

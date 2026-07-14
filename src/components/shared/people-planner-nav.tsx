@@ -18,7 +18,9 @@ import {
   ArrowLeft,
   ChevronDown,
   UserPlus,
-  List
+  List,
+  Settings,
+  HeartHandshake
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { cn } from '@/lib/utils';
@@ -34,17 +36,18 @@ const navItems = [
     icon: Users,
     label: 'Service Users',
     href: '/dashboard/people-planner/serviceuser',
+    
+  },
+  {
+    icon: Settings,
+    label: 'Settings',
     subItems: [
       {
-        icon: List,
-        label: 'All Service Users',
-        href: '/dashboard/people-planner/serviceuser'
+        icon:  HeartHandshake ,
+        label: 'Need',
+        href: '/dashboard/people-planner/need'
       },
-      {
-        icon: UserPlus,
-        label: 'Create Service User',
-        href: '/dashboard/people-planner/create-serviceuser'
-      }
+     
     ]
   }
 ];

@@ -12,11 +12,8 @@ const tabLabels: { [key: string]: string } = {
   general: 'General',
   contact: 'Contact',
   equality: 'Equality',
-  other: 'Other',
   emergency: 'Emergency Contact',
-  criticalInfo: 'Critical Information',
-  equipment: 'Required Equipment',
-  primaryBranch: 'Branch & Area',
+
   notes: 'Note'
 };
 
@@ -152,6 +149,15 @@ export const ValidationNotification: React.FC<ValidationNotificationProps> = ({
         >
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-black">Schedule</span>
+            <ChevronRight className="h-4 w-4 text-watney transition-transform group-hover:translate-x-1" />
+          </div>
+        </div>
+        <div
+          className="group cursor-pointer rounded-md border border-gray-300 px-2 py-1 transition-all duration-200 hover:border-watney"
+          onClick={() => navigate(`needs`)}
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-black">Needs</span>
             <ChevronRight className="h-4 w-4 text-watney transition-transform group-hover:translate-x-1" />
           </div>
         </div>

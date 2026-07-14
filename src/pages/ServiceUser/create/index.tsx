@@ -45,14 +45,9 @@ const steps = [
     icon: Phone,
     component: ContactInformationStep
   },
+
   {
     id: 4,
-    title: 'Employment / Service Details',
-    icon: Briefcase,
-    component: EmploymentServiceStep
-  },
-  {
-    id: 5,
     title: 'Review Application',
     icon: Eye,
     component: ReviewStep
@@ -132,18 +127,16 @@ const CreateServiceUserPage = () => {
         
           'startDate',
           'lastDutyDate',
-          'servicePriority'
+
         ];
       case 2:
         return ['gender', 'maritalStatus', 'ethnicOrigin', 'religion'];
       case 3:
-        return ['email'];
-      case 4:
-        return [
+        return [];
+      // case 4:
+      //   return [
 
-          'timesheetSignature',
-          'timesheetSignatureNote'
-        ];
+      //   ];
       default:
         return [];
     }
@@ -153,8 +146,21 @@ const CreateServiceUserPage = () => {
 const onSubmit = async (data: ServiceUserFormData) => {
   setIsSubmitting(true);
   try {
-    // Add the role to the payload
-    const payload = { ...data,serviceUserType:data.serviceUserType, role: 'serviceUser',email: data.email.toLowerCase(),companyId:id };
+    const formatDate = (d: Date | undefined) =>
+      d
+        ? new Date(
+            Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())
+          ).toISOString()
+        : undefined;
+
+    const payload = {
+      ...data,
+      startDate: formatDate(data.startDate),
+      lastDutyDate: formatDate(data.lastDutyDate),
+      serviceUserType: data.serviceUserType,
+      role: 'serviceUser',
+      companyId: id
+    };
 
     // Make POST request to /users
     const response = await axiosInstance.post('/auth/signup', payload);
@@ -183,7 +189,7 @@ const onSubmit = async (data: ServiceUserFormData) => {
   const CurrentStepComponent = steps[currentStep - 1].component;
 
   return (
-    <div className="h-screen ">
+    <div className="">
       <div className="">
         {/* Header */}
         <div className="mb-2 rounded-xl bg-white p-6 shadow-lg">

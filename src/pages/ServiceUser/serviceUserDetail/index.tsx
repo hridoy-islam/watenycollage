@@ -93,20 +93,7 @@ const ServiceuserDetailPage = () => {
         />
       )
     },
-    {
-      id: 'other',
-      label: 'Other',
-      component: (
-        <MiscellaneousTab
-          formData={formData}
-          onUpdate={handleFieldUpdate}
-          onDateChange={handleDateChange}
-          onSelectChange={handleSelectChange}
-          isFieldSaving={isFieldSaving}
-          getMissingFields={getMissingFields}
-        />
-      )
-    },
+
     {
       id: 'emergency',
       label: 'Emergency Contact',
@@ -121,48 +108,8 @@ const ServiceuserDetailPage = () => {
         />
       )
     },
-    {
-      id: 'criticalInfo',
-      label: 'Critical Information',
-      component: (
-        <CriticalInfoTab
-          formData={formData}
-          onUpdate={handleFieldUpdate}
-          onDateChange={handleDateChange}
-          onSelectChange={handleSelectChange}
-          isFieldSaving={isFieldSaving}
-                    getMissingFields={getMissingFields}
 
-        />
-      )
-    },
-    {
-      id: 'equipment',
-      label: 'Required Equipment',
-      component: (
-        <EquipmentTab
-          formData={formData}
-          onUpdate={handleFieldUpdate}
-          onSelectChange={handleSelectChange}
-          isFieldSaving={isFieldSaving}
-          getMissingFields={getMissingFields}
-        />
-      )
-    },
-    {
-      id: 'primaryBranch',
-      label: 'Branch & Area',
-      component: (
-        <PrimaryBranchTab
-          formData={formData}
-          onDateChange={handleDateChange}
-          onUpdate={handleFieldUpdate}
-          onSelectChange={handleSelectChange}
-          isFieldSaving={isFieldSaving}
-          getMissingFields={getMissingFields}
-        />
-      )
-    },
+   
     {
       id: 'notes',
       label: 'Note',

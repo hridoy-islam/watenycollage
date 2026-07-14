@@ -141,7 +141,7 @@ export default function ServiceUserList() {
           <div className="flex items-center gap-2">
             <Input
               type="text"
-              className="min-w-[300px] rounded border px-3 py-1"
+              className="min-w-[300px] rounded-xl border px-3 py-1 "
               placeholder="Search by Name or Phone"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}

@@ -82,6 +82,8 @@ import StockPage from '@/pages/serviceUserModules/Stock';
 import StockDetailPage from '@/pages/serviceUserModules/Stock/components/StockDetailPage';
 import DailyLogs from '@/pages/serviceUserModules/DailyLogs';
 import AddConsentFormPage from '@/pages/serviceUserModules/Consent/components/add-consent-form';
+import NeedPage from '@/pages/NeedPage';
+import ServiceUserNeedPage from '@/pages/serviceUserModules/ServiceUserNeed';
 
 const SignInPage = lazy(() => import('@/pages/auth/signin/index'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
@@ -354,6 +356,11 @@ export default function AppRouter() {
           index: true
         },
         {
+          path: 'need',
+          element: <NeedPage />,
+          index: true
+        },
+        {
           path: 'create-serviceuser',
           element: <CreateServiceUserPage />,
           index: true
@@ -457,6 +464,10 @@ export default function AppRouter() {
         {
           path: 'serviceuser/:sid/consents/consent-form/:consentId',
           element: <EditConsentFormPage />
+        },
+        {
+          path: 'serviceuser/:sid/needs',
+          element: <ServiceUserNeedPage />
         }
       ]
     }

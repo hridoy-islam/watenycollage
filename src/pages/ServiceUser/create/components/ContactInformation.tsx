@@ -59,7 +59,7 @@ export const ContactInformationStep: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <FormField
           label="Email"
-          required
+          
           error={errors.email?.message}
         >
           <Input

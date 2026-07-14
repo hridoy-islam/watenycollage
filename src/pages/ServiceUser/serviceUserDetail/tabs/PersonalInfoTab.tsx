@@ -222,7 +222,7 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
             isMissing={isFieldMissing('status')}
           />
 
-          <EditableField
+          {/* <EditableField
             id="servicePriority"
             label="Service Priority"
             value={formData.servicePriority}
@@ -232,7 +232,7 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
             isSaving={isFieldSaving.servicePriority}
             required
             isMissing={isFieldMissing('servicePriority')}
-          />
+          /> */}
         </div>
       </div>
       <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">

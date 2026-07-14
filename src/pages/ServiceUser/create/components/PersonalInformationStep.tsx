@@ -249,57 +249,7 @@ export const PersonalInformationStep: React.FC = () => {
             className="uppercase"
           />
         </FormField>
-
-        {/* Service Priority */}
-        <FormField
-          label="Service Priority"
-          required
-          error={errors.servicePriority?.message}
-        >
-          <Controller
-            name="servicePriority"
-            control={control}
-            render={({ field }) => (
-              <Select
-                {...field}
-                options={servicePriorityOptions}
-                placeholder="Select service priority"
-                className="react-select-container"
-                classNamePrefix="react-select"
-                value={
-                  servicePriorityOptions.find(
-                    (option) => option.value === field.value
-                  ) || null
-                }
-                onChange={(selected) => field.onChange(selected?.value || '')}
-                styles={{
-                  control: (base) => ({
-                    ...base,
-                    minHeight: '48px',
-                    borderRadius: '0.5rem',
-                    borderColor: '#e2e8f0',
-                    '&:hover': {
-                      borderColor: '#cbd5e1'
-                    }
-                  }),
-                  valueContainer: (base) => ({
-                    ...base,
-                    padding: '2px 12px'
-                  }),
-                  input: (base) => ({
-                    ...base,
-                    margin: '0px'
-                  })
-                }}
-              />
-            )}
-          />
-        </FormField>
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        {/* Start Date */}
-        <FormField
+ <FormField
           label="Start Date"
           required
           error={errors.startDate?.message}
@@ -345,7 +295,57 @@ export const PersonalInformationStep: React.FC = () => {
             )}
           />
         </FormField>
+
+        {/* Service Priority */}
+        {/* <FormField
+          label="Service Priority"
+          required
+          error={errors.servicePriority?.message}
+        >
+          <Controller
+            name="servicePriority"
+            control={control}
+            render={({ field }) => (
+              <Select
+                {...field}
+                options={servicePriorityOptions}
+                placeholder="Select service priority"
+                className="react-select-container"
+                classNamePrefix="react-select"
+                value={
+                  servicePriorityOptions.find(
+                    (option) => option.value === field.value
+                  ) || null
+                }
+                onChange={(selected) => field.onChange(selected?.value || '')}
+                styles={{
+                  control: (base) => ({
+                    ...base,
+                    minHeight: '48px',
+                    borderRadius: '0.5rem',
+                    borderColor: '#e2e8f0',
+                    '&:hover': {
+                      borderColor: '#cbd5e1'
+                    }
+                  }),
+                  valueContainer: (base) => ({
+                    ...base,
+                    padding: '2px 12px'
+                  }),
+                  input: (base) => ({
+                    ...base,
+                    margin: '0px'
+                  })
+                }}
+              />
+            )}
+          />
+        </FormField> */}
       </div>
+
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        {/* Start Date */}
+             </div>
     </div>
   );
 };

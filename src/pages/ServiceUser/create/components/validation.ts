@@ -33,35 +33,36 @@ export const serviceUserSchema = z
     fax: z.string().optional(),
     mobile: z.string().optional(),
     other: z.string().optional(),
-    email: z.string().email('Please enter a valid email address'),
-    website: z.string().optional(),
-
+email: z.preprocess(
+  (value) => (value === '' ? undefined : value),
+  z.string().email('Please enter a valid email address').optional()
+),
     // Employment / Service Details
     lastDutyDate: z.date().optional(),
     startDate: z.date({ required_error: 'Start date is required' }),
-    servicePriority: z.string().min(1, 'Service priority is required'),
-    serviceLocationExId: z
-      .string().optional(),
+    // servicePriority: z.string().min(1, 'Service priority is required'),
+    // serviceLocationExId: z
+    //   .string().optional(),
 
-    timesheetSignature: z.boolean(),
+    // timesheetSignature: z.boolean(),
 
-    timesheetSignatureNote: z.string().optional()
+    // timesheetSignatureNote: z.string().optional()
   })
   // Optional: Only require timesheetSignatureNote if timesheetSignature is true
-  .refine(
-    (data) => {
-      if (data.timesheetSignature === true) {
-        return (
-          typeof data.timesheetSignatureNote === 'string' &&
-          data.timesheetSignatureNote.trim().length > 0
-        );
-      }
-      return true;
-    },
-    {
-      path: ['timesheetSignatureNote'],
-      message: 'Note is required when Timesheet Signature is required'
-    }
-  );
+  // .refine(
+  //   (data) => {
+  //     if (data.timesheetSignature === true) {
+  //       return (
+  //         typeof data.timesheetSignatureNote === 'string' &&
+  //         data.timesheetSignatureNote.trim().length > 0
+  //       );
+  //     }
+  //     return true;
+  //   },
+  //   {
+  //     path: ['timesheetSignatureNote'],
+  //     message: 'Note is required when Timesheet Signature is required'
+  //   }
+  // );
 
 export type ServiceUserFormData = z.infer<typeof serviceUserSchema>;

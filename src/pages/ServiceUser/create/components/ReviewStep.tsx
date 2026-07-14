@@ -26,8 +26,7 @@ export const ReviewStep: React.FC = () => {
         { label: 'Post Code', value: formData.postCode },
         { label: 'Start Date', value: formData.startDate },
         { label: 'Last Duty Date', value: formData.lastDutyDate },
-        { label: 'Status', value: formData.status },
-        { label: 'Service Priority', value: formData.servicePriority },
+
       ]
     },
     {
@@ -52,27 +51,27 @@ export const ReviewStep: React.FC = () => {
         { label: 'Website', value: formData.website }
       ]
     },
-    {
-      title: 'Others',
-      icon: Briefcase,
-      fields: [
-        { label: 'Service Location Ex ID', value: formData.serviceLocationExId },
-        {
-          label: 'Timesheet Signature Required',
-          value: typeof formData.timesheetSignature === 'boolean'
-            ? formData.timesheetSignature ? 'Yes' : 'No'
-            : formData.timesheetSignature
-        },
-        ...(formData.timesheetSignature
-          ? [
-              {
-                label: 'Timesheet Signature Not Required Note',
-                value: formData.timesheetSignatureNote
-              }
-            ]
-          : [])
-      ]
-    }
+    // {
+    //   title: 'Others',
+    //   icon: Briefcase,
+    //   fields: [
+    //     { label: 'Service Location Ex ID', value: formData.serviceLocationExId },
+    //     {
+    //       label: 'Timesheet Signature Required',
+    //       value: typeof formData.timesheetSignature === 'boolean'
+    //         ? formData.timesheetSignature ? 'Yes' : 'No'
+    //         : formData.timesheetSignature
+    //     },
+    //     ...(formData.timesheetSignature
+    //       ? [
+    //           {
+    //             label: 'Timesheet Signature Not Required Note',
+    //             value: formData.timesheetSignatureNote
+    //           }
+    //         ]
+    //       : [])
+    //   ]
+    // }
   ];
 
   return (
@@ -99,9 +98,11 @@ export const ReviewStep: React.FC = () => {
                 if (!field.value) return null;
 
                 const displayValue =
-                  typeof field.value === 'object' && field.value !== null
-                    ? field.value.label || field.value.value
-                    : field.value;
+                  field.value instanceof Date
+                    ? field.value.toLocaleDateString()
+                    : typeof field.value === 'object' && field.value !== null
+                      ? field.value.label || field.value.value
+                      : field.value;
 
                 return (
                   <div

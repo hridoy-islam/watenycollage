@@ -180,7 +180,7 @@ export const useEditApplicant = (serviceUserId: string) => {
       { field: 'startDate', label: 'Start Date' },
       // { field: 'lastDutyDate', label: 'Last Duty Date' },
       { field: 'status', label: 'Status' },
-      { field: 'servicePriority', label: 'Service Priority' },
+      // { field: 'servicePriority', label: 'Service Priority' },
       { field: 'address', label: 'Full Address' },
       { field: 'city', label: 'City/Town' }, // ✅ Fixed: was 'cityOrTown' but field is 'city'
       { field: 'postCode', label: 'Postal Code' },
@@ -198,35 +198,12 @@ export const useEditApplicant = (serviceUserId: string) => {
       // { field: 'ethnicOrigin', label: 'Ethnic Origin' },
       // { field: 'religion', label: 'Religion' }
     ],
-    other: [
-      // { field: 'serviceLocationExId', label: 'Service Location Ex ID' },
-      { field: 'timesheetSignature', label: 'Timesheet Signature Required' },
-      {
-        field: 'timesheetSignatureNote',
-        label: 'Timesheet Signature Note',
-        conditional: (formData: FormData) =>
-          formData.timesheetSignature === true
-      }
-    ],
+    
     emergency: [
       { field: 'emergencyContactName', label: 'Name' },
       { field: 'relationship', label: 'Relationship' }
     ],
-    criticalInfo: [
-      { field: 'date', label: 'Date' },
-      { field: 'type', label: 'Type' },
-      { field: 'details', label: 'Details' }
-    ],
-    equipment: [
-      // { field: 'glovesAprons', label: 'Gloves and Aprons' },
-      // { field: 'uniform', label: 'Uniform' },
-      // { field: 'idBadge', label: 'ID Badge' }
-    ],
-    primaryBranch: [
-      { field: 'fromDate', label: 'From Date' },
-      { field: 'branch', label: 'Branch' },
-      { field: 'area', label: 'Area' }
-    ],
+    
     notes: [
       { field: 'date', label: 'Date' },
       { field: 'type', label: 'Type' },
@@ -386,7 +363,16 @@ export const useEditApplicant = (serviceUserId: string) => {
   };
 
   const handleDateChange = async (field: string, value: string) => {
-    await updateFieldOnServer(field, value);
+    const formattedDate = value
+      ? new Date(
+          Date.UTC(
+            new Date(value).getFullYear(),
+            new Date(value).getMonth(),
+            new Date(value).getDate()
+          )
+        ).toISOString()
+      : value;
+    await updateFieldOnServer(field, formattedDate);
   };
 
   const handleSelectChange = async (field: string, value: string) => {
