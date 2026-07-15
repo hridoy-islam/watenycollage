@@ -84,6 +84,9 @@ import DailyLogs from '@/pages/serviceUserModules/DailyLogs';
 import AddConsentFormPage from '@/pages/serviceUserModules/Consent/components/add-consent-form';
 import NeedPage from '@/pages/NeedPage';
 import ServiceUserNeedPage from '@/pages/serviceUserModules/ServiceUserNeed';
+import ServiceUserEmergencyContractPage from '@/pages/serviceUserModules/ServiceUserEmergencyContract';
+import CreateEmergencyContractPage from '@/pages/serviceUserModules/ServiceUserEmergencyContract/create';
+import EditEmergencyContractPage from '@/pages/serviceUserModules/ServiceUserEmergencyContract/edit';
 
 const SignInPage = lazy(() => import('@/pages/auth/signin/index'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
@@ -468,6 +471,18 @@ export default function AppRouter() {
         {
           path: 'serviceuser/:sid/needs',
           element: <ServiceUserNeedPage />
+        },
+        {
+          path: 'serviceuser/:sid/emergency-contracts',
+          element: <ServiceUserEmergencyContractPage />
+        },
+        {
+          path: 'serviceuser/:sid/emergency-contracts/create',
+          element: <CreateEmergencyContractPage />
+        },
+        {
+          path: 'serviceuser/:sid/emergency-contracts/:id/edit',
+          element: <EditEmergencyContractPage />
         }
       ]
     }

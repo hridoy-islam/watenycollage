@@ -168,6 +168,15 @@ export const ValidationNotification: React.FC<ValidationNotificationProps> = ({
         </div>
         <div
           className="group cursor-pointer rounded-md border border-gray-300 px-2 py-1 transition-all duration-200 hover:border-watney"
+          onClick={() => navigate(`emergency-contracts`)}
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-black">Emergency Contracts</span>
+            <ChevronRight className="h-4 w-4 text-watney transition-transform group-hover:translate-x-1" />
+          </div>
+        </div>
+        <div
+          className="group cursor-pointer rounded-md border border-gray-300 px-2 py-1 transition-all duration-200 hover:border-watney"
           onClick={() => navigate(`#`)}
         >
           <div className="flex items-center justify-between">
