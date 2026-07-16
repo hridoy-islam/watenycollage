@@ -48,7 +48,8 @@ const AVAILABLE_VARIABLES = [
   'availableFromDate',
   'admin',
   'adminEmail',
-  'userSignature'
+    'userSignature',
+
 ];
 
 const EXAMPLE_VALUES: Record<string, string> = {
@@ -71,10 +72,11 @@ const EXAMPLE_VALUES: Record<string, string> = {
   admin: 'Watney College',
   adminEmail: 'info@watneycollege.co.uk',
   userSignature: '[userSignature] Represents the applicant signature',
-  todayDate: '2025-06-01 Represents the current date'
+  todayDate: '2025-06-01 Represents the current date',
+  'signature id="1"': '[signature id="1"] Represents the officer signature with ID 1',
 };
 
-const DYNAMIC_VARIABLES: string[] = [];
+const DYNAMIC_VARIABLES = ['signature id="1"'];
 
 export function ContractTypeDialog({
   open,

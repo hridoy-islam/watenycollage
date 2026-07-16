@@ -25,6 +25,8 @@ export default function JobContractForm() {
   const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState<any>(null);
   const [contractType, setContractType] = useState<any>(null);
+  const [templateBody, setTemplateBody] = useState('');
+  const [appJobData, setAppJobData] = useState<any>(null);
 
   const [signatureUrl, setSignatureUrl] = useState<string>('');
   const [signatureSaving, setSignatureSaving] = useState(false);
@@ -44,7 +46,7 @@ export default function JobContractForm() {
       todayDate,
       name: `${applicant.firstName || ''} ${applicant.initial || ''} ${applicant.lastName || ''}`.trim(),
       jobTitle: job.jobTitle || '',
-      applicationDate: applicant.createdAt ? format(new Date(applicant.createdAt), 'dd/MM/yyyy') : '',
+      applicationDate: appJobData?.createdAt ? format(new Date(appJobData.createdAt), 'dd/MM/yyyy') : '',
       title: applicant.title || '',
       firstName: applicant.firstName || '',
       lastName: applicant.lastName || '',
@@ -62,16 +64,48 @@ export default function JobContractForm() {
       adminEmail: 'admin@everycareromford.co.uk',
       userSignature: '',
     };
-  }, [applicant, todayDate]);
+  }, [applicant, todayDate, appJobData]);
 
-  const replacedBody = useMemo(() => {
-    if (!contractType?.body) return '';
-    let text = contractType.body;
+  const [replacedBody, setReplacedBody] = useState('');
+
+  useEffect(() => {
+    if (!templateBody) {
+      setReplacedBody('');
+      return;
+    }
+    let text = templateBody;
+    if (signatureUrl) {
+      text = text.replace(/\[userSignature\]/g, signatureUrl);
+    }
     Object.entries(variablesMap).forEach(([key, value]) => {
+      if (key === 'userSignature') return;
       text = text.replace(new RegExp(`\\[${key}\\]`, 'g'), String(value));
     });
-    return text;
-  }, [contractType, variablesMap]);
+    text = text.replace(/\[userSignature\]/g, '');
+    const signatureRegex = /\[signature\s+id=["'](\d+)["']\]/g;
+    const matches = [...text.matchAll(signatureRegex)];
+    if (matches.length === 0) {
+      setReplacedBody(text);
+      return;
+    }
+    (async () => {
+      let resolved = text;
+      for (const match of matches) {
+        const placeholder = match[0];
+        const signatureId = match[1];
+        try {
+          const res = await axiosInstance.get(`/signature?signatureId=${signatureId}`);
+          const url = res.data.data?.result?.[0]?.documentUrl;
+          if (url) {
+            resolved = resolved.replace(placeholder, url);
+          }
+        } catch {
+          // leave placeholder as-is
+        }
+      }
+      setReplacedBody(resolved);
+    })();
+  }, [templateBody, variablesMap, signatureUrl]);
 
   const fetchData = async () => {
     setLoading(true);
@@ -86,10 +120,17 @@ export default function JobContractForm() {
 
       setIsAlreadySubmitted(userStatus.jobContractDone);
       setUserData({ ...userStatus, jobId: appJob?.jobId || null });
+      setAppJobData(appJob);
 
+      if (userStatus.jobContractTemplate) {
+        setTemplateBody(userStatus.jobContractTemplate);
+      }
       if (userStatus.contractTypeId) {
         const ctRes = await axiosInstance.get(`/contract-type/${userStatus.contractTypeId}`);
         setContractType(ctRes.data.data);
+        if (!userStatus.jobContractTemplate) {
+          setTemplateBody(ctRes.data.data.body);
+        }
       }
 
       setLoading(false);
@@ -161,6 +202,31 @@ export default function JobContractForm() {
     }
   };
 
+  const renderTextWithImages = (text: string, keyPrefix: string) => {
+    const imgRegex = /https?:\/\/[^\s]+\.(png|jpg|jpeg|gif|webp|svg)(\?[^\s]*)?/gi;
+    const parts: JSX.Element[] = [];
+    let lastIdx = 0;
+    let m: RegExpExecArray | null;
+    while ((m = imgRegex.exec(text)) !== null) {
+      if (m.index > lastIdx) {
+        parts.push(<span key={`${keyPrefix}-t-${lastIdx}`}>{text.slice(lastIdx, m.index)}</span>);
+      }
+      parts.push(
+        <img
+          key={`${keyPrefix}-img-${m.index}`}
+          src={m[0]}
+          alt="signature"
+          className="inline-block h-12 object-contain"
+        />
+      );
+      lastIdx = m.index + m[0].length;
+    }
+    if (lastIdx < text.length) {
+      parts.push(<span key={`${keyPrefix}-t-${lastIdx}`}>{text.slice(lastIdx)}</span>);
+    }
+    return parts.length > 0 ? parts : text;
+  };
+
   const renderFormattedText = (text: string) => {
     const centerParts = text.split(/(<center>|<\/center>)/g);
     const allElements: JSX.Element[] = [];
@@ -226,14 +292,31 @@ export default function JobContractForm() {
           let match;
           while ((match = tagRegex.exec(seg)) !== null) {
             if (match.index > lastIndex) {
-              localElements.push(<span key={`t-${i}-${j}-${lastIndex}`}>{seg.slice(lastIndex, match.index)}</span>);
+              const chunk = seg.slice(lastIndex, match.index);
+              const chunkWithImg = renderTextWithImages(chunk, `t-${i}-${j}-${lastIndex}`);
+              if (Array.isArray(chunkWithImg)) {
+                localElements.push(...chunkWithImg);
+              } else {
+                localElements.push(<span key={`t-${i}-${j}-${lastIndex}`}>{chunkWithImg}</span>);
+              }
             }
+            const filteredContent = renderTextWithImages(match[2], `tagc-${i}-${j}-${match.index}`);
             const Tag = match[1] === 'b' ? 'strong' : 'em';
-            localElements.push(<Tag key={`tag-${i}-${j}-${match.index}`}>{match[2]}</Tag>);
+            localElements.push(
+              <Tag key={`tag-${i}-${j}-${match.index}`}>
+                {filteredContent}
+              </Tag>
+            );
             lastIndex = match.index + match[0].length;
           }
           if (lastIndex < seg.length) {
-            localElements.push(<span key={`t-${i}-${j}-${lastIndex}`}>{seg.slice(lastIndex)}</span>);
+            const remaining = seg.slice(lastIndex);
+            const remainingWithImg = renderTextWithImages(remaining, `tr-${i}-${j}-${lastIndex}`);
+            if (Array.isArray(remainingWithImg)) {
+              localElements.push(...remainingWithImg);
+            } else {
+              localElements.push(<span key={`tr-${i}-${j}-${lastIndex}`}>{remainingWithImg}</span>);
+            }
           }
         });
       });
@@ -256,7 +339,7 @@ export default function JobContractForm() {
     );
   }
 
-  if (!contractType) {
+  if (!templateBody) {
     return (
       <div className="flex min-h-screen items-center justify-center p-6">
         <Card className="w-full max-w-lg border-t-4 border-t-yellow-500 p-8 text-center shadow-lg">

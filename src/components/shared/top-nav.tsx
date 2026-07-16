@@ -17,7 +17,8 @@ import {
   FileText,
   Stamp,
   BookTemplate,
-  GraduationCap
+  GraduationCap,
+  FileSignature
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { cn } from '@/lib/utils';
@@ -34,7 +35,8 @@ const navItems = [
       { icon: FileText, label: 'Designation', href: '/dashboard/recruitment/designation' },
       { icon: BookTemplate, label: 'Contract Type Template', href: '/dashboard/recruitment/contract-type-template' },
       { icon: GraduationCap, label: 'Training', href: '/dashboard/recruitment/ecerts' },
-      { icon: Stamp, label: 'Template', href: '/dashboard/recruitment/template' }
+      { icon: Stamp, label: 'Template', href: '/dashboard/recruitment/template' },
+      { icon: FileSignature, label: 'Signature', href: '/dashboard/recruitment/signature' }
     ]
   }
 ];

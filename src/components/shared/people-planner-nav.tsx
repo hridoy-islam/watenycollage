@@ -20,7 +20,8 @@ import {
   UserPlus,
   List,
   Settings,
-  HeartHandshake
+  HeartHandshake,
+  FileText
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { cn } from '@/lib/utils';
@@ -31,6 +32,12 @@ const navItems = [
     icon: LayoutDashboard,
     label: 'Overview',
     href: '/dashboard/people-planner'
+  },
+  {
+    icon: FileText,
+    label: 'Assessment',
+    href: '/dashboard/people-planner/serviceuser-assessment',
+    
   },
   {
     icon: Users,

@@ -33,6 +33,8 @@ const MOCK_DATA: Record<string, string> = {
   admin: 'Watney College',
   adminEmail: 'info@watneycollege.co.uk',
   userSignature: '/signature.png',
+    'signature id="1"': '/officer-signature.png', // 👈 will be rendered as an Image
+
   todayDate: moment().format('DD/MM/YYYY')
 };
 
@@ -188,7 +190,7 @@ const renderBody = (body: string) => {
 
           const value = MOCK_DATA[key];
           if (value) {
-            if (key === 'userSignature' || value.match(/\.(png|jpg|jpeg|gif|webp)$/i)) {
+            if (key === 'userSignature' || key === 'officerSignature' || value.match(/\.(png|jpg|jpeg|gif|webp)$/i)) {
               segments.push({ type: 'image', content: value });
             } else {
               segments.push({ type: 'text', content: value });

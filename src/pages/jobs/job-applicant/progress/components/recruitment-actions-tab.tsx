@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -26,7 +26,7 @@ import {
   TableHeader,
   TableRow
 } from "@/components/ui/table"
-import { Mail, MailCheck, File, ClipboardPenLine, Check, LockOpen, Loader2, Eye, FileText, UserPlus } from "lucide-react"
+import { Mail, MailCheck, File, ClipboardPenLine, Check, LockOpen, Loader2, Eye, FileText, UserPlus, Save, X } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import { useSelector } from "react-redux"
 import axiosInstace from "@/lib/axios"
@@ -74,7 +74,8 @@ const AVAILABLE_VARIABLES = [
   'postalCountry', 'postalPostCode', 'emergencyAddress',
   'emergencyContactNumber', 'emergencyEmail', 'emergencyFullName',
   'emergencyRelationship', 'admin', 'adminEmail',
-  'applicationStatus', 'applicationDate', 'todayDate', 'applicationTitle'
+  'applicationStatus', 'applicationDate', 'todayDate', 'applicationTitle',
+  'jobTitle'
 ]
 
 interface RecruitmentActionsTabProps {
@@ -108,10 +109,13 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
 
   // Contract type dialog state
   const [contractTypeDialogOpen, setContractTypeDialogOpen] = useState(false)
-  const [contractTypes, setContractTypes] = useState<{ _id: string; title: string }[]>([])
+  const [contractTypes, setContractTypes] = useState<{ _id: string; title: string; body?: string }[]>([])
   const [selectedContractType, setSelectedContractType] = useState<string>("")
   const [contractTypeLoading, setContractTypeLoading] = useState(false)
   const [contractTypeSelectError, setContractTypeSelectError] = useState("")
+  const [editableTemplate, setEditableTemplate] = useState("")
+  const [savingTemplate, setSavingTemplate] = useState(false)
+  const [previewBody, setPreviewBody] = useState("")
 
   // Recruit dialog state
   const [recruitDialogOpen, setRecruitDialogOpen] = useState(false)
@@ -209,12 +213,13 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
     return String(text).replace(/-/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())
   }
 
-  const replaceVariables = async (text: string, userDetail: Applicant | null) => {
+  const replaceVariables = async (text: string, userDetail: Applicant | null, appJob: any = null) => {
     let replacedText = text
     const applicant = userDetail || application
+    const jobData = appJob || applicationJob
 
     const basicVariables = AVAILABLE_VARIABLES.filter(
-      (v) => !["applicationStatus", "applicationDate", "todayDate", "applicationTitle"].includes(v)
+      (v) => !["applicationStatus", "applicationDate", "todayDate", "applicationTitle", "jobTitle"].includes(v)
     )
 
     basicVariables.forEach((variable) => {
@@ -242,17 +247,19 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
     })
 
     const today = moment().format("DD MMM, YYYY")
-    const appDate = applicationJob?.createdAt
-      ? moment(applicationJob.createdAt).format("DD MMM, YYYY")
+    const appDate = jobData?.createdAt
+      ? moment(jobData.createdAt).format("DD MMM, YYYY")
       : ""
-    const appStatus = formatText(applicationJob?.status || "")
-    const appTitle = formatText(applicationJob?.jobId?.jobTitle || "")
+    const appStatus = formatText(jobData?.status || "")
+    const appTitle = formatText(jobData?.jobId?.jobTitle || "")
+    const jobTitleVal = formatText(jobData?.jobId?.jobTitle || "")
 
     replacedText = replacedText
       .replace(/\[todayDate\]/g, today)
       .replace(/\[applicationDate\]/g, appDate)
       .replace(/\[applicationStatus\]/g, appStatus)
       .replace(/\[applicationTitle\]/g, appTitle)
+      .replace(/\[jobTitle\]/g, jobTitleVal)
 
     const signatureRegex = /\[signature\s+id=["'](\d+)["']\]/g
     const signatureMatches = [...replacedText.matchAll(signatureRegex)]
@@ -287,7 +294,7 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
       const replacedBody = await replaceVariables(draft.body, {
         _id: userId,
         ...application
-      })
+      }, applicationJob)
       setEmailBody(replacedBody)
     }
   }
@@ -443,12 +450,209 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
     }
   }
 
+  const renderTextWithImages = (text: string, keyPrefix: string) => {
+    const imgRegex = /https?:\/\/[^\s]+\.(png|jpg|jpeg|gif|webp|svg)(\?[^\s]*)?/gi
+    const parts: JSX.Element[] = []
+    let lastIdx = 0
+    let m: RegExpExecArray | null
+    const regex = new RegExp(imgRegex.source, 'gi')
+    while ((m = regex.exec(text)) !== null) {
+      if (m.index > lastIdx) {
+        parts.push(<span key={`${keyPrefix}-t-${lastIdx}`}>{text.slice(lastIdx, m.index)}</span>)
+      }
+      parts.push(
+        <img
+          key={`${keyPrefix}-img-${m.index}`}
+          src={m[0]}
+          alt="signature"
+          className="inline-block h-12 object-contain"
+        />
+      )
+      lastIdx = m.index + m[0].length
+    }
+    if (lastIdx < text.length) {
+      parts.push(<span key={`${keyPrefix}-t-${lastIdx}`}>{text.slice(lastIdx)}</span>)
+    }
+    return parts.length > 0 ? parts : text
+  }
+
+  const renderFormattedText = (text: string) => {
+    if (!text) return null
+    const centerParts = text.split(/(<center>|<\/center>)/g)
+    const allElements: JSX.Element[] = []
+    let isCentered = false
+    let centerIndex = 0
+
+    centerParts.forEach((part) => {
+      if (part === '<center>') { isCentered = true; return }
+      if (part === '</center>') { isCentered = false; centerIndex++; return }
+      if (!part.trim()) return
+
+      const lines = part.split('\n')
+      const localElements: JSX.Element[] = []
+
+      lines.forEach((line, i) => {
+        if (i > 0) localElements.push(<br key={`nl-${i}`} />)
+
+        const headerMatch = line.match(/^<header>(.*)<\/header>$/)
+        const subtitleMatch = line.match(/^<subtitle>(.*)<\/subtitle>$/)
+
+        if (headerMatch) {
+          const inner = headerMatch[1]
+          const innerEls: JSX.Element[] = []
+          let lastIdx = 0
+          const tagRx = /<(b|i)>(.*?)<\/\1>/g
+          let m
+          while ((m = tagRx.exec(inner)) !== null) {
+            if (m.index > lastIdx) innerEls.push(<span key={`h-${i}-${lastIdx}`}>{inner.slice(lastIdx, m.index)}</span>)
+            const T = m[1] === 'b' ? 'strong' : 'em'
+            innerEls.push(<T key={`h-${i}-${m.index}`}>{m[2]}</T>)
+            lastIdx = m.index + m[0].length
+          }
+          if (lastIdx < inner.length) innerEls.push(<span key={`h-${i}-${lastIdx}`}>{inner.slice(lastIdx)}</span>)
+          localElements.push(<div key={`header-${i}`} style={{ fontWeight: 'bold', fontSize: '18px', margin: '8px 0' }}>{innerEls}</div>)
+          return
+        }
+
+        if (subtitleMatch) {
+          const inner = subtitleMatch[1]
+          const innerEls: JSX.Element[] = []
+          let lastIdx = 0
+          const tagRx = /<(b|i)>(.*?)<\/\1>/g
+          let m
+          while ((m = tagRx.exec(inner)) !== null) {
+            if (m.index > lastIdx) innerEls.push(<span key={`s-${i}-${lastIdx}`}>{inner.slice(lastIdx, m.index)}</span>)
+            const T = m[1] === 'b' ? 'strong' : 'em'
+            innerEls.push(<T key={`s-${i}-${m.index}`}>{m[2]}</T>)
+            lastIdx = m.index + m[0].length
+          }
+          if (lastIdx < inner.length) innerEls.push(<span key={`s-${i}-${lastIdx}`}>{inner.slice(lastIdx)}</span>)
+          localElements.push(<div key={`subtitle-${i}`} style={{ fontSize: '15px', margin: '6px 0' }}>{innerEls}</div>)
+          return
+        }
+
+        const brParts = line.split(/(<br\s*\/?>)/g)
+        brParts.forEach((seg, j) => {
+          if (/<br\s*\/?>/.test(seg)) {
+            localElements.push(<br key={`br-${i}-${j}`} />)
+            return
+          }
+          let lastIndex = 0
+          const tagRegex = /<(b|i)>(.*?)<\/\1>/g
+          let match
+          while ((match = tagRegex.exec(seg)) !== null) {
+            if (match.index > lastIndex) {
+              const textChunk = seg.slice(lastIndex, match.index)
+              const chunkWithImg = renderTextWithImages(textChunk, `t-${i}-${j}-${lastIndex}`)
+              if (Array.isArray(chunkWithImg)) {
+                localElements.push(...chunkWithImg)
+              } else {
+                localElements.push(<span key={`t-${i}-${j}-${lastIndex}`}>{chunkWithImg}</span>)
+              }
+            }
+            const filteredContent = renderTextWithImages(match[2], `tag-${i}-${j}-${match.index}`)
+            const Tag = match[1] === 'b' ? 'strong' : 'em'
+            localElements.push(
+              <Tag key={`tag-${i}-${j}-${match.index}`}>
+                {filteredContent}
+              </Tag>
+            )
+            lastIndex = match.index + match[0].length
+          }
+          if (lastIndex < seg.length) {
+            const remaining = seg.slice(lastIndex)
+            const remainingWithImg = renderTextWithImages(remaining, `t-${i}-${j}-${lastIndex}`)
+            if (Array.isArray(remainingWithImg)) {
+              localElements.push(...remainingWithImg)
+            } else {
+              localElements.push(<span key={`t-${i}-${j}-${lastIndex}`}>{remainingWithImg}</span>)
+            }
+          }
+        })
+      })
+
+      if (isCentered) {
+        allElements.push(<div key={`center-${centerIndex}`} style={{ textAlign: 'center' }}>{localElements}</div>)
+      } else {
+        allElements.push(...localElements)
+      }
+    })
+
+    return allElements
+  }
+
+  const replaceTemplateVars = useCallback(async (template: string) => {
+    if (!template) return ""
+    const replaced = await replaceVariables(template, {
+      _id: userId,
+      ...application
+    }, applicationJob)
+    return replaced
+  }, [application, userId, applicationJob])
+
+  useEffect(() => {
+    if (!editableTemplate) {
+      setPreviewBody("")
+      return
+    }
+    replaceTemplateVars(editableTemplate).then(setPreviewBody)
+  }, [editableTemplate, replaceTemplateVars])
+
+  const handleContractTypeChange = async (option: { value: string; label: string } | null) => {
+    if (!option) {
+      setSelectedContractType("")
+      setEditableTemplate("")
+      return
+    }
+    setSelectedContractType(option.value)
+    setContractTypeSelectError("")
+    const ct = contractTypes.find(c => c._id === option.value)
+    if (ct?.body) {
+      setEditableTemplate(ct.body)
+    } else {
+      try {
+        const res = await axiosInstace.get(`/contract-type/${option.value}`)
+        const fullCt = res.data.data
+        if (fullCt?.body) {
+          setEditableTemplate(fullCt.body)
+        }
+      } catch {
+        toast({ title: "Error", description: "Failed to load contract type body", variant: "destructive" })
+      }
+    }
+  }
+
+  const handleSaveTemplateToUser = async () => {
+    if (!userId) return
+    setSavingTemplate(true)
+    try {
+      await axiosInstace.patch(`/users/${userId}`, {
+        jobContractTemplate: editableTemplate,
+        contractTypeId: selectedContractType
+      })
+      toast({ title: "Success", description: "Template saved to user profile" })
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error?.response?.data?.message || "Failed to save template",
+        variant: "destructive"
+      })
+    } finally {
+      setSavingTemplate(false)
+    }
+  }
+
   const handleContractTypeConfirm = async () => {
     if (!selectedContractType) {
       setContractTypeSelectError("Please select a contract type")
       return
     }
     setContractTypeSelectError("")
+
+    if (editableTemplate) {
+      await handleSaveTemplateToUser()
+    }
+
     setUnlockLoading(prev => ({ ...prev, jobContractUnlock: true }))
     try {
       const payload = { contractTypeId: selectedContractType, jobContractUnlock: true, jobApplicationId: applicationId }
@@ -460,6 +664,7 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
       setLocalUnlocks(prev => ({ ...prev, jobContractUnlock: true }))
       setContractTypeDialogOpen(false)
       setSelectedContractType("")
+      setEditableTemplate("")
     } catch (error: any) {
       toast({
         title: "Error",
@@ -779,50 +984,128 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
         </DialogContent>
       </Dialog>
 
-      {/* Contract Type Selection Dialog */}
-      <Dialog open={contractTypeDialogOpen} onOpenChange={(open) => { if (!open) { setContractTypeDialogOpen(false); setSelectedContractType(""); setContractTypeSelectError("") } }}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Select Contract Type</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            {contractTypeLoading ? (
-              <div className="flex justify-center py-8">
-                <Loader2 className="h-6 w-6 animate-spin text-watney" />
+      {/* Job Contract Full-Screen Dialog */}
+      <Dialog open={contractTypeDialogOpen} onOpenChange={(open) => {
+        if (!open) {
+          setContractTypeDialogOpen(false)
+          setSelectedContractType("")
+          setContractTypeSelectError("")
+          setEditableTemplate("")
+          setPreviewBody("")
+        }
+      }}>
+        <DialogContent className="max-h-screen !max-w-[98vw] !p-0 overflow-y-auto" style={{ maxHeight: '95vh', height: '95vh' }}>
+          {contractTypeLoading ? (
+            <div className="flex h-full items-center justify-center">
+              <Loader2 className="h-8 w-8 animate-spin text-watney" />
+            </div>
+          ) : (
+            <div className="flex h-full flex-col">
+              <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+                <div className="flex items-center gap-3">
+                  <DialogTitle className="text-lg font-semibold">Job Contract Template Editor</DialogTitle>
+                  {applicationJob?.jobId?.jobTitle && (
+                    <span className="rounded bg-watney/10 px-2.5 py-0.5 text-sm font-medium text-watney">
+                      {applicationJob.jobId.jobTitle}
+                    </span>
+                  )}
+                </div>
+                <Button variant="ghost" size="icon" onClick={() => setContractTypeDialogOpen(false)}>
+                  <X className="h-5 w-5" />
+                </Button>
               </div>
-            ) : (
-              <>
-                <label className="block font-medium">Contract Type <span className="text-red-500">*</span></label>
-                <Select
-                  options={contractTypes.map(ct => ({ value: ct._id, label: ct.title }))}
-                  value={selectedContractType ? { value: selectedContractType, label: contractTypes.find(ct => ct._id === selectedContractType)?.title || "" } : null}
-                  onChange={(opt) => { setSelectedContractType(opt?.value || ""); setContractTypeSelectError("") }}
-                  placeholder="Select a contract type..."
-                  isClearable
-                />
-                {contractTypeSelectError && <p className="text-sm text-red-500">{contractTypeSelectError}</p>}
-              </>
-            )}
-          </div>
-          <DialogFooter>
-            <Button variant="secondary" onClick={() => { setContractTypeDialogOpen(false); setSelectedContractType(""); setContractTypeSelectError("") }} disabled={unlockLoading.jobContractUnlock}>
-              Cancel
-            </Button>
-            <Button
-              onClick={handleContractTypeConfirm}
-              className="bg-watney text-white hover:bg-watney/90"
-              disabled={contractTypeLoading || unlockLoading.jobContractUnlock}
-            >
-              {unlockLoading.jobContractUnlock ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Unlocking...
-                </>
-              ) : (
-                "Unlock Job Contract"
-              )}
-            </Button>
-          </DialogFooter>
+
+              <div className="flex flex-1 overflow-hidden">
+                {/* Left Panel */}
+                <div className="flex w-2/5 flex-col border-r border-gray-200">
+                  <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                    <div>
+                      <label className="mb-1 block text-sm font-medium text-gray-700">
+                        Select Contract Type <span className="text-red-500">*</span>
+                      </label>
+                      <Select
+                        options={contractTypes.map(ct => ({ value: ct._id, label: ct.title }))}
+                        value={selectedContractType ? { value: selectedContractType, label: contractTypes.find(ct => ct._id === selectedContractType)?.title || "" } : null}
+                        onChange={handleContractTypeChange}
+                        placeholder="Choose a contract type..."
+                        isClearable
+                        className="react-select-container"
+                        classNamePrefix="react-select"
+                      />
+                      {contractTypeSelectError && <p className="mt-1 text-sm text-red-500">{contractTypeSelectError}</p>}
+                    </div>
+
+                    {editableTemplate && (
+                      <>
+                        <div className="flex items-center justify-between">
+                          <label className="text-sm font-medium text-gray-700">Template Body</label>
+                          <Button
+                            size="sm"
+                            onClick={handleSaveTemplateToUser}
+                            disabled={savingTemplate}
+                            className="bg-watney text-white hover:bg-watney/90"
+                          >
+                            {savingTemplate ? (
+                              <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                            ) : (
+                              <Save className="mr-1 h-3 w-3" />
+                            )}
+                            Save Template
+                          </Button>
+                        </div>
+                        <textarea
+                          value={editableTemplate}
+                          onChange={(e) => setEditableTemplate(e.target.value)}
+                          className="min-h-[50vh] w-full resize-none rounded-md border border-gray-300 p-3 font-mono text-sm focus:border-blue-500 focus:outline-none"
+                        />
+                      </>
+                    )}
+                  </div>
+
+                  <div className="flex items-center justify-end gap-2 border-t border-gray-200 p-4">
+                    <Button variant="outline" onClick={() => setContractTypeDialogOpen(false)} disabled={unlockLoading.jobContractUnlock}>
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handleContractTypeConfirm}
+                      className="bg-watney text-white hover:bg-watney/90"
+                      disabled={!selectedContractType || unlockLoading.jobContractUnlock}
+                    >
+                      {unlockLoading.jobContractUnlock ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Unlocking...
+                        </>
+                      ) : (
+                        "Unlock Job Contract"
+                      )}
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Right Panel - Preview */}
+                <div className="flex w-3/5 flex-col">
+                  <div className="border-b border-gray-100 bg-white px-6 py-4">
+                    <h3 className="text-base font-semibold text-gray-800">Contract Preview</h3>
+                    <p className="text-xs text-gray-500">Preview how the contract will look with applicant data.</p>
+                  </div>
+                  <div className="overflow-y-auto p-6" style={{ height: '70vh' }}>
+                    {previewBody ? (
+                      <div className="rounded-lg border border-gray-200 bg-gray-50 p-6">
+                        <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed">
+                          {renderFormattedText(previewBody)}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center h-full text-gray-400">
+                        <p>Select a contract type to see the preview.</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
 

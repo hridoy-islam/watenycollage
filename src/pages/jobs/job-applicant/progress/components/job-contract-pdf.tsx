@@ -100,6 +100,8 @@ const renderBody = (body: string) => {
   let isCentered = false;
   let centerIndex = 0;
 
+  const imgRegex = /https?:\/\/[^\s]+\.(png|jpg|jpeg|gif|webp|svg)(\?[^\s]*)?/gi;
+
   centerParts.forEach((part) => {
     if (part === '<center>') { isCentered = true; return; }
     if (part === '</center>') { isCentered = false; centerIndex++; return; }
@@ -136,12 +138,54 @@ const renderBody = (body: string) => {
           return;
         }
 
-        const rendered = renderText(brPart, i);
-        localElements.push(
-          <Text key={`line-${i}-${brIndex}`} style={styles.body}>
-            {rendered}
-          </Text>
-        );
+        const segments: { type: 'text' | 'image'; content: string }[] = [];
+        let lastIndex = 0;
+        let m: RegExpExecArray | null;
+        const localRegex = new RegExp(imgRegex.source, 'gi');
+        while ((m = localRegex.exec(brPart)) !== null) {
+          if (m.index > lastIndex) {
+            segments.push({ type: 'text', content: brPart.slice(lastIndex, m.index) });
+          }
+          segments.push({ type: 'image', content: m[0] });
+          lastIndex = m.index + m[0].length;
+        }
+        if (lastIndex < brPart.length) {
+          segments.push({ type: 'text', content: brPart.slice(lastIndex) });
+        }
+
+        if (segments.length === 0) return;
+
+        const hasImage = segments.some(s => s.type === 'image');
+
+        if (hasImage) {
+          const jsxParts: JSX.Element[] = [];
+          segments.forEach((seg, idx) => {
+            if (seg.type === 'image') {
+              jsxParts.push(
+                <Image key={`img-${i}-${brIndex}-${idx}`} src={seg.content} style={styles.signatureImage} />
+              );
+            } else {
+              const rendered = renderText(seg.content, i);
+              if (Array.isArray(rendered)) {
+                jsxParts.push(
+                  <Text key={`txt-${i}-${brIndex}-${idx}`} style={styles.body}>
+                    {rendered}
+                  </Text>
+                );
+              } else {
+                jsxParts.push(<Text key={`txt-${i}-${brIndex}-${idx}`} style={styles.body}>{rendered}</Text>);
+              }
+            }
+          });
+          localElements.push(<View key={`line-${i}-${brIndex}`} style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center' }}>{jsxParts}</View>);
+        } else {
+          const rendered = renderText(brPart, i);
+          localElements.push(
+            <Text key={`line-${i}-${brIndex}`} style={styles.body}>
+              {rendered}
+            </Text>
+          );
+        }
       });
     });
 
@@ -180,12 +224,7 @@ export const JobContractPdf = ({
         {renderBody(contractContent)}
       </View>
 
-      {signatureUrl && (
-        <View style={{ marginTop: 16 }}>
-          <Image src={signatureUrl} style={styles.signatureImage} />
-        </View>
-      )}
-
+     
      
 
       <View style={styles.pageNumberContainer} fixed>

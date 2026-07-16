@@ -87,6 +87,9 @@ import ServiceUserNeedPage from '@/pages/serviceUserModules/ServiceUserNeed';
 import ServiceUserEmergencyContractPage from '@/pages/serviceUserModules/ServiceUserEmergencyContract';
 import CreateEmergencyContractPage from '@/pages/serviceUserModules/ServiceUserEmergencyContract/create';
 import EditEmergencyContractPage from '@/pages/serviceUserModules/ServiceUserEmergencyContract/edit';
+import ServiceUserAssessmentPage from '@/pages/serviceuserAssessment';
+import CreateServiceUserAssessmentPage from '@/pages/serviceuserAssessment/create';
+import EditServiceUserAssessmentPage from '@/pages/serviceuserAssessment/edit';
 
 const SignInPage = lazy(() => import('@/pages/auth/signin/index'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
@@ -483,6 +486,18 @@ export default function AppRouter() {
         {
           path: 'serviceuser/:sid/emergency-contracts/:id/edit',
           element: <EditEmergencyContractPage />
+        },
+        {
+          path: 'serviceuser-assessment',
+          element: <ServiceUserAssessmentPage />
+        },
+        {
+          path: 'serviceuser-assessment/create',
+          element: <CreateServiceUserAssessmentPage />
+        },
+        {
+          path: 'serviceuser-assessment/:id/edit',
+          element: <EditServiceUserAssessmentPage />
         }
       ]
     }
