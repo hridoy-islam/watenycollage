@@ -229,7 +229,7 @@ export default function ServiceUserAssessmentDetailPage() {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto pb-10">
+    <div className=" mx-auto pb-10">
       {/* Header */}
       <div className="pb-6">
         <div className="flex items-center justify-between gap-4">
