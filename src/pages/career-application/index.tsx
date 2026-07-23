@@ -851,7 +851,7 @@ export default function CareerApplicationForm() {
                 <span className="text-xl">📍</span>
                 <div className="flex flex-col">
                   <strong>Address:</strong>
-                  <span>37 High St, Romford RM1 1JL, United Kingdom</span>
+                  <span>37 High St, Romford, RM1 1JL, United Kingdom</span>
                 </div>
               </li>
             </ul>
