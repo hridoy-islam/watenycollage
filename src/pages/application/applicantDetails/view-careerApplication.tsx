@@ -379,21 +379,26 @@ export default function ViewCareerApplicationPage() {
 
     return (
       <TableRow key={fieldPath} className="hover:bg-muted/10">
-        <TableCell className="text-left align-middle font-medium">{label}</TableCell>
-        <TableCell className={cn("text-right align-middle", isEmptyValue && "italic text-muted-foreground")}>
-          {isUrl ? (
-            <a
-              href={value}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block text-blue-600 underline hover:text-blue-800"
-            >
-              View File
-            </a>
-          ) : (
-            displayValue
-          )}
-        </TableCell>
+        <TableCell className=" font-medium">{label}</TableCell>
+       <TableCell
+  className={cn(
+    "text-left ",
+    isEmptyValue && "italic text-muted-foreground"
+  )}
+>
+  {isUrl ? (
+    <a
+      href={value}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-block text-blue-600 underline hover:text-blue-800"
+    >
+      View File
+    </a>
+  ) : (
+    displayValue
+  )}
+</TableCell>
         <TableCell className="w-10 text-right">
           {!isEmptyValue && (
             <Button

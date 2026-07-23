@@ -4,7 +4,9 @@ import {
   Text,
   View,
   StyleSheet,
-  Image
+  Image,
+  Svg,
+  Path
 } from '@react-pdf/renderer';
 import { useEffect, useState } from 'react';
 import axiosInstance from '@/lib/axios';
@@ -20,8 +22,16 @@ const CheckboxView = ({ checked }: { checked: boolean | undefined }) => (
     borderColor: '#000',
     marginTop: 1,
     flexShrink: 0,
-    backgroundColor: checked === true ? '#000' : 'transparent'
-  }} />
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'transparent'
+  }}>
+    {checked === true && (
+      <Svg viewBox="0 0 10 10" width={10} height={10}>
+        <Path d="M1 5 L4 8 L9 2" stroke="#000" strokeWidth={2} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      </Svg>
+    )}
+  </View>
 );
 
 const styles = StyleSheet.create({
@@ -708,10 +718,6 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
                   <View style={[styles.tableCol, { width: '65%' }]}><Text>{data.professionalReferee1?.tel || ''}</Text></View>
                 </View>
                 <View style={styles.tableRow}>
-                  <View style={[styles.tableCol, { width: '35%' }]}><Text>Fax</Text></View>
-                  <View style={[styles.tableCol, { width: '65%' }]}><Text>{data.professionalReferee1?.fax || ''}</Text></View>
-                </View>
-                <View style={styles.tableRow}>
                   <View style={[styles.tableCol, { width: '35%' }]}><Text>Email</Text></View>
                   <View style={[styles.tableCol, { width: '65%' }]}><Text>{data.professionalReferee1?.email || ''}</Text></View>
                 </View>
@@ -746,10 +752,6 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
                 <View style={styles.tableRow}>
                   <View style={[styles.tableCol, { width: '35%' }]}><Text>Tel No</Text></View>
                   <View style={[styles.tableCol, { width: '65%' }]}><Text>{data.professionalReferee2?.tel || ''}</Text></View>
-                </View>
-                <View style={styles.tableRow}>
-                  <View style={[styles.tableCol, { width: '35%' }]}><Text>Fax</Text></View>
-                  <View style={[styles.tableCol, { width: '65%' }]}><Text>{data.professionalReferee2?.fax || ''}</Text></View>
                 </View>
                 <View style={styles.tableRow}>
                   <View style={[styles.tableCol, { width: '35%' }]}><Text>Email</Text></View>
@@ -787,10 +789,6 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
               <View style={styles.tableRow}>
                 <View style={[styles.tableCol, { width: '30%' }]}><Text>Tel No</Text></View>
                 <View style={[styles.tableCol, { width: '70%' }]}><Text>{data.personalReferee?.tel || ''}</Text></View>
-              </View>
-              <View style={styles.tableRow}>
-                <View style={[styles.tableCol, { width: '30%' }]}><Text>Fax</Text></View>
-                <View style={[styles.tableCol, { width: '70%' }]}><Text>{data.personalReferee?.fax || ''}</Text></View>
               </View>
               <View style={styles.tableRow}>
                 <View style={[styles.tableCol, { width: '30%' }]}><Text>Email</Text></View>
@@ -857,6 +855,16 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
       </Page>
 
       <Page size="A4" style={styles.page}>
+
+        <Text style={styles.sectionHeader}>Life Skills & Interests</Text>
+        <View style={{ border: '0.5px solid #999', minHeight: 30, padding: 5, marginBottom: 10 }}>
+          <Text>{capitalizeFirstLetter(data.lifeSkillsAndInterests || '')}</Text>
+        </View>
+
+        <Text style={styles.sectionHeader}>Relevant Experience</Text>
+        <View style={{ border: '0.5px solid #999', minHeight: 30, padding: 5, marginBottom: 10 }}>
+          <Text>{capitalizeFirstLetter(data.relevantExperience || '')}</Text>
+        </View>
 
          {/* Section F */}
         <Text style={styles.sectionHeader}>DISABILITIES</Text>
