@@ -1,5 +1,6 @@
 import React from 'react';
-import { Edit2, Save, X } from 'lucide-react';
+import { Edit2, Save, X, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const TabSection = ({
   title,
@@ -11,18 +12,23 @@ const TabSection = ({
   onCancel,
   onEdit
 }) => {
+  const navigate = useNavigate();
 
   return (
     <section className="animate-fadeIn">
       <div className="mb-6 flex items-start justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
-          {/* {description && (
-            <p className="mt-1 text-sm text-gray-500">{description}</p>
-          )} */}
         </div>
 
         <div className="flex space-x-2">
+          <button
+            onClick={() => navigate(-1)}
+            className="inline-flex items-center rounded-md border border-transparent bg-watney px-3 py-2 text-sm font-medium leading-4 text-white transition-colors hover:bg-watney/90 focus:outline-none focus:ring-2 focus:ring-watney focus:ring-offset-2"
+          >
+            <ArrowLeft size={16} className="mr-1" />
+            Back
+          </button>
           {isEditing ? (
             <>
               <button

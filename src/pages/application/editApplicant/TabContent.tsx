@@ -33,10 +33,24 @@ const TabContent: React.FC<TabContentProps> = ({ activeTab, userData,refreshData
 
   const handleSave = async (updatedUserData) => {
     try {
-      await axiosInstance.patch(`/users/${userId}`, updatedUserData);
+      const changedFields = {};
+      for (const key of Object.keys(updatedUserData)) {
+        const oldVal = userData[key];
+        const newVal = updatedUserData[key];
+        if (JSON.stringify(oldVal) !== JSON.stringify(newVal)) {
+          changedFields[key] = newVal;
+        }
+      }
+
+      if (Object.keys(changedFields).length === 0) {
+        setIsEditing(false);
+        toast({ title: 'No changes to save.' });
+        return;
+      }
+
+      await axiosInstance.patch(`/users/${userId}`, changedFields);
 
       setIsEditing(false);
-          navigate(-1);
       toast({ title: 'Changes saved successfully!' });
     } catch (error) {
       console.error('Error updating user data:', error);
@@ -48,7 +62,6 @@ const TabContent: React.FC<TabContentProps> = ({ activeTab, userData,refreshData
   };
   const handleCancel = () => {
     setIsEditing(false);
-    navigate(-1);
   };
 
   const handleEdit = () => {

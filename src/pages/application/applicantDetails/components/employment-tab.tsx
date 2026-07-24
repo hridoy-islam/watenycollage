@@ -1,6 +1,6 @@
 import type React from "react"
 import { Card, CardContent } from "@/components/ui/card"
-import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Separator } from "@/components/ui/separator"
 
 type Application = any
@@ -43,6 +43,13 @@ export function EmploymentTab({ application, renderFieldRow }: EmploymentTabProp
     })
   }
 
+  // Helper function to format month as two-digit string (01-12)
+  const formatMonth = (date: Date | null): string => {
+    if (!date) return ''
+    const month = date.getMonth() + 1 // getMonth() returns 0-11
+    return month.toString().padStart(2, '0')
+  }
+
   return (
     <div className="grid grid-cols-1 gap-6">
       <Card>
@@ -63,54 +70,54 @@ export function EmploymentTab({ application, renderFieldRow }: EmploymentTabProp
           {allEmployments.length > 0 ? (
             <div>
               <h3 className="mb-4 text-lg font-semibold">Employment History</h3>
-              <div className="space-y-6">
-                {allEmployments.map((employment, index) => (
-                  <div key={index}>
-                    <div className="mb-2 flex items-center">
-                      <h4 className="font-medium">{employment.label}</h4>
-                      <Separator className="mx-4 flex-1" />
-                    </div>
-                    <Table>
-                      <TableBody>
-                        {renderFieldRow("Employer", employment.data.employer, `${employment.prefix}.employer`)}
-                        {renderFieldRow("Job Title", employment.data.jobTitle, `${employment.prefix}.jobTitle`)}
-                        {renderFieldRow("Start Date", employment.data.startDate, `${employment.prefix}.startDate`)}
-                        {employment.data.endDate && 
-                          renderFieldRow("End Date", employment.data.endDate, `${employment.prefix}.endDate`)}
-                        {employment.data.employmentType &&
-                          renderFieldRow(
-                            "Employment Type",
-                            employment.data.employmentType,
-                            `${employment.prefix}.employmentType`,
-                          )}
-                        {employment.data.reasonForLeaving &&
-                          renderFieldRow(
-                            "Reason for Leaving",
-                            employment.data.reasonForLeaving,
-                            `${employment.prefix}.reasonForLeaving`,
-                          )}
-                        {renderFieldRow(
-                          "Responsibilities",
-                          employment.data.responsibilities,
-                          `${employment.prefix}.responsibilities`,
+              <Table className="border">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead colSpan={4} className="text-center border">Date</TableHead>
+                    <TableHead rowSpan={3} className="text-center border align-middle">Employers Name & Address</TableHead>
+                    <TableHead rowSpan={3} className="text-center border align-middle">Department/Position & Duties</TableHead>
+                    <TableHead rowSpan={3} className="text-center border align-middle">Reason For Leaving</TableHead>
+                  </TableRow>
+                  <TableRow>
+                    <TableHead colSpan={2} className="text-center border">From</TableHead>
+                    <TableHead colSpan={2} className="text-center border">To</TableHead>
+                  </TableRow>
+                  <TableRow>
+                    <TableHead className="border">Month</TableHead>
+                    <TableHead className="border">Year</TableHead>
+                    <TableHead className="border">Month</TableHead>
+                    <TableHead className="border">Year</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {allEmployments.map((employment, index) => {
+                    const startDate = employment.data.startDate ? new Date(employment.data.startDate) : null
+                    const endDate = employment.data.endDate ? new Date(employment.data.endDate) : null
+                    const startMonth = formatMonth(startDate)
+                    const startYear = startDate ? startDate.getFullYear() : ''
+
+                    return (
+                      <TableRow key={index}>
+                        <TableCell className="border">{startMonth}</TableCell>
+                        <TableCell className="border">{startYear}</TableCell>
+                        {endDate ? (
+                          <>
+                            <TableCell className="border">{formatMonth(endDate)}</TableCell>
+                            <TableCell className="border">{endDate.getFullYear()}</TableCell>
+                          </>
+                        ) : (
+                          <TableCell colSpan={2} className="border">Still Working</TableCell>
                         )}
-                        {employment.data.hasEmploymentGaps !== undefined &&
-                          renderFieldRow(
-                            "Employment Gaps",
-                            employment.data.hasEmploymentGaps,
-                            `${employment.prefix}.hasEmploymentGaps`,
-                          )}
-                        {employment.data.employmentGapsExplanation &&
-                          renderFieldRow(
-                            "Gaps Explanation",
-                            employment.data.employmentGapsExplanation,
-                            `${employment.prefix}.employmentGapsExplanation`,
-                          )}
-                      </TableBody>
-                    </Table>
-                  </div>
-                ))}
-              </div>
+                        <TableCell className="border">{employment.data.employer || ''}</TableCell>
+                        <TableCell className="border">
+                          {[employment.data.jobTitle, employment.data.responsibilities].filter(Boolean).join(' - ')}
+                        </TableCell>
+                        <TableCell className="border">{employment.data.reasonForLeaving || ''}</TableCell>
+                      </TableRow>
+                    )
+                  })}
+                </TableBody>
+              </Table>
             </div>
           ) : (
             <div className="py-8 text-center text-muted-foreground">

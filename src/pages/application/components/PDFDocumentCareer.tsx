@@ -343,43 +343,44 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
             </View>
           </View>
 
-          {/* Row A9 */}
-          <View style={styles.tableRow}>
-            <View style={[styles.tableCol, { width: '30%' }]}>
-              <Text>Home address</Text>
-            </View>
-            <View style={[styles.tableCol, { width: '70%' }]}>
-              <Text>
-                First Line:{' '}
-                {capitalizeFirstLetter(data.postalAddressLine1 || '')}, Road /
-                Street: {capitalizeFirstLetter(data.postalAddressLine2 || '')},
-                City: {capitalizeFirstLetter(data.postalCity || '')}, Post Code:{' '}
-                {(data.postalPostCode || '').toUpperCase()}, Country:{' '}
-                {capitalizeFirstLetter(data.postalCountry || '')}
-              </Text>
-            </View>
-          </View>
+         {/* Row A9 */}
+<View style={styles.tableRow}>
+  <View style={[styles.tableCol, { width: '30%' }]}>
+    <Text>Home address</Text>
+  </View>
+  <View style={[styles.tableCol, { width: '70%' }]}>
+    <Text>
+      {[
+        data.postalAddressLine1 ? `First Line: ${capitalizeFirstLetter(data.postalAddressLine1)}` : '',
+        data.postalAddressLine2 ? `Road / Street: ${capitalizeFirstLetter(data.postalAddressLine2)}` : '',
+        data.postalCity ? `City: ${capitalizeFirstLetter(data.postalCity)}` : '',
+        data.postalPostCode ? `Post Code: ${(data.postalPostCode || '').toUpperCase()}` : '',
+        data.postalCountry ? `Country: ${capitalizeFirstLetter(data.postalCountry)}` : ''
+      ].filter(Boolean).join(', ')}
+    </Text>
+  </View>
+</View>
 
-          {/* Row A10 */}
-          <View style={styles.tableRow}>
-            <View style={[styles.tableCol, { width: '30%' }]}>
-              <Text>
-                Previous Address (if you have lived at your present address for
-                less than 12 months)
-              </Text>
-            </View>
-            <View style={[styles.tableCol, { width: '70%' }]}>
-              <Text>
-                First Line:{' '}
-                {capitalizeFirstLetter(data.prevPostalAddressLine1 || '')}, Road
-                / Street:{' '}
-                {capitalizeFirstLetter(data.prevPostalAddressLine2 || '')},
-                City: {capitalizeFirstLetter(data.prevPostalCity || '')}, Post
-                Code: {(data.prevPostalPostCode || '').toUpperCase()}, Country:{' '}
-                {capitalizeFirstLetter(data.prevPostalCountry || '')}
-              </Text>
-            </View>
-          </View>
+{/* Row A10 */}
+<View style={styles.tableRow}>
+  <View style={[styles.tableCol, { width: '30%' }]}>
+    <Text>
+      Previous Address (if you have lived at your present address for
+      less than 12 months)
+    </Text>
+  </View>
+  <View style={[styles.tableCol, { width: '70%' }]}>
+    <Text>
+      {[
+        data.prevPostalAddressLine1 ? `First Line: ${capitalizeFirstLetter(data.prevPostalAddressLine1)}` : '',
+        data.prevPostalAddressLine2 ? `Road / Street: ${capitalizeFirstLetter(data.prevPostalAddressLine2)}` : '',
+        data.prevPostalCity ? `City: ${capitalizeFirstLetter(data.prevPostalCity)}` : '',
+        data.prevPostalPostCode ? `Post Code: ${(data.prevPostalPostCode || '').toUpperCase()}` : '',
+        data.prevPostalCountry ? `Country: ${capitalizeFirstLetter(data.prevPostalCountry)}` : ''
+      ].filter(Boolean).join(', ')}
+    </Text>
+  </View>
+</View>
 
           {/* Row A11 */}
           <View style={styles.tableRow}>
