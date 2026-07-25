@@ -475,32 +475,49 @@ export function ReviewStep({
         })}
 
       {/* Current Employment */}
-      {defaultValues.currentEmployment &&
-        Object.keys(filterEmptyFields(defaultValues.currentEmployment)).length >
-          0 &&
-        renderSection('Current Employment', defaultValues.currentEmployment)}
+{defaultValues.currentEmployment &&
+  Object.keys(filterEmptyFields(defaultValues.currentEmployment)).length >
+    0 &&
+  renderSection('Current Employment', {
+    employer: defaultValues.currentEmployment?.employer,
+    employerAddress: defaultValues.currentEmployment?.employerAddress,
+    jobTitle: defaultValues.currentEmployment?.jobTitle,
+    startDate: defaultValues.currentEmployment?.startDate,
+    employmentType: defaultValues.currentEmployment?.employmentType,
+    responsibilities: defaultValues.currentEmployment?.responsibilities
+  })}
 
-      {/* Previous Employments */}
-      {/* Previous Employment — only shown if there are entries */}
-      {Array.isArray(defaultValues.previousEmployments) &&
-        defaultValues.previousEmployments.length > 0 && (
-          <div>
-            <h3 className="mb-2 text-lg font-medium text-black">
-              Previous Employment
-            </h3>
-            {defaultValues.previousEmployments.map((employment, index) => {
-              const filtered = filterEmptyFields(employment);
-              return Object.keys(filtered).length > 0 ? (
-                <div
-                  key={index}
-                  className="mb-4 rounded-md border border-gray-300 bg-gray-50 p-4"
-                >
-                  {renderSection('', filtered, false)}
-                </div>
-              ) : null;
-            })}
+{/* Previous Employments */}
+{/* Previous Employment — only shown if there are entries */}
+{Array.isArray(defaultValues.previousEmployments) &&
+  defaultValues.previousEmployments.length > 0 && (
+    <div>
+      <h3 className="mb-2 text-lg font-medium text-black">
+        Previous Employment
+      </h3>
+      {defaultValues.previousEmployments.map((employment, index) => {
+        const filtered = filterEmptyFields({
+          employer: employment.employer,
+          employerAddress: employment.employerAddress,
+          jobTitle: employment.jobTitle,
+          startDate: employment.startDate,
+          endDate: employment.endDate,
+          reasonForLeaving: employment.reasonForLeaving,
+          responsibilities: employment.responsibilities,
+          hasEmploymentGaps: employment.hasEmploymentGaps,
+          employmentGapsExplanation: employment.employmentGapsExplanation
+        });
+        return Object.keys(filtered).length > 0 ? (
+          <div
+            key={index}
+            className="mb-4 rounded-md border border-gray-300 bg-gray-50 p-4"
+          >
+            {renderSection('', filtered, false)}
           </div>
-        )}
+        ) : null;
+      })}
+    </div>
+  )}
 
       {/* References */}
       {defaultValues.professionalReferee1 &&

@@ -46,6 +46,7 @@ const EmploymentData = ({
   const handleAddPreviousJob = () => {
     const newJob: PreviousEmployment = {
       employer: '',
+      employerAddress: '',
       jobTitle: '',
       startDate: '',
       endDate: '',
@@ -153,6 +154,19 @@ const EmploymentData = ({
                   ) : (
                     <div className="mt-1 text-gray-900">
                       {localData.currentEmployment?.employer || '-'}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Employer Address</label>
+                  {isEditing ? (
+                    <Input
+                      value={localData.currentEmployment?.employerAddress || ''}
+                      onChange={(e) => handleCurrentEmploymentChange('employerAddress', e.target.value)}
+                    />
+                  ) : (
+                    <div className="mt-1 text-gray-900">
+                      {localData.currentEmployment?.employerAddress || '-'}
                     </div>
                   )}
                 </div>
@@ -327,6 +341,17 @@ const EmploymentData = ({
                           />
                         ) : (
                           <div className="mt-1 text-gray-900">{job.employer || '-'}</div>
+                        )}
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Employer Address</label>
+                        {isEditing ? (
+                          <Input
+                            value={job.employerAddress || ''}
+                            onChange={(e) => handlePreviousEmploymentChange(index, 'employerAddress', e.target.value)}
+                          />
+                        ) : (
+                          <div className="mt-1 text-gray-900">{job.employerAddress || '-'}</div>
                         )}
                       </div>
                       <div>

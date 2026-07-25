@@ -38,6 +38,7 @@ export const employmentSchema = z
     currentEmployment: z
       .object({
         employer: z.string().optional(),
+        employerAddress: z.string().optional(),
         jobTitle: z.string().optional(),
         startDate: z.date().nullable().optional(),
         employmentType: z.string().optional(),
@@ -48,6 +49,7 @@ export const employmentSchema = z
       .array(
         z.object({
           employer: z.string().optional(),
+          employerAddress: z.string().optional(),
           jobTitle: z.string().optional(),
           startDate: z.date().nullable().optional(),
           endDate: z.date().nullable().optional(),
@@ -77,6 +79,13 @@ export const employmentSchema = z
           code: z.ZodIssueCode.custom,
           message: 'Employer name is required.',
           path: ['currentEmployment', 'employer']
+        });
+      }
+      if (!current.employerAddress?.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Employer address is required.',
+          path: ['currentEmployment', 'employerAddress']
         });
       }
       if (!current.jobTitle?.trim()) {
@@ -126,6 +135,13 @@ export const employmentSchema = z
             code: z.ZodIssueCode.custom,
             message: 'Employer name is required.',
             path: ['previousEmployments', index, 'employer']
+          });
+        }
+        if (!job.employerAddress?.trim()) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'Employer address is required.',
+            path: ['previousEmployments', index, 'employerAddress']
           });
         }
         if (!job.jobTitle?.trim()) {
@@ -377,6 +393,7 @@ export function EmploymentStep({
     if (form.watch('hasPreviousEmployment') === 'yes' && fields.length === 0) {
       append({
         employer: '',
+        employerAddress: '',
         jobTitle: '',
         startDate: undefined,
         endDate: undefined,
@@ -440,12 +457,10 @@ export function EmploymentStep({
                     <FormItem className="max-w-md">
                       <FormLabel className="text-lg font-medium">
                         <div>
-
-                        Are you currently employed?{' '}
-                        <span className="text-red-500">*</span>
+                          Are you currently employed?{' '}
+                          <span className="text-red-500">*</span>
                         </div>
-                        <HelperTooltip text="Select 'Yes' if you are employed at the moment, otherwise select 'No'." /> 
-
+                        <HelperTooltip text="Select 'Yes' if you are employed at the moment, otherwise select 'No'." />
                       </FormLabel>
 
                       <Select
@@ -481,10 +496,6 @@ export function EmploymentStep({
                         }}
                       />
 
-                      {/* <p className="text-md text-gray-400">
-                        Select "Yes" if you are employed at the moment.
-                      </p> */}
-
                       <FormMessage />
                     </FormItem>
                   )}
@@ -506,12 +517,10 @@ export function EmploymentStep({
                             <FormItem>
                               <FormLabel className="text-watney">
                                 <div>
-
-                                Employer Name{' '}
-                                <span className="text-red-500">*</span>
+                                  Employer Name{' '}
+                                  <span className="text-red-500">*</span>
                                 </div>
-                                <HelperTooltip text="Enter the name of your current company or organization. Example: NHS Trust." /> 
-
+                                <HelperTooltip text="Enter the name of your current company or organization. Example: NHS Trust." />
                               </FormLabel>
                               <FormControl>
                                 <Input
@@ -520,10 +529,31 @@ export function EmploymentStep({
                                   className=" !placeholder:text-gray-400"
                                 />
                               </FormControl>
-                              {/* <p className="text-md text-gray-400">
-                                Enter the name of your current employer (e.g.,
-                                NHS Trust)
-                              </p> */}
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        {/* Employer Address */}
+                        <FormField
+                          name="currentEmployment.employerAddress"
+                          control={form.control}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-watney">
+                                <div>
+                                  Employer Address{' '}
+                                  <span className="text-red-500">*</span>
+                                </div>
+                                <HelperTooltip text="Enter the full address of your current employer." />
+                              </FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  placeholder="Employer Address"
+                                  className=" !placeholder:text-gray-400"
+                                />
+                              </FormControl>
                               <FormMessage />
                             </FormItem>
                           )}
@@ -537,12 +567,10 @@ export function EmploymentStep({
                             <FormItem>
                               <FormLabel className="text-watney">
                                 <div>
-
-                                Job Position{' '}
-                                <span className="text-red-500">*</span>
+                                  Job Position{' '}
+                                  <span className="text-red-500">*</span>
                                 </div>
-                                <HelperTooltip text="State your current job title. Example: Support Worker." /> 
-
+                                <HelperTooltip text="State your current job title. Example: Support Worker." />
                               </FormLabel>
                               <FormControl>
                                 <Input
@@ -551,10 +579,6 @@ export function EmploymentStep({
                                   className=" !placeholder:text-gray-400"
                                 />
                               </FormControl>
-                              {/* <p className="text-md text-gray-400">
-                                State your current job title (e.g., Support
-                                Worker)
-                              </p> */}
                               <FormMessage />
                             </FormItem>
                           )}
@@ -572,12 +596,10 @@ export function EmploymentStep({
                               <FormItem>
                                 <FormLabel className="text-watney">
                                   <div>
-
-                                  Start Date (DD/MM/YYYY){' '}
-                                  <span className="text-red-500">*</span>
+                                    Start Date (DD/MM/YYYY){' '}
+                                    <span className="text-red-500">*</span>
                                   </div>
-                                  <HelperTooltip text="Select the date you started this position. Format: DD/MM/YYYY. Example: 11/01/2000." /> 
-
+                                  <HelperTooltip text="Select the date you started this position. Format: DD/MM/YYYY. Example: 11/01/2000." />
                                 </FormLabel>
                                 <FormControl>
                                   <CustomDatePicker
@@ -587,10 +609,6 @@ export function EmploymentStep({
                                     className=" w-full text-lg"
                                   />
                                 </FormControl>
-                                {/* <p className="text-md text-gray-400">
-                                  Select the date you started this position
-                                  (e.g. 11/01/2000)
-                                </p> */}
                                 <FormMessage />
                               </FormItem>
                             );
@@ -605,12 +623,10 @@ export function EmploymentStep({
                             <FormItem>
                               <FormLabel className="text-watney">
                                 <div>
-
-                                Employment Type{' '}
-                                <span className="text-red-500">*</span>
+                                  Employment Type{' '}
+                                  <span className="text-red-500">*</span>
                                 </div>
-                                <HelperTooltip text="Choose your employment type: Full-Time, Part-Time, Contract, or Freelance." /> 
-
+                                <HelperTooltip text="Choose your employment type: Full-Time, Part-Time, Contract, or Freelance." />
                               </FormLabel>
                               <FormControl>
                                 <Select
@@ -636,10 +652,6 @@ export function EmploymentStep({
                                   }}
                                 />
                               </FormControl>
-                              {/* <p className="text-md text-gray-400">
-                                Select from options: Full-Time, Part-Time,
-                                Contract, Freelance
-                              </p> */}
                               <FormMessage />
                             </FormItem>
                           )}
@@ -653,12 +665,10 @@ export function EmploymentStep({
                             <FormItem className="sm:col-span-2 lg:col-span-3">
                               <FormLabel className="text-watney">
                                 <div>
-
-                                Main Responsibilities{' '}
-                                <span className="text-red-500">*</span>
+                                  Main Responsibilities{' '}
+                                  <span className="text-red-500">*</span>
                                 </div>
-                                <HelperTooltip text="Briefly describe the key responsibilities and duties of your current role." /> 
-
+                                <HelperTooltip text="Briefly describe the key responsibilities and duties of your current role." />
                               </FormLabel>
                               <FormControl>
                                 <Textarea
@@ -667,9 +677,6 @@ export function EmploymentStep({
                                   placeholder="Job Duties"
                                 />
                               </FormControl>
-                              {/* <p className="text-md text-gray-400">
-                                Briefly describe your key responsibilities
-                              </p> */}
                               <FormMessage />
                             </FormItem>
                           )}
@@ -686,12 +693,10 @@ export function EmploymentStep({
                         <FormItem className="mt-4">
                           <FormLabel className="text-lg font-medium">
                             <div>
-
-                            Do you have previous employment history?{' '}
-                            <span className="text-red-500">*</span>
+                              Do you have previous employment history?{' '}
+                              <span className="text-red-500">*</span>
                             </div>
-                            <HelperTooltip text="Select 'Yes' if you have held previous jobs, otherwise select 'No'." /> 
-
+                            <HelperTooltip text="Select 'Yes' if you have held previous jobs, otherwise select 'No'." />
                           </FormLabel>
                           <FormControl>
                             <Select
@@ -717,10 +722,6 @@ export function EmploymentStep({
                               }}
                             />
                           </FormControl>
-                          {/* <p className="text-md text-gray-400">
-                            List any previous jobs you've held. Include job
-                            title, employer, dates, and responsibilities.
-                          </p> */}
                           <FormMessage />
                         </FormItem>
                       )}
@@ -747,12 +748,10 @@ export function EmploymentStep({
                                 <FormItem>
                                   <FormLabel className="text-watney">
                                     <div>
-
-                                    Employer Name{' '}
-                                    <span className="text-red-500">*</span>
+                                      Employer Name{' '}
+                                      <span className="text-red-500">*</span>
                                     </div>
-                                    <HelperTooltip text="Enter the name of the company or organization for your previous role." /> 
-
+                                    <HelperTooltip text="Enter the name of the company or organization for your previous role." />
                                   </FormLabel>
                                   <FormControl>
                                     <Input
@@ -761,10 +760,31 @@ export function EmploymentStep({
                                       className=""
                                     />
                                   </FormControl>
-                                  {/* <p className="text-md text-gray-400">
-                                    Enter the name of your employer (e.g., NHS
-                                    Trust)
-                                  </p> */}
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            {/* Employer Address */}
+                            <FormField
+                              name={`previousEmployments.${index}.employerAddress`}
+                              control={form.control}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-watney">
+                                    <div>
+                                      Employer Address{' '}
+                                      <span className="text-red-500">*</span>
+                                    </div>
+                                    <HelperTooltip text="Enter the full address of your previous employer." />
+                                  </FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      {...field}
+                                      placeholder="Employer Address"
+                                      className=""
+                                    />
+                                  </FormControl>
                                   <FormMessage />
                                 </FormItem>
                               )}
@@ -778,12 +798,10 @@ export function EmploymentStep({
                                 <FormItem>
                                   <FormLabel className="text-watney">
                                     <div>
-
-                                    Job Position{' '}
-                                    <span className="text-red-500">*</span>
+                                      Job Position{' '}
+                                      <span className="text-red-500">*</span>
                                     </div>
-                                    <HelperTooltip text="State your job title in your previous role. Example: Support Worker." /> 
-
+                                    <HelperTooltip text="State your job title in your previous role. Example: Support Worker." />
                                   </FormLabel>
                                   <FormControl>
                                     <Input
@@ -792,9 +810,6 @@ export function EmploymentStep({
                                       className=""
                                     />
                                   </FormControl>
-                                  {/* <p className="text-md text-gray-400">
-                                    State your job title (e.g., Support Worker)
-                                  </p> */}
                                   <FormMessage />
                                 </FormItem>
                               )}
@@ -812,12 +827,10 @@ export function EmploymentStep({
                                   <FormItem>
                                     <FormLabel className="text-watney">
                                       <div>
-
-                                      Start Date (DD/MM/YYYY){' '}
-                                      <span className="text-red-500">*</span>
+                                        Start Date (DD/MM/YYYY){' '}
+                                        <span className="text-red-500">*</span>
                                       </div>
-                                      <HelperTooltip text="Select the date you started this previous job. Format: DD/MM/YYYY." /> 
-
+                                      <HelperTooltip text="Select the date you started this previous job. Format: DD/MM/YYYY." />
                                     </FormLabel>
                                     <FormControl>
                                       <CustomDatePicker
@@ -830,10 +843,6 @@ export function EmploymentStep({
                                         className=" w-full text-lg"
                                       />
                                     </FormControl>
-                                    {/* <p className="text-md text-gray-400">
-                                      Select the date you started this position
-                                      (e.g. 11/01/2000)
-                                    </p> */}
                                     <FormMessage />
                                   </FormItem>
                                 );
@@ -852,12 +861,10 @@ export function EmploymentStep({
                                   <FormItem>
                                     <FormLabel className="text-watney">
                                       <div>
-
-                                      End Date (DD/MM/YYYY){' '}
-                                      <span className="text-red-500">*</span>
+                                        End Date (DD/MM/YYYY){' '}
+                                        <span className="text-red-500">*</span>
                                       </div>
-                                      <HelperTooltip text="Select the date you ended this previous job. Format: DD/MM/YYYY." /> 
-
+                                      <HelperTooltip text="Select the date you ended this previous job. Format: DD/MM/YYYY." />
                                     </FormLabel>
                                     <FormControl>
                                       <CustomDatePicker
@@ -870,9 +877,6 @@ export function EmploymentStep({
                                         className=" w-full text-lg"
                                       />
                                     </FormControl>
-                                    {/* <p className="text-md text-gray-400">
-                                      Select the end date (e.g. 11/01/2000)
-                                    </p> */}
                                     <FormMessage />
                                   </FormItem>
                                 );
@@ -887,12 +891,10 @@ export function EmploymentStep({
                                 <FormItem>
                                   <FormLabel className="text-watney">
                                     <div>
-
-                                    Reason for Leaving{' '}
-                                    <span className="text-red-500">*</span>
+                                      Reason for Leaving{' '}
+                                      <span className="text-red-500">*</span>
                                     </div>
-                                    <HelperTooltip text="Provide the reason for leaving this previous role. Example: Career change, relocation." /> 
-
+                                    <HelperTooltip text="Provide the reason for leaving this previous role. Example: Career change, relocation." />
                                   </FormLabel>
                                   <FormControl>
                                     <Input
@@ -901,9 +903,6 @@ export function EmploymentStep({
                                       className=""
                                     />
                                   </FormControl>
-                                  {/* <p className="text-md text-gray-400">
-                                    Reason for leaving the position
-                                  </p> */}
                                   <FormMessage />
                                 </FormItem>
                               )}
@@ -917,12 +916,10 @@ export function EmploymentStep({
                                 <FormItem className="sm:col-span-2 lg:col-span-3">
                                   <FormLabel className="text-watney">
                                     <div>
-
-                                    Main Responsibilities{' '}
-                                    <span className="text-red-500">*</span>
+                                      Main Responsibilities{' '}
+                                      <span className="text-red-500">*</span>
                                     </div>
-                                    <HelperTooltip text="Briefly describe the key responsibilities and duties of your previous role." /> 
-
+                                    <HelperTooltip text="Briefly describe the key responsibilities and duties of your previous role." />
                                   </FormLabel>
                                   <FormControl>
                                     <Textarea
@@ -931,9 +928,6 @@ export function EmploymentStep({
                                       placeholder="Job Duties"
                                     />
                                   </FormControl>
-                                  {/* <p className="text-md text-gray-400">
-                                    Briefly describe your key responsibilities
-                                  </p> */}
                                   <FormMessage />
                                 </FormItem>
                               )}
@@ -947,13 +941,11 @@ export function EmploymentStep({
                                 <FormItem className="max-w-md">
                                   <FormLabel className="text-watney">
                                     <div>
-
-                                    Any gaps of more than 1 month after this
-                                    role?{' '}
-                                    <span className="text-red-500">*</span>
+                                      Any gaps of more than 1 month after this
+                                      role?{' '}
+                                      <span className="text-red-500">*</span>
                                     </div>
-                                    <HelperTooltip text="Indicate if there were employment gaps of more than 1 month after this role." /> 
-
+                                    <HelperTooltip text="Indicate if there were employment gaps of more than 1 month after this role." />
                                   </FormLabel>
                                   <Select
                                     options={employmentGapOptions}
@@ -977,9 +969,6 @@ export function EmploymentStep({
                                       })
                                     }}
                                   />
-                                  {/* <p className="text-md text-gray-400">
-                                    Were there employment gaps after this job?
-                                  </p> */}
                                   <FormMessage />
                                 </FormItem>
                               )}
@@ -996,12 +985,10 @@ export function EmploymentStep({
                                   <FormItem className="sm:col-span-2 lg:col-span-3">
                                     <FormLabel className="text-watney">
                                       <div>
-
-                                      Please explain the reason{' '}
-                                      <span className="text-red-500">*</span>
+                                        Please explain the reason{' '}
+                                        <span className="text-red-500">*</span>
                                       </div>
-                                      <HelperTooltip text="If there were employment gaps, briefly explain the reason. Example: study break, health, relocation." /> 
-
+                                      <HelperTooltip text="If there were employment gaps, briefly explain the reason. Example: study break, health, relocation." />
                                     </FormLabel>
                                     <FormControl>
                                       <Textarea
@@ -1010,10 +997,6 @@ export function EmploymentStep({
                                         placeholder="Explanation for gaps after this employment"
                                       />
                                     </FormControl>
-                                    {/* <p className="text-md text-gray-400">
-                                      Briefly explain the reason (e.g., study
-                                      break, health, relocation)
-                                    </p> */}
                                     <FormMessage />
                                   </FormItem>
                                 )}
@@ -1040,6 +1023,7 @@ export function EmploymentStep({
                         onClick={() =>
                           append({
                             employer: '',
+                            employerAddress: '',
                             jobTitle: '',
                             startDate: undefined,
                             endDate: undefined,

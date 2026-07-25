@@ -126,6 +126,22 @@ const styles = StyleSheet.create({
     fontSize: 9,
     textAlign: 'center'
   },
+   headerText: {
+    fontSize: 10,        // Smaller font for headers
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  
+  subHeaderText: {
+    fontSize: 10,        // Even smaller for Month/Year sub-headers
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  
+  dataText: {
+    fontSize: 10,        // Smaller font for data cells
+    color: '#000',
+  },
 
   noBorderCol: {
     padding: 5,
@@ -143,6 +159,27 @@ const formatDate = (dateString: string): string => {
     return dateString;
   }
 };
+
+const formatMonth = (dateString: string): string => {
+  if (!dateString) return '';
+  try {
+    const date = new Date(dateString);
+    return (date.getMonth() + 1).toString().padStart(2, '0');
+  } catch {
+    return '';
+  }
+};
+
+const formatYear = (dateString: string): string => {
+  if (!dateString) return '';
+  try {
+    const date = new Date(dateString);
+    return date.getFullYear().toString();
+  } catch {
+    return '';
+  }
+};
+
 // Get today's date
 const getTodaysDate = (): string => {
   return new Date().toLocaleDateString('en-GB');
@@ -443,168 +480,163 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
           </View>
         </View>
 
-        <>
-          <Text style={styles.sectionHeader}>
-            PRESENT OR MOST RECENT EMPLOYER
-          </Text>
-          <View style={styles.table}>
-            <View style={styles.tableRow}>
-              <View style={[styles.tableColHeader, { width: '25%' }]}>
-                <Text>Nature of work/training</Text>
+      <>
+  <Text style={styles.sectionHeader}>Employment History</Text>
+  <View style={styles.table}>
+    {/* Header row 1: top-level column groups */}
+    <View style={styles.tableRow}>
+      <View style={[styles.tableColHeader, { width: '28%', textAlign: 'center' }]}>
+        <Text style={styles.headerText}>Date</Text>
+      </View>
+      <View style={[styles.tableColHeader, { width: '20%' }]}>
+        <Text style={styles.headerText}>Employer's Name & Address</Text>
+      </View>
+      <View style={[styles.tableColHeader, { width: '20%' }]}>
+        <Text style={styles.headerText}>Department/Position & Duties</Text>
+      </View>
+      <View style={[styles.tableColHeader, { width: '12%' }]}>
+        <Text style={styles.headerText}>Reason For Leaving</Text>
+      </View>
+      <View style={[styles.tableColHeader, { width: '8%' }]}>
+        <Text style={styles.headerText}>Gaps in Employment?</Text>
+      </View>
+      <View style={[styles.tableColHeader, { width: '12%' }]}>
+        <Text style={styles.headerText}>Explanation for Employment Gaps</Text>
+      </View>
+    </View>
+
+    {/* Header row 2: From / To */}
+    <View style={styles.tableRow}>
+      <View style={[styles.tableColHeader, { width: '14%', textAlign: 'center' }]}>
+        <Text style={styles.headerText}>From</Text>
+      </View>
+      <View style={[styles.tableColHeader, { width: '14%', textAlign: 'center' }]}>
+        <Text style={styles.headerText}>To</Text>
+      </View>
+      <View style={[styles.tableColHeader, { width: '20%' }]}>
+        <Text style={styles.headerText}></Text>
+      </View>
+      <View style={[styles.tableColHeader, { width: '20%' }]}>
+        <Text style={styles.headerText}></Text>
+      </View>
+      <View style={[styles.tableColHeader, { width: '12%' }]}>
+        <Text style={styles.headerText}></Text>
+      </View>
+      <View style={[styles.tableColHeader, { width: '8%' }]}>
+        <Text style={styles.headerText}></Text>
+      </View>
+      <View style={[styles.tableColHeader, { width: '12%' }]}>
+        <Text style={styles.headerText}></Text>
+      </View>
+    </View>
+
+    {/* Header row 3: Month / Year sub-labels */}
+    <View style={styles.tableRow}>
+      <View style={[styles.tableColHeader, { width: '8%', textAlign: 'center' }]}>
+        <Text style={styles.subHeaderText}>Month</Text>
+      </View>
+      <View style={[styles.tableColHeader, { width: '6%', textAlign: 'center' }]}>
+        <Text style={styles.subHeaderText}>Year</Text>
+      </View>
+      <View style={[styles.tableColHeader, { width: '8%', textAlign: 'center' }]}>
+        <Text style={styles.subHeaderText}>Month</Text>
+      </View>
+      <View style={[styles.tableColHeader, { width: '6%', textAlign: 'center' }]}>
+        <Text style={styles.subHeaderText}>Year</Text>
+      </View>
+      <View style={[styles.tableColHeader, { width: '20%' }]}>
+        <Text style={styles.subHeaderText}></Text>
+      </View>
+      <View style={[styles.tableColHeader, { width: '20%' }]}>
+        <Text style={styles.subHeaderText}></Text>
+      </View>
+      <View style={[styles.tableColHeader, { width: '12%' }]}>
+        <Text style={styles.subHeaderText}></Text>
+      </View>
+      <View style={[styles.tableColHeader, { width: '8%' }]}>
+        <Text style={styles.subHeaderText}></Text>
+      </View>
+      <View style={[styles.tableColHeader, { width: '12%' }]}>
+        <Text style={styles.subHeaderText}></Text>
+      </View>
+    </View>
+
+    {(() => {
+      const allEmployments: any[] = [];
+      if (data.currentEmployment) {
+        allEmployments.push(data.currentEmployment);
+      }
+      if (Array.isArray(data.previousEmployments)) {
+        allEmployments.push(...data.previousEmployments);
+      }
+      return allEmployments.length > 0 ? (
+        allEmployments.map((emp: any, idx: number) => {
+          const startMonth = formatMonth(emp.startDate);
+          const startYear = formatYear(emp.startDate);
+          const endMonth = formatMonth(emp.endDate);
+          const endYear = formatYear(emp.endDate);
+          const employerInfo = [emp.employer, emp.employerAddress].filter(Boolean).join(', ');
+          const positionDuties = [emp.jobTitle, emp.responsibilities].filter(Boolean).join(' - ');
+          const hasGaps = emp.hasEmploymentGaps === 'yes' ? 'Yes' : emp.hasEmploymentGaps === 'no' ? 'No' : '';
+          const gapsExplanation = emp.employmentGapsExplanation || '';
+          return (
+            <View key={`emp-${idx}`} style={styles.tableRow}>
+              <View style={[styles.tableCol, { width: '8%', textAlign: 'center' }]}>
+                <Text style={styles.dataText}>{startMonth}</Text>
               </View>
-              <View style={[styles.tableColHeader, { width: '25%' }]}>
-                <Text>Name of organisation</Text>
+              <View style={[styles.tableCol, { width: '6%', textAlign: 'center' }]}>
+                <Text style={styles.dataText}>{startYear}</Text>
               </View>
-              <View style={[styles.tableColHeader, { width: '15%' }]}>
-                <Text>Full-time or Part-time</Text>
+              {emp.endDate ? (
+                <>
+                  <View style={[styles.tableCol, { width: '8%', textAlign: 'center' }]}>
+                    <Text style={styles.dataText}>{endMonth}</Text>
+                  </View>
+                  <View style={[styles.tableCol, { width: '6%', textAlign: 'center' }]}>
+                    <Text style={styles.dataText}>{endYear}</Text>
+                  </View>
+                </>
+              ) : (
+                <View style={[styles.tableCol, { width: '14%', textAlign: 'center' }]}>
+                  <Text style={styles.dataText}>Still Working</Text>
+                </View>
+              )}
+              <View style={[styles.tableCol, { width: '20%' }]}>
+                <Text style={styles.dataText}>{employerInfo}</Text>
               </View>
-              <View style={[styles.tableColHeader, { width: '15%' }]}>
-                <Text>From (DD/MM/YYYY)</Text>
+              <View style={[styles.tableCol, { width: '20%' }]}>
+                <Text style={styles.dataText}>{positionDuties}</Text>
               </View>
-              <View style={[styles.tableColHeader, { width: '20%' }]}>
-                <Text>To (DD/MM/YYYY)</Text>
+              <View style={[styles.tableCol, { width: '12%' }]}>
+                <Text style={styles.dataText}>{emp.reasonForLeaving || ''}</Text>
+              </View>
+              <View style={[styles.tableCol, { width: '8%', textAlign: 'center' }]}>
+                <Text style={styles.dataText}>{hasGaps}</Text>
+              </View>
+              <View style={[styles.tableCol, { width: '12%' }]}>
+                <Text style={styles.dataText}>{gapsExplanation}</Text>
               </View>
             </View>
-
-            {/* Employment Rows */}
-            {data.currentEmployment ? (
-              <>
-                {/* Current Employment */}
-                {data.currentEmployment && (
-                  <View style={styles.tableRow}>
-                    <View style={[styles.tableCol, { width: '25%' }]}>
-                      <Text>
-                        {capitalizeFirstLetter(
-                          safeGet(data.currentEmployment, 'jobTitle')
-                        )}
-                      </Text>
-                    </View>
-                    <View style={[styles.tableCol, { width: '25%' }]}>
-                      <Text>
-                        {capitalizeFirstLetter(
-                          safeGet(data.currentEmployment, 'employer')
-                        )}
-                      </Text>
-                    </View>
-                    <View style={[styles.tableCol, { width: '15%' }]}>
-                      <Text>
-                        {capitalizeFirstLetter(
-                          safeGet(data.currentEmployment, 'employmentType')
-                        )}
-                      </Text>
-                    </View>
-                    <View style={[styles.tableCol, { width: '15%' }]}>
-                      <Text>
-                        {formatDate(
-                          safeGet(data.currentEmployment, 'startDate')
-                        )}
-                      </Text>
-                    </View>
-                    <View style={[styles.tableCol, { width: '20%' }]}>
-                      <Text>Present</Text>
-                    </View>
-                  </View>
-                )}
-              </>
-            ) : (
-              Array.from({ length: 2 }).map((_, idx) => (
-                <View key={`empty-row-${idx}`} style={styles.tableRow}>
-                  <View style={[styles.tableCol, { width: '25%' }]}>
-                    <Text>&nbsp;</Text>
-                  </View>
-                  <View style={[styles.tableCol, { width: '25%' }]}>
-                    <Text>&nbsp;</Text>
-                  </View>
-                  <View style={[styles.tableCol, { width: '15%' }]}>
-                    <Text>&nbsp;</Text>
-                  </View>
-                  <View style={[styles.tableCol, { width: '15%' }]}>
-                    <Text>&nbsp;</Text>
-                  </View>
-                  <View style={[styles.tableCol, { width: '20%' }]}>
-                    <Text>&nbsp;</Text>
-                  </View>
-                </View>
-              ))
-            )}
+          );
+        })
+      ) : (
+        Array.from({ length: 2 }).map((_, idx) => (
+          <View key={`empty-row-${idx}`} style={styles.tableRow}>
+            <View style={[styles.tableCol, { width: '8%' }]}><Text>&nbsp;</Text></View>
+            <View style={[styles.tableCol, { width: '6%' }]}><Text>&nbsp;</Text></View>
+            <View style={[styles.tableCol, { width: '8%' }]}><Text>&nbsp;</Text></View>
+            <View style={[styles.tableCol, { width: '6%' }]}><Text>&nbsp;</Text></View>
+            <View style={[styles.tableCol, { width: '20%' }]}><Text>&nbsp;</Text></View>
+            <View style={[styles.tableCol, { width: '20%' }]}><Text>&nbsp;</Text></View>
+            <View style={[styles.tableCol, { width: '12%' }]}><Text>&nbsp;</Text></View>
+            <View style={[styles.tableCol, { width: '8%' }]}><Text>&nbsp;</Text></View>
+            <View style={[styles.tableCol, { width: '12%' }]}><Text>&nbsp;</Text></View>
           </View>
-        </>
-
-        <>
-          {/* Section D */}
-          <Text style={[styles.sectionHeader, { marginBottom: 0 }]}>
-            PAST EMPLOYMENT RECORDS
-          </Text>
-          <Text style={styles.subSectionHeader}>
-            Please cover the last 5 years (if possible) starting with the most
-            recent employer and explain any age gaps in your employment
-          </Text>
-          <View style={styles.table}>
-            <View style={styles.tableRow}>
-              <View style={[styles.tableColHeader, { width: '30%' }]}>
-                <Text>Nature of work/training</Text>
-              </View>
-              <View style={[styles.tableColHeader, { width: '30%' }]}>
-                <Text>Name of organisation</Text>
-              </View>
-
-              <View style={[styles.tableColHeader, { width: '20%' }]}>
-                <Text>From (DD/MM/YYYY)</Text>
-              </View>
-              <View style={[styles.tableColHeader, { width: '20%' }]}>
-                <Text>To (DD/MM/YYYY)</Text>
-              </View>
-            </View>
-
-            {/* Employment Rows */}
-            {Array.isArray(data.previousEmployments) &&
-            data.previousEmployments.length > 0 ? (
-              <>
-                {/* Previous Employments */}
-                {Array.isArray(data.previousEmployments) &&
-                  data.previousEmployments.map((job: any, index: number) => (
-                    <View key={`prev-job-${index}`} style={styles.tableRow}>
-                      <View style={[styles.tableCol, { width: '30%' }]}>
-                        <Text>
-                          {capitalizeFirstLetter(safeGet(job, 'jobTitle'))}
-                        </Text>
-                      </View>
-                      <View style={[styles.tableCol, { width: '30%' }]}>
-                        <Text>
-                          {capitalizeFirstLetter(safeGet(job, 'employer'))}
-                        </Text>
-                      </View>
-
-                      <View style={[styles.tableCol, { width: '20%' }]}>
-                        <Text>{formatDate(safeGet(job, 'startDate'))}</Text>
-                      </View>
-                      <View style={[styles.tableCol, { width: '20%' }]}>
-                        <Text>{formatDate(safeGet(job, 'endDate'))}</Text>
-                      </View>
-                    </View>
-                  ))}
-              </>
-            ) : (
-              Array.from({ length: 2 }).map((_, idx) => (
-                <View key={`empty-row-${idx}`} style={styles.tableRow}>
-                  <View style={[styles.tableCol, { width: '30%' }]}>
-                    <Text>&nbsp;</Text>
-                  </View>
-                  <View style={[styles.tableCol, { width: '30%' }]}>
-                    <Text>&nbsp;</Text>
-                  </View>
-
-                  <View style={[styles.tableCol, { width: '20%' }]}>
-                    <Text>&nbsp;</Text>
-                  </View>
-                  <View style={[styles.tableCol, { width: '20%' }]}>
-                    <Text>&nbsp;</Text>
-                  </View>
-                </View>
-              ))
-            )}
-          </View>
-        </>
+        ))
+      );
+    })()}
+  </View>
+</>
 
         <Text style={styles.footer}>
           Application Form Page{' '}

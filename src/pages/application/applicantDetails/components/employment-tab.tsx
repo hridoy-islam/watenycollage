@@ -77,6 +77,8 @@ export function EmploymentTab({ application, renderFieldRow }: EmploymentTabProp
                     <TableHead rowSpan={3} className="text-center border align-middle">Employers Name & Address</TableHead>
                     <TableHead rowSpan={3} className="text-center border align-middle">Department/Position & Duties</TableHead>
                     <TableHead rowSpan={3} className="text-center border align-middle">Reason For Leaving</TableHead>
+                    <TableHead rowSpan={3} className="text-center border align-middle">Gaps in Employment History?</TableHead>
+                    <TableHead rowSpan={3} className="text-center border align-middle">Explanation for Employment Gaps</TableHead>
                   </TableRow>
                   <TableRow>
                     <TableHead colSpan={2} className="text-center border">From</TableHead>
@@ -96,6 +98,16 @@ export function EmploymentTab({ application, renderFieldRow }: EmploymentTabProp
                     const startMonth = formatMonth(startDate)
                     const startYear = startDate ? startDate.getFullYear() : ''
 
+                    // Build employer name and address
+                    const employerInfo = [
+                      employment.data.employer,
+                      employment.data.employerAddress
+                    ].filter(Boolean).join(', ')
+
+                    // Format employment gaps
+                    const hasGaps = employment.data.hasEmploymentGaps === 'yes' ? 'Yes' : employment.data.hasEmploymentGaps === 'no' ? 'No' : ''
+                    const gapsExplanation = employment.data.employmentGapsExplanation || ''
+
                     return (
                       <TableRow key={index}>
                         <TableCell className="border">{startMonth}</TableCell>
@@ -108,11 +120,13 @@ export function EmploymentTab({ application, renderFieldRow }: EmploymentTabProp
                         ) : (
                           <TableCell colSpan={2} className="border">Still Working</TableCell>
                         )}
-                        <TableCell className="border">{employment.data.employer || ''}</TableCell>
+                        <TableCell className="border">{employerInfo || ''}</TableCell>
                         <TableCell className="border">
                           {[employment.data.jobTitle, employment.data.responsibilities].filter(Boolean).join(' - ')}
                         </TableCell>
                         <TableCell className="border">{employment.data.reasonForLeaving || ''}</TableCell>
+                        <TableCell className="border">{hasGaps}</TableCell>
+                        <TableCell className="border">{gapsExplanation}</TableCell>
                       </TableRow>
                     )
                   })}

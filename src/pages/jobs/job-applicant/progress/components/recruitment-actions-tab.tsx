@@ -26,13 +26,15 @@ import {
   TableHeader,
   TableRow
 } from "@/components/ui/table"
-import { Mail, MailCheck, File, ClipboardPenLine, Check, LockOpen, Loader2, Eye, FileText, UserPlus, Save, X } from "lucide-react"
+import { Mail, MailCheck, File, ClipboardPenLine, Check, LockOpen, Loader2, Eye, FileText, UserPlus, Save, X, Download } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import { useSelector } from "react-redux"
 import axiosInstace from "@/lib/axios"
 import Select from "react-select"
 import moment from "moment"
 import { useToast } from "@/components/ui/use-toast"
+import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer"
+import { EmailPDF } from "./email-pdf"
 
 interface EmailDraft {
   _id: string
@@ -116,6 +118,10 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
   const [editableTemplate, setEditableTemplate] = useState("")
   const [savingTemplate, setSavingTemplate] = useState(false)
   const [previewBody, setPreviewBody] = useState("")
+
+  // Preview dialog state
+  const [previewDialogOpen, setPreviewDialogOpen] = useState(false)
+  const [previewData, setPreviewData] = useState<{ subject: string; body: string; type: string; email: string; sentDate?: string } | null>(null)
 
   // Recruit dialog state
   const [recruitDialogOpen, setRecruitDialogOpen] = useState(false)
@@ -321,8 +327,12 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
 
       if (activeEmailContext === "job-offer") {
         payload.jobOfferMailSent = true
+        payload.jobOfferMailTemplate = emailBody
+        payload.jobOfferMailSubject = emailSubject
       } else if (activeEmailContext === "interview") {
         payload.interviewMailSent = true
+        payload.interviewMailTemplate = emailBody
+        payload.interviewMailSubject = emailSubject
       }
 
       const res = await axiosInstace.post("/email", payload)
@@ -331,7 +341,13 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
           title: "Success",
           description: "Email Sent successfully",
         })
-        // Update local state to show "Sent" immediately
+        setPreviewData({
+          subject: emailSubject,
+          body: emailBody,
+          type: activeEmailContext,
+          email: application?.email || "",
+          sentDate: new Date().toISOString()
+        })
         if (activeEmailContext === "job-offer") {
           setLocalJobOfferSent(true)
         } else if (activeEmailContext === "interview") {
@@ -676,7 +692,6 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
     }
   }
 
-  // Set loading for email actions
   const handleActionClick = async (actionType: string) => {
     if (actionType === "job-offer" || actionType === "interview") {
       await handleOpenEmailDialog(actionType)
@@ -702,7 +717,8 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
       loading: actionLoading["jobOffer"],
       icon: isJobOfferSent ? <MailCheck className="h-4 w-4" /> : <Mail className="h-4 w-4" />,
       onClick: () => handleActionClick("job-offer"),
-      isViewOnly: false
+      isViewOnly: false,
+      hasPreview: true
     },
     {
       label: "Interview Mail",
@@ -710,7 +726,8 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
       loading: actionLoading["interview"],
       icon: isInterviewSent ? <MailCheck className="h-4 w-4" /> : <Mail className="h-4 w-4" />,
       onClick: () => handleActionClick("interview"),
-      isViewOnly: false
+      isViewOnly: false,
+      hasPreview: true
     },
     {
       label: "Reference Mail",
@@ -797,8 +814,46 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
                           View
                         </Button>
                       ) : action.sent ? (
-                        <span className="inline-flex items-center gap-1.5 text-sm font-bold text-white bg-green-600 px-2.5 py-1 rounded">
-                          <Check className="h-3.5 w-3.5" /> Sent
+                        <span className="inline-flex items-center gap-2">
+                          <span className="inline-flex items-center gap-1.5 text-sm font-bold text-white bg-green-600 px-2.5 py-1 rounded">
+                            <Check className="h-3.5 w-3.5" /> Sent
+                          </span>
+                          {action.hasPreview && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-8 px-3 text-xs font-medium"
+                              onClick={async (e) => {
+                                e.stopPropagation()
+                                const label = action.label === "Job Offer" ? "job-offer" : "interview"
+                                const templateField = label === "job-offer" ? "jobOfferMailTemplate" : "interviewMailTemplate"
+                                const subjectField = label === "job-offer" ? "jobOfferMailSubject" : "interviewMailSubject"
+                                const sentDateField = label === "job-offer" ? "jobOfferMailSentDate" : "interviewMailSentDate"
+                                try {
+                                  const res = await axiosInstace.get(`/users/${userId}?fields=${templateField},${subjectField},${sentDateField},email`)
+                                  const userData = res.data.data
+                                  setPreviewData({
+                                    subject: userData?.[subjectField] || "",
+                                    body: userData?.[templateField] || "",
+                                    type: label,
+                                    email: application?.email || userData?.email || "",
+                                    sentDate: userData?.[sentDateField] || ""
+                                  })
+                                } catch {
+                                  setPreviewData({
+                                    subject: "",
+                                    body: "",
+                                    type: label,
+                                    email: application?.email || ""
+                                  })
+                                }
+                                setPreviewDialogOpen(true)
+                              }}
+                            >
+                              <Eye className="mr-1 h-3.5 w-3.5" />
+                              Preview
+                            </Button>
+                          )}
                         </span>
                       ) : (
                         <Button
@@ -1149,6 +1204,70 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
             <Button onClick={handleRecruit} disabled={recruiting} className="bg-watney text-white hover:bg-watney/90">
               {recruiting ? "Recruiting..." : "Recruit"}
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Email PDF Preview Dialog */}
+      <Dialog open={previewDialogOpen} onOpenChange={setPreviewDialogOpen}>
+        <DialogContent className="max-h-screen overflow-hidden sm:max-h-[95vh] sm:max-w-5xl">
+          <DialogHeader>
+            <DialogTitle>PDF Document Preview</DialogTitle>
+          </DialogHeader>
+
+          <div className="h-[75vh] w-full overflow-hidden rounded-md border border-gray-200">
+            {previewData && (
+              <PDFViewer width="100%" height="100%" className="border-0">
+                <EmailPDF
+                  fromEmail="admin@everycareromford.co.uk"
+                  toEmail={previewData.email || application?.email}
+                  sentDate={previewData.sentDate}
+                  subject={previewData.subject}
+                  bodyText={previewData.body}
+                />
+              </PDFViewer>
+            )}
+          </div>
+
+          <DialogFooter className="mt-4 flex justify-end gap-2">
+            <Button variant="secondary" onClick={() => setPreviewDialogOpen(false)}>
+              Close
+            </Button>
+            {previewData && (
+              <PDFDownloadLink
+                document={
+                  <EmailPDF
+                    fromEmail="admin@everycareromford.co.uk"
+                    toEmail={previewData.email || application?.email}
+                    sentDate={previewData.sentDate}
+                    subject={previewData.subject}
+                    bodyText={previewData.body}
+                  />
+                }
+                fileName={`${
+                  previewData.type === "job-offer" ? "Job_Offer" : "Interview_Invitation"
+                }_${application?.firstName || "applicant"}.pdf`}
+              >
+                {({ loading }) => (
+                  <Button
+                    className="bg-watney text-white hover:bg-watney/90"
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Generating PDF...
+                      </>
+                    ) : (
+                      <>
+                        <Download className="mr-2 h-4 w-4" />
+                        Download PDF
+                      </>
+                    )}
+                  </Button>
+                )}
+              </PDFDownloadLink>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>

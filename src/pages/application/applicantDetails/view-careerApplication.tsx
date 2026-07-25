@@ -454,7 +454,7 @@ export default function ViewCareerApplicationPage() {
 return (
   <div className="w-full">
     {/* Header */}
-    <div className="flex items-center justify-between px-4 py-3">
+    <div className="flex items-center justify-between  py-3">
       <Button className="bg-watney text-white hover:bg-watney/90" onClick={() => navigate(-1)}>
         <MoveLeft /> Back
       </Button>
@@ -471,7 +471,7 @@ return (
     </div>
 
     {/* Main Content with Vertical Tabs */}
-    <div className="p-4 pb-5">
+    <div className="pb-5">
       <VerticalTabs activeTab={activeTab} onTabChange={setActiveTab}>
         {/* Personal Details */}
         <TabContent value="personalDetails" activeTab={activeTab}>
