@@ -383,7 +383,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
          {/* Row A9 */}
 <View style={styles.tableRow}>
   <View style={[styles.tableCol, { width: '30%' }]}>
-    <Text>Home address</Text>
+    <Text>Present address</Text>
   </View>
   <View style={[styles.tableCol, { width: '70%' }]}>
     <Text>
