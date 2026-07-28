@@ -244,6 +244,7 @@ interface PDFProps {
   candidateName: string;
   jobTitle: string;
   interviewDate: Date;
+  interviewTime: string;
   interviewerName: string;
   interviewerSignature?: string;
   assessments: Record<string, { score: number; comment: string }>;
@@ -308,6 +309,7 @@ const InterviewPDF: React.FC<PDFProps> = ({
   candidateName,
   jobTitle,
   interviewDate,
+  interviewTime,
   interviewerName,
   interviewerSignature,
   assessments,
@@ -356,10 +358,9 @@ const InterviewPDF: React.FC<PDFProps> = ({
               {interviewDate.toLocaleDateString('en-GB', {
                 day: 'numeric',
                 month: 'long',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
+                year: 'numeric'
               })}
+              {interviewTime ? ` at ${interviewTime}` : ''}
             </Text>
           </View>
           <View style={styles.candidateField}>

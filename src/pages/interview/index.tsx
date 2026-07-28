@@ -426,6 +426,7 @@ export default function InterviewAssessmentPage() {
                     candidateName={candidateName}
                     jobTitle={jobTitle}
                     interviewDate={watch('interviewDate') || new Date()}
+                    interviewTime={watch('interviewTime') || ""}
                     interviewerName={watch('interviewerName') || ''}
                     interviewerSignature={interviewerSignature}
                     assessments={watch('assessments') || {}}
