@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axiosInstance from '@/lib/axios';
+import moment from 'moment';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -24,7 +25,7 @@ import { EqualityStep } from './components/EqualityStep';
 import { ContactInformationStep } from './components/ContactInformation';
 import { EmploymentServiceStep } from './components/EmploymentServiceStep';
 import { ReviewStep } from './components/ReviewStep';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 
 const steps = [
   {
@@ -54,12 +55,19 @@ const steps = [
   }
 ];
 
+const PENDING_ASSESSMENT_KEY = 'pendingServiceUserAssessmentId';
+const CREATE_SERVICEUSER_PATH = '/dashboard/people-planner/create-serviceuser';
+
 const CreateServiceUserPage = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [assessmentId, setAssessmentId] = useState<string | null>(
+    () => localStorage.getItem(PENDING_ASSESSMENT_KEY)
+  );
   const { toast } = useToast();
-  const{id} = useParams();
+  // const{id} = useParams();
   const navigate = useNavigate()
+  const location = useLocation();
   const methods = useForm<ServiceUserFormData>({
     resolver: zodResolver(serviceUserSchema),
     mode: 'onChange',
@@ -97,6 +105,50 @@ const CreateServiceUserPage = () => {
     trigger,
     formState: { errors }
   } = methods;
+
+  useEffect(() => {
+    const id = localStorage.getItem(PENDING_ASSESSMENT_KEY);
+    if (!id) return;
+
+    axiosInstance
+      .get(`/serviceuser-assessment/${id}`)
+      .then((res) => {
+        const data = res.data?.data;
+        if (!data) return;
+
+        const nameParts = (data.myName || '').trim().split(/\s+/).filter(Boolean);
+        const prefilled = {
+          firstName: nameParts[0] || '',
+          middleInitial:
+            nameParts.length > 2
+              ? nameParts.slice(1, -1).join(' ')
+              : '',
+          lastName:
+            nameParts.length > 1 ? nameParts[nameParts.length - 1] : '',
+          preferredName: data.preferredName || '',
+          phone: data.myPhoneNumber || '',
+          address: data.myAddress || '',
+          dateOfBirth: data.myBirthday
+            ? moment(data.myBirthday).format('YYYY-MM-DD')
+            : ''
+        };
+        methods.reset({ ...methods.getValues(), ...prefilled });
+      })
+      .catch((error) => {
+        console.error(error);
+        toast({
+          title: 'Error',
+          description: 'Failed to load assessment data.',
+          className: 'bg-red-500 border-none text-white'
+        });
+      });
+  }, []);
+
+  useEffect(() => {
+    if (location.pathname !== CREATE_SERVICEUSER_PATH) {
+      localStorage.removeItem(PENDING_ASSESSMENT_KEY);
+    }
+  }, [location.pathname]);
 
   const nextStep = async () => {
     const fieldsToValidate = getFieldsForStep(currentStep);
@@ -153,13 +205,13 @@ const onSubmit = async (data: ServiceUserFormData) => {
           ).toISOString()
         : undefined;
 
-    const payload = {
+    const payload: Record<string, unknown> = {
       ...data,
       startDate: formatDate(data.startDate),
       lastDutyDate: formatDate(data.lastDutyDate),
       serviceUserType: data.serviceUserType,
       role: 'serviceUser',
-      companyId: id
+      ...(assessmentId ? { serviceuserAssessmentId: assessmentId } : {})
     };
 
     // Make POST request to /users
@@ -170,6 +222,17 @@ const onSubmit = async (data: ServiceUserFormData) => {
       description: 'Service user has been created successfully.',
       className: 'bg-watney border-none text-white'
     });
+
+    if (assessmentId) {
+      try {
+        await axiosInstance.patch(`/serviceuser-assessment/${assessmentId}`, {
+          isServiceUser: true
+        });
+      } catch (error) {
+        console.error('Failed to mark assessment as service user', error);
+      }
+    }
+    localStorage.removeItem(PENDING_ASSESSMENT_KEY);
 
     methods.reset();
     navigate('/dashboard/people-planner/serviceuser')

@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
-import { Plus, Search, Eye, Trash2, Pen } from 'lucide-react';
+import { Plus, Search, Eye, Trash2, Pen, UserPlus } from 'lucide-react';
 import moment from 'moment';
 import {
   AlertDialog,
@@ -27,6 +27,8 @@ import { BlinkingDots } from '@/components/shared/blinking-dots';
 import DynamicPagination from '@/components/shared/DynamicPagination';
 import axiosInstance from '@/lib/axios';
 import { useNavigate } from 'react-router-dom';
+
+const PENDING_ASSESSMENT_KEY = 'pendingServiceUserAssessmentId';
 
 export default function ServiceUserAssessmentPage() {
   const [assessments, setAssessments] = useState<any[]>([]);
@@ -71,6 +73,11 @@ export default function ServiceUserAssessmentPage() {
     } catch {
       toast.error('Failed to delete assessment');
     }
+  };
+
+  const handleMakeServiceUser = (assessmentId: string) => {
+    localStorage.setItem(PENDING_ASSESSMENT_KEY, assessmentId);
+    navigate('/dashboard/people-planner/create-serviceuser');
   };
 
   return (
@@ -151,6 +158,16 @@ export default function ServiceUserAssessmentPage() {
 
                 <TableCell className="text-right">
                   <div className="flex items-center justify-end gap-2">
+                    {!assessment.isServiceUser && (
+                      <Button
+                      size={'sm'}
+                        onClick={() => handleMakeServiceUser(assessment._id)}
+                        className="bg-watney h-9 rounded-md text-white hover:bg-watney/90"
+                        title="Create a service user from this assessment"
+                      >
+                        Make Service User
+                      </Button>
+                    )}
                     <Button
                       variant="ghost"
                       size="icon"

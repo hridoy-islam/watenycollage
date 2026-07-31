@@ -91,6 +91,7 @@ import ServiceUserAssessmentPage from '@/pages/serviceuserAssessment';
 import CreateServiceUserAssessmentPage from '@/pages/serviceuserAssessment/create';
 import EditServiceUserAssessmentPage from '@/pages/serviceuserAssessment/edit';
 import ServiceUserAssessmentDetailPage from '@/pages/serviceuserAssessment/detail';
+import ServiceUserNeedsAssessmentPage from '@/pages/serviceUserModules/serviceuserNeedsAssessment';
 
 const SignInPage = lazy(() => import('@/pages/auth/signin/index'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
@@ -415,6 +416,10 @@ export default function AppRouter() {
         {
           path: 'serviceuser/:sid/support-plans/:id',
           element: <SupportPlanDetailPage />
+        },
+        {
+          path: 'serviceuser/:sid/needs-assessment',
+          element: <ServiceUserNeedsAssessmentPage />
         },
         {
           path: 'serviceuser/:sid/initial-assessment',

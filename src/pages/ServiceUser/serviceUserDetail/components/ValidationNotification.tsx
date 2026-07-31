@@ -83,21 +83,22 @@ export const ValidationNotification: React.FC<ValidationNotificationProps> = ({
       label: 'Care Planning',
       isExpandable: true,
       subItems: [
+        
         { 
-          id: 'supportPlans', 
-          label: 'Support Plans', 
-          path: 'support-plans' 
-        },
-        { 
-          id: 'initialAssessments', 
-          label: 'Initial Assessments', 
-          path: 'initial-assessment' 
+          id: 'needAssessments', 
+          label: 'Needs Assessment', 
+          path: 'needs-assessment' 
         },
         { 
           id: 'riskAssessments', 
           label: 'Risk Assessments', 
           path: 'risk-assessments' 
-        }
+        },
+        { 
+          id: 'supportPlans', 
+          label: 'Support Plans', 
+          path: 'support-plans' 
+        },
       ]
     },
     {
