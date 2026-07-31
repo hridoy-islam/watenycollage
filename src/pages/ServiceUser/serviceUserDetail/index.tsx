@@ -16,6 +16,8 @@ import NoteTab from './tabs/NoteTab';
 import PrimaryBranchTab from './tabs/PrimaryBranchTab';
 import ContactTab from './tabs/ContactTab';
 import SettingTab from './tabs/SettingTab';
+import { CarePlanTab } from './tabs/CarePlanTab';
+import { MentalCapacityTab } from './tabs/MentalCapacityTab';
 import { useParams } from 'react-router-dom';
 import axiosInstance from '@/lib/axios';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
@@ -123,6 +125,16 @@ const ServiceuserDetailPage = () => {
           getMissingFields={getMissingFields}
         />
       )
+    },
+    {
+      id: 'carePlan',
+      label: 'Care Plan',
+      component: <CarePlanTab />
+    },
+    {
+      id: 'mentalCapacity',
+      label: 'Mental Capacity',
+      component: <MentalCapacityTab />
     },
     {
       id: 'settings',

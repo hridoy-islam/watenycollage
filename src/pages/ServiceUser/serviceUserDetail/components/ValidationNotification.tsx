@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronRight, CheckCircle, ChevronDown } from 'lucide-react';
+import { ChevronRight, ChevronDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface ValidationNotificationProps {
@@ -45,7 +45,22 @@ export const ValidationNotification: React.FC<ValidationNotificationProps> = ({
   if (allTabs.length === 0) return null;
 
   // Menu items with their sub-items
-  const menuItems = [
+  interface SubMenuItem {
+    id: string;
+    label: string;
+    path: string;
+    tabId?: string;
+  }
+
+  interface MenuItem {
+    id: string;
+    label: string;
+    path?: string;
+    isExpandable?: boolean;
+    subItems: SubMenuItem[];
+  }
+
+  const menuItems: MenuItem[] = [
     {
       id: 'dailyLogs',
       label: 'Daily Logs',
@@ -97,12 +112,14 @@ export const ValidationNotification: React.FC<ValidationNotificationProps> = ({
         { 
           id: 'carePlan', 
           label: 'Care Plan', 
-          path: '#' 
+          path: '', 
+          tabId: 'carePlan' 
         },
         { 
           id: 'mentalCapacity', 
           label: 'Mental Capacity', 
-          path: '#' 
+          path: '', 
+          tabId: 'mentalCapacity' 
         },
         { 
           id: 'review', 
@@ -232,7 +249,10 @@ export const ValidationNotification: React.FC<ValidationNotificationProps> = ({
                       <div
                         key={subItem.id}
                         className="group cursor-pointer rounded-md border border-gray-300 px-2 py-1 transition-all duration-200 hover:border-watney"
-                        onClick={() => navigate(`${subItem.path}`)}
+                        onClick={() => {
+                          if (subItem.tabId) onTabClick(subItem.tabId);
+                          else navigate(`${subItem.path}`);
+                        }}
                       >
                         <div className="flex items-center justify-between">
                           <span className="text-sm font-medium text-black">{subItem.label}</span>
