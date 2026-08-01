@@ -273,7 +273,7 @@ useEffect(() => {
                           selected={selectedDate}
                           onChange={(date) => field.onChange(date)}
                           placeholder="When would you be available to start this role?"
-                          futureDate={false}
+                          futureDate={true}
                         />
                       </FormControl>
                       <FormMessage />

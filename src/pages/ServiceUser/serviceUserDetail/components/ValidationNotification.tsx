@@ -124,7 +124,8 @@ export const ValidationNotification: React.FC<ValidationNotificationProps> = ({
         { 
           id: 'review', 
           label: 'Review', 
-          path: '#' 
+          path: '', 
+          tabId: 'review' 
         },
       ]
     },

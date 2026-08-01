@@ -18,6 +18,7 @@ import ContactTab from './tabs/ContactTab';
 import SettingTab from './tabs/SettingTab';
 import { CarePlanTab } from './tabs/CarePlanTab';
 import { MentalCapacityTab } from './tabs/MentalCapacityTab';
+import { ReviewTab } from './tabs/ReviewTab';
 import { useParams } from 'react-router-dom';
 import axiosInstance from '@/lib/axios';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
@@ -135,6 +136,11 @@ const ServiceuserDetailPage = () => {
       id: 'mentalCapacity',
       label: 'Mental Capacity',
       component: <MentalCapacityTab />
+    },
+    {
+      id: 'review',
+      label: 'Review',
+      component: <ReviewTab />
     },
     {
       id: 'settings',

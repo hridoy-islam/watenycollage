@@ -873,7 +873,7 @@ export function EmploymentStep({
                                           field.onChange(date)
                                         }
                                         placeholder="Employment End Date"
-                                        futureDate={true}
+                          futureDate={true}
                                         className=" w-full text-lg"
                                       />
                                     </FormControl>

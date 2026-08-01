@@ -750,7 +750,7 @@ Select the date you started this position (e.g. 01/11/2000)
                                         selected={selectedDate}
                                         onChange={(date) => field.onChange(date)}
                                         placeholder="Employment End Date"
-                                        futureDate={true}
+                          futureDate={true}
                                         className=" text-lg w-full"
                                       />
                                     </FormControl>

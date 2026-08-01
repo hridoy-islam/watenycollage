@@ -246,7 +246,7 @@ export function ApplicationDetailsStep({
                           selected={selectedDate}
                           onChange={(date) => field.onChange(date)}
                           placeholder="When would you be available to start this role?"
-                          futureDate={false}
+                          futureDate={true}
                           // 👇 Pass className to style the internal input if possible
                           className="h-12 rounded-full text-lg"
                         />

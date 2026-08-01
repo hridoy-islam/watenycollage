@@ -262,7 +262,7 @@ export default function EditEmploymentContractForm() {
                           selected={field.value}
                           onChange={field.onChange}
                           placeholder="e.g. 15/10/2026"
-                          futureDate={false}
+                          futureDate={true}
                         />
                       </FormControl>
                       <FormMessage />
