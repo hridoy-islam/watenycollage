@@ -128,7 +128,7 @@ export default function TeacherStudentApplicationListPage() {
           });
         }
         
-        // Add term if not already added
+        // Add intake if not already added
         if (teacherCourse.termId && !termIds.has(teacherCourse.termId._id)) {
           termIds.add(teacherCourse.termId._id);
           termOptions.push({
@@ -308,6 +308,39 @@ export default function TeacherStudentApplicationListPage() {
             className="h-9 min-w-[400px] rounded-sm bg-white"
           />
         </div>
+  {/* Term Filter */}
+        <div className="w-[250px]">
+          <Select
+            options={terms}
+            value={selectedTerm}
+            onChange={handleTermChange}
+            placeholder="Filter by intake"
+            isClearable
+            className="text-sm"
+            styles={{
+              control: (base) => ({
+                ...base,
+                height: '36px',
+                minHeight: '36px'
+              }),
+              valueContainer: (base) => ({
+                ...base,
+                height: '36px',
+                padding: '0 8px'
+              }),
+              input: (base) => ({
+                ...base,
+                margin: '0px',
+                paddingBottom: '0px',
+                paddingTop: '0px'
+              }),
+              indicatorsContainer: (base) => ({
+                ...base,
+                height: '36px'
+              })
+            }}
+          />
+        </div>
 
         {/* Course Filter */}
         <div className="w-[250px]">
@@ -343,40 +376,7 @@ export default function TeacherStudentApplicationListPage() {
           />
         </div>
 
-        {/* Term Filter */}
-        <div className="w-[250px]">
-          <Select
-            options={terms}
-            value={selectedTerm}
-            onChange={handleTermChange}
-            placeholder="Filter by term"
-            isClearable
-            className="text-sm"
-            styles={{
-              control: (base) => ({
-                ...base,
-                height: '36px',
-                minHeight: '36px'
-              }),
-              valueContainer: (base) => ({
-                ...base,
-                height: '36px',
-                padding: '0 8px'
-              }),
-              input: (base) => ({
-                ...base,
-                margin: '0px',
-                paddingBottom: '0px',
-                paddingTop: '0px'
-              }),
-              indicatorsContainer: (base) => ({
-                ...base,
-                height: '36px'
-              })
-            }}
-          />
-        </div>
-
+      
         <Button
           onClick={handleSearch}
           size="sm"

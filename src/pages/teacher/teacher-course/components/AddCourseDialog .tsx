@@ -19,12 +19,12 @@ import { Pencil } from "lucide-react";
 
 const formSchema = z.object({
   courseId: z.string().min(1, "Course is required"),
-  termId: z.string().min(1, "Term is required"),
+  groupId: z.string().optional(),
 });
 
 const AddCourseDialog = ({ onAddCourses, editCourse = null }) => {
   const [courses, setCourses] = useState([]);
-  const [terms, setTerms] = useState([]);
+  const [courseGroups, setCourseGroups] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { id } = useParams(); 
@@ -36,76 +36,60 @@ const AddCourseDialog = ({ onAddCourses, editCourse = null }) => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       courseId: "",
-      termId: "",
+      groupId: "",
     },
   });
+
+  const selectedCourseId = form.watch("courseId");
 
   // Reset form every time dialog opens or editCourse changes
   useEffect(() => {
     if (isOpen) {
       if (isEditMode && editCourse) {
-        // Pre-fill form with existing data for editing
-        // We need to fetch the actual termId since editCourse only has termName
         const prefillForm = async () => {
           try {
-            // Fetch the specific teacher-course to get termId
             const response = await axiosInstance.get(`/teacher-courses/${editCourse._id}`);
             const teacherCourse = response?.data?.data;
             
             form.reset({
               courseId: teacherCourse?.courseId?._id || editCourse.courseId || "",
-              termId: teacherCourse?.termId?._id ||  teacherCourse?.termId|| "",
+              groupId: teacherCourse?.groupId?._id || teacherCourse?.groupId || "",
             });
           } catch (error) {
             console.error("Error fetching teacher course details:", error);
-            // Fallback: try to find termId by termName
-            const foundTerm = terms.find(term => term.label === editCourse.termName);
             form.reset({
               courseId: editCourse.courseId || "",
-              termId: foundTerm?.value || "",
+              groupId: "",
             });
           }
         };
 
         prefillForm();
       } else {
-        // Reset form for adding new course
         form.reset({
           courseId: "",
-          termId: "",
+          groupId: "",
         });
       }
     }
-  }, [isOpen, form, isEditMode, editCourse, terms]);
+  }, [isOpen, form, isEditMode, editCourse]);
 
-  // Fetch all available courses and terms when dialog opens
+  // Fetch courses when dialog opens
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchCourses = async () => {
       try {
         setIsLoading(true);
-        
-        // Fetch courses
-        const coursesResponse = await axiosInstance.get("/courses?limit=all&status=1");
-        const courseOptions = coursesResponse?.data?.data?.result?.map((course) => ({
+        const response = await axiosInstance.get("/courses?limit=all&status=1");
+        const courseOptions = response?.data?.data?.result?.map((course) => ({
           value: course._id,
           label: `${course.name} (${course.courseCode})`,
         })) || [];
         setCourses(courseOptions);
-
-        // Fetch terms
-        const termsResponse = await axiosInstance.get("/terms?limit=all&status=1");
-        const termOptions = termsResponse?.data?.data?.result?.map((term) => ({
-          value: term._id,
-          label: term.termName,
-        })) || [];
-        setTerms(termOptions);
-
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error fetching courses:", error);
         toast({
           title: "Error",
-          description:
-            error?.response?.data?.message || "Failed to fetch data",
+          description: error?.response?.data?.message || "Failed to fetch courses",
           className: "bg-red-500 border-none text-white",
         });
       } finally {
@@ -113,19 +97,46 @@ const AddCourseDialog = ({ onAddCourses, editCourse = null }) => {
       }
     };
 
-    if (isOpen) fetchData();
+    if (isOpen) fetchCourses();
   }, [isOpen, toast]);
+
+  // Fetch course groups when selectedCourseId changes
+  useEffect(() => {
+    const fetchCourseGroups = async () => {
+      if (!selectedCourseId) {
+        setCourseGroups([]);
+        form.setValue("groupId", "");
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        const response = await axiosInstance.get(`/course-group?limit=all&courseId=${selectedCourseId}`);
+        const groupOptions = response?.data?.data?.result?.map((group) => ({
+          value: group._id,
+          label: group.groupName || group.name || group._id,
+        })) || [];
+        setCourseGroups(groupOptions);
+      } catch (error) {
+        console.error("Error fetching course groups:", error);
+        setCourseGroups([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCourseGroups();
+  }, [selectedCourseId, form]);
 
   const handleSubmit = async (values) => {
     try {
       setIsLoading(true);
 
       if (isEditMode) {
-        // Update existing course assignment
-        const response = await axiosInstance.patch(`/teacher-courses/${editCourse._id}`, {
+        await axiosInstance.patch(`/teacher-courses/${editCourse._id}`, {
           teacherId: id,
           courseId: values.courseId,
-          termId: values.termId,
+          groupId: values.groupId,
         });
 
         toast({
@@ -134,11 +145,10 @@ const AddCourseDialog = ({ onAddCourses, editCourse = null }) => {
           className: "bg-watney border-none text-white",
         });
       } else {
-        // Add new course assignment
-        const response = await axiosInstance.post(`/teacher-courses`, {
+        await axiosInstance.post(`/teacher-courses`, {
           teacherId: id,
           courseId: values.courseId,
-          termId: values.termId,
+          groupId: values.groupId,
         });
 
         toast({
@@ -166,16 +176,14 @@ const AddCourseDialog = ({ onAddCourses, editCourse = null }) => {
     }
   };
 
-  // Helper function to find current term value for display
-  const getCurrentTermValue = () => {
-    const termId = form.watch("termId");
-    return terms.find((t) => t.value === termId) || null;
-  };
-
-  // Helper function to find current course value for display
   const getCurrentCourseValue = () => {
     const courseId = form.watch("courseId");
     return courses.find((c) => c.value === courseId) || null;
+  };
+
+  const getCurrentGroupValue = () => {
+    const groupId = form.watch("groupId");
+    return courseGroups.find((g) => g.value === groupId) || null;
   };
 
   return (
@@ -221,9 +229,10 @@ const AddCourseDialog = ({ onAddCourses, editCourse = null }) => {
                         isLoading={isLoading}
                         options={courses}
                         value={getCurrentCourseValue()}
-                        onChange={(selected) =>
-                          onChange(selected ? selected.value : "")
-                        }
+                        onChange={(selected) => {
+                          onChange(selected ? selected.value : "");
+                          form.setValue("groupId", "");
+                        }}
                         placeholder="Select a course..."
                         isClearable
                         className="text-gray-900"
@@ -243,26 +252,27 @@ const AddCourseDialog = ({ onAddCourses, editCourse = null }) => {
               )}
             />
 
-            {/* Term Selection */}
+            {/* Group Selection (depends on selected course) */}
             <FormField
               control={form.control}
-              name="termId"
+              name="groupId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Select Term</FormLabel>
+                  <FormLabel>Select Group</FormLabel>
                   <Controller
                     control={form.control}
-                    name="termId"
+                    name="groupId"
                     render={({ field: { onChange, value } }) => (
                       <Select
                         isLoading={isLoading}
-                        options={terms}
-                        value={getCurrentTermValue()}
+                        options={courseGroups}
+                        value={getCurrentGroupValue()}
                         onChange={(selected) =>
                           onChange(selected ? selected.value : "")
                         }
-                        placeholder="Select a term..."
+                        placeholder={selectedCourseId ? "Select a group..." : "Select a course first"}
                         isClearable
+                        isDisabled={!selectedCourseId}
                         className="text-gray-900"
                         styles={{
                           control: (base) => ({

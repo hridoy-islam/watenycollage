@@ -242,13 +242,24 @@ export default function TeachersPage() {
                   <TableCell>{teacher.address}</TableCell>
 
                   <TableCell className="text-center">
-                    <Switch
-                      checked={teacher.status == 'active'}
-                      onCheckedChange={(checked) =>
-                        handleStatusChange(teacher._id, checked)
-                      }
-                      className="mx-auto"
-                    />
+                    <div className="flex items-center justify-center gap-2">
+                      <Switch
+                        checked={teacher.status == 'active'}
+                        onCheckedChange={(checked) =>
+                          handleStatusChange(teacher._id, checked)
+                        }
+                      />
+                      <Badge 
+                        variant={teacher.status === 'active' ? 'default' : 'secondary'}
+                        className={
+                          teacher.status === 'active' 
+                            ? 'bg-green-100 text-green-800 hover:bg-green-100' 
+                            : 'bg-red-100 text-red-800 hover:bg-red-100'
+                        }
+                      >
+                        {teacher.status === 'active' ? 'Active' : 'Inactive'}
+                      </Badge>
+                    </div>
                   </TableCell>
                   <TableCell className="space-x-2 text-center">
                     <TooltipProvider>

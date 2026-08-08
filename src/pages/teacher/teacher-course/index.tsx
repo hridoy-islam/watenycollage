@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
   TableBody,
@@ -8,7 +9,7 @@ import {
   TableRow
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, FileText, Pen, Trash2, File } from 'lucide-react';
+import { ArrowLeft, FileText, Pen, Trash2, File, Plus } from 'lucide-react';
 import axiosInstance from '@/lib/axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
@@ -38,7 +39,7 @@ import AddCourseDialog from './components/AddCourseDialog ';
 const TeacherDetailsPage = () => {
   const { id } = useParams();
   const [teacherCourses, setTeacherCourses] = useState([]);
-  const [allTeacherCourses, setAllTeacherCourses] = useState([]); // ✅ For local search
+  const [allTeacherCourses, setAllTeacherCourses] = useState([]);
   const [teacher, setTeacher] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(100);
@@ -51,7 +52,6 @@ const TeacherDetailsPage = () => {
   const { user } = useSelector((state: any) => state.auth);
   const [editingCourse, setEditingCourse] = useState(null);
 
-  // Fetch teacher details
   useEffect(() => {
     const fetchTeacherData = async () => {
       try {
@@ -69,7 +69,6 @@ const TeacherDetailsPage = () => {
     fetchTeacherData();
   }, [id]);
 
-  // Fetch teacher courses
   const fetchData = async (page, limit) => {
     try {
       setInitialLoading(true);
@@ -89,11 +88,12 @@ const TeacherDetailsPage = () => {
         courseCode: item.courseId?.courseCode || '—',
         status: item.courseId?.status,
         termName: item.termId?.termName,
+        groupName: item.groupId?.groupName || item.groupId?.name || '-',
         teacherId: item.teacherId
       }));
 
-      setAllTeacherCourses(formattedCourses); // ✅ Store full list
-      setTeacherCourses(formattedCourses); // Initial display
+      setAllTeacherCourses(formattedCourses);
+      setTeacherCourses(formattedCourses);
       setTotalPages(response?.data?.data?.meta?.totalPage || 1);
     } catch (error) {
       console.error('Error fetching courses:', error);
@@ -115,7 +115,6 @@ const TeacherDetailsPage = () => {
     setEditingCourse(course);
   };
 
-  // ✅ Local search by course name
   const handleSearch = (e) => {
     const value = e.target.value;
     setSearchTerm(value);
@@ -130,11 +129,11 @@ const TeacherDetailsPage = () => {
     }
   };
 
-  // ✅ Local add with correct _id
   const handleCoursesAdded = () => {
     setEditingCourse(null);
     fetchData(currentPage, entriesPerPage);
   };
+
   const handleDelete = async () => {
     if (!deleteCourse) return;
 
@@ -192,252 +191,274 @@ const TeacherDetailsPage = () => {
     );
   };
 
-  return (
-    <div className="rounded-lg bg-white p-6">
-      {/* Teacher Info */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold text-gray-900">
-          {teacher?.name || ''}'s Course List
-        </h1>
+  const searchAndActions = (
+    <div className="flex items-center justify-between">
+      <Input
+        placeholder="Search courses by name..."
+        value={searchTerm}
+        onChange={handleSearch}
+        className="h-8 max-w-[250px]"
+      />
+      <div className="flex items-center gap-2">
         <Button
-          className="bg-watney text-white hover:bg-watney/90"
           size="sm"
           onClick={() => navigate(-1)}
+          className="flex items-center gap-2 bg-watney text-xs text-white hover:bg-watney/90"
         >
-          <ArrowLeft className="mr-2 h-4 w-4" /> Back
+          <ArrowLeft className="h-4 w-4" />
+          Back
         </Button>
-      </div>
-
-      {/* Search & Add Course */}
-      <div className="my-4 flex w-full flex-row items-center justify-between pb-4">
-        <Input
-          placeholder="Search courses by name..."
-          value={searchTerm}
-          onChange={handleSearch}
-          className="max-w-xs"
-        />
-        {user.role === 'admin' && (
+        {user.role === 'admin' && !initialLoading && (
           <AddCourseDialog onAddCourses={handleCoursesAdded} />
         )}
       </div>
+    </div>
+  );
 
-      {/* Courses Table */}
-      <div>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Course Code</TableHead>
-              <TableHead>Course Name</TableHead>
-              <TableHead>Term Name</TableHead>
-              <TableHead className="w-32 text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-
-          <TableBody>
+  return (
+    <>
+      <div className="text-xs">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-6">
+            <div>
+              <CardTitle className="text-2xl font-bold">
+                {teacher?.name || 'Teacher'}'s Courses
+              </CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="pb-4">
+              {searchAndActions}
+            </div>
             {initialLoading ? (
-              <TableRow>
-                <TableCell colSpan={3} className="text-center">
-                  <BlinkingDots size="large" color="bg-watney" />
-                </TableCell>
-              </TableRow>
-            ) : teacherCourses.length > 0 ? (
-              teacherCourses.map((course) => (
-                <TableRow key={course._id} className="hover:bg-gray-50">
-                  {/* Course Code */}
-                  <TableCell className="items-center font-medium">
-                    <div className="flex items-center">
-                      {course?.courseCode ? (
-                        <span className="text-md">{course.courseCode}</span>
-                      ) : (
-                        '-'
-                      )}
-                    </div>
-                  </TableCell>
-
-                  {/* Course Name + Copy Link */}
-                  <TableCell className="flex items-center gap-2">
-                    <span>{course.name}</span>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="border-none bg-blue-100 text-blue-600 hover:bg-blue-200"
-                      onClick={() =>
-                        copyToClipboard(
-                          `${window.location.origin}/courses/apply/${course.courseId}`
-                        )
-                      }
-                      title="Copy application link"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <rect
-                          x="9"
-                          y="9"
-                          width="13"
-                          height="13"
-                          rx="2"
-                          ry="2"
-                        ></rect>
-                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                      </svg>
-                    </Button>
-                  </TableCell>
-
-                  <TableCell className=" items-center ">
-                    {course?.termName}
-                  </TableCell>
-
-                  <TableCell className="text-right">
-                    <div className="flex flex-row items-center justify-end gap-2">
-                      <TooltipProvider>
-                        {user.role === 'teacher' && (
-                          <>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  className="flex border-none bg-watney text-white hover:bg-watney/90"
-                                  size="sm"
-                                  onClick={() =>
-                                    handleDocument(course.courseId)
-                                  }
-                                >
-                                  <File className="mr-2 h-4 w-4" />
-                                  Document
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Course Document</p>
-                              </TooltipContent>
-                            </Tooltip>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  className="flex border-none bg-watney text-white hover:bg-watney/90"
-                                  size="sm"
-                                  onClick={() => handleUnit(course.courseId)}
-                                >
-                                  <FileText className="mr-2 h-4 w-4" />
-                                  Units
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Units</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </>
-                        )}
-
-                        {user.role === 'admin' && (
-                          <>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <AddCourseDialog
-                                  onAddCourses={handleCoursesAdded}
-                                  editCourse={course}
-                                />
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Edit course assignment</p>
-                              </TooltipContent>
-                            </Tooltip>
-
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <AlertDialog
-                                  open={
-                                    alertOpen &&
-                                    deleteCourse?._id === course._id
-                                  }
-                                  onOpenChange={(open) => {
-                                    if (!open) setDeleteCourse(null);
-                                    setAlertOpen(open);
-                                  }}
-                                >
-                                  <AlertDialogTrigger asChild>
+              <div className="flex items-center justify-center py-12">
+                <BlinkingDots />
+              </div>
+            ) : teacherCourses.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <div className="mb-4 rounded-full bg-gray-100 p-4">
+                  <svg
+                    className="h-12 w-12 text-gray-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                    />
+                  </svg>
+                </div>
+                <h3 className="mb-1 text-lg font-semibold text-gray-900">
+                  No courses assigned
+                </h3>
+                <p className="mb-4 text-gray-500">
+                  No courses have been assigned to this teacher yet.
+                </p>
+              </div>
+            ) : (
+              <>
+                <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-xs">Course Code</TableHead>
+                    <TableHead className="text-xs">Course Name</TableHead>
+                    <TableHead className="text-xs">Intake</TableHead>
+                    <TableHead className="text-xs">Group</TableHead>
+                    <TableHead className="w-32 text-right text-xs">
+                      Actions
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {teacherCourses.map((course) => (
+                    <TableRow key={course._id} className="hover:bg-gray-50">
+                      <TableCell className="text-xs font-medium">
+                        {course?.courseCode || '-'}
+                      </TableCell>
+                      <TableCell className="text-xs">
+                        <div className="flex items-center gap-2">
+                          <span>{course.name}</span>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="border-none bg-blue-100 text-blue-600 hover:bg-blue-200"
+                            onClick={() =>
+                              copyToClipboard(
+                                `${window.location.origin}/courses/apply/${course.courseId}`
+                              )
+                            }
+                            title="Copy application link"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <rect
+                                x="9"
+                                y="9"
+                                width="13"
+                                height="13"
+                                rx="2"
+                                ry="2"
+                              ></rect>
+                              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                          </Button>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-xs">
+                        {course?.termName}
+                      </TableCell>
+                      <TableCell className="text-xs">
+                        {course?.groupName}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex flex-row items-center justify-end gap-2">
+                          <TooltipProvider>
+                            {user.role === 'teacher' && (
+                              <>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
                                     <Button
-                                      variant="ghost"
-                                      className="border-none bg-destructive text-white hover:bg-destructive/90"
-                                      size="icon"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        setDeleteCourse(course);
-                                        setAlertOpen(true);
+                                      variant="default"
+                                      size="sm"
+                                      className="flex items-center gap-2 bg-watney text-xs text-white hover:bg-watney/90"
+                                      onClick={() =>
+                                        handleDocument(course.courseId)
+                                      }
+                                    >
+                                      <File className="h-4 w-4" />
+                                      Document
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Course Document</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      variant="default"
+                                      size="sm"
+                                      className="flex items-center gap-2 bg-watney text-xs text-white hover:bg-watney/90"
+                                      onClick={() => handleUnit(course.courseId)}
+                                    >
+                                      <FileText className="h-4 w-4" />
+                                      Units
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Units</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </>
+                            )}
+
+                            {user.role === 'admin' && (
+                              <>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <AddCourseDialog
+                                      onAddCourses={handleCoursesAdded}
+                                      editCourse={course}
+                                    />
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Edit course assignment</p>
+                                  </TooltipContent>
+                                </Tooltip>
+
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <AlertDialog
+                                      open={
+                                        alertOpen &&
+                                        deleteCourse?._id === course._id
+                                      }
+                                      onOpenChange={(open) => {
+                                        if (!open) setDeleteCourse(null);
+                                        setAlertOpen(open);
                                       }}
                                     >
-                                      <Trash2 className=" h-4 w-4" />
-                                    </Button>
-                                  </AlertDialogTrigger>
-
-                                  <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                      <AlertDialogTitle>
-                                        Are you sure?
-                                      </AlertDialogTitle>
-                                      <AlertDialogDescription>
-                                        This action cannot be undone. Delete "
-                                        {deleteCourse?.name}"?
-                                      </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                      <AlertDialogCancel>
-                                        Cancel
-                                      </AlertDialogCancel>
-                                      <AlertDialogAction
-                                        onClick={handleDelete}
-                                        className="bg-destructive text-white hover:bg-destructive/90"
-                                      >
-                                        Delete
-                                      </AlertDialogAction>
-                                    </AlertDialogFooter>
-                                  </AlertDialogContent>
-                                </AlertDialog>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Delete course</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </>
-                        )}
-                      </TooltipProvider>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={3} className="text-center">
-                  No courses assigned
-                </TableCell>
-              </TableRow>
+                                      <AlertDialogTrigger asChild>
+                                        <Button
+                                          variant="destructive"
+                                          size="sm"
+                                          className="flex items-center gap-2 text-xs"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setDeleteCourse(course);
+                                            setAlertOpen(true);
+                                          }}
+                                        >
+                                          <Trash2 className="h-4 w-4" />
+                                          Delete
+                                        </Button>
+                                      </AlertDialogTrigger>
+                                      <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                          <AlertDialogTitle>
+                                            Are you sure?
+                                          </AlertDialogTitle>
+                                          <AlertDialogDescription>
+                                            This action cannot be undone. Delete "
+                                            {deleteCourse?.name}"?
+                                          </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                          <AlertDialogCancel>
+                                            Cancel
+                                          </AlertDialogCancel>
+                                          <AlertDialogAction
+                                            onClick={handleDelete}
+                                            className="bg-destructive text-white hover:bg-destructive/90"
+                                          >
+                                            Delete
+                                          </AlertDialogAction>
+                                        </AlertDialogFooter>
+                                      </AlertDialogContent>
+                                    </AlertDialog>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Delete course</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </>
+                            )}
+                          </TooltipProvider>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              {totalPages > 1 && (
+                <div className="flex items-center justify-end gap-2 pt-2">
+                  <DataTablePagination
+                    pageSize={entriesPerPage}
+                    setPageSize={setEntriesPerPage}
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                  />
+                </div>
+              )}
+              </>
             )}
-          </TableBody>
-        </Table>
+          </CardContent>
+        </Card>
       </div>
-
-      {/* Pagination (only shown when not searching) */}
-      {!searchTerm && teacherCourses.length > 10 && (
-        <div className="mt-4">
-          <DataTablePagination
-            pageSize={entriesPerPage}
-            setPageSize={setEntriesPerPage}
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-          />
-        </div>
-      )}
-    </div>
+    </>
   );
 };
 

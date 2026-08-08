@@ -60,6 +60,7 @@ import TeacherProfile from '@/pages/profile/profile-teacher';
 import AttendancePage from '@/pages/staff-attendance';
 import AssignmentReportsPage from '@/pages/assignmentReport';
 import StudentVerificationPage from '@/pages/studentVerification';
+import { BlinkingDots } from '@/components/shared/blinking-dots';
 
 const SignInPage = lazy(() => import('@/pages/auth/signin/index'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
@@ -81,7 +82,7 @@ export default function AppRouter() {
       element: (
         <AdminLayout>
           <ProtectedRoute allowedRoles={['admin', 'teacher']}>
-            <Suspense fallback={<div>Loading...</div>}>
+            <Suspense fallback={<div><BlinkingDots/></div>}>
               <Outlet />
             </Suspense>
           </ProtectedRoute>
@@ -139,7 +140,7 @@ export default function AppRouter() {
       element: (
         <StudentLayout>
           <ProtectedRoute allowedRoles={['student', 'applicant']}>
-            <Suspense fallback={<div>Loading...</div>}>
+            <Suspense fallback={<div><BlinkingDots/></div>}>
               <Outlet />
             </Suspense>
           </ProtectedRoute>

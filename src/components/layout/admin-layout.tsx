@@ -22,7 +22,7 @@ export default function AdminLayout({
       <SideNav />
 
     
-      <div className="flex flex-1 flex-col pt-14 lg:pt-0 lg:pl-56">
+      <div className="flex min-w-0 flex-1 flex-col pt-14 lg:pt-0 lg:pl-56">
         <main className="h-full w-full overflow-y-auto overflow-x-hidden p-2">
         
             {children}

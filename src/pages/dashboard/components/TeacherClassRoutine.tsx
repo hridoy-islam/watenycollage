@@ -1,0 +1,1045 @@
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import moment from 'moment';
+import clsx from 'clsx';
+import { z } from 'zod';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { useToast } from '@/components/ui/use-toast';
+import axiosInstance from '@/lib/axios';
+import { BlinkingDots } from '@/components/shared/blinking-dots';
+import {
+  ChevronLeft,
+  ChevronRight,
+  ClipboardCheck,
+  Clock,
+  UserCheck,
+  UserX,
+  Timer,
+  Check,
+  X,
+  Loader2,
+  File,
+  Users,
+  CalendarRange,
+  CalendarIcon
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter
+} from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
+
+type AttendanceStatus = 'present' | 'absent' | 'late';
+
+interface RoutineEntry {
+  _id: string;
+  classDate: string;
+  startTime?: string;
+  endTime?: string;
+  note?: string;
+  courseId?: { _id: string; name: string } | string;
+  groupId?: { _id: string; name: string } | string;
+  termId?: { _id: string; name: string } | string;
+}
+
+interface SheetStudent {
+  studentId: any;
+  applicationCourseId: string;
+  status?: AttendanceStatus;
+  remark?: string;
+}
+
+interface AttendanceSheet {
+  _id: string;
+  classRoutineId: string;
+  classDate: string;
+  attendance: SheetStudent[];
+  courseId?: { _id: string; name: string } | string;
+  groupId?: { _id: string; name: string } | string;
+  termId?: { _id: string; name: string } | string;
+}
+
+const STATUS_META: Record<
+  AttendanceStatus,
+  { label: string; icon: any; active: string; chip: string }
+> = {
+  present: {
+    label: 'Present',
+    icon: UserCheck,
+    active: 'bg-emerald-500 text-white border-emerald-600',
+    chip: 'bg-emerald-100 text-emerald-700'
+  },
+  absent: {
+    label: 'Absent',
+    icon: UserX,
+    active: 'bg-rose-500 text-white border-rose-600',
+    chip: 'bg-rose-100 text-rose-700'
+  },
+  late: {
+    label: 'Late',
+    icon: Timer,
+    active: 'bg-amber-500 text-white border-amber-600',
+    chip: 'bg-amber-100 text-amber-700'
+  }
+};
+
+const COURSE_COLORS = [
+  '#3b82f6',
+  '#10b981',
+  '#f59e0b',
+  '#8b5cf6',
+  '#ec4899',
+  '#06b6d4',
+  '#f97316',
+  '#22c55e'
+];
+
+// ── Attendance payload schema (zod) ─────────────────────────────────────
+const attendancePayloadSchema = z.array(
+  z.object({
+    studentId: z.string().min(1, 'Student ID is required'),
+    status: z.enum(['present', 'absent', 'late'], {
+      required_error: 'Attendance status is required for every student',
+      invalid_type_error: 'Invalid attendance status'
+    }),
+    remark: z
+      .string()
+      .max(200, 'Remark must be at most 200 characters')
+      .optional()
+  })
+);
+
+// ── Grid constants ──────────────────────────────────────────────────────────
+const START_H = 8;
+const END_H = 23;
+const HOURS = Array.from({ length: END_H - START_H }, (_, i) => START_H + i);
+const ROW_HEIGHT = 96;
+const COLUMN_MIN_PX = 120;
+const COLUMN_MAX_PX = 150;
+const COLUMN_WIDTH = `clamp(${COLUMN_MIN_PX}px, calc((100vw - 64px) / 7), ${COLUMN_MAX_PX}px)`;
+
+interface SlotInfo {
+  entry: RoutineEntry;
+  idx: number;
+  span: number;
+  isStart: boolean;
+  topPx: number;
+  heightPx: number;
+}
+
+function pad(n: number) {
+  return String(n).padStart(2, '0');
+}
+function fmtH(h: number) {
+  return `${pad(h)}:00`;
+}
+
+function isToday(d: Date) {
+  const n = new Date();
+  return (
+    d.getDate() === n.getDate() &&
+    d.getMonth() === n.getMonth() &&
+    d.getFullYear() === n.getFullYear()
+  );
+}
+
+function toUTCDateKey(d: Date) {
+  return new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()))
+    .toISOString()
+    .split('T')[0];
+}
+
+function routineToFormDay(entry: RoutineEntry, days: Date[]): number {
+  const ed = entry.classDate.split('T')[0];
+  return days.findIndex((d) => ed === toUTCDateKey(d));
+}
+
+function buildSlotMap(routines: RoutineEntry[], days: Date[]) {
+  const map: Record<number, Record<number, SlotInfo>> = {};
+
+  routines.forEach((entry, idx) => {
+    const di = routineToFormDay(entry, days);
+    if (di === -1 || !entry.startTime || !entry.endTime) return;
+
+    const [sh, sm] = entry.startTime.split(':').map(Number);
+    const [eh, em] = entry.endTime.split(':').map(Number);
+
+    let startD = sh + sm / 60;
+    let endD = eh + em / 60;
+
+    startD = Math.max(startD, START_H);
+    endD = Math.min(endD, END_H);
+
+    if (startD >= endD) return;
+
+    const startGridHr = Math.floor(startD);
+    const endGridHr = Math.ceil(endD);
+    const span = endGridHr - startGridHr;
+
+    const topPx = (startD - startGridHr) * ROW_HEIGHT;
+    const heightPx = (endD - startD) * ROW_HEIGHT;
+
+    if (!map[di]) map[di] = {};
+
+    for (let h = startGridHr; h < endGridHr; h++) {
+      map[di][h] = {
+        entry,
+        idx,
+        span: h === startGridHr ? span : 0,
+        isStart: h === startGridHr,
+        topPx,
+        heightPx
+      };
+    }
+  });
+  return map;
+}
+
+const studentName = (s: any) =>
+  s?.name ||
+  [s?.title, s?.firstName, s?.lastName].filter(Boolean).join(' ') ||
+  'Unknown Student';
+
+const asObject = (v: any) => (typeof v === 'string' ? { _id: v } : v);
+const courseIdOf = (r: RoutineEntry) => {
+  const c = asObject(r.courseId);
+  return c?._id || '';
+};
+const courseNameOf = (r?: RoutineEntry | null) => {
+  if (!r) return '';
+  return asObject(r.courseId)?.name || 'Course';
+};
+const groupNameOf = (s?: AttendanceSheet | null) => {
+  return asObject(s?.groupId)?.name || '';
+};
+const termNameOf = (s?: AttendanceSheet | null) => {
+  return asObject(s?.termId)?.name || '';
+};
+const routineGroupNameOf = (r?: RoutineEntry | null) => {
+  return asObject(r?.groupId)?.name || '';
+};
+const routineTermNameOf = (r?: RoutineEntry | null) => {
+  return asObject(r?.termId)?.name || '';
+};
+
+export function TeacherClassRoutine({ teacherId, user }: any) {
+  const { toast } = useToast();
+
+  // ── Date range state ────────────────────────────────────────────────────
+  const [appliedRange, setAppliedRange] = useState<[Date | null, Date | null]>([
+    moment().startOf('isoWeek').toDate(),
+    moment().endOf('isoWeek').toDate()
+  ]);
+
+  const [customRange, setCustomRange] = useState<[Date | null, Date | null]>([
+    moment().startOf('isoWeek').toDate(),
+    moment().endOf('isoWeek').toDate()
+  ]);
+
+  const [startDate, endDate] = appliedRange;
+  const [tempStart, tempEnd] = customRange;
+
+  const [isCustomMode, setIsCustomMode] = useState(false);
+
+  const [routines, setRoutines] = useState<RoutineEntry[]>([]);
+  const [routinesLoading, setRoutinesLoading] = useState(false);
+  const [attendanceTakenIds, setAttendanceTakenIds] = useState<Set<string>>(
+    new Set()
+  );
+
+  // ── Attendance dialog state ─────────────────────────────────────────────
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [sheet, setSheet] = useState<AttendanceSheet | null>(null);
+  const [sheetLoading, setSheetLoading] = useState(false);
+  const [statuses, setStatuses] = useState<Record<string, AttendanceStatus>>(
+    {}
+  );
+  const [remarks, setRemarks] = useState<Record<string, string>>({});
+  const [saving, setSaving] = useState(false);
+  const [unmarkedIds, setUnmarkedIds] = useState<Set<string>>(new Set());
+  const [selectedRoutine, setSelectedRoutine] = useState<RoutineEntry | null>(
+    null
+  );
+
+  // ── Grid days derived from the applied range ────────────────────────────
+  const weekDays = useMemo(() => {
+    if (!startDate || !endDate) return [];
+    const start = moment(startDate).startOf('day');
+    const end = moment(endDate).startOf('day');
+    if (end.isBefore(start)) return [start.toDate()];
+    const days: Date[] = [];
+    let cur = start.clone();
+    while (cur.isSameOrBefore(end)) {
+      days.push(cur.toDate());
+      cur = cur.clone().add(1, 'day');
+    }
+    return days;
+  }, [startDate, endDate]);
+
+  const toLocalDateString = (d: Date) => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  };
+
+  const shiftRange = (daysCount: number) => {
+    const [s, e] = appliedRange;
+    if (!s || !e) return;
+    const nextRange: [Date, Date] = [
+      moment(s).add(daysCount, 'days').toDate(),
+      moment(e).add(daysCount, 'days').toDate()
+    ];
+    setAppliedRange(nextRange);
+    setCustomRange(nextRange);
+  };
+
+  const goThisWeek = () => {
+    const thisWeek: [Date, Date] = [
+      moment().startOf('isoWeek').toDate(),
+      moment().endOf('isoWeek').toDate()
+    ];
+    setAppliedRange(thisWeek);
+    setCustomRange(thisWeek);
+    setIsCustomMode(false);
+  };
+
+  const goToday = () => {
+    const today = moment().startOf('day').toDate();
+    const todayRange: [Date, Date] = [today, today];
+    setAppliedRange(todayRange);
+    setCustomRange(todayRange);
+    setIsCustomMode(false);
+  };
+
+  const handleApply = () => {
+    if (tempStart && tempEnd) {
+      setAppliedRange(customRange);
+      setIsCustomMode(false);
+    }
+  };
+
+  const openCustomMode = () => {
+    setCustomRange(appliedRange);
+    setIsCustomMode(true);
+  };
+
+  const fetchRoutines = useCallback(async () => {
+    if (weekDays.length === 0) return;
+    setRoutinesLoading(true);
+    try {
+      const params = {
+        teacherId,
+        startDate: toLocalDateString(weekDays[0]),
+        endDate: toLocalDateString(weekDays[weekDays.length - 1])
+      };
+
+      const [routineRes, attendanceRes] = await Promise.all([
+        axiosInstance.get('/course-routine?limit=500', { params }),
+        axiosInstance.get('/student-attendance?limit=500', { params })
+      ]);
+
+      const routineResult = routineRes.data?.data?.result || [];
+      setRoutines(Array.isArray(routineResult) ? routineResult : []);
+
+      const sheets = attendanceRes.data?.data?.result || [];
+      const taken = new Set<string>();
+      (Array.isArray(sheets) ? sheets : []).forEach((sheet: any) => {
+        const hasMarks = (sheet?.attendance || []).some(
+          (entry: any) => entry?.status
+        );
+        const routineId = sheet?.classRoutineId?._id || sheet?.classRoutineId;
+        if (hasMarks && routineId) taken.add(routineId.toString());
+      });
+      setAttendanceTakenIds(taken);
+    } catch (error) {
+      console.error('Failed to fetch routines:', error);
+      setRoutines([]);
+      setAttendanceTakenIds(new Set());
+    } finally {
+      setRoutinesLoading(false);
+    }
+  }, [teacherId, weekDays]);
+
+  useEffect(() => {
+    fetchRoutines();
+  }, [fetchRoutines]);
+
+  const courseColor = useMemo(() => {
+    const ids = [...new Set(routines.map(courseIdOf))].filter(Boolean);
+    const map: Record<string, string> = {};
+    ids.forEach((id, i) => {
+      map[id] = COURSE_COLORS[i % COURSE_COLORS.length];
+    });
+    return map;
+  }, [routines]);
+
+  const slotMap = useMemo(() => buildSlotMap(routines, weekDays), [
+    routines,
+    weekDays
+  ]);
+
+  const openAttendance = async (routine: RoutineEntry) => {
+    setSelectedRoutine(routine);
+    setDialogOpen(true);
+    setSheet(null);
+    setStatuses({});
+    setRemarks({});
+    setUnmarkedIds(new Set());
+    setSheetLoading(true);
+    try {
+      const res = await axiosInstance.get(
+        `/student-attendance/by-routine/${routine._id}`
+      );
+      const sheetData: AttendanceSheet = res.data?.data;
+      setSheet(sheetData);
+      const initialStatuses: Record<string, AttendanceStatus> = {};
+      const initialRemarks: Record<string, string> = {};
+      sheetData?.attendance?.forEach((entry) => {
+        const sid = entry.studentId?._id || entry.studentId;
+        if (sid) {
+          if (entry.status) initialStatuses[sid] = entry.status;
+          if (entry.remark) initialRemarks[sid] = entry.remark;
+        }
+      });
+      setStatuses(initialStatuses);
+      setRemarks(initialRemarks);
+    } catch (error: any) {
+      toast({
+        title: 'Failed to load attendance sheet',
+        description: error?.response?.data?.message || 'Please try again',
+        variant: 'destructive'
+      });
+    } finally {
+      setSheetLoading(false);
+    }
+  };
+
+  const toggleStatus = (studentId: string, status: AttendanceStatus) => {
+    setUnmarkedIds((prev) => {
+      const next = new Set(prev);
+      next.delete(studentId);
+      return next;
+    });
+    setStatuses((prev) => ({
+      ...prev,
+      [studentId]: status
+    }));
+  };
+
+  const markAllPresent = () => {
+    setStatuses((prev) => {
+      const next = { ...prev };
+      sheet?.attendance?.forEach((entry) => {
+        const sid = entry.studentId?._id || entry.studentId;
+        if (sid) next[sid] = 'present';
+      });
+      return next;
+    });
+  };
+
+  const stats = useMemo(() => {
+    const students = sheet?.attendance || [];
+    const present = students.filter(
+      (e) => statuses[e.studentId?._id || e.studentId] === 'present'
+    ).length;
+    const absent = students.filter(
+      (e) => statuses[e.studentId?._id || e.studentId] === 'absent'
+    ).length;
+    const late = students.filter(
+      (e) => statuses[e.studentId?._id || e.studentId] === 'late'
+    ).length;
+    return {
+      total: students.length,
+      present,
+      absent,
+      late,
+      unmarked: students.length - present - absent - late
+    };
+  }, [sheet, statuses]);
+
+  const saveAttendance = async () => {
+    if (!sheet) return;
+    const entries = (sheet.attendance || [])
+      .map((entry) => {
+        const sid = entry.studentId?._id || entry.studentId;
+        const status = statuses[sid];
+        const remark = remarks[sid]?.trim();
+        if (!sid) return null;
+        const payload: Record<string, unknown> = { studentId: sid, status };
+        if (remark) payload.remark = remark;
+        return payload;
+      })
+      .filter(Boolean);
+
+    const parsed = attendancePayloadSchema.safeParse(entries);
+    if (!parsed.success) {
+      const missing = new Set<string>();
+      (sheet.attendance || []).forEach((entry) => {
+        const sid = entry.studentId?._id || entry.studentId;
+        if (sid && !statuses[sid]) missing.add(sid);
+      });
+      setUnmarkedIds(missing);
+      return;
+    }
+
+    setSaving(true);
+    try {
+      await axiosInstance.patch(
+        `/student-attendance/bulk/${sheet.classRoutineId}`,
+        { entries: parsed.data }
+      );
+      toast({
+        title: 'Attendance saved successfully',
+        description: `${stats.present} present, ${stats.absent} absent, ${stats.late} late`
+      });
+      setDialogOpen(false);
+      setUnmarkedIds(new Set());
+      fetchRoutines();
+    } catch (error: any) {
+      toast({
+        title: 'Failed to save attendance',
+        description: error?.response?.data?.message || 'Please try again',
+        variant: 'destructive'
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const routineDate = selectedRoutine
+    ? moment.utc(selectedRoutine.classDate).format('dddd, DD MMM YYYY')
+    : '';
+
+  const selectedCourseName =
+    courseNameOf(sheet as any) || courseNameOf(selectedRoutine);
+
+  const rangeLabel =
+    weekDays.length > 0
+      ? `${moment(weekDays[0]).format('DD MMM')} – ${moment(
+          weekDays[weekDays.length - 1]
+        ).format('DD MMM YYYY')}`
+      : 'Select dates';
+
+  return (
+    <Card className="w-full max-w-full min-w-0 overflow-hidden shadow-none">
+      <div className="flex  flex-col gap-4">
+        {/* Header with Welcome Message */}
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <div className="rounded-lg bg-watney/10 p-2">
+              <ClipboardCheck className="h-5 w-5 text-watney" />
+            </div>
+            <div>
+              {user?.name && (
+                <p className="text-lg font-bold text-gray-800">
+                  Welcome, <span className="text-watney">{user.name}</span>
+                </p>
+              )}
+              <p className="text-xs text-gray-500">
+                Click a class block to take or update attendance
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Date range controls */}
+        <div className="flex  flex-wrap items-center  justify-between gap-2 border-y border-gray-100 py-3">
+          <div className="flex f flex-wrap items-center gap-2">
+            <Button
+              size="icon"
+              className="h-8 w-8 bg-watney text-white hover:bg-watney/90"
+              onClick={() => shiftRange(-(weekDays.length || 7))}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+
+            {/* Range display / Custom picker switcher */}
+            {isCustomMode ? (
+              <div className="z-50 flex items-center gap-2 rounded-full border border-watney/40 bg-white p-1 shadow-sm">
+                <CalendarRange className="ml-2 h-3.5 w-3.5 shrink-0 text-watney" />
+                <DatePicker
+                  selectsRange
+                  startDate={tempStart}
+                  endDate={tempEnd}
+                  onChange={(dates: [Date | null, Date | null]) =>
+                    setCustomRange(dates)
+                  }
+                  dateFormat="dd MMM yyyy"
+                  placeholderText="Select date range..."
+                  isClearable={false}
+                  popperPlacement="bottom-start"
+                  popperProps={{ strategy: 'fixed' }}
+                  className="w-52 border-none bg-transparent text-xs font-semibold text-gray-700 outline-none placeholder:text-gray-400"
+                />
+                <Button
+                  size="sm"
+                  onClick={handleApply}
+                  disabled={!tempStart || !tempEnd}
+                  className="h-7 rounded-full bg-watney px-3 text-[11px] font-bold text-white hover:bg-watney/90 disabled:opacity-40"
+                >
+                  Apply
+                </Button>
+                <button
+                  onClick={() => setIsCustomMode(false)}
+                  className="mr-1 flex h-7 w-7 items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={openCustomMode}
+                className="flex min-w-[180px] items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-center text-sm font-semibold text-gray-700 transition-colors hover:border-gray-200 hover:bg-gray-50"
+              >
+                <CalendarIcon className="h-3.5 w-3.5 text-watney" />
+                {rangeLabel}
+              </button>
+            )}
+
+            <Button
+              size="icon"
+              className="h-8 w-8 bg-watney text-white hover:bg-watney/90"
+              onClick={() => shiftRange(weekDays.length || 7)}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-8 text-xs"
+              onClick={goThisWeek}
+            >
+              This Week
+            </Button>
+            <Button
+              size="sm"
+              className="h-8 bg-watney text-xs text-white hover:bg-watney/90"
+              onClick={goToday}
+            >
+              Today
+            </Button>
+          </div>
+
+          <span className="text-xs text-gray-400">
+            {routines.length} class{routines.length === 1 ? '' : 'es'} in range
+          </span>
+        </div>
+
+        {/* ── Scrollable 2D Grid View (Horizontal & Vertical) ────────────────── */}
+        {routinesLoading ? (
+          <div className="flex justify-center py-8">
+            <BlinkingDots size="small" color="bg-watney" />
+          </div>
+        ) : (
+          <div className="relative max-h-[650px] w-full min-w-0 max-w-full overflow-auto rounded-sm border border-gray-300 bg-white shadow-sm">
+            <table className="w-max min-w-full border-collapse text-sm">
+              <thead className="sticky top-0 z-30 bg-slate-50">
+                <tr>
+                  <th className="sticky left-0 top-0 z-40 w-16 min-w-[64px] border-b border-r border-gray-200 bg-slate-50 px-2 py-2 text-right text-[10px] font-semibold uppercase tracking-wide shadow-[4px_0_8px_-3px_rgba(0,0,0,0.15)]">
+                    Time
+                  </th>
+                  {weekDays.map((d, di) => {
+                    const today = isToday(d);
+                    const wknd = [0, 6].includes(d.getDay());
+                    const dayName = d.toLocaleDateString('en-GB', {
+                      weekday: 'short'
+                    });
+                    return (
+                      <th
+                        key={di}
+                        style={{
+                          width: COLUMN_WIDTH,
+                          minWidth: `${COLUMN_MIN_PX}px`,
+                          maxWidth: `${COLUMN_MAX_PX}px`
+                        }}
+                        className={`border-b border-r border-gray-200 py-2 text-center ${
+                          today ? 'bg-blue-50' : wknd ? 'bg-slate-100/60' : ''
+                        }`}
+                      >
+                        <div className="text-[10px] font-semibold uppercase tracking-wide text-black/80">
+                          {dayName}
+                        </div>
+                        {today ? (
+                          <div className="mx-auto mt-1 flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-[13px] font-medium text-white">
+                            {d.getDate()}
+                          </div>
+                        ) : (
+                          <div className="mt-1 text-sm font-medium text-black">
+                            {d.getDate()}
+                          </div>
+                        )}
+                        <div className="mt-0.5 text-[9px] font-medium text-black/50">
+                          {d.toLocaleDateString('en-GB', { month: 'short' })}
+                        </div>
+                      </th>
+                    );
+                  })}
+                </tr>
+              </thead>
+              <tbody>
+                {HOURS.map((hr) => (
+                  <tr key={hr}>
+                    <td className="sticky left-0 z-20 w-16 min-w-[64px] border-b border-r border-gray-200 bg-white px-2 pt-1 text-right align-top text-[11px] font-semibold text-black/70 shadow-[4px_0_8px_-3px_rgba(0,0,0,0.15)]">
+                      {fmtH(hr)}
+                    </td>
+                    {weekDays.map((_, di) => {
+                      const slot = slotMap[di]?.[hr];
+                      if (slot && !slot.isStart) return null;
+
+                      const today = isToday(weekDays[di]);
+                      const wknd = [0, 6].includes(weekDays[di].getDay());
+                      const cellCls = `border-b border-r border-gray-200 p-0 align-top transition-colors relative ${
+                        today ? 'bg-blue-50/20' : wknd ? 'bg-slate-50/60' : ''
+                      }`;
+
+                      if (!slot)
+                        return (
+                          <td
+                            key={di}
+                            className={cellCls}
+                            style={{
+                              height: ROW_HEIGHT,
+                              width: COLUMN_WIDTH,
+                              minWidth: `${COLUMN_MIN_PX}px`,
+                              maxWidth: `${COLUMN_MAX_PX}px`
+                            }}
+                          />
+                        );
+
+                      const { entry, span, topPx, heightPx } = slot;
+                      const color = courseColor[courseIdOf(entry)] || '#3b82f6';
+                      const courseName = courseNameOf(entry);
+                      const attendanceTaken = attendanceTakenIds.has(entry._id);
+
+                      return (
+                        <td
+                          key={di}
+                          rowSpan={span}
+                          className={cellCls}
+                          style={{
+                            height: span * ROW_HEIGHT,
+                            width: COLUMN_WIDTH,
+                            minWidth: `${COLUMN_MIN_PX}px`,
+                            maxWidth: `${COLUMN_MAX_PX}px`
+                          }}
+                        >
+                          <div className="relative h-full w-full p-1">
+                            <button
+                              onClick={() => openAttendance(entry)}
+                              title={
+                                attendanceTaken
+                                  ? 'View / update attendance'
+                                  : 'Take attendance'
+                              }
+                              className="absolute left-1 right-1 z-10 flex flex-col overflow-hidden rounded-md border bg-white p-2 text-left text-xs shadow-sm transition-all hover:shadow-md hover:brightness-[0.98]"
+                              style={{
+                                top: topPx + 2,
+                                height: Math.max(heightPx - 4, 32),
+                                borderLeft: `3px solid ${color}`
+                              }}
+                            >
+                              <div className="flex h-full select-none flex-col justify-start overflow-hidden">
+                                <div className="flex shrink-0 items-center gap-1 whitespace-nowrap text-[9px] font-semibold text-black">
+                                  <Clock
+                                    className="h-2.5 w-2.5 shrink-0"
+                                    style={{ color }}
+                                  />
+                                  {entry.startTime} – {entry.endTime}
+                                </div>
+                                <div className="mt-0.5 shrink-0 truncate text-[10px] font-bold text-black">
+                                  {courseName}
+                                </div>
+                                {(routineGroupNameOf(entry) ||
+                                  routineTermNameOf(entry)) && (
+                                  <div className="mt-0.5 flex shrink-0 items-center gap-1 overflow-hidden text-[8px] font-medium text-black">
+                                    {routineGroupNameOf(entry) && (
+                                      <span className="truncate">
+                                        G: {routineGroupNameOf(entry)}
+                                      </span>
+                                    )}
+                                    {routineGroupNameOf(entry) &&
+                                      routineTermNameOf(entry) && (
+                                        <span className="shrink-0">·</span>
+                                      )}
+                                    {routineTermNameOf(entry) && (
+                                      <span className="truncate">
+                                        T: {routineTermNameOf(entry)}
+                                      </span>
+                                    )}
+                                  </div>
+                                )}
+                                {entry.note && (
+                                  <div className="mt-0.5 flex w-full shrink-0 items-center gap-1 overflow-hidden text-black">
+                                    <File className="h-2.5 w-2.5 shrink-0" />
+                                    <span className="truncate text-[9px]">
+                                      {entry.note}
+                                    </span>
+                                  </div>
+                                )}
+                                <div
+                                  className={clsx(
+                                    'mt-auto flex shrink-0 items-center gap-1 pt-1 text-[8px] font-semibold',
+                                    attendanceTaken
+                                      ? 'text-watney'
+                                      : 'text-black'
+                                  )}
+                                >
+                                  {attendanceTaken ? (
+                                    <>
+                                      <UserCheck className="h-2.5 w-2.5 shrink-0" />
+                                      View Attendance
+                                    </>
+                                  ) : (
+                                    <>Take Attendance →</>
+                                  )}
+                                </div>
+                              </div>
+                            </button>
+                          </div>
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* ... Attendance Dialog Code (Unchanged) ... */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="flex max-h-[92vh] w-[95vw] max-w-6xl flex-col overflow-hidden p-0 sm:p-0">
+          <div className="shrink-0 px-4 py-4 sm:px-6">
+            <DialogHeader>
+              <DialogTitle className="flex flex-wrap items-center gap-2 text-base text-black sm:text-lg">
+                <ClipboardCheck className="h-4 w-4 shrink-0 text-watney sm:h-5 sm:w-5" />
+                <span className="break-words">
+                  Take Attendance
+                  {selectedCourseName ? ` — ${selectedCourseName}` : ''}
+                </span>
+              </DialogTitle>
+              <DialogDescription className="space-y-1 text-xs text-black">
+                <div className="font-medium text-black">
+                  {routineDate} · {selectedRoutine?.startTime || '--:--'} –{' '}
+                  {selectedRoutine?.endTime || '--:--'}
+                </div>
+                {(groupNameOf(sheet) || termNameOf(sheet)) && (
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5">
+                    {groupNameOf(sheet) && (
+                      <span className="flex items-center gap-1">
+                        <Users className="h-3 w-3 shrink-0" />
+                        <span>Group: {groupNameOf(sheet)}</span>
+                      </span>
+                    )}
+                    {termNameOf(sheet) && (
+                      <span className="flex items-center gap-1">
+                        <CalendarRange className="h-3 w-3 shrink-0" />
+                        <span>Term: {termNameOf(sheet)}</span>
+                      </span>
+                    )}
+                  </div>
+                )}
+                {selectedRoutine?.note && (
+                  <div className="flex items-center gap-1">
+                    <File className="h-3 w-3 shrink-0" />
+                    <span>{selectedRoutine.note}</span>
+                  </div>
+                )}
+              </DialogDescription>
+            </DialogHeader>
+          </div>
+
+          <ScrollArea className="flex-1 overflow-y-auto">
+            <div className="px-4 py-4 sm:px-6">
+              {sheetLoading ? (
+                <div className="flex justify-center py-12">
+                  <BlinkingDots size="medium" color="bg-watney" />
+                </div>
+              ) : !sheet ? (
+                <p className="py-12 text-center text-sm text-black">
+                  Could not load the attendance sheet.
+                </p>
+              ) : (
+                <>
+                  <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                    <div className="rounded-lg bg-gray-100 p-2 text-center sm:p-3">
+                      <p className="text-lg font-bold text-black sm:text-xl">
+                        {stats.total}
+                      </p>
+                      <p className="text-[9px] font-semibold uppercase text-black sm:text-[10px]">
+                        Students
+                      </p>
+                    </div>
+                    <div className="rounded-lg bg-emerald-50 p-2 text-center sm:p-3">
+                      <p className="text-lg font-bold text-emerald-700 sm:text-xl">
+                        {stats.present}
+                      </p>
+                      <p className="text-[9px] font-semibold uppercase text-emerald-700 sm:text-[10px]">
+                        Present
+                      </p>
+                    </div>
+                    <div className="rounded-lg bg-rose-50 p-2 text-center sm:p-3">
+                      <p className="text-lg font-bold text-rose-700 sm:text-xl">
+                        {stats.absent}
+                      </p>
+                      <p className="text-[9px] font-semibold uppercase text-rose-700 sm:text-[10px]">
+                        Absent
+                      </p>
+                    </div>
+                    <div className="rounded-lg bg-amber-50 p-2 text-center sm:p-3">
+                      <p className="text-lg font-bold text-amber-700 sm:text-xl">
+                        {stats.late}
+                      </p>
+                      <p className="text-[9px] font-semibold uppercase text-amber-700 sm:text-[10px]">
+                        Late
+                      </p>
+                    </div>
+                  </div>
+
+                  {unmarkedIds.size > 0 && (
+                    <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700">
+                      {unmarkedIds.size} student
+                      {unmarkedIds.size === 1 ? '' : 's'} not marked yet —
+                      every student must be marked before saving.
+                    </div>
+                  )}
+
+                  <div className="space-y-2">
+                    {sheet.attendance?.length === 0 ? (
+                      <p className="py-8 text-center text-sm text-black">
+                        No enrolled students found for this class.
+                      </p>
+                    ) : (
+                      sheet.attendance?.map((entry) => {
+                        const sid = entry.studentId?._id || entry.studentId;
+                        const status = statuses[sid];
+                        const isUnmarked = unmarkedIds.has(sid);
+                        return (
+                          <div
+                            key={sid || entry.applicationCourseId}
+                            className={clsx(
+                              'flex flex-col gap-3 rounded-lg border p-3 transition-colors sm:flex-row sm:items-center sm:justify-between',
+                              isUnmarked
+                                ? 'border-rose-300 bg-rose-50/60 ring-1 ring-rose-200'
+                                : 'border-gray-100 hover:bg-gray-50/60'
+                            )}
+                          >
+                            <div className="flex min-w-0 flex-1 items-center gap-3">
+                              <div className="min-w-0">
+                                <p className="truncate text-xs font-semibold text-black">
+                                  {studentName(entry.studentId)}
+                                </p>
+                                <p className="truncate text-[11px] text-black/60">
+                                  {entry.studentId?.email || ''}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="flex flex-wrap items-center gap-2">
+                              <div className="flex flex-wrap overflow-hidden rounded-md border border-gray-200">
+                                {(
+                                  Object.keys(
+                                    STATUS_META
+                                  ) as AttendanceStatus[]
+                                ).map((key) => {
+                                  const meta = STATUS_META[key];
+                                  const Icon = meta.icon;
+                                  const isActive = status === key;
+                                  return (
+                                    <button
+                                      key={key}
+                                      onClick={() => toggleStatus(sid, key)}
+                                      title={meta.label}
+                                      className={clsx(
+                                        'flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold transition-colors',
+                                        isActive
+                                          ? meta.active
+                                          : 'bg-white text-black hover:bg-gray-50'
+                                      )}
+                                    >
+                                      <Icon className="h-3.5 w-3.5" />
+                                      <span className="hidden sm:inline">
+                                        {meta.label}
+                                      </span>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+
+                              <Input
+                                placeholder="Remark (optional)"
+                                value={remarks[sid] || ''}
+                                onChange={(e) =>
+                                  setRemarks((prev) => ({
+                                    ...prev,
+                                    [sid]: e.target.value
+                                  }))
+                                }
+                                className="h-8 w-full text-xs text-black placeholder:text-black/40 sm:w-48 md:w-56"
+                              />
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+          </ScrollArea>
+
+          <div className="shrink-0 px-4 py-4 sm:px-6">
+            <DialogFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={markAllPresent}
+                disabled={!sheet || sheetLoading}
+                className="w-full sm:w-auto"
+              >
+                <UserCheck className="mr-1.5 h-4 w-4" /> Mark All Present
+              </Button>
+              <div className="flex flex-1 flex-col-reverse justify-end gap-2 sm:flex-row">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setDialogOpen(false);
+                    setUnmarkedIds(new Set());
+                  }}
+                  className="w-full sm:w-auto"
+                >
+                  <X className="mr-1.5 h-4 w-4" /> Cancel
+                </Button>
+                <Button
+                  size="sm"
+                  className="w-full bg-watney text-white hover:bg-watney/90 sm:w-auto"
+                  onClick={saveAttendance}
+                  disabled={saving || !sheet || sheetLoading}
+                >
+                  {saving ? (
+                    <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Check className="mr-1.5 h-4 w-4" />
+                  )}
+                  Save Attendance
+                </Button>
+              </div>
+            </DialogFooter>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </Card>
+  );
+}
