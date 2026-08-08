@@ -199,10 +199,10 @@ export const useEditApplicant = (serviceUserId: string) => {
       // { field: 'religion', label: 'Religion' }
     ],
     
-    emergency: [
-      { field: 'emergencyContactName', label: 'Name' },
-      { field: 'relationship', label: 'Relationship' }
-    ],
+    // emergency: [
+    //   { field: 'emergencyContactName', label: 'Name' },
+    //   { field: 'relationship', label: 'Relationship' }
+    // ],
     
     notes: [
       { field: 'date', label: 'Date' },
@@ -236,16 +236,16 @@ export const useEditApplicant = (serviceUserId: string) => {
   const validateTab = (tabId: string): ValidationResult => {
     const missingFields: string[] = [];
 
-    if (tabId === 'emergency') {
-      formData.emergencyContacts?.forEach((contact: any, index: number) => {
-        requiredFieldsByTab.emergency.forEach(({ field }) => {
-          if (!contact[field] || contact[field].toString().trim() === '') {
-            missingFields.push(`${field}[${index}]`);
-          }
-        });
-      });
-      return { isValid: missingFields.length === 0, missingFields };
-    }
+    // if (tabId === 'emergency') {
+    //   formData.emergencyContacts?.forEach((contact: any, index: number) => {
+    //     requiredFieldsByTab.emergency.forEach(({ field }) => {
+    //       if (!contact[field] || contact[field].toString().trim() === '') {
+    //         missingFields.push(`${field}[${index}]`);
+    //       }
+    //     });
+    //   });
+    //   return { isValid: missingFields.length === 0, missingFields };
+    // }
 
     if (tabId === 'primaryBranch') {
       formData.primaryBranch?.forEach((item: any, index: number) => {

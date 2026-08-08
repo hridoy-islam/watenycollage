@@ -97,20 +97,20 @@ const ServiceuserDetailPage = () => {
       )
     },
 
-    {
-      id: 'emergency',
-      label: 'Emergency Contact',
-      component: (
-        <EmergencyContactTab
-          formData={formData}
-          onUpdate={handleFieldUpdate}
-          onDateChange={handleDateChange}
-          onSelectChange={handleSelectChange}
-          isFieldSaving={isFieldSaving}
-          getMissingFields={getMissingFields}
-        />
-      )
-    },
+    // {
+    //   id: 'emergency',
+    //   label: 'Emergency Contact',
+    //   component: (
+    //     <EmergencyContactTab
+    //       formData={formData}
+    //       onUpdate={handleFieldUpdate}
+    //       onDateChange={handleDateChange}
+    //       onSelectChange={handleSelectChange}
+    //       isFieldSaving={isFieldSaving}
+    //       getMissingFields={getMissingFields}
+    //     />
+    //   )
+    // },
 
    
     {

@@ -315,7 +315,7 @@ const MedicalConditionRow = ({
 );
 
 const SectionHeader = ({ title }: { title: string }) => (
-  <View style={{ marginTop: 10, marginBottom: 5 }}>
+  <View style={{ marginTop: 2, marginBottom: 5 }}>
     <Text
       style={{
         fontWeight: 'bold',
@@ -611,7 +611,7 @@ const MedicalFormPdf = ({ data }: { data: MedicalFormData }) => {
         </View>
 
         {/* Personal Details */}
-        <View style={{ marginBottom: 15 }}>
+        <View style={{ marginBottom: 2 }}>
           <View style={styles.flexRow}>
             <Text style={styles.flexItem}>
               Employee Forename:
@@ -690,7 +690,7 @@ const MedicalFormPdf = ({ data }: { data: MedicalFormData }) => {
         </View>
 
         {/* Serious Illness Detail */}
-        <View style={{ marginTop: 15 }}>
+        <View style={{ marginTop: 2 }}>
           <Text style={{ fontSize: 10 }}>
             Please detail of any serious illness, hospital admission, operation
             or accident that has caused you to have five or more days off work

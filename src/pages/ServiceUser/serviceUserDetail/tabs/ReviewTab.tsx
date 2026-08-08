@@ -18,7 +18,7 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle,
+  AlertDialogTitle
 } from '@/components/ui/alert-dialog';
 import {
   Plus,
@@ -34,7 +34,7 @@ import moment from 'moment';
 
 interface SmartGoal {
   goalArea: string;
-  timeFrame: string;
+  timeFrame: Date | null;
 }
 
 interface ReviewForm {
@@ -79,7 +79,7 @@ const emptyForm = (): ReviewForm => ({
   reviewNotes: '',
   preReviewNotes: '',
   postReviewNotes: '',
-  smartGoals: [{ goalArea: '', timeFrame: '' }],
+  smartGoals: [{ goalArea: '', timeFrame: null }],
   serviceUserSignatureUrl: '',
   careStaffSignatureUrl: '',
   managerSignatureUrl: '',
@@ -108,9 +108,9 @@ const mapToForm = (item: any): ReviewForm => ({
     item.smartGoals && item.smartGoals.length > 0
       ? item.smartGoals.map((g: any) => ({
           goalArea: g.goalArea || '',
-          timeFrame: g.timeFrame || ''
+          timeFrame: g.timeFrame ? new Date(g.timeFrame) : null
         }))
-      : [{ goalArea: '', timeFrame: '' }],
+      : [{ goalArea: '', timeFrame: null }],
   serviceUserSignatureUrl: item.serviceUserSignatureUrl || '',
   careStaffSignatureUrl: item.careStaffSignatureUrl || '',
   managerSignatureUrl: item.managerSignatureUrl || '',
@@ -130,7 +130,9 @@ const toISOString = (date: Date | null) =>
 const getServiceUserName = (user: any) =>
   [user?.firstName, user?.middleInitial, user?.lastName]
     .filter(Boolean)
-    .join(' ') || user?.name || '';
+    .join(' ') ||
+  user?.name ||
+  '';
 
 const withUserFallback = (form: ReviewForm, user: any): ReviewForm => ({
   ...form,
@@ -174,7 +176,7 @@ export const ReviewTab: React.FC = () => {
   const updateGoalRow = (
     index: number,
     field: keyof SmartGoal,
-    value: string
+    value: string | Date | null
   ) => {
     setForm((prev) => ({
       ...prev,
@@ -187,7 +189,7 @@ export const ReviewTab: React.FC = () => {
   const addGoalRow = () => {
     setForm((prev) => ({
       ...prev,
-      smartGoals: [...prev.smartGoals, { goalArea: '', timeFrame: '' }]
+      smartGoals: [...prev.smartGoals, { goalArea: '', timeFrame: null }]
     }));
   };
 
@@ -243,7 +245,10 @@ export const ReviewTab: React.FC = () => {
         preReviewNotes: form.preReviewNotes,
         reviewNotes: form.reviewNotes,
         postReviewNotes: form.postReviewNotes,
-        smartGoals: form.smartGoals,
+        smartGoals: form.smartGoals.map((g) => ({
+          goalArea: g.goalArea,
+          timeFrame: toISOString(g.timeFrame)
+        })),
         serviceUserSignatureUrl: form.serviceUserSignatureUrl,
         careStaffSignatureUrl: form.careStaffSignatureUrl,
         managerSignatureUrl: form.managerSignatureUrl,
@@ -273,8 +278,7 @@ export const ReviewTab: React.FC = () => {
       console.error('Failed to save review:', error);
       toast({
         title: 'Error',
-        description:
-          error?.response?.data?.message || 'Failed to save Review',
+        description: error?.response?.data?.message || 'Failed to save Review',
         className: 'bg-red-500 border-none text-white'
       });
     } finally {
@@ -289,7 +293,7 @@ export const ReviewTab: React.FC = () => {
 
   const confirmDelete = async () => {
     if (!reviewToDelete) return;
-    
+
     setDeleting(true);
     try {
       await axiosInstance.delete(`/review/${reviewToDelete}`);
@@ -495,7 +499,7 @@ export const ReviewTab: React.FC = () => {
                   rows={3}
                 />
               </div>
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <Label>Morning Visits Focus On</Label>
                 <Textarea
                   value={form.morningVisitsFocus}
@@ -512,7 +516,7 @@ export const ReviewTab: React.FC = () => {
                   placeholder="Evening visits focus on"
                   rows={3}
                 />
-              </div>
+              </div> */}
               <div className="space-y-2">
                 <Label>Follow Up</Label>
                 <Textarea
@@ -541,11 +545,22 @@ export const ReviewTab: React.FC = () => {
 
           <Separator />
 
-          <section className="space-y-4">
-            <h3 className="text-lg font-semibold">
-              Post Review Notes and S.M.A.R.T Goals
-            </h3>
+          <section className="space-y-3">
+            <div className="flex flex-col items-center justify-between">
 
+            <h4 className="text-lg font-semibold text-blue-800 underline">Review Notes </h4>
+
+            <h5 className="text-blue-800 text-center mb-2">
+              Involve the Service Users in All Stages of Their Review Including
+              the Review Itself by Asking Them Questions and Examples
+            </h5>
+            <h3 className="text-lg font-semibold underline">
+              POST REVIEW NOTES and S.M.A.R.T Goals{' '}
+            </h3>
+            <h3 className="text-lg font-semibold">
+S.M.A.R.T Goals for areas to focus on            </h3>
+
+            </div>
             <div className="space-y-2">
               <Label>Post Review Notes</Label>
               <Textarea
@@ -576,7 +591,7 @@ export const ReviewTab: React.FC = () => {
                       size="icon"
                       onClick={() => removeGoalRow(index)}
                       disabled={form.smartGoals.length === 1}
-                      className="absolute -top-3 -right-3 h-7 w-7"
+                      className="absolute -right-3 -top-3 h-7 w-7"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -591,41 +606,16 @@ export const ReviewTab: React.FC = () => {
                         rows={2}
                       />
                     </div>
-                    <div className="space-y-1">
-                      <Label
-                        htmlFor={`goal-time-frame-${index}`}
-                        className="text-sm font-semibold"
-                      >
-                        Time Frame
-                      </Label>
-                      <div className="mt-1">
-                        <Input
-                          id={`goal-time-frame-${index}`}
-                          value={goal.timeFrame}
-                          placeholder="09:00"
-                          maxLength={5}
-                          className="font-mono"
-                          onChange={(e) => {
-                            let val = e.target.value
-                              .replace(/[^0-9:]/g, '')
-                              .slice(0, 5);
-                            if (
-                              val.length === 2 &&
-                              goal.timeFrame?.length === 1 &&
-                              !val.includes(':')
-                            ) {
-                              val += ':';
-                            }
-                            updateGoalRow(index, 'timeFrame', val);
-                          }}
-                          onBlur={(e) =>
-                            handleTimeBlur(e.target.value, (val) =>
-                              updateGoalRow(index, 'timeFrame', val)
-                            )
-                          }
-                        />
-                      </div>
-                    </div>
+                     <div className="space-y-2">
+                       <Label className="text-sm font-semibold">
+                         Time Frame
+                       </Label>
+                       <CustomDatePicker
+                         selected={goal.timeFrame}
+                         onChange={(date) => updateGoalRow(index, 'timeFrame', date)}
+                         placeholder="Select date"
+                       />
+                     </div>
                   </div>
                 ))}
               </div>
@@ -674,7 +664,9 @@ export const ReviewTab: React.FC = () => {
                 <Label>Approximate Date of Next Review</Label>
                 <CustomDatePicker
                   selected={form.approximateNextReviewDate}
-                  onChange={(date) => setField('approximateNextReviewDate', date)}
+                  onChange={(date) =>
+                    setField('approximateNextReviewDate', date)
+                  }
                   placeholder="Select date"
                   futureDate={true}
                 />
@@ -731,7 +723,7 @@ export const ReviewTab: React.FC = () => {
                   {reviews.map((item) => (
                     <tr
                       key={item._id}
-                      className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                      className="border-b border-gray-100 transition-colors hover:bg-gray-50"
                     >
                       <td className="px-4 py-3 font-medium">
                         {item.serviceUserName || 'Service User'}
@@ -743,7 +735,9 @@ export const ReviewTab: React.FC = () => {
                       </td>
                       <td className="px-4 py-3 text-gray-600">
                         {item.approximateNextReviewDate
-                          ? moment(item.approximateNextReviewDate).format('DD MMM YYYY')
+                          ? moment(item.approximateNextReviewDate).format(
+                              'DD MMM YYYY'
+                            )
                           : '-'}
                       </td>
                       <td className="px-4 py-3">
@@ -754,7 +748,6 @@ export const ReviewTab: React.FC = () => {
                             size="icon"
                           >
                             <Pencil className="h-4 w-4" />
-                            
                           </Button>
                           <Button
                             onClick={() => handleDelete(item._id)}
@@ -762,7 +755,6 @@ export const ReviewTab: React.FC = () => {
                             size="icon"
                           >
                             <Trash2 className="h-4 w-4" />
-                            
                           </Button>
                         </div>
                       </td>
@@ -781,8 +773,8 @@ export const ReviewTab: React.FC = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete this review
-              and all associated data.
+              This action cannot be undone. This will permanently delete this
+              review and all associated data.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
