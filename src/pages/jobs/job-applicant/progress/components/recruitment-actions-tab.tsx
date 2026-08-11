@@ -133,6 +133,7 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
   // Local state to track sent/done status for immediate UI updates
   const [localJobOfferSent, setLocalJobOfferSent] = useState(application?.jobOfferMailSent)
   const [localInterviewSent, setLocalInterviewSent] = useState(application?.interviewMailSent)
+  const [localInductionSent, setLocalInductionSent] = useState(!!application?.inductionMailSent)
   const [localReferenceSent, setLocalReferenceSent] = useState(application?.referenceMailSent)
   const [localUnlocks, setLocalUnlocks] = useState<{ [key: string]: boolean }>({
     postEmploymentUnlock: !!application?.postEmploymentUnlock,
@@ -146,9 +147,10 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
 
   // Update local states when application prop changes
   useEffect(() => {
-    setLocalJobOfferSent(application?.jobOfferMailSent)
-    setLocalInterviewSent(application?.interviewMailSent)
-    setLocalReferenceSent(application?.referenceMailSent)
+    if (application?.jobOfferMailSent !== undefined) setLocalJobOfferSent(application.jobOfferMailSent)
+    if (application?.interviewMailSent !== undefined) setLocalInterviewSent(application.interviewMailSent)
+    if (application?.inductionMailSent !== undefined) setLocalInductionSent(application.inductionMailSent)
+    if (application?.referenceMailSent !== undefined) setLocalReferenceSent(application.referenceMailSent)
     setLocalUnlocks({
       postEmploymentUnlock: !!application?.postEmploymentUnlock,
       dbsUnlock: !!application?.dbsUnlock,
@@ -185,7 +187,7 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
     }
   }, [recruitDialogOpen])
 
-  const handleOpenEmailDialog = async (context: "job-offer" | "interview") => {
+  const handleOpenEmailDialog = async (context: "job-offer" | "interview" | "induction") => {
     if (!userId) {
       toast({
         title: "Error",
@@ -333,6 +335,10 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
         payload.interviewMailSent = true
         payload.interviewMailTemplate = emailBody
         payload.interviewMailSubject = emailSubject
+      } else if (activeEmailContext === "induction") {
+        payload.inductionMailSent = true
+        payload.inductionMailTemplate = emailBody
+        payload.inductionMailSubject = emailSubject
       }
 
       const res = await axiosInstace.post("/email", payload)
@@ -352,6 +358,8 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
           setLocalJobOfferSent(true)
         } else if (activeEmailContext === "interview") {
           setLocalInterviewSent(true)
+        } else if (activeEmailContext === "induction") {
+          setLocalInductionSent(true)
         }
         setEmailDialogOpen(false)
       }
@@ -422,6 +430,7 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
 
   const isJobOfferSent = localJobOfferSent
   const isInterviewSent = localInterviewSent
+  const isInductionSent = localInductionSent
   const isReferenceSent = localReferenceSent
 
   const handleUnlockAction = async (field: string) => {
@@ -693,7 +702,7 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
   }
 
   const handleActionClick = async (actionType: string) => {
-    if (actionType === "job-offer" || actionType === "interview") {
+    if (actionType === "job-offer" || actionType === "interview" || actionType === "induction") {
       await handleOpenEmailDialog(actionType)
     } else if (actionType === "reference") {
       setReferenceAlertOpen(true)
@@ -726,6 +735,15 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
       loading: actionLoading["interview"],
       icon: isInterviewSent ? <MailCheck className="h-4 w-4" /> : <Mail className="h-4 w-4" />,
       onClick: () => handleActionClick("interview"),
+      isViewOnly: false,
+      hasPreview: true
+    },
+    {
+      label: "Induction",
+      sent: isInductionSent,
+      loading: actionLoading["induction"],
+      icon: isInductionSent ? <MailCheck className="h-4 w-4" /> : <Mail className="h-4 w-4" />,
+      onClick: () => handleActionClick("induction"),
       isViewOnly: false,
       hasPreview: true
     },
@@ -794,74 +812,93 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
                 {actions.map((action, i) => (
                   <TableRow
                     key={action.label}
-                    className={`cursor-pointer ${i !== actions.length - 1 ? "border-b border-gray-200" : ""}`}
-                    onClick={action.onClick}
+                    className={`${!action.sent && !action.isViewOnly ? "cursor-pointer" : ""} ${i !== actions.length - 1 ? "border-b border-gray-200" : ""}`}
+                    onClick={() => {
+                      if (!action.sent && !action.isViewOnly) {
+                        action.onClick()
+                      }
+                    }}
                   >
-                    <TableCell className="px-6 py-4">
-                      <span className="inline-flex items-center gap-3 text-sm font-medium text-black">
-                        {action.loading ? <Loader2 className="h-4 w-4 animate-spin" /> : action.icon}
-                        {action.label}
-                      </span>
-                    </TableCell>
-                    <TableCell className="px-6 py-4 text-right">
-                      {action.isViewOnly ? (
-                        <Button
-                          size="sm"
-                          className="border-watney h-8 px-4 text-xs font-medium rounded text-white"
-                          onClick={(e) => { e.stopPropagation(); action.onClick() }}
-                        >
-                          <Eye className="mr-1.5 h-3.5 w-3.5" />
-                          View
-                        </Button>
-                      ) : action.sent ? (
-                        <span className="inline-flex items-center gap-2">
-                          <span className="inline-flex items-center gap-1.5 text-sm font-bold text-white bg-green-600 px-2.5 py-1 rounded">
-                            <Check className="h-3.5 w-3.5" /> Sent
-                          </span>
-                          {action.hasPreview && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="h-8 px-3 text-xs font-medium"
-                              onClick={async (e) => {
-                                e.stopPropagation()
-                                const label = action.label === "Job Offer" ? "job-offer" : "interview"
-                                const templateField = label === "job-offer" ? "jobOfferMailTemplate" : "interviewMailTemplate"
-                                const subjectField = label === "job-offer" ? "jobOfferMailSubject" : "interviewMailSubject"
-                                const sentDateField = label === "job-offer" ? "jobOfferMailSentDate" : "interviewMailSentDate"
-                                try {
-                                  const res = await axiosInstace.get(`/users/${userId}?fields=${templateField},${subjectField},${sentDateField},email`)
-                                  const userData = res.data.data
-                                  setPreviewData({
-                                    subject: userData?.[subjectField] || "",
-                                    body: userData?.[templateField] || "",
-                                    type: label,
-                                    email: application?.email || userData?.email || "",
-                                    sentDate: userData?.[sentDateField] || ""
-                                  })
-                                } catch {
-                                  setPreviewData({
-                                    subject: "",
-                                    body: "",
-                                    type: label,
-                                    email: application?.email || ""
-                                  })
-                                }
-                                setPreviewDialogOpen(true)
-                              }}
-                            >
-                              <Eye className="mr-1 h-3.5 w-3.5" />
-                              Preview
-                            </Button>
-                          )}
-                        </span>
-                      ) : (
-                        <Button
-                          size="sm"
-                          className="bg-watney text-white hover:bg-watney/90 h-8 px-4 text-xs font-medium rounded"
-                          onClick={(e) => { e.stopPropagation(); action.onClick() }}
-                          disabled={action.loading || emailLoading}
-                        >
+                     <TableCell className="px-6 py-4">
+                       <span className="inline-flex items-center gap-3 text-sm font-medium text-black">
+                         {action.loading ? <Loader2 className="h-4 w-4 animate-spin" /> : action.icon}
+                         {action.label}
+                       </span>
+                     </TableCell>
+                     <TableCell className="px-6 py-4 text-right">
+                       {action.isViewOnly ? (
+                         <Button
+                           size="sm"
+                           className="border-watney h-8 px-4 text-xs font-medium rounded text-white"
+                           onClick={(e) => { e.stopPropagation(); action.onClick() }}
+                         >
+                           <Eye className="mr-1.5 h-3.5 w-3.5" />
+                           View
+                         </Button>
+                       ) : action.sent ? (
+                         <span className="inline-flex items-center gap-2">
+                           <span className="inline-flex items-center gap-1.5 text-sm font-bold text-white bg-green-600 px-2.5 py-1 rounded">
+                             <Check className="h-3.5 w-3.5" /> Sent
+                           </span>
+                           <Button
+                             size="sm"
+                             className="h-8 px-3 text-xs font-medium"
+                             onClick={(e) => { e.stopPropagation(); action.onClick() }}
+                             disabled={action.loading || emailLoading}
+                           >
+                             Resend
+                           </Button>
+                           {action.hasPreview && (
+                             <Button
+                               size="sm"
+                               variant="outline"
+                               className="h-8 px-3 text-xs font-medium"
+                               onClick={async (e) => {
+                                 e.stopPropagation()
+                                 let label = "job-offer"
+                                 if (action.label === "Job Offer") {
+                                   label = "job-offer"
+                                 } else if (action.label === "Interview Mail") {
+                                   label = "interview"
+                                 } else if (action.label === "Induction") {
+                                   label = "induction"
+                                 }
+                                 const templateField = label === "job-offer" ? "jobOfferMailTemplate" : label === "interview" ? "interviewMailTemplate" : "inductionMailTemplate"
+                                 const subjectField = label === "job-offer" ? "jobOfferMailSubject" : label === "interview" ? "interviewMailSubject" : "inductionMailSubject"
+                                 const sentDateField = label === "job-offer" ? "jobOfferMailSentDate" : label === "interview" ? "interviewMailSentDate" : "inductionMailSentDate"
+                                 try {
+                                   const res = await axiosInstace.get(`/users/${userId}?fields=${templateField},${subjectField},${sentDateField},email`)
+                                   const userData = res.data.data
+                                   setPreviewData({
+                                     subject: userData?.[subjectField] || "",
+                                     body: userData?.[templateField] || "",
+                                     type: label,
+                                     email: application?.email || userData?.email || "",
+                                     sentDate: userData?.[sentDateField] || ""
+                                   })
+                                 } catch {
+                                   setPreviewData({
+                                     subject: "",
+                                     body: "",
+                                     type: label,
+                                     email: application?.email || ""
+                                   })
+                                 }
+                                 setPreviewDialogOpen(true)
+                               }}
+                             >
+                               <Eye className="mr-1 h-3.5 w-3.5" />
+                               Preview
+                             </Button>
+                           )}
+                         </span>
+                       ) : (
+                         <Button
+                           size="sm"
+                           className="bg-watney text-white hover:bg-watney/90 h-8 px-4 text-xs font-medium rounded"
+                           onClick={(e) => { e.stopPropagation(); action.onClick() }}
+                           disabled={action.loading || emailLoading}
+                         >
                           {action.loading ? (
                             <>
                               <Loader2 className="mr-1 h-3 w-3 animate-spin" />
@@ -978,7 +1015,7 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
         <DialogContent className="max-h-screen overflow-y-auto sm:max-h-[95vh] sm:max-w-5xl">
           <DialogHeader>
             <DialogTitle>
-              Send {activeEmailContext === "job-offer" ? "Job Offer" : "Interview"} Email
+              Send {activeEmailContext === "job-offer" ? "Job Offer" : activeEmailContext === "interview" ? "Interview" : "Induction"} Email
             </DialogTitle>
           </DialogHeader>
 
@@ -1245,7 +1282,7 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
                   />
                 }
                 fileName={`${
-                  previewData.type === "job-offer" ? "Job_Offer" : "Interview_Invitation"
+                  previewData.type === "job-offer" ? "Job_Offer" : previewData.type === "interview" ? "Interview_Invitation" : "Induction"
                 }_${application?.firstName || "applicant"}.pdf`}
               >
                 {({ loading }) => (
