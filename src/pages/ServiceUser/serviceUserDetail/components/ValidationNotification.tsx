@@ -105,9 +105,10 @@ export const ValidationNotification: React.FC<ValidationNotificationProps> = ({
           path: 'needs-assessment' 
         },
         { 
-          id: 'riskAssessments', 
+          id: 'riskAssessment', 
           label: 'Risk Assessments', 
-          path: 'risk-assessments' 
+           path: '', 
+          tabId: 'riskAssessment' 
         },
         { 
           id: 'carePlan', 

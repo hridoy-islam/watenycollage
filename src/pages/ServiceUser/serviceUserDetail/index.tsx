@@ -19,6 +19,7 @@ import SettingTab from './tabs/SettingTab';
 import { CarePlanTab } from './tabs/CarePlanTab';
 import { MentalCapacityTab } from './tabs/MentalCapacityTab';
 import { ReviewTab } from './tabs/ReviewTab';
+import { RiskAssessmentTab } from './tabs/RiskAssessmentTab';
 import { useParams } from 'react-router-dom';
 import axiosInstance from '@/lib/axios';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
@@ -141,6 +142,11 @@ const ServiceuserDetailPage = () => {
       id: 'review',
       label: 'Review',
       component: <ReviewTab />
+    },
+    {
+      id: 'riskAssessment',
+      label: 'Risk Assessment',
+      component: <RiskAssessmentTab />
     },
     {
       id: 'settings',

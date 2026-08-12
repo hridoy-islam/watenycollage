@@ -61,7 +61,7 @@ export function SignatureField({
 
   return (
     <div className="space-y-2">
-      <Label >{label}</Label>
+      <Label className='text-sm'>{label}</Label>
       {signatureUrl ? (
         <div className="flex max-w-sm flex-col items-start gap-3 rounded-lg border border-gray-300 bg-gray-50 p-4">
           <img
