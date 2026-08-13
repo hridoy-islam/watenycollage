@@ -3,7 +3,6 @@ import { useParams } from 'react-router-dom';
 import axiosInstance from '@/lib/axios';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -158,11 +157,13 @@ interface RiskAssessmentForm {
   unpredictableMovementsEntries: MovingHandlingEntry[];
   unpredictableMovementsTotalScore: string;
   movingHandlingTotalScore: string;
+  movingHandlingRiskRating: string;
 
   // Section 2
   section2Explanation: string;
   taskEntries: MovingHandlingEntry[];
   tasksTotalScore: string;
+  tasksRiskRating: string;
 
   // Section 3
   section3Explanation: string;
@@ -184,6 +185,11 @@ interface RiskAssessmentForm {
   riskOutings: boolean | null;
   riskOther: boolean | null;
   riskOtherText: string;
+  riskCookingComment: string;
+  riskBathingComment: string;
+  riskDressingComment: string;
+  riskCleaningComment: string;
+  riskOutingsComment: string;
   agreedActionServiceUser: string;
   workerRiskCooking: boolean | null;
   workerRiskBathing: boolean | null;
@@ -192,25 +198,48 @@ interface RiskAssessmentForm {
   workerRiskOutings: boolean | null;
   workerRiskOther: boolean | null;
   workerRiskOtherText: string;
+  workerRiskCookingComment: string;
+  workerRiskBathingComment: string;
+  workerRiskDressingComment: string;
+  workerRiskCleaningComment: string;
+  workerRiskOutingsComment: string;
   agreedActionWorkers: string;
   aggressiveBehaviourVerbal: string;
   aggressiveBehaviourVerbalAction: string;
   aggressiveBehaviourPhysical: string;
   aggressiveBehaviourPhysicalAction: string;
+  aggressiveBehaviourPhysical2: string;
+  aggressiveBehaviourPhysicalAction2: string;
+  aggressiveBehaviourPhysical3: string;
+  aggressiveBehaviourPhysicalAction3: string;
   criminalHistory: boolean | null;
   criminalHistoryDetails: string;
+  criminalHistoryDetails2: string;
+  criminalHistoryDetails3: string;
+  criminalHistoryCarer: string;
+  criminalHistoryCarer2: string;
+  criminalHistoryCarer3: string;
   transmittableDiseases: string;
+  transmittableDiseases2: string;
+  transmittableDiseases3: string;
+  transmittableDiseasesCarer: string;
+  transmittableDiseasesCarer2: string;
+  transmittableDiseasesCarer3: string;
 
   // Section 5
   section5Explanation: string;
-  accommodationType: string;
+  accommodationType: string[];
   accommodationOther: string;
   travellingRisks: boolean | null;
   travellingRisksDetails: string;
   hasTelephone: boolean | null;
+  hasTelephoneAction: string;
   telephoneConcerns: boolean | null;
+  telephoneConcernsAction: string;
   highCrimeArea: boolean | null;
+  highCrimeAreaAction: string;
   areaIsolated: boolean | null;
+  areaIsolatedAction: string;
   safetyRisksComments: string;
   waterCutOff: string;
   gasCutOff: string;
@@ -219,6 +248,7 @@ interface RiskAssessmentForm {
   electricMeterType: string;
   lightingConcerns: boolean | null;
   circuitBreaker: boolean | null;
+  residualCurrentDevice: boolean | null;
   heatingSource: string;
   gasConcerns: boolean | null;
   heatingConcerns: boolean | null;
@@ -258,6 +288,7 @@ interface RiskAssessmentForm {
   adaptationsConcerns: boolean | null;
   brokenGlazing: boolean | null;
   coshhSubstances: boolean | null;
+  coshhRequiredSubstances: boolean | null;
   coshhSheetsAvailable: boolean | null;
   animalsInHome: boolean | null;
   animalSafetyRisk: boolean | null;
@@ -267,6 +298,7 @@ interface RiskAssessmentForm {
   bodilyExcrements: boolean | null;
   identifiedRisksStaff: boolean | null;
   crackedWindows: boolean | null;
+  crackedWindowsDoNotClean: boolean | null;
   identifiedRisksServiceUser: boolean | null;
   protectiveClothingNeeded: boolean | null;
   risksToStaff: boolean | null;
@@ -322,6 +354,7 @@ interface RiskAssessmentForm {
   travellingDirectionDetails: string;
   electricalWiringConcernsDetails: string;
   circuitBreakerDetails: string;
+  residualCurrentDeviceDetails: string;
   lightingConcernsDetails: string;
   gasConcernsDetails: string;
   heatingConcernsDetails: string;
@@ -357,6 +390,7 @@ interface RiskAssessmentForm {
   adaptationsConcernsDetails: string;
   brokenGlazingDetails: string;
   coshhSubstancesDetails: string;
+  coshhRequiredSubstancesDetails: string;
   coshhSheetsAvailableDetails: string;
   animalsInHomeDetails: string;
   animalSafetyRiskDetails: string;
@@ -366,6 +400,7 @@ interface RiskAssessmentForm {
   bodilyExcrementsDetails: string;
   identifiedRisksStaffDetails: string;
   crackedWindowsDetails: string;
+  crackedWindowsDoNotCleanDetails: string;
   identifiedRisksServiceUserDetails: string;
   protectiveClothingNeededDetails: string;
   risksToStaffDetails: string;
@@ -438,9 +473,11 @@ const emptyForm = (): RiskAssessmentForm => ({
   unpredictableMovementsEntries: [emptyMovingHandlingEntry()],
   unpredictableMovementsTotalScore: '',
   movingHandlingTotalScore: '',
+  movingHandlingRiskRating: '',
   section2Explanation: '',
   taskEntries: [emptyMovingHandlingEntry()],
   tasksTotalScore: '',
+  tasksRiskRating: '',
   section3Explanation: '',
   medicationSupplies: Array(8)
     .fill(null)
@@ -468,6 +505,11 @@ const emptyForm = (): RiskAssessmentForm => ({
   riskOutings: null,
   riskOther: null,
   riskOtherText: '',
+  riskCookingComment: '',
+  riskBathingComment: '',
+  riskDressingComment: '',
+  riskCleaningComment: '',
+  riskOutingsComment: '',
   agreedActionServiceUser: '',
   workerRiskCooking: null,
   workerRiskBathing: null,
@@ -476,23 +518,46 @@ const emptyForm = (): RiskAssessmentForm => ({
   workerRiskOutings: null,
   workerRiskOther: null,
   workerRiskOtherText: '',
+  workerRiskCookingComment: '',
+  workerRiskBathingComment: '',
+  workerRiskDressingComment: '',
+  workerRiskCleaningComment: '',
+  workerRiskOutingsComment: '',
   agreedActionWorkers: '',
   aggressiveBehaviourVerbal: '',
   aggressiveBehaviourVerbalAction: '',
   aggressiveBehaviourPhysical: '',
   aggressiveBehaviourPhysicalAction: '',
+  aggressiveBehaviourPhysical2: '',
+  aggressiveBehaviourPhysicalAction2: '',
+  aggressiveBehaviourPhysical3: '',
+  aggressiveBehaviourPhysicalAction3: '',
   criminalHistory: null,
   criminalHistoryDetails: '',
+  criminalHistoryDetails2: '',
+  criminalHistoryDetails3: '',
+  criminalHistoryCarer: '',
+  criminalHistoryCarer2: '',
+  criminalHistoryCarer3: '',
   transmittableDiseases: '',
+  transmittableDiseases2: '',
+  transmittableDiseases3: '',
+  transmittableDiseasesCarer: '',
+  transmittableDiseasesCarer2: '',
+  transmittableDiseasesCarer3: '',
   section5Explanation: '',
-  accommodationType: '',
+  accommodationType: [],
   accommodationOther: '',
   travellingRisks: null,
   travellingRisksDetails: '',
   hasTelephone: null,
+  hasTelephoneAction: '',
   telephoneConcerns: null,
+  telephoneConcernsAction: '',
   highCrimeArea: null,
+  highCrimeAreaAction: '',
   areaIsolated: null,
+  areaIsolatedAction: '',
   safetyRisksComments: '',
   waterCutOff: '',
   gasCutOff: '',
@@ -501,6 +566,7 @@ const emptyForm = (): RiskAssessmentForm => ({
   electricMeterType: '',
   lightingConcerns: null,
   circuitBreaker: null,
+  residualCurrentDevice: null,
   heatingSource: '',
   gasConcerns: null,
   heatingConcerns: null,
@@ -540,6 +606,7 @@ const emptyForm = (): RiskAssessmentForm => ({
   adaptationsConcerns: null,
   brokenGlazing: null,
   coshhSubstances: null,
+  coshhRequiredSubstances: null,
   coshhSheetsAvailable: null,
   animalsInHome: null,
   animalSafetyRisk: null,
@@ -549,6 +616,7 @@ const emptyForm = (): RiskAssessmentForm => ({
   bodilyExcrements: null,
   identifiedRisksStaff: null,
   crackedWindows: null,
+  crackedWindowsDoNotClean: null,
   identifiedRisksServiceUser: null,
   protectiveClothingNeeded: null,
   risksToStaff: null,
@@ -598,6 +666,7 @@ const emptyForm = (): RiskAssessmentForm => ({
   travellingDirectionDetails: '',
   electricalWiringConcernsDetails: '',
   circuitBreakerDetails: '',
+  residualCurrentDeviceDetails: '',
   lightingConcernsDetails: '',
   gasConcernsDetails: '',
   heatingConcernsDetails: '',
@@ -633,6 +702,7 @@ const emptyForm = (): RiskAssessmentForm => ({
   adaptationsConcernsDetails: '',
   brokenGlazingDetails: '',
   coshhSubstancesDetails: '',
+  coshhRequiredSubstancesDetails: '',
   coshhSheetsAvailableDetails: '',
   animalsInHomeDetails: '',
   animalSafetyRiskDetails: '',
@@ -642,6 +712,7 @@ const emptyForm = (): RiskAssessmentForm => ({
   bodilyExcrementsDetails: '',
   identifiedRisksStaffDetails: '',
   crackedWindowsDetails: '',
+  crackedWindowsDoNotCleanDetails: '',
   identifiedRisksServiceUserDetails: '',
   protectiveClothingNeededDetails: '',
   risksToStaffDetails: '',
@@ -726,9 +797,11 @@ const mapToForm = (item: any): RiskAssessmentForm => ({
   ),
   unpredictableMovementsTotalScore: item.unpredictableMovementsTotalScore || '',
   movingHandlingTotalScore: item.movingHandlingTotalScore || '',
+  movingHandlingRiskRating: item.movingHandlingRiskRating || '',
   section2Explanation: item.section2Explanation || '',
   taskEntries: mapSingleEntry(item.taskEntries),
   tasksTotalScore: item.tasksTotalScore || '',
+  tasksRiskRating: item.tasksRiskRating || '',
   section3Explanation: item.section3Explanation || '',
   medicationSupplies:
     item.medicationSupplies?.length > 0
@@ -771,6 +844,11 @@ const mapToForm = (item: any): RiskAssessmentForm => ({
   riskOutings: item.riskOutings ?? null,
   riskOther: item.riskOther ?? null,
   riskOtherText: item.riskOtherText || '',
+  riskCookingComment: item.riskCookingComment || '',
+  riskBathingComment: item.riskBathingComment || '',
+  riskDressingComment: item.riskDressingComment || '',
+  riskCleaningComment: item.riskCleaningComment || '',
+  riskOutingsComment: item.riskOutingsComment || '',
   agreedActionServiceUser: item.agreedActionServiceUser || '',
   workerRiskCooking: item.workerRiskCooking ?? null,
   workerRiskBathing: item.workerRiskBathing ?? null,
@@ -779,24 +857,53 @@ const mapToForm = (item: any): RiskAssessmentForm => ({
   workerRiskOutings: item.workerRiskOutings ?? null,
   workerRiskOther: item.workerRiskOther ?? null,
   workerRiskOtherText: item.workerRiskOtherText || '',
+  workerRiskCookingComment: item.workerRiskCookingComment || '',
+  workerRiskBathingComment: item.workerRiskBathingComment || '',
+  workerRiskDressingComment: item.workerRiskDressingComment || '',
+  workerRiskCleaningComment: item.workerRiskCleaningComment || '',
+  workerRiskOutingsComment: item.workerRiskOutingsComment || '',
   agreedActionWorkers: item.agreedActionWorkers || '',
   aggressiveBehaviourVerbal: item.aggressiveBehaviourVerbal || '',
   aggressiveBehaviourVerbalAction: item.aggressiveBehaviourVerbalAction || '',
   aggressiveBehaviourPhysical: item.aggressiveBehaviourPhysical || '',
   aggressiveBehaviourPhysicalAction:
     item.aggressiveBehaviourPhysicalAction || '',
+  aggressiveBehaviourPhysical2: item.aggressiveBehaviourPhysical2 || '',
+  aggressiveBehaviourPhysicalAction2:
+    item.aggressiveBehaviourPhysicalAction2 || '',
+  aggressiveBehaviourPhysical3: item.aggressiveBehaviourPhysical3 || '',
+  aggressiveBehaviourPhysicalAction3:
+    item.aggressiveBehaviourPhysicalAction3 || '',
   criminalHistory: item.criminalHistory ?? null,
   criminalHistoryDetails: item.criminalHistoryDetails || '',
+  criminalHistoryDetails2: item.criminalHistoryDetails2 || '',
+  criminalHistoryDetails3: item.criminalHistoryDetails3 || '',
+  criminalHistoryCarer: item.criminalHistoryCarer || '',
+  criminalHistoryCarer2: item.criminalHistoryCarer2 || '',
+  criminalHistoryCarer3: item.criminalHistoryCarer3 || '',
   transmittableDiseases: item.transmittableDiseases || '',
+  transmittableDiseases2: item.transmittableDiseases2 || '',
+  transmittableDiseases3: item.transmittableDiseases3 || '',
+  transmittableDiseasesCarer: item.transmittableDiseasesCarer || '',
+  transmittableDiseasesCarer2: item.transmittableDiseasesCarer2 || '',
+  transmittableDiseasesCarer3: item.transmittableDiseasesCarer3 || '',
   section5Explanation: item.section5Explanation || '',
-  accommodationType: item.accommodationType || '',
+  accommodationType: Array.isArray(item.accommodationType)
+    ? item.accommodationType
+    : item.accommodationType
+      ? [item.accommodationType]
+      : [],
   accommodationOther: item.accommodationOther || '',
   travellingRisks: item.travellingRisks ?? null,
   travellingRisksDetails: item.travellingRisksDetails || '',
   hasTelephone: item.hasTelephone ?? null,
+  hasTelephoneAction: item.hasTelephoneAction || '',
   telephoneConcerns: item.telephoneConcerns ?? null,
+  telephoneConcernsAction: item.telephoneConcernsAction || '',
   highCrimeArea: item.highCrimeArea ?? null,
+  highCrimeAreaAction: item.highCrimeAreaAction || '',
   areaIsolated: item.areaIsolated ?? null,
+  areaIsolatedAction: item.areaIsolatedAction || '',
   safetyRisksComments: item.safetyRisksComments || '',
   waterCutOff: item.waterCutOff || '',
   gasCutOff: item.gasCutOff || '',
@@ -805,6 +912,7 @@ const mapToForm = (item: any): RiskAssessmentForm => ({
   electricMeterType: item.electricMeterType || '',
   lightingConcerns: item.lightingConcerns ?? null,
   circuitBreaker: item.circuitBreaker ?? null,
+  residualCurrentDevice: item.residualCurrentDevice ?? null,
   heatingSource: item.heatingSource || '',
   gasConcerns: item.gasConcerns ?? null,
   heatingConcerns: item.heatingConcerns ?? null,
@@ -844,6 +952,7 @@ const mapToForm = (item: any): RiskAssessmentForm => ({
   adaptationsConcerns: item.adaptationsConcerns ?? null,
   brokenGlazing: item.brokenGlazing ?? null,
   coshhSubstances: item.coshhSubstances ?? null,
+  coshhRequiredSubstances: item.coshhRequiredSubstances ?? null,
   coshhSheetsAvailable: item.coshhSheetsAvailable ?? null,
   animalsInHome: item.animalsInHome ?? null,
   animalSafetyRisk: item.animalSafetyRisk ?? null,
@@ -853,6 +962,7 @@ const mapToForm = (item: any): RiskAssessmentForm => ({
   bodilyExcrements: item.bodilyExcrements ?? null,
   identifiedRisksStaff: item.identifiedRisksStaff ?? null,
   crackedWindows: item.crackedWindows ?? null,
+  crackedWindowsDoNotClean: item.crackedWindowsDoNotClean ?? null,
   identifiedRisksServiceUser: item.identifiedRisksServiceUser ?? null,
   protectiveClothingNeeded: item.protectiveClothingNeeded ?? null,
   risksToStaff: item.risksToStaff ?? null,
@@ -908,6 +1018,7 @@ const mapToForm = (item: any): RiskAssessmentForm => ({
   travellingDirectionDetails: item.travellingDirectionDetails || '',
   electricalWiringConcernsDetails: item.electricalWiringConcernsDetails || '',
   circuitBreakerDetails: item.circuitBreakerDetails || '',
+  residualCurrentDeviceDetails: item.residualCurrentDeviceDetails || '',
   lightingConcernsDetails: item.lightingConcernsDetails || '',
   gasConcernsDetails: item.gasConcernsDetails || '',
   heatingConcernsDetails: item.heatingConcernsDetails || '',
@@ -944,6 +1055,7 @@ const mapToForm = (item: any): RiskAssessmentForm => ({
   adaptationsConcernsDetails: item.adaptationsConcernsDetails || '',
   brokenGlazingDetails: item.brokenGlazingDetails || '',
   coshhSubstancesDetails: item.coshhSubstancesDetails || '',
+  coshhRequiredSubstancesDetails: item.coshhRequiredSubstancesDetails || '',
   coshhSheetsAvailableDetails: item.coshhSheetsAvailableDetails || '',
   animalsInHomeDetails: item.animalsInHomeDetails || '',
   animalSafetyRiskDetails: item.animalSafetyRiskDetails || '',
@@ -953,6 +1065,7 @@ const mapToForm = (item: any): RiskAssessmentForm => ({
   bodilyExcrementsDetails: item.bodilyExcrementsDetails || '',
   identifiedRisksStaffDetails: item.identifiedRisksStaffDetails || '',
   crackedWindowsDetails: item.crackedWindowsDetails || '',
+  crackedWindowsDoNotCleanDetails: item.crackedWindowsDoNotCleanDetails || '',
   identifiedRisksServiceUserDetails:
     item.identifiedRisksServiceUserDetails || '',
   protectiveClothingNeededDetails: item.protectiveClothingNeededDetails || '',
@@ -1078,9 +1191,11 @@ export const RiskAssessmentTab: React.FC = () => {
         unpredictableMovementsEntries: form.unpredictableMovementsEntries,
         unpredictableMovementsTotalScore: form.unpredictableMovementsTotalScore,
         movingHandlingTotalScore: form.movingHandlingTotalScore,
+        movingHandlingRiskRating: form.movingHandlingRiskRating,
         section2Explanation: form.section2Explanation,
         taskEntries: form.taskEntries,
         tasksTotalScore: form.tasksTotalScore,
+        tasksRiskRating: form.tasksRiskRating,
         section3Explanation: form.section3Explanation,
         medicationSupplies: form.medicationSupplies,
         takingMedication: form.takingMedication,
@@ -1098,6 +1213,11 @@ export const RiskAssessmentTab: React.FC = () => {
         riskOutings: form.riskOutings,
         riskOther: form.riskOther,
         riskOtherText: form.riskOtherText,
+        riskCookingComment: form.riskCookingComment,
+        riskBathingComment: form.riskBathingComment,
+        riskDressingComment: form.riskDressingComment,
+        riskCleaningComment: form.riskCleaningComment,
+        riskOutingsComment: form.riskOutingsComment,
         agreedActionServiceUser: form.agreedActionServiceUser,
         workerRiskCooking: form.workerRiskCooking,
         workerRiskBathing: form.workerRiskBathing,
@@ -1106,24 +1226,49 @@ export const RiskAssessmentTab: React.FC = () => {
         workerRiskOutings: form.workerRiskOutings,
         workerRiskOther: form.workerRiskOther,
         workerRiskOtherText: form.workerRiskOtherText,
+        workerRiskCookingComment: form.workerRiskCookingComment,
+        workerRiskBathingComment: form.workerRiskBathingComment,
+        workerRiskDressingComment: form.workerRiskDressingComment,
+        workerRiskCleaningComment: form.workerRiskCleaningComment,
+        workerRiskOutingsComment: form.workerRiskOutingsComment,
         agreedActionWorkers: form.agreedActionWorkers,
         aggressiveBehaviourVerbal: form.aggressiveBehaviourVerbal,
         aggressiveBehaviourVerbalAction: form.aggressiveBehaviourVerbalAction,
         aggressiveBehaviourPhysical: form.aggressiveBehaviourPhysical,
         aggressiveBehaviourPhysicalAction:
           form.aggressiveBehaviourPhysicalAction,
+        aggressiveBehaviourPhysical2: form.aggressiveBehaviourPhysical2,
+        aggressiveBehaviourPhysicalAction2:
+          form.aggressiveBehaviourPhysicalAction2,
+        aggressiveBehaviourPhysical3: form.aggressiveBehaviourPhysical3,
+        aggressiveBehaviourPhysicalAction3:
+          form.aggressiveBehaviourPhysicalAction3,
         criminalHistory: form.criminalHistory,
         criminalHistoryDetails: form.criminalHistoryDetails,
+        criminalHistoryDetails2: form.criminalHistoryDetails2,
+        criminalHistoryDetails3: form.criminalHistoryDetails3,
+        criminalHistoryCarer: form.criminalHistoryCarer,
+        criminalHistoryCarer2: form.criminalHistoryCarer2,
+        criminalHistoryCarer3: form.criminalHistoryCarer3,
         transmittableDiseases: form.transmittableDiseases,
+        transmittableDiseases2: form.transmittableDiseases2,
+        transmittableDiseases3: form.transmittableDiseases3,
+        transmittableDiseasesCarer: form.transmittableDiseasesCarer,
+        transmittableDiseasesCarer2: form.transmittableDiseasesCarer2,
+        transmittableDiseasesCarer3: form.transmittableDiseasesCarer3,
         section5Explanation: form.section5Explanation,
         accommodationType: form.accommodationType,
         accommodationOther: form.accommodationOther,
         travellingRisks: form.travellingRisks,
         travellingRisksDetails: form.travellingRisksDetails,
         hasTelephone: form.hasTelephone,
+        hasTelephoneAction: form.hasTelephoneAction,
         telephoneConcerns: form.telephoneConcerns,
+        telephoneConcernsAction: form.telephoneConcernsAction,
         highCrimeArea: form.highCrimeArea,
+        highCrimeAreaAction: form.highCrimeAreaAction,
         areaIsolated: form.areaIsolated,
+        areaIsolatedAction: form.areaIsolatedAction,
         safetyRisksComments: form.safetyRisksComments,
         waterCutOff: form.waterCutOff,
         gasCutOff: form.gasCutOff,
@@ -1132,6 +1277,7 @@ export const RiskAssessmentTab: React.FC = () => {
         electricMeterType: form.electricMeterType,
         lightingConcerns: form.lightingConcerns,
         circuitBreaker: form.circuitBreaker,
+        residualCurrentDevice: form.residualCurrentDevice,
         heatingSource: form.heatingSource,
         gasConcerns: form.gasConcerns,
         heatingConcerns: form.heatingConcerns,
@@ -1171,6 +1317,7 @@ export const RiskAssessmentTab: React.FC = () => {
         adaptationsConcerns: form.adaptationsConcerns,
         brokenGlazing: form.brokenGlazing,
         coshhSubstances: form.coshhSubstances,
+        coshhRequiredSubstances: form.coshhRequiredSubstances,
         coshhSheetsAvailable: form.coshhSheetsAvailable,
         animalsInHome: form.animalsInHome,
         animalSafetyRisk: form.animalSafetyRisk,
@@ -1180,6 +1327,7 @@ export const RiskAssessmentTab: React.FC = () => {
         bodilyExcrements: form.bodilyExcrements,
         identifiedRisksStaff: form.identifiedRisksStaff,
         crackedWindows: form.crackedWindows,
+        crackedWindowsDoNotClean: form.crackedWindowsDoNotClean,
         identifiedRisksServiceUser: form.identifiedRisksServiceUser,
         protectiveClothingNeeded: form.protectiveClothingNeeded,
         risksToStaff: form.risksToStaff,
@@ -1229,6 +1377,7 @@ export const RiskAssessmentTab: React.FC = () => {
         travellingDirectionDetails: form.travellingDirectionDetails,
         electricalWiringConcernsDetails: form.electricalWiringConcernsDetails,
         circuitBreakerDetails: form.circuitBreakerDetails,
+        residualCurrentDeviceDetails: form.residualCurrentDeviceDetails,
         lightingConcernsDetails: form.lightingConcernsDetails,
         gasConcernsDetails: form.gasConcernsDetails,
         heatingConcernsDetails: form.heatingConcernsDetails,
@@ -1265,6 +1414,7 @@ export const RiskAssessmentTab: React.FC = () => {
         adaptationsConcernsDetails: form.adaptationsConcernsDetails,
         brokenGlazingDetails: form.brokenGlazingDetails,
         coshhSubstancesDetails: form.coshhSubstancesDetails,
+        coshhRequiredSubstancesDetails: form.coshhRequiredSubstancesDetails,
         coshhSheetsAvailableDetails: form.coshhSheetsAvailableDetails,
         animalsInHomeDetails: form.animalsInHomeDetails,
         animalSafetyRiskDetails: form.animalSafetyRiskDetails,
@@ -1274,6 +1424,7 @@ export const RiskAssessmentTab: React.FC = () => {
         bodilyExcrementsDetails: form.bodilyExcrementsDetails,
         identifiedRisksStaffDetails: form.identifiedRisksStaffDetails,
         crackedWindowsDetails: form.crackedWindowsDetails,
+        crackedWindowsDoNotCleanDetails: form.crackedWindowsDoNotCleanDetails,
         identifiedRisksServiceUserDetails:
           form.identifiedRisksServiceUserDetails,
         protectiveClothingNeededDetails: form.protectiveClothingNeededDetails,
@@ -1409,12 +1560,12 @@ export const RiskAssessmentTab: React.FC = () => {
                 {scoreLabel}
               </td>
               <td colSpan={2} className="border border-gray-300 px-2 py-1">
-                <Input
-                  type="text"
+                <Textarea
                   value={scoreValue}
                   onChange={(e) => onScoreChange(e.target.value)}
                   placeholder="0"
-                  className="h-9 w-32 bg-white"
+                  rows={2}
+                  className="min-h-0 w-32 bg-white text-sm"
                 />
               </td>
             </tr>
@@ -1529,20 +1680,24 @@ export const RiskAssessmentTab: React.FC = () => {
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div className="space-y-2">
               <Label className="text-sm">Service User Name</Label>
-              <Input
+              <Textarea
                 value={form.serviceUserName}
                 onChange={(e) => setField('serviceUserName', e.target.value)}
                 placeholder="Service user name"
+                rows={2}
+                className="text-sm"
               />
             </div>
             <div className="space-y-2">
               <Label className="text-sm">Preferred Term of Address</Label>
-              <Input
+              <Textarea
                 value={form.preferredTermOfAddress}
                 onChange={(e) =>
                   setField('preferredTermOfAddress', e.target.value)
                 }
                 placeholder="Preferred term of address"
+                rows={2}
+                className="text-sm"
               />
             </div>
             <div className="space-y-2">
@@ -1555,10 +1710,12 @@ export const RiskAssessmentTab: React.FC = () => {
             </div>
             <div className="space-y-2">
               <Label className="text-sm">Address</Label>
-              <Input
+              <Textarea
                 value={form.address}
                 onChange={(e) => setField('address', e.target.value)}
                 placeholder="Address"
+                rows={2}
+                className="text-sm"
               />
             </div>
             <div className="space-y-2">
@@ -1571,26 +1728,32 @@ export const RiskAssessmentTab: React.FC = () => {
             </div>
             <div className="space-y-2">
               <Label className="text-sm">Tel. Number</Label>
-              <Input
+              <Textarea
                 value={form.telNumber}
                 onChange={(e) => setField('telNumber', e.target.value)}
                 placeholder="Telephone number"
+                rows={2}
+                className="text-sm"
               />
             </div>
             <div className="space-y-2">
               <Label className="text-sm">Case Manager</Label>
-              <Input
+              <Textarea
                 value={form.caseManager}
                 onChange={(e) => setField('caseManager', e.target.value)}
                 placeholder="Case manager"
+                rows={2}
+                className="text-sm"
               />
             </div>
             <div className="space-y-2">
               <Label className="text-sm">Assessor's Name</Label>
-              <Input
+              <Textarea
                 value={form.assessorsName}
                 onChange={(e) => setField('assessorsName', e.target.value)}
                 placeholder="Assessor name"
+                rows={2}
+                className="text-sm"
               />
             </div>
             <div className="space-y-2">
@@ -1609,8 +1772,12 @@ export const RiskAssessmentTab: React.FC = () => {
         {/* Section 1: Moving & Handling */}
         <section className="space-y-4">
           <h3 className="text-sm text-center font-bold">
+            SECTION (1)
+          </h3>
+          <h3 className="text-sm text-center font-bold">
             SECTION (1) MOVING & HANDLING
           </h3>
+          <p className='text-sm text-center'><strong>DETAILED EXPLANATION:</strong>   Highlighting Risk/other and method of current control – what is the current situation?</p>
 
           {/* 1A. Mobility */}
           <div className="space-y-3">
@@ -1723,12 +1890,23 @@ export const RiskAssessmentTab: React.FC = () => {
               </thead>
               <tbody>
                 <tr>
-                  <td className="border border-gray-300 px-3 py-2 font-medium text-gray-700">
-                    Risk rating: 0-20 = Low Risk, 20-40 = Medium Risk, 40+ =
-                    High Risk
+                  <td className="border border-gray-300 px-3 py-2 align-top">
+                    <p className="mb-2 text-sm font-medium text-gray-700">
+                      Risk rating: 0-20 = Low Risk, 20-40 = Medium Risk, 40+ =
+                      High Risk
+                    </p>
+                   
                   </td>
-                  <td className="border border-gray-300 px-3 py-2">
-                    Total Score = 20-40 Medium Risk
+                  <td className="border border-gray-300 px-3 py-2 align-top">
+                    <Textarea
+                      value={form.movingHandlingRiskRating}
+                      onChange={(e) =>
+                        setField('movingHandlingRiskRating', e.target.value)
+                      }
+                      placeholder="e.g. Low / Medium / High Risk"
+                      rows={2}
+                      className="text-sm"
+                    />
                   </td>
                 </tr>
               </tbody>
@@ -1756,6 +1934,7 @@ export const RiskAssessmentTab: React.FC = () => {
             <p className="text-sm text-gray-500">
               Risk rating 0-3 = Low Risk, 3-7 = Medium Risk, 7+ = High Risk
             </p>
+           
           </div>
         </section>
 
@@ -1838,14 +2017,14 @@ export const RiskAssessmentTab: React.FC = () => {
               'Does the service user require oxygen therapy',
               'Does the service user take medication via a nebuliser',
               'Does the service user take their medication accurately',
-              'Are there any prompting aids etc used to assist the service user',
+              'Are there any prompting aids etc used to assist the service user to take their medication',
               'Does the service user want to take their medication',
               'Can the service user read labels on the medication',
-              'Can the service user get the tablets etc. out of the bottle',
+              'Can the service user get the tablets etc. out of the bottle, container etc.',
               'Can the service user pick tablets up once out of the container',
-              'If difficulty with packaging could medication be in alternative containers',
+              'If the service user has difficulty with packaging could the medication be packaged in alternative containers',
               'Can the service user pick up a bottle and pour out a dose of liquid medication',
-              'If difficulty taking medication could a relative/friend help',
+              'If the service user has difficulty with taking medication could a relative/ friend etc help',
               'Does the service user have any swallowing problems',
               'If the service user has swallowing difficulties could the medication be dispensed in soluble/liquid form'
             ].map((label, index) => (
@@ -1966,31 +2145,53 @@ export const RiskAssessmentTab: React.FC = () => {
             <div className="space-y-4">
               {form.medications.map((med, index) => (
                 <div key={index} className="space-y-3 rounded-lg border p-3">
-                  <h5 className="text-sm text-center font-bold">Medication {index + 1}</h5>
+                  <div className="flex items-center justify-between">
+                    <h5 className="text-sm text-center font-bold">Medication {index + 1}</h5>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="text-red-500"
+                      onClick={() =>
+                        setForm((prev) => ({
+                          ...prev,
+                          medications: prev.medications.filter(
+                            (_, i) => i !== index
+                          )
+                        }))
+                      }
+                    >
+                      Remove
+                    </Button>
+                  </div>
                   <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
                     <div className="space-y-2">
                       <Label className="text-sm">Name of Medication</Label>
-                      <Input
+                      <Textarea
                         value={med.name}
                         onChange={(e) =>
                           updateMedicationEntry(index, 'name', e.target.value)
                         }
                         placeholder="Medication name"
+                        rows={2}
+                        className="text-sm"
                       />
                     </div>
                     <div className="space-y-2">
                       <Label className="text-sm">Dose</Label>
-                      <Input
+                      <Textarea
                         value={med.dose}
                         onChange={(e) =>
                           updateMedicationEntry(index, 'dose', e.target.value)
                         }
                         placeholder="Dose"
+                        rows={2}
+                        className="text-sm"
                       />
                     </div>
                     <div className="space-y-2">
                       <Label className="text-sm">Frequency</Label>
-                      <Input
+                      <Textarea
                         value={med.frequency}
                         onChange={(e) =>
                           updateMedicationEntry(
@@ -2000,11 +2201,13 @@ export const RiskAssessmentTab: React.FC = () => {
                           )
                         }
                         placeholder="Frequency"
+                        rows={2}
+                        className="text-sm"
                       />
                     </div>
                     <div className="space-y-2">
                       <Label className="text-sm">Time Taken</Label>
-                      <Input
+                      <Textarea
                         value={med.timeTaken}
                         onChange={(e) =>
                           updateMedicationEntry(
@@ -2014,11 +2217,13 @@ export const RiskAssessmentTab: React.FC = () => {
                           )
                         }
                         placeholder="Time"
+                        rows={2}
+                        className="text-sm"
                       />
                     </div>
                     <div className="space-y-2">
                       <Label className="text-sm">Number taken per day</Label>
-                      <Input
+                      <Textarea
                         value={med.numberPerDay}
                         onChange={(e) =>
                           updateMedicationEntry(
@@ -2028,6 +2233,8 @@ export const RiskAssessmentTab: React.FC = () => {
                           )
                         }
                         placeholder="Per day"
+                        rows={2}
+                        className="text-sm"
                       />
                     </div>
                     <div className="space-y-2 md:col-span-3">
@@ -2035,7 +2242,7 @@ export const RiskAssessmentTab: React.FC = () => {
                         Potential Side Effects e.g. stiffness, shaking, facial
                         contortion, shuffling gait, weight gain, excess sedation
                       </Label>
-                      <Input
+                      <Textarea
                         value={med.sideEffects}
                         onChange={(e) =>
                           updateMedicationEntry(
@@ -2045,6 +2252,8 @@ export const RiskAssessmentTab: React.FC = () => {
                           )
                         }
                         placeholder="Side effects"
+                        rows={2}
+                        className="text-sm"
                       />
                     </div>
                     <div className="space-y-2 md:col-span-3">
@@ -2057,6 +2266,20 @@ export const RiskAssessmentTab: React.FC = () => {
                 </div>
               ))}
             </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="mt-2"
+              onClick={() =>
+                setForm((prev) => ({
+                  ...prev,
+                  medications: [...prev.medications, emptyMedication()]
+                }))
+              }
+            >
+              Add Medication
+            </Button>
           </div>
 
           {/* Medical Care Tasks */}
@@ -2234,29 +2457,31 @@ export const RiskAssessmentTab: React.FC = () => {
                     </td>
                     <td className="border border-gray-300 px-2 py-2">
                       {item.key === 'riskOther' ? (
-                        <Input
+                        <Textarea
                           value={form.riskOtherText}
                           onChange={(e) =>
                             setField('riskOtherText', e.target.value)
                           }
                           placeholder="Specify other risk..."
-                          className="border-0 shadow-none focus-visible:ring-0"
+                          rows={2}
+                          className="text-sm border-0 shadow-none focus-visible:ring-0"
                         />
                       ) : (
                         <Textarea
                           value={
-                            (form[
+                            form[
                               `${item.key}Comment` as keyof RiskAssessmentForm
-                            ] as string) || ''
+                            ] as string
                           }
                           onChange={(e) =>
                             setField(
                               `${item.key}Comment` as keyof RiskAssessmentForm,
-                              e.target.value as any
+                              e.target.value
                             )
                           }
                           placeholder="Add comment..."
-                          className="min-h-[60px] border-0 shadow-none focus-visible:ring-0"
+                          rows={2}
+                          className="text-sm border-0 shadow-none focus-visible:ring-0"
                         />
                       )}
                     </td>
@@ -2352,29 +2577,31 @@ export const RiskAssessmentTab: React.FC = () => {
                     </td>
                     <td className="border border-gray-300 px-2 py-2">
                       {item.key === 'workerRiskOther' ? (
-                        <Input
+                        <Textarea
                           value={form.workerRiskOtherText}
                           onChange={(e) =>
                             setField('workerRiskOtherText', e.target.value)
                           }
                           placeholder="Specify other risk..."
-                          className="border-0 shadow-none focus-visible:ring-0"
+                          rows={2}
+                          className="text-sm border-0 shadow-none focus-visible:ring-0"
                         />
                       ) : (
                         <Textarea
                           value={
-                            (form[
+                            form[
                               `${item.key}Comment` as keyof RiskAssessmentForm
-                            ] as string) || ''
+                            ] as string
                           }
                           onChange={(e) =>
                             setField(
                               `${item.key}Comment` as keyof RiskAssessmentForm,
-                              e.target.value as any
+                              e.target.value
                             )
                           }
                           placeholder="Add comment..."
-                          className="min-h-[60px] border-0 shadow-none focus-visible:ring-0"
+                          rows={2}
+                          className="text-sm border-0 shadow-none focus-visible:ring-0"
                         />
                       )}
                     </td>
@@ -2407,7 +2634,7 @@ export const RiskAssessmentTab: React.FC = () => {
               THIS SECTION IS CONFIDENTIAL TO THE STAFF OF EVERYCARE & MUST
               NEVER FORM PART OF THE SERVICE USER'S HOUSE FILE
             </p>
-            <p className="text-xs font-semibold ">
+            <p className="text-xs font-semibold text-center ">
               THIS INFORMATION HAS TO BE COMMUNICATED TO THE SOCIAL CARE WORKER
               IN CONFIDENCE
             </p>
@@ -2457,90 +2684,227 @@ export const RiskAssessmentTab: React.FC = () => {
             </div>
 
             {/* Table 2: Aggressive Behaviour (Physical) */}
-            <div className="overflow-hidden rounded-lg border border-gray-300">
-              <table className="w-full border-collapse text-sm">
-                <thead>
-                  <tr>
-                    <th className="w-1/2 border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800">
-                      SERVICE USER PRONE TO AGGRESSIVE BEHAVIOUR (PHYSICAL)
-                    </th>
-                    <th className="w-1/2 border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800">
-                      IDENTIFIED RISK/S & ELIMINATION / LIMITATION ACTION
-                      REQUIRED
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td className="border border-gray-300 px-3 py-2">
-                      <Textarea
-                        value={form.aggressiveBehaviourPhysical}
-                        onChange={(e) =>
-                          setField(
-                            'aggressiveBehaviourPhysical',
-                            e.target.value
-                          )
-                        }
-                        placeholder="N/A"
-                        className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
-                      />
-                    </td>
-                    <td className="border border-gray-300 px-2 py-2">
-                      <Textarea
-                        value={form.aggressiveBehaviourPhysicalAction}
-                        onChange={(e) =>
-                          setField(
-                            'aggressiveBehaviourPhysicalAction',
-                            e.target.value
-                          )
-                        }
-                        placeholder="Identified risk/s & elimination/limitation action"
-                        className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
-                      />
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+          {/* Table 2: Aggressive Behaviour (Physical) - 3 rows */}
+<div className="overflow-hidden rounded-lg border border-gray-300">
+  <table className="w-full border-collapse text-sm">
+    <thead>
+      <tr>
+        <th className="w-1/2 border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800">
+          SERVICE USER PRONE TO AGGRESSIVE BEHAVIOUR (PHYSICAL)
+        </th>
+        <th className="w-1/2 border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800">
+          IDENTIFIED RISK/S & ELIMINATION / LIMITATION ACTION REQUIRED
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td className="border border-gray-300 px-3 py-2">
+          <Textarea
+            value={form.aggressiveBehaviourPhysical}
+            onChange={(e) => setField('aggressiveBehaviourPhysical', e.target.value)}
+            placeholder="N/A"
+            className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
+          />
+        </td>
+        <td className="border border-gray-300 px-2 py-2">
+          <Textarea
+            value={form.aggressiveBehaviourPhysicalAction}
+            onChange={(e) => setField('aggressiveBehaviourPhysicalAction', e.target.value)}
+            placeholder="Identified risk/s & elimination/limitation action"
+            className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
+          />
+        </td>
+      </tr>
+      <tr>
+        <td className="border border-gray-300 px-3 py-2">
+          <Textarea
+            value={form.aggressiveBehaviourPhysical2}
+            onChange={(e) => setField('aggressiveBehaviourPhysical2', e.target.value)}
+            placeholder="N/A"
+            className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
+          />
+        </td>
+        <td className="border border-gray-300 px-2 py-2">
+          <Textarea
+            value={form.aggressiveBehaviourPhysicalAction2}
+            onChange={(e) => setField('aggressiveBehaviourPhysicalAction2', e.target.value)}
+            placeholder="Identified risk/s & elimination/limitation action"
+            className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
+          />
+        </td>
+      </tr>
+      <tr>
+        <td className="border border-gray-300 px-3 py-2">
+          <Textarea
+            value={form.aggressiveBehaviourPhysical3}
+            onChange={(e) => setField('aggressiveBehaviourPhysical3', e.target.value)}
+            placeholder="N/A"
+            className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
+          />
+        </td>
+        <td className="border border-gray-300 px-2 py-2">
+          <Textarea
+            value={form.aggressiveBehaviourPhysicalAction3}
+            onChange={(e) => setField('aggressiveBehaviourPhysicalAction3', e.target.value)}
+            placeholder="Identified risk/s & elimination/limitation action"
+            className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
+          />
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+
 
             {/* Table 3: Criminal History - Single Field */}
-            <div className="overflow-hidden rounded-lg border border-gray-300">
-              <table className="w-full border-collapse text-sm">
-                <thead>
-                  <tr>
-                    <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800">
-                      CRIMINAL HISTORY
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td className="border border-gray-300 px-3 py-2">
-                      <Textarea
-                        value={form.criminalHistoryDetails}
-                        onChange={(e) =>
-                          setField('criminalHistoryDetails', e.target.value)
-                        }
-                        placeholder="N/A"
-                        className="min-h-[80px] border-0 bg-transparent shadow-none focus-visible:ring-0"
-                      />
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+           {/* Table 3: Criminal History - Service User / Carer, 3 rows */}
+<div className="overflow-hidden rounded-lg border border-gray-300">
+  <table className="w-full border-collapse text-sm">
+    <thead>
+      <tr>
+        <th
+          colSpan={2}
+          className="border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800"
+        >
+          CRIMINAL HISTORY
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td className="w-1/2 border border-gray-300 px-3 py-2">
+          <Textarea
+            value={form.criminalHistoryDetails}
+            onChange={(e) => setField('criminalHistoryDetails', e.target.value)}
+            placeholder=""
+            className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
+          />
+        </td>
+        <td className="w-1/2 border border-gray-300 px-2 py-2">
+          <Textarea
+            value={form.criminalHistoryCarer}
+            onChange={(e) => setField('criminalHistoryCarer', e.target.value)}
+            placeholder=""
+            className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
+          />
+        </td>
+      </tr>
+      <tr>
+        <td className="w-1/2 border border-gray-300 px-3 py-2">
+          <Textarea
+            value={form.criminalHistoryDetails2}
+            onChange={(e) => setField('criminalHistoryDetails2', e.target.value)}
+            placeholder=""
+            className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
+          />
+        </td>
+        <td className="w-1/2 border border-gray-300 px-2 py-2">
+          <Textarea
+            value={form.criminalHistoryCarer2}
+            onChange={(e) => setField('criminalHistoryCarer2', e.target.value)}
+            placeholder=""
+            className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
+          />
+        </td>
+      </tr>
+      <tr>
+        <td className="w-1/2 border border-gray-300 px-3 py-2">
+          <Textarea
+            value={form.criminalHistoryDetails3}
+            onChange={(e) => setField('criminalHistoryDetails3', e.target.value)}
+            placeholder=""
+            className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
+          />
+        </td>
+        <td className="w-1/2 border border-gray-300 px-2 py-2">
+          <Textarea
+            value={form.criminalHistoryCarer3}
+            onChange={(e) => setField('criminalHistoryCarer3', e.target.value)}
+            placeholder=""
+            className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
+          />
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
           </div>
+                  <Separator />
+
           {/* Transmittable Diseases */}
-          <div className="space-y-2">
-            <Label className="text-sm">Risk from Transmittable Diseases</Label>
-            <Input
-              value={form.transmittableDiseases}
-              onChange={(e) =>
-                setField('transmittableDiseases', e.target.value)
-              }
-              placeholder="N/A or details"
-            />
-          </div>
+        {/* Risk from Transmittable Diseases - Service User / Carer, 3 rows */}
+<div className="overflow-hidden rounded-lg border border-gray-300">
+  <table className="w-full border-collapse text-sm">
+    <thead>
+      <tr>
+        <th
+          colSpan={2}
+          className="border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800"
+        >
+          RISK FROM TRANSMITTABLE DISEASES
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td className="w-1/2 border border-gray-300 px-3 py-2">
+          <Textarea
+            value={form.transmittableDiseases}
+            onChange={(e) => setField('transmittableDiseases', e.target.value)}
+            placeholder=""
+            className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
+          />
+        </td>
+        <td className="w-1/2 border border-gray-300 px-2 py-2">
+          <Textarea
+            value={form.transmittableDiseasesCarer}
+            onChange={(e) => setField('transmittableDiseasesCarer', e.target.value)}
+            placeholder=""
+            className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
+          />
+        </td>
+      </tr>
+      <tr>
+        <td className="w-1/2 border border-gray-300 px-3 py-2">
+          <Textarea
+            value={form.transmittableDiseases2}
+            onChange={(e) => setField('transmittableDiseases2', e.target.value)}
+            placeholder=""
+            className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
+          />
+        </td>
+        <td className="w-1/2 border border-gray-300 px-2 py-2">
+          <Textarea
+            value={form.transmittableDiseasesCarer2}
+            onChange={(e) => setField('transmittableDiseasesCarer2', e.target.value)}
+            placeholder=""
+            className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
+          />
+        </td>
+      </tr>
+      <tr>
+        <td className="w-1/2 border border-gray-300 px-3 py-2">
+          <Textarea
+            value={form.transmittableDiseases3}
+            onChange={(e) => setField('transmittableDiseases3', e.target.value)}
+            placeholder=""
+            className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
+          />
+        </td>
+        <td className="w-1/2 border border-gray-300 px-2 py-2">
+          <Textarea
+            value={form.transmittableDiseasesCarer3}
+            onChange={(e) => setField('transmittableDiseasesCarer3', e.target.value)}
+            placeholder=""
+            className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
+          />
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
         </section>
 
         <Separator />
@@ -2575,9 +2939,14 @@ export const RiskAssessmentTab: React.FC = () => {
                 <div key={type} className="flex items-center space-x-2">
                   <Checkbox
                     id={`accom-${type}`}
-                    checked={form.accommodationType === type}
+                    checked={form.accommodationType.includes(type)}
                     onCheckedChange={(checked) =>
-                      setField('accommodationType', checked ? type : '')
+                      setField(
+                        'accommodationType',
+                        checked
+                          ? [...form.accommodationType, type]
+                          : form.accommodationType.filter((t) => t !== type)
+                      )
                     }
                   />
                   <Label htmlFor={`accom-${type}`} className="text-sm">
@@ -2589,35 +2958,119 @@ export const RiskAssessmentTab: React.FC = () => {
           </div>
 
           {/* Travelling */}
-          {/* Travelling */}
-          <div className="space-y-3 rounded-lg border border-gray-400 p-4">
-            <h4 className="text-sm text-center font-bold">
-              Directions - Travelling to and from the home of the Service User
-            </h4>
-            <Textarea
-              value={form.travellingDirectionDetails}
-              onChange={(e) =>
-                setField('travellingDirectionDetails', e.target.value)
-              }
-              placeholder="Direction details"
-              rows={3}
-            />
+       {/* Travelling */}
+<div className="space-y-3">
+  <div className="overflow-hidden rounded-lg border border-gray-300">
+    <table className="w-full border-collapse text-sm">
+      <thead>
+        <tr>
+          <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800 w-[65%]">
+            Directions - Travelling to and from the home of the Service User
+          </th>
+          <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800 w-[35%]">
+            Details
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr className="bg-white">
+          <td className="border border-gray-300 px-3 py-2">
             <div className="flex items-center gap-4">
-              <Label className="text-sm">Any risks identified?</Label>
+              <Label className="flex-1 text-sm">Any risks identified?</Label>
               {renderYesNoRadio(form.travellingRisks, (val) =>
                 setField('travellingRisks', val)
               )}
             </div>
-            <Input
+          </td>
+          <td className="border border-gray-300 px-2 py-2">
+            <Textarea
               value={form.travellingRisksDetails}
               onChange={(e) =>
                 setField('travellingRisksDetails', e.target.value)
               }
-              placeholder="Additional risk details"
+              placeholder="Risk details"
+              rows={2}
+              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
             />
-          </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
 
           {/* Safety Risks */}
+          {/* Safety Risks */}
+<div className="space-y-3 ">
+  <div className="overflow-hidden rounded-lg border border-gray-300">
+    <table className="w-full border-collapse text-sm">
+      <thead>
+        <tr>
+          <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800 w-[65%]">
+            SAFETY RISKS MAY RELATE TO: THE TYPE OR ISOLATION OF PROPERTY, HIGH RISE OR OTHER OCCUPANTS OF APARTMENT BLOCKS ETC.
+          </th>
+          <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800 w-[35%]">
+            IDENTIFIED RISK/S & ELIMINATION / LIMITATION ACTION REQUIRED
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {[
+          { key: 'hasTelephone', label: 'Is there a telephone?' },
+          { key: 'telephoneConcerns', label: 'Any concerns relating to telephone services?' },
+          { key: 'highCrimeArea', label: 'Is the area a high crime risk area?' },
+          { key: 'areaIsolated', label: 'Is area isolated?' },
+        ].map((item) => (
+          <tr key={item.key} className="bg-white">
+            <td className="border border-gray-300 px-3 py-2">
+              <div className="flex items-center gap-4">
+                <Label className="flex-1 text-sm">{item.label}</Label>
+                {renderYesNoRadio(
+                  form[item.key as keyof RiskAssessmentForm] as boolean | null,
+                  (val) =>
+                    setField(
+                      item.key as keyof RiskAssessmentForm,
+                      val as any
+                    )
+                )}
+              </div>
+            </td>
+            <td className="border border-gray-300 px-2 py-2">
+              <Textarea
+                value={
+                  (form[`${item.key}Action` as keyof RiskAssessmentForm] as string) || ''
+                }
+                onChange={(e) =>
+                  setField(
+                    `${item.key}Action` as keyof RiskAssessmentForm,
+                    e.target.value as any
+                  )
+                }
+                placeholder="Identified risk/s & elimination/limitation action"
+                rows={2}
+                className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
+              />
+            </td>
+          </tr>
+        ))}
+        <tr className="bg-white">
+          <td className="border border-gray-300 px-3 py-2">
+            <Label className="text-sm font-medium">Further comments on identified risk/s if any associated with the type or location of the premises.</Label>
+          </td>
+          <td className="border border-gray-300 px-2 py-2">
+            <Textarea
+              value={form.safetyRisksComments}
+              onChange={(e) => setField('safetyRisksComments', e.target.value)}
+              placeholder="Further comments on identified risk/s..."
+              rows={2}
+              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
+            />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
           {/* Services Location Facilities & Fire Hazards */}
           <div className="space-y-3">
             <div className="overflow-hidden rounded-lg border border-gray-300">
@@ -2730,17 +3183,17 @@ export const RiskAssessmentTab: React.FC = () => {
                         <Label className="flex-1 text-sm ">
                           Is there a residual current device (RCD)?
                         </Label>
-                        {renderYesNoRadio(form.circuitBreaker, (val) =>
-                          setField('circuitBreaker', val)
+                        {renderYesNoRadio(form.residualCurrentDevice, (val) =>
+                          setField('residualCurrentDevice', val)
                         )}
                       </div>
                     </td>
                     <td className="border border-gray-300 px-2 py-2">
                       <Textarea
-                        value={form.circuitBreakerDetails || ''}
+                        value={form.residualCurrentDeviceDetails || ''}
                         onChange={(e) =>
                           setField(
-                            'circuitBreakerDetails',
+                            'residualCurrentDeviceDetails',
                             e.target.value as any
                           )
                         }
@@ -3093,444 +3546,127 @@ export const RiskAssessmentTab: React.FC = () => {
                       />
                     </td>
                   </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <div className="flex items-center gap-4">
+                        <Label className="flex-1 text-sm ">
+                          Any obvious fire hazards?
+                        </Label>
+                        {renderYesNoRadio(form.fireHazards, (val) =>
+                          setField('fireHazards', val)
+                        )}
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.fireHazardsDetails || ''}
+                        onChange={(e) =>
+                          setField('fireHazardsDetails', e.target.value as any)
+                        }
+                        placeholder="Details of fire hazards"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <div className="flex items-center gap-4">
+                        <Label className="flex-1 text-sm ">
+                          Identified risks to staff?
+                        </Label>
+                        {renderYesNoRadio(form.staffRisks, (val) =>
+                          setField('staffRisks', val)
+                        )}
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.staffRisksDetails || ''}
+                        onChange={(e) =>
+                          setField('staffRisksDetails', e.target.value as any)
+                        }
+                        placeholder="Details of risks to staff"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <div className="flex items-center gap-4">
+                        <Label className="flex-1 text-sm ">
+                          Identified risks to the service user?
+                        </Label>
+                        {renderYesNoRadio(form.serviceUserRisks, (val) =>
+                          setField('serviceUserRisks', val)
+                        )}
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.serviceUserRisksDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'serviceUserRisksDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details of risks to service user"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <div className="flex items-center gap-4">
+                        <Label className="flex-1 text-sm ">
+                          Fire Officer Safety Assessment required?
+                        </Label>
+                        {renderYesNoRadio(form.fireOfficerAssessment, (val) =>
+                          setField('fireOfficerAssessment', val)
+                        )}
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.fireOfficerAssessmentDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'fireOfficerAssessmentDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <Label className="text-sm">
+                        Identify fire escape routes - are escape routes clear and
+                        unobstructed in the event of a fire or emergency?
+                      </Label>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.fireEscapeRoutes}
+                        onChange={(e) =>
+                          setField('fireEscapeRoutes', e.target.value)
+                        }
+                        placeholder="Fire escape routes"
+                        rows={2}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>
           </div>
-{/* Services Location Facilities & Fire Hazards */}
-<div className="space-y-3 rounded-lg ">
-
-  <div className="overflow-hidden rounded-lg border border-gray-300">
-    <table className="w-full border-collapse text-sm">
-      <thead>
-        <tr>
-          <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800 w-[65%]">
-    SERVICES LOCATION FACILITIES & FIRE HAZARDS
-          </th>
-         <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <Label className="text-sm">Where is the water cut off?</Label>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.waterCutOff}
-              onChange={(e) => setField('waterCutOff', e.target.value)}
-              placeholder="Location"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <Label className="text-sm">Where is the gas cut off?</Label>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.gasCutOff}
-              onChange={(e) => setField('gasCutOff', e.target.value)}
-              placeholder="Location"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <Label className="text-sm">Where is the electric meter?</Label>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.electricMeter}
-              onChange={(e) => setField('electricMeter', e.target.value)}
-              placeholder="Location"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Electricity: concerns relating to electrical wiring?</Label>
-              {renderYesNoRadio(form.electricalWiringConcerns, (val) =>
-                setField('electricalWiringConcerns', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.electricalWiringConcernsDetails || ''}
-              onChange={(e) => setField('electricalWiringConcernsDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <Label className="text-sm">Electric meter type / RCD?</Label>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.electricMeterType}
-              onChange={(e) => setField('electricMeterType', e.target.value)}
-              placeholder="New trip switch / old flick switch"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Lighting concerns?</Label>
-              {renderYesNoRadio(form.lightingConcerns, (val) =>
-                setField('lightingConcerns', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.lightingConcernsDetails || ''}
-              onChange={(e) => setField('lightingConcernsDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Electrical appliances: circuit breaker?</Label>
-              {renderYesNoRadio(form.circuitBreaker, (val) =>
-                setField('circuitBreaker', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.circuitBreakerDetails || ''}
-              onChange={(e) => setField('circuitBreakerDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <Label className="text-sm">Heating source</Label>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.heatingSource}
-              onChange={(e) => setField('heatingSource', e.target.value)}
-              placeholder="Coal fire, Gas or Electricity"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Gas concerns?</Label>
-              {renderYesNoRadio(form.gasConcerns, (val) =>
-                setField('gasConcerns', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.gasConcernsDetails || ''}
-              onChange={(e) => setField('gasConcernsDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Heating concerns?</Label>
-              {renderYesNoRadio(form.heatingConcerns, (val) =>
-                setField('heatingConcerns', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.heatingConcernsDetails || ''}
-              onChange={(e) => setField('heatingConcernsDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <Label className="text-sm">Cooking source</Label>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.cookingSource}
-              onChange={(e) => setField('cookingSource', e.target.value)}
-              placeholder="Electricity or Gas"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Hot water concerns?</Label>
-              {renderYesNoRadio(form.hotWaterConcerns, (val) =>
-                setField('hotWaterConcerns', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.hotWaterConcernsDetails || ''}
-              onChange={(e) => setField('hotWaterConcernsDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Shower with thermostatic regulator?</Label>
-              {renderYesNoRadio(form.thermostaticRegulator, (val) =>
-                setField('thermostaticRegulator', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.thermostaticRegulatorDetails || ''}
-              onChange={(e) => setField('thermostaticRegulatorDetails', e.target.value as any)}
-              placeholder="If no regulator, recommend one is fitted"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Security: adequate locks, windows & doors?</Label>
-              {renderYesNoRadio(form.securityLocks, (val) =>
-                setField('securityLocks', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.securityLocksDetails || ''}
-              onChange={(e) => setField('securityLocksDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <Label className="text-sm">Key box?</Label>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.keyBoxLocation}
-              onChange={(e) => setField('keyBoxLocation', e.target.value)}
-              placeholder="Location"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Stair gates fitted?</Label>
-              {renderYesNoRadio(form.stairGates, (val) =>
-                setField('stairGates', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.stairGatesDetails || ''}
-              onChange={(e) => setField('stairGatesDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Monitored medication dose box?</Label>
-              {renderYesNoRadio(form.monitoredMedicationBox, (val) =>
-                setField('monitoredMedicationBox', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.monitoredMedicationBoxDetails || ''}
-              onChange={(e) => setField('monitoredMedicationBoxDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Key Safe?</Label>
-              {renderYesNoRadio(form.keySafe, (val) =>
-                setField('keySafe', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.keySafeDetails || ''}
-              onChange={(e) => setField('keySafeDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Fire Hazards: Is the service user a smoker?</Label>
-              {renderYesNoRadio(form.serviceUserSmoker, (val) =>
-                setField('serviceUserSmoker', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.serviceUserSmokerDetails || ''}
-              onChange={(e) => setField('serviceUserSmokerDetails', e.target.value as any)}
-              placeholder="If so give advice ashtrays, extinguishing & smoking in bed"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Any obvious fire hazards?</Label>
-              {renderYesNoRadio(form.fireHazards, (val) =>
-                setField('fireHazards', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.fireHazardsDetails || ''}
-              onChange={(e) => setField('fireHazardsDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Identified risks to staff?</Label>
-              {renderYesNoRadio(form.staffRisks, (val) =>
-                setField('staffRisks', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.staffRisksDetails || ''}
-              onChange={(e) => setField('staffRisksDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Identified risks to the service user?</Label>
-              {renderYesNoRadio(form.serviceUserRisks, (val) =>
-                setField('serviceUserRisks', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.serviceUserRisksDetails || ''}
-              onChange={(e) => setField('serviceUserRisksDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Fire Officer Safety Assessment required?</Label>
-              {renderYesNoRadio(form.fireOfficerAssessment, (val) =>
-                setField('fireOfficerAssessment', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.fireOfficerAssessmentDetails || ''}
-              onChange={(e) => setField('fireOfficerAssessmentDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <Label className="text-sm">Identify fire escape routes - are escape routes clear and unobstructed in the event of a fire or emergency?</Label>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.fireEscapeRoutes}
-              onChange={(e) => setField('fireEscapeRoutes', e.target.value)}
-              placeholder="Fire escape routes"
-              rows={2}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
 
        {/* Premises */}
 <div className="space-y-3 rounded-lg ">
@@ -3606,7 +3742,7 @@ export const RiskAssessmentTab: React.FC = () => {
         </tr>
         <tr className="bg-white">
           <td className="border border-gray-300 px-3 py-2">
-            <Label className="text-sm">Trips & Falls: Trailing wires, flooring type and safety issues - e.g. frayed loose or torn carpets. Are floors reasonably level or are there slopes or holes in tiles?</Label>
+            <Label className="text-sm"><span className="font-bold">Trips &amp; Falls:</span> Trailing wires, flooring type and safety issues - e.g. frayed loose or torn carpets. Are floors reasonably level or are there slopes or holes in tiles?</Label>
           </td>
           <td className="border border-gray-300 px-2 py-2">
             <Textarea
@@ -3732,7 +3868,7 @@ export const RiskAssessmentTab: React.FC = () => {
         </tr>
         <tr className="bg-white">
           <td className="border border-gray-300 px-3 py-2">
-            <Label className="text-sm">Are there any concerns relating to pest infestation?</Label>
+            <Label className="text-sm">Are there any concerns relating to pest infestation e.g., are there signs of fleas, lice, cockroaches, mice, rats, etc.?</Label>
           </td>
           <td className="border border-gray-300 px-2 py-2">
             <Textarea
@@ -3746,7 +3882,7 @@ export const RiskAssessmentTab: React.FC = () => {
         </tr>
         <tr className="bg-white">
           <td className="border border-gray-300 px-3 py-2">
-            <Label className="text-sm">Are there any concerns relating to unsanitary conditions?</Label>
+            <Label className="text-sm">Are there concerns relating to unsanitary/unhygienic conditions e.g., adequate toilet facilities, are toilet facilities clean & free from dirt, grime, mould & pests etc.?</Label>
           </td>
           <td className="border border-gray-300 px-2 py-2">
             <Textarea
@@ -3774,7 +3910,7 @@ export const RiskAssessmentTab: React.FC = () => {
         </tr>
         <tr className="bg-white">
           <td className="border border-gray-300 px-3 py-2">
-            <Label className="text-sm">Are there any concerns relating to room size?</Label>
+            <Label className="text-sm">Are there concerns relating about room size e.g., adequate space for staff to work?</Label>
           </td>
           <td className="border border-gray-300 px-2 py-2">
             <Textarea
@@ -3788,7 +3924,7 @@ export const RiskAssessmentTab: React.FC = () => {
         </tr>
         <tr className="bg-white">
           <td className="border border-gray-300 px-3 py-2">
-            <Label className="text-sm">Are there any concerns relating to lifts or hoists?</Label>
+            <Label className="text-sm">If lifts or hoists are fitted, are they in an adequate state of repair, is the latest service date current and has the service renewal date / schedule been recorded?</Label>
           </td>
           <td className="border border-gray-300 px-2 py-2">
             <Textarea
@@ -3802,7 +3938,7 @@ export const RiskAssessmentTab: React.FC = () => {
         </tr>
         <tr className="bg-white">
           <td className="border border-gray-300 px-3 py-2">
-            <Label className="text-sm">Are there any concerns relating to adaptations?</Label>
+            <Label className="text-sm">If adaptations are fitted (e.g., stair rails, grab rails, etc.) are these in a good state of repair, i.e., are they reasonably secure, well fitted, broken, etc.?</Label>
           </td>
           <td className="border border-gray-300 px-2 py-2">
             <Textarea
@@ -3816,7 +3952,7 @@ export const RiskAssessmentTab: React.FC = () => {
         </tr>
         <tr className="bg-white">
           <td className="border border-gray-300 px-3 py-2">
-            <Label className="text-sm">Are there any broken or cracked glazing/mirrors?</Label>
+            <Label className="text-sm">Is there any broken /cracked/insecure glazing/mirrors If yes do not attempt to clean it?</Label>
           </td>
           <td className="border border-gray-300 px-2 py-2">
             <Textarea
@@ -3872,15 +4008,15 @@ export const RiskAssessmentTab: React.FC = () => {
           <td className="border border-gray-300 px-3 py-2">
             <div className="flex items-center gap-4">
               <Label className="flex-1 text-sm ">Are there substances e.g. cleaning materials, pesticides, weed killers etc that staff is required to use?</Label>
-              {renderYesNoRadio(form.coshhSubstances, (val) =>
-                setField('coshhSubstances', val)
+              {renderYesNoRadio(form.coshhRequiredSubstances, (val) =>
+                setField('coshhRequiredSubstances', val)
               )}
             </div>
           </td>
           <td className="border border-gray-300 px-2 py-2">
             <Textarea
-              value={form.coshhSubstancesDetails || ''}
-              onChange={(e) => setField('coshhSubstancesDetails', e.target.value as any)}
+              value={form.coshhRequiredSubstancesDetails || ''}
+              onChange={(e) => setField('coshhRequiredSubstancesDetails', e.target.value as any)}
               placeholder="Details"
               rows={1}
               className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
@@ -4047,7 +4183,26 @@ export const RiskAssessmentTab: React.FC = () => {
             <Textarea
               value={form.crackedWindowsDetails || ''}
               onChange={(e) => setField('crackedWindowsDetails', e.target.value as any)}
-              placeholder="If yes do not attempt to clean them!"
+              placeholder="Details"
+              rows={1}
+              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
+            />
+          </td>
+        </tr>
+        <tr className="bg-white">
+          <td className="border border-gray-300 px-3 py-2">
+            <div className="flex items-center gap-4">
+              <Label className="flex-1 text-sm ">If yes do not attempt to clean them!</Label>
+              {renderYesNoRadio(form.crackedWindowsDoNotClean, (val) =>
+                setField('crackedWindowsDoNotClean', val)
+              )}
+            </div>
+          </td>
+          <td className="border border-gray-300 px-2 py-2">
+            <Textarea
+              value={form.crackedWindowsDoNotCleanDetails || ''}
+              onChange={(e) => setField('crackedWindowsDoNotCleanDetails', e.target.value as any)}
+              placeholder="Details"
               rows={1}
               className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
             />
@@ -4072,82 +4227,7 @@ export const RiskAssessmentTab: React.FC = () => {
             />
           </td>
         </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Is protective clothing needed?</Label>
-              {renderYesNoRadio(form.protectiveClothingNeeded, (val) =>
-                setField('protectiveClothingNeeded', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.protectiveClothingNeededDetails || ''}
-              onChange={(e) => setField('protectiveClothingNeededDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Are there risks to staff?</Label>
-              {renderYesNoRadio(form.risksToStaff, (val) =>
-                setField('risksToStaff', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.risksToStaffDetails || ''}
-              onChange={(e) => setField('risksToStaffDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Are there risks to service user?</Label>
-              {renderYesNoRadio(form.risksToServiceUser, (val) =>
-                setField('risksToServiceUser', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.risksToServiceUserDetails || ''}
-              onChange={(e) => setField('risksToServiceUserDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Are there risks to others in environment?</Label>
-              {renderYesNoRadio(form.risksToOthers, (val) =>
-                setField('risksToOthers', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.risksToOthersDetails || ''}
-              onChange={(e) => setField('risksToOthersDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
+      
       </tbody>
     </table>
   </div>
@@ -4311,7 +4391,7 @@ export const RiskAssessmentTab: React.FC = () => {
         <tr className="bg-white">
           <td className="border border-gray-300 px-3 py-2">
             <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Are there any identified financial risks to staff or Service User?</Label>
+              <Label className="flex-1 text-sm ">Are there any identified financial risks to staff or Service User?  If ‘Yes’ – How can this be minimised?</Label>
               {renderYesNoRadio(form.financialRisks, (val) =>
                 setField('financialRisks', val)
               )}
@@ -4758,9 +4838,14 @@ export const RiskAssessmentTab: React.FC = () => {
           <h3 className="text-sm text-center font-bold">
             SECTION (6)
           </h3>
+          <div className='text-center'>
+
           <h3 className="text-sm text-center font-bold">
            SUPPORT STAFF INPUT
           </h3>
+          <p>The assessor must ask regular health & social care workers for their input</p>
+          <p> <strong> DETAILED EXPLANATION:</strong>  Highlighting other risks (If any) the current situation and method of current control.</p>
+          </div>
          
           <div className="space-y-2">
             <Label className="text-sm">6A. Health & Social Care Workers Comments</Label>
@@ -4831,22 +4916,26 @@ ACTION PLAN AND AGREEMENT
                 <Label className="text-sm">
                   Name & Tel/contact no of person supplying equipment
                 </Label>
-                <Input
+                <Textarea
                   value={form.equipmentSupplierName}
                   onChange={(e) =>
                     setField('equipmentSupplierName', e.target.value)
                   }
                   placeholder="Name"
+                  rows={2}
+                  className="text-sm"
                 />
               </div>
               <div className="space-y-2">
                 <Label className="text-sm">Tel/contact no</Label>
-                <Input
+                <Textarea
                   value={form.equipmentSupplierTel}
                   onChange={(e) =>
                     setField('equipmentSupplierTel', e.target.value)
                   }
                   placeholder="Tel"
+                  rows={2}
+                  className="text-sm"
                 />
               </div>
               <div className="space-y-2">
@@ -4854,12 +4943,14 @@ ACTION PLAN AND AGREEMENT
                   Date hoist and/or other equipment needs next service & service
                   interval (months)
                 </Label>
-                <Input
+                <Textarea
                   value={form.equipmentServiceInterval}
                   onChange={(e) =>
                     setField('equipmentServiceInterval', e.target.value)
                   }
                   placeholder="Every ___ months"
+                  rows={2}
+                  className="text-sm"
                 />
               </div>
               <div className="space-y-2">
@@ -4880,12 +4971,14 @@ ACTION PLAN AND AGREEMENT
               </div>
               <div className="space-y-2">
                 <Label className="text-sm">Person responsible</Label>
-                <Input
+                <Textarea
                   value={form.personResponsible}
                   onChange={(e) =>
                     setField('personResponsible', e.target.value)
                   }
                   placeholder="Person responsible"
+                  rows={2}
+                  className="text-sm"
                 />
               </div>
               <div className="space-y-2">
@@ -4913,10 +5006,12 @@ ACTION PLAN AND AGREEMENT
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
               <div className="space-y-2">
                 <Label className="text-sm">Assessor Name</Label>
-                <Input
+                <Textarea
                   value={form.assessorName}
                   onChange={(e) => setField('assessorName', e.target.value)}
                   placeholder="Assessor name"
+                  rows={2}
+                  className="text-sm"
                 />
               </div>
               <div className="space-y-2">
@@ -4953,12 +5048,14 @@ ACTION PLAN AND AGREEMENT
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
               <div className="space-y-2">
                 <Label className="text-sm">Service User/Next of Kin Name (block capitals)</Label>
-                <Input
+                <Textarea
                   value={form.serviceUserNameKin}
                   onChange={(e) =>
                     setField('serviceUserNameKin', e.target.value)
                   }
                   placeholder="Name"
+                  rows={2}
+                  className="text-sm"
                 />
               </div>
               <div className="space-y-2">
@@ -4991,10 +5088,12 @@ ACTION PLAN AND AGREEMENT
             </div>
             <div className="space-y-2">
               <Label className="text-sm">Person responsible</Label>
-              <Input
+              <Textarea
                 value={form.personResponsible}
                 onChange={(e) => setField('personResponsible', e.target.value)}
                 placeholder="Person responsible"
+                rows={2}
+                className="text-sm"
               />
             </div>
             <div className="space-y-2">
