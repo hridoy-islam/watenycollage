@@ -12,6 +12,7 @@ import { Save, FileText } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
 import { SignatureField } from '../components/SignatureFieldRisk';
+import { Input } from '@/components/ui/input';
 
 interface MovingHandlingEntry {
   selectedOption: string;
@@ -349,6 +350,8 @@ interface RiskAssessmentForm {
   equipmentServiceInterval: string;
   equipmentServiceDate: Date | null;
   hoistServiceDate: Date | null;
+  equipmentName1: string;
+  equipmentName2: string;
 
   // Details (free text) for environment / premises / finance / food / outings checks
   travellingDirectionDetails: string;
@@ -663,6 +666,8 @@ const emptyForm = (): RiskAssessmentForm => ({
   equipmentServiceInterval: '',
   equipmentServiceDate: null,
   hoistServiceDate: null,
+  equipmentName1: '',
+  equipmentName2: '',
   travellingDirectionDetails: '',
   electricalWiringConcernsDetails: '',
   circuitBreakerDetails: '',
@@ -1015,6 +1020,8 @@ const mapToForm = (item: any): RiskAssessmentForm => ({
   hoistServiceDate: item.hoistServiceDate
     ? new Date(item.hoistServiceDate)
     : null,
+  equipmentName1: item.equipmentName1 || '',
+  equipmentName2: item.equipmentName2 || '',
   travellingDirectionDetails: item.travellingDirectionDetails || '',
   electricalWiringConcernsDetails: item.electricalWiringConcernsDetails || '',
   circuitBreakerDetails: item.circuitBreakerDetails || '',
@@ -1374,6 +1381,8 @@ export const RiskAssessmentTab: React.FC = () => {
         equipmentServiceInterval: form.equipmentServiceInterval,
         equipmentServiceDate: toISOString(form.equipmentServiceDate),
         hoistServiceDate: toISOString(form.hoistServiceDate),
+        equipmentName1: form.equipmentName1,
+        equipmentName2: form.equipmentName2,
         travellingDirectionDetails: form.travellingDirectionDetails,
         electricalWiringConcernsDetails: form.electricalWiringConcernsDetails,
         circuitBreakerDetails: form.circuitBreakerDetails,
@@ -1667,7 +1676,9 @@ export const RiskAssessmentTab: React.FC = () => {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-xl text-center font-bold">Risk Assessment</CardTitle>
+        <CardTitle className="text-center text-xl font-bold">
+          Risk Assessment
+        </CardTitle>
         <Button onClick={handleSave} disabled={saving} variant="default">
           <Save className="mr-2 h-4 w-4" />
           {saving ? 'Saving...' : 'Save'}
@@ -1676,7 +1687,9 @@ export const RiskAssessmentTab: React.FC = () => {
       <CardContent className="space-y-8">
         {/* Header Info */}
         <section className="space-y-4">
-          <h3 className="text-sm text-center font-bold">Service User Details</h3>
+          <h3 className="text-center text-sm font-bold">
+            Service User Details
+          </h3>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div className="space-y-2">
               <Label className="text-sm">Service User Name</Label>
@@ -1771,13 +1784,14 @@ export const RiskAssessmentTab: React.FC = () => {
 
         {/* Section 1: Moving & Handling */}
         <section className="space-y-4">
-          <h3 className="text-sm text-center font-bold">
-            SECTION (1)
-          </h3>
-          <h3 className="text-sm text-center font-bold">
+          <h3 className="text-center text-sm font-bold">SECTION (1)</h3>
+          <h3 className="text-center text-sm font-bold">
             SECTION (1) MOVING & HANDLING
           </h3>
-          <p className='text-sm text-center'><strong>DETAILED EXPLANATION:</strong>   Highlighting Risk/other and method of current control – what is the current situation?</p>
+          <p className="text-center text-sm">
+            <strong>DETAILED EXPLANATION:</strong> Highlighting Risk/other and
+            method of current control – what is the current situation?
+          </p>
 
           {/* 1A. Mobility */}
           <div className="space-y-3">
@@ -1895,7 +1909,6 @@ export const RiskAssessmentTab: React.FC = () => {
                       Risk rating: 0-20 = Low Risk, 20-40 = Medium Risk, 40+ =
                       High Risk
                     </p>
-                   
                   </td>
                   <td className="border border-gray-300 px-3 py-2 align-top">
                     <Textarea
@@ -1918,7 +1931,7 @@ export const RiskAssessmentTab: React.FC = () => {
 
         {/* Section 2: Moving & Handling Tasks */}
         <section className="space-y-4">
-          <h3 className="text-sm text-center font-bold">
+          <h3 className="text-center text-sm font-bold">
             SECTION (2) MOVING & HANDLING TASKS
           </h3>
 
@@ -1934,7 +1947,6 @@ export const RiskAssessmentTab: React.FC = () => {
             <p className="text-sm text-gray-500">
               Risk rating 0-3 = Low Risk, 3-7 = Medium Risk, 7+ = High Risk
             </p>
-           
           </div>
         </section>
 
@@ -1942,12 +1954,14 @@ export const RiskAssessmentTab: React.FC = () => {
 
         {/* Section 3: Medication */}
         <section className="space-y-4">
-          <h3 className="text-sm text-center font-bold">SECTION (3)</h3>
-          <h3 className="text-sm text-center font-bold">MEDICATION</h3>
+          <h3 className="text-center text-sm font-bold">SECTION (3)</h3>
+          <h3 className="text-center text-sm font-bold">MEDICATION</h3>
 
           {/* 3A. Obtaining Supplies/Storage */}
           <div className="space-y-3 rounded-lg border p-4">
-            <h4 className="text-sm text-center font-bold">3A. Obtaining Supplies/Storage</h4>
+            <h4 className="text-center text-sm font-bold">
+              3A. Obtaining Supplies/Storage
+            </h4>
             {[
               'Is the service user able to obtain supplies of medication as needed',
               'Can relatives/a neighbour etc. collect supplies',
@@ -2010,7 +2024,7 @@ export const RiskAssessmentTab: React.FC = () => {
 
           {/* Taking Medication */}
           <div className="space-y-3 rounded-lg border p-4">
-            <h4 className="text-sm text-center font-bold">Taking Medication</h4>
+            <h4 className="text-center text-sm font-bold">Taking Medication</h4>
             {[
               'Does the service user remember to take their medication',
               'Does the service user take any non-prescribed medication',
@@ -2080,7 +2094,9 @@ export const RiskAssessmentTab: React.FC = () => {
 
           {/* Applying Topical Applications */}
           <div className="space-y-3 rounded-lg border p-4">
-            <h4 className="text-sm text-center font-bold">Applying Topical Applications</h4>
+            <h4 className="text-center text-sm font-bold">
+              Applying Topical Applications
+            </h4>
             {[
               'Can the service user use an inhaler',
               'Can the service user instil eye drops',
@@ -2141,12 +2157,16 @@ export const RiskAssessmentTab: React.FC = () => {
 
           {/* Medication Details */}
           <div className="space-y-3 rounded-lg border p-4">
-            <h4 className="text-sm text-center font-bold">Medication Details</h4>
+            <h4 className="text-center text-sm font-bold">
+              Medication Details
+            </h4>
             <div className="space-y-4">
               {form.medications.map((med, index) => (
                 <div key={index} className="space-y-3 rounded-lg border p-3">
                   <div className="flex items-center justify-between">
-                    <h5 className="text-sm text-center font-bold">Medication {index + 1}</h5>
+                    <h5 className="text-center text-sm font-bold">
+                      Medication {index + 1}
+                    </h5>
                     <Button
                       type="button"
                       variant="ghost"
@@ -2257,7 +2277,9 @@ export const RiskAssessmentTab: React.FC = () => {
                       />
                     </div>
                     <div className="space-y-2 md:col-span-3">
-                      <Label className="text-sm">Any COSHH risks identified?</Label>
+                      <Label className="text-sm">
+                        Any COSHH risks identified?
+                      </Label>
                       {renderYesNoRadio(med.coshhRisk, (val) =>
                         updateMedicationEntry(index, 'coshhRisk', val)
                       )}
@@ -2284,7 +2306,9 @@ export const RiskAssessmentTab: React.FC = () => {
 
           {/* Medical Care Tasks */}
           <div className="space-y-3 rounded-lg border p-4">
-            <h4 className="text-sm text-center font-bold">Medical Care Tasks</h4>
+            <h4 className="text-center text-sm font-bold">
+              Medical Care Tasks
+            </h4>
             {[
               'Can the service user empty their catheter',
               'Can the service user change their catheter bag',
@@ -2344,9 +2368,11 @@ export const RiskAssessmentTab: React.FC = () => {
 
           {/* Medical History */}
           <div className="space-y-3 rounded-lg border p-4">
-            <h4 className="text-sm text-center font-bold">Medical History</h4>
+            <h4 className="text-center text-sm font-bold">Medical History</h4>
             <div className="space-y-2">
-              <Label className="text-sm">Does the Service User have any allergies?</Label>
+              <Label className="text-sm">
+                Does the Service User have any allergies?
+              </Label>
               {renderYesNoRadio(form.hasAllergies, (val) =>
                 setField('hasAllergies', val)
               )}
@@ -2382,16 +2408,15 @@ export const RiskAssessmentTab: React.FC = () => {
 
         {/* Section 4: Risks Associated with Maintaining Independence */}
         <section className="space-y-4">
-          <h3 className="text-sm text-center font-bold">
-            SECTION (4)
-          </h3>
+          <h3 className="text-center text-sm font-bold">SECTION (4)</h3>
           <div>
-
-          <h3 className="text-sm text-center font-bold">
-           RISKS ASSOCIATED WITH MAINTAINING INDEPENDENCE IN DAILY
-            ACTIVITIES
-          </h3>
-<p className='text-center'>DETAILED EXPLANATION:  Highlighting risk other and method of current control – what is the current situation?</p>
+            <h3 className="text-center text-sm font-bold">
+              RISKS ASSOCIATED WITH MAINTAINING INDEPENDENCE IN DAILY ACTIVITIES
+            </h3>
+            <p className="text-center">
+              DETAILED EXPLANATION: Highlighting risk other and method of
+              current control – what is the current situation?
+            </p>
           </div>
           {/* 4A. Risks to Service User */}
 
@@ -2399,11 +2424,11 @@ export const RiskAssessmentTab: React.FC = () => {
             <table className="w-full border-collapse text-sm">
               <thead>
                 <tr>
-                  <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800">
+                  <th className="w-[30%] border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800">
                     4A. List Risks to Service User in relation to:
                   </th>
                   <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800"></th>
-                  <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800"></th>
+                  <th className="w-[50%] border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800"></th>
                 </tr>
               </thead>
               <tbody>
@@ -2464,7 +2489,7 @@ export const RiskAssessmentTab: React.FC = () => {
                           }
                           placeholder="Specify other risk..."
                           rows={2}
-                          className="text-sm border-0 shadow-none focus-visible:ring-0"
+                          className="border-0 text-sm shadow-none focus-visible:ring-0"
                         />
                       ) : (
                         <Textarea
@@ -2481,7 +2506,7 @@ export const RiskAssessmentTab: React.FC = () => {
                           }
                           placeholder="Add comment..."
                           rows={2}
-                          className="text-sm border-0 shadow-none focus-visible:ring-0"
+                          className="border-0 text-sm shadow-none focus-visible:ring-0"
                         />
                       )}
                     </td>
@@ -2519,11 +2544,11 @@ export const RiskAssessmentTab: React.FC = () => {
             <table className="w-full border-collapse text-sm">
               <thead>
                 <tr>
-                  <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800">
+                  <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800 w-[30%]">
                     4C. List Risks to Health & Social Care Workers:
                   </th>
                   <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800"></th>
-                  <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800"></th>
+                  <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800 w-[50%]"></th>
                 </tr>
               </thead>
               <tbody>
@@ -2584,7 +2609,7 @@ export const RiskAssessmentTab: React.FC = () => {
                           }
                           placeholder="Specify other risk..."
                           rows={2}
-                          className="text-sm border-0 shadow-none focus-visible:ring-0"
+                          className="border-0 text-sm shadow-none focus-visible:ring-0"
                         />
                       ) : (
                         <Textarea
@@ -2601,7 +2626,7 @@ export const RiskAssessmentTab: React.FC = () => {
                           }
                           placeholder="Add comment..."
                           rows={2}
-                          className="text-sm border-0 shadow-none focus-visible:ring-0"
+                          className="border-0 text-sm shadow-none focus-visible:ring-0"
                         />
                       )}
                     </td>
@@ -2627,14 +2652,14 @@ export const RiskAssessmentTab: React.FC = () => {
 
           {/* Confidential: Behaviour / Criminal History */}
           <div className="space-y-3 rounded-lg border border-gray-300 bg-gray-50 p-4">
-            <h4 className="text-sm text-center font-bold text-gray-800">
+            <h4 className="text-center text-sm font-bold text-gray-800">
               RISKS ASSOCIATED WITH CLIENT'S BEHAVIOUR / CRIMINAL HISTORY
             </h4>
-            <p className="text-xs font-semibold text-center ">
+            <p className="text-center text-xs font-semibold ">
               THIS SECTION IS CONFIDENTIAL TO THE STAFF OF EVERYCARE & MUST
               NEVER FORM PART OF THE SERVICE USER'S HOUSE FILE
             </p>
-            <p className="text-xs font-semibold text-center ">
+            <p className="text-center text-xs font-semibold ">
               THIS INFORMATION HAS TO BE COMMUNICATED TO THE SOCIAL CARE WORKER
               IN CONFIDENCE
             </p>
@@ -2684,243 +2709,296 @@ export const RiskAssessmentTab: React.FC = () => {
             </div>
 
             {/* Table 2: Aggressive Behaviour (Physical) */}
-          {/* Table 2: Aggressive Behaviour (Physical) - 3 rows */}
-<div className="overflow-hidden rounded-lg border border-gray-300">
-  <table className="w-full border-collapse text-sm">
-    <thead>
-      <tr>
-        <th className="w-1/2 border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800">
-          SERVICE USER PRONE TO AGGRESSIVE BEHAVIOUR (PHYSICAL)
-        </th>
-        <th className="w-1/2 border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800">
-          IDENTIFIED RISK/S & ELIMINATION / LIMITATION ACTION REQUIRED
-        </th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td className="border border-gray-300 px-3 py-2">
-          <Textarea
-            value={form.aggressiveBehaviourPhysical}
-            onChange={(e) => setField('aggressiveBehaviourPhysical', e.target.value)}
-            placeholder="N/A"
-            className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
-          />
-        </td>
-        <td className="border border-gray-300 px-2 py-2">
-          <Textarea
-            value={form.aggressiveBehaviourPhysicalAction}
-            onChange={(e) => setField('aggressiveBehaviourPhysicalAction', e.target.value)}
-            placeholder="Identified risk/s & elimination/limitation action"
-            className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
-          />
-        </td>
-      </tr>
-      <tr>
-        <td className="border border-gray-300 px-3 py-2">
-          <Textarea
-            value={form.aggressiveBehaviourPhysical2}
-            onChange={(e) => setField('aggressiveBehaviourPhysical2', e.target.value)}
-            placeholder="N/A"
-            className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
-          />
-        </td>
-        <td className="border border-gray-300 px-2 py-2">
-          <Textarea
-            value={form.aggressiveBehaviourPhysicalAction2}
-            onChange={(e) => setField('aggressiveBehaviourPhysicalAction2', e.target.value)}
-            placeholder="Identified risk/s & elimination/limitation action"
-            className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
-          />
-        </td>
-      </tr>
-      <tr>
-        <td className="border border-gray-300 px-3 py-2">
-          <Textarea
-            value={form.aggressiveBehaviourPhysical3}
-            onChange={(e) => setField('aggressiveBehaviourPhysical3', e.target.value)}
-            placeholder="N/A"
-            className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
-          />
-        </td>
-        <td className="border border-gray-300 px-2 py-2">
-          <Textarea
-            value={form.aggressiveBehaviourPhysicalAction3}
-            onChange={(e) => setField('aggressiveBehaviourPhysicalAction3', e.target.value)}
-            placeholder="Identified risk/s & elimination/limitation action"
-            className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
-          />
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-
+            {/* Table 2: Aggressive Behaviour (Physical) - 3 rows */}
+            <div className="overflow-hidden rounded-lg border border-gray-300">
+              <table className="w-full border-collapse text-sm">
+                <thead>
+                  <tr>
+                    <th className="w-1/2 border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800">
+                      SERVICE USER PRONE TO AGGRESSIVE BEHAVIOUR (PHYSICAL)
+                    </th>
+                    <th className="w-1/2 border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800">
+                      IDENTIFIED RISK/S & ELIMINATION / LIMITATION ACTION
+                      REQUIRED
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td className="border border-gray-300 px-3 py-2">
+                      <Textarea
+                        value={form.aggressiveBehaviourPhysical}
+                        onChange={(e) =>
+                          setField(
+                            'aggressiveBehaviourPhysical',
+                            e.target.value
+                          )
+                        }
+                        placeholder="N/A"
+                        className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.aggressiveBehaviourPhysicalAction}
+                        onChange={(e) =>
+                          setField(
+                            'aggressiveBehaviourPhysicalAction',
+                            e.target.value
+                          )
+                        }
+                        placeholder="Identified risk/s & elimination/limitation action"
+                        className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="border border-gray-300 px-3 py-2">
+                      <Textarea
+                        value={form.aggressiveBehaviourPhysical2}
+                        onChange={(e) =>
+                          setField(
+                            'aggressiveBehaviourPhysical2',
+                            e.target.value
+                          )
+                        }
+                        placeholder="N/A"
+                        className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.aggressiveBehaviourPhysicalAction2}
+                        onChange={(e) =>
+                          setField(
+                            'aggressiveBehaviourPhysicalAction2',
+                            e.target.value
+                          )
+                        }
+                        placeholder="Identified risk/s & elimination/limitation action"
+                        className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="border border-gray-300 px-3 py-2">
+                      <Textarea
+                        value={form.aggressiveBehaviourPhysical3}
+                        onChange={(e) =>
+                          setField(
+                            'aggressiveBehaviourPhysical3',
+                            e.target.value
+                          )
+                        }
+                        placeholder="N/A"
+                        className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.aggressiveBehaviourPhysicalAction3}
+                        onChange={(e) =>
+                          setField(
+                            'aggressiveBehaviourPhysicalAction3',
+                            e.target.value
+                          )
+                        }
+                        placeholder="Identified risk/s & elimination/limitation action"
+                        className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
 
             {/* Table 3: Criminal History - Single Field */}
-           {/* Table 3: Criminal History - Service User / Carer, 3 rows */}
-<div className="overflow-hidden rounded-lg border border-gray-300">
-  <table className="w-full border-collapse text-sm">
-    <thead>
-      <tr>
-        <th
-          colSpan={2}
-          className="border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800"
-        >
-          CRIMINAL HISTORY
-        </th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td className="w-1/2 border border-gray-300 px-3 py-2">
-          <Textarea
-            value={form.criminalHistoryDetails}
-            onChange={(e) => setField('criminalHistoryDetails', e.target.value)}
-            placeholder=""
-            className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
-          />
-        </td>
-        <td className="w-1/2 border border-gray-300 px-2 py-2">
-          <Textarea
-            value={form.criminalHistoryCarer}
-            onChange={(e) => setField('criminalHistoryCarer', e.target.value)}
-            placeholder=""
-            className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
-          />
-        </td>
-      </tr>
-      <tr>
-        <td className="w-1/2 border border-gray-300 px-3 py-2">
-          <Textarea
-            value={form.criminalHistoryDetails2}
-            onChange={(e) => setField('criminalHistoryDetails2', e.target.value)}
-            placeholder=""
-            className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
-          />
-        </td>
-        <td className="w-1/2 border border-gray-300 px-2 py-2">
-          <Textarea
-            value={form.criminalHistoryCarer2}
-            onChange={(e) => setField('criminalHistoryCarer2', e.target.value)}
-            placeholder=""
-            className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
-          />
-        </td>
-      </tr>
-      <tr>
-        <td className="w-1/2 border border-gray-300 px-3 py-2">
-          <Textarea
-            value={form.criminalHistoryDetails3}
-            onChange={(e) => setField('criminalHistoryDetails3', e.target.value)}
-            placeholder=""
-            className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
-          />
-        </td>
-        <td className="w-1/2 border border-gray-300 px-2 py-2">
-          <Textarea
-            value={form.criminalHistoryCarer3}
-            onChange={(e) => setField('criminalHistoryCarer3', e.target.value)}
-            placeholder=""
-            className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
-          />
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+            {/* Table 3: Criminal History - Service User / Carer, 3 rows */}
+            <div className="overflow-hidden rounded-lg border border-gray-300">
+              <table className="w-full border-collapse text-sm">
+                <thead>
+                  <tr>
+                    <th
+                      colSpan={2}
+                      className="border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800"
+                    >
+                      CRIMINAL HISTORY
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td className="w-1/2 border border-gray-300 px-3 py-2">
+                      <Textarea
+                        value={form.criminalHistoryDetails}
+                        onChange={(e) =>
+                          setField('criminalHistoryDetails', e.target.value)
+                        }
+                        placeholder=""
+                        className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                    <td className="w-1/2 border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.criminalHistoryCarer}
+                        onChange={(e) =>
+                          setField('criminalHistoryCarer', e.target.value)
+                        }
+                        placeholder=""
+                        className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="w-1/2 border border-gray-300 px-3 py-2">
+                      <Textarea
+                        value={form.criminalHistoryDetails2}
+                        onChange={(e) =>
+                          setField('criminalHistoryDetails2', e.target.value)
+                        }
+                        placeholder=""
+                        className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                    <td className="w-1/2 border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.criminalHistoryCarer2}
+                        onChange={(e) =>
+                          setField('criminalHistoryCarer2', e.target.value)
+                        }
+                        placeholder=""
+                        className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="w-1/2 border border-gray-300 px-3 py-2">
+                      <Textarea
+                        value={form.criminalHistoryDetails3}
+                        onChange={(e) =>
+                          setField('criminalHistoryDetails3', e.target.value)
+                        }
+                        placeholder=""
+                        className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                    <td className="w-1/2 border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.criminalHistoryCarer3}
+                        onChange={(e) =>
+                          setField('criminalHistoryCarer3', e.target.value)
+                        }
+                        placeholder=""
+                        className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
-                  <Separator />
+          <Separator />
 
           {/* Transmittable Diseases */}
-        {/* Risk from Transmittable Diseases - Service User / Carer, 3 rows */}
-<div className="overflow-hidden rounded-lg border border-gray-300">
-  <table className="w-full border-collapse text-sm">
-    <thead>
-      <tr>
-        <th
-          colSpan={2}
-          className="border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800"
-        >
-          RISK FROM TRANSMITTABLE DISEASES
-        </th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td className="w-1/2 border border-gray-300 px-3 py-2">
-          <Textarea
-            value={form.transmittableDiseases}
-            onChange={(e) => setField('transmittableDiseases', e.target.value)}
-            placeholder=""
-            className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
-          />
-        </td>
-        <td className="w-1/2 border border-gray-300 px-2 py-2">
-          <Textarea
-            value={form.transmittableDiseasesCarer}
-            onChange={(e) => setField('transmittableDiseasesCarer', e.target.value)}
-            placeholder=""
-            className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
-          />
-        </td>
-      </tr>
-      <tr>
-        <td className="w-1/2 border border-gray-300 px-3 py-2">
-          <Textarea
-            value={form.transmittableDiseases2}
-            onChange={(e) => setField('transmittableDiseases2', e.target.value)}
-            placeholder=""
-            className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
-          />
-        </td>
-        <td className="w-1/2 border border-gray-300 px-2 py-2">
-          <Textarea
-            value={form.transmittableDiseasesCarer2}
-            onChange={(e) => setField('transmittableDiseasesCarer2', e.target.value)}
-            placeholder=""
-            className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
-          />
-        </td>
-      </tr>
-      <tr>
-        <td className="w-1/2 border border-gray-300 px-3 py-2">
-          <Textarea
-            value={form.transmittableDiseases3}
-            onChange={(e) => setField('transmittableDiseases3', e.target.value)}
-            placeholder=""
-            className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
-          />
-        </td>
-        <td className="w-1/2 border border-gray-300 px-2 py-2">
-          <Textarea
-            value={form.transmittableDiseasesCarer3}
-            onChange={(e) => setField('transmittableDiseasesCarer3', e.target.value)}
-            placeholder=""
-            className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
-          />
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+          {/* Risk from Transmittable Diseases - Service User / Carer, 3 rows */}
+          <div className="overflow-hidden rounded-lg border border-gray-300">
+            <table className="w-full border-collapse text-sm">
+              <thead>
+                <tr>
+                  <th
+                    colSpan={2}
+                    className="border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800"
+                  >
+                    RISK FROM TRANSMITTABLE DISEASES
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="w-1/2 border border-gray-300 px-3 py-2">
+                    <Textarea
+                      value={form.transmittableDiseases}
+                      onChange={(e) =>
+                        setField('transmittableDiseases', e.target.value)
+                      }
+                      placeholder=""
+                      className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
+                    />
+                  </td>
+                  <td className="w-1/2 border border-gray-300 px-2 py-2">
+                    <Textarea
+                      value={form.transmittableDiseasesCarer}
+                      onChange={(e) =>
+                        setField('transmittableDiseasesCarer', e.target.value)
+                      }
+                      placeholder=""
+                      className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <td className="w-1/2 border border-gray-300 px-3 py-2">
+                    <Textarea
+                      value={form.transmittableDiseases2}
+                      onChange={(e) =>
+                        setField('transmittableDiseases2', e.target.value)
+                      }
+                      placeholder=""
+                      className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
+                    />
+                  </td>
+                  <td className="w-1/2 border border-gray-300 px-2 py-2">
+                    <Textarea
+                      value={form.transmittableDiseasesCarer2}
+                      onChange={(e) =>
+                        setField('transmittableDiseasesCarer2', e.target.value)
+                      }
+                      placeholder=""
+                      className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <td className="w-1/2 border border-gray-300 px-3 py-2">
+                    <Textarea
+                      value={form.transmittableDiseases3}
+                      onChange={(e) =>
+                        setField('transmittableDiseases3', e.target.value)
+                      }
+                      placeholder=""
+                      className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
+                    />
+                  </td>
+                  <td className="w-1/2 border border-gray-300 px-2 py-2">
+                    <Textarea
+                      value={form.transmittableDiseasesCarer3}
+                      onChange={(e) =>
+                        setField('transmittableDiseasesCarer3', e.target.value)
+                      }
+                      placeholder=""
+                      className="min-h-[60px] border-0 bg-transparent shadow-none focus-visible:ring-0"
+                    />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </section>
 
         <Separator />
 
         {/* Section 5: Risks Associated with the Environment */}
         <section className="space-y-4">
-          <h3 className="text-sm text-center font-bold">
-            SECTION (5)
-          </h3>
-          <h3 className="text-sm text-center font-bold">
-          RISKS ASSOCIATED WITH THE ENVIRONMENT
+          <h3 className="text-center text-sm font-bold">SECTION (5)</h3>
+          <h3 className="text-center text-sm font-bold">
+            RISKS ASSOCIATED WITH THE ENVIRONMENT
           </h3>
 
           {/* 5A. Type of Accommodation */}
           <div className="space-y-3 rounded-lg border border-gray-400 p-4">
-            <h4 className="text-sm text-center font-bold">5A. Type of Accommodation</h4>
+            <h4 className="text-center text-sm font-bold">
+              5A. Type of Accommodation
+            </h4>
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
               {[
                 'House (Detached)',
@@ -2958,119 +3036,139 @@ export const RiskAssessmentTab: React.FC = () => {
           </div>
 
           {/* Travelling */}
-       {/* Travelling */}
-<div className="space-y-3">
-  <div className="overflow-hidden rounded-lg border border-gray-300">
-    <table className="w-full border-collapse text-sm">
-      <thead>
-        <tr>
-          <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800 w-[65%]">
-            Directions - Travelling to and from the home of the Service User
-          </th>
-          <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800 w-[35%]">
-            Details
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm">Any risks identified?</Label>
-              {renderYesNoRadio(form.travellingRisks, (val) =>
-                setField('travellingRisks', val)
-              )}
+          {/* Travelling */}
+          <div className="space-y-3">
+            <div className="overflow-hidden rounded-lg border border-gray-300">
+              <table className="w-full border-collapse text-sm">
+                <thead>
+                  <tr>
+                    <th className="w-[65%] border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800">
+                      Directions - Travelling to and from the home of the
+                      Service User
+                    </th>
+                    <th className="w-[35%] border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800">
+                      Details
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <div className="flex items-center gap-4">
+                        <Label className="flex-1 text-sm">
+                          Any risks identified?
+                        </Label>
+                        {renderYesNoRadio(form.travellingRisks, (val) =>
+                          setField('travellingRisks', val)
+                        )}
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.travellingRisksDetails}
+                        onChange={(e) =>
+                          setField('travellingRisksDetails', e.target.value)
+                        }
+                        placeholder="Risk details"
+                        rows={2}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.travellingRisksDetails}
-              onChange={(e) =>
-                setField('travellingRisksDetails', e.target.value)
-              }
-              placeholder="Risk details"
-              rows={2}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
+          </div>
 
           {/* Safety Risks */}
           {/* Safety Risks */}
-<div className="space-y-3 ">
-  <div className="overflow-hidden rounded-lg border border-gray-300">
-    <table className="w-full border-collapse text-sm">
-      <thead>
-        <tr>
-          <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800 w-[65%]">
-            SAFETY RISKS MAY RELATE TO: THE TYPE OR ISOLATION OF PROPERTY, HIGH RISE OR OTHER OCCUPANTS OF APARTMENT BLOCKS ETC.
-          </th>
-          <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800 w-[35%]">
-            IDENTIFIED RISK/S & ELIMINATION / LIMITATION ACTION REQUIRED
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        {[
-          { key: 'hasTelephone', label: 'Is there a telephone?' },
-          { key: 'telephoneConcerns', label: 'Any concerns relating to telephone services?' },
-          { key: 'highCrimeArea', label: 'Is the area a high crime risk area?' },
-          { key: 'areaIsolated', label: 'Is area isolated?' },
-        ].map((item) => (
-          <tr key={item.key} className="bg-white">
-            <td className="border border-gray-300 px-3 py-2">
-              <div className="flex items-center gap-4">
-                <Label className="flex-1 text-sm">{item.label}</Label>
-                {renderYesNoRadio(
-                  form[item.key as keyof RiskAssessmentForm] as boolean | null,
-                  (val) =>
-                    setField(
-                      item.key as keyof RiskAssessmentForm,
-                      val as any
-                    )
-                )}
-              </div>
-            </td>
-            <td className="border border-gray-300 px-2 py-2">
-              <Textarea
-                value={
-                  (form[`${item.key}Action` as keyof RiskAssessmentForm] as string) || ''
-                }
-                onChange={(e) =>
-                  setField(
-                    `${item.key}Action` as keyof RiskAssessmentForm,
-                    e.target.value as any
-                  )
-                }
-                placeholder="Identified risk/s & elimination/limitation action"
-                rows={2}
-                className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-              />
-            </td>
-          </tr>
-        ))}
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <Label className="text-sm font-medium">Further comments on identified risk/s if any associated with the type or location of the premises.</Label>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.safetyRisksComments}
-              onChange={(e) => setField('safetyRisksComments', e.target.value)}
-              placeholder="Further comments on identified risk/s..."
-              rows={2}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
+          <div className="space-y-3 ">
+            <div className="overflow-hidden rounded-lg border border-gray-300">
+              <table className="w-full border-collapse text-sm">
+                <thead>
+                  <tr>
+                    <th className="w-[65%] border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800">
+                      SAFETY RISKS MAY RELATE TO: THE TYPE OR ISOLATION OF
+                      PROPERTY, HIGH RISE OR OTHER OCCUPANTS OF APARTMENT BLOCKS
+                      ETC.
+                    </th>
+                    <th className="w-[35%] border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800">
+                      IDENTIFIED RISK/S & ELIMINATION / LIMITATION ACTION
+                      REQUIRED
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { key: 'hasTelephone', label: 'Is there a telephone?' },
+                    {
+                      key: 'telephoneConcerns',
+                      label: 'Any concerns relating to telephone services?'
+                    },
+                    {
+                      key: 'highCrimeArea',
+                      label: 'Is the area a high crime risk area?'
+                    },
+                    { key: 'areaIsolated', label: 'Is area isolated?' }
+                  ].map((item) => (
+                    <tr key={item.key} className="bg-white">
+                      <td className="border border-gray-300 px-3 py-2">
+                        <div className="flex items-center gap-4">
+                          <Label className="flex-1 text-sm">{item.label}</Label>
+                          {renderYesNoRadio(
+                            form[item.key as keyof RiskAssessmentForm] as
+                              boolean | null,
+                            (val) =>
+                              setField(
+                                item.key as keyof RiskAssessmentForm,
+                                val as any
+                              )
+                          )}
+                        </div>
+                      </td>
+                      <td className="border border-gray-300 px-2 py-2">
+                        <Textarea
+                          value={
+                            (form[
+                              `${item.key}Action` as keyof RiskAssessmentForm
+                            ] as string) || ''
+                          }
+                          onChange={(e) =>
+                            setField(
+                              `${item.key}Action` as keyof RiskAssessmentForm,
+                              e.target.value as any
+                            )
+                          }
+                          placeholder="Identified risk/s & elimination/limitation action"
+                          rows={2}
+                          className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <Label className="text-sm font-medium">
+                        Further comments on identified risk/s if any associated
+                        with the type or location of the premises.
+                      </Label>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.safetyRisksComments}
+                        onChange={(e) =>
+                          setField('safetyRisksComments', e.target.value)
+                        }
+                        placeholder="Further comments on identified risk/s..."
+                        rows={2}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
           {/* Services Location Facilities & Fire Hazards */}
           <div className="space-y-3">
             <div className="overflow-hidden rounded-lg border border-gray-300">
@@ -3086,7 +3184,9 @@ export const RiskAssessmentTab: React.FC = () => {
                 <tbody>
                   <tr className="bg-white">
                     <td className="border border-gray-300 px-3 py-2">
-                      <Label className="text-sm">Where is the water cut off?</Label>
+                      <Label className="text-sm">
+                        Where is the water cut off?
+                      </Label>
                     </td>
                     <td className="border border-gray-300 px-2 py-2">
                       <Textarea
@@ -3102,7 +3202,9 @@ export const RiskAssessmentTab: React.FC = () => {
                   </tr>
                   <tr className="bg-white">
                     <td className="border border-gray-300 px-3 py-2">
-                      <Label className="text-sm">Where is the gas cut off?</Label>
+                      <Label className="text-sm">
+                        Where is the gas cut off?
+                      </Label>
                     </td>
                     <td className="border border-gray-300 px-2 py-2">
                       <Textarea
@@ -3116,7 +3218,9 @@ export const RiskAssessmentTab: React.FC = () => {
                   </tr>
                   <tr className="bg-white">
                     <td className="border border-gray-300 px-3 py-2">
-                      <Label className="text-sm">Where is the electric meter?</Label>
+                      <Label className="text-sm">
+                        Where is the electric meter?
+                      </Label>
                     </td>
                     <td className="border border-gray-300 px-2 py-2">
                       <Textarea
@@ -3502,7 +3606,9 @@ export const RiskAssessmentTab: React.FC = () => {
                   <tr className="bg-white">
                     <td className="border border-gray-300 px-3 py-2">
                       <div className="flex items-center gap-4">
-                        <Label className="flex-1 text-sm ">Is there any Key Safe?</Label>
+                        <Label className="flex-1 text-sm ">
+                          Is there any Key Safe?
+                        </Label>
                         {renderYesNoRadio(form.keySafe, (val) =>
                           setField('keySafe', val)
                         )}
@@ -3524,7 +3630,9 @@ export const RiskAssessmentTab: React.FC = () => {
                     <td className="border border-gray-300 px-3 py-2">
                       <div className="flex items-center gap-4">
                         <Label className="flex-1 text-sm ">
-                          Fire Hazard & Risk: Is the service user a smoker?
+                          <strong>Fire Hazards & Risks:</strong> Is the service
+                          user a smoker? If so, give advice ash trays,
+                          extinguishing & smoking in bed.
                         </Label>
                         {renderYesNoRadio(form.serviceUserSmoker, (val) =>
                           setField('serviceUserSmoker', val)
@@ -3540,7 +3648,7 @@ export const RiskAssessmentTab: React.FC = () => {
                             e.target.value as any
                           )
                         }
-                        placeholder="If so give advice ashtrays, extinguishing & smoking in bed."
+                        placeholder=""
                         rows={1}
                         className="border-0 bg-transparent shadow-none focus-visible:ring-0"
                       />
@@ -3550,7 +3658,7 @@ export const RiskAssessmentTab: React.FC = () => {
                     <td className="border border-gray-300 px-3 py-2">
                       <div className="flex items-center gap-4">
                         <Label className="flex-1 text-sm ">
-                          Any obvious fire hazards?
+                          Are there any obvious fire hazards?
                         </Label>
                         {renderYesNoRadio(form.fireHazards, (val) =>
                           setField('fireHazards', val)
@@ -3573,7 +3681,7 @@ export const RiskAssessmentTab: React.FC = () => {
                     <td className="border border-gray-300 px-3 py-2">
                       <div className="flex items-center gap-4">
                         <Label className="flex-1 text-sm ">
-                          Identified risks to staff?
+                          Are there any identified risks to staff?
                         </Label>
                         {renderYesNoRadio(form.staffRisks, (val) =>
                           setField('staffRisks', val)
@@ -3596,7 +3704,7 @@ export const RiskAssessmentTab: React.FC = () => {
                     <td className="border border-gray-300 px-3 py-2">
                       <div className="flex items-center gap-4">
                         <Label className="flex-1 text-sm ">
-                          Identified risks to the service user?
+                          Are there any identified risks to the service user?
                         </Label>
                         {renderYesNoRadio(form.serviceUserRisks, (val) =>
                           setField('serviceUserRisks', val)
@@ -3622,7 +3730,13 @@ export const RiskAssessmentTab: React.FC = () => {
                     <td className="border border-gray-300 px-3 py-2">
                       <div className="flex items-center gap-4">
                         <Label className="flex-1 text-sm ">
-                          Fire Officer Safety Assessment required?
+                          Is a Fire Officer Safety Assessment required <br />
+                          <span>
+                            See: Office-
+                            <span className="text-orange-500">
+                              Operations-Report-Fire Safety Assessment.doc
+                            </span>
+                          </span>
                         </Label>
                         {renderYesNoRadio(form.fireOfficerAssessment, (val) =>
                           setField('fireOfficerAssessment', val)
@@ -3647,8 +3761,8 @@ export const RiskAssessmentTab: React.FC = () => {
                   <tr className="bg-white">
                     <td className="border border-gray-300 px-3 py-2">
                       <Label className="text-sm">
-                        Identify fire escape routes - are escape routes clear and
-                        unobstructed in the event of a fire or emergency?
+                        Identify fire escape routes - are escape routes clear
+                        and unobstructed in the event of a fire or emergency?
                       </Label>
                     </td>
                     <td className="border border-gray-300 px-2 py-2">
@@ -3668,1187 +3782,1577 @@ export const RiskAssessmentTab: React.FC = () => {
             </div>
           </div>
 
-       {/* Premises */}
-<div className="space-y-3 rounded-lg ">
+          {/* Premises */}
+          <div className="space-y-3 rounded-lg ">
+            <div className="overflow-hidden rounded-lg border border-gray-300">
+              <table className="w-full border-collapse text-sm">
+                <thead>
+                  <tr>
+                    <th className="w-[65%] border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800">
+                      PREMISES INCLUDING EXTERIOR OF BUILDING, ENTRANCES &
+                      GROUNDS
+                    </th>
+                    <th className="w-[35%] border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <Label className="text-sm">
+                        Unauthorised Activities for the Premises: Staff must not
+                        undertake to attempt any repairs externally or
+                        internally, hang pictures, move heavy furniture etc. has
+                        this been clarified to service user?
+                      </Label>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={
+                          form.unauthorisedActivitiesClarifiedDetails || ''
+                        }
+                        onChange={(e) =>
+                          setField(
+                            'unauthorisedActivitiesClarifiedDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={2}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <Label className="text-sm">
+                        Is there adequate lighting in entrance ways?
+                      </Label>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.adequateLightingDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'adequateLightingDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <Label className="text-sm">
+                        Are access ways to and from the house free of hazards
+                        such as uneven paths, broken steps; can you observe any
+                        slipped roof slates / tiles etc.?
+                      </Label>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.accessWaysHazardsDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'accessWaysHazardsDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <Label className="text-sm">
+                        Are buildings in an acceptable state of repair?
+                      </Label>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.buildingRepairDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'buildingRepairDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <Label className="text-sm">
+                        <span className="font-bold">Trips &amp; Falls:</span>{' '}
+                        Trailing wires, flooring type and safety issues - e.g.
+                        frayed loose or torn carpets. Are floors reasonably
+                        level or are there slopes or holes in tiles?
+                      </Label>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.tripsFallsHazardsDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'tripsFallsHazardsDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={2}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <Label className="text-sm">
+                        Are stairs in an acceptable state of repair e.g. are
+                        they reasonably stable and are there loose or torn stair
+                        carpets?
+                      </Label>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.stairsRepairDetails || ''}
+                        onChange={(e) =>
+                          setField('stairsRepairDetails', e.target.value as any)
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <Label className="text-sm">
+                        Are there any low ceilings or beams which might present
+                        a head injury hazard?
+                      </Label>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.lowCeilingsDetails || ''}
+                        onChange={(e) =>
+                          setField('lowCeilingsDetails', e.target.value as any)
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <Label className="text-sm">
+                        Are there any concerns relating to ventilation e.g. is
+                        ventilation adequate, is it dry or damp, are there
+                        draughts, etc.?
+                      </Label>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.ventilationConcernsDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'ventilationConcernsDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <Label className="text-sm">
+                        Are there any concerns relating to lead?
+                      </Label>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.leadConcernsDetails || ''}
+                        onChange={(e) =>
+                          setField('leadConcernsDetails', e.target.value as any)
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <Label className="text-sm">
+                        Are there any concerns relating to asbestos?
+                      </Label>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.asbestosConcernsDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'asbestosConcernsDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <Label className="text-sm">
+                        Are there any concerns relating to noise?
+                      </Label>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.noiseConcernsDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'noiseConcernsDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <Label className="text-sm">
+                        Are there any concerns relating to dirt or dust?
+                      </Label>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.dirtDustConcernsDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'dirtDustConcernsDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <Label className="text-sm">
+                        Are there any concerns relating to waste e.g. is waste
+                        disposed of correctly, is waste left to accumulate,
+                        etc.?
+                      </Label>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.wasteConcernsDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'wasteConcernsDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <Label className="text-sm">
+                        Are there any concerns relating to pest infestation
+                        e.g., are there signs of fleas, lice, cockroaches, mice,
+                        rats, etc.?
+                      </Label>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.pestInfestationDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'pestInfestationDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <Label className="text-sm">
+                        Are there concerns relating to unsanitary/unhygienic
+                        conditions e.g., adequate toilet facilities, are toilet
+                        facilities clean & free from dirt, grime, mould & pests
+                        etc.?
+                      </Label>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.unsanitaryConditionsDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'unsanitaryConditionsDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <Label className="text-sm">
+                        Are there any concerns relating to cold or heat?
+                      </Label>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.coldHeatConcernsDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'coldHeatConcernsDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <Label className="text-sm">
+                        Are there concerns relating about room size e.g.,
+                        adequate space for staff to work?
+                      </Label>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.roomSizeConcernsDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'roomSizeConcernsDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <Label className="text-sm">
+                        If lifts or hoists are fitted, are they in an adequate
+                        state of repair, is the latest service date current and
+                        has the service renewal date / schedule been recorded?
+                      </Label>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.liftsHoistsConcernsDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'liftsHoistsConcernsDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <Label className="text-sm">
+                        If adaptations are fitted (e.g., stair rails, grab
+                        rails, etc.) are these in a good state of repair, i.e.,
+                        are they reasonably secure, well fitted, broken, etc.?
+                      </Label>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.adaptationsConcernsDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'adaptationsConcernsDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <Label className="text-sm">
+                        Is there any broken /cracked/insecure glazing/mirrors If
+                        yes do not attempt to clean it?
+                      </Label>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.brokenGlazingDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'brokenGlazingDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
 
-  <div className="overflow-hidden rounded-lg border border-gray-300">
-    <table className="w-full border-collapse text-sm">
-      <thead>
-        <tr>
-          <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800 w-[65%]">
-    PREMISES INCLUDING EXTERIOR OF BUILDING, ENTRANCES & GROUNDS
-          </th>
-          <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800 w-[35%]">
-          
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <Label className="text-sm">Unauthorised Activities for the Premises: Staff must not undertake to attempt any repairs externally or internally, hang pictures, move heavy furniture etc. has this been clarified to service user?</Label>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.unauthorisedActivitiesClarifiedDetails || ''}
-              onChange={(e) => setField('unauthorisedActivitiesClarifiedDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={2}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <Label className="text-sm">Is there adequate lighting in entrance ways?</Label>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.adequateLightingDetails || ''}
-              onChange={(e) => setField('adequateLightingDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <Label className="text-sm">Are access ways to and from the house free of hazards such as uneven paths, broken steps; can you observe any slipped roof slates / tiles etc.?</Label>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.accessWaysHazardsDetails || ''}
-              onChange={(e) => setField('accessWaysHazardsDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <Label className="text-sm">Are buildings in an acceptable state of repair?</Label>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.buildingRepairDetails || ''}
-              onChange={(e) => setField('buildingRepairDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <Label className="text-sm"><span className="font-bold">Trips &amp; Falls:</span> Trailing wires, flooring type and safety issues - e.g. frayed loose or torn carpets. Are floors reasonably level or are there slopes or holes in tiles?</Label>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.tripsFallsHazardsDetails || ''}
-              onChange={(e) => setField('tripsFallsHazardsDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={2}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <Label className="text-sm">Are stairs in an acceptable state of repair e.g. are they reasonably stable and are there loose or torn stair carpets?</Label>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.stairsRepairDetails || ''}
-              onChange={(e) => setField('stairsRepairDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <Label className="text-sm">Are there any low ceilings or beams which might present a head injury hazard?</Label>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.lowCeilingsDetails || ''}
-              onChange={(e) => setField('lowCeilingsDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <Label className="text-sm">Are there any concerns relating to ventilation e.g. is ventilation adequate, is it dry or damp, are there draughts, etc.?</Label>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.ventilationConcernsDetails || ''}
-              onChange={(e) => setField('ventilationConcernsDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <Label className="text-sm">Are there any concerns relating to lead?</Label>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.leadConcernsDetails || ''}
-              onChange={(e) => setField('leadConcernsDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <Label className="text-sm">Are there any concerns relating to asbestos?</Label>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.asbestosConcernsDetails || ''}
-              onChange={(e) => setField('asbestosConcernsDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <Label className="text-sm">Are there any concerns relating to noise?</Label>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.noiseConcernsDetails || ''}
-              onChange={(e) => setField('noiseConcernsDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <Label className="text-sm">Are there any concerns relating to dirt or dust?</Label>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.dirtDustConcernsDetails || ''}
-              onChange={(e) => setField('dirtDustConcernsDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <Label className="text-sm">Are there any concerns relating to waste e.g. is waste disposed of correctly, is waste left to accumulate, etc.?</Label>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.wasteConcernsDetails || ''}
-              onChange={(e) => setField('wasteConcernsDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <Label className="text-sm">Are there any concerns relating to pest infestation e.g., are there signs of fleas, lice, cockroaches, mice, rats, etc.?</Label>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.pestInfestationDetails || ''}
-              onChange={(e) => setField('pestInfestationDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <Label className="text-sm">Are there concerns relating to unsanitary/unhygienic conditions e.g., adequate toilet facilities, are toilet facilities clean & free from dirt, grime, mould & pests etc.?</Label>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.unsanitaryConditionsDetails || ''}
-              onChange={(e) => setField('unsanitaryConditionsDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <Label className="text-sm">Are there any concerns relating to cold or heat?</Label>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.coldHeatConcernsDetails || ''}
-              onChange={(e) => setField('coldHeatConcernsDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <Label className="text-sm">Are there concerns relating about room size e.g., adequate space for staff to work?</Label>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.roomSizeConcernsDetails || ''}
-              onChange={(e) => setField('roomSizeConcernsDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <Label className="text-sm">If lifts or hoists are fitted, are they in an adequate state of repair, is the latest service date current and has the service renewal date / schedule been recorded?</Label>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.liftsHoistsConcernsDetails || ''}
-              onChange={(e) => setField('liftsHoistsConcernsDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <Label className="text-sm">If adaptations are fitted (e.g., stair rails, grab rails, etc.) are these in a good state of repair, i.e., are they reasonably secure, well fitted, broken, etc.?</Label>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.adaptationsConcernsDetails || ''}
-              onChange={(e) => setField('adaptationsConcernsDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <Label className="text-sm">Is there any broken /cracked/insecure glazing/mirrors If yes do not attempt to clean it?</Label>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.brokenGlazingDetails || ''}
-              onChange={(e) => setField('brokenGlazingDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
+          {/* Tasks and Equipment within the Home */}
+          <div className="space-y-3 rounded-lg">
+            <div className="overflow-hidden rounded-lg border border-gray-300">
+              <table className="w-full border-collapse text-sm">
+                <thead>
+                  <tr>
+                    <th className="w-[65%] border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800">
+                      TASKS AND EQUIPMENT WITHIN THE HOME
+                    </th>
+                    <th className="w-[35%] border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <div className="flex items-center gap-4">
+                        <Label className="flex-1 text-sm ">
+                          Are there any substances stored that appear hazardous
+                          (COSHH)?
+                        </Label>
+                        {renderYesNoRadio(form.coshhSubstances, (val) =>
+                          setField('coshhSubstances', val)
+                        )}
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.coshhSubstancesDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'coshhSubstancesDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <div className="flex items-center gap-4">
+                        <Label className="flex-1 text-sm ">
+                          Are there substances e.g. cleaning materials,
+                          pesticides, weed killers etc that staff is required to
+                          use?
+                        </Label>
+                        {renderYesNoRadio(form.coshhRequiredSubstances, (val) =>
+                          setField('coshhRequiredSubstances', val)
+                        )}
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.coshhRequiredSubstancesDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'coshhRequiredSubstancesDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <div className="flex items-center gap-4">
+                        <Label className="flex-1 text-sm ">
+                          If yes are COSHH Sheets available?
+                        </Label>
+                        {renderYesNoRadio(form.coshhSheetsAvailable, (val) =>
+                          setField('coshhSheetsAvailable', val)
+                        )}
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.coshhSheetsAvailableDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'coshhSheetsAvailableDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <Label className="text-sm">
+                        What animals are in the home if any?
+                      </Label>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.animalsInHomeDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'animalsInHomeDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="List animals in the home"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <div className="flex items-center gap-4">
+                        <Label className="flex-1 text-sm ">
+                          Do the animals present a safety risk?
+                        </Label>
+                        {renderYesNoRadio(form.animalSafetyRisk, (val) =>
+                          setField('animalSafetyRisk', val)
+                        )}
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.animalSafetyRiskDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'animalSafetyRiskDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <div className="flex items-center gap-4">
+                        <Label className="flex-1 text-sm ">
+                          Do the animals present a hygiene risk?
+                        </Label>
+                        {renderYesNoRadio(form.animalHygieneRisk, (val) =>
+                          setField('animalHygieneRisk', val)
+                        )}
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.animalHygieneRiskDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'animalHygieneRiskDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <div className="flex items-center gap-4">
+                        <Label className="flex-1 text-sm ">
+                          Are staff required to deal with animal waste?
+                        </Label>
+                        {renderYesNoRadio(form.animalWaste, (val) =>
+                          setField('animalWaste', val)
+                        )}
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.animalWasteDetails || ''}
+                        onChange={(e) =>
+                          setField('animalWasteDetails', e.target.value as any)
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <div className="flex items-center gap-4">
+                        <Label className="flex-1 text-sm ">
+                          Are staff required to deal with environmental waste?
+                        </Label>
+                        {renderYesNoRadio(form.environmentalWaste, (val) =>
+                          setField('environmentalWaste', val)
+                        )}
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.environmentalWasteDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'environmentalWasteDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <div className="flex items-center gap-4">
+                        <Label className="flex-1 text-sm ">
+                          Are staff required to deal with bodily excrements?
+                        </Label>
+                        {renderYesNoRadio(form.bodilyExcrements, (val) =>
+                          setField('bodilyExcrements', val)
+                        )}
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.bodilyExcrementsDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'bodilyExcrementsDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <div className="flex items-center gap-4">
+                        <Label className="flex-1 text-sm ">
+                          What are the identified risks to staff?
+                        </Label>
+                        {renderYesNoRadio(form.identifiedRisksStaff, (val) =>
+                          setField('identifiedRisksStaff', val)
+                        )}
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.identifiedRisksStaffDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'identifiedRisksStaffDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <div className="flex items-center gap-4">
+                        <Label className="flex-1 text-sm ">
+                          Are there any cracked / broken windows / Mirrors? If
+                          yes do not attempt to clean them!
+                        </Label>
+                        {renderYesNoRadio(form.crackedWindows, (val) =>
+                          setField('crackedWindows', val)
+                        )}
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.crackedWindowsDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'crackedWindowsDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
 
-         {/* Tasks and Equipment within the Home */}
-<div className="space-y-3 rounded-lg">
- 
-  <div className="overflow-hidden rounded-lg border border-gray-300">
-    <table className="w-full border-collapse text-sm">
-      <thead>
-        <tr>
-          <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800 w-[65%]">
-    TASKS AND EQUIPMENT WITHIN THE HOME
-          </th>
-          <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800 w-[35%]">
-            
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Are there any substances stored that appear hazardous (COSHH)?</Label>
-              {renderYesNoRadio(form.coshhSubstances, (val) =>
-                setField('coshhSubstances', val)
-              )}
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <div className="flex items-center gap-4">
+                        <Label className="flex-1 text-sm ">
+                          Are there any identified risks to service user?
+                        </Label>
+                        {renderYesNoRadio(
+                          form.identifiedRisksServiceUser,
+                          (val) => setField('identifiedRisksServiceUser', val)
+                        )}
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.identifiedRisksServiceUserDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'identifiedRisksServiceUserDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.coshhSubstancesDetails || ''}
-              onChange={(e) => setField('coshhSubstancesDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Are there substances e.g. cleaning materials, pesticides, weed killers etc that staff is required to use?</Label>
-              {renderYesNoRadio(form.coshhRequiredSubstances, (val) =>
-                setField('coshhRequiredSubstances', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.coshhRequiredSubstancesDetails || ''}
-              onChange={(e) => setField('coshhRequiredSubstancesDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">If yes are COSHH Sheets available?</Label>
-              {renderYesNoRadio(form.coshhSheetsAvailable, (val) =>
-                setField('coshhSheetsAvailable', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.coshhSheetsAvailableDetails || ''}
-              onChange={(e) => setField('coshhSheetsAvailableDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <Label className="text-sm">What animals are in the home if any?</Label>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.animalsInHomeDetails || ''}
-              onChange={(e) => setField('animalsInHomeDetails', e.target.value as any)}
-              placeholder="List animals in the home"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Do the animals present a safety risk?</Label>
-              {renderYesNoRadio(form.animalSafetyRisk, (val) =>
-                setField('animalSafetyRisk', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.animalSafetyRiskDetails || ''}
-              onChange={(e) => setField('animalSafetyRiskDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Do the animals present a hygiene risk?</Label>
-              {renderYesNoRadio(form.animalHygieneRisk, (val) =>
-                setField('animalHygieneRisk', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.animalHygieneRiskDetails || ''}
-              onChange={(e) => setField('animalHygieneRiskDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Are staff required to deal with animal waste?</Label>
-              {renderYesNoRadio(form.animalWaste, (val) =>
-                setField('animalWaste', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.animalWasteDetails || ''}
-              onChange={(e) => setField('animalWasteDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Are staff required to deal with environmental waste?</Label>
-              {renderYesNoRadio(form.environmentalWaste, (val) =>
-                setField('environmentalWaste', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.environmentalWasteDetails || ''}
-              onChange={(e) => setField('environmentalWasteDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Are staff required to deal with bodily excrements?</Label>
-              {renderYesNoRadio(form.bodilyExcrements, (val) =>
-                setField('bodilyExcrements', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.bodilyExcrementsDetails || ''}
-              onChange={(e) => setField('bodilyExcrementsDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">What are the identified risks to staff?</Label>
-              {renderYesNoRadio(form.identifiedRisksStaff, (val) =>
-                setField('identifiedRisksStaff', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.identifiedRisksStaffDetails || ''}
-              onChange={(e) => setField('identifiedRisksStaffDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Are there any cracked / broken windows / Mirrors?</Label>
-              {renderYesNoRadio(form.crackedWindows, (val) =>
-                setField('crackedWindows', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.crackedWindowsDetails || ''}
-              onChange={(e) => setField('crackedWindowsDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">If yes do not attempt to clean them!</Label>
-              {renderYesNoRadio(form.crackedWindowsDoNotClean, (val) =>
-                setField('crackedWindowsDoNotClean', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.crackedWindowsDoNotCleanDetails || ''}
-              onChange={(e) => setField('crackedWindowsDoNotCleanDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Are there any identified risks to service user?</Label>
-              {renderYesNoRadio(form.identifiedRisksServiceUser, (val) =>
-                setField('identifiedRisksServiceUser', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.identifiedRisksServiceUserDetails || ''}
-              onChange={(e) => setField('identifiedRisksServiceUserDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-      
-      </tbody>
-    </table>
-  </div>
-</div>
+          </div>
 
+          {/* Personal Protective Equipment (PPE) */}
+          <div className="space-y-3  ">
+            <h4 className="text-center text-sm font-bold"></h4>
+            <div className="overflow-hidden rounded-lg border border-gray-300">
+              <table className="w-full border-collapse text-sm">
+                <thead>
+                  <tr>
+                    <th className="w-[65%] border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800">
+                      LIST ALL REQUIREMENTS FOR "PERSONAL PROTECTIVE EQUIPMENT"
+                      (PPE) / CLOTHING
+                    </th>
+                    <th className="w-[35%] border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <div className="flex items-center gap-4">
+                        <Label className="flex-1 text-sm ">
+                          Is protective clothing needed?
+                        </Label>
+                        {renderYesNoRadio(
+                          form.protectiveClothingNeeded,
+                          (val) => setField('protectiveClothingNeeded', val)
+                        )}
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.protectiveClothingNeededDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'protectiveClothingNeededDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="List PPE requirements"
+                        rows={2}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
 
-{/* Personal Protective Equipment (PPE) */}
-<div className="space-y-3  ">
-  <h4 className="text-sm text-center font-bold">
-  </h4>
-  <div className="overflow-hidden rounded-lg border border-gray-300">
-    <table className="w-full border-collapse text-sm">
-      <thead>
-        <tr>
-          <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800 w-[65%]">
-    LIST ALL REQUIREMENTS FOR "PERSONAL PROTECTIVE EQUIPMENT" (PPE) / CLOTHING
-          </th>
-          <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800 w-[35%]">
-            
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Is protective clothing needed?</Label>
-              {renderYesNoRadio(form.protectiveClothingNeeded, (val) =>
-                setField('protectiveClothingNeeded', val)
-              )}
+          {/* STAFF / SERVICE USER/S - OCCUPANTS / VISITORS TO THE PREMISES */}
+          <div className="space-y-3 ">
+            <h4 className="text-center text-sm font-bold"></h4>
+            <div className="overflow-hidden rounded-lg border border-gray-300">
+              <table className="w-full border-collapse text-sm">
+                <thead>
+                  <tr>
+                    <th className="w-[65%] border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800">
+                      STAFF / SERVICE USER/S - OCCUPANTS / VISITORS TO THE
+                      PREMISES:
+                    </th>
+                    <th className="w-[35%] border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <div className="flex items-center gap-4">
+                        <Label className="flex-1 text-sm ">
+                          Are there any identified risks to staff?
+                        </Label>
+                        {renderYesNoRadio(form.identifiedRisksStaff, (val) =>
+                          setField('identifiedRisksStaff', val)
+                        )}
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.identifiedRisksStaffDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'identifiedRisksStaffDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <div className="flex items-center gap-4">
+                        <Label className="flex-1 text-sm ">
+                          Are there any identified risks to the service user?
+                        </Label>
+                        {renderYesNoRadio(
+                          form.identifiedRisksServiceUser,
+                          (val) => setField('identifiedRisksServiceUser', val)
+                        )}
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.identifiedRisksServiceUserDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'identifiedRisksServiceUserDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <div className="flex items-center gap-4">
+                        <Label className="flex-1 text-sm ">
+                          Are there identified risks to others in the
+                          environment?
+                        </Label>
+                        {renderYesNoRadio(form.risksToOthers, (val) =>
+                          setField('risksToOthers', val)
+                        )}
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.risksToOthersDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'risksToOthersDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.protectiveClothingNeededDetails || ''}
-              onChange={(e) => setField('protectiveClothingNeededDetails', e.target.value as any)}
-              placeholder="List PPE requirements"
-              rows={2}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
+          </div>
+          {/* Finances */}
+          <div className="space-y-3 ">
+            <div className="overflow-hidden rounded-lg border border-gray-300">
+              <table className="w-full border-collapse text-sm">
+                <thead>
+                  <tr>
+                    <th className="w-[65%] border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800">
+                      Finances
+                    </th>
+                    <th className="w-[35%] border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800">
+                      Details
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <div className="flex items-center gap-4">
+                        <Label className="flex-1 text-sm ">
+                          Is cash and other valuables kept securely?
+                        </Label>
+                        {renderYesNoRadio(form.cashSecure, (val) =>
+                          setField('cashSecure', val)
+                        )}
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.cashSecureDetails || ''}
+                        onChange={(e) =>
+                          setField('cashSecureDetails', e.target.value as any)
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <div className="flex items-center gap-4">
+                        <Label className="flex-1 text-sm ">
+                          Are there any identified financial risks to staff or
+                          Service User? If ‘Yes’ – How can this be minimised?
+                        </Label>
+                        {renderYesNoRadio(form.financialRisks, (val) =>
+                          setField('financialRisks', val)
+                        )}
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.financialRisksMinimise}
+                        onChange={(e) =>
+                          setField('financialRisksMinimise', e.target.value)
+                        }
+                        placeholder="If 'Yes' – How can this be minimised?"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <div className="flex items-center gap-4">
+                        <Label className="flex-1 text-sm ">
+                          Will staff be required to handle money for Service
+                          User shopping?
+                        </Label>
+                        {renderYesNoRadio(form.staffHandleMoney, (val) =>
+                          setField('staffHandleMoney', val)
+                        )}
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.staffHandleMoneyDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'staffHandleMoneyDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
 
-{/* STAFF / SERVICE USER/S - OCCUPANTS / VISITORS TO THE PREMISES */}
-<div className="space-y-3 ">
-  <h4 className="text-sm text-center font-bold">
-  </h4>
-  <div className="overflow-hidden rounded-lg border border-gray-300">
-    <table className="w-full border-collapse text-sm">
-      <thead>
-        <tr>
-          <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800 w-[65%]">
-                STAFF / SERVICE USER/S - OCCUPANTS / VISITORS TO THE PREMISES:
+            {/* Notes */}
+            <div className="mt-3 rounded-lg border border-yellow-200 bg-yellow-50 p-3">
+              <p className="text-sm text-yellow-800">
+                <strong>NOTE:</strong> Staff members are not permitted to know
+                the PIN number of bank/building accounts or Pension Cards. This
+                must be referred back to the Case Manager.
+              </p>
+              <p className="mt-2 text-sm text-yellow-800">
+                Ensure Health & Social Care Workers are issued with a 'duplicate
+                cash receipt book' and are instructed to issue the service user
+                with a copy of the receipt on every occasion.
+              </p>
+            </div>
+          </div>
 
-          </th>
-          <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800 w-[35%]">
-            
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Are there any identified risks to staff?</Label>
-              {renderYesNoRadio(form.identifiedRisksStaff, (val) =>
-                setField('identifiedRisksStaff', val)
-              )}
+          {/* Food Hygiene */}
+          <div className="space-y-3 ">
+            <div className="overflow-hidden rounded-lg border border-gray-300">
+              <table className="w-full border-collapse text-sm">
+                <thead>
+                  <tr>
+                    <th className="w-[65%] border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800">
+                      Food Hygiene
+                    </th>
+                    <th className="w-[35%] border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <div className="flex items-center gap-4">
+                        <Label className="flex-1 text-sm ">
+                          Is the initial food stock in date, are there dented /
+                          rusty canned foods?
+                        </Label>
+                        {renderYesNoRadio(form.foodInDate, (val) =>
+                          setField('foodInDate', val)
+                        )}
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.foodInDateDetails || ''}
+                        onChange={(e) =>
+                          setField('foodInDateDetails', e.target.value as any)
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <div className="flex items-center gap-4">
+                        <Label className="flex-1 text-sm ">
+                          If food is to be prepared/served?
+                        </Label>
+                        {renderYesNoRadio(form.foodPreparation, (val) =>
+                          setField('foodPreparation', val)
+                        )}
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.foodPreparationDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'foodPreparationDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <div className="flex items-center gap-4">
+                        <Label className="flex-1 text-sm ">
+                          Are food hygiene standards adequate e.g., work
+                          surfaces (equipment/food storage areas)?
+                        </Label>
+                        {renderYesNoRadio(form.foodHygieneStandards, (val) =>
+                          setField('foodHygieneStandards', val)
+                        )}
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.foodHygieneStandardsDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'foodHygieneStandardsDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <div className="flex items-center gap-4">
+                        <Label className="flex-1 text-sm ">
+                          Are cooking facilities safe and fit for use?
+                        </Label>
+                        {renderYesNoRadio(form.cookingFacilitiesSafe, (val) =>
+                          setField('cookingFacilitiesSafe', val)
+                        )}
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.cookingFacilitiesSafeDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'cookingFacilitiesSafeDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <div className="flex items-center gap-4">
+                        <Label className="flex-1 text-sm ">
+                          If there is a refrigerator, does it indicate
+                          temperature as 6 degrees C.? If not seem, does it seem
+                          to be efficient / recommend service user purchases a
+                          thermometer.
+                        </Label>
+                        {renderYesNoRadio(form.refrigeratorTemp, (val) =>
+                          setField('refrigeratorTemp', val)
+                        )}
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.refrigeratorTempDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'refrigeratorTempDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <div className="flex items-center gap-4">
+                        <Label className="flex-1 text-sm ">
+                          If there is a deep freezer, does it indicate
+                          temperature as minus 18 to minus 22 degrees C.? If not
+                          seem does it seem to be efficient / recommend service
+                          user purchases a thermometer.
+                        </Label>
+                        {renderYesNoRadio(form.freezerTemp, (val) =>
+                          setField('freezerTemp', val)
+                        )}
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.freezerTempDetails || ''}
+                        onChange={(e) =>
+                          setField('freezerTempDetails', e.target.value as any)
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <div className="flex items-center gap-4">
+                        <Label className="flex-1 text-sm ">
+                          Are there adequate hand washing facilities?
+                        </Label>
+                        {renderYesNoRadio(form.handWashingFacilities, (val) =>
+                          setField('handWashingFacilities', val)
+                        )}
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.handWashingFacilitiesDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'handWashingFacilitiesDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <div className="flex items-center gap-4">
+                        <Label className="flex-1 text-sm ">
+                          Is the kitchen clean?
+                        </Label>
+                        {renderYesNoRadio(form.kitchenClean, (val) =>
+                          setField('kitchenClean', val)
+                        )}
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.kitchenCleanDetails || ''}
+                        onChange={(e) =>
+                          setField('kitchenCleanDetails', e.target.value as any)
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <div className="flex items-center gap-4">
+                        <Label className="flex-1 text-sm ">
+                          Storage: are there separate areas for cleaning
+                          materials and other chemicals (COSHH)?
+                        </Label>
+                        {renderYesNoRadio(form.separateStorage, (val) =>
+                          setField('separateStorage', val)
+                        )}
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.separateStorageDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'separateStorageDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <div className="flex items-center gap-4">
+                        <Label className="flex-1 text-sm ">
+                          Is clean hot and cold water available?
+                        </Label>
+                        {renderYesNoRadio(form.hotColdWater, (val) =>
+                          setField('hotColdWater', val)
+                        )}
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.hotColdWaterDetails || ''}
+                        onChange={(e) =>
+                          setField('hotColdWaterDetails', e.target.value as any)
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.identifiedRisksStaffDetails || ''}
-              onChange={(e) => setField('identifiedRisksStaffDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Are there any identified risks to the service user?</Label>
-              {renderYesNoRadio(form.identifiedRisksServiceUser, (val) =>
-                setField('identifiedRisksServiceUser', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.identifiedRisksServiceUserDetails || ''}
-              onChange={(e) => setField('identifiedRisksServiceUserDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Are there identified risks to others in the environment?</Label>
-              {renderYesNoRadio(form.risksToOthers, (val) =>
-                setField('risksToOthers', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.risksToOthersDetails || ''}
-              onChange={(e) => setField('risksToOthersDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-{/* Finances */}
-<div className="space-y-3 ">
-  <div className="overflow-hidden rounded-lg border border-gray-300">
-    <table className="w-full border-collapse text-sm">
-      <thead>
-        <tr>
-          <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800 w-[65%]">
-            Finances
-          </th>
-          <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800 w-[35%]">
-            Details
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Is cash and other valuables kept securely?</Label>
-              {renderYesNoRadio(form.cashSecure, (val) =>
-                setField('cashSecure', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.cashSecureDetails || ''}
-              onChange={(e) => setField('cashSecureDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Are there any identified financial risks to staff or Service User?  If ‘Yes’ – How can this be minimised?</Label>
-              {renderYesNoRadio(form.financialRisks, (val) =>
-                setField('financialRisks', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.financialRisksMinimise}
-              onChange={(e) => setField('financialRisksMinimise', e.target.value)}
-              placeholder="If 'Yes' – How can this be minimised?"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Will staff be required to handle money for Service User shopping?</Label>
-              {renderYesNoRadio(form.staffHandleMoney, (val) =>
-                setField('staffHandleMoney', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.staffHandleMoneyDetails || ''}
-              onChange={(e) => setField('staffHandleMoneyDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  
-  {/* Notes */}
-  <div className="mt-3 rounded-lg border border-yellow-200 bg-yellow-50 p-3">
-    <p className="text-sm text-yellow-800">
-      <strong>NOTE:</strong> Staff members are not permitted to know the PIN number of bank/building accounts or Pension Cards. This must be referred back to the Case Manager.
-    </p>
-    <p className="mt-2 text-sm text-yellow-800">
-      Ensure Health & Social Care Workers are issued with a 'duplicate cash receipt book' and are instructed to issue the service user with a copy of the receipt on every occasion.
-    </p>
-  </div>
-</div>
+          </div>
 
-         {/* Food Hygiene */}
-<div className="space-y-3 ">
-  <div className="overflow-hidden rounded-lg border border-gray-300">
-    <table className="w-full border-collapse text-sm">
-      <thead>
-        <tr>
-          <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800 w-[65%]">
-            Food Hygiene
-          </th>
-          <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800 w-[35%]">
-            
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Is the initial food stock in date, are there dented / rusty canned foods?</Label>
-              {renderYesNoRadio(form.foodInDate, (val) =>
-                setField('foodInDate', val)
-              )}
+          {/* Outings */}
+          <div className="space-y-3 ">
+            <div className="overflow-hidden rounded-lg border border-gray-300">
+              <table className="w-full border-collapse text-sm">
+                <thead>
+                  <tr>
+                    <th className="w-[65%] border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800">
+                      Outings
+                    </th>
+                    <th className="w-[35%] border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <div className="flex items-center gap-4">
+                        <Label className="flex-1 text-sm ">
+                          Do staff need any training to use any equipment?
+                        </Label>
+                        {renderYesNoRadio(form.staffTrainingNeeded, (val) =>
+                          setField('staffTrainingNeeded', val)
+                        )}
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.staffTrainingNeededDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'staffTrainingNeededDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <div className="flex items-center gap-4">
+                        <Label className="flex-1 text-sm ">
+                          Are there any identified risks to staff?
+                        </Label>
+                        {renderYesNoRadio(form.outingStaffRisks, (val) =>
+                          setField('outingStaffRisks', val)
+                        )}
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.outingStaffRisksDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'outingStaffRisksDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <div className="flex items-center gap-4">
+                        <Label className="flex-1 text-sm ">
+                          Are there any identified risks to the service user?
+                        </Label>
+                        {renderYesNoRadio(form.outingServiceUserRisks, (val) =>
+                          setField('outingServiceUserRisks', val)
+                        )}
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.outingServiceUserRisksDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'outingServiceUserRisksDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <div className="flex items-center gap-4">
+                        <Label className="flex-1 text-sm ">
+                          Will staff need to take the service user out?
+                        </Label>
+                        {renderYesNoRadio(form.staffTakeOut, (val) =>
+                          setField('staffTakeOut', val)
+                        )}
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.staffTakeOutDetails || ''}
+                        onChange={(e) =>
+                          setField('staffTakeOutDetails', e.target.value as any)
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <div className="flex items-center gap-4">
+                        <Label className="flex-1 text-sm ">
+                          Will staff need to transport the service user?
+                        </Label>
+                        {renderYesNoRadio(form.staffTransport, (val) =>
+                          setField('staffTransport', val)
+                        )}
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.staffTransportDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'staffTransportDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <div className="flex items-center gap-4">
+                        <Label className="flex-1 text-sm ">
+                          Will public transport be used?
+                        </Label>
+                        {renderYesNoRadio(form.publicTransport, (val) =>
+                          setField('publicTransport', val)
+                        )}
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.publicTransportDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'publicTransportDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <div className="flex items-center gap-4">
+                        <Label className="flex-1 text-sm ">
+                          Will there be other means of transportation?
+                        </Label>
+                        {renderYesNoRadio(form.otherTransport, (val) =>
+                          setField('otherTransport', val)
+                        )}
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.otherTransportDetails || ''}
+                        onChange={(e) =>
+                          setField(
+                            'otherTransportDetails',
+                            e.target.value as any
+                          )
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-gray-300 px-3 py-2">
+                      <div className="flex items-center gap-4">
+                        <Label className="flex-1 text-sm ">
+                          Will a car be used?
+                        </Label>
+                        {renderYesNoRadio(form.carUsed, (val) =>
+                          setField('carUsed', val)
+                        )}
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <Textarea
+                        value={form.carUsedDetails || ''}
+                        onChange={(e) =>
+                          setField('carUsedDetails', e.target.value as any)
+                        }
+                        placeholder="Details"
+                        rows={1}
+                        className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                      />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.foodInDateDetails || ''}
-              onChange={(e) => setField('foodInDateDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">If food is to be prepared/served?</Label>
-              {renderYesNoRadio(form.foodPreparation, (val) =>
-                setField('foodPreparation', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.foodPreparationDetails || ''}
-              onChange={(e) => setField('foodPreparationDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Are food hygiene standards adequate e.g., work surfaces (equipment/food storage areas)?</Label>
-              {renderYesNoRadio(form.foodHygieneStandards, (val) =>
-                setField('foodHygieneStandards', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.foodHygieneStandardsDetails || ''}
-              onChange={(e) => setField('foodHygieneStandardsDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Are cooking facilities safe and fit for use?</Label>
-              {renderYesNoRadio(form.cookingFacilitiesSafe, (val) =>
-                setField('cookingFacilitiesSafe', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.cookingFacilitiesSafeDetails || ''}
-              onChange={(e) => setField('cookingFacilitiesSafeDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">If there is a refrigerator, does it indicate temperature as 6 degrees C.? If not seem, does it seem to be efficient / recommend service user purchases a thermometer.</Label>
-              {renderYesNoRadio(form.refrigeratorTemp, (val) =>
-                setField('refrigeratorTemp', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.refrigeratorTempDetails || ''}
-              onChange={(e) => setField('refrigeratorTempDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">If there is a deep freezer, does it indicate temperature as minus 18 to minus 22 degrees C.? If not seem does it seem to be efficient / recommend service user purchases a thermometer.</Label>
-              {renderYesNoRadio(form.freezerTemp, (val) =>
-                setField('freezerTemp', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.freezerTempDetails || ''}
-              onChange={(e) => setField('freezerTempDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Are there adequate hand washing facilities?</Label>
-              {renderYesNoRadio(form.handWashingFacilities, (val) =>
-                setField('handWashingFacilities', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.handWashingFacilitiesDetails || ''}
-              onChange={(e) => setField('handWashingFacilitiesDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Is the kitchen clean?</Label>
-              {renderYesNoRadio(form.kitchenClean, (val) =>
-                setField('kitchenClean', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.kitchenCleanDetails || ''}
-              onChange={(e) => setField('kitchenCleanDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Storage: are there separate areas for cleaning materials and other chemicals (COSHH)?</Label>
-              {renderYesNoRadio(form.separateStorage, (val) =>
-                setField('separateStorage', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.separateStorageDetails || ''}
-              onChange={(e) => setField('separateStorageDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Is clean hot and cold water available?</Label>
-              {renderYesNoRadio(form.hotColdWater, (val) =>
-                setField('hotColdWater', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.hotColdWaterDetails || ''}
-              onChange={(e) => setField('hotColdWaterDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
 
-      {/* Outings */}
-<div className="space-y-3 ">
-  <div className="overflow-hidden rounded-lg border border-gray-300">
-    <table className="w-full border-collapse text-sm">
-      <thead>
-        <tr>
-          <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800 w-[65%]">
-            Outings
-          </th>
-          <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-start font-bold text-gray-800 w-[35%]">
-            
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Do staff need any training to use any equipment?</Label>
-              {renderYesNoRadio(form.staffTrainingNeeded, (val) =>
-                setField('staffTrainingNeeded', val)
-              )}
+            {/* Note */}
+            <div className="mt-3 rounded-lg border border-yellow-200 bg-yellow-50 p-3">
+              <p className="text-sm text-yellow-800">
+                <strong>NOTE:</strong> If service user or staff members' car is
+                to be used; valid tax, insurance certificate (explicitly stating
+                that the car can be used for business purposes), MOT
+                certificate/registration document must be seen, verified,
+                photocopied and expiry dates entered onto Everycare database.
+              </p>
             </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.staffTrainingNeededDetails || ''}
-              onChange={(e) => setField('staffTrainingNeededDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Are there any identified risks to staff?</Label>
-              {renderYesNoRadio(form.outingStaffRisks, (val) =>
-                setField('outingStaffRisks', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.outingStaffRisksDetails || ''}
-              onChange={(e) => setField('outingStaffRisksDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Are there any identified risks to the service user?</Label>
-              {renderYesNoRadio(form.outingServiceUserRisks, (val) =>
-                setField('outingServiceUserRisks', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.outingServiceUserRisksDetails || ''}
-              onChange={(e) => setField('outingServiceUserRisksDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Will staff need to take the service user out?</Label>
-              {renderYesNoRadio(form.staffTakeOut, (val) =>
-                setField('staffTakeOut', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.staffTakeOutDetails || ''}
-              onChange={(e) => setField('staffTakeOutDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Will staff need to transport the service user?</Label>
-              {renderYesNoRadio(form.staffTransport, (val) =>
-                setField('staffTransport', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.staffTransportDetails || ''}
-              onChange={(e) => setField('staffTransportDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Will public transport be used?</Label>
-              {renderYesNoRadio(form.publicTransport, (val) =>
-                setField('publicTransport', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.publicTransportDetails || ''}
-              onChange={(e) => setField('publicTransportDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Will there be other means of transportation?</Label>
-              {renderYesNoRadio(form.otherTransport, (val) =>
-                setField('otherTransport', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.otherTransportDetails || ''}
-              onChange={(e) => setField('otherTransportDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-        <tr className="bg-white">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="flex items-center gap-4">
-              <Label className="flex-1 text-sm ">Will a car be used?</Label>
-              {renderYesNoRadio(form.carUsed, (val) =>
-                setField('carUsed', val)
-              )}
-            </div>
-          </td>
-          <td className="border border-gray-300 px-2 py-2">
-            <Textarea
-              value={form.carUsedDetails || ''}
-              onChange={(e) => setField('carUsedDetails', e.target.value as any)}
-              placeholder="Details"
-              rows={1}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent"
-            />
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  
-  {/* Note */}
-  <div className="mt-3 rounded-lg border border-yellow-200 bg-yellow-50 p-3">
-    <p className="text-sm text-yellow-800">
-      <strong>NOTE:</strong> If service user or staff members' car is to be used; valid tax, insurance certificate (explicitly stating that the car can be used for business purposes), MOT certificate/registration document must be seen, verified, photocopied and expiry dates entered onto Everycare database.
-    </p>
-  </div>
-</div>
+          </div>
         </section>
 
         <Separator />
 
         {/* Section 6: Support Staff Input */}
         <section className="space-y-4">
-          <h3 className="text-sm text-center font-bold">
-            SECTION (6)
-          </h3>
-          <div className='text-center'>
-
-          <h3 className="text-sm text-center font-bold">
-           SUPPORT STAFF INPUT
-          </h3>
-          <p>The assessor must ask regular health & social care workers for their input</p>
-          <p> <strong> DETAILED EXPLANATION:</strong>  Highlighting other risks (If any) the current situation and method of current control.</p>
+          <h3 className="text-center text-sm font-bold">SECTION (6)</h3>
+          <div className="text-center">
+            <h3 className="text-center text-sm font-bold">
+              SUPPORT STAFF INPUT
+            </h3>
+            <p>
+              The assessor must ask regular health & social care workers for
+              their input
+            </p>
+            <p>
+              {' '}
+              <strong> DETAILED EXPLANATION:</strong> Highlighting other risks
+              (If any) the current situation and method of current control.
+            </p>
           </div>
-         
+
           <div className="space-y-2">
-            <Label className="text-sm">6A. Health & Social Care Workers Comments</Label>
+            <Label className="text-sm">
+              6A. Health & Social Care Workers Comments
+            </Label>
             <Textarea
               value={form.careWorkerComments}
               onChange={(e) => setField('careWorkerComments', e.target.value)}
@@ -4875,234 +5379,273 @@ export const RiskAssessmentTab: React.FC = () => {
 
         {/* Section 7: Action Plan and Agreement */}
         <section className="space-y-4">
-          <h3 className="text-sm text-center font-bold">
-            SECTION (7)
-          </h3>
-          <h3 className="text-sm text-center font-bold">
-ACTION PLAN AND AGREEMENT
+          <h3 className="text-center text-sm font-bold">SECTION (7)</h3>
+          <h3 className="text-center text-sm font-bold">
+            ACTION PLAN AND AGREEMENT
           </h3>
 
-          <div className="space-y-3 rounded-lg border p-4">
-            <h4 className="text-sm text-center font-bold">Action Plan</h4>
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label className="text-sm">
-                  Action needed prior to commencement of service (if applicable)
-                </Label>
-                <Textarea
-                  value={form.actionNeededPriorService}
-                  onChange={(e) =>
-                    setField('actionNeededPriorService', e.target.value)
-                  }
-                  placeholder="Action needed"
-                  rows={2}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm">
-                  Equipment required prior to commencement of package (if
-                  applicable)
-                </Label>
-                <Textarea
-                  value={form.equipmentRequired}
-                  onChange={(e) =>
-                    setField('equipmentRequired', e.target.value)
-                  }
-                  placeholder="Equipment required"
-                  rows={2}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm">
-                  Name & Tel/contact no of person supplying equipment
-                </Label>
-                <Textarea
-                  value={form.equipmentSupplierName}
-                  onChange={(e) =>
-                    setField('equipmentSupplierName', e.target.value)
-                  }
-                  placeholder="Name"
-                  rows={2}
-                  className="text-sm"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm">Tel/contact no</Label>
-                <Textarea
-                  value={form.equipmentSupplierTel}
-                  onChange={(e) =>
-                    setField('equipmentSupplierTel', e.target.value)
-                  }
-                  placeholder="Tel"
-                  rows={2}
-                  className="text-sm"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm">
-                  Date hoist and/or other equipment needs next service & service
-                  interval (months)
-                </Label>
-                <Textarea
-                  value={form.equipmentServiceInterval}
-                  onChange={(e) =>
-                    setField('equipmentServiceInterval', e.target.value)
-                  }
-                  placeholder="Every ___ months"
-                  rows={2}
-                  className="text-sm"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm">Equipment next service date</Label>
-                <CustomDatePicker
-                  selected={form.equipmentServiceDate}
-                  onChange={(date) => setField('equipmentServiceDate', date)}
-                  placeholder="Select date"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm">Hoist next service date</Label>
-                <CustomDatePicker
-                  selected={form.hoistServiceDate}
-                  onChange={(date) => setField('hoistServiceDate', date)}
-                  placeholder="Select date"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm">Person responsible</Label>
-                <Textarea
-                  value={form.personResponsible}
-                  onChange={(e) =>
-                    setField('personResponsible', e.target.value)
-                  }
-                  placeholder="Person responsible"
-                  rows={2}
-                  className="text-sm"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm">Date for completion / review of action</Label>
-                <CustomDatePicker
-                  selected={form.dateCompletionReview}
-                  onChange={(date) => setField('dateCompletionReview', date)}
-                  placeholder="Select date"
-                />
-              </div>
-            </div>
-          </div>
+          <div className="overflow-hidden rounded-lg border border-gray-300">
+            <div className="grid grid-cols-1 md:grid-cols-2 md:divide-x md:divide-gray-300">
+              {/* LEFT COLUMN — Action Plan */}
+              <div className="divide-y divide-gray-300 border border-gray-300">
+                <div className="space-y-2 p-3">
+                  <Label className="text-sm">
+                    Action needed prior to the commencement of service (if
+                    applicable)
+                  </Label>
+                  <Textarea
+                    value={form.actionNeededPriorService}
+                    onChange={(e) =>
+                      setField('actionNeededPriorService', e.target.value)
+                    }
+                    placeholder="Action needed"
+                    rows={3}
+                  />
+                </div>
 
-          {/* Assessor Statement */}
-          <div className="space-y-3 rounded-lg border p-4">
-            <h4 className="text-sm text-center font-bold">Assessor Statement</h4>
-            <p className="text-sm ">
-              I certify that I have discussed the risks identified and action to
-              minimise and manage the risks with the service user, their carer,
-              relative or representative (as appropriate) and Everycare staff.
-              Further, a moving & handling assessment has been carried out and
-              the highlighted action is required to comply with the Manual
-              Handling Regulations (Operations), 1992.
-            </p>
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label className="text-sm">Assessor Name</Label>
-                <Textarea
-                  value={form.assessorName}
-                  onChange={(e) => setField('assessorName', e.target.value)}
-                  placeholder="Assessor name"
-                  rows={2}
-                  className="text-sm"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm">Date</Label>
-                <CustomDatePicker
-                  selected={form.assessorDate}
-                  onChange={(date) => setField('assessorDate', date)}
-                  placeholder="Select date"
-                />
-              </div>
-              <div className="space-y-2">
-                <SignatureField
-                  label="Assessor Signature"
-                  entityId={sid}
-                  signatureUrl={form.assessorSignatureUrl}
-                  onSaved={(url) => setField('assessorSignatureUrl', url)}
-                />
-              </div>
-            </div>
-          </div>
+                <div className="space-y-2 p-3">
+                  <Label className="text-sm">Person responsible</Label>
+                  <Textarea
+                    value={form.personResponsible}
+                    onChange={(e) =>
+                      setField('personResponsible', e.target.value)
+                    }
+                    placeholder="Person responsible"
+                    rows={2}
+                    className="text-sm"
+                  />
+                </div>
 
-          {/* Service User/Next of Kin Statement */}
-          <div className="space-y-3 rounded-lg border p-4">
-            <h4 className="text-sm text-center font-bold">
-              Service User/Next of Kin Statement
-            </h4>
-            <p className="text-sm ">
-              I confirm that I have provided all necessary information to the
-              Assessor to support the planning of any necessary risk management.
-              I hereby consent to assistance as per the action plan. Including
-              medication being given by staff as part of arrangements made for
-              my health & social care.
-            </p>
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label className="text-sm">Service User/Next of Kin Name (block capitals)</Label>
-                <Textarea
-                  value={form.serviceUserNameKin}
-                  onChange={(e) =>
-                    setField('serviceUserNameKin', e.target.value)
-                  }
-                  placeholder="Name"
-                  rows={2}
-                  className="text-sm"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm">Date</Label>
-                <CustomDatePicker
-                  selected={form.serviceUserDate}
-                  onChange={(date) => setField('serviceUserDate', date)}
-                  placeholder="Select date"
-                />
-              </div>
-              <div className="space-y-2">
-                <SignatureField
-                  label="Service User/Next of Kin Signature"
-                  entityId={sid}
-                  signatureUrl={form.serviceUserSignatureUrl}
-                  onSaved={(url) => setField('serviceUserSignatureUrl', url)}
-                />
-              </div>
-            </div>
-          </div>
+                <div className="space-y-2 p-3">
+                  <Label className="text-sm">
+                    Date for completion / review of action
+                  </Label>
+                  <CustomDatePicker
+                    selected={form.dateCompletionReview}
+                    onChange={(date) => setField('dateCompletionReview', date)}
+                    placeholder="Select date"
+                  />
+                </div>
 
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-            <div className="space-y-2">
-              <Label className="text-sm">Next review date</Label>
-              <CustomDatePicker
-                selected={form.nextReviewDate}
-                onChange={(date) => setField('nextReviewDate', date)}
-                placeholder="Select date"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-sm">Person responsible</Label>
-              <Textarea
-                value={form.personResponsible}
-                onChange={(e) => setField('personResponsible', e.target.value)}
-                placeholder="Person responsible"
-                rows={2}
-                className="text-sm"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-sm">Date for completion / review of action</Label>
-              <CustomDatePicker
-                selected={form.dateCompletionReview}
-                onChange={(date) => setField('dateCompletionReview', date)}
-                placeholder="Select date"
-              />
+                <div className="space-y-2 p-3">
+                  <Label className="text-sm">
+                    Equipment required prior to the commencement of package (if
+                    applicable)
+                  </Label>
+                  <Textarea
+                    value={form.equipmentRequired}
+                    onChange={(e) =>
+                      setField('equipmentRequired', e.target.value)
+                    }
+                    placeholder="Equipment required"
+                    rows={3}
+                  />
+                </div>
+
+                <div className="space-y-2 p-3">
+                  <Label className="text-sm">
+                    Name & Tel/contact no of person supplying equipment
+                  </Label>
+                  <Textarea
+                    value={form.equipmentSupplierName}
+                    onChange={(e) =>
+                      setField('equipmentSupplierName', e.target.value)
+                    }
+                    placeholder="Name"
+                    rows={2}
+                    className="text-sm"
+                  />
+                </div>
+
+                <div className="space-y-2 p-3">
+                  <Label className="text-sm">
+                    Tel/contact no of person/agency responsible for servicing
+                    equipment
+                  </Label>
+                  <Textarea
+                    value={form.equipmentSupplierTel}
+                    onChange={(e) =>
+                      setField('equipmentSupplierTel', e.target.value)
+                    }
+                    placeholder="Tel"
+                    rows={2}
+                    className="text-sm"
+                  />
+                </div>
+
+                <div className="space-y-2 p-3">
+                  <Label className="text-sm">
+                    Date hoist and / or other equipment needs next service &
+                    service interval
+                  </Label>
+                  <div className="flex items-center gap-2 text-sm">
+                    <span>every</span>
+                    <Input
+                      value={form.equipmentServiceInterval}
+                      onChange={(e) =>
+                        setField('equipmentServiceInterval', e.target.value)
+                      }
+                      placeholder="___________"
+                      className="h-12  text-sm"
+                    />
+                    <span>months.</span>
+                  </div>
+                </div>
+
+                {/* Two "Equipment ___ Date ___" rows, as on the paper form */}
+                <div className="flex items-end gap-3 p-3">
+                  <Label className="shrink-0 text-sm">Equipment</Label>
+                  <Input
+                    value={form.equipmentName1}
+                    onChange={(e) => setField('equipmentName1', e.target.value)}
+                    placeholder="Equipment"
+                    className="h-12 flex-1 text-sm"
+                  />
+                  <div className="w-40 space-y-1">
+                    <Label className="text-sm">Date</Label>
+                    <CustomDatePicker
+                      selected={form.equipmentServiceDate}
+                      onChange={(date) =>
+                        setField('equipmentServiceDate', date)
+                      }
+                      placeholder="Select date"
+                    />
+                  </div>
+                </div>
+                <div className="flex items-end gap-3 p-3">
+                  <Label className="shrink-0 text-sm">Equipment</Label>
+                  <Input
+                    value={form.equipmentName2}
+                    onChange={(e) => setField('equipmentName2', e.target.value)}
+                    placeholder="Equipment"
+                    className="h-12 flex-1 text-sm"
+                  />
+                  <div className="w-40 space-y-1">
+                    <Label className="text-sm">Date</Label>
+                    <CustomDatePicker
+                      selected={form.hoistServiceDate}
+                      onChange={(date) => setField('hoistServiceDate', date)}
+                      placeholder="Select date"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* RIGHT COLUMN — Statements */}
+              <div className="divide-y divide-gray-300">
+                <div className="space-y-3 p-3">
+                  <h4 className="text-sm font-bold">Assessor Statement</h4>
+                  <p className="text-sm">
+                    I certify that I have discussed the risks identified and
+                    action to minimise and manage the risks with the service
+                    user, their carer, relative or representative (as
+                    appropriate) and Everycare staff. Further, a moving &
+                    handling assessment has been carried out and the highlighted
+                    action is required to comply with the Manual Handling
+                    Regulations (Operations), 1992.
+                  </p>
+
+                  <div className="flex items-center gap-2">
+                    <Label className="shrink-0 text-sm underline">
+                      Assessor Name:
+                    </Label>
+                    <Textarea
+                      value={form.assessorName}
+                      onChange={(e) => setField('assessorName', e.target.value)}
+                      placeholder="Assessor name"
+                      rows={1}
+                      className="min-h-0 text-sm"
+                    />
+                  </div>
+
+                  <div className="flex flex-wrap items-end gap-4">
+                    <SignatureField
+                      label="Assessor Signature"
+                      entityId={sid}
+                      signatureUrl={form.assessorSignatureUrl}
+                      onSaved={(url) => setField('assessorSignatureUrl', url)}
+                    />
+                    <div className="space-y-1">
+                      <Label className="text-sm underline">Date:</Label>
+                      <CustomDatePicker
+                        selected={form.assessorDate}
+                        onChange={(date) => setField('assessorDate', date)}
+                        placeholder="Select date"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-3 p-3">
+                  <h4 className="text-sm font-bold underline">
+                    Service User/Next of Kin Statement
+                  </h4>
+                  <p className="text-sm">
+                    I confirm that I have provided all necessary information to
+                    the Assessor to support the planning of any necessary risk
+                    management. I hereby consent to assistance as per the action
+                    plan. Including medication being given by staff as part of
+                    arrangements made for my health & social care.
+                  </p>
+
+                  <div className="flex items-center gap-2">
+                    <Label className="shrink-0 text-sm underline">
+                      Service User/Next of Kin Name (block capitals):
+                    </Label>
+                    <Textarea
+                      value={form.serviceUserNameKin}
+                      onChange={(e) =>
+                        setField('serviceUserNameKin', e.target.value)
+                      }
+                      placeholder="Name"
+                      rows={1}
+                      className="min-h-0 text-sm"
+                    />
+                  </div>
+
+                  <div className="flex flex-wrap items-end gap-4">
+                    <SignatureField
+                      label="Signature"
+                      entityId={sid}
+                      signatureUrl={form.serviceUserSignatureUrl}
+                      onSaved={(url) =>
+                        setField('serviceUserSignatureUrl', url)
+                      }
+                    />
+                    <div className="space-y-1">
+                      <Label className="text-sm underline">Date:</Label>
+                      <CustomDatePicker
+                        selected={form.serviceUserDate}
+                        onChange={(date) => setField('serviceUserDate', date)}
+                        placeholder="Select date"
+                      />
+                    </div>
+                  </div>
+
+                  <p className="text-sm">
+                    All information gained must be taken into account in the
+                    preparation of the Service Delivery (Care) Plan.
+                  </p>
+                  <p className="text-sm">
+                    This 'Risk Assessment' MUST be reviewed at least annually
+                    and as and when required / requested{' '}
+                    <span className="underline">
+                      (See office-Operations-Report-Risk Assessment-Specific)
+                    </span>
+                  </p>
+
+                  <div className="flex items-center gap-2">
+                    <Label className="shrink-0 text-sm">
+                      Next review date:
+                    </Label>
+                    <CustomDatePicker
+                      selected={form.nextReviewDate}
+                      onChange={(date) => setField('nextReviewDate', date)}
+                      placeholder="Select date"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
