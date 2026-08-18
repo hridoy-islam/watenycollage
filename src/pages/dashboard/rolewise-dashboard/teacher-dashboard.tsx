@@ -994,60 +994,7 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
             </Card>
           </div>
 
-          {/* Assigned Students (from groupAssignedStudent via teacher courses) */}
-          <Card className="border border-gray-300 shadow-none">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-semibold text-gray-700">
-                Assigned Students ({assignedStudents.length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {studentsLoading ? (
-                <div className="flex justify-center py-6">
-                  <BlinkingDots size="small" color="bg-watney" />
-                </div>
-              ) : assignedStudents.length === 0 ? (
-                <p className="py-6 text-center text-xs text-gray-500">
-                  No students are assigned to your courses yet.
-                </p>
-              ) : (
-                <ScrollArea className="max-h-56">
-                  <div className="space-y-1.5">
-                    {assignedStudents.map((s) => {
-                      const sid = s.studentId?._id || s.studentId || s._id;
-                      return (
-                        <div
-                          key={sid}
-                          className="flex items-center justify-between gap-3 rounded-md border border-gray-100 px-3 py-2"
-                        >
-                          <div className="min-w-0">
-                            <p className="truncate text-xs font-semibold text-gray-900">
-                              {studentName(s.studentId)}
-                            </p>
-                            {s.studentId?.email && (
-                              <p className="truncate text-[11px] text-gray-500">
-                                {s.studentId.email}
-                              </p>
-                            )}
-                          </div>
-                          <div className="shrink-0 text-right">
-                            <p className="truncate text-[11px] font-medium text-gray-700">
-                              {s.courseName}
-                            </p>
-                            {s.groupName && (
-                              <p className="truncate text-[10px] text-gray-400">
-                                {s.groupName}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </ScrollArea>
-              )}
-            </CardContent>
-          </Card>
+         
           <div className="flex items-center justify-between gap-3 mt-5">
             <div className="flex items-center gap-2">
               <div className="rounded-lg bg-watney/10 p-2">
