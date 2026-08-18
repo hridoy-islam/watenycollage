@@ -23,9 +23,7 @@ import {
   FileText,
   MessageSquare,
   GraduationCap,
-  User,
-  MapPin,
-  Users
+  User
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -255,10 +253,6 @@ const asId = (v: unknown): string | undefined => {
 const asName = (v: unknown): string | undefined => {
   if (!v || typeof v === 'string') return undefined;
   return (v as { name?: string }).name;
-};
-const asTermName = (v: unknown): string | undefined => {
-  if (!v || typeof v === 'string') return undefined;
-  return (v as { termName?: string }).termName;
 };
 
 // ── Main Component ────────────────────────────────────────────────────────
@@ -527,11 +521,15 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
           const courseId = asId(application.courseId);
           const groupId = asId(application.groupId);
           const termId = asId(application.intakeId);
-          const courseName = asName(application.courseId);
-          const groupName = asName(application.groupId);
-          const termName = asTermName(application.intakeId);
+          const routineResults = Array.isArray(result) ? result : [];
+          const firstRoutine = routineResults[0] || {};
+          const courseName =
+            asName(application.courseId) || asName(firstRoutine.courseId);
+          const groupName =
+            asName(application.groupId) || asName(firstRoutine.groupId);
+          const termName = asName(firstRoutine.termId);
 
-          (Array.isArray(result) ? result : []).forEach((routine: any) => {
+          routineResults.forEach((routine: any) => {
             const matched = historyById[routine._id];
             byRoutineId.set(routine._id, {
               _id: routine._id,
@@ -544,9 +542,9 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
               remark: matched?.remark,
               courseId,
               courseName: matched?.courseName || courseName,
-              groupId,
+              groupId: asId(routine.groupId) || groupId,
               groupName: matched?.groupName || groupName,
-              termId,
+              termId: asId(routine.termId) || termId,
               termName: matched?.termName || termName,
               teacherId: routine.teacherId?._id ?? matched?.teacherId,
               teacherName: routine.teacherId?.name ?? matched?.teacherName,
@@ -1307,16 +1305,27 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                   <DialogTitle className="text-base font-bold text-gray-900">
                     {selectedEntry.courseName || 'Class Details'}
                   </DialogTitle>
+                  {(selectedEntry.groupName || selectedEntry.termName) && (
+                    <p className="text-xs font-medium text-black/70">
+                      {[selectedEntry.groupName, selectedEntry.termName]
+                        .filter(Boolean)
+                        .join(' · ')}
+                    </p>
+                  )}
                 </DialogHeader>
 
                 <div className="border border-gray-200 shadow-none rounded-lg bg-white">
-                  <div className="space-y-3 p-4 text-sm">
+                  <div className="divide-y divide-gray-100 px-4 py-1">
                     {statusOf(selectedEntry.status) && (
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center justify-between gap-3 py-3">
+                        <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black/80">
+                          Status
+                        </span>
                         <span
                           className={clsx(
-                            'inline-flex items-center gap-1.5 text-xs font-bold',
-                            statusOf(selectedEntry.status)!.text
+                            'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold',
+                            statusOf(selectedEntry.status)!.text,
+                            statusOf(selectedEntry.status)!.border
                           )}
                         >
                           <span
@@ -1328,44 +1337,58 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                       </div>
                     )}
 
-                    <div className="flex items-start gap-2 text-gray-700">
-                      <CalendarDays className="mt-0.5 h-4 w-4 shrink-0 text-watney" />
-                      <span>
+                    <div className="flex items-start justify-between gap-3 py-2.5">
+                      <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black/80">
+                        Date
+                      </span>
+                      <span className="text-right text-black">
                         {moment
                           .utc(selectedEntry.classDate)
                           .format('dddd, DD MMM YYYY')}
                       </span>
                     </div>
 
-                    <div className="flex items-start gap-2 text-gray-700">
-                      <Clock className="mt-0.5 h-4 w-4 shrink-0 text-watney" />
-                      <span>
+                    <div className="flex items-start justify-between gap-3 py-2.5">
+                      <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black/80">
+                        Time
+                      </span>
+                      <span className="text-right text-black">
                         {selectedEntry.startTime || '--:--'} –{' '}
                         {selectedEntry.endTime || '--:--'}
                       </span>
                     </div>
 
                     {selectedEntry.groupName && (
-                      <div className="flex items-start gap-2 text-gray-700">
-                        <Users className="mt-0.5 h-4 w-4 shrink-0 text-watney" />
-                        <span>{selectedEntry.groupName}</span>
+                      <div className="flex items-start justify-between gap-3 py-2.5">
+                        <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black/80">
+                          Group
+                        </span>
+                        <span className="text-right text-black">
+                          {selectedEntry.groupName}
+                        </span>
                       </div>
                     )}
 
                     {selectedEntry.termName && (
-                      <div className="flex items-start gap-2 text-gray-700">
-                        <BookOpen className="mt-0.5 h-4 w-4 shrink-0 text-watney" />
-                        <span>{selectedEntry.termName}</span>
+                      <div className="flex items-start justify-between gap-3 py-2.5">
+                        <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black/80">
+                          Term
+                        </span>
+                        <span className="text-right text-black">
+                          {selectedEntry.termName}
+                        </span>
                       </div>
                     )}
 
                     {selectedEntry.teacherName && (
-                      <div className="flex items-start gap-2 text-gray-700">
-                        <User className="mt-0.5 h-4 w-4 shrink-0 text-watney" />
-                        <div>
+                      <div className="flex items-start justify-between gap-3 py-2.5">
+                        <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black/80">
+                          Teacher
+                        </span>
+                        <div className="text-right text-black">
                           <div>{selectedEntry.teacherName}</div>
                           {selectedEntry.teacherEmail && (
-                            <div className="text-xs text-gray-500">
+                            <div className="text-xs text-black/60">
                               {selectedEntry.teacherEmail}
                             </div>
                           )}
@@ -1374,16 +1397,24 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                     )}
 
                     {selectedEntry.roomNumber && (
-                      <div className="flex items-start gap-2 text-gray-700">
-                        <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-watney" />
-                        <span>{selectedEntry.roomNumber}</span>
+                      <div className="flex items-start justify-between gap-3 py-2.5">
+                        <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black/80">
+                          Room
+                        </span>
+                        <span className="text-right text-black">
+                          {selectedEntry.roomNumber}
+                        </span>
                       </div>
                     )}
 
                     {selectedEntry.remark && (
-                      <div className="flex items-start gap-2 text-gray-700">
-                        <MessageSquare className="mt-0.5 h-4 w-4 shrink-0 text-watney" />
-                        <span>{selectedEntry.remark}</span>
+                      <div className="flex items-start justify-between gap-3 py-2.5">
+                        <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black/80">
+                          Remark
+                        </span>
+                        <span className="text-right text-black">
+                          {selectedEntry.remark}
+                        </span>
                       </div>
                     )}
                   </div>

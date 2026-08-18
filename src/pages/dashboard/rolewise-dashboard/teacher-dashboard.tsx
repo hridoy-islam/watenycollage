@@ -235,6 +235,7 @@ function buildSlotMap(routines: RoutineEntry[], days: Date[]) {
 const studentName = (s: any) =>
   s?.name ||
   [s?.title, s?.firstName, s?.lastName].filter(Boolean).join(' ') ||
+  s?.email ||
   'Unknown Student';
 
 const asObject = (v: any) => (typeof v === 'string' ? { _id: v } : v);
@@ -271,6 +272,9 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
   const [allCourses, setAllCourses] = useState<number>(0);
   const [pendingFeedbacks, setPendingFeedbacks] = useState<number>(0);
   const [studentListCount, setStudentListCount] = useState<number>(0);
+  const [teacherCourses, setTeacherCourses] = useState<any[]>([]);
+  const [assignedStudents, setAssignedStudents] = useState<any[]>([]);
+  const [studentsLoading, setStudentsLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [timeLog, setTimeLog] = useState<TimeLog | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -346,38 +350,78 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
   // }, []);
 
   // // ✅ Fetch teacher dashboard data
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
 
-      // Fetch teacher courses
-      const coursesResponse = await axiosInstance.get(`/teacher-courses`, {
-        params: { teacherId: user._id, limit: 'all' }
-      });
-      const courses = coursesResponse?.data?.data?.meta?.total || 0;
-      setAllCourses(courses);
+      // Fetch teacher courses (teacherCourse by login teacherId) and
+      // pending feedbacks in parallel
+      const [coursesResponse, feedbackResponse] = await Promise.all([
+        axiosInstance.get(`/teacher-courses`, {
+          params: { teacherId: user._id, limit: 'all' }
+        }),
+        axiosInstance.get(
+          `/assignment/teacher-feedback/${user._id}?limit=all&fields=applicationId`
+        )
+      ]);
+      const courses = coursesResponse?.data?.data?.result || [];
+      setTeacherCourses(Array.isArray(courses) ? courses : []);
+      setAllCourses(courses.length);
 
-      // Fetch pending assignment feedbacks
-      const feedbackResponse = await axiosInstance.get(
-        `/assignment/teacher-feedback/${user._id}?limit=all&fields=applicationId`
-      );
       const pending = feedbackResponse?.data?.data?.result?.length || 0;
       setPendingFeedbacks(pending);
 
-      // Fetch all students assigned to teacher
-      const studentsResponse = await axiosInstance.get(
-        `/application-course/teacher/${user._id}?limit=all`
+      // Students assigned to each of the teacher's courses via
+      // groupAssignedStudent — fetched in parallel and flattened
+      setStudentsLoading(true);
+      const validCourses = (Array.isArray(courses) ? courses : []).filter(
+        (c: any) => c?.courseId?._id || c?.courseId
       );
-      const students = studentsResponse?.data?.data?.meta.total || 0;
-      setStudentListCount(students);
+      const studentResponses = await Promise.all(
+        validCourses.map((c: any) =>
+          axiosInstance.get('/student-assign-group', {
+            params: {
+              courseId: c.courseId?._id || c.courseId,
+              groupId: c.groupId?._id || c.groupId,
+              courseTermId: c.courseTermId,
+              limit: 'all'
+            }
+          })
+        )
+      );
 
-      await fetchTimeLog();
+      const students = studentResponses.flatMap((res, i) => {
+        const course = validCourses[i];
+        const courseId = course.courseId?._id || course.courseId;
+        const courseName = course.courseId?.name || 'Course';
+        const groupId = course.groupId?._id || course.groupId;
+        const groupName = course.groupId?.name || '';
+        const courseTermId = course.courseTermId;
+        const termName = course.termId?.name || '';
+        return (res?.data?.data?.result || []).map((item: any) => ({
+          _id: item._id,
+          studentId: item.studentId,
+          courseId,
+          courseName,
+          groupId,
+          groupName,
+          courseTermId,
+          termName
+        }));
+      });
+      setAssignedStudents(students);
+      setStudentListCount(
+        new Set(
+          students.map((s) => s.studentId?._id || s.studentId).filter(Boolean)
+        ).size
+      );
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
       setLoading(false);
+      setStudentsLoading(false);
     }
-  };
+  }, [user._id]);
 
   // const fetchTimeLog = async () => {
   //   try {
@@ -604,6 +648,13 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
 
   const fetchRoutines = useCallback(async () => {
     if (weekDays.length === 0) return;
+    // Only fetch routines once the teacher's assigned courses are known —
+    // skip entirely if the teacher has no teacherCourse assignments.
+    if (teacherCourses.length === 0) {
+      setRoutines([]);
+      setAttendanceTakenIds(new Set());
+      return;
+    }
     setRoutinesLoading(true);
     try {
       const params = {
@@ -637,7 +688,7 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
     } finally {
       setRoutinesLoading(false);
     }
-  }, [user._id, weekDays]);
+  }, [user._id, weekDays, teacherCourses]);
 
   useEffect(() => {
     fetchRoutines();
@@ -942,6 +993,61 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
               </CardContent>
             </Card>
           </div>
+
+          {/* Assigned Students (from groupAssignedStudent via teacher courses) */}
+          <Card className="border border-gray-300 shadow-none">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-semibold text-gray-700">
+                Assigned Students ({assignedStudents.length})
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {studentsLoading ? (
+                <div className="flex justify-center py-6">
+                  <BlinkingDots size="small" color="bg-watney" />
+                </div>
+              ) : assignedStudents.length === 0 ? (
+                <p className="py-6 text-center text-xs text-gray-500">
+                  No students are assigned to your courses yet.
+                </p>
+              ) : (
+                <ScrollArea className="max-h-56">
+                  <div className="space-y-1.5">
+                    {assignedStudents.map((s) => {
+                      const sid = s.studentId?._id || s.studentId || s._id;
+                      return (
+                        <div
+                          key={sid}
+                          className="flex items-center justify-between gap-3 rounded-md border border-gray-100 px-3 py-2"
+                        >
+                          <div className="min-w-0">
+                            <p className="truncate text-xs font-semibold text-gray-900">
+                              {studentName(s.studentId)}
+                            </p>
+                            {s.studentId?.email && (
+                              <p className="truncate text-[11px] text-gray-500">
+                                {s.studentId.email}
+                              </p>
+                            )}
+                          </div>
+                          <div className="shrink-0 text-right">
+                            <p className="truncate text-[11px] font-medium text-gray-700">
+                              {s.courseName}
+                            </p>
+                            {s.groupName && (
+                              <p className="truncate text-[10px] text-gray-400">
+                                {s.groupName}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </ScrollArea>
+              )}
+            </CardContent>
+          </Card>
           <div className="flex items-center justify-between gap-3 mt-5">
             <div className="flex items-center gap-2">
               <div className="rounded-lg bg-watney/10 p-2">

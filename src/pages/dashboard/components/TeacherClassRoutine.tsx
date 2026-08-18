@@ -205,6 +205,7 @@ function buildSlotMap(routines: RoutineEntry[], days: Date[]) {
 const studentName = (s: any) =>
   s?.name ||
   [s?.title, s?.firstName, s?.lastName].filter(Boolean).join(' ') ||
+  s?.email ||
   'Unknown Student';
 
 const asObject = (v: any) => (typeof v === 'string' ? { _id: v } : v);
