@@ -87,8 +87,10 @@ const TeacherDetailsPage = () => {
         name: item.courseId?.name || 'N/A',
         courseCode: item.courseId?.courseCode || '—',
         status: item.courseId?.status,
-        termName: item.termId?.termName,
+        termName: item.courseTermId?.name,
+        courseTermId: item.courseTermId?._id || item.courseTermId || '',
         groupName: item.groupId?.groupName || item.groupId?.name || '-',
+        groupId: item.groupId?._id || item.groupId || '',
         teacherId: item.teacherId
       }));
 
@@ -265,7 +267,7 @@ const TeacherDetailsPage = () => {
                   <TableRow>
                     <TableHead className="text-xs">Course Code</TableHead>
                     <TableHead className="text-xs">Course Name</TableHead>
-                    <TableHead className="text-xs">Intake</TableHead>
+                    <TableHead className="text-xs">Course Term</TableHead>
                     <TableHead className="text-xs">Group</TableHead>
                     <TableHead className="w-32 text-right text-xs">
                       Actions
@@ -317,7 +319,7 @@ const TeacherDetailsPage = () => {
                         </div>
                       </TableCell>
                       <TableCell className="text-xs">
-                        {course?.termName}
+                        {course?.termName || course?.courseTermId?.name || '-'}
                       </TableCell>
                       <TableCell className="text-xs">
                         {course?.groupName}

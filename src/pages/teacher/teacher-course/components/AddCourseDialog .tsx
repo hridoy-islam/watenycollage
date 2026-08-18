@@ -19,11 +19,13 @@ import { Pencil } from "lucide-react";
 
 const formSchema = z.object({
   courseId: z.string().min(1, "Course is required"),
-  groupId: z.string().optional(),
+  courseTermId: z.string().min(1, "Course term is required"),
+  groupId: z.string().min(1, "Group is required"),
 });
 
 const AddCourseDialog = ({ onAddCourses, editCourse = null }) => {
   const [courses, setCourses] = useState([]);
+  const [courseTerms, setCourseTerms] = useState([]);
   const [courseGroups, setCourseGroups] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -36,11 +38,13 @@ const AddCourseDialog = ({ onAddCourses, editCourse = null }) => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       courseId: "",
+      courseTermId: "",
       groupId: "",
     },
   });
 
   const selectedCourseId = form.watch("courseId");
+  const selectedCourseTermId = form.watch("courseTermId");
 
   // Reset form every time dialog opens or editCourse changes
   useEffect(() => {
@@ -53,12 +57,14 @@ const AddCourseDialog = ({ onAddCourses, editCourse = null }) => {
             
             form.reset({
               courseId: teacherCourse?.courseId?._id || editCourse.courseId || "",
+              courseTermId: teacherCourse?.courseTermId?._id || teacherCourse?.courseTermId || "",
               groupId: teacherCourse?.groupId?._id || teacherCourse?.groupId || "",
             });
           } catch (error) {
             console.error("Error fetching teacher course details:", error);
             form.reset({
               courseId: editCourse.courseId || "",
+              courseTermId: "",
               groupId: "",
             });
           }
@@ -68,6 +74,7 @@ const AddCourseDialog = ({ onAddCourses, editCourse = null }) => {
       } else {
         form.reset({
           courseId: "",
+          courseTermId: "",
           groupId: "",
         });
       }
@@ -79,11 +86,27 @@ const AddCourseDialog = ({ onAddCourses, editCourse = null }) => {
     const fetchCourses = async () => {
       try {
         setIsLoading(true);
-        const response = await axiosInstance.get("/courses?limit=all&status=1");
-        const courseOptions = response?.data?.data?.result?.map((course) => ({
-          value: course._id,
-          label: `${course.name} (${course.courseCode})`,
-        })) || [];
+        const [coursesRes, teacherCoursesRes] = await Promise.all([
+          axiosInstance.get("/courses?limit=all&status=active"),
+          axiosInstance.get("/teacher-courses", {
+            params: { teacherId: id, limit: "all" },
+          }),
+        ]);
+
+        const assignedCourseIds = new Set(
+          (teacherCoursesRes?.data?.data?.result || [])
+            .map((tc) => tc.courseId?._id || tc.courseId)
+            .filter((courseId) => courseId !== editCourse?.courseId)
+        );
+
+        const courseOptions =
+          (coursesRes?.data?.data?.result || [])
+            .filter((course) => !assignedCourseIds.has(course._id))
+            .map((course) => ({
+              value: course._id,
+              label: `${course.name} (${course.courseCode})`,
+            })) || [];
+
         setCourses(courseOptions);
       } catch (error) {
         console.error("Error fetching courses:", error);
@@ -98,12 +121,40 @@ const AddCourseDialog = ({ onAddCourses, editCourse = null }) => {
     };
 
     if (isOpen) fetchCourses();
-  }, [isOpen, toast]);
+  }, [isOpen, toast, id, editCourse]);
 
-  // Fetch course groups when selectedCourseId changes
+  // Fetch course terms when selectedCourseId changes
+  useEffect(() => {
+    const fetchCourseTerms = async () => {
+      if (!selectedCourseId) {
+        setCourseTerms([]);
+        form.setValue("courseTermId", "");
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        const response = await axiosInstance.get(`/course-term?limit=all&courseId=${selectedCourseId}`);
+        const termOptions = response?.data?.data?.result?.map((term) => ({
+          value: term._id,
+          label: `${term.name} (${term.year ? term.year.charAt(0).toUpperCase() + term.year.slice(1) : term.year})`,
+        })) || [];
+        setCourseTerms(termOptions);
+      } catch (error) {
+        console.error("Error fetching course terms:", error);
+        setCourseTerms([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCourseTerms();
+  }, [selectedCourseId, form]);
+
+  // Fetch course groups when selectedCourseTermId changes
   useEffect(() => {
     const fetchCourseGroups = async () => {
-      if (!selectedCourseId) {
+      if (!selectedCourseTermId) {
         setCourseGroups([]);
         form.setValue("groupId", "");
         return;
@@ -111,11 +162,20 @@ const AddCourseDialog = ({ onAddCourses, editCourse = null }) => {
 
       try {
         setIsLoading(true);
-        const response = await axiosInstance.get(`/course-group?limit=all&courseId=${selectedCourseId}`);
-        const groupOptions = response?.data?.data?.result?.map((group) => ({
-          value: group._id,
-          label: group.groupName || group.name || group._id,
-        })) || [];
+        const mapGroups = (groups) =>
+          groups.map((group) => ({
+            value: group._id,
+            label: group.name || group.groupName || group._id,
+          }));
+
+        const termResponse = await axiosInstance.get(`/course-group?limit=all&courseId=${selectedCourseId}&termId=${selectedCourseTermId}`);
+        let groupOptions = mapGroups(termResponse?.data?.data?.result || []);
+
+        if (groupOptions.length === 0) {
+          const courseResponse = await axiosInstance.get(`/course-group?limit=all&courseId=${selectedCourseId}`);
+          groupOptions = mapGroups(courseResponse?.data?.data?.result || []);
+        }
+
         setCourseGroups(groupOptions);
       } catch (error) {
         console.error("Error fetching course groups:", error);
@@ -126,7 +186,7 @@ const AddCourseDialog = ({ onAddCourses, editCourse = null }) => {
     };
 
     fetchCourseGroups();
-  }, [selectedCourseId, form]);
+  }, [selectedCourseTermId, selectedCourseId, form]);
 
   const handleSubmit = async (values) => {
     try {
@@ -136,6 +196,7 @@ const AddCourseDialog = ({ onAddCourses, editCourse = null }) => {
         await axiosInstance.patch(`/teacher-courses/${editCourse._id}`, {
           teacherId: id,
           courseId: values.courseId,
+          courseTermId: values.courseTermId,
           groupId: values.groupId,
         });
 
@@ -148,6 +209,7 @@ const AddCourseDialog = ({ onAddCourses, editCourse = null }) => {
         await axiosInstance.post(`/teacher-courses`, {
           teacherId: id,
           courseId: values.courseId,
+          courseTermId: values.courseTermId,
           groupId: values.groupId,
         });
 
@@ -179,6 +241,11 @@ const AddCourseDialog = ({ onAddCourses, editCourse = null }) => {
   const getCurrentCourseValue = () => {
     const courseId = form.watch("courseId");
     return courses.find((c) => c.value === courseId) || null;
+  };
+
+  const getCurrentCourseTermValue = () => {
+    const courseTermId = form.watch("courseTermId");
+    return courseTerms.find((t) => t.value === courseTermId) || null;
   };
 
   const getCurrentGroupValue = () => {
@@ -231,6 +298,7 @@ const AddCourseDialog = ({ onAddCourses, editCourse = null }) => {
                         value={getCurrentCourseValue()}
                         onChange={(selected) => {
                           onChange(selected ? selected.value : "");
+                          form.setValue("courseTermId", "");
                           form.setValue("groupId", "");
                         }}
                         placeholder="Select a course..."
@@ -252,7 +320,45 @@ const AddCourseDialog = ({ onAddCourses, editCourse = null }) => {
               )}
             />
 
-            {/* Group Selection (depends on selected course) */}
+            {/* Course Term Selection (depends on selected course) */}
+            <FormField
+              control={form.control}
+              name="courseTermId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Select Course Term</FormLabel>
+                  <Controller
+                    control={form.control}
+                    name="courseTermId"
+                    render={({ field: { onChange, value } }) => (
+                      <Select
+                        isLoading={isLoading}
+                        options={courseTerms}
+                        value={getCurrentCourseTermValue()}
+                        onChange={(selected) =>
+                          onChange(selected ? selected.value : "")
+                        }
+                        placeholder={selectedCourseId ? "Select a course term..." : "Select a course first"}
+                        isClearable
+                        isDisabled={!selectedCourseId}
+                        className="text-gray-900"
+                        styles={{
+                          control: (base) => ({
+                            ...base,
+                            borderColor: "#D1D5DB",
+                            boxShadow: "none",
+                            "&:hover": { borderColor: "#9CA3AF" },
+                          }),
+                        }}
+                      />
+                    )}
+                  />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Group Selection (depends on selected course term) */}
             <FormField
               control={form.control}
               name="groupId"
@@ -270,9 +376,9 @@ const AddCourseDialog = ({ onAddCourses, editCourse = null }) => {
                         onChange={(selected) =>
                           onChange(selected ? selected.value : "")
                         }
-                        placeholder={selectedCourseId ? "Select a group..." : "Select a course first"}
+                        placeholder={selectedCourseTermId ? "Select a group..." : "Select a course term first"}
                         isClearable
-                        isDisabled={!selectedCourseId}
+                        isDisabled={!selectedCourseTermId}
                         className="text-gray-900"
                         styles={{
                           control: (base) => ({
