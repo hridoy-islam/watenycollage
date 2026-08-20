@@ -28,8 +28,9 @@ import { StarterChecklistTab } from "./components/starter-checklist-tab"
 import { EcertFormTab } from "./components/ecert-form-tab"
 import { JobContractTab } from "./components/job-contract-tab"
 import { ConfidentialityFormTab } from "./components/confidentiality-form-tab"
+import { StatementOfUnderstandingTab } from "./components/statement-of-understanding-tab"
 
-type TabType = "actions" | "referee" | "documents" | "medical" | "bank" | "dbs" | "checklist" | "ecert" | "jobContract" | "confidentiality"
+type TabType = "actions" | "referee" | "documents" | "medical" | "bank" | "dbs" | "checklist" | "ecert" | "jobContract" | "confidentiality" | "statementOfUnderstanding"
 
 const tabs = [
   { id: "actions" as TabType, label: "Actions", icon: <Settings size={20} /> },
@@ -41,6 +42,7 @@ const tabs = [
   { id: "ecert" as TabType, label: "Training Certificates", icon: <File size={20} /> },
   { id: "jobContract" as TabType, label: "Job Contract", icon: <FileText size={20} /> },
   { id: "confidentiality" as TabType, label: "Confidentiality", icon: <FileText size={20} /> },
+  { id: "statementOfUnderstanding" as TabType, label: "Statement of Understanding", icon: <FileText size={20} /> },
   { id: "documents" as TabType, label: "Documents", icon: <FileText size={20} /> },
 ]
 
@@ -187,6 +189,9 @@ export default function ProgressPage() {
             )}
             {activeTab === "confidentiality" && (
               <ConfidentialityFormTab userId={userId || ''} />
+            )}
+            {activeTab === "statementOfUnderstanding" && (
+              <StatementOfUnderstandingTab userId={userId || ''} />
             )}
             {activeTab === "documents" && (
               <DocumentsTab

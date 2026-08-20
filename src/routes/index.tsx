@@ -53,6 +53,8 @@ import JobContractForm from '@/pages/jobcontractform';
 import EditJobContractForm from '@/pages/editjobcontractform';
 import ConfidentialityFormPage from '@/pages/confidentialityForm';
 import EditConfidentialityForm from '@/pages/editConfidentialityForm';
+import StatementOfUnderstandingFormPage from '@/pages/statementOfUnderstandingForm';
+import EditStatementOfUnderstandingForm from '@/pages/editStatementOfUnderstanding';
 import EmployeePage from '@/pages/Employee';
 import EditEmployee from '@/pages/Employee/editEmployee';
 import PeoplePlannerAdminDashboardPage from '@/pages/dashboard/people-planner/AdminDashboard';
@@ -334,6 +336,16 @@ export default function AppRouter() {
         {
           path: 'recruitment/admin/confidentiality/:id/edit',
           element: <EditConfidentialityForm />,
+          index: true
+        },
+        {
+          path: 'recruitment/statement-of-understanding/:id',
+          element: <StatementOfUnderstandingFormPage />,
+          index: true
+        },
+        {
+          path: 'recruitment/admin/statement-of-understanding/:id/edit',
+          element: <EditStatementOfUnderstandingForm />,
           index: true
         }
       ]

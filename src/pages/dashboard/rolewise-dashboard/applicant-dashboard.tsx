@@ -51,6 +51,7 @@ interface UserData {
   checkListDone: boolean;
   jobContractDone: boolean;
   confidentialityFormDone: boolean;
+  statementOfUnderstandingDone: boolean;
 
   // Task Unlock Flags
   postEmploymentUnlock?: boolean;
@@ -60,6 +61,7 @@ interface UserData {
   startDateUnlock?: boolean;
   jobContractUnlock?: boolean;
   confidentialityFormUnlock?: boolean;
+  statementOfUnderstandingUnlock?: boolean;
 
   // Email/Process Statuses
   jobOfferMailSent?: boolean;
@@ -167,6 +169,12 @@ const TaskStatusList: React.FC<{ userData: UserData; userId: string }> = ({
       unlockKey: 'confidentialityFormUnlock',
       completeKey: 'confidentialityFormDone',
       navigateTo: `confidentiality/${userId}`
+    },
+    {
+      title: 'Complete Statement of Understanding',
+      unlockKey: 'statementOfUnderstandingUnlock',
+      completeKey: 'statementOfUnderstandingDone',
+      navigateTo: `statement-of-understanding/${userId}`
     },
     {
       title: 'Complete Your Job Contract',
@@ -295,7 +303,8 @@ export function ApplicantDashboard({ user }: ApplicantDashboardProps) {
     Boolean(userData.bankDetailsUnlock) ||
     Boolean(userData.startDateUnlock) ||
     Boolean(userData.jobContractUnlock) ||
-    Boolean(userData.confidentialityFormUnlock);
+    Boolean(userData.confidentialityFormUnlock) ||
+    Boolean(userData.statementOfUnderstandingUnlock);
 
   // 1. Interview Mail Sent Message
   if (userData.interviewMailSent === true && !isAnyTaskUnlocked) {

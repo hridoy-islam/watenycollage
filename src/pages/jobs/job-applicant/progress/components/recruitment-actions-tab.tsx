@@ -143,6 +143,7 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
     startDateUnlock: !!application?.startDateUnlock,
     jobContractUnlock: !!application?.jobContractUnlock,
     confidentialityFormUnlock: !!application?.confidentialityFormUnlock,
+    statementOfUnderstandingUnlock: !!application?.statementOfUnderstandingUnlock,
   })
 
   // Update local states when application prop changes
@@ -159,6 +160,7 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
       startDateUnlock: !!application?.startDateUnlock,
       jobContractUnlock: !!application?.jobContractUnlock,
       confidentialityFormUnlock: !!application?.confidentialityFormUnlock,
+      statementOfUnderstandingUnlock: !!application?.statementOfUnderstandingUnlock,
     })
   }, [application])
 
@@ -717,6 +719,7 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
     { field: "startDateUnlock", label: "Unlock Starter Checklist", done: localUnlocks.startDateUnlock },
     { field: "jobContractUnlock", label: "Unlock Job Contract", done: localUnlocks.jobContractUnlock },
     { field: "confidentialityFormUnlock", label: "Unlock Confidentiality", done: localUnlocks.confidentialityFormUnlock },
+    { field: "statementOfUnderstandingUnlock", label: "Unlock Statement of Understanding", done: localUnlocks.statementOfUnderstandingUnlock },
   ]
 
   const actions = [
