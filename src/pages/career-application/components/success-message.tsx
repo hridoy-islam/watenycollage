@@ -9,7 +9,7 @@ export function SuccessMessage() {
       <CardContent className="pt-6 flex flex-col items-center text-center space-y-4">
         <CheckCircle className="h-16 w-16 text-green-500" />
         <h2 className="text-2xl font-bold">Application Submitted!</h2>
-        <p className="text-muted-foreground">
+        <p className="">
           Thank you for submitting your application. We will review your information and get back to you soon.
         </p>
         <Button asChild className="bg-watney text-white hover:bg-watney/90">

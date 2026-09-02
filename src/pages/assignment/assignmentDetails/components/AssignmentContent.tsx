@@ -1,8 +1,11 @@
 import React from 'react';
 import moment from 'moment';
+import { Award } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 interface AssignmentContentProps {
-  courseMaterialAssignmentId: string; // Changed from assignmentName
+  assignmentSettingId: string;
+  isResultPublished?: boolean;
   effectiveDeadline: moment.Moment | null;
   isDeadlinePassed: boolean;
   isTeacher: boolean;
@@ -13,13 +16,21 @@ interface AssignmentContentProps {
   markingCompleted: boolean;
   studentName: string;
   unitMaterial: any;
+  assignmentSettings?: any[];
+  assignmentContent?: any;
+  selectedAssignmentName?: string;
   actionButton?: React.ReactNode;
   observationButton?: React.ReactNode;
   finalFeedbackButton?: React.ReactNode;
+  gradingOptions?: string[];
+  finalGrade?: string;
+  updatingGrade?: boolean;
+  onFinalGradeChange?: (grade: string) => void;
 }
 
 export const AssignmentContent: React.FC<AssignmentContentProps> = ({
-  courseMaterialAssignmentId,
+  assignmentSettingId,
+  isResultPublished,
   effectiveDeadline,
   isDeadlinePassed,
   isTeacher,
@@ -30,21 +41,28 @@ export const AssignmentContent: React.FC<AssignmentContentProps> = ({
   markingCompleted,
   studentName,
   unitMaterial,
+  assignmentSettings = [],
   actionButton,
   finalFeedbackButton,
-  observationButton
+  observationButton,
+  gradingOptions = [],
+  finalGrade,
+  updatingGrade = false,
+  onFinalGradeChange
 }) => {
-  // Get assignment details from unit material
+  // Get assignment details from assignment-settings
   const getAssignmentDetails = () => {
-    if (!unitMaterial?.assignments) return { title: 'Unknown Assignment', content: null };
+    if (assignmentSettings.length === 0) {
+      return { title: 'Unknown Assignment', content: null };
+    }
 
-    const materialAssignment = unitMaterial.assignments.find(
-      (a: any) => a._id.toString() === courseMaterialAssignmentId
+    const settingsAssignment = assignmentSettings.find(
+      (s: any) => s._id.toString() === assignmentSettingId
     );
 
     return {
-      title: materialAssignment?.title || 'Unknown Assignment',
-      content: materialAssignment?.content || null
+      title: settingsAssignment?.assignmentTitle || 'Unknown Assignment',
+      content: settingsAssignment?.description || null
     };
   };
 
@@ -83,6 +101,56 @@ export const AssignmentContent: React.FC<AssignmentContentProps> = ({
           )}
           </div>
         </div>
+
+        {/* Final Grade Section */}
+        {(isTeacher || isResultPublished) && (gradingOptions.length > 0 || finalGrade) ? (
+          <div className="flex flex-col gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 sm:flex-row sm:items-center sm:justify-between w-full">
+            <div className="flex items-center gap-2">
+              <Award className="h-5 w-5 text-amber-600" />
+              <span className="text-sm font-semibold text-amber-800">
+                Final Grade:
+              </span>
+              {finalGrade ? (
+                <Badge className="bg-amber-600 text-white border-amber-700 text-sm">
+                  {finalGrade}
+                </Badge>
+              ) : (
+                <span className="text-sm font-medium text-amber-700/70">
+                  Not graded yet
+                </span>
+              )}
+            </div>
+
+            {isTeacher && gradingOptions.length > 0 && (
+              <select
+                value={finalGrade || ''}
+                onChange={(e) => onFinalGradeChange?.(e.target.value)}
+                disabled={updatingGrade}
+                className="h-9 rounded-md border border-amber-300 bg-white px-3 py-1 text-sm text-amber-900 shadow-sm focus:outline-none focus:ring-1 focus:ring-amber-500 disabled:opacity-60"
+              >
+                {finalGrade ? (
+                  <>
+                    <option value="">Clear grade</option>
+                    {gradingOptions.map((opt) => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                  </>
+                ) : (
+                  <>
+                    <option value="">{updatingGrade ? 'Saving...' : 'Select grade'}</option>
+                    {gradingOptions.map((opt) => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                  </>
+                )}
+              </select>
+            )}
+          </div>
+        ) : null}
 
         {/* Assignment Instructions */}
         {assignmentContent && (

@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import ApplicantProfile from './profile-applicant';
 import InternationalStudentProfile from './profile-internationalStudent';
 import EuStudentProfile from './profile-euStudent';
+import TeacherProfile from './profile-teacher';
 import axiosInstance from '@/lib/axios';
 
 const ProfilePage: React.FC = () => {
@@ -33,6 +34,7 @@ const ProfilePage: React.FC = () => {
         <InternationalStudentProfile />
       )}
       {user.role === 'applicant'  && <ApplicantProfile />}
+      {(user.role === 'teacher' || user.role === 'admin') && <TeacherProfile />}
     </div>
   );
 };

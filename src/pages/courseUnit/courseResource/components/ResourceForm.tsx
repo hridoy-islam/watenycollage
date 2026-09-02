@@ -4,11 +4,12 @@ import React, { useEffect, useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, Trash2, Pencil } from 'lucide-react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import FileUploadArea from './FileUploadArea';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import {
   FormData,
   ResourceType,
@@ -16,7 +17,6 @@ import {
   UploadState,
   Resource
 } from './types';
-import moment from 'moment';
 
 interface ResourceFormProps {
   selectedResourceType: ResourceType;
@@ -58,6 +58,8 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editContent, setEditContent] = useState<string>('');
   const [currentStep, setCurrentStep] = useState(1);
+  const [selectedStartDate, setSelectedStartDate] = useState<Date | null>(null);
+  const [selectedFinalDeadline, setSelectedFinalDeadline] = useState<Date | null>(null);
 
   const quillModules = {
     toolbar: [
@@ -75,7 +77,17 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
     }
   }, [selectedResourceType]);
 
-   const handleCheckboxChange = (field: 'finalFeedback' | 'observation') => {
+  // Sync date pickers when editing an assignment
+  useEffect(() => {
+    setSelectedStartDate(
+      formData.startDate ? new Date(formData.startDate) : null
+    );
+    setSelectedFinalDeadline(
+      formData.finalDeadline ? new Date(formData.finalDeadline) : null
+    );
+  }, [formData.startDate, formData.finalDeadline]);
+
+  const handleCheckboxChange = (field: 'finalFeedback' | 'observation') => {
     setFormData((prev) => {
       const currentFinalFeedback = prev.finalFeedback || false;
       const currentObservation = prev.observation || false;
@@ -96,6 +108,16 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
     });
   };
 
+  const handleStartDateChange = (date: Date | null) => {
+    setSelectedStartDate(date);
+    setFormData((prev) => ({ ...prev, startDate: date }));
+  };
+
+  const handleFinalDeadlineChange = (date: Date | null) => {
+    setSelectedFinalDeadline(date);
+    setFormData((prev) => ({ ...prev, finalDeadline: date }));
+  };
+
   // ===== FORM RENDERERS =====
 
   useEffect(() => {
@@ -103,12 +125,12 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
       (selectedResourceType === 'study-guide' ||
         selectedResourceType === 'lecture') &&
       uploadState.fileName &&
-      uploadState.fileUrl
+      uploadState.selectedDocument
     ) {
       setFormData((prev) => ({
         ...prev,
         fileName: uploadState.fileName,
-        fileUrl: uploadState.fileUrl
+        fileUrl: uploadState.selectedDocument
       }));
     }
   }, [uploadState, selectedResourceType, setFormData]);
@@ -129,6 +151,7 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
           />
         </div>
       </div>
+      {renderActionButtons()}
     </div>
   );
 
@@ -174,11 +197,12 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
           onFileChange={onFileChange}
         />
       </div>
+      {renderActionButtons()}
     </div>
   );
 
   const renderAssignmentForm = () => (
-    <div className="h-[60vh] space-y-4">
+    <div className="h-[70vh] space-y-2 overflow-y-auto ">
       <div>
         <Label htmlFor="assignment-title">Assignment Title</Label>
         <Input
@@ -192,7 +216,7 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
         />
       </div>
       <div>
-        <Label htmlFor="resource-content">Assignment Details (Optional)</Label>
+        <Label htmlFor="resource-content">Assignment Description</Label>
         <div className="mt-2">
           <ReactQuill
             theme="snow"
@@ -201,30 +225,94 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
               setFormData((prev) => ({ ...prev, content: value }))
             }
             modules={quillModules}
-            className="[&_.ql-editor]:max-h-[200px] [&_.ql-editor]:min-h-[200px] [&_.ql-editor]:overflow-y-auto"
+            className="[&_.ql-editor]:max-h-[200px] [&_.ql-editor]:min-h-[150px] [&_.ql-editor]:overflow-y-auto"
           />
         </div>
       </div>
 
-      <div>
-        <Label htmlFor="assignment-deadline">Deadline</Label>
-        <Input
-          type="date"
-          id="assignment-deadline"
-          value={
-            formData.deadline
-              ? moment(formData.deadline).format('YYYY-MM-DD')
-              : ''
-          }
-          onChange={(e) => {
-            const selectedDate = e.target.value
-              ? moment(e.target.value, 'YYYY-MM-DD').toDate()
-              : null;
-            setFormData((prev) => ({ ...prev, deadline: selectedDate }));
-          }}
-          className="mt-2 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-watney"
-        />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+          <Label htmlFor="assignment-start-date">Start Date</Label>
+          <div className="relative mt-2">
+            <DatePicker
+              id="assignment-start-date"
+              selected={selectedStartDate}
+              onChange={handleStartDateChange}
+              dateFormat="dd-MM-yyyy"
+              showMonthDropdown
+              showYearDropdown
+                            wrapperClassName='w-full'
+
+              dropdownMode="select"
+              placeholderText="Select start date"
+              className="w-full rounded-md border border-slate-300 px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-watney"
+              isClearable
+            />
+          </div>
+        </div>
+        <div>
+          <Label htmlFor="assignment-final-deadline">Final Deadline</Label>
+          <div className="relative mt-2">
+            <DatePicker
+              id="assignment-final-deadline"
+              selected={selectedFinalDeadline}
+              onChange={handleFinalDeadlineChange}
+              dateFormat="dd-MM-yyyy"
+              showMonthDropdown
+              showYearDropdown
+              dropdownMode="select"
+              wrapperClassName='w-full'
+              placeholderText="Select final deadline"
+              className="w-full rounded-md border border-slate-300 px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-watney"
+              isClearable
+            />
+          </div>
+        </div>
       </div>
+
+      <div className="space-y-2">
+        <h3 className="text-lg font-semibold text-slate-700">
+          Assessment Options ( Select at least one assessment method)
+        </h3>
+
+        <div className="flex gap-6">
+          {/* Final Feedback Checkbox */}
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="finalFeedback"
+              checked={formData.finalFeedback || false}
+              onChange={() => handleCheckboxChange('finalFeedback')}
+              className="h-5 w-5 rounded border-slate-300 text-watney focus:ring-watney"
+            />
+            <Label
+              htmlFor="finalFeedback"
+              className="text-md font-medium text-slate-700"
+            >
+              Final Feedback
+            </Label>
+          </div>
+
+          {/* Observation Checkbox */}
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="observation"
+              checked={formData.observation || false}
+              onChange={() => handleCheckboxChange('observation')}
+              className="h-5 w-5 rounded border-slate-300 text-watney focus:ring-watney"
+            />
+            <Label
+              htmlFor="observation"
+              className="text-md font-medium text-slate-700"
+            >
+              Observation
+            </Label>
+          </div>
+        </div>
+      </div>
+
+      {renderActionButtons()}
     </div>
   );
 
@@ -280,8 +368,6 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
             ← Back
           </Button>
         </div>
-
-       
 
         {/* Assessment Criteria Section */}
         <div className="space-y-4">
@@ -375,18 +461,16 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
                       <Button
                         variant="default"
                         size="sm"
-                        className="hover:bg-blue-50"
                         onClick={() => {
                           setEditingIndex(index);
                           setEditContent(item.description || '');
                         }}
                       >
-                        <Pencil className="h-4 w-4 text-blue-600" />
+                        <Pencil className="h-4 w-4 " />
                       </Button>
                       <Button
-                        variant="default"
+                        variant="destructive"
                         size="sm"
-                        className="hover:bg-red-50"
                         onClick={() => {
                           setFormData((prev) => ({
                             ...prev,
@@ -400,7 +484,7 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
                           }
                         }}
                       >
-                        <Trash2 className="h-4 w-4 text-red-500" />
+                        <Trash2 className="h-4 w-4 " />
                       </Button>
                     </div>
                   </div>
@@ -461,8 +545,7 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
          {/* Checkboxes Section */}
         <div className="space-y-2 ">
           <h3 className="font-semibold text-lg  text-slate-700">Assessment Options ( Select at least one assessment method)</h3>
-         
-          
+
           <div className="flex gap-6">
             {/* Final Feedback Checkbox */}
             <div className="flex items-center space-x-2">
@@ -499,7 +582,20 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
             </div>
           </div>
 
-         
+        </div>
+
+        {/* Action Buttons for Step 2 */}
+        <div className="flex justify-end gap-3">
+          <Button variant="outline" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button
+            onClick={onSave}
+            disabled={!isFormValid}
+            className="bg-watney text-white hover:bg-watney/90"
+          >
+            {editingResource ? 'Update Resource' : 'Create Resource'}
+          </Button>
         </div>
       </div>
     );
@@ -521,9 +617,6 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
     }
   };
 
-  const shouldShowFinalActionButtons =
-    selectedResourceType !== 'learning-outcome' || currentStep === 2;
-
   const isFormValid = (() => {
     switch (selectedResourceType) {
       case 'study-guide':
@@ -534,7 +627,12 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
         );
 
       case 'assignment':
-        return formData.title?.trim() && !!formData.deadline;
+        return (
+          formData.title?.trim() &&
+          !!formData.startDate &&
+          !!formData.finalDeadline &&
+          (formData.finalFeedback || formData.observation)
+        );
       case 'learning-outcome':
         if (currentStep === 1) {
           return formData.learningOutcomes?.trim();
@@ -542,7 +640,7 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
           return (
             formData.learningOutcomes?.trim() &&
             (formData.assessmentCriteria?.length || 0) > 0 &&
-            (formData.finalFeedback || formData.observation) 
+            (formData.finalFeedback || formData.observation)
           );
         }
       case 'introduction':
@@ -552,24 +650,24 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
     }
   })();
 
+  const renderActionButtons = () => (
+    <div className="flex justify-end gap-3">
+      <Button variant="outline" onClick={onCancel}>
+        Cancel
+      </Button>
+      <Button
+        onClick={onSave}
+        disabled={!isFormValid}
+        className="bg-watney text-white hover:bg-watney/90"
+      >
+        {editingResource ? 'Update Resource' : 'Create Resource'}
+      </Button>
+    </div>
+  );
+
   return (
     <div className="space-y-6 py-4">
       {renderFormContent()}
-
-      {shouldShowFinalActionButtons && (
-        <div className="flex justify-end gap-3">
-          <Button variant="outline" onClick={onCancel}>
-            Cancel
-          </Button>
-          <Button
-            onClick={onSave}
-            disabled={!isFormValid}
-            className="bg-watney text-white hover:bg-watney/90"
-          >
-            {editingResource ? 'Update Resource' : 'Create Resource'}
-          </Button>
-        </div>
-      )}
     </div>
   );
 };

@@ -382,7 +382,7 @@ export default function ViewStudentApplicationPage() {
         <TableCell
           className={cn(
             'text-right align-middle',
-            isEmptyValue && 'italic text-muted-foreground'
+            isEmptyValue && 'italic '
           )}
         >
           {isUrl ? (
@@ -866,7 +866,7 @@ export default function ViewStudentApplicationPage() {
                 </div>
 
                 {application?.sameAsResidential ? (
-                  <p className="italic text-muted-foreground">
+                  <p className="italic ">
                     Same as residential address
                   </p>
                 ) : (
@@ -1502,7 +1502,7 @@ export default function ViewStudentApplicationPage() {
 
                 {!application.educationData ||
                 application.educationData.length === 0 ? (
-                  <p className="italic text-muted-foreground">
+                  <p className="italic ">
                     No education history provided
                   </p>
                 ) : (
@@ -1835,7 +1835,7 @@ export default function ViewStudentApplicationPage() {
                   </Card>
                 ))
               ) : (
-                <p className="italic text-muted-foreground">
+                <p className="italic ">
                   No course details provided
                 </p>
               )}

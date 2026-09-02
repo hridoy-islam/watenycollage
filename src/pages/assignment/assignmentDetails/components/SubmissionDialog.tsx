@@ -4,7 +4,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Upload, Send, File, X, Info, AlertCircle } from 'lucide-react';
+import { Upload, Send, File, X, Info, AlertCircle, Award } from 'lucide-react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
@@ -78,6 +78,7 @@ interface FormState {
   resubmissionDeadline?: Date;
   isAdminSubmission?: boolean;
   uploadError?: string; // Added for error display
+  finalGrade?: string;
 }
 
 interface SubmissionDialogProps {
@@ -97,6 +98,9 @@ interface SubmissionDialogProps {
   triggerButton: React.ReactNode;
   editingItem?: { type: 'submission' | 'feedback'; id: string } | null;
   assignment?: Assignment | null;
+  gradingOptions?: string[];
+  currentFinalGrade?: string;
+  finalDeadline?: string | Date | null;
 }
 
 export const SubmissionDialog: React.FC<SubmissionDialogProps> = ({
@@ -115,8 +119,23 @@ export const SubmissionDialog: React.FC<SubmissionDialogProps> = ({
   isFormDisabled,
   triggerButton,
   editingItem,
-  assignment
+  assignment,
+  gradingOptions = [],
+  currentFinalGrade,
+  finalDeadline
 }) => {
+  // Convert a stored UTC-midnight date into a *local* Date of that same UTC
+  // calendar day so the picker (and its maxDate) show the correct day regardless
+  // of the viewer's timezone.
+  const toLocalDate = (
+    value: string | Date | null | undefined
+  ): Date | undefined => {
+    if (!value) return undefined;
+    const d = new Date(value);
+    if (isNaN(d.getTime())) return undefined;
+    return new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+  };
+
   // Reset form when dialog closes and we're not editing
   React.useEffect(() => {
     if (!isOpen && !editingItem) {
@@ -445,6 +464,7 @@ export const SubmissionDialog: React.FC<SubmissionDialogProps> = ({
                             })
                           }
                           minDate={new Date()}
+                          maxDate={toLocalDate(finalDeadline)}
                           showMonthDropdown
                           showYearDropdown
                           dropdownMode="select"
@@ -454,6 +474,40 @@ export const SubmissionDialog: React.FC<SubmissionDialogProps> = ({
                       </div>
                     )}
                   </>
+                )}
+
+                {gradingOptions.length > 0 && (
+                  <div className="flex items-center gap-2 pt-1">
+                    <Award className="h-4 w-4 text-amber-600" />
+                    <Label className="text-sm font-medium">
+                      Final Grade:
+                    </Label>
+                    <select
+                      value={formState?.finalGrade ?? currentFinalGrade ?? ''}
+                      onChange={(e) => onFormChange({ finalGrade: e.target.value })}
+                      className="h-9 rounded-md border border-gray-300 bg-white px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-watney"
+                    >
+                      {currentFinalGrade ? (
+                        <>
+                          <option value="">Clear grade</option>
+                          {gradingOptions.map((opt) => (
+                            <option key={opt} value={opt}>
+                              {opt}
+                            </option>
+                          ))}
+                        </>
+                      ) : (
+                        <>
+                          <option value="">Select grade</option>
+                          {gradingOptions.map((opt) => (
+                            <option key={opt} value={opt}>
+                              {opt}
+                            </option>
+                          ))}
+                        </>
+                      )}
+                    </select>
+                  </div>
                 )}
               </div>
             )}

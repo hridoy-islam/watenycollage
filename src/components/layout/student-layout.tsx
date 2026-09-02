@@ -3,7 +3,6 @@ import AutoLogout from '../shared/auto-logout';
 import { Toaster } from '@/components/ui/toaster';
 import { useSelector } from 'react-redux';
 import VerifyPage from '@/pages/auth/verify';
-import { TopNav } from '../shared/top-nav';
 
 export default function StudentLayout({
   children
@@ -16,12 +15,14 @@ export default function StudentLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <AutoLogout inactivityLimit={5*60 * 60 * 1000} />
-      <TopNav />
-      {/* <SideNav /> */}
-
-      <main className="mx-auto px-4 py-8 ">{children}</main>
+    <div className="relative flex h-screen w-full overflow-hidden bg-gray-50">
+      <AutoLogout inactivityLimit={5 * 60 * 60 * 1000} />
+      <SideNav />
+      <div className="flex min-w-0 flex-1 flex-col pt-14 lg:pt-0 lg:pl-56">
+        <main className="h-full w-full overflow-y-auto overflow-x-hidden p-2">
+          {children}
+        </main>
+      </div>
       <Toaster />
     </div>
   );

@@ -8,592 +8,419 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import {
-  Eye,
-  FileIcon,
-  FileX2,
-  Mail,
-  MoveLeft,
-  MoreHorizontal,
-  CheckCircle,
-  XCircle,
-  Search
-} from 'lucide-react';
-import { DataTablePagination } from '@/components/shared/data-table-pagination';
-import { useNavigate, useParams } from 'react-router-dom';
-import { BlinkingDots } from '@/components/shared/blinking-dots';
 import Select from 'react-select';
-import { Badge } from '@/components/ui/badge';
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
-} from '@/components/ui/tooltip';
-import clsx from 'clsx';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
-import { useToast } from '@/components/ui/use-toast';
-import { Input } from '@/components/ui/input';
+  BookOpen,
+  Layers,
+  User,
+  ArrowLeft,
+  Search,
+  RotateCcw,
+  FileText
+} from 'lucide-react';
+import { BlinkingDots } from '@/components/shared/blinking-dots';
+import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
-interface StudentApplication {
+interface StudentRow {
   _id: string;
-  studentId?: {
-    _id?: string;
-    name?: string;
-    email?: string;
-    title?: string;
+  courseId: { _id: string; name: string; courseCode?: string } | string;
+  courseTermId: { _id: string; name: string; year?: string; order?: number } | string;
+  groupId: { _id: string; name: string } | string;
+  studentId: {
+    _id: string;
+    name: string;
+    email: string;
     firstName?: string;
-    initial?: string;
     lastName?: string;
-    studentType?: string;
+    title?: string;
   };
-  refId?: string;
-  courseId?: {
-    _id?: string;
-    name?: string;
-  };
-  status?: 'applied' | 'approved' | 'cancelled';
 }
 
-interface CourseOption {
+interface FilterOption {
   value: string;
   label: string;
 }
 
-interface TeacherCourse {
-  _id: string;
-  courseId: {
-    _id: string;
-    name: string;
-    status: number;
-    courseCode: string;
-  };
-  teacherId: string;
-  termId: {
-    _id: string;
-    termName: string;
-    status: number;
-    createdAt: string;
-    updatedAt: string;
-  };
-}
+const YEAR_ORDER: Record<string, number> = {
+  'year 1': 1,
+  'year 2': 2,
+  'year 3': 3,
+  'year 4': 4,
+  'year 5': 5,
+};
 
-export default function TeacherStudentApplicationListPage() {
-  const [applications, setApplications] = useState<StudentApplication[]>([]);
-  const [filteredApplications, setFilteredApplications] = useState<
-    StudentApplication[]
-  >([]);
-  const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [entriesPerPage, setEntriesPerPage] = useState(100);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [courses, setCourses] = useState<CourseOption[]>([]);
-  const [terms, setTerms] = useState<CourseOption[]>([]);
-  const [selectedCourse, setSelectedCourse] = useState<CourseOption | null>(
-    null
-  );
-  const [selectedTerm, setSelectedTerm] = useState<CourseOption | null>(null);
-  const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
-  const { toast } = useToast();
+const normalizeYear = (year?: string): string =>
+  (year || 'year 1').toString().trim().toLowerCase();
+
+const selectStyles = {
+  control: (base: any) => ({ ...base, minHeight: 36, fontSize: 12, color: '#000' }),
+  menu: (base: any) => ({ ...base, fontSize: 12 }),
+  input: (base: any) => ({ ...base, color: '#000' }),
+  singleValue: (base: any) => ({ ...base, color: '#000' }),
+  option: (base: any) => ({ ...base, color: '#000' }),
+  placeholder: (base: any) => ({ ...base, color: '#000', opacity: 0.5 }),
+};
+
+export default function TeacherStudentListPage() {
+  const navigate = useNavigate();
   const user = useSelector((state: any) => state.auth.user);
 
-  const fetchTeacherCourses = async () => {
-    try {
-      const res = await axiosInstance.get(`/teacher-courses?teacherId=${user?._id}`);
-      const data: TeacherCourse[] = res.data.data.result || [];
-      
-      // Extract unique courses from teacher's assigned courses
-      const courseOptions: CourseOption[] = [];
-      const courseIds = new Set();
-      
-      // Extract unique terms from teacher's assigned courses
-      const termOptions: CourseOption[] = [];
-      const termIds = new Set();
-      
-      data.forEach((teacherCourse: TeacherCourse) => {
-        // Add course if not already added
-        if (teacherCourse.courseId && !courseIds.has(teacherCourse.courseId._id)) {
-          courseIds.add(teacherCourse.courseId._id);
-          courseOptions.push({
-            value: teacherCourse.courseId._id,
-            label: teacherCourse.courseId.name
-          });
-        }
-        
-        // Add intake if not already added
-        if (teacherCourse.termId && !termIds.has(teacherCourse.termId._id)) {
-          termIds.add(teacherCourse.termId._id);
-          termOptions.push({
-            value: teacherCourse.termId._id,
-            label: teacherCourse.termId.termName
-          });
-        }
-      });
-      
-      setCourses(courseOptions);
-      setTerms(termOptions);
-      
-      return data;
-    } catch (error) {
-      console.error('Error fetching teacher courses:', error);
-      return [];
-    }
-  };
+  const [students, setStudents] = useState<StudentRow[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const fetchData = async (
-    page = 1,
-    limit = 10,
-    courseId?: string,
-    intakeId?: string,
-    searchTerm = ''
-  ) => {
-    try {
+  const [courses, setCourses] = useState<FilterOption[]>([]);
+  const [years, setYears] = useState<FilterOption[]>([]);
+  const [terms, setTerms] = useState<FilterOption[]>([]);
+  const [groups, setGroups] = useState<FilterOption[]>([]);
+  const [allAssignedTerms, setAllAssignedTerms] = useState<any[]>([]);
+  const [allAssignedGroups, setAllAssignedGroups] = useState<any[]>([]);
+
+  const [selectedCourse, setSelectedCourse] = useState<FilterOption | null>(null);
+  const [selectedYear, setSelectedYear] = useState<FilterOption | null>(null);
+  const [selectedTerm, setSelectedTerm] = useState<FilterOption | null>(null);
+  const [selectedGroup, setSelectedGroup] = useState<FilterOption | null>(null);
+
+  // Load filters from teacher-courses and initial student list
+  useEffect(() => {
+    if (!user?._id || user?.role !== 'teacher') return;
+
+    const loadFiltersFromTeacherCourses = async () => {
       setLoading(true);
-      const params: {
-        page: number;
-        limit: number;
-        courseId?: string;
-        intakeId?: string;
-        searchTerm?: string;
-      } = {
-        page,
-        limit
-      };
+      try {
+        const res = await axiosInstance.get(`/teacher-courses?teacherId=${user._id}`);
+        const data: any[] = res.data?.data?.result || [];
+        const courseIds = new Set();
+        const termIds = new Set();
+        const groupIds = new Set();
+        const termYearMap: Record<string, string> = {};
 
-      if (courseId) {
-        params.courseId = courseId;
-      }
-      if (intakeId) {
-        params.intakeId = intakeId;
-      }
-      if (searchTerm) {
-        params.searchTerm = searchTerm;
-      }
+        data.forEach((tc) => {
+          if (tc.courseId?._id) {
+            courseIds.add(String(tc.courseId._id));
+            setCourses((prev) => {
+              if (prev.find((c) => c.value === String(tc.courseId._id))) return prev;
+              return [...prev, { value: String(tc.courseId._id), label: tc.courseId.name || 'Course' }];
+            });
+          }
+          if (tc.courseTermId?._id) {
+            termIds.add(String(tc.courseTermId._id));
+            termYearMap[String(tc.courseTermId._id)] = tc.courseTermId.year || '';
+          }
+          if (tc.groupId?._id) {
+            groupIds.add(String(tc.groupId._id));
+          }
+        });
 
-      const res = await axiosInstance.get(`/application-course/teacher/${user?._id}`, {
-        params
-      });
-      const data = res.data.data.result || [];
-      setApplications(data);
-      setFilteredApplications(data);
-      setTotalPages(res.data.data.meta.totalPage || 1);
-    } catch (error) {
-      console.error('Error fetching student applications:', error);
+        // Fetch term details from assigned terms
+        if (termIds.size > 0) {
+          const termsRes = await axiosInstance.get('/course-term', { params: { limit: 'all' } });
+          const allTerms = termsRes.data?.data?.result || [];
+          const assignedTerms: any[] = allTerms.filter((t: any) => termIds.has(String(t._id)));
+          setAllAssignedTerms(assignedTerms);
+          setTerms(assignedTerms.map((t: any) => ({ value: t._id, label: t.name || 'Term' })));
+          const years = [...new Set(assignedTerms.map((t: any) => normalizeYear(t.year)))];
+          setYears(years.sort((a, b) => (YEAR_ORDER[a] ?? 99) - (YEAR_ORDER[b] ?? 99)).map((y) => ({ value: y, label: y.charAt(0).toUpperCase() + y.slice(1) })));
+        }
+
+        // Fetch group details from assigned groups
+        if (groupIds.size > 0) {
+          const groupsRes = await axiosInstance.get('/course-group', { params: { limit: 'all' } });
+          const allGroups = groupsRes.data?.data?.result || [];
+          const assignedGroups: any[] = allGroups.filter((g: any) => groupIds.has(String(g._id)));
+          setAllAssignedGroups(assignedGroups);
+          setGroups(assignedGroups.map((g: any) => ({ value: g._id, label: g.name || 'Group' })));
+        }
+
+        // Load students
+        const studentsRes = await axiosInstance.get(`/teacher-courses/teacher-assigned-students/${user._id}`, { params: { limit: 'all' } });
+        setStudents(studentsRes.data?.data?.result || []);
+      } catch (err) {
+        console.error('Failed to load teacher data', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadFiltersFromTeacherCourses();
+  }, [user]);
+
+  // Filter terms/years by selected course (from assigned data only)
+  useEffect(() => {
+    setSelectedYear(null);
+    setSelectedTerm(null);
+    setSelectedGroup(null);
+    if (!selectedCourse?.value) {
+      setTerms(allAssignedTerms.map((t: any) => ({ value: String(t?._id || t), label: t?.name || 'Term' })));
+      setYears(
+        [...new Set(allAssignedTerms.map((t: any) => normalizeYear(t?.year)))].sort((a, b) => (YEAR_ORDER[a] ?? 99) - (YEAR_ORDER[b] ?? 99)).map((y) => ({ value: y, label: y.charAt(0).toUpperCase() + y.slice(1) }))
+      );
+      return;
+    }
+    const filteredTerms = allAssignedTerms.filter((t: any) => {
+      const cid = String(t?.courseId?._id || t?.courseId || t?._id);
+      return cid === selectedCourse.value;
+    });
+    setTerms(filteredTerms.map((t: any) => ({ value: String(t?._id || t), label: t?.name || 'Term' })));
+    const yearsFromTerms = [...new Set(filteredTerms.map((t: any) => normalizeYear(t?.year)))];
+    setYears(
+      yearsFromTerms.sort((a, b) => (YEAR_ORDER[a] ?? 99) - (YEAR_ORDER[b] ?? 99)).map((y) => ({ value: y, label: y.charAt(0).toUpperCase() + y.slice(1) }))
+    );
+  }, [selectedCourse, allAssignedTerms]);
+
+  // Filter terms by selected year (from assigned terms only)
+  useEffect(() => {
+    setSelectedTerm(null);
+    setSelectedGroup(null);
+    if (!selectedCourse?.value || !selectedYear?.value) {
+      if (selectedCourse?.value && !selectedYear?.value) {
+        const termsForCourse = allAssignedTerms.filter((t: any) => {
+          const cid = String(t?.courseId?._id || t?.courseId || t?._id);
+          return cid === selectedCourse.value;
+        });
+        setTerms(termsForCourse.map((t: any) => ({ value: String(t?._id || t), label: t?.name || 'Term' })));
+      }
+      return;
+    }
+    const filteredTerms = allAssignedTerms.filter((t: any) => {
+      const cid = String(t?.courseId?._id || t?.courseId || t?._id);
+      const yearMatch = normalizeYear(t?.year) === selectedYear.value;
+      return cid === selectedCourse.value && yearMatch;
+    });
+    setTerms(filteredTerms.map((t: any) => ({ value: String(t?._id || t), label: t?.name || 'Term' })));
+  }, [selectedCourse, selectedYear, allAssignedTerms]);
+
+  // Groups depend on assigned term
+  useEffect(() => {
+    setSelectedGroup(null);
+    if (!selectedTerm?.value) {
+      setGroups(allAssignedGroups.map((g: any) => ({ value: String(g?._id || g), label: g?.name || 'Group' })));
+      return;
+    }
+    const filteredGroups = allAssignedGroups.filter((g: any) => {
+      return String(g?.termId?._id || g?.termId) === selectedTerm.value;
+    });
+    setGroups(filteredGroups.map((g: any) => ({ value: String(g?._id || g), label: g?.name || 'Group' })));
+  }, [selectedTerm, allAssignedGroups]);
+
+  const fetchStudents = async () => {
+    if (!user?._id) return;
+    setLoading(true);
+    try {
+      const params: Record<string, string> = { limit: 'all' };
+      if (selectedCourse?.value) params.courseId = selectedCourse.value;
+      if (selectedYear?.value) params.year = selectedYear.value;
+      if (selectedTerm?.value) params.courseTermId = selectedTerm.value;
+      if (selectedGroup?.value) params.groupId = selectedGroup.value;
+
+      const res = await axiosInstance.get(`/teacher-courses/teacher-assigned-students/${user._id}`, { params });
+      setStudents(res.data?.data?.result || []);
+    } catch (err) {
+      console.error('Failed to fetch students', err);
+      setStudents([]);
     } finally {
       setLoading(false);
     }
   };
 
-  // Initial data fetch without filters
-  useEffect(() => {
-    const initializeData = async () => {
-      await fetchTeacherCourses();
-      fetchData(currentPage, entriesPerPage);
-    };
-    
-    initializeData();
-  }, [currentPage, entriesPerPage]);
-
-  const navigate = useNavigate();
-
-  const handleCourseChange = (selectedOption: CourseOption | null) => {
-    setSelectedCourse(selectedOption);
+  const clearFilters = () => {
+    setSelectedCourse(null);
+    setSelectedYear(null);
+    setSelectedTerm(null);
+    setSelectedGroup(null);
   };
 
-  const handleTermChange = (selectedOption: CourseOption | null) => {
-    setSelectedTerm(selectedOption);
+  const getCourseName = (s: StudentRow) => {
+    return typeof s.courseId === 'object' && s.courseId?.name ? s.courseId.name : 'N/A';
   };
 
-  const handleSearch = () => {
-    setCurrentPage(1);
-    fetchData(
-      1,
-      entriesPerPage,
-      selectedCourse?.value,
-      selectedTerm?.value,
-      searchTerm
-    );
+  const getTermName = (s: StudentRow) => {
+    return typeof s.courseTermId === 'object' && s.courseTermId?.name ? s.courseTermId.name : 'N/A';
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSearch();
+const getYearName = (s: StudentRow) => {
+  const year =
+    typeof s.courseTermId === 'object' && s.courseTermId?.year
+      ? s.courseTermId.year
+      : 'N/A';
+
+  return year.charAt(0).toUpperCase() + year.slice(1);
+};
+  const getGroupName = (s: StudentRow) => {
+    return typeof s.groupId === 'object' && s.groupId?.name ? s.groupId.name : 'N/A';
+  };
+
+  const getStudentName = (s: StudentRow) => {
+    if (!s.studentId) return 'Unknown';
+    if (typeof s.studentId === 'object') {
+      if (s.studentId.name) return s.studentId.name;
+      if (s.studentId.firstName && s.studentId.lastName) return `${s.studentId.firstName} ${s.studentId.lastName}`;
     }
+    return 'Unknown';
   };
 
-  const updateApplicationStatus = async (
-    applicationId: string,
-    status: 'approved' | 'cancelled'
-  ) => {
-    // 1. Optimistically update UI immediately
-    setApplications((prev) =>
-      prev.map((app) => (app._id === applicationId ? { ...app, status } : app))
-    );
-    setFilteredApplications((prev) =>
-      prev.map((app) => (app._id === applicationId ? { ...app, status } : app))
-    );
-
-    setUpdatingStatus(applicationId);
-
-    try {
-      // 2. Fire API call in background
-      await axiosInstance.patch(`/application-course/${applicationId}`, {
-        status
-      });
-
-      toast({
-        title:
-          status === 'approved'
-            ? 'Application approved successfully!'
-            : 'Application rejected successfully!',
-        className: 'bg-watney text-white border-none'
-      });
-    } catch (error) {
-      // 3. Rollback if request fails
-      setApplications((prev) =>
-        prev.map((app) =>
-          app._id === applicationId ? { ...app, status: 'applied' } : app
-        )
-      );
-      setFilteredApplications((prev) =>
-        prev.map((app) =>
-          app._id === applicationId ? { ...app, status: 'applied' } : app
-        )
-      );
-      toast({
-        title: 'Failed to update application status.',
-        className: 'bg-destructive text-white border-none'
-      });
-    } finally {
-      setUpdatingStatus(null);
-    }
+  const getStudentEmail = (s: StudentRow) => {
+    return typeof s.studentId === 'object' && s.studentId?.email ? s.studentId.email : 'N/A';
   };
 
   return (
-    <div className="space-y-4 ">
-      {/* Header with Search & Back Button */}
-      <div className="flex flex-row items-center justify-between">
-        <div className="flex flex-row flex-nowrap items-center gap-4">
-          <h2 className="whitespace-nowrap text-xl font-bold">
-            Student Applications
-          </h2>
-        </div>
-        <Button
-          className="bg-watney text-white hover:bg-watney/90"
-          onClick={() => navigate('/dashboard')}
-        >
-          <MoveLeft className="mr-2 h-4 w-4" />
-          Back
-        </Button>
-      </div>
-
-      {/* Filters Section */}
-      <div className="flex flex-row items-center gap-4">
-        {/* Search by Student Name/Email */}
-        <div className="flex items-center space-x-4">
-          <Input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Search by student name, email"
-            className="h-9 min-w-[400px] rounded-sm bg-white"
-          />
-        </div>
-  {/* Term Filter */}
-        <div className="w-[250px]">
-          <Select
-            options={terms}
-            value={selectedTerm}
-            onChange={handleTermChange}
-            placeholder="Filter by intake"
-            isClearable
-            className="text-sm"
-            styles={{
-              control: (base) => ({
-                ...base,
-                height: '36px',
-                minHeight: '36px'
-              }),
-              valueContainer: (base) => ({
-                ...base,
-                height: '36px',
-                padding: '0 8px'
-              }),
-              input: (base) => ({
-                ...base,
-                margin: '0px',
-                paddingBottom: '0px',
-                paddingTop: '0px'
-              }),
-              indicatorsContainer: (base) => ({
-                ...base,
-                height: '36px'
-              })
-            }}
-          />
-        </div>
-
-        {/* Course Filter */}
-        <div className="w-[250px]">
-          <Select
-            options={courses}
-            value={selectedCourse}
-            onChange={handleCourseChange}
-            placeholder="Filter by course"
-            isClearable
-            className="text-sm"
-            styles={{
-              control: (base) => ({
-                ...base,
-                height: '36px',
-                minHeight: '36px'
-              }),
-              valueContainer: (base) => ({
-                ...base,
-                height: '36px',
-                padding: '0 8px'
-              }),
-              input: (base) => ({
-                ...base,
-                margin: '0px',
-                paddingBottom: '0px',
-                paddingTop: '0px'
-              }),
-              indicatorsContainer: (base) => ({
-                ...base,
-                height: '36px'
-              })
-            }}
-          />
-        </div>
-
-      
-        <Button
-          onClick={handleSearch}
-          size="sm"
-          className="h-9 min-w-[100px] border-none bg-watney text-white hover:bg-watney/90"
-        >
-          <Search className="mr-2 h-4 w-4" />
-          Search
-        </Button>
-      </div>
-
-      {/* Unified Table Container */}
-      <div className="rounded-md bg-white p-4 shadow-2xl">
-        {loading ? (
-          <div className="flex justify-center py-6">
-            <BlinkingDots size="large" color="bg-watney" />
+    <div className="text-xs space-y-4">
+      <Card>
+        <CardHeader className="pb-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-xl font-bold">Assigned Students</CardTitle>
+              <p className="mt-1 text-xs ">
+                Dynamic list of students based on your assigned courses, terms and groups.
+              </p>
+            </div>
+            <Button size="sm" onClick={() => navigate(-1)} className="bg-watney text-white hover:bg-watney/90">
+              <ArrowLeft className="mr-2 h-4 w-4" /> Back
+            </Button>
           </div>
-        ) : filteredApplications.length === 0 ? (
-          <div className="flex justify-center py-6 text-gray-500">
-            {searchTerm || selectedCourse || selectedTerm
-              ? 'No matching results found.'
-              : 'No student applications found.'}
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Filters grid like pendingAssignmentFeedbackTeacher */}
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-bold uppercase tracking-wide">Course</label>
+              <Select
+                options={courses}
+                value={selectedCourse}
+                onChange={(opt) => setSelectedCourse(opt as FilterOption | null)}
+                isClearable
+                placeholder="Select course"
+                styles={selectStyles}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-bold uppercase tracking-wide">Year</label>
+              <Select
+                options={years}
+                value={selectedYear}
+                onChange={(opt) => setSelectedYear(opt as FilterOption | null)}
+                isClearable
+                isDisabled={!selectedCourse}
+                placeholder={selectedCourse ? 'Select year' : 'Select course first'}
+                styles={selectStyles}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-bold uppercase tracking-wide">Course Term</label>
+              <Select
+                options={terms}
+                value={selectedTerm}
+                onChange={(opt) => setSelectedTerm(opt as FilterOption | null)}
+                isClearable
+                isDisabled={!selectedYear}
+                placeholder={selectedYear ? 'Select term' : 'Select year first'}
+                styles={selectStyles}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-bold uppercase tracking-wide">Group</label>
+              <Select
+                options={groups}
+                value={selectedGroup}
+                onChange={(opt) => setSelectedGroup(opt as FilterOption | null)}
+                isClearable
+                isDisabled={!selectedTerm}
+                placeholder={selectedTerm ? 'Select group' : 'Select term first'}
+                styles={selectStyles}
+              />
+            </div>
+
+            <div className="flex items-end gap-2 xl:col-span-2">
+              <Button
+                size="sm"
+                onClick={fetchStudents}
+                disabled={!user?._id}
+                className="flex h-9 w-full items-center gap-2 bg-watney text-xs text-white hover:bg-watney/90"
+              >
+                <Search className="h-4 w-4" /> Search
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => { clearFilters(); fetchStudents(); }}
+                className="flex h-9 w-full items-center gap-2 text-xs"
+              >
+                <RotateCcw className="h-4 w-4" /> Reset
+              </Button>
+            </div>
           </div>
-        ) : (
-          <>
-            <Table className='text-xs'>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Student ID</TableHead>
-                  <TableHead>Student Name</TableHead>
-                  <TableHead>Student Type</TableHead>
-                  {/* <TableHead>Email</TableHead> */}
-                  <TableHead>Course</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="w-32 text-center">Action</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredApplications.map((app) => (
-                  <TableRow key={app._id}>
-                    <TableCell
-                      className="cursor-pointer font-medium"
-                    >
-                      {app?.refId || '-'}
-                    </TableCell>
-                    <TableCell
-                      className="cursor-pointer font-medium"
-                    >
-                      <div>
 
-                      {app.studentId?.title} {app.studentId?.firstName}{' '}
-                      {app.studentId?.initial} {app.studentId?.lastName}
-                      </div>
-                      <span className='text-[10px] text-gray-600'>
-
-                       {app.studentId?.email ?? 'N/A'}
-                      </span>
-                    </TableCell>
-                    <TableCell
-                      className="cursor-pointer"
-                    >
-                      <Badge className="bg-watney text-white hover:bg-watney">
-                        {app.studentId?.studentType === 'eu'
-                          ? 'Home'
-                          : app.studentId?.studentType
-                              ?.charAt(0)
-                              .toUpperCase() +
-                            app.studentId?.studentType?.slice(1)}
-                      </Badge>
-                    </TableCell>
-                    {/* <TableCell
-                      className="cursor-pointer"
-                    >
-                      {app.studentId?.email ?? 'N/A'}
-                    </TableCell> */}
-                    <TableCell
-                      className="cursor-pointer"
-                    >
-                      {app.courseId?.name ?? 'N/A'}
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        className={clsx(
-                          'capitalize',
-                          app?.status === 'applied' && 'bg-blue-500 text-white',
-                          app?.status === 'approved' &&
-                            'bg-green-500 text-white',
-                          app?.status === 'cancelled' && 'bg-red-500 text-white'
-                        )}
-                      >
-                        {app?.status === 'approved'
-                          ? 'Enrolled'
-                          : app?.status === 'cancelled'
-                            ? 'Rejected'
-                            : app?.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            className="h-8 w-8 p-0"
-                            disabled={updatingStatus === app._id}
-                          >
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-
-                        <DropdownMenuContent
-                          align="end"
-                          className="border-gray-300 bg-white text-black"
-                        >
-                          {/* Assignment */}
-                          <DropdownMenuItem
-                            onClick={() =>
-                              navigate(
-                                `/dashboard/student-applications/${app?._id}/assignment/${app.studentId?._id}`
-                              )
-                            }
-                          >
-                            <FileIcon className="mr-2 h-4 w-4" />
-                            Assignment
-                          </DropdownMenuItem>
-
-                          {/* Mail */}
-                          <DropdownMenuItem
-                            onClick={() =>
-                              navigate(
-                                `/dashboard/student-application/${app.studentId?._id}/${app?._id}/mails`
-                              )
-                            }
-                          >
-                            <Mail className="mr-2 h-4 w-4" />
-                            Mail
-                          </DropdownMenuItem>
-
-                          {user.role==='admin' && <>
-                            {/* Applicant Details */}
-                            <DropdownMenuItem
-                              onClick={() =>
-                                navigate(
-                                  `/dashboard/student-application/${app.studentId?._id}`
-                                )
-                              }
-                            >
-                              <Eye className="mr-2 h-4 w-4" />
-                              Applicant Details
-                            </DropdownMenuItem>
-
-                            {/* Status-based actions */}
-                            {app.status === 'applied' && (
-                              <>
-                                <DropdownMenuItem
-                                  onClick={() =>
-                                    updateApplicationStatus(app._id, 'approved')
-                                  }
-                                  disabled={updatingStatus === app._id}
-                                >
-                                  <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                                  Approve Application
-                                </DropdownMenuItem>
-
-                                <DropdownMenuItem
-                                  onClick={() =>
-                                    updateApplicationStatus(app._id, 'cancelled')
-                                  }
-                                  disabled={updatingStatus === app._id}
-                                >
-                                  <XCircle className="mr-2 h-4 w-4 text-red-500" />
-                                  Reject Application
-                                </DropdownMenuItem>
-                              </>
-                            )}
-
-                            {app.status === 'approved' && (
-                              <DropdownMenuItem
-                                onClick={() =>
-                                  updateApplicationStatus(app._id, 'cancelled')
-                                }
-                                disabled={updatingStatus === app._id}
-                              >
-                                <XCircle className="mr-2 h-4 w-4 text-red-500" />
-                                Reject Application
-                              </DropdownMenuItem>
-                            )}
-
-                            {app.status === 'cancelled' && (
-                              <DropdownMenuItem
-                                onClick={() =>
-                                  updateApplicationStatus(app._id, 'approved')
-                                }
-                                disabled={updatingStatus === app._id}
-                              >
-                                <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                                Approve Application
-                              </DropdownMenuItem>
-                            )}
-                          </>}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
+          {/* Results */}
+          {loading ? (
+            <div className="flex items-center justify-center py-8">
+              <BlinkingDots size="large" color="bg-watney" />
+            </div>
+          ) : students.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-8 text-center">
+              <FileText className="mb-4 h-12 w-12 " />
+              <h3 className="text-lg font-semibold">No assigned students found</h3>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-xs">Student</TableHead>
+                    <TableHead className="text-xs">Course</TableHead>
+                    <TableHead className="text-xs">Year</TableHead>
+                    <TableHead className="text-xs">Term</TableHead>
+                    <TableHead className="text-xs">Group</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {students.map((s) => (
+                    <TableRow key={s._id} className="group">
+                      <TableCell className="text-black">
+  <div className="flex items-center gap-3">
+    
 
-            {/* Pagination */}
-            <DataTablePagination
-              pageSize={entriesPerPage}
-              setPageSize={setEntriesPerPage}
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-            />
-          </>
-        )}
-      </div>
+    <div className="flex flex-col">
+      <span className=" font-medium">
+        {getStudentName(s)}
+      </span>
+      <span className=" text-sm text-gray-800">
+        {getStudentEmail(s)}
+      </span>
+    </div>
+  </div>
+</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <BookOpen className="h-4 w-4 text-black" />
+                          <span className="text-black font-medium">{getCourseName(s)}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-black">{getYearName(s)}</TableCell>
+                      <TableCell className="text-black">{getTermName(s)}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2 text-black">
+                          <Layers className="h-3.5 w-3.5 text-black" />
+                          {getGroupName(s)}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

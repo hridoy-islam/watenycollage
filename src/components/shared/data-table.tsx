@@ -141,7 +141,7 @@ export default function DataTable<TData, TValue>({
 
       <div className="flex flex-col items-center justify-end gap-2 space-x-2 py-4 sm:flex-row">
         <div className="flex w-full items-center justify-between">
-          <div className="flex-1 text-sm text-muted-foreground">
+          <div className="flex-1 text-sm ">
             {table.getFilteredSelectedRowModel().rows.length} of{' '}
             {table.getFilteredRowModel().rows.length} row(s) selected.
           </div>

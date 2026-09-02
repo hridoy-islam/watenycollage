@@ -160,11 +160,11 @@ export function ImageUploader({
               </div>
             ) : (
               <div className="flex flex-col items-center gap-2 text-center">
-                <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                <ImageIcon className="h-8 w-8 " />
                 <div className="text-sm font-medium">
                  Click to select
                 </div>
-                <div className="text-xs text-muted-foreground">
+                <div className="text-xs ">
                   PNG, JPG or GIF (max. 5MB)
                 </div>
               </div>

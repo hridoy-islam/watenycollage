@@ -151,7 +151,7 @@ export function ImageUploader({
                   />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center bg-muted">
-                    <FileIcon className="h-12 w-12 text-muted-foreground" />
+                    <FileIcon className="h-12 w-12 " />
                   </div>
                 )}
 
@@ -170,11 +170,11 @@ export function ImageUploader({
               </div>
             ) : (
               <div className="flex flex-col items-center gap-2 text-center">
-                <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                <ImageIcon className="h-8 w-8 " />
                 <div className="text-sm font-medium">
                   click to select
                 </div>
-                <div className="text-xs text-muted-foreground">
+                <div className="text-xs ">
                   Maximum size 5MB
                 </div>
               </div>

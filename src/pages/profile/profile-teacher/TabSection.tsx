@@ -34,7 +34,7 @@ const TabSection = ({
             Back
           </Button>
 
-          {isEditing ? (
+          {/* {isEditing ? (
             <>
               <Button
                 onClick={onSave}
@@ -59,7 +59,7 @@ const TabSection = ({
               <Edit2 size={16} className="mr-1" />
               Edit
             </Button>
-          )}
+          )} */}
         </div>
       </div>
 

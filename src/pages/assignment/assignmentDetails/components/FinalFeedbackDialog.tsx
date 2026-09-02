@@ -137,7 +137,7 @@ export const FinalFeedbackDialog: React.FC<FinalFeedbackDialogProps> = ({
   // 🧹 Always reset before building new data when switching assignments
   setFeedbackData({ learningOutcomes: [] });
 
-  const filteredLearningOutcomes = unitMaterial.learningOutcomes.filter(
+  const filteredLearningOutcomes = (unitMaterial.learningOutcomes || []).filter(
     (lo) => lo?.finalFeedback === true
   );
 

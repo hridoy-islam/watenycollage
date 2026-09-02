@@ -30,8 +30,8 @@ export default function FileUpload({ onChange, value }: TFileUploadProps) {
             <AvatarIcon className="h-36 w-36 text-gray-100" />
           )}
 
-          <p className="absolute -bottom-5 left-1/2 flex w-full -translate-x-1/2 -translate-y-1/2 transform flex-col items-center justify-center bg-gray-300 bg-opacity-50 py-1 text-xs font-normal text-muted-foreground ">
-            <CameraIcon className="h-4 w-4 text-muted-foreground" />
+          <p className="absolute -bottom-5 left-1/2 flex w-full -translate-x-1/2 -translate-y-1/2 transform flex-col items-center justify-center bg-gray-300 bg-opacity-50 py-1 text-xs font-normal  ">
+            <CameraIcon className="h-4 w-4 " />
             Add Image
           </p>
         </div>

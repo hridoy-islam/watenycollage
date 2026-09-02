@@ -471,7 +471,7 @@ export default function AssignmentReportsPage() {
               isDisabled={!reportType || courses.length === 0}
             />
             {user?.role === 'teacher' && courses.length === 0 && (
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs ">
                 You don't have any assigned courses. Please contact administrator.
               </p>
             )}
@@ -617,7 +617,7 @@ export default function AssignmentReportsPage() {
         </CardHeader>
         <CardContent>
           {reportData.length === 0 ? (
-            <p className="py-4 text-center text-muted-foreground">
+            <p className="py-4 text-center ">
               No students found for this report
             </p>
           ) : (

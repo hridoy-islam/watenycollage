@@ -9,24 +9,18 @@ import {
   TableRow
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, FileText, Pen, Trash2, File, Plus } from 'lucide-react';
+import {
+  ArrowLeft,
+  FileText,
+  File,
+  Copy
+} from 'lucide-react';
 import axiosInstance from '@/lib/axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
 import { DataTablePagination } from '@/components/shared/data-table-pagination';
 import { toast } from '@/components/ui/use-toast';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger
-} from '@/components/ui/alert-dialog';
 import { useSelector } from 'react-redux';
 import {
   Tooltip,
@@ -34,45 +28,59 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/ui/tooltip';
-import AddCourseDialog from './components/AddCourseDialog ';
 
 const TeacherDetailsPage = () => {
   const { id } = useParams();
-  const [teacherCourses, setTeacherCourses] = useState([]);
-  const [allTeacherCourses, setAllTeacherCourses] = useState([]);
-  const [teacher, setTeacher] = useState({});
+  const navigate = useNavigate();
+
+  const { user } = useSelector((state: any) => state.auth);
+
+  const [teacherCourses, setTeacherCourses] = useState<any[]>([]);
+  const [allTeacherCourses, setAllTeacherCourses] = useState<any[]>([]);
+  const [teacher, setTeacher] = useState<any>({});
+
   const [currentPage, setCurrentPage] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(100);
   const [totalPages, setTotalPages] = useState(1);
+
   const [searchTerm, setSearchTerm] = useState('');
   const [initialLoading, setInitialLoading] = useState(true);
-  const [deleteCourse, setDeleteCourse] = useState(null);
-  const [alertOpen, setAlertOpen] = useState(false);
-  const navigate = useNavigate();
-  const { user } = useSelector((state: any) => state.auth);
-  const [editingCourse, setEditingCourse] = useState(null);
 
+  /**
+   * Fetch teacher information
+   */
   useEffect(() => {
     const fetchTeacherData = async () => {
       try {
         const response = await axiosInstance.get(`/users/${id}`);
+
         setTeacher(response?.data?.data || {});
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error fetching teacher data:', error);
+
         toast({
           title: 'Failed to fetch teacher details',
-          description: error?.response?.data?.message || 'Something went wrong',
-          className: 'bg-red-500 border-none text-white'
+          description:
+            error?.response?.data?.message ||
+            'Something went wrong',
+          className: 'border-none bg-red-500 text-white'
         });
       }
     };
-    fetchTeacherData();
+
+    if (id) {
+      fetchTeacherData();
+    }
   }, [id]);
 
-  const fetchData = async (page, limit) => {
+  /**
+   * Fetch teacher courses
+   */
+  const fetchData = async (page: number, limit: number) => {
     try {
       setInitialLoading(true);
-      const response = await axiosInstance.get(`/teacher-courses`, {
+
+      const response = await axiosInstance.get('/teacher-courses', {
         params: {
           teacherId: id,
           page,
@@ -81,371 +89,389 @@ const TeacherDetailsPage = () => {
       });
 
       const result = response?.data?.data?.result || [];
-      const formattedCourses = result.map((item) => ({
-        _id: item._id,
-        courseId: item.courseId?._id,
-        name: item.courseId?.name || 'N/A',
-        courseCode: item.courseId?.courseCode || '—',
-        status: item.courseId?.status,
-        termName: item.courseTermId?.name,
-        courseTermId: item.courseTermId?._id || item.courseTermId || '',
-        groupName: item.groupId?.groupName || item.groupId?.name || '-',
-        groupId: item.groupId?._id || item.groupId || '',
-        teacherId: item.teacherId
+
+    
+      const formattedCourses = result.map((item: any) => ({
+        _id: item?._id || '',
+
+        // Course
+        courseId: item?.courseId?._id || '',
+        name: item?.courseId?.name || 'N/A',
+        courseCode: item?.courseId?.courseCode || '—',
+        status: item?.courseId?.status || 'inactive',
+
+        // Intake
+        intakeId: item?.courseId?.intakeId?._id || '',
+        intakeName: item?.courseId?.intakeId?.termName || '-',
+
+        // Course Term
+        courseTermId: item?.courseTermId?._id || '',
+        termName: item?.courseTermId?.name || '-',
+        termYear: item?.courseTermId?.year || '-',
+
+        // Group
+        groupId: item?.groupId?._id || '',
+        groupName: item?.groupId?.name || '-',
+
+        // Teacher
+        teacherId: item?.teacherId?._id || '',
+        teacherName: item?.teacherId?.name || '',
+        teacherEmail: item?.teacherId?.email || ''
       }));
 
       setAllTeacherCourses(formattedCourses);
       setTeacherCourses(formattedCourses);
-      setTotalPages(response?.data?.data?.meta?.totalPage || 1);
-    } catch (error) {
+
+      setTotalPages(
+        response?.data?.data?.meta?.totalPage || 1
+      );
+    } catch (error: any) {
       console.error('Error fetching courses:', error);
+
       toast({
         title: 'Failed to fetch courses',
-        description: error?.response?.data?.message || 'Something went wrong',
-        className: 'bg-red-500 border-none text-white'
+        description:
+          error?.response?.data?.message ||
+          'Something went wrong',
+        className: 'border-none bg-red-500 text-white'
       });
     } finally {
       setInitialLoading(false);
     }
   };
 
+  /**
+   * Fetch courses whenever pagination changes
+   */
   useEffect(() => {
-    fetchData(currentPage, entriesPerPage);
+    if (id) {
+      fetchData(currentPage, entriesPerPage);
+    }
   }, [id, currentPage, entriesPerPage]);
 
-  const handleEditCourse = (course) => {
-    setEditingCourse(course);
-  };
-
-  const handleSearch = (e) => {
+  /**
+   * Search courses
+   */
+  const handleSearch = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const value = e.target.value;
+
     setSearchTerm(value);
 
-    if (value.trim() === '') {
+    if (!value.trim()) {
       setTeacherCourses(allTeacherCourses);
-    } else {
-      const filtered = allTeacherCourses.filter((course) =>
-        course.name.toLowerCase().includes(value.toLowerCase())
-      );
-      setTeacherCourses(filtered);
+      return;
     }
+
+    const searchValue = value.toLowerCase();
+
+    const filtered = allTeacherCourses.filter(
+      (course) =>
+        course?.name
+          ?.toLowerCase()
+          .includes(searchValue) ||
+        course?.courseCode
+          ?.toLowerCase()
+          .includes(searchValue) ||
+        course?.intakeName
+          ?.toLowerCase()
+          .includes(searchValue) ||
+        course?.termName
+          ?.toLowerCase()
+          .includes(searchValue) ||
+        course?.groupName
+          ?.toLowerCase()
+          .includes(searchValue)
+    );
+
+    setTeacherCourses(filtered);
   };
 
-  const handleCoursesAdded = () => {
-    setEditingCourse(null);
-    fetchData(currentPage, entriesPerPage);
-  };
-
-  const handleDelete = async () => {
-    if (!deleteCourse) return;
-
+  /**
+   * Copy application URL
+   */
+  const copyToClipboard = async (text: string) => {
     try {
-      await axiosInstance.delete(`/teacher-courses/${deleteCourse._id}`);
-
-      setTeacherCourses((prev) =>
-        prev.filter((item) => item._id !== deleteCourse._id)
-      );
-      setAllTeacherCourses((prev) =>
-        prev.filter((item) => item._id !== deleteCourse._id)
-      );
+      await navigator.clipboard.writeText(text);
 
       toast({
-        title: `"${deleteCourse.name}" has been unassigned.`,
-        className: 'bg-watney border-none text-white'
+        title: 'URL copied to clipboard',
+        className: 'border-none bg-watney text-white'
       });
     } catch (error) {
-      console.error('Failed to delete course:', error);
+      console.error('Could not copy text:', error);
+
       toast({
-        title: 'Error',
-        description:
-          error?.response?.data?.message || 'Failed to delete course',
-        className: 'bg-red-500 border-none text-white'
+        title: 'Failed to copy URL',
+        className: 'border-none bg-red-500 text-white'
       });
-    } finally {
-      setDeleteCourse(null);
-      setAlertOpen(false);
     }
   };
 
-  const handleUnit = (course) => {
-    navigate(`/dashboard/courses/${course}/unit`);
+  /**
+   * Navigate to course units
+   *
+   * Passing termId and groupId is useful because
+   * the same course can have multiple terms/groups.
+   */
+  const handleUnit = (course: any) => {
+    navigate(
+      `/dashboard/courses/${course.courseId}/unit?termId=${course.courseTermId}&groupId=${course.groupId}`
+    );
   };
 
-  const handleDocument = (course) => {
-    navigate(`/dashboard/courses/course-document/${course}`);
-  };
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text).then(
-      () => {
-        toast({
-          title: 'URL copied to clipboard',
-          className: 'bg-watney border-none text-white'
-        });
-      },
-      (err) => {
-        console.error('Could not copy text: ', err);
-        toast({
-          title: 'Failed to copy URL',
-          className: 'bg-red-500 border-none text-white'
-        });
-      }
+  const handleDocument = (course: any) => {
+    navigate(
+      `/dashboard/courses/course-document/${course.courseId}?termId=${course.courseTermId}&groupId=${course.groupId}`
     );
   };
 
   const searchAndActions = (
-    <div className="flex items-center justify-between">
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      {/* Search */}
       <Input
-        placeholder="Search courses by name..."
+        placeholder="Search courses..."
         value={searchTerm}
         onChange={handleSearch}
-        className="h-8 max-w-[250px]"
+        className="h-9 w-full sm:max-w-[280px]"
       />
-      <div className="flex items-center gap-2">
-        <Button
-          size="sm"
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-2 bg-watney text-xs text-white hover:bg-watney/90"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back
-        </Button>
-        {user.role === 'admin' && !initialLoading && (
-          <AddCourseDialog onAddCourses={handleCoursesAdded} />
-        )}
-      </div>
+
+      
     </div>
   );
 
   return (
-    <>
-      <div className="text-xs">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-6">
-            <div>
-              <CardTitle className="text-2xl font-bold">
-                {teacher?.name || 'Teacher'}'s Courses
-              </CardTitle>
+    <div className="text-xs">
+      <Card>
+        {/* Header */}
+        <CardHeader className="pb-5">
+          <div className="flex flex-col md:flex-row justify-between gap-2">
+            <CardTitle className="text-2xl font-bold ">
+              {user?.name || 'Teacher'}'s Assigned Courses
+            </CardTitle>
+ <Button
+          size="sm"
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 text-xs"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back
+        </Button>
+           
+          </div>
+        </CardHeader>
+
+        <CardContent>
+          {/* Search + Back */}
+          <div className="pb-4">
+            {searchAndActions}
+          </div>
+
+          {/* Loading */}
+          {initialLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <BlinkingDots />
             </div>
-          </CardHeader>
-          <CardContent>
-            <div className="pb-4">
-              {searchAndActions}
+          ) : teacherCourses.length === 0 ? (
+            /**
+             * Empty state
+             */
+            <div className="flex flex-col items-center justify-center py-14 text-center">
+              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
+                <FileText className="h-8 w-8 text-gray-400" />
+              </div>
+
+              <h3 className="mb-1 text-lg font-semibold ">
+                {searchTerm
+                  ? 'No courses found'
+                  : 'No courses assigned'}
+              </h3>
+
+              <p className="max-w-md text-sm ">
+                {searchTerm
+                  ? 'Try searching with a different course name, code, intake, term, or group.'
+                  : 'No courses have been assigned to this teacher yet.'}
+              </p>
             </div>
-            {initialLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <BlinkingDots />
-              </div>
-            ) : teacherCourses.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <div className="mb-4 rounded-full bg-gray-100 p-4">
-                  <svg
-                    className="h-12 w-12 text-gray-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1.5}
-                      d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                    />
-                  </svg>
-                </div>
-                <h3 className="mb-1 text-lg font-semibold text-gray-900">
-                  No courses assigned
-                </h3>
-                <p className="mb-4 text-gray-500">
-                  No courses have been assigned to this teacher yet.
-                </p>
-              </div>
-            ) : (
-              <>
+          ) : (
+            <>
+              {/* Table */}
+              <div className="overflow-x-auto ">
                 <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="text-xs">Course Code</TableHead>
-                    <TableHead className="text-xs">Course Name</TableHead>
-                    <TableHead className="text-xs">Course Term</TableHead>
-                    <TableHead className="text-xs">Group</TableHead>
-                    <TableHead className="w-32 text-right text-xs">
-                      Actions
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {teacherCourses.map((course) => (
-                    <TableRow key={course._id} className="hover:bg-gray-50">
-                      <TableCell className="text-xs font-medium">
-                        {course?.courseCode || '-'}
-                      </TableCell>
-                      <TableCell className="text-xs">
-                        <div className="flex items-center gap-2">
-                          <span>{course.name}</span>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="border-none bg-blue-100 text-blue-600 hover:bg-blue-200"
-                            onClick={() =>
-                              copyToClipboard(
-                                `${window.location.origin}/courses/apply/${course.courseId}`
-                              )
-                            }
-                            title="Copy application link"
-                          >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="16"
-                              height="16"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            >
-                              <rect
-                                x="9"
-                                y="9"
-                                width="13"
-                                height="13"
-                                rx="2"
-                                ry="2"
-                              ></rect>
-                              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                            </svg>
-                          </Button>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-xs">
-                        {course?.termName || course?.courseTermId?.name || '-'}
-                      </TableCell>
-                      <TableCell className="text-xs">
-                        {course?.groupName}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex flex-row items-center justify-end gap-2">
-                          <TooltipProvider>
-                            {user.role === 'teacher' && (
-                              <>
+                  <TableHeader>
+                    <TableRow className="bg-gray-50">
+                      <TableHead className="whitespace-nowrap text-xs font-semibold">
+                        Course Code
+                      </TableHead>
+
+                      <TableHead className="whitespace-nowrap text-xs font-semibold">
+                        Course Name
+                      </TableHead>
+
+                      <TableHead className="whitespace-nowrap text-xs font-semibold">
+                        Intake
+                      </TableHead>
+
+                      <TableHead className="whitespace-nowrap text-xs font-semibold">
+                        Course Term
+                      </TableHead>
+
+                      <TableHead className="whitespace-nowrap text-xs font-semibold">
+                        Group
+                      </TableHead>
+
+                      {/* <TableHead className="w-44 whitespace-nowrap text-right text-xs font-semibold">
+                        Actions
+                      </TableHead> */}
+                    </TableRow>
+                  </TableHeader>
+
+                  <TableBody>
+                    {teacherCourses.map((course) => (
+                      <TableRow
+                        key={course._id}
+                        className="hover:bg-gray-50"
+                      >
+                        {/* Course Code */}
+                        <TableCell className="whitespace-nowrap text-xs font-medium ">
+                          {course?.courseCode || '-'}
+                        </TableCell>
+
+                        {/* Course Name */}
+                        <TableCell className="min-w-[220px] text-xs">
+                          <div className="flex items-center gap-2">
+                            <div className="min-w-0">
+                              <p className="truncate font-medium ">
+                                {course?.name || '-'}
+                              </p>
+                            </div>
+
+                            {/* Copy Application Link */}
+                            {course?.courseId && (
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-7 w-7 shrink-0 border-none bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700"
+                                      onClick={() =>
+                                        copyToClipboard(
+                                          `${window.location.origin}/courses/apply/${course.courseId}`
+                                        )
+                                      }
+                                    >
+                                      <Copy className="h-3.5 w-3.5" />
+                                    </Button>
+                                  </TooltipTrigger>
+
+                                  <TooltipContent>
+                                    <p>
+                                      Copy application link
+                                    </p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            )}
+                          </div>
+                        </TableCell>
+
+                        {/* Intake */}
+                        <TableCell className="whitespace-nowrap text-xs">
+                          <span className="">
+                            {course?.intakeName || '-'}
+                          </span>
+                        </TableCell>
+
+                        {/* Course Term */}
+                        <TableCell className="whitespace-nowrap text-xs">
+                          <div className="flex flex-col">
+                            <span className="font-medium ">
+                              {course?.termName || '-'}
+                            </span>
+
+                          {course?.termYear && (
+  <span className="text-[11px]">
+    {course.termYear.charAt(0).toUpperCase() +
+      course.termYear.slice(1)}
+  </span>
+)}
+                          </div>
+                        </TableCell>
+
+                        {/* Group */}
+                        <TableCell className="whitespace-nowrap text-xs">
+                          <span className="inline-flex rounded-md bg-gray-100 px-2.5 py-1 font-medium ">
+                            {course?.groupName || '-'}
+                          </span>
+                        </TableCell>
+
+                        {/* Actions */}
+                        {/* <TableCell className="text-right">
+                          {user?.role === 'teacher' ? (
+                            <div className="flex items-center justify-end gap-2">
+                              <TooltipProvider>
                                 <Tooltip>
                                   <TooltipTrigger asChild>
                                     <Button
                                       variant="default"
                                       size="sm"
-                                      className="flex items-center gap-2 bg-watney text-xs text-white hover:bg-watney/90"
+                                      className="flex items-center gap-1.5 bg-watney text-xs text-white hover:bg-watney/90"
                                       onClick={() =>
-                                        handleDocument(course.courseId)
+                                        handleDocument(course)
                                       }
                                     >
-                                      <File className="h-4 w-4" />
+                                      <File className="h-3.5 w-3.5" />
                                       Document
                                     </Button>
                                   </TooltipTrigger>
+
                                   <TooltipContent>
-                                    <p>Course Document</p>
+                                    <p>
+                                      Course Documents
+                                    </p>
                                   </TooltipContent>
                                 </Tooltip>
+
                                 <Tooltip>
                                   <TooltipTrigger asChild>
                                     <Button
                                       variant="default"
                                       size="sm"
-                                      className="flex items-center gap-2 bg-watney text-xs text-white hover:bg-watney/90"
-                                      onClick={() => handleUnit(course.courseId)}
+                                      className="flex items-center gap-1.5 bg-watney text-xs text-white hover:bg-watney/90"
+                                      onClick={() =>
+                                        handleUnit(course)
+                                      }
                                     >
-                                      <FileText className="h-4 w-4" />
+                                      <FileText className="h-3.5 w-3.5" />
                                       Units
                                     </Button>
                                   </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>Units</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </>
-                            )}
 
-                            {user.role === 'admin' && (
-                              <>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <AddCourseDialog
-                                      onAddCourses={handleCoursesAdded}
-                                      editCourse={course}
-                                    />
-                                  </TooltipTrigger>
                                   <TooltipContent>
-                                    <p>Edit course assignment</p>
+                                    <p>Course Units</p>
                                   </TooltipContent>
                                 </Tooltip>
+                              </TooltipProvider>
+                            </div>
+                          ) : (
+                            <span className="text-xs text-gray-400">
+                              No actions
+                            </span>
+                          )}
+                        </TableCell> */}
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
 
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <AlertDialog
-                                      open={
-                                        alertOpen &&
-                                        deleteCourse?._id === course._id
-                                      }
-                                      onOpenChange={(open) => {
-                                        if (!open) setDeleteCourse(null);
-                                        setAlertOpen(open);
-                                      }}
-                                    >
-                                      <AlertDialogTrigger asChild>
-                                        <Button
-                                          variant="destructive"
-                                          size="sm"
-                                          className="flex items-center gap-2 text-xs"
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            setDeleteCourse(course);
-                                            setAlertOpen(true);
-                                          }}
-                                        >
-                                          <Trash2 className="h-4 w-4" />
-                                          Delete
-                                        </Button>
-                                      </AlertDialogTrigger>
-                                      <AlertDialogContent>
-                                        <AlertDialogHeader>
-                                          <AlertDialogTitle>
-                                            Are you sure?
-                                          </AlertDialogTitle>
-                                          <AlertDialogDescription>
-                                            This action cannot be undone. Delete "
-                                            {deleteCourse?.name}"?
-                                          </AlertDialogDescription>
-                                        </AlertDialogHeader>
-                                        <AlertDialogFooter>
-                                          <AlertDialogCancel>
-                                            Cancel
-                                          </AlertDialogCancel>
-                                          <AlertDialogAction
-                                            onClick={handleDelete}
-                                            className="bg-destructive text-white hover:bg-destructive/90"
-                                          >
-                                            Delete
-                                          </AlertDialogAction>
-                                        </AlertDialogFooter>
-                                      </AlertDialogContent>
-                                    </AlertDialog>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>Delete course</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </>
-                            )}
-                          </TooltipProvider>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              {/* Pagination */}
               {totalPages > 1 && (
-                <div className="flex items-center justify-end gap-2 pt-2">
+                <div className="flex items-center justify-end gap-2 pt-4">
                   <DataTablePagination
                     pageSize={entriesPerPage}
                     setPageSize={setEntriesPerPage}
@@ -455,12 +481,11 @@ const TeacherDetailsPage = () => {
                   />
                 </div>
               )}
-              </>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-    </>
+            </>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

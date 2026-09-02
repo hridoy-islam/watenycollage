@@ -18,9 +18,12 @@ export interface LearningOutcomeItem {
 export interface FormData {
   title?: string;
   content?: string;
-  deadline?: Date;
+  startDate?: Date | null;
+  finalDeadline?: Date | null;
   learningOutcomes?: string;
   assessmentCriteria: LearningOutcomeItem[];
+  finalFeedback?: boolean;
+  observation?: boolean;
 }
 
 export interface Resource {
@@ -30,12 +33,16 @@ export interface Resource {
   content?: string;
   fileUrl?: string;
   fileName?: string;
-  deadline?: string;
+  startDate?: string;
+  finalDeadline?: string;
   learningOutcomes?: string;
   isFinalFeedback?: boolean;
   isObservationFeedback?: boolean;
+  finalFeedback?: boolean;
+  observation?: boolean;
   description?: string;
   assessmentCriteria?: LearningOutcomeItem[];
+  unitId?: string;
 }
 
 export interface UploadState {

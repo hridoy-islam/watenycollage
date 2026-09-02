@@ -3,7 +3,7 @@ import moment from 'moment';
 import clsx from 'clsx';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
 import axiosInstance from '@/lib/axios';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
@@ -263,6 +263,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
   const [dashboardLoading, setDashboardLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalAssignment, setTotalAssignment] = useState(0);
   const [entriesPerPage, setEntriesPerPage] = useState(100);
   const [pendingFeedbackCount, setPendingFeedbackCount] = useState(0);
   const [totalApplication, setTotalApplication] = useState(0);
@@ -298,62 +299,66 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
       const appRes = await axiosInstance.get(
         `/application-course?studentId=${user._id}&limit=all`
       );
-      
+
       const appData = appRes.data?.data || {};
-      const applicationsData = Array.isArray(appData.result) ? appData.result : [];
+      const applicationsData = Array.isArray(appData.result)
+        ? appData.result
+        : [];
 
-      const courseIds = applicationsData.map((app: Application) => app.courseId._id);
-
-      const unitMaterialPromises = courseIds.map((courseId: string) => 
-        axiosInstance.get(`/unit-material?courseId=${courseId}&limit=all`)
+      const courseIds = applicationsData.map(
+        (app: Application) => app.courseId._id
       );
 
-      const unitMaterialResponses = await Promise.allSettled(unitMaterialPromises);
-      
-      const courseAssignmentCounts: { [key: string]: number } = {};
-      
-      unitMaterialResponses.forEach((response, index) => {
-        const courseId = courseIds[index];
-        if (response.status === 'fulfilled') {
-          const unitMaterials: UnitMaterial[] = response.value.data?.data?.result || [];
-          let assignmentCount = 0;
-          
-          unitMaterials.forEach((unitMaterial: UnitMaterial) => {
-            if (unitMaterial.assignments && Array.isArray(unitMaterial.assignments)) {
-              assignmentCount += unitMaterial.assignments.length;
-            }
-          });
-          
-          courseAssignmentCounts[courseId] = assignmentCount;
-        } else {
-          console.error(`Failed to fetch unit materials for course ${courseId}:`, response.reason);
-          courseAssignmentCounts[courseId] = 0;
+      const fetchAssignmentsData = async (
+        filterParams: Record<string, string> = {}
+      ) => {
+        try {
+          const params: Record<string, string> = {
+            limit: '1',
+            ...filterParams
+          };
+          const res = await axiosInstance.get(
+            `/assignment/student-assignments/${user._id}`,
+            { params }
+          );
+          setTotalAssignment(res.data.data.meta.total);
+        } catch (err) {
+          console.error('Failed to fetch assignments:', err);
+          return { meta: { total: 0 }, result: [] };
         }
-      });
+      };
 
-      const applicationsWithCounts = applicationsData.map((application: Application) => ({
-        ...application,
-        assignmentCount: courseAssignmentCounts[application.courseId._id] || 0
-      }));
+      const fetchFeedbackData = async () => {
+        try {
+          const res = await axiosInstance.get(
+            `/assignment/student-feedback/${user._id}?limit=1`
+          );
+          setPendingFeedbackCount(res.data.data.meta.total);
+        } catch (err) {
+          console.error('Failed to fetch feedback:', err);
+          return { meta: { total: 0 }, result: [] };
+        }
+      };
+
+      const [assignmentData, feedbackData] = await Promise.all([
+        fetchAssignmentsData(),
+        fetchFeedbackData()
+      ]);
+
+      // For total assignments, use the assignment endpoint meta total
+      // (If using limit 1, meta.total is the full count)
+      setTotalApplication(appData.meta?.total || 0);
+
+      const applicationsWithCounts = applicationsData.map(
+        (application: Application) => ({
+          ...application,
+          assignmentCount: 0
+        })
+      );
 
       setApplications(applicationsWithCounts);
       setTotalApplication(appData.meta?.total || 0);
       setTotalPages(appData.meta?.totalPage || 1);
-
-      try {
-        const pendingFeedbackRes = await axiosInstance.get(
-          `/assignment/student-feedback/${user._id}?limit=all`
-        );
-        const pendingData: Assignment[] = pendingFeedbackRes.data?.data?.meta.total || 0;
-        
-        const finalCount = pendingData as any;
-        setPendingFeedbackCount(finalCount);
-        
-      } catch (feedbackError) {
-        console.error('Error fetching pending feedback:', feedbackError);
-        setPendingFeedbackCount(0);
-      }
-
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
       toast({
@@ -371,7 +376,10 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
 
   useEffect(() => {
     if (applications.length > 0) {
-      const totalAssignments = applications.reduce((total, app) => total + (app.assignmentCount || 0), 0);
+      const totalAssignments = applications.reduce(
+        (total, app) => total + (app.assignmentCount || 0),
+        0
+      );
     }
   }, [applications]);
 
@@ -570,10 +578,13 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
     fetchAll();
   }, [hasCourses, courses, user._id, weekDays]);
 
-  const slotMap = useMemo(() => buildSlotMap(classes, weekDays), [
-    classes,
-    weekDays
-  ]);
+  const slotMap = useMemo(
+    () => buildSlotMap(classes, weekDays),
+    [classes, weekDays]
+  );
+
+    const isCompleted = user?.isCompleted;
+
 
   const stats = useMemo(() => {
     const present = classes.filter((c) => c.status === 'present').length;
@@ -607,7 +618,11 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
           : status;
     switch (status) {
       case 'approved':
-        return { label, badge: 'bg-emerald-100 text-emerald-700', viewable: true };
+        return {
+          label,
+          badge: 'bg-emerald-100 text-emerald-700',
+          viewable: true
+        };
       case 'applied':
         return { label, badge: 'bg-blue-100 text-blue-700', viewable: false };
       case 'cancelled':
@@ -627,205 +642,31 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
     );
   }
 
-  const totalAssignments = applications.reduce((total, app) => total + (app.assignmentCount || 0), 0);
-
   return (
-    <Card className="min-w-0 w-full max-w-full flex-1 border-none shadow-sm">
+    <Card className="w-full min-w-0 max-w-full flex-1 border-none shadow-sm">
       <CardHeader>
         <CardTitle className="text-xl font-bold text-gray-800">
-         {user?.name && (
-                  <p className="text-2xl font-bold text-gray-800">
-                    Welcome, <span className="text-watney">{user.name}</span>
-                  </p>
-                )}
+        <CardTitle className="text-xl font-bold text-gray-800">
+  {user?.name && (
+    <p className="text-2xl font-bold text-gray-800">
+      Welcome,{" "}
+      {isCompleted ? (
+        <Link
+          to="/dashboard/profile"
+          className="cursor-pointer text-watney"
+        >
+          {user.name}
+        </Link>
+      ) : (
+        <span className="text-watney">{user.name}</span>
+      )}
+    </p>
+  )}
+</CardTitle>
         </CardTitle>
       </CardHeader>
-      
+
       <CardContent className="space-y-3">
-        {/* ── Enrolled Courses (Desktop) ── */}
-        <div className="hidden overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm md:block">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 px-5 py-4">
-            <div>
-              <h2 className="text-base font-bold text-gray-800">My Courses</h2>
-              {/* <p className="text-xs text-gray-500">
-                All your application statuses in one place
-              </p> */}
-            </div>
-           
-          </div>
-          <div className="overflow-x-auto">
-            <Table className="min-w-full">
-              <TableHeader className="bg-slate-50">
-                <TableRow className="hover:bg-transparent">
-                  <TableHead className="h-11 text-[11px] font-semibold uppercase tracking-wider text-gray-500">
-                    Course Name
-                  </TableHead>
-                  <TableHead className="h-11 text-[11px] font-semibold uppercase tracking-wider text-gray-500">
-                    Intake
-                  </TableHead>
-                  <TableHead className="h-11 text-[11px] font-semibold uppercase tracking-wider text-gray-500">
-                    Applied On
-                  </TableHead>
-                  <TableHead className="h-11 text-[11px] font-semibold uppercase tracking-wider text-gray-500">
-                    Status
-                  </TableHead>
-                  <TableHead className="h-11 text-right text-[11px] font-semibold uppercase tracking-wider text-gray-500">
-                    Details
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody className="divide-y divide-gray-50">
-                {applications.length > 0 ? (
-                  applications.map((application) => {
-                    const st = applicationStatusStyle(application.status);
-                    return (
-                      <TableRow
-                        key={application._id}
-                        className="group transition-colors hover:bg-slate-50/60"
-                      >
-                        <TableCell>
-                          <div className="flex min-w-0 items-center gap-3">
-                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-watney/10 text-watney transition-colors group-hover:bg-watney/15">
-                              <BookOpen className="h-5 w-5" />
-                            </div>
-                            <div className="min-w-0">
-                              <div className="truncate text-sm font-semibold text-gray-800">
-                                {application.courseId?.name || 'Unnamed'}
-                              </div>
-                              {/* <div className="text-xs text-gray-500">
-                                {application.assignmentCount
-                                  ? `${application.assignmentCount} assignment${application.assignmentCount === 1 ? '' : 's'}`
-                                  : 'No assignments yet'}
-                              </div> */}
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-sm text-gray-600">
-                          {application.intakeId?.termName || '—'}
-                        </TableCell>
-                        <TableCell className="whitespace-nowrap text-sm text-gray-600">
-                          {moment(application.createdAt).format('DD MMM YYYY')}
-                        </TableCell>
-                        <TableCell>
-                          <Badge className={st.badge}>{st.label}</Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {st.viewable ? (
-                            <Button
-                              size="sm"
-                              onClick={() =>
-                                navigate(
-                                  `/dashboard/courses/${application.courseId._id}/unit`
-                                )
-                              }
-                              className="font-medium text-white bg-watney hover:bg-watney/95 "
-                            >
-                              <FileText className="mr-1.5 h-3.5 w-3.5" /> View
-                            </Button>
-                          ) : (
-                            <span className="text-xs text-gray-400">
-                              Not available
-                            </span>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })
-                ) : (
-                  <TableRow>
-                    <TableCell
-                      colSpan={5}
-                      className="h-32 text-center"
-                    >
-                      <GraduationCap className="mx-auto mb-2 h-9 w-9 text-gray-300" />
-                      <p className="text-sm font-medium text-gray-600">
-                        No applications found
-                      </p>
-                      <p className="text-xs text-gray-400">
-                        Once you apply, your courses will appear here.
-                      </p>
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </div>
-
-        {/* ── Enrolled Courses (Mobile) ── */}
-    <div className="grid gap-3 md:hidden">
-  <div className="flex items-center justify-between px-1">
-    <h2 className="text-base font-bold text-gray-800 sm:text-lg">My Courses</h2>
-  </div>
-  
-  {applications.length > 0 ? (
-    applications.map((application) => {
-      const st = applicationStatusStyle(application.status);
-      return (
-        <div
-          key={application._id}
-          className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm hover:shadow-md transition-shadow"
-        >
-          {/* Course Info */}
-          <div className="flex items-start gap-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-watney/10 text-watney">
-              <BookOpen className="h-5 w-5" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <h3 className="text-sm font-semibold text-gray-800 truncate">
-                {application.courseId?.name || 'Unnamed Course'}
-              </h3>
-              <p className="text-xs text-gray-500">
-                {application.intakeId?.termName || 'Intake not set'}
-              </p>
-              <p className="text-xs text-gray-400 mt-0.5">
-                Applied {moment(application.createdAt).format('DD MMM YYYY')}
-              </p>
-            </div>
-          </div>
-
-          {/* Status & Action */}
-          <div className="mt-3 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 border-t border-gray-100 pt-3">
-            <div className="flex-1">
-              <Badge className={`${st.badge} w-full sm:w-auto justify-center`}>
-                {st.label}
-              </Badge>
-            </div>
-            
-            {st.viewable ? (
-              <Button
-                size="sm"
-                onClick={() =>
-                  navigate(
-                    `/dashboard/courses/${application.courseId._id}/unit`
-                  )
-                }
-                className="w-full sm:w-auto bg-watney text-white hover:bg-watney/90 text-xs sm:text-sm"
-              >
-                <FileText className="mr-1.5 h-3.5 w-3.5" /> 
-                View Course
-              </Button>
-            ) : (
-              <span className="text-xs text-gray-400 text-center sm:text-left">
-                Not available
-              </span>
-            )}
-          </div>
-        </div>
-      );
-    })
-  ) : (
-    <div className="rounded-xl border border-dashed border-gray-200 bg-white p-6 text-center">
-      <GraduationCap className="mx-auto mb-2 h-8 w-8 text-gray-300" />
-      <p className="text-sm font-medium text-gray-600">
-        No applications found
-      </p>
-      <p className="text-xs text-gray-400">
-        Once you apply, your courses will appear here.
-      </p>
-    </div>
-  )}
-</div>
         {/* ── Overview Stats ── */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           {/* Total Assignments Card */}
@@ -850,7 +691,33 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
               <ChevronRight className="h-4 w-4 text-gray-300 transition-transform group-hover:translate-x-0.5 group-hover:text-watney" />
             </div>
             <p className="mt-4 text-3xl font-bold text-gray-900">
-              {totalAssignments}
+              {totalAssignment}
+            </p>
+          </div>
+
+          {/* My Course Card */}
+          <div
+            onClick={() => navigate('/dashboard/my-courses')}
+            className="group cursor-pointer rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-watney/30 hover:shadow-md"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-50 text-amber-600 transition-colors group-hover:bg-amber-100">
+                  <BookOpen className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-gray-700">
+                    My Course
+                  </p>
+                  <p className="text-[11px] text-gray-400">
+                    Total applications
+                  </p>
+                </div>
+              </div>
+              <ChevronRight className="h-4 w-4 text-gray-300 transition-transform group-hover:translate-x-0.5 group-hover:text-watney" />
+            </div>
+            <p className="mt-4 text-3xl font-bold text-gray-900">
+              {totalApplication}
             </p>
           </div>
 
@@ -868,9 +735,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                   <p className="text-sm font-semibold text-gray-700">
                     Assignment Feedbacks
                   </p>
-                  <p className="text-[11px] text-gray-400">
-                    Pending review
-                  </p>
+                  <p className="text-[11px] text-gray-400">Pending review</p>
                 </div>
               </div>
               <ChevronRight className="h-4 w-4 text-gray-300 transition-transform group-hover:translate-x-0.5 group-hover:text-watney" />
@@ -882,7 +747,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
         </div>
 
         {/* Student Class Routine & Attendance */}
-        <div className="w-full max-w-full min-w-0 overflow-hidden border border-gray-200 rounded-lg bg-white">
+        <div className="w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-gray-200 bg-white">
           <div className="flex flex-col gap-4 p-5">
             {/* Header */}
             <div className="flex flex-wrap items-center justify-between gap-3">
@@ -892,9 +757,8 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                 </div>
                 <div>
                   <h2 className="text-lg font-bold text-gray-800">
-                   Class Routine & Attendance
+                    Class Routine & Attendance
                   </h2>
-                 
                 </div>
               </div>
             </div>
@@ -962,7 +826,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                   {!isCustomMode && (
                     <>
                       <Button
-                      variant="outline"
+                        variant="outline"
                         className="h-8 rounded-md border border-gray-200 px-3 text-xs font-semibold transition-colors"
                         onClick={goThisWeek}
                       >
@@ -979,7 +843,8 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                 </div>
 
                 <span className="text-xs text-gray-400">
-                  {classes.length} class{classes.length === 1 ? '' : 'es'} in range
+                  {classes.length} class{classes.length === 1 ? '' : 'es'} in
+                  range
                 </span>
               </div>
             )}
@@ -1021,7 +886,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                     <div className="flex justify-center py-8">
                       <BlinkingDots size="small" color="bg-watney" />
                     </div>
-                  )  : (
+                  ) : (
                     <div className="relative max-h-[650px] w-full min-w-0 max-w-full overflow-auto rounded-sm border border-gray-300 bg-white shadow-sm">
                       <table className="w-max min-w-full border-collapse text-sm">
                         <thead className="sticky top-0 z-30 bg-slate-50">
@@ -1084,7 +949,9 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                                 if (slot && !slot.isStart) return null;
 
                                 const today = isToday(weekDays[di]);
-                                const wknd = [0, 6].includes(weekDays[di].getDay());
+                                const wknd = [0, 6].includes(
+                                  weekDays[di].getDay()
+                                );
                                 const cellCls = `border-b border-r border-gray-200 p-0 align-top transition-colors relative ${
                                   today
                                     ? 'bg-blue-50/20'
@@ -1136,21 +1003,28 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                                         style={{
                                           top: topPx + 2,
                                           height: Math.max(heightPx - 4, 32),
-                                          borderLeft: meta ? `3px solid ${meta.hex}` : '3px solid #e5e7eb'
+                                          borderLeft: meta
+                                            ? `3px solid ${meta.hex}`
+                                            : '3px solid #e5e7eb'
                                         }}
                                       >
                                         <div className="flex h-full select-none flex-col justify-start overflow-hidden">
                                           <div className="flex shrink-0 items-center gap-1 whitespace-nowrap text-[9px] font-semibold text-black">
                                             <Clock
                                               className="h-2.5 w-2.5 shrink-0"
-                                              style={{ color: meta ? meta.hex : '#9ca3af' }}
+                                              style={{
+                                                color: meta
+                                                  ? meta.hex
+                                                  : '#9ca3af'
+                                              }}
                                             />
                                             {entry.startTime} – {entry.endTime}
                                           </div>
                                           <div className="mt-0.5 shrink-0 truncate text-[11px] font-bold text-black">
                                             {entry.courseName || 'Course'}
                                           </div>
-                                          {(entry.groupName || entry.termName) && (
+                                          {(entry.groupName ||
+                                            entry.termName) && (
                                             <div className="mt-0.5 shrink-0 truncate text-[9px] text-black/60">
                                               {[entry.groupName, entry.termName]
                                                 .filter(Boolean)
@@ -1169,12 +1043,14 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                                             <div
                                               className={clsx(
                                                 'mt-auto flex shrink-0 items-center gap-1 pt-1 text-[9px] font-bold',
-                                              meta.text
+                                                meta.text
                                               )}
                                             >
                                               <span
                                                 className="h-1.5 w-1.5 shrink-0 rounded-full"
-                                                style={{ backgroundColor: meta.hex }}
+                                                style={{
+                                                  backgroundColor: meta.hex
+                                                }}
                                               />
                                               {meta.label}
                                             </div>
@@ -1252,7 +1128,9 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                                       </div>
                                     )}
                                   </TableCell>
-                                  <TableCell>{cls.teacherName || '—'}</TableCell>
+                                  <TableCell>
+                                    {cls.teacherName || '—'}
+                                  </TableCell>
                                   <TableCell>
                                     {meta ? (
                                       <span
@@ -1314,7 +1192,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                   )}
                 </DialogHeader>
 
-                <div className="border border-gray-200 shadow-none rounded-lg bg-white">
+                <div className="rounded-lg border border-gray-200 bg-white shadow-none">
                   <div className="divide-y divide-gray-100 px-4 py-1">
                     {statusOf(selectedEntry.status) && (
                       <div className="flex items-center justify-between gap-3 py-3">
@@ -1330,7 +1208,10 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                         >
                           <span
                             className="h-2 w-2 rounded-full"
-                            style={{ backgroundColor: statusOf(selectedEntry.status)!.hex }}
+                            style={{
+                              backgroundColor: statusOf(selectedEntry.status)!
+                                .hex
+                            }}
                           />
                           {statusOf(selectedEntry.status)!.label}
                         </span>

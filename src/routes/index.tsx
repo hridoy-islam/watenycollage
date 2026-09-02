@@ -47,6 +47,7 @@ import CourseUnitPage from '@/pages/courseUnit';
 import CourseModule from '@/pages/courseUnit/courseResource';
 import CourseResource from '@/pages/courseUnit/courseResource';
 import AssignmentDetailPage from '@/pages/assignment/assignmentDetails';
+import MyCoursesPage from '@/pages/myCourses';
 import { AssignmentFeedbackList } from '@/pages/pendingAssignmentFeedback';
 import { StudentAssignmentFeedbackList } from '@/pages/pendingAssignmentFeedbackStudent';
 import { StudentAssignmentsPage } from '@/pages/studentAssignmentList';
@@ -59,6 +60,7 @@ import ReportPage from '@/pages/report';
 import TeacherProfile from '@/pages/profile/profile-teacher';
 import AttendancePage from '@/pages/staff-attendance';
 import AssignmentReportsPage from '@/pages/assignmentReport';
+import StudentRoutinePage from '@/pages/student-routine';
 import StudentVerificationPage from '@/pages/studentVerification';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
 
@@ -81,7 +83,7 @@ export default function AppRouter() {
       path: '/dashboard',
       element: (
         <AdminLayout>
-          <ProtectedRoute allowedRoles={['admin', 'teacher']}>
+          <ProtectedRoute allowedRoles={['admin', 'teacher', 'employee']}>
             <Suspense fallback={<div><BlinkingDots/></div>}>
               <Outlet />
             </Suspense>
@@ -90,6 +92,9 @@ export default function AppRouter() {
       ),
       children: [
         { element: <DashboardPage />, index: true },
+        { path: 'my-courses', element: withRole(<MyCoursesPage />, ['admin', 'teacher', 'student']) },
+        { path: 'my-courses/:id/terms/:tid/groups/:gid/units', element: withRole(<CourseUnitPage />, ['admin', 'teacher', 'student']) },
+        { path: 'my-courses/:id/terms/:tid/groups/:gid/units/:unitId', element: withRole(<CourseResource />, ['admin', 'teacher', 'student']) },
         { path: 'profile', element: <ProfilePage /> },
         { path: 'eu/student-form', element: withRole(<HomeStudentApplication />, ['admin']) },
         { path: 'international/student-form', element: withRole(<InternationalStudentApplication />, ['admin']) },
@@ -148,6 +153,9 @@ export default function AppRouter() {
       ),
       children: [
         { element: withRole(<DashboardPage />, ['student','applicant']), index: true },
+        { path: 'my-courses', element: withRole(<MyCoursesPage />, ['student']) },
+        { path: 'my-courses/:id/terms/:tid/groups/:gid/units', element: withRole(<CourseUnitPage />, ['student']) },
+        { path: 'my-courses/:id/terms/:tid/groups/:gid/units/:unitId', element: withRole(<CourseResource />, ['student']) },
         { path: 'profile', element: withRole(<ProfilePage />, ['student','applicant']) },
         { path: 'eu/student-form', element: withRole(<HomeStudentApplication />, ['student']) },
         { path: 'international/student-form', element: withRole(<InternationalStudentApplication />, ['student']) },
@@ -173,7 +181,8 @@ export default function AppRouter() {
         { path: 'student-guideline', element: withRole(<StudentGuideline />, ['student']) },
         { path: 'student-applications', element: withRole(<StudentApplicationsPage />, ['student']) },
         { path: 'student-applications/:id/assignment/:studentId', element: withRole(<AssignmentPage />, ['student']) },
-        { path: 'student-applications/:id/assignment/:studentId/unit-assignments/:unitId', element: withRole(<AssignmentDetailPage />, ['student']) }
+        { path: 'student-applications/:id/assignment/:studentId/unit-assignments/:unitId', element: withRole(<AssignmentDetailPage />, ['student']) },
+        { path: 'student-routine', element: withRole(<StudentRoutinePage />, ['student']) }
       ]
     }
   ];
@@ -194,7 +203,7 @@ export default function AppRouter() {
   // 2. Select route set based on active role
   let authenticatedRoutes:any = [];
   
-  if (role === 'admin' || role === 'teacher') {
+  if (role === 'admin' || role === 'employee' || role === 'teacher') {
     authenticatedRoutes = adminRoutes;
   } else if (role === 'student' || role === 'applicant') {
     authenticatedRoutes = studentRoutes;

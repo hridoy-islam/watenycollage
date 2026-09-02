@@ -586,18 +586,18 @@ export function AssignmentFeedbackList() {
             <div className="py-4 text-center text-red-500">{error}</div>
           ) : !hasSearched ? (
             <div className="flex flex-col items-center justify-center py-8 text-center">
-              <FileText className="mb-4 h-12 w-12 text-muted-foreground" />
+              <FileText className="mb-4 h-12 w-12 " />
               <h3 className="text-lg font-semibold">
                 Set filters and click "Search"
               </h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm ">
                 Select course, term, unit, assignment, or student to view
                 submissions.
               </p>
             </div>
           ) : assignmentList.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 text-center">
-              <FileText className="mb-4 h-12 w-12 text-muted-foreground" />
+              <FileText className="mb-4 h-12 w-12 " />
               <h3 className="text-lg font-semibold">No submissions found</h3>
             </div>
           ) : (
@@ -620,7 +620,7 @@ export function AssignmentFeedbackList() {
                       onClick={() => handleViewAssignment(assignment)}
                     >
                       <div className="flex items-center gap-2">
-                        <BookOpen className="h-4 w-4 text-muted-foreground" />
+                        <BookOpen className="h-4 w-4 " />
                         {assignment.applicationId?.courseId?.name || 'N/A'}
                       </div>
                     </TableCell>
@@ -629,7 +629,7 @@ export function AssignmentFeedbackList() {
                       onClick={() => handleViewAssignment(assignment)}
                     >
                       <div className="flex items-center gap-2">
-                        <BookOpen className="h-4 w-4 text-muted-foreground" />
+                        <BookOpen className="h-4 w-4 " />
                         {assignment.applicationId?.intakeId?.termName || 'N/A'}
                       </div>
                     </TableCell>
@@ -644,12 +644,12 @@ export function AssignmentFeedbackList() {
                       onClick={() => handleViewAssignment(assignment)}
                     >
                       <div className="flex items-center gap-2">
-                        <User className="h-4 w-4 text-muted-foreground" />
+                        <User className="h-4 w-4 " />
                         <div>
                           <div className="font-medium">
                             {getStudentName(assignment)}
                           </div>
-                          <div className="text-xs text-muted-foreground">
+                          <div className="text-xs ">
                             {assignment.studentId?.email}
                           </div>
                         </div>
@@ -660,7 +660,7 @@ export function AssignmentFeedbackList() {
                       onClick={() => handleViewAssignment(assignment)}
                     >
                       <div className="flex items-center gap-2">
-                        <FileText className="h-4 w-4 text-muted-foreground" />
+                        <FileText className="h-4 w-4 " />
                         {getAssignmentTitle(assignment)}
                       </div>
                     </TableCell>

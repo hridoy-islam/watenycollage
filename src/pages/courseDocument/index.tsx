@@ -720,7 +720,7 @@ const CourseDocumentPage = () => {
               <TableRow>
                 <TableCell
                   colSpan={4}
-                  className="py-8 text-center text-muted-foreground"
+                  className="py-8 text-center "
                 >
                   No documents uploaded yet.
                 </TableCell>

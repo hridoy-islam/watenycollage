@@ -19,12 +19,15 @@ import {
   UserCheck,
   Menu,
   X,
+  User,
+  CalendarClock,
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 
 const adminLinks = [
+  { path: '/dashboard/my-courses', label: 'My Courses', icon: BookOpen },
   { path: '/dashboard/student-applications', label: 'Student Applications', icon: Users },
   { path: '/dashboard/courses', label: 'Course', icon: BookOpen },
   { path: '/dashboard/assignments-feedback', label: 'Assignment', icon: ClipboardList },
@@ -44,15 +47,24 @@ export function SideNav() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const teacherLinks = [
-    { path: `/dashboard/teachers/courses/${user?._id}`, label: 'Courses', icon: BookOpen },
+    { path: '/dashboard/my-courses', label: 'My Courses', icon: BookOpen },
+    // { path: `/dashboard/teachers/courses/${user?._id}`, label: 'Courses', icon: BookOpen },
     { path: '/dashboard/teacher-assignments-feedback', label: 'Feedbacks', icon: MessageSquare },
     { path: '/dashboard/teacher/student-applications', label: 'Students', icon: Users },
-    { path: '/dashboard/attendance', label: 'Attendance', icon: UserCheck },
+    { path: '/dashboard/profile', label: 'Profile', icon: User },
+  ];
+
+  const studentLinks = [
+    { path: '/dashboard/my-courses', label: 'My Courses', icon: BookOpen },
+    { path: '/dashboard/student-routine', label: 'Class Routine', icon: CalendarClock },
+    { path: '/dashboard/student-assignments', label: 'Assignments', icon: ClipboardList },
+    { path: '/dashboard/student-assignments-feedback', label: 'Feedbacks', icon: MessageSquare },
+    { path: '/dashboard/profile', label: 'My Profile', icon: User },
   ];
 
   const navItems = [
     ...(isCompleted ? [{ path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard }] : []),
-    ...(user?.role === 'admin' ? adminLinks : user?.role === 'teacher' ? teacherLinks : []),
+    ...(user?.role === 'admin' ? adminLinks : user?.role === 'teacher'||'employee' ? teacherLinks : user?.role === 'student' || user?.role === 'applicant' ? studentLinks : []),
   ];
 
   const handleLogout = async () => {
@@ -64,19 +76,25 @@ export function SideNav() {
     // ✅ w-56 = 224px — must match lg:pl-56 in AdminLayout
     <aside className="flex h-full w-56 flex-col border-r border-gray-100 bg-white shadow-lg">
       {/* Header / Logo */}
-      <div className="flex h-16 flex-shrink-0 items-center gap-3 border-b border-gray-100 px-5">
-        {isCompleted ? (
-          <a href="/dashboard" className="flex items-center gap-3">
-            <img src={logo} className="h-10 w-10 object-contain" alt="Logo" />
-          </a>
-        ) : (
-          <div className="flex items-center gap-3">
-            <img src={logo} className="h-10 w-10 object-contain" alt="Logo" />
-            <span className="text-base font-bold text-gray-800 tracking-tight">Dashboard</span>
-          </div>
-        )}
-      </div>
-
+      <div className="flex h-20 flex-shrink-0 items-center justify-center px-5">
+  {isCompleted ? (
+    <a href="/dashboard" className="flex items-center">
+      <img
+        src={logo}
+        className="h-14 w-14 object-contain"
+        alt="Logo"
+      />
+    </a>
+  ) : (
+    <div className="flex items-center">
+      <img
+        src={logo}
+        className="h-14 w-14  object-contain"
+        alt="Logo"
+      />
+    </div>
+  )}
+</div>
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-0.5 scrollbar-thin scrollbar-thumb-gray-100 hover:scrollbar-thumb-gray-200">
         {navItems.map(({ path, label, icon: Icon }) => (
@@ -108,12 +126,12 @@ export function SideNav() {
             {user?.name}
           </span>
           <div className="flex items-center justify-between">
-            <span className="text-[9px] text-gray-500 truncate max-w-[130px]">{user?.email}</span>
-            {isCompleted && (
+            <span className="text-[9px] text-gray-600  max-w-[130px]">{user?.email}</span>
+            {/* {isCompleted && (
               <span className="text-[11px] font-medium text-watney hover:underline">
                 My Profile
               </span>
-            )}
+            )} */}
           </div>
         </div>
 

@@ -123,7 +123,7 @@ const isValidImageUrl = (url) => {
             className="h-32 w-32 md:h-44 md:w-44 border-2 border-gray-300 object-cover rounded-md"
           />
         </div>
-        <p className="max-w-xs text-center text-sm text-muted-foreground">
+        <p className="max-w-xs text-center text-sm ">
           Example: A well-lit headshot with a neutral background in
           business attire.
         </p>

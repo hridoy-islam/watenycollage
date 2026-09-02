@@ -8,12 +8,63 @@ import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import VerifyPage from '../auth/verify';
 import { TeacherDashboard } from './rolewise-dashboard/teacher-dashboard';
+import axiosInstance from '@/lib/axios';
 
 export default function DashboardPage() {
   const { user } = useSelector((state: any) => state.auth);
   const [loading, setLoading] = useState(false);
+  const [isTeacherDesignation, setIsTeacherDesignation] = useState(false);
+  const [designationChecked, setDesignationChecked] = useState(false);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const hasDesignations =
+      user?.designationId &&
+      Array.isArray(user.designationId) &&
+      user.designationId.length > 0;
+
+    if (!hasDesignations) {
+      setDesignationChecked(true);
+      return;
+    }
+
+    let cancelled = false;
+
+    const fetchDesignations = async () => {
+      const results = await Promise.all(
+        user.designationId.map(async (id: any) => {
+          try {
+            const idStr = (typeof id === 'string' ? id : id?._id || id).toString();
+            if (!idStr) return null;
+            const res = await axiosInstance.get(`/designation/${idStr}`);
+            const data = res?.data?.data || res?.data || {};
+            // backend may label this field either `title` or `name`
+            const label = (data?.title ?? data?.name ?? '').toString();
+            return label.trim().toLowerCase();
+          } catch (err) {
+            console.error('Failed to fetch designation:', err);
+            return null;
+          }
+        })
+      );
+
+      if (cancelled) return;
+
+      if (results.some((t) => t === 'teacher')) {
+        setIsTeacherDesignation(true);
+      }
+      setDesignationChecked(true);
+    };
+
+    fetchDesignations();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
+
+  console.log('User data in DashboardPage:', user);
   useEffect(() => {
     if (user && user.isValided) {
       if (!user.authorized) {
@@ -39,7 +90,10 @@ export default function DashboardPage() {
     }
   }, [user, navigate]);
 
-  if (loading) {
+  const showSkeleton =
+    loading || (user?.role === 'employee' && !designationChecked);
+
+  if (showSkeleton) {
     return (
       <div className="flex-1 space-y-4 p-4 pt-6 md:p-8">
         <div className="flex items-center justify-between space-y-2">
@@ -67,7 +121,7 @@ export default function DashboardPage() {
       <div className="flex flex-1 items-center justify-center">
         <Card>
           <CardContent className="pt-6">
-            <p className="text-center text-muted-foreground">
+            <p className="text-center ">
               Please log in to access the dashboard.
             </p>
           </CardContent>
@@ -86,8 +140,21 @@ export default function DashboardPage() {
         return <ApplicantDashboard user={user} />;
       case 'student':
         return <StudentDashboard user={user} />;
-         case 'teacher':
+      case 'teacher':
         return <TeacherDashboard user={user} />;
+      case 'employee':
+        if (isTeacherDesignation) {
+          return <TeacherDashboard user={user} />;
+        }
+        return (
+          <div className="flex flex-1 items-center justify-center">
+            <Card>
+              <CardContent className="pt-6">
+                <p className="text-center ">Invalid user role.</p>
+              </CardContent>
+            </Card>
+          </div>
+        );
       case 'admin':
         return <AdminDashboard />;
       default:
@@ -95,9 +162,7 @@ export default function DashboardPage() {
           <div className="flex flex-1 items-center justify-center">
             <Card>
               <CardContent className="pt-6">
-                <p className="text-center text-muted-foreground">
-                  Invalid user role.
-                </p>
+                <p className="text-center ">Invalid user role.</p>
               </CardContent>
             </Card>
           </div>

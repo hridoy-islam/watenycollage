@@ -140,7 +140,7 @@ export default function Otp() {
                 </h1>
               </div>
               
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm ">
                 Enter the verification code sent to your email.
               </p>
               {error && <p className="text-sm text-red-500">{error}</p>}
@@ -178,7 +178,7 @@ export default function Otp() {
               </Button>
 
               <div className="mt-4 flex items-center justify-center space-x-1 text-sm">
-                <span className="text-muted-foreground">
+                <span className="">
                   Didn't receive the code?
                 </span>
                 <button
@@ -210,12 +210,12 @@ export default function Otp() {
                       Resend in {resendCooldown}s
                     </span>
                   ) : (
-                    <span className="text-muted-foreground">Resend code</span>
+                    <span className="">Resend code</span>
                   )}
                 </button>
               </div>
 
-              {/* <p className="mt-4 text-center text-sm text-muted-foreground">
+              {/* <p className="mt-4 text-center text-sm ">
                 Don't have an account?{' '}
                 <Link
                   to="/signup"

@@ -43,7 +43,7 @@ export default function DashboardNav({
                   <Link
                     to={item.disabled ? '/' : item.href}
                     className={cn(
-                      'flex items-center gap-2 overflow-hidden rounded-md py-2 text-sm font-medium hover:text-muted-foreground',
+                      'flex items-center gap-2 overflow-hidden rounded-md py-2 text-sm font-medium hover:',
                       path === item.href
                         ? 'bg-white text-black hover:text-black'
                         : 'transparent',

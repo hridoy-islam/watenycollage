@@ -573,7 +573,7 @@ const ReportPage = () => {
         {!loading && !initialLoad && logs.length === 0 && (
           <Card className="shadow-none">
             <CardContent className="flex min-h-[200px] items-center justify-center">
-              <p className="text-muted-foreground">No logs data available</p>
+              <p className="">No logs data available</p>
             </CardContent>
           </Card>
         )}

@@ -48,7 +48,7 @@ interface Assignment {
     name: string;
     email: string;
   };
-  courseMaterialAssignmentId: string; // Changed from assignmentName
+  assignmentSettingId: string;
   submissions: Submission[];
   feedbacks: Feedback[];
   status: string;
@@ -65,6 +65,7 @@ interface AssignmentListProps {
   getUnseenCounts: (assignment: Assignment) => number;
   isStudent: boolean;
   unitMaterial: any;
+  assignmentSettings?: any[];
 }
 
 export const AssignmentList: React.FC<AssignmentListProps> = ({
@@ -74,17 +75,23 @@ export const AssignmentList: React.FC<AssignmentListProps> = ({
   getStatusBadge,
   getUnseenCounts,
   isStudent,
-  unitMaterial
+  unitMaterial,
+  assignmentSettings = []
 }) => {
-  // Function to get unit material assignment details by courseMaterialAssignmentId
-  const getUnitMaterialAssignment = (courseMaterialAssignmentId: string) => {
-    if (!unitMaterial?.assignments) return null;
+  // Function to get assignment-settings details by assignmentSettingId
+  const getSettingsAssignment = (assignmentSettingId: any) => {
+    if (assignmentSettings.length === 0) return null;
 
-    const materialAssignment = unitMaterial.assignments.find(
-      (a: any) => a._id.toString() === courseMaterialAssignmentId
+    const id =
+      assignmentSettingId?._id?.toString?.() ||
+      assignmentSettingId?.toString?.() ||
+      assignmentSettingId;
+
+    const settingsAssignment = assignmentSettings.find(
+      (s: any) => s._id.toString() === id
     );
 
-    return materialAssignment;
+    return settingsAssignment;
   };
 
   return (
@@ -98,9 +105,9 @@ export const AssignmentList: React.FC<AssignmentListProps> = ({
           ) : (
             assignments.map((assignment) => {
               const unseenCount = getUnseenCounts(assignment);
-              const materialAssignment = getUnitMaterialAssignment(assignment.courseMaterialAssignmentId);
-              const assignmentTitle = materialAssignment?.title || 'Unknown Assignment';
-              const assignmentDeadline = materialAssignment?.deadline;
+              const settingsAssignment = getSettingsAssignment(assignment.assignmentSettingId);
+              const assignmentTitle = settingsAssignment?.assignmentTitle || 'Unknown Assignment';
+              const assignmentDeadline = settingsAssignment?.finalDeadline;
 
               return (
                 <div

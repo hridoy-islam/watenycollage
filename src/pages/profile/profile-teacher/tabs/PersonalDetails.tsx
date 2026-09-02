@@ -124,9 +124,9 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
             </h3>
             <p className="text-gray-500">{localData.email}</p>
             <p className="text-gray-500">{localData.phone}</p>
-            <p className="mt-1 inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+            {/* <p className="mt-1 inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
               {localData.status}
-            </p>
+            </p> */}
           </div>
         </div>
 

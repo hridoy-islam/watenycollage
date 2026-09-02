@@ -10,7 +10,7 @@ export function StepIndicator({ currentStep, totalSteps }: StepIndicatorProps) {
 
   return (
     <div className="space-y-2">
-      <div className="flex justify-between text-sm text-muted-foreground">
+      <div className="flex justify-between text-sm ">
         <span>
           Step {currentStep} of {totalSteps}
         </span>

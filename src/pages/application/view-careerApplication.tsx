@@ -283,7 +283,7 @@ export default function ViewCareerApplicationPage() {
         <TableCell
           className={cn(
             'text-right align-middle',
-            isEmptyValue && 'italic text-muted-foreground'
+            isEmptyValue && 'italic '
           )}
         >
           {isUrl ? (
@@ -916,7 +916,7 @@ export default function ViewCareerApplicationPage() {
 
                 {!application.educationData ||
                 application.educationData.length === 0 ? (
-                  <p className="italic text-muted-foreground">
+                  <p className="italic ">
                     No education history provided
                   </p>
                 ) : (
@@ -1295,7 +1295,7 @@ export default function ViewCareerApplicationPage() {
                   </Card>
                 ))
               ) : (
-                <p className="italic text-muted-foreground">
+                <p className="italic ">
                   No job details provided
                 </p>
               )}

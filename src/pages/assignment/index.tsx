@@ -195,7 +195,7 @@ function AssignmentPage() {
             <BlinkingDots size="large" color="bg-watney" />
           </div>
         ) : courseUnits.length === 0 ? (
-          <div className="py-10 text-center italic text-muted-foreground">
+          <div className="py-10 text-center italic ">
             No course units found.
           </div>
         ) : (
@@ -231,7 +231,7 @@ function AssignmentPage() {
                       }}
                     >
                       <div className="flex w-full items-center">
-                        <FileText className="mr-2 h-4 w-4 text-muted-foreground" />
+                        <FileText className="mr-2 h-4 w-4 " />
                         {unit.title}
                       </div>
                     </TableCell>
@@ -260,7 +260,7 @@ function AssignmentPage() {
                             </Button>
                           </>
                         ) : (
-                          <span className="text-sm italic text-muted-foreground">
+                          <span className="text-sm italic ">
                             No assignments
                           </span>
                         )}

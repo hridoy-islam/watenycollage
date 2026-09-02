@@ -361,14 +361,14 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
           params: { teacherId: user._id, limit: 'all' }
         }),
         axiosInstance.get(
-          `/assignment/teacher-feedback/${user._id}?limit=all&fields=applicationId`
+          `/assignment/teacher-feedback/${user._id}?limit=1&fields=applicationId`
         )
       ]);
       const courses = coursesResponse?.data?.data?.result || [];
       setTeacherCourses(Array.isArray(courses) ? courses : []);
       setAllCourses(courses.length);
 
-      const pending = feedbackResponse?.data?.data?.result?.length || 0;
+      const pending = feedbackResponse?.data?.data?.meta.total || 0;
       setPendingFeedbacks(pending);
 
       // Students assigned to each of the teacher's courses via
@@ -981,17 +981,7 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
               </CardContent>
             </Card>
 
-            <Card
-              onClick={() => navigate(`teacher/student-applications`)}
-              className="cursor-pointer border border-gray-300 transition-colors hover:bg-gray-50"
-            >
-              <CardHeader>
-                <CardTitle>Student List</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{studentListCount}</div>
-              </CardContent>
-            </Card>
+          
           </div>
 
          

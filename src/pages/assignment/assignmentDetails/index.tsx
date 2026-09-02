@@ -79,7 +79,7 @@ interface Assignment {
     name: string;
     email: string;
   };
-  courseMaterialAssignmentId: string;
+  assignmentSettingId: string;
   assignmentName: string;
   submissions: Submission[];
   feedbacks: Feedback[];
@@ -87,6 +87,7 @@ interface Assignment {
   requireResubmit: boolean;
   createdAt: string;
   updatedAt: string;
+  finalGrade?: string;
   finalFeedback?: any; // Add this line
   observationFeedback?: any; // Add this line
   isFinalFeedback?: boolean;
@@ -109,6 +110,7 @@ type FormState = {
   resubmissionDeadline?: Date;
   isAdminSubmission?: boolean;
   uploadError?: string;
+  finalGrade?: string;
 };
 
 type TimelineItem =
@@ -172,6 +174,7 @@ const AssignmentDetailPage = () => {
   const { toast } = useToast();
   const { user } = useSelector((state: any) => state.auth);
   const [unitMaterial, setUnitMaterial] = useState<any>(null);
+  const [assignmentSettings, setAssignmentSettings] = useState<any[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [selectedAssignment, setSelectedAssignment] =
     useState<Assignment | null>(null);
@@ -193,6 +196,8 @@ const AssignmentDetailPage = () => {
 
   const [observationDialogOpen, setObservationDialogOpen] = useState(false);
   const [submittingObservation, setSubmittingObservation] = useState(false);
+  const [gradingOptions, setGradingOptions] = useState<string[]>([]);
+  const [updatingGrade, setUpdatingGrade] = useState(false);
   const counter = () => {
     setCount((prev) => prev + 1);
   };
@@ -234,14 +239,14 @@ const AssignmentDetailPage = () => {
   // };
 
   const getAssignmentContent = () => {
-    if (!selectedAssignment || !unitMaterial?.assignments) return null;
+    if (!selectedAssignment || !assignmentSettings) return null;
 
-    const materialAssignment = unitMaterial.assignments.find(
-      (a: any) =>
-        a._id.toString() === selectedAssignment.courseMaterialAssignmentId
+    const settingsAssignment = assignmentSettings.find(
+      (s: any) =>
+        s._id.toString() === selectedAssignment.assignmentSettingId
     );
 
-    return materialAssignment?.content || null;
+    return settingsAssignment?.description || null;
   };
 
   const markItemsAsSeen = async (assignment: Assignment) => {
@@ -358,9 +363,31 @@ const AssignmentDetailPage = () => {
       const unitRes = await axiosInstance.get(`/course-unit/${unitId}`);
       setCourseUnit(unitRes.data.data);
 
+      // Fetch the group's gradingOptions (used by teachers to award the final grade)
+      const unitData = unitRes.data.data;
+      const groupId = unitData?.groupId?._id || unitData?.groupId;
+      if (groupId) {
+        try {
+          const groupRes = await axiosInstance.get(`/course-group/${groupId}`);
+          setGradingOptions(
+            groupRes.data?.data?.gradingOptions || []
+          );
+        } catch (groupErr) {
+          console.error('Failed to load grading options:', groupErr);
+          setGradingOptions([]);
+        }
+      } else {
+        setGradingOptions([]);
+      }
+
       const unitMaterialRes = await axiosInstance.get(`/unit-material`, {
         params: { unitId, limit: 'all' }
       });
+
+      const assignmentSettingsRes = await axiosInstance.get(
+        `/assignment-settings`,
+        { params: { unitId, limit: 'all' } }
+      );
 
       const existingAssignmentsRes = await axiosInstance.get(`/assignment`, {
         params: { applicationId, unitId, studentId, limit: 'all' }
@@ -369,27 +396,42 @@ const AssignmentDetailPage = () => {
       const existingAssignments = existingAssignmentsRes.data.data.result || [];
       const unitMaterial = unitMaterialRes.data.data.result[0];
       setUnitMaterial(unitMaterial);
+
+      // Assignments live in AssignmentSettings (not unit-material)
+      const settingsList = assignmentSettingsRes.data.data.result || [];
+      setAssignmentSettings(settingsList);
+
+      // Teacher/Student: only show assignments that have been published
+      const visibleSettings =
+        user?.role === 'admin'
+          ? settingsList
+          : settingsList.filter((s: any) => s.status === 'published');
+
       let assignmentsData: Assignment[] = [];
 
-      if (
-        unitMaterial &&
-        unitMaterial.assignments &&
-        unitMaterial.assignments.length > 0
-      ) {
-        assignmentsData = unitMaterial.assignments.map(
-          (materialAssignment: any, index: number) => {
+      if (visibleSettings.length > 0) {
+        assignmentsData = visibleSettings.map(
+          (setting: any, index: number) => {
             const existingAssignment = existingAssignments.find(
               (ea: Assignment) =>
-                ea.courseMaterialAssignmentId ===
-                materialAssignment?._id.toString()
+                ((ea as any).assignmentSettingId?._id ||
+                  (ea as any).assignmentSettingId)?.toString() ===
+                setting._id.toString()
             );
 
             if (existingAssignment) {
-              return existingAssignment;
+              return {
+                ...existingAssignment,
+                // `assignmentSettingId` comes back populated (object) from the
+                // API; normalize to its string id so downstream comparisons work.
+                assignmentSettingId:
+                  (existingAssignment as any).assignmentSettingId?._id?.toString() ||
+                  existingAssignment.assignmentSettingId,
+              };
             }
 
             return {
-              _id: materialAssignment._id || `material-${index}`,
+              _id: setting._id || `settings-${index}`,
               applicationId: applicationId || '',
               unitId: {
                 _id: unitId || '',
@@ -404,14 +446,14 @@ const AssignmentDetailPage = () => {
                 name: studentName,
                 email: ''
               },
-              unitMaterialId: unitMaterial?._id,
-              courseMaterialAssignmentId: materialAssignment._id.toString(),
+              unitMaterialId: setting.unitMaterialId || unitMaterial?._id,
+              assignmentSettingId: setting._id.toString(),
               assignmentName:
-                materialAssignment.title || `Assignment ${index + 1}`,
+                setting.assignmentTitle || `Assignment ${index + 1}`,
               submissions: [],
               feedbacks: [],
               status: 'not_submitted',
-              deadline: materialAssignment.deadline,
+              deadline: setting.finalDeadline,
               requireResubmit: false,
               createdAt: new Date().toISOString(),
               updatedAt: new Date().toISOString()
@@ -469,6 +511,25 @@ const AssignmentDetailPage = () => {
 
       if (assignmentToSelect) {
         setSelectedAssignment(assignmentToSelect);
+
+        // Load the unit material tied specifically to this assignment
+        // (by unitMaterialId) so the feedback dialogs render the correct
+        // learning outcomes / assessment criteria.
+        try {
+          const umId =
+            (assignmentToSelect.unitMaterialId as any)?._id ||
+            assignmentToSelect.unitMaterialId;
+          if (umId) {
+            const umRes = await axiosInstance.get(`/unit-material/${umId}`);
+            const preciseMaterial = umRes?.data?.data;
+            if (preciseMaterial && preciseMaterial._id) {
+              setUnitMaterial(preciseMaterial);
+            }
+          }
+        } catch (umErr) {
+          // keep the unitId-based fallback already set above
+        }
+
         markItemsAsSeen(assignmentToSelect);
         if (!formState[assignmentToSelect._id]) {
           setFormState((prev) => ({
@@ -478,7 +539,8 @@ const AssignmentDetailPage = () => {
               files: [],
               requireResubmit: false,
               resubmissionDeadline: undefined,
-              isAdminSubmission: false
+              isAdminSubmission: false,
+              finalGrade: assignmentToSelect.finalGrade || ''
             }
           }));
         }
@@ -534,7 +596,12 @@ const AssignmentDetailPage = () => {
   ): moment.Moment | null => {
     if (!assignment) return null;
 
-    // Priority 1: Check if there's a feedback deadline (for resubmission)
+    // Priority 1: assignment-level resubmission deadline set by the teacher
+    if (assignment.resubmissionDeadline) {
+      return moment(assignment.resubmissionDeadline);
+    }
+
+    // Priority 2: feedback deadline (resubmission)
     const feedbacksWithDeadline = assignment.feedbacks
       .filter((feedback) => feedback.deadline)
       .sort(
@@ -545,15 +612,14 @@ const AssignmentDetailPage = () => {
       return moment(feedbacksWithDeadline[0].deadline);
     }
 
-    // Priority 2: Check unit material deadline (for first submission)
-    if (!unitMaterial?.assignments) return null;
-
-    const materialAssignment = unitMaterial.assignments.find(
-      (a: any) => a.title === assignment.assignmentName
+    // Priority 3: assignment-settings final deadline (first submission / fallback)
+    const settingsAssignment = assignmentSettings.find(
+      (s: any) =>
+        s._id.toString() === assignment.assignmentSettingId
     );
 
-    return materialAssignment?.deadline
-      ? moment(materialAssignment.deadline)
+    return settingsAssignment?.finalDeadline
+      ? moment(settingsAssignment.finalDeadline)
       : null;
   };
 
@@ -577,43 +643,43 @@ const AssignmentDetailPage = () => {
         : null;
     };
 
-    // Get unit material deadline for this specific assignment
-    const getUnitMaterialDeadline = (): moment.Moment | null => {
-      if (!unitMaterial?.assignments) return null;
-
-      const materialAssignment = unitMaterial.assignments.find(
-        (a: any) => a.title === assignment.assignmentName
+    // Get assignment-settings deadline for this specific assignment
+    const getAssignmentDeadline = (): moment.Moment | null => {
+      const settingsAssignment = assignmentSettings.find(
+        (s: any) =>
+          s._id.toString() === assignment.assignmentSettingId
       );
 
-      return materialAssignment?.deadline
-        ? moment(materialAssignment.deadline).endOf('day')
+      return settingsAssignment?.finalDeadline
+        ? moment(settingsAssignment.finalDeadline).endOf('day')
         : null;
     };
 
     const feedbackDeadline = getLatestFeedbackDeadline();
-    const unitMaterialDeadline = getUnitMaterialDeadline();
+    const assignmentDeadline = getAssignmentDeadline();
 
     const hasStudentSubmittedBefore = assignment.submissions.length > 0;
     const requiresResubmission = assignment.requireResubmit;
 
     // Scenario 1: First time submission (no submissions yet)
     if (!hasStudentSubmittedBefore) {
-      // Allow only if unit material deadline not passed
-      if (unitMaterialDeadline && moment().isAfter(unitMaterialDeadline)) {
+      // Allow only if assignment deadline not passed
+      if (assignmentDeadline && moment().isAfter(assignmentDeadline)) {
         return false; // deadline passed, cannot submit
       }
       return true;
     }
 
-    // Scenario 2: Resubmission required (teacher gave feedback with resubmission)
+    // Scenario 2: Resubmission required (teacher gave feedback with resubmission).
+    // Capped by the assignment's resubmissionDeadline if set, otherwise the
+    // assignment-settings final deadline.
     if (requiresResubmission) {
-      // Check feedback deadline first
-      if (feedbackDeadline) {
-        if (feedbackDeadline && moment().isAfter(feedbackDeadline)) {
-          return false; // feedback deadline passed
-        }
+      const cutoff = assignment.resubmissionDeadline
+        ? moment(assignment.resubmissionDeadline).endOf('day')
+        : assignmentDeadline;
+      if (cutoff && moment().isAfter(cutoff)) {
+        return false; // resubmission deadline passed, cannot submit
       }
-       // within deadline, allow resubmission
       return true;
     }
 
@@ -635,6 +701,51 @@ const AssignmentDetailPage = () => {
     ? canStudentSubmit(selectedAssignment)
     : false;
   const canTeacherSubmit = isTeacher;
+
+  // The assignment settings for the currently selected assignment. Used to gate
+  // the final/observation feedback buttons and to read the submission deadline.
+  const selectedSetting = assignmentSettings.find(
+    (s: any) => s._id.toString() === selectedAssignment?.assignmentSettingId
+  );
+
+  // Serialize a chosen date to a UTC-midnight ISO string so storing it does not
+  // shift the calendar date by the local timezone offset.
+  const toUTCMidnightISO = (date: Date): string =>
+    new Date(
+      Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())
+    ).toISOString();
+
+  // Convert a stored UTC-midnight date into a *local* Date representing that same
+  // UTC calendar day, so date pickers display the correct day regardless of the
+  // viewer's timezone (avoids showing one day earlier/later).
+  const utcISOToLocalDate = (
+    value: string | Date | null | undefined
+  ): Date | undefined => {
+    if (!value) return undefined;
+    const d = new Date(value);
+    if (isNaN(d.getTime())) return undefined;
+    return new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+  };
+
+  // When a resubmission deadline is provided, also update the assignment
+  // setting's final deadline so the student's resubmission window is capped by it.
+  const syncSettingDeadline = async (
+    settingId: any,
+    deadline: Date
+  ): Promise<void> => {
+    if (!settingId) return;
+    try {
+      await axiosInstance.patch(
+        `/assignment-settings/${settingId.toString()}`,
+        {
+          finalDeadline: toUTCMidnightISO(deadline),
+          resubmissionDeadline: toUTCMidnightISO(deadline)
+        }
+      );
+    } catch (e) {
+      console.error('Failed to sync assignment setting deadline', e);
+    }
+  };
 
   const hasStudentSubmitted =
     isStudent &&
@@ -800,7 +911,8 @@ const AssignmentDetailPage = () => {
           })),
           requireResubmit: false,
           resubmissionDeadline: undefined,
-          isAdminSubmission: false
+          isAdminSubmission: false,
+          finalGrade: selectedAssignment.finalGrade || ''
         };
       }
     } else if (type === 'feedback') {
@@ -814,7 +926,7 @@ const AssignmentDetailPage = () => {
         let resubmissionDeadline: Date | undefined = undefined;
 
         if (currentRequireResubmit && feedback.deadline) {
-          resubmissionDeadline = new Date(feedback.deadline);
+          resubmissionDeadline = utcISOToLocalDate(feedback.deadline);
         }
 
         console.log('Feedback editing logic:', {
@@ -831,7 +943,8 @@ const AssignmentDetailPage = () => {
           })),
           requireResubmit: currentRequireResubmit,
           resubmissionDeadline: resubmissionDeadline,
-          isAdminSubmission: false
+          isAdminSubmission: false,
+          finalGrade: selectedAssignment.finalGrade || ''
         };
       }
     }
@@ -1067,14 +1180,23 @@ const AssignmentDetailPage = () => {
                 new Date().toISOString(),
               // ADD THESE LINES TO UPDATE ASSIGNMENT STATUS WHEN EDITING FEEDBACK
               status: newStatus,
-              requireResubmit: newRequireResubmit
+              requireResubmit: newRequireResubmit,
+              resubmissionDeadline:
+                newRequireResubmit && current.resubmissionDeadline
+                  ? toUTCMidnightISO(current.resubmissionDeadline)
+                  : null
             }
           };
+
+          // Update final grade if a valid option was selected
+          if (current.finalGrade && current.finalGrade.trim()) {
+            updateData.$set.finalGrade = current.finalGrade.trim();
+          }
 
           // Update deadline in the specific feedback item if provided
           if (current.resubmissionDeadline) {
             updateData.$set[`feedbacks.${feedbackIndex}.deadline`] =
-              current.resubmissionDeadline.toISOString();
+              toUTCMidnightISO(current.resubmissionDeadline);
           } else {
             // If no deadline provided, remove it from the feedback
             updateData.$set[`feedbacks.${feedbackIndex}.deadline`] = null;
@@ -1101,6 +1223,19 @@ const AssignmentDetailPage = () => {
               prev.map((a) =>
                 a._id === selectedAssignment._id ? serverAssignment : a
               )
+            );
+          }
+
+          // When a resubmission deadline is provided, also update the setting's
+          // final deadline so the student's resubmission is capped by it.
+          if (
+            current.requireResubmit &&
+            current.resubmissionDeadline &&
+            selectedSetting?._id
+          ) {
+            await syncSettingDeadline(
+              selectedSetting._id,
+              current.resubmissionDeadline
             );
           }
 
@@ -1133,13 +1268,13 @@ const AssignmentDetailPage = () => {
           let submissionDeadline: string | undefined;
 
           if (selectedAssignment.status === 'not_submitted') {
-            const materialAssignment = unitMaterial?.assignments?.find(
-              (a: any) =>
-                a._id.toString() ===
-                selectedAssignment.courseMaterialAssignmentId
+            const settingsAssignment = assignmentSettings.find(
+              (s: any) =>
+                s._id.toString() ===
+                selectedAssignment.assignmentSettingId
             );
 
-            submissionDeadline = materialAssignment?.deadline;
+            submissionDeadline = settingsAssignment?.finalDeadline;
           } else if (selectedAssignment.requireResubmit) {
             const latestFeedbackWithDeadline = selectedAssignment.feedbacks
               .filter((feedback) => feedback.deadline)
@@ -1169,7 +1304,8 @@ const AssignmentDetailPage = () => {
               {
                 $push: { submissions: backendSubmission },
                 status: 'submitted',
-                requireResubmit: false
+                requireResubmit: false,
+                resubmissionDeadline: null
               }
             );
 
@@ -1199,14 +1335,22 @@ const AssignmentDetailPage = () => {
               patchError.response?.status === 404 ||
               patchError.response?.data?.message?.includes('not found')
             ) {
+              const matchedSetting =
+                assignmentSettings.find(
+                  (s: any) =>
+                    s._id.toString() === selectedAssignment.assignmentSettingId
+                ) || {};
               const newAssignmentData: any = {
                 applicationId,
+                courseId: matchedSetting.courseId?._id || matchedSetting.courseId,
+                termId: matchedSetting.termId?._id || matchedSetting.termId,
+                groupId: matchedSetting.groupId?._id || matchedSetting.groupId,
                 unitId,
                 studentId,
                 unitMaterialId: unitMaterial?._id,
-                courseMaterialAssignmentId:
-                  selectedAssignment.courseMaterialAssignmentId,
-                // assignmentName: selectedAssignment.assignmentName,
+                assignmentSettingId: selectedAssignment.assignmentSettingId,
+                assignmentTitle:
+                  matchedSetting.assignmentTitle || selectedAssignment.assignmentName,
                 submissions: [backendSubmission],
                 status: 'submitted',
                 requireResubmit: false
@@ -1268,13 +1412,13 @@ const AssignmentDetailPage = () => {
             };
 
             if (selectedAssignment.status === 'not_submitted') {
-              const materialAssignment = unitMaterial?.assignments?.find(
-                (a: any) =>
-                  a._id.toString() ===
-                  selectedAssignment.courseMaterialAssignmentId
+              const settingsAssignment = assignmentSettings.find(
+                (s: any) =>
+                  s._id.toString() ===
+                  selectedAssignment.assignmentSettingId
               );
-              if (materialAssignment?.deadline) {
-                backendSubmission.deadline = materialAssignment.deadline;
+              if (settingsAssignment?.finalDeadline) {
+                backendSubmission.deadline = settingsAssignment.finalDeadline;
               }
             }
 
@@ -1311,14 +1455,23 @@ const AssignmentDetailPage = () => {
                 patchError.response?.status === 404 ||
                 patchError.response?.data?.message?.includes('not found')
               ) {
+                const matchedSetting =
+                  assignmentSettings.find(
+                    (s: any) =>
+                      s._id.toString() ===
+                      selectedAssignment.assignmentSettingId
+                  ) || {};
                 const newAssignmentData: any = {
                   applicationId,
+                  courseId: matchedSetting.courseId?._id || matchedSetting.courseId,
+                  termId: matchedSetting.termId?._id || matchedSetting.termId,
+                  groupId: matchedSetting.groupId?._id || matchedSetting.groupId,
                   unitId,
                   studentId,
                   unitMaterialId: unitMaterial?._id,
-                  // assignmentName: selectedAssignment.assignmentName,
-                  courseMaterialAssignmentId:
-                    selectedAssignment.courseMaterialAssignmentId,
+                  assignmentSettingId: selectedAssignment.assignmentSettingId,
+                  assignmentTitle:
+                    matchedSetting.assignmentTitle || selectedAssignment.assignmentName,
                   submissions: [backendSubmission],
                   status: 'submitted',
                   requireResubmit: false
@@ -1377,20 +1530,30 @@ const AssignmentDetailPage = () => {
             // Only add deadline if requireResubmit is true AND deadline exists
             if (newRequireResubmit && current.resubmissionDeadline) {
               backendFeedback.deadline =
-                current.resubmissionDeadline.toISOString();
+                toUTCMidnightISO(current.resubmissionDeadline);
             }
 
             const updateData: any = {
               $push: { feedbacks: backendFeedback },
               status: newStatus,
-              requireResubmit: newRequireResubmit
+              requireResubmit: newRequireResubmit,
+              resubmissionDeadline:
+                newRequireResubmit && current.resubmissionDeadline
+                  ? toUTCMidnightISO(current.resubmissionDeadline)
+                  : null
             };
+
+            // Include the final grade if a valid option was selected
+            if (current.finalGrade && current.finalGrade.trim()) {
+              updateData.finalGrade = current.finalGrade.trim();
+            }
 
             console.log('Submitting teacher feedback:', {
               requireResubmit: current.requireResubmit,
               hasDeadline: !!current.resubmissionDeadline,
               newStatus: newStatus,
               newRequireResubmit: newRequireResubmit,
+              finalGrade: current.finalGrade,
               backendFeedback
             });
 
@@ -1406,6 +1569,19 @@ const AssignmentDetailPage = () => {
                 prev.map((a) =>
                   a._id === selectedAssignment._id ? serverAssignment : a
                 )
+              );
+            }
+
+            // When a resubmission deadline is provided, also update the setting's
+            // final deadline so the student's resubmission is capped by it.
+            if (
+              newRequireResubmit &&
+              current.resubmissionDeadline &&
+              selectedSetting?._id
+            ) {
+              await syncSettingDeadline(
+                selectedSetting._id,
+                current.resubmissionDeadline
               );
             }
 
@@ -1429,7 +1605,8 @@ const AssignmentDetailPage = () => {
           files: [],
           requireResubmit: false,
           resubmissionDeadline: undefined,
-          isAdminSubmission: false
+          isAdminSubmission: false,
+          finalGrade: selectedAssignment.finalGrade || ''
         }
       }));
 
@@ -1446,6 +1623,60 @@ const AssignmentDetailPage = () => {
     } finally {
       setSubmitting(false);
       setLoadingItems({});
+    }
+  };
+
+  const handleFinalGradeChange = async (grade: string) => {
+    if (!selectedAssignment || !isTeacher) return;
+
+    const prevAssignment = selectedAssignment;
+
+    try {
+      setUpdatingGrade(true);
+      const updatedAssignment = {
+        ...selectedAssignment,
+        finalGrade: grade,
+        updatedAt: new Date().toISOString()
+      };
+
+      setSelectedAssignment(updatedAssignment);
+      setAssignments((prev) =>
+        prev.map((a) => (a._id === selectedAssignment._id ? updatedAssignment : a))
+      );
+
+      const res = await axiosInstance.patch(
+        `/assignment/${selectedAssignment._id}`,
+        { finalGrade: grade }
+      );
+
+      if (!res.data.success) {
+        throw new Error('Failed to save final grade');
+      }
+
+      if (res.data.data) {
+        setSelectedAssignment(res.data.data);
+        setAssignments((prev) =>
+          prev.map((a) => (a._id === selectedAssignment._id ? res.data.data : a))
+        );
+      }
+
+      toast({
+        title: 'Success',
+        description: grade ? 'Final grade saved!' : 'Final grade cleared.'
+      });
+    } catch (error) {
+      console.error('Save final grade error:', error);
+      setSelectedAssignment(prevAssignment);
+      setAssignments((prev) =>
+        prev.map((a) => (a._id === selectedAssignment._id ? prevAssignment : a))
+      );
+      toast({
+        title: 'Error',
+        description: 'Failed to save final grade.',
+        variant: 'destructive'
+      });
+    } finally {
+      setUpdatingGrade(false);
     }
   };
 
@@ -1513,15 +1744,6 @@ const AssignmentDetailPage = () => {
         label: 'Submitted',
         className: 'bg-blue-100 text-blue-800 text-xs'
       },
-      under_review: {
-        label: 'Under Review',
-        className: 'bg-yellow-100 text-yellow-800 text-xs'
-      },
-      feedback_given: {
-        label: 'Feedback Given',
-        className: 'bg-purple-100 text-purple-800 text-xs',
-        icon: <MessageSquare className="mr-1 h-3 w-3" />
-      },
       resubmission_required: {
         label: 'Resubmission Required',
         className: 'bg-orange-100 text-orange-800 text-xs',
@@ -1556,7 +1778,8 @@ const AssignmentDetailPage = () => {
           files: [],
           requireResubmit: false,
           resubmissionDeadline: undefined,
-          isAdminSubmission: false
+          isAdminSubmission: false,
+          finalGrade: assignment.finalGrade || ''
         }
       }));
     }
@@ -1592,7 +1815,7 @@ const AssignmentDetailPage = () => {
         {
           observationFeedback: feedbackData,
           submittedBy: user?._id,
-          status: 'feedback_given',
+          status: 'submitted',
           isObservationFeedback: true
         }
       );
@@ -1676,7 +1899,8 @@ const AssignmentDetailPage = () => {
         files: [],
         requireResubmit: false,
         resubmissionDeadline: undefined,
-        isAdminSubmission: false
+        isAdminSubmission: false,
+        finalGrade: selectedAssignment.finalGrade || ''
       }
     : null;
 
@@ -1701,6 +1925,7 @@ const AssignmentDetailPage = () => {
             getUnseenCounts={getUnseenCounts}
             isStudent={isStudent}
             unitMaterial={unitMaterial}
+            assignmentSettings={assignmentSettings}
           />
         </div>
 
@@ -1710,9 +1935,7 @@ const AssignmentDetailPage = () => {
             <>
               {/* Assignment Content */}
               <AssignmentContent
-                courseMaterialAssignmentId={
-                  selectedAssignment.courseMaterialAssignmentId
-                }
+                assignmentSettingId={selectedAssignment.assignmentSettingId}
                 effectiveDeadline={effectiveDeadline}
                 isDeadlinePassed={isDeadlinePassed || false}
                 assignmentContent={getAssignmentContent()}
@@ -1725,6 +1948,17 @@ const AssignmentDetailPage = () => {
                 studentName={studentName}
                 selectedAssignmentName={selectedAssignment.assignmentName}
                 unitMaterial={unitMaterial}
+                assignmentSettings={assignmentSettings}
+                isResultPublished={
+                  assignmentSettings.find(
+                    (s: any) =>
+                      s._id.toString() === selectedAssignment?.assignmentSettingId
+                  )?.isResultPublished
+                }
+                gradingOptions={gradingOptions}
+                finalGrade={selectedAssignment.finalGrade || ''}
+                updatingGrade={updatingGrade}
+                onFinalGradeChange={handleFinalGradeChange}
                 actionButton={
                   isStudent
                     ? // Student button
@@ -1763,6 +1997,7 @@ const AssignmentDetailPage = () => {
                 }
                 finalFeedbackButton={
                   isTeacher &&
+                  selectedSetting?.finalFeedback &&
                   selectedAssignment.status !== 'completed' && (
                     <Button
                       onClick={() => {
@@ -1781,6 +2016,7 @@ const AssignmentDetailPage = () => {
                 }
                 observationButton={
                   isTeacher &&
+                  selectedSetting?.observation &&
                   selectedAssignment.status !== 'completed' && (
                     <Button
                       onClick={() => {
@@ -1887,7 +2123,8 @@ const AssignmentDetailPage = () => {
                           files: [],
                           requireResubmit: false,
                           resubmissionDeadline: undefined,
-                          isAdminSubmission: false
+                          isAdminSubmission: false,
+                          finalGrade: selectedAssignment.finalGrade || ''
                         }
                       }));
                     }
@@ -1916,6 +2153,9 @@ const AssignmentDetailPage = () => {
                 }
                 editingItem={editingItem}
                 assignment={selectedAssignment}
+                gradingOptions={gradingOptions}
+                currentFinalGrade={selectedAssignment?.finalGrade || ''}
+                finalDeadline={selectedSetting?.finalDeadline}
                 triggerButton={null}
               />
             </>

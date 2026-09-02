@@ -1,0 +1,1031 @@
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSelector } from 'react-redux';
+import moment from 'moment';
+import clsx from 'clsx';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import axiosInstance from '@/lib/axios';
+import { useToast } from '@/components/ui/use-toast';
+import { BlinkingDots } from '@/components/shared/blinking-dots';
+import Loader from '@/components/shared/loader';
+import {
+  CalendarDays,
+  CalendarRange,
+  CalendarIcon,
+  List,
+  Clock,
+  CalendarClock,
+  ChevronLeft,
+  ChevronRight,
+  X,
+  User,
+} from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+
+// ── Types and Interfaces ──────────────────────────────────────────────────
+
+type AttendanceStatus = 'present' | 'absent' | 'late';
+
+interface StudentCourse {
+  _id: string;
+  courseId?: { _id: string; name: string } | string;
+  groupId?: { _id: string; name: string } | string;
+  intakeId?: { _id: string; termName: string } | string;
+  status: string;
+}
+
+interface ClassEntry {
+  _id: string;
+  attendanceId?: string;
+  classDate: string;
+  startTime?: string;
+  endTime?: string;
+  roomNumber?: string | null;
+  status?: AttendanceStatus | undefined;
+  remark?: string;
+  courseId?: string;
+  courseName?: string | null;
+  groupId?: string;
+  groupName?: string | null;
+  termId?: string;
+  termName?: string | null;
+  teacherId?: string;
+  teacherName?: string | null;
+  teacherEmail?: string | null;
+}
+
+interface SlotInfo {
+  entry: ClassEntry;
+  idx: number;
+  span: number;
+  isStart: boolean;
+  topPx: number;
+  heightPx: number;
+}
+
+// ── Constants and Helpers ─────────────────────────────────────────────────
+
+const STATUS_META: Record<
+  AttendanceStatus,
+  {
+    label: string;
+    text: string;
+    border: string;
+    hex: string;
+  }
+> = {
+  present: {
+    label: 'Present',
+    text: 'text-emerald-600',
+    border: 'border-emerald-200',
+    hex: '#10b981',
+  },
+  absent: {
+    label: 'Absent',
+    text: 'text-rose-600',
+    border: 'border-rose-200',
+    hex: '#f43f5e',
+  },
+  late: {
+    label: 'Late',
+    text: 'text-amber-600',
+    border: 'border-amber-200',
+    hex: '#f59e0b',
+  },
+};
+
+const START_H = 8;
+const END_H = 23;
+const HOURS = Array.from({ length: END_H - START_H }, (_, i) => START_H + i);
+const ROW_HEIGHT = 132;
+const COLUMN_MIN_PX = 88;
+const COLUMN_MAX_PX = 150;
+const COLUMN_WIDTH = `clamp(${COLUMN_MIN_PX}px, calc((100vw - 64px) / 7), ${COLUMN_MAX_PX}px)`;
+
+function pad(n: number) {
+  return String(n).padStart(2, '0');
+}
+
+function fmtH(h: number) {
+  return `${pad(h)}:00`;
+}
+
+function isToday(d: Date) {
+  const n = new Date();
+  return (
+    d.getDate() === n.getDate() &&
+    d.getMonth() === n.getMonth() &&
+    d.getFullYear() === n.getFullYear()
+  );
+}
+
+function toUTCDateKey(d: Date) {
+  return new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()))
+    .toISOString()
+    .split('T')[0];
+}
+
+function dayIndex(entry: ClassEntry, days: Date[]): number {
+  const ed = entry.classDate.split('T')[0];
+  return days.findIndex((d) => ed === toUTCDateKey(d));
+}
+
+function buildSlotMap(classes: ClassEntry[], days: Date[]) {
+  const map: Record<number, Record<number, SlotInfo>> = {};
+
+  classes.forEach((entry, idx) => {
+    const di = dayIndex(entry, days);
+    if (di === -1 || !entry.startTime || !entry.endTime) return;
+
+    const [sh, sm] = entry.startTime.split(':').map(Number);
+    const [eh, em] = entry.endTime.split(':').map(Number);
+
+    let startD = sh + sm / 60;
+    let endD = eh + em / 60;
+
+    startD = Math.max(startD, START_H);
+    endD = Math.min(endD, END_H);
+
+    if (startD >= endD) return;
+
+    const startGridHr = Math.floor(startD);
+    const endGridHr = Math.ceil(endD);
+    const span = endGridHr - startGridHr;
+
+    const topPx = (startD - startGridHr) * ROW_HEIGHT;
+    const heightPx = (endD - startD) * ROW_HEIGHT;
+
+    if (!map[di]) map[di] = {};
+
+    for (let h = startGridHr; h < endGridHr; h++) {
+      map[di][h] = {
+        entry,
+        idx,
+        span: h === startGridHr ? span : 0,
+        isStart: h === startGridHr,
+        topPx,
+        heightPx,
+      };
+    }
+  });
+  return map;
+}
+
+const toLocalDateString = (d: Date) => {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+};
+
+const asId = (v: unknown): string | undefined => {
+  if (!v) return undefined;
+  return typeof v === 'string' ? v : (v as { _id?: string })._id;
+};
+
+const asName = (v: unknown): string | undefined => {
+  if (!v || typeof v === 'string') return undefined;
+  return (v as { name?: string }).name;
+};
+
+// ── Main Page Component ───────────────────────────────────────────────────
+
+export default function StudentRoutinePage() {
+  const { user } = useSelector((state: any) => state.auth);
+  const { toast } = useToast();
+
+  const [courses, setCourses] = useState<StudentCourse[]>([]);
+  const [coursesLoading, setCoursesLoading] = useState(true);
+  const [classes, setClasses] = useState<ClassEntry[]>([]);
+  const [routineLoading, setRoutineLoading] = useState(false);
+  const [view, setView] = useState<'calendar' | 'list'>('calendar');
+  const [selectedEntry, setSelectedEntry] = useState<ClassEntry | null>(null);
+
+  const [appliedRange, setAppliedRange] = useState<[Date | null, Date | null]>([
+    moment().startOf('isoWeek').toDate(),
+    moment().endOf('isoWeek').toDate(),
+  ]);
+  const [customRange, setCustomRange] = useState<[Date | null, Date | null]>([
+    moment().startOf('isoWeek').toDate(),
+    moment().endOf('isoWeek').toDate(),
+  ]);
+  const [isCustomMode, setIsCustomMode] = useState(false);
+
+  const [startDate, endDate] = appliedRange;
+  const [tempStart, tempEnd] = customRange;
+
+  const weekDays = useMemo(() => {
+    if (!startDate || !endDate) return [];
+    const start = moment(startDate).startOf('day');
+    const end = moment(endDate).startOf('day');
+    if (end.isBefore(start)) return [start.toDate()];
+    const days: Date[] = [];
+    let cur = start.clone();
+    while (cur.isSameOrBefore(end)) {
+      days.push(cur.toDate());
+      cur = cur.clone().add(1, 'day');
+    }
+    return days;
+  }, [startDate, endDate]);
+
+  const shiftRange = (daysCount: number) => {
+    const [s, e] = appliedRange;
+    if (!s || !e) return;
+    const nextRange: [Date, Date] = [
+      moment(s).add(daysCount, 'days').toDate(),
+      moment(e).add(daysCount, 'days').toDate(),
+    ];
+    setAppliedRange(nextRange);
+    setCustomRange(nextRange);
+  };
+
+  const goThisWeek = () => {
+    const thisWeek: [Date, Date] = [
+      moment().startOf('isoWeek').toDate(),
+      moment().endOf('isoWeek').toDate(),
+    ];
+    setAppliedRange(thisWeek);
+    setCustomRange(thisWeek);
+    setIsCustomMode(false);
+  };
+
+  const goToday = () => {
+    const today = moment().startOf('day').toDate();
+    const todayRange: [Date, Date] = [today, today];
+    setAppliedRange(todayRange);
+    setCustomRange(todayRange);
+    setIsCustomMode(false);
+  };
+
+  const handleApply = () => {
+    if (tempStart && tempEnd) {
+      setAppliedRange(customRange);
+      setIsCustomMode(false);
+    }
+  };
+
+  const openCustomMode = () => {
+    setCustomRange(appliedRange);
+    setIsCustomMode(true);
+  };
+
+  const fetchCourses = useCallback(async () => {
+    if (!user?._id) return;
+    try {
+      setCoursesLoading(true);
+      const res = await axiosInstance.get('/application-course', {
+        params: { studentId: user._id, limit: 'all' },
+      });
+      const result = res.data?.data?.result || [];
+      const approved = (Array.isArray(result) ? result : []).filter(
+        (app: StudentCourse) => app.status === 'approved'
+      );
+      setCourses(approved);
+    } catch (error) {
+      console.error('Failed to load courses:', error);
+      toast({
+        title: 'Failed to load your courses',
+        variant: 'destructive',
+      });
+    } finally {
+      setCoursesLoading(false);
+    }
+  }, [user?._id, toast]);
+
+  useEffect(() => {
+    fetchCourses();
+  }, [fetchCourses]);
+
+  const hasCourses = courses.length > 0;
+
+  useEffect(() => {
+    if (!hasCourses || weekDays.length === 0 || !user?._id) return;
+
+    const startDateStr = toLocalDateString(weekDays[0]);
+    const endDateStr = toLocalDateString(weekDays[weekDays.length - 1]);
+
+    setRoutineLoading(true);
+    const fetchAll = async () => {
+      try {
+        const routinePromises = courses.map((application) => {
+          const courseId = asId(application.courseId);
+          const groupId = asId(application.groupId);
+          const termId = asId(application.intakeId);
+          if (!courseId) return Promise.resolve({ application, result: [] });
+
+          return axiosInstance
+            .get('/course-routine', {
+              params: {
+                limit: 500,
+                courseId,
+                ...(groupId ? { groupId } : {}),
+                startDate: startDateStr,
+                endDate: endDateStr,
+              },
+            })
+            .then((res) => ({
+              application,
+              result: res.data?.data?.result || [],
+            }))
+            .catch((error) => {
+              console.error(
+                `Failed to load routine for course ${courseId}:`,
+                error
+              );
+              return { application, result: [] };
+            });
+        });
+
+        const [routineResponses, historyRes] = await Promise.all([
+          Promise.all(routinePromises),
+          axiosInstance.get(`/student-attendance/history/${user._id}`, {
+            params: {
+              startDate: startDateStr,
+              endDate: endDateStr,
+              limit: 'all',
+            },
+          }),
+        ]);
+
+        const historyResult = historyRes.data?.data?.result || [];
+        const historyById: Record<string, ClassEntry> = {};
+        (Array.isArray(historyResult) ? historyResult : []).forEach(
+          (h: ClassEntry) => {
+            if (h._id) historyById[h._id] = h;
+          }
+        );
+
+        const byRoutineId = new Map<string, ClassEntry>();
+        routineResponses.forEach(({ application, result }) => {
+          const courseId = asId(application.courseId);
+          const groupId = asId(application.groupId);
+          const termId = asId(application.intakeId);
+          const routineResults = Array.isArray(result) ? result : [];
+          const firstRoutine = routineResults[0] || {};
+          const courseName =
+            asName(application.courseId) || asName(firstRoutine.courseId);
+          const groupName =
+            asName(application.groupId) || asName(firstRoutine.groupId);
+          const termName = asName(firstRoutine.termId);
+
+          routineResults.forEach((routine: any) => {
+            const matched = historyById[routine._id];
+            byRoutineId.set(routine._id, {
+              _id: routine._id,
+              attendanceId: matched?.attendanceId,
+              classDate: routine.classDate,
+              startTime: routine.startTime,
+              endTime: routine.endTime,
+              roomNumber: routine.roomNumber ?? matched?.roomNumber ?? null,
+              status: matched?.status,
+              remark: matched?.remark,
+              courseId,
+              courseName: matched?.courseName || courseName,
+              groupId: asId(routine.groupId) || groupId,
+              groupName: matched?.groupName || groupName,
+              termId: asId(routine.termId) || termId,
+              termName: matched?.termName || termName,
+              teacherId: routine.teacherId?._id ?? matched?.teacherId,
+              teacherName: routine.teacherId?.name ?? matched?.teacherName,
+              teacherEmail: routine.teacherId?.email ?? matched?.teacherEmail,
+            });
+          });
+        });
+
+        const merged = Array.from(byRoutineId.values()).sort((a, b) =>
+          a.classDate === b.classDate
+            ? (a.startTime || '').localeCompare(b.startTime || '')
+            : a.classDate.localeCompare(b.classDate)
+        );
+
+        setClasses(merged);
+      } catch (error) {
+        console.error('Failed to load routine data:', error);
+        setClasses([]);
+      } finally {
+        setRoutineLoading(false);
+      }
+    };
+    fetchAll();
+  }, [hasCourses, courses, user?._id, weekDays]);
+
+  const slotMap = useMemo(
+    () => buildSlotMap(classes, weekDays),
+    [classes, weekDays]
+  );
+
+  const rangeLabel =
+    weekDays.length > 0
+      ? `${moment(weekDays[0]).format('DD MMM')} – ${moment(
+          weekDays[weekDays.length - 1]
+        ).format('DD MMM YYYY')}`
+      : 'Select dates';
+
+  const statusOf = (status?: AttendanceStatus) => {
+    if (!status || !STATUS_META[status]) return null;
+    return STATUS_META[status];
+  };
+
+  if (coursesLoading) {
+    return (
+      <div className="flex h-[80vh] flex-1 items-center justify-center">
+        <Loader />
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full p-2 md:p-4">
+      <Card className="w-full min-w-0 max-w-full flex-1 border-none shadow-sm">
+        <CardContent className="space-y-3 p-0 md:p-4">
+          <div className="w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-gray-200 bg-white">
+            <div className="flex flex-col gap-4 p-5">
+              {/* Routine Header */}
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <div className="rounded-lg bg-watney/10 p-2">
+                    <CalendarClock className="h-5 w-5 text-watney" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-bold text-gray-800">
+                      Class Routine & Attendance
+                    </h2>
+                  </div>
+                </div>
+              </div>
+
+              {/* Date range controls */}
+              {hasCourses && (
+                <div className="flex flex-wrap items-center justify-between gap-2 border-y border-gray-100 py-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      className="flex h-8 w-8 items-center justify-center rounded-md bg-watney text-white transition-colors hover:bg-watney/90"
+                      onClick={() => shiftRange(-(weekDays.length || 7))}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </button>
+
+                    {isCustomMode ? (
+                      <div className="z-50 flex items-center gap-2 rounded-full border border-watney/40 bg-white p-1 shadow-sm">
+                        <CalendarRange className="ml-2 h-3.5 w-3.5 shrink-0 text-watney" />
+                        <DatePicker
+                          selectsRange
+                          startDate={tempStart}
+                          endDate={tempEnd}
+                          onChange={(dates: [Date | null, Date | null]) =>
+                            setCustomRange(dates)
+                          }
+                          dateFormat="dd MMM yyyy"
+                          placeholderText="Select date range..."
+                          isClearable={false}
+                          popperPlacement="bottom-start"
+                          popperProps={{ strategy: 'fixed' }}
+                          className="w-52 border-none bg-transparent text-xs font-semibold text-gray-700 outline-none placeholder:text-gray-400"
+                        />
+                        <button
+                          onClick={handleApply}
+                          disabled={!tempStart || !tempEnd}
+                          className="h-7 rounded-full bg-watney px-3 text-[11px] font-bold text-white transition-colors hover:bg-watney/90 disabled:opacity-40"
+                        >
+                          Apply
+                        </button>
+                        <button
+                          onClick={() => setIsCustomMode(false)}
+                          className="mr-1 flex h-7 w-7 items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={openCustomMode}
+                        className="flex min-w-[180px] items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-center text-sm font-semibold text-gray-700 transition-colors hover:border-gray-200 hover:bg-gray-50"
+                      >
+                        <CalendarIcon className="h-3.5 w-3.5 text-watney" />
+                        {rangeLabel}
+                      </button>
+                    )}
+
+                    <button
+                      className="flex h-8 w-8 items-center justify-center rounded-md bg-watney text-white transition-colors hover:bg-watney/90"
+                      onClick={() => shiftRange(weekDays.length || 7)}
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
+
+                    {!isCustomMode && (
+                      <>
+                        <Button
+                          variant="outline"
+                          className="h-8 rounded-md border border-gray-200 px-3 text-xs font-semibold transition-colors"
+                          onClick={goThisWeek}
+                        >
+                          This Week
+                        </Button>
+                        <Button
+                          className="h-8 rounded-md bg-watney px-3 text-xs font-semibold text-white transition-colors hover:bg-watney/90"
+                          onClick={goToday}
+                        >
+                          Today
+                        </Button>
+                      </>
+                    )}
+                  </div>
+
+                  <span className="text-xs text-gray-400">
+                    {classes.length} class{classes.length === 1 ? '' : 'es'} in
+                    range
+                  </span>
+                </div>
+              )}
+
+              {/* View Toggle (Calendar / List) */}
+              {!routineLoading && hasCourses && (
+                <Tabs value={view} onValueChange={(v) => setView(v as any)}>
+                  <TabsList>
+                    <TabsTrigger value="calendar">
+                      <CalendarDays className="mr-1.5 h-4 w-4" /> Calendar
+                    </TabsTrigger>
+                    <TabsTrigger value="list">
+                      <List className="mr-1.5 h-4 w-4" /> List View
+                    </TabsTrigger>
+                  </TabsList>
+
+                  {/* ── Weekly Grid Calendar View ── */}
+                  <TabsContent value="calendar" className="mt-4">
+                    <div className="mb-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+                      <div className="flex flex-wrap items-center gap-3">
+                        {(Object.keys(STATUS_META) as AttendanceStatus[]).map(
+                          (key) => (
+                            <span
+                              key={key}
+                              className="flex items-center gap-1.5 text-xs font-medium text-gray-600"
+                            >
+                              <span
+                                className="h-2.5 w-2.5 rounded-full"
+                                style={{
+                                  backgroundColor: STATUS_META[key].hex,
+                                }}
+                              />
+                              {STATUS_META[key].label}
+                            </span>
+                          )
+                        )}
+                      </div>
+                    </div>
+
+                    {routineLoading ? (
+                      <div className="flex justify-center py-8">
+                        <BlinkingDots size="small" color="bg-watney" />
+                      </div>
+                    ) : (
+                      <div className="relative max-h-[650px] w-full min-w-0 max-w-full overflow-auto rounded-sm border border-gray-300 bg-white shadow-sm">
+                        <table className="w-max min-w-full border-collapse text-sm">
+                          <thead className="sticky top-0 z-30 bg-slate-50">
+                            <tr>
+                              <th className="sticky left-0 top-0 z-40 w-16 min-w-[64px] border-b border-r border-gray-200 bg-slate-50 px-2 py-2 text-right text-[10px] font-semibold uppercase tracking-wide shadow-[4px_0_8px_-3px_rgba(0,0,0,0.15)]">
+                                Time
+                              </th>
+                              {weekDays.map((d, di) => {
+                                const today = isToday(d);
+                                const wknd = [0, 6].includes(d.getDay());
+                                const dayName = d.toLocaleDateString('en-GB', {
+                                  weekday: 'short',
+                                });
+                                return (
+                                  <th
+                                    key={di}
+                                    style={{
+                                      width: COLUMN_WIDTH,
+                                      minWidth: `${COLUMN_MIN_PX}px`,
+                                      maxWidth: `${COLUMN_MAX_PX}px`,
+                                    }}
+                                    className={`border-b border-r border-gray-200 py-2 text-center ${
+                                      today
+                                        ? 'bg-blue-50'
+                                        : wknd
+                                          ? 'bg-slate-100/60'
+                                          : ''
+                                    }`}
+                                  >
+                                    <div className="text-[10px] font-semibold uppercase tracking-wide text-black/80">
+                                      {dayName}
+                                    </div>
+                                    {today ? (
+                                      <div className="mx-auto mt-1 flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-[13px] font-medium text-white">
+                                        {d.getDate()}
+                                      </div>
+                                    ) : (
+                                      <div className="mt-1 text-sm font-medium text-black">
+                                        {d.getDate()}
+                                      </div>
+                                    )}
+                                    <div className="mt-0.5 text-[9px] font-medium text-black/50">
+                                      {d.toLocaleDateString('en-GB', {
+                                        month: 'short',
+                                      })}
+                                    </div>
+                                  </th>
+                                );
+                              })}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {HOURS.map((hr) => (
+                              <tr key={hr}>
+                                <td className="sticky left-0 z-20 w-16 min-w-[64px] border-b border-r border-gray-200 bg-white px-2 pt-1 text-right align-top text-[11px] font-semibold text-black/70 shadow-[4px_0_8px_-3px_rgba(0,0,0,0.15)]">
+                                  {fmtH(hr)}
+                                </td>
+                                {weekDays.map((_, di) => {
+                                  const slot = slotMap[di]?.[hr];
+                                  if (slot && !slot.isStart) return null;
+
+                                  const today = isToday(weekDays[di]);
+                                  const wknd = [0, 6].includes(
+                                    weekDays[di].getDay()
+                                  );
+                                  const cellCls = `border-b border-r border-gray-200 p-0 align-top transition-colors relative ${
+                                    today
+                                      ? 'bg-blue-50/20'
+                                      : wknd
+                                        ? 'bg-slate-50/60'
+                                        : ''
+                                  }`;
+
+                                  if (!slot)
+                                    return (
+                                      <td
+                                        key={di}
+                                        className={cellCls}
+                                        style={{
+                                          height: ROW_HEIGHT,
+                                          width: COLUMN_WIDTH,
+                                          minWidth: `${COLUMN_MIN_PX}px`,
+                                          maxWidth: `${COLUMN_MAX_PX}px`,
+                                        }}
+                                      />
+                                    );
+
+                                  const { entry, span, topPx, heightPx } = slot;
+                                  const meta = statusOf(entry.status);
+
+                                  return (
+                                    <td
+                                      key={di}
+                                      rowSpan={span}
+                                      className={cellCls}
+                                      style={{
+                                        height: span * ROW_HEIGHT,
+                                        width: COLUMN_WIDTH,
+                                        minWidth: `${COLUMN_MIN_PX}px`,
+                                        maxWidth: `${COLUMN_MAX_PX}px`,
+                                      }}
+                                    >
+                                      <div
+                                        className="relative h-full w-full p-1"
+                                        title={entry.remark || undefined}
+                                      >
+                                        <button
+                                          type="button"
+                                          onClick={() =>
+                                            setSelectedEntry(entry)
+                                          }
+                                          className={clsx(
+                                            'absolute left-1 right-1 z-10 flex cursor-pointer flex-col overflow-hidden rounded-md border bg-white p-2 text-left text-xs shadow-sm transition-shadow hover:shadow-md',
+                                            meta
+                                              ? meta.border
+                                              : 'border-gray-200'
+                                          )}
+                                          style={{
+                                            top: topPx + 2,
+                                            height: Math.max(heightPx - 4, 32),
+                                            borderLeft: meta
+                                              ? `3px solid ${meta.hex}`
+                                              : '3px solid #e5e7eb',
+                                          }}
+                                        >
+                                          <div className="flex h-full select-none flex-col justify-start overflow-hidden">
+                                            <div className="flex shrink-0 items-center gap-1 whitespace-nowrap text-[9px] font-semibold text-black">
+                                              <Clock
+                                                className="h-2.5 w-2.5 shrink-0"
+                                                style={{
+                                                  color: meta
+                                                    ? meta.hex
+                                                    : '#9ca3af',
+                                                }}
+                                              />
+                                              {entry.startTime} – {entry.endTime}
+                                            </div>
+                                            <div className="mt-0.5 shrink-0 truncate text-[11px] font-bold text-black">
+                                              {entry.courseName || 'Course'}
+                                            </div>
+                                            {(entry.groupName ||
+                                              entry.termName) && (
+                                              <div className="mt-0.5 shrink-0 truncate text-[9px] text-black/60">
+                                                {[
+                                                  entry.groupName,
+                                                  entry.termName,
+                                                ]
+                                                  .filter(Boolean)
+                                                  .join(' · ')}
+                                              </div>
+                                            )}
+                                            {entry.teacherName && (
+                                              <div className="mt-0.5 flex shrink-0 items-center gap-1 overflow-hidden text-black/70">
+                                                <User className="h-2.5 w-2.5 shrink-0" />
+                                                <span className="truncate text-[9px]">
+                                                  {entry.teacherName}
+                                                </span>
+                                              </div>
+                                            )}
+                                            {meta && (
+                                              <div
+                                                className={clsx(
+                                                  'mt-auto flex shrink-0 items-center gap-1 pt-1 text-[9px] font-bold',
+                                                  meta.text
+                                                )}
+                                              >
+                                                <span
+                                                  className="h-1.5 w-1.5 shrink-0 rounded-full"
+                                                  style={{
+                                                    backgroundColor: meta.hex,
+                                                  }}
+                                                />
+                                                {meta.label}
+                                              </div>
+                                            )}
+                                          </div>
+                                        </button>
+                                      </div>
+                                    </td>
+                                  );
+                                })}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </TabsContent>
+
+                  {/* ── List View ── */}
+                  <TabsContent value="list" className="mt-4">
+                    {routineLoading ? (
+                      <div className="flex justify-center py-8">
+                        <BlinkingDots size="small" color="bg-watney" />
+                      </div>
+                    ) : (
+                      <div className="w-full min-w-0 overflow-x-auto rounded-lg border border-gray-100">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Date</TableHead>
+                              <TableHead>Time</TableHead>
+                              <TableHead>Course</TableHead>
+                              <TableHead>Teacher</TableHead>
+                              <TableHead>Status</TableHead>
+                              <TableHead>Remark</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {classes.length === 0 ? (
+                              <TableRow>
+                                <TableCell
+                                  colSpan={6}
+                                  className="py-6 text-center text-gray-500"
+                                >
+                                  No classes scheduled in this date range.
+                                </TableCell>
+                              </TableRow>
+                            ) : (
+                              classes.map((cls) => {
+                                const meta = statusOf(cls.status);
+                                return (
+                                  <TableRow
+                                    key={cls._id}
+                                    onClick={() => setSelectedEntry(cls)}
+                                    className="h-16 cursor-pointer hover:bg-gray-50"
+                                  >
+                                    <TableCell className="whitespace-nowrap">
+                                      {moment
+                                        .utc(cls.classDate)
+                                        .format('ddd, DD MMM YYYY')}
+                                    </TableCell>
+                                    <TableCell className="whitespace-nowrap">
+                                      {cls.startTime || '--:--'} –{' '}
+                                      {cls.endTime || '--:--'}
+                                    </TableCell>
+                                    <TableCell>
+                                      <div className="font-medium">
+                                        {cls.courseName || 'Course'}
+                                      </div>
+                                      {(cls.groupName || cls.termName) && (
+                                        <div className="text-xs text-gray-500">
+                                          {[cls.groupName, cls.termName]
+                                            .filter(Boolean)
+                                            .join(' · ')}
+                                        </div>
+                                      )}
+                                    </TableCell>
+                                    <TableCell>
+                                      {cls.teacherName || '—'}
+                                    </TableCell>
+                                    <TableCell>
+                                      {meta ? (
+                                        <span
+                                          className={clsx(
+                                            'inline-flex items-center gap-1.5 text-xs font-bold',
+                                            meta.text
+                                          )}
+                                        >
+                                          <span
+                                            className="h-2 w-2 rounded-full"
+                                            style={{
+                                              backgroundColor: meta.hex,
+                                            }}
+                                          />
+                                          {meta.label}
+                                        </span>
+                                      ) : (
+                                        '—'
+                                      )}
+                                    </TableCell>
+                                    <TableCell className="max-w-[220px] truncate text-xs text-gray-600">
+                                      {cls.remark || '—'}
+                                    </TableCell>
+                                  </TableRow>
+                                );
+                              })
+                            )}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    )}
+                  </TabsContent>
+                </Tabs>
+              )}
+
+              {routineLoading && hasCourses && (
+                <div className="flex justify-center py-8">
+                  <BlinkingDots size="small" color="bg-watney" />
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Details Dialog */}
+          <Dialog
+            open={!!selectedEntry}
+            onOpenChange={(open) => !open && setSelectedEntry(null)}
+          >
+            <DialogContent className="max-w-md">
+              {selectedEntry && (
+                <>
+                  <DialogHeader>
+                    <DialogTitle className="text-base font-bold text-gray-900">
+                      {selectedEntry.courseName || 'Class Details'}
+                    </DialogTitle>
+                    {(selectedEntry.groupName || selectedEntry.termName) && (
+                      <p className="text-xs font-medium text-black/70">
+                        {[selectedEntry.groupName, selectedEntry.termName]
+                          .filter(Boolean)
+                          .join(' · ')}
+                      </p>
+                    )}
+                  </DialogHeader>
+
+                  <div className="rounded-lg border border-gray-200 bg-white shadow-none">
+                    <div className="divide-y divide-gray-100 px-4 py-1">
+                      {statusOf(selectedEntry.status) && (
+                        <div className="flex items-center justify-between gap-3 py-3">
+                          <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black/80">
+                            Status
+                          </span>
+                          <span
+                            className={clsx(
+                              'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold',
+                              statusOf(selectedEntry.status)!.text,
+                              statusOf(selectedEntry.status)!.border
+                            )}
+                          >
+                            <span
+                              className="h-2 w-2 rounded-full"
+                              style={{
+                                backgroundColor: statusOf(
+                                  selectedEntry.status
+                                )!.hex,
+                              }}
+                            />
+                            {statusOf(selectedEntry.status)!.label}
+                          </span>
+                        </div>
+                      )}
+
+                      <div className="flex items-start justify-between gap-3 py-2.5">
+                        <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black/80">
+                          Date
+                        </span>
+                        <span className="text-right text-black">
+                          {moment
+                            .utc(selectedEntry.classDate)
+                            .format('dddd, DD MMM YYYY')}
+                        </span>
+                      </div>
+
+                      <div className="flex items-start justify-between gap-3 py-2.5">
+                        <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black/80">
+                          Time
+                        </span>
+                        <span className="text-right text-black">
+                          {selectedEntry.startTime || '--:--'} –{' '}
+                          {selectedEntry.endTime || '--:--'}
+                        </span>
+                      </div>
+
+                      {selectedEntry.groupName && (
+                        <div className="flex items-start justify-between gap-3 py-2.5">
+                          <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black/80">
+                            Group
+                          </span>
+                          <span className="text-right text-black">
+                            {selectedEntry.groupName}
+                          </span>
+                        </div>
+                      )}
+
+                      {selectedEntry.termName && (
+                        <div className="flex items-start justify-between gap-3 py-2.5">
+                          <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black/80">
+                            Term
+                          </span>
+                          <span className="text-right text-black">
+                            {selectedEntry.termName}
+                          </span>
+                        </div>
+                      )}
+
+                      {selectedEntry.teacherName && (
+                        <div className="flex items-start justify-between gap-3 py-2.5">
+                          <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black/80">
+                            Teacher
+                          </span>
+                          <div className="text-right text-black">
+                            <div>{selectedEntry.teacherName}</div>
+                            {selectedEntry.teacherEmail && (
+                              <div className="text-xs text-black/60">
+                                {selectedEntry.teacherEmail}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {selectedEntry.roomNumber && (
+                        <div className="flex items-start justify-between gap-3 py-2.5">
+                          <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black/80">
+                            Room
+                          </span>
+                          <span className="text-right text-black">
+                            {selectedEntry.roomNumber}
+                          </span>
+                        </div>
+                      )}
+
+                      {selectedEntry.remark && (
+                        <div className="flex items-start justify-between gap-3 py-2.5">
+                          <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black/80">
+                            Remark
+                          </span>
+                          <span className="text-right text-black">
+                            {selectedEntry.remark}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
+            </DialogContent>
+          </Dialog>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
