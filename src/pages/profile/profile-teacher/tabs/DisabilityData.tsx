@@ -64,7 +64,7 @@ const DisabilityData = ({
               classNamePrefix="react-select"
             />
           ) : (
-            <div className="text-gray-900">
+            <div className="text-black">
               {localData?.hasDisability ? 'Yes' : 'No'}
             </div>
           )}
@@ -73,7 +73,7 @@ const DisabilityData = ({
         {/* Disability Details (conditional) */}
         {localData?.hasDisability && (
           <div>
-            <Label className="block text-sm font-medium text-gray-700">
+            <Label className="block text-sm font-medium text-black">
              Disability Details
             </Label>
             {isEditing ? (
@@ -86,7 +86,7 @@ const DisabilityData = ({
                    className='border-gray-300'
               />
             ) : (
-              <div className="mt-1 text-gray-900">
+              <div className="mt-1 text-black">
                 {localData?.disabilityDetails || '-'}
               </div>
             )}
@@ -117,7 +117,7 @@ const DisabilityData = ({
               }}
             />
           ) : (
-            <div className="text-gray-900">
+            <div className="text-black">
               {localData?.needsReasonableAdjustment ? 'Yes' : 'No'}
             </div>
           )}
@@ -126,7 +126,7 @@ const DisabilityData = ({
         {/* Reasonable Adjustment Details (conditional) */}
         {localData?.needsReasonableAdjustment && (
           <div>
-            <Label className="block text-sm font-medium text-gray-700">
+            <Label className="block text-sm font-medium text-black">
               Reasonable Adjustment Details
             </Label>
             {isEditing ? (
@@ -142,7 +142,7 @@ const DisabilityData = ({
                 className='border-gray-300'
               />
             ) : (
-              <div className="mt-1 text-gray-900">
+              <div className="mt-1 text-black">
                 {localData?.reasonableAdjustmentDetails || '-'}
               </div>
             )}

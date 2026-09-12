@@ -109,7 +109,7 @@ export default function ApplicationListPage() {
             <Loader />{' '}
           </div>
         ) : applications.length === 0 ? (
-          <div className="flex justify-center py-6 text-gray-500">
+          <div className="flex justify-center py-6 text-black">
             No records found.
           </div>
         ) : (

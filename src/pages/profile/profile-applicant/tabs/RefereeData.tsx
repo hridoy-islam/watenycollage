@@ -53,13 +53,13 @@ const RefereeDetails = ({
 
     return (
       <div className="space-y-4  p-4 rounded-md bg-white shadow-sm">
-<h3 className="text-lg font-semibold text-gray-800">
+<h3 className="text-lg font-semibold text-black">
   {refereeKey === 'referee1' ? 'Reference 1' : 'Reference 2'}
 </h3>
 
         {/* Name */}
         <div>
-          <label className="block text-sm font-medium text-gray-700">Name</label>
+          <label className="block text-sm font-medium text-black">Name</label>
           {isEditing ? (
             <Input
               type="text"
@@ -68,13 +68,13 @@ const RefereeDetails = ({
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             />
           ) : (
-            <div className="mt-1 text-gray-900">{referee?.name || '-'}</div>
+            <div className="mt-1 text-black">{referee?.name || '-'}</div>
           )}
         </div>
 
         {/* Organisation */}
         <div>
-          <label className="block text-sm font-medium text-gray-700">Organisation</label>
+          <label className="block text-sm font-medium text-black">Organisation</label>
           {isEditing ? (
             <Input
               type="text"
@@ -83,13 +83,13 @@ const RefereeDetails = ({
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             />
           ) : (
-            <div className="mt-1 text-gray-900">{referee?.organisation || '-'}</div>
+            <div className="mt-1 text-black">{referee?.organisation || '-'}</div>
           )}
         </div>
 
         {/* Address */}
         <div>
-          <label className="block text-sm font-medium text-gray-700">Address</label>
+          <label className="block text-sm font-medium text-black">Address</label>
           {isEditing ? (
             <Input
               type="text"
@@ -98,13 +98,13 @@ const RefereeDetails = ({
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             />
           ) : (
-            <div className="mt-1 text-gray-900">{referee?.address || '-'}</div>
+            <div className="mt-1 text-black">{referee?.address || '-'}</div>
           )}
         </div>
 
         {/* Relationship */}
         <div>
-          <label className="block text-sm font-medium text-gray-700">Relationship</label>
+          <label className="block text-sm font-medium text-black">Relationship</label>
           {isEditing ? (
             <Input
               type="text"
@@ -113,14 +113,14 @@ const RefereeDetails = ({
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             />
           ) : (
-            <div className="mt-1 text-gray-900">{capitalizeFirstLetter(referee?.relationship) || '-'}</div>
+            <div className="mt-1 text-black">{capitalizeFirstLetter(referee?.relationship) || '-'}</div>
           )}
         </div>
 
         {/* Specify Other Relationship (Conditional) */}
         {referee?.relationship?.toLowerCase() === 'other' && (
           <div>
-            <label className="block text-sm font-medium text-gray-700">Specify Other Relationship</label>
+            <label className="block text-sm font-medium text-black">Specify Other Relationship</label>
             {isEditing ? (
               <Input
                 type="text"
@@ -129,14 +129,14 @@ const RefereeDetails = ({
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
               />
             ) : (
-              <div className="mt-1 text-gray-900">{referee?.otherRelationship || '-'}</div>
+              <div className="mt-1 text-black">{referee?.otherRelationship || '-'}</div>
             )}
           </div>
         )}
 
         {/* Email */}
         <div>
-          <label className="block text-sm font-medium text-gray-700">Email</label>
+          <label className="block text-sm font-medium text-black">Email</label>
           {isEditing ? (
             <Input
               type="email"
@@ -145,13 +145,13 @@ const RefereeDetails = ({
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             />
           ) : (
-            <div className="mt-1 text-gray-900">{referee?.email || '-'}</div>
+            <div className="mt-1 text-black">{referee?.email || '-'}</div>
           )}
         </div>
 
         {/* Phone */}
         <div>
-          <label className="block text-sm font-medium text-gray-700">Phone</label>
+          <label className="block text-sm font-medium text-black">Phone</label>
           {isEditing ? (
             <Input
               type="text"
@@ -160,7 +160,7 @@ const RefereeDetails = ({
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             />
           ) : (
-            <div className="mt-1 text-gray-900">{referee?.phone || '-'}</div>
+            <div className="mt-1 text-black">{referee?.phone || '-'}</div>
           )}
         </div>
       </div>

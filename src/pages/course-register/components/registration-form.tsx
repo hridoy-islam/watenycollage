@@ -136,7 +136,7 @@ export default function RegistrationForm({
               name="title"
               render={({ field }) => (
                 <FormItem className='mt-1'>
-                  <FormLabel className="block text-sm font-medium text-gray-700">
+                  <FormLabel className="block text-sm font-medium text-black">
                     Title <span className="text-red-500">*</span>
                   </FormLabel>
                   <FormControl>
@@ -224,7 +224,7 @@ export default function RegistrationForm({
             name="nationality"
             render={({ field }) => (
               <FormItem className='mt-1'>
-                <FormLabel className="block text-sm font-medium text-gray-700">
+                <FormLabel className="block text-sm font-medium text-black">
                   Nationality <span className="text-red-500">*</span>
                 </FormLabel>
                 <FormControl>
@@ -254,7 +254,7 @@ export default function RegistrationForm({
                 const today = new Date().toISOString().split("T")[0];
                 return (
                   <FormItem>
-                    <FormLabel className="block text-sm font-medium text-gray-700">
+                    <FormLabel className="block text-sm font-medium text-black">
                       Date of Birth <span className="text-red-500">*</span>
                     </FormLabel>
                     <FormControl>
@@ -304,7 +304,7 @@ export default function RegistrationForm({
                 <button
                   type="button"
                   onClick={() => setShowPassword((prev) => !prev)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-black hover:text-black"
                 >
                   {showPassword ? (
                     <EyeOff className="h-5 w-5" />
@@ -314,7 +314,7 @@ export default function RegistrationForm({
                 </button>
               </div>
               <FormMessage />
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-black">
                 Password must be at least 6 characters
               </p>
             </FormItem>

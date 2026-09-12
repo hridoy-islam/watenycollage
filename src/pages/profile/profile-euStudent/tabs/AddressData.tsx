@@ -77,10 +77,10 @@ const AddressData: React.FC<AddressDataProps> = ({
       <div className="space-y-8">
         {/* Residential Address */}
         <div>
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Residential Address</h3>
+          <h3 className="text-lg font-medium text-black mb-4">Residential Address</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Address Line 1</label>
+              <label className="block text-sm font-medium text-black">Address Line 1</label>
               {isEditing ? (
                 <Input
                   type="text"
@@ -88,14 +88,14 @@ const AddressData: React.FC<AddressDataProps> = ({
                   onChange={(e) => handleInputChange('residentialAddressLine1', e.target.value)}
                 />
               ) : (
-                <div className="mt-1 text-gray-900">
+                <div className="mt-1 text-black">
                   {localData?.residentialAddressLine1 || '-'}
                 </div>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Address Line 2</label>
+              <label className="block text-sm font-medium text-black">Address Line 2</label>
               {isEditing ? (
                 <Input
                   type="text"
@@ -103,14 +103,14 @@ const AddressData: React.FC<AddressDataProps> = ({
                   onChange={(e) => handleInputChange('residentialAddressLine2', e.target.value)}
                 />
               ) : (
-                <div className="mt-1 text-gray-900">
+                <div className="mt-1 text-black">
                   {localData?.residentialAddressLine2 || '-'}
                 </div>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">City</label>
+              <label className="block text-sm font-medium text-black">City</label>
               {isEditing ? (
                 <Input
                   type="text"
@@ -118,14 +118,14 @@ const AddressData: React.FC<AddressDataProps> = ({
                   onChange={(e) => handleInputChange('residentialCity', e.target.value)}
                 />
               ) : (
-                <div className="mt-1 text-gray-900">
+                <div className="mt-1 text-black">
                   {localData?.residentialCity || '-'}
                 </div>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Postcode</label>
+              <label className="block text-sm font-medium text-black">Postcode</label>
               {isEditing ? (
                 <Input
                   type="text"
@@ -133,14 +133,14 @@ const AddressData: React.FC<AddressDataProps> = ({
                   onChange={(e) => handleInputChange('residentialPostCode', e.target.value)}
                 />
               ) : (
-                <div className="mt-1 text-gray-900">
+                <div className="mt-1 text-black">
                   {localData?.residentialPostCode || '-'}
                 </div>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Country</label>
+              <label className="block text-sm font-medium text-black">Country</label>
               {isEditing ? (
                 <Input
                   type="text"
@@ -148,7 +148,7 @@ const AddressData: React.FC<AddressDataProps> = ({
                   onChange={(e) => handleInputChange('residentialCountry', e.target.value)}
                 />
               ) : (
-                <div className="mt-1 text-gray-900">
+                <div className="mt-1 text-black">
                   {localData?.residentialCountry || '-'}
                 </div>
               )}
@@ -159,7 +159,7 @@ const AddressData: React.FC<AddressDataProps> = ({
         {/* Postal Address */}
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-medium text-gray-900">Postal Address</h3>
+            <h3 className="text-lg font-medium text-black">Postal Address</h3>
             
             {isEditing && (
               <div className="flex items-center">
@@ -170,7 +170,7 @@ const AddressData: React.FC<AddressDataProps> = ({
                   checked={localData?.sameAsResidential || false}
                   onChange={(e) => handleSameAsResidentialChange(e.target.checked)}
                 />
-                <label htmlFor="sameAsResidential" className="ml-2 block text-sm text-gray-700">
+                <label htmlFor="sameAsResidential" className="ml-2 block text-sm text-black">
                   Same as Residential
                 </label>
               </div>
@@ -180,7 +180,7 @@ const AddressData: React.FC<AddressDataProps> = ({
           {(!localData?.sameAsResidential || !isEditing) && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Address Line 1</label>
+                <label className="block text-sm font-medium text-black">Address Line 1</label>
                 {isEditing ? (
                   <Input
                     type="text"
@@ -189,14 +189,14 @@ const AddressData: React.FC<AddressDataProps> = ({
                     disabled={localData?.sameAsResidential}
                   />
                 ) : (
-                  <div className="mt-1 text-gray-900">
+                  <div className="mt-1 text-black">
                     {localData?.postalAddressLine1 || '-'}
                   </div>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Address Line 2</label>
+                <label className="block text-sm font-medium text-black">Address Line 2</label>
                 {isEditing ? (
                   <Input
                     type="text"
@@ -205,14 +205,14 @@ const AddressData: React.FC<AddressDataProps> = ({
                     disabled={localData?.sameAsResidential}
                   />
                 ) : (
-                  <div className="mt-1 text-gray-900">
+                  <div className="mt-1 text-black">
                     {localData?.postalAddressLine2 || '-'}
                   </div>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">City</label>
+                <label className="block text-sm font-medium text-black">City</label>
                 {isEditing ? (
                   <Input
                     type="text"
@@ -221,14 +221,14 @@ const AddressData: React.FC<AddressDataProps> = ({
                     disabled={localData?.sameAsResidential}
                   />
                 ) : (
-                  <div className="mt-1 text-gray-900">
+                  <div className="mt-1 text-black">
                     {localData?.postalCity || '-'}
                   </div>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Postcode</label>
+                <label className="block text-sm font-medium text-black">Postcode</label>
                 {isEditing ? (
                   <Input
                     type="text"
@@ -237,14 +237,14 @@ const AddressData: React.FC<AddressDataProps> = ({
                     disabled={localData?.sameAsResidential}
                   />
                 ) : (
-                  <div className="mt-1 text-gray-900">
+                  <div className="mt-1 text-black">
                     {localData?.postalPostCode || '-'}
                   </div>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Country</label>
+                <label className="block text-sm font-medium text-black">Country</label>
                 {isEditing ? (
                   <Input
                     type="text"
@@ -253,7 +253,7 @@ const AddressData: React.FC<AddressDataProps> = ({
                     disabled={localData?.sameAsResidential}
                   />
                 ) : (
-                  <div className="mt-1 text-gray-900">
+                  <div className="mt-1 text-black">
                     {localData?.postalCountry || '-'}
                   </div>
                 )}

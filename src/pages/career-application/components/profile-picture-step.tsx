@@ -84,7 +84,7 @@ const isValidImageUrl = (url) => {
               className="h-full w-full object-cover"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-gray-400 text-sm">
+            <div className="flex h-full w-full items-center justify-center text-black text-sm">
               No Image
             </div>
           )}

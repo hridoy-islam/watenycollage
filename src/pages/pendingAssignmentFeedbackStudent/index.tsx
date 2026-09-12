@@ -160,7 +160,7 @@ export function StudentAssignmentFeedbackList() {
     const fetchStudentCourses = async () => {
       try {
         const res = await axiosInstance.get('/application-course', {
-          params: { studentId: user._id, status: 'approved', limit: 'all' }
+          params: { studentId: user._id, status: 'enrolled', limit: 'all' }
         });
         const apps = res.data?.data?.result || [];
         const uniqueCoursesMap = new Map<string, SelectOption>();

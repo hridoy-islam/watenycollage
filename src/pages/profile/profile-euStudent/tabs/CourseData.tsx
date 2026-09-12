@@ -64,7 +64,7 @@ export default function CourseData() {
     try {
       // Fetch applications
       const appRes = await axiosInstance.get(
-        `/application-course?studentId=${user._id}&status=approved`,
+        `/application-course?studentId=${user._id}&status=enrolled`,
         {
           params: { page, limit }
         }

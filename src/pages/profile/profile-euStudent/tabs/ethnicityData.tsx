@@ -166,12 +166,12 @@ const EthnicityData: React.FC<EthnicityDataProps> = ({
         
         {/* --- Ethnicity Section --- */}
         <div className="space-y-6">
-          <h4 className="text-sm font-semibold text-gray-900 border-b pb-2">Ethnicity</h4>
+          <h4 className="text-sm font-semibold text-black border-b pb-2">Ethnicity</h4>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             
             {/* Ethnic Group */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-black">
                 Ethnic Group
               </label>
               {isEditing ? (
@@ -188,7 +188,7 @@ const EthnicityData: React.FC<EthnicityDataProps> = ({
                   placeholder="Select Group..."
                 />
               ) : (
-                <div className="mt-1 text-gray-900">
+                <div className="mt-1 text-black">
                   {localData.ethnicityGroup || '-'}
                 </div>
               )}
@@ -197,7 +197,7 @@ const EthnicityData: React.FC<EthnicityDataProps> = ({
             {/* Specific Ethnicity */}
             {(localData.ethnicityGroup || !isEditing) && (
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium text-black">
                   Specific Background
                 </label>
                 {isEditing ? (
@@ -214,7 +214,7 @@ const EthnicityData: React.FC<EthnicityDataProps> = ({
                     isDisabled={!localData.ethnicityGroup}
                   />
                 ) : (
-                  <div className="mt-1 text-gray-900">
+                  <div className="mt-1 text-black">
                      {displayEthnicity?.label || '-'}
                   </div>
                 )}
@@ -224,7 +224,7 @@ const EthnicityData: React.FC<EthnicityDataProps> = ({
             {/* Other Ethnicity Text Area */}
             {requiresOther && (
               <div className="md:col-span-2">
-                 <label className="block text-sm font-medium text-gray-700">
+                 <label className="block text-sm font-medium text-black">
                    Please Specify
                  </label>
                  {isEditing ? (
@@ -234,7 +234,7 @@ const EthnicityData: React.FC<EthnicityDataProps> = ({
                      placeholder="e.g., Polish, Nigerian, Filipino..."
                    />
                  ) : (
-                   <div className="mt-1 text-gray-900">
+                   <div className="mt-1 text-black">
                      {localData.ethnicityOther || '-'}
                    </div>
                  )}
@@ -245,12 +245,12 @@ const EthnicityData: React.FC<EthnicityDataProps> = ({
 
         {/* --- Other Details Section --- */}
         <div className="space-y-6">
-          <h4 className="text-sm font-semibold text-gray-900 border-b pb-2">Additional Details</h4>
+          <h4 className="text-sm font-semibold text-black border-b pb-2">Additional Details</h4>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             
             {/* Religion */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-black">
                 Religion or Belief
               </label>
               {isEditing ? (
@@ -262,7 +262,7 @@ const EthnicityData: React.FC<EthnicityDataProps> = ({
                   styles={selectStyles}
                 />
               ) : (
-                <div className="mt-1 text-gray-900">
+                <div className="mt-1 text-black">
                   {getLabel(localData.religion, religionOptions)}
                 </div>
               )}
@@ -270,7 +270,7 @@ const EthnicityData: React.FC<EthnicityDataProps> = ({
 
             {/* Sexual Orientation */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-black">
                 Sexual Orientation
               </label>
               {isEditing ? (
@@ -282,7 +282,7 @@ const EthnicityData: React.FC<EthnicityDataProps> = ({
                   styles={selectStyles}
                 />
               ) : (
-                <div className="mt-1 text-gray-900">
+                <div className="mt-1 text-black">
                    {getLabel(localData.sexualOrientation, sexualOrientationOptions)}
                 </div>
               )}
@@ -290,7 +290,7 @@ const EthnicityData: React.FC<EthnicityDataProps> = ({
 
             {/* Gender Identity */}
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-black">
                 Is your gender identity the same as assigned at birth?
               </label>
               {isEditing ? (
@@ -303,7 +303,7 @@ const EthnicityData: React.FC<EthnicityDataProps> = ({
                   className="max-w-md"
                 />
               ) : (
-                <div className="mt-1 text-gray-900">
+                <div className="mt-1 text-black">
                    {getLabel(localData.genderIdentitySameAtBirth, genderIdentityOptions)}
                 </div>
               )}

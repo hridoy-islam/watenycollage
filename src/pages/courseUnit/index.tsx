@@ -1,4 +1,13 @@
-import { useState, useEffect, useCallback } from 'react';
+/**
+ * Course unit workspace.
+ *
+ * The unit is the organising object here: a routine is scheduled under a unit
+ * and a teacher is assigned to a unit, so both live on the unit row rather
+ * than on the group as a whole. The cohort (students) and the attendance
+ * history stay group-level, since enrolment itself is on the group.
+ */
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import type { ReactNode } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import moment from 'moment-timezone';
 import clsx from 'clsx';
@@ -24,13 +33,19 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/ui/tooltip';
 import {
   Plus,
   FileText,
   MoveLeft,
   Pen,
   Trash2,
-  CalendarRange,
   ClipboardCheck,
   UserCheck,
   UserX,
@@ -40,16 +55,22 @@ import {
   Circle,
   Clock,
   Search,
-  UserMinus
+  GraduationCap,
+  UserMinus,
+  BookOpen,
+  Users,
+  ChevronRight,
+  X
 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useSelector } from 'react-redux';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
 import { DataTablePagination } from '@/components/shared/data-table-pagination';
 import axiosInstance from '@/lib/axios';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import Select from 'react-select';
+import { fetchTeacherOptions } from '@/lib/teachers';
+import { useEffectiveRole } from '@/hooks/use-effective-role';
 
 // ── Types ────────────────────────────────────────────────────────────────
 
@@ -83,15 +104,9 @@ interface ChangeLogItem {
 }
 
 interface AttendanceLog {
-  _id: string;
+  _id?: string;
   message?: string;
-  updatedBy: {
-    _id: string;
-    name?: string;
-    firstName?: string;
-    lastName?: string;
-    email?: string;
-  } | string;
+  updatedBy: any;
   updatedAt: string;
   changes: ChangeLogItem[];
 }
@@ -99,15 +114,11 @@ interface AttendanceLog {
 interface AttendanceSheet {
   _id: string;
   classRoutineId: any;
+  unitId?: any;
   classDate: string;
   attendance: SheetStudent[];
   logs?: AttendanceLog[];
-  updatedBy?: {
-    _id: string;
-    name?: string;
-    firstName?: string;
-    lastName?: string;
-  } | string;
+  updatedBy?: any;
   updatedAt?: string;
   courseId?: any;
   groupId?: any;
@@ -116,6 +127,7 @@ interface AttendanceSheet {
 
 interface AssignedMember {
   _id: string;
+  unitId?: { _id: string; title?: string; unitReference?: string } | string;
   studentId?: { _id: string; name?: string; email?: string } | string;
   teacherId?: { _id: string; name?: string; email?: string } | string;
 }
@@ -139,28 +151,25 @@ interface CourseStudent {
 
 const STATUS_META: Record<
   AttendanceStatus,
-  { label: string; icon: any; active: string; chip: string; dot: string }
+  { label: string; icon: any; active: string; chip: string }
 > = {
   present: {
     label: 'Present',
     icon: UserCheck,
-    active: 'bg-emerald-500 text-white border-emerald-600',
-    chip: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-    dot: 'text-emerald-500'
+    active: 'bg-emerald-600 text-white',
+    chip: 'bg-emerald-50 text-emerald-700 border-emerald-200'
   },
   absent: {
     label: 'Absent',
     icon: UserX,
-    active: 'bg-rose-500 text-white border-rose-600',
-    chip: 'bg-rose-50 text-rose-700 border-rose-200',
-    dot: 'text-rose-500'
+    active: 'bg-rose-600 text-white',
+    chip: 'bg-rose-50 text-rose-700 border-rose-200'
   },
   late: {
     label: 'Late',
     icon: Timer,
-    active: 'bg-amber-500 text-white border-amber-600',
-    chip: 'bg-amber-50 text-amber-700 border-amber-200',
-    dot: 'text-amber-500'
+    active: 'bg-amber-500 text-white',
+    chip: 'bg-amber-50 text-amber-700 border-amber-200'
   }
 };
 
@@ -170,7 +179,10 @@ const attendancePayloadSchema = z.array(
     status: z.enum(['present', 'absent', 'late'], {
       required_error: 'Status is required for every student'
     }),
-    remark: z.string().max(200, 'Remark must be at most 200 characters').optional()
+    remark: z
+      .string()
+      .max(200, 'Remark must be at most 200 characters')
+      .optional()
   })
 );
 
@@ -196,6 +208,120 @@ const studentName = (s: any) =>
   s?.email ||
   'Unknown Student';
 
+/** Two initials, for the roster avatars. */
+const initialsOf = (name: string) =>
+  name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join('') || '?';
+
+const idOf = (value: any): string =>
+  typeof value === 'object' && value?._id ? value._id : String(value ?? '');
+
+/** "REF — Title", falling back to whichever half exists. */
+const unitLabel = (unit: any) => {
+  if (!unit || typeof unit !== 'object') return '';
+  return [unit.unitReference, unit.title].filter(Boolean).join(' — ');
+};
+
+const selectStyles = {
+  menuPortal: (base: any) => ({
+    ...base,
+    zIndex: 9999,
+    pointerEvents: 'auto' as const
+  }),
+  control: (base: any) => ({
+    ...base,
+    minHeight: '38px',
+    fontSize: '13px',
+    borderColor: '#e2e8f0',
+    boxShadow: 'none',
+    '&:hover': { borderColor: '#cbd5e1' }
+  }),
+  menu: (base: any) => ({ ...base, fontSize: '13px', zIndex: 9999 }),
+  multiValue: (base: any) => ({ ...base, backgroundColor: '#f1f5f9' }),
+  multiValueLabel: (base: any) => ({ ...base, fontSize: '12px' })
+};
+
+const menuPortalTarget =
+  typeof document !== 'undefined' ? document.body : undefined;
+
+type Option = { value: string; label: string };
+
+// ── Small presentational pieces ──────────────────────────────────────────
+
+function MetaChip({ label, value }: { label: string; value: string }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-watney/5 px-2 py-1 text-[11px] font-medium text-black">
+      <span className="text-black">{label}</span>
+      <span className="font-semibold text-black">{value}</span>
+    </span>
+  );
+}
+
+function EmptyState({
+  icon: Icon,
+  title,
+  description,
+  action
+}: {
+  icon: any;
+  title: string;
+  description?: string;
+  action?: ReactNode;
+}) {
+  return (
+    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 bg-watney/5 px-6 py-12 text-center">
+      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-black shadow-sm">
+        <Icon className="h-5 w-5" />
+      </div>
+      <p className="mt-3 text-sm font-semibold text-black">{title}</p>
+      {description && (
+        <p className="mt-1 max-w-sm text-xs text-black">{description}</p>
+      )}
+      {action && <div className="mt-4">{action}</div>}
+    </div>
+  );
+}
+
+/** Icon-only action button with a tooltip — keeps the row dense but legible. */
+function IconAction({
+  label,
+  icon: Icon,
+  onClick,
+  tone = 'default'
+}: {
+  label: string;
+  icon: any;
+  onClick: () => void;
+  tone?: 'default' | 'danger';
+}) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          aria-label={label}
+          onClick={onClick}
+          className={clsx(
+            'flex h-8 w-8 items-center justify-center rounded-md border transition-colors',
+            tone === 'danger'
+              ? 'border-gray-200 text-black hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600'
+              : 'border-gray-200 text-black hover:border-watney/40 hover:bg-watney/5 hover:text-watney'
+          )}
+        >
+          <Icon className="h-4 w-4" />
+        </button>
+      </TooltipTrigger>
+      <TooltipContent side="top" className="text-xs">
+        {label}
+      </TooltipContent>
+    </Tooltip>
+  );
+}
+
 // ── Component ────────────────────────────────────────────────────────────
 
 function CourseUnitPage() {
@@ -204,18 +330,30 @@ function CourseUnitPage() {
   const { user } = useSelector((state: any) => state.auth);
   const navigate = useNavigate();
 
-  // Units state
+  // Teaching staff are stored as `employee` with a "Teacher" designation, so
+  // the raw role would leave a real teacher unscoped - seeing every unit in
+  // the group rather than only the ones they hold. `resolved` guards the
+  // fetch, which asks for a different page size per role.
+  const { isTeacher, isAdmin, resolved: roleResolved } = useEffectiveRole();
+  const teacherScoped = isTeacher;
+
+  // Units
   const [units, setUnits] = useState<CourseUnit[]>([]);
   const [loading, setLoading] = useState(true);
+  const [unitSearch, setUnitSearch] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [currentUnitId, setCurrentUnitId] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [unitToDelete, setUnitToDelete] = useState<CourseUnit | null>(null);
   const [unassignDialogOpen, setUnassignDialogOpen] = useState(false);
-  const [memberToUnassign, setMemberToUnassign] = useState<{ _id: string; type: 'student' | 'teacher'; name: string } | null>(null);
+  const [memberToUnassign, setMemberToUnassign] = useState<{
+    _id: string;
+    type: 'student' | 'teacher';
+    name: string;
+  } | null>(null);
 
-  // Unit form inputs
+  // Unit form
   const [unitReference, setUnitReference] = useState('');
   const [title, setTitle] = useState('');
   const [level, setLevel] = useState('');
@@ -223,106 +361,153 @@ function CourseUnitPage() {
   const [credit, setCredit] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  // Header meta names
+  // Header meta
   const [courseName, setCourseName] = useState('');
   const [groupName, setGroupName] = useState('');
   const [termName, setTermName] = useState('');
 
-  // Pagination for Units
+  // Units pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
 
-  // ── Attendance State ───────────────────────────────────────────────────
-  const [attendanceSheets, setAttendanceSheets] = useState<AttendanceSheet[]>([]);
+  // Attendance
+  const [attendanceSheets, setAttendanceSheets] = useState<AttendanceSheet[]>(
+    []
+  );
   const [attendanceLoading, setAttendanceLoading] = useState(false);
+  const [attendanceUnitFilter, setAttendanceUnitFilter] = useState<Option>({
+    value: 'all',
+    label: 'All units'
+  });
 
-  // ── Assigned Students & Teachers State ────────────────────────────────
-  const [assignedStudents, setAssignedStudents] = useState<AssignedMember[]>([]);
-  const [assignedTeachers, setAssignedTeachers] = useState<AssignedMember[]>([]);
+  // Cohort & teaching team
+  const [assignedStudents, setAssignedStudents] = useState<AssignedMember[]>(
+    []
+  );
+  const [assignedTeachers, setAssignedTeachers] = useState<AssignedMember[]>(
+    []
+  );
   const [membersLoading, setMembersLoading] = useState(false);
 
-  // ── Assign Student / Teacher State ─────────────────────────────────────
+  // Assign dialog
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
-  const [assignType, setAssignType] = useState<'student' | 'teacher'>('student');
-  const [userOptions, setUserOptions] = useState<{ value: string; label: string }[]>([]);
+  const [assignType, setAssignType] = useState<'student' | 'teacher'>(
+    'student'
+  );
+  const [assignUnit, setAssignUnit] = useState<CourseUnit | null>(null);
+  const [userOptions, setUserOptions] = useState<Option[]>([]);
   const [userOptionsLoading, setUserOptionsLoading] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<{ value: string; label: string } | null>(null);
+  // Students and teachers are both assigned in batches - a unit can be taught
+  // by several people, and a cohort is usually added a handful at a time.
+  const [selectedUsers, setSelectedUsers] = useState<Option[]>([]);
   const [assigning, setAssigning] = useState(false);
 
-  // ── Course Students (Application Course) State ─────────────────────────
+  // Applicants on this course, for the student picker
   const [courseStudents, setCourseStudents] = useState<CourseStudent[]>([]);
 
-  // Date range filter: editable date range
+  // Attendance date range — editable vs. applied
   const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([
     moment().startOf('isoWeek').startOf('day').toDate(),
     moment().endOf('isoWeek').startOf('day').toDate()
   ]);
   const [startDate, endDate] = dateRange;
-
-  // Applied date range (actual filter used for API calls)
-  const [appliedDateRange, setAppliedDateRange] = useState<[Date | null, Date | null]>([
+  const [appliedDateRange, setAppliedDateRange] = useState<
+    [Date | null, Date | null]
+  >([
     moment().startOf('isoWeek').startOf('day').toDate(),
     moment().endOf('isoWeek').startOf('day').toDate()
   ]);
 
-  // Active modal attendance sheet editing state
-  const [selectedSheet, setSelectedSheet] = useState<AttendanceSheet | null>(null);
+  // Attendance editing
+  const [selectedSheet, setSelectedSheet] = useState<AttendanceSheet | null>(
+    null
+  );
   const [attendanceModalOpen, setAttendanceModalOpen] = useState(false);
-  const [sheetStatuses, setSheetStatuses] = useState<Record<string, AttendanceStatus>>({});
+  const [sheetStatuses, setSheetStatuses] = useState<
+    Record<string, AttendanceStatus>
+  >({});
   const [sheetRemarks, setSheetRemarks] = useState<Record<string, string>>({});
   const [unmarkedIds, setUnmarkedIds] = useState<Set<string>>(new Set());
   const [savingAttendance, setSavingAttendance] = useState(false);
   const [viewLogsModalOpen, setViewLogsModalOpen] = useState(false);
   const [activeLogs, setActiveLogs] = useState<AttendanceLog[]>([]);
 
-  // ── Fetch Units & Meta ─────────────────────────────────────────────────
-  const fetchUnitsData = async (page = 1, limit = entriesPerPage) => {
-    if (!courseId) return;
-    try {
-      setLoading(true);
-      const courseRes = await axiosInstance.get(`/courses/${courseId}`);
-      setCourseName(courseRes.data?.data?.name || 'Course');
+  /**
+   * Units are read-only for everyone but an admin.
+   *
+   * A teacher holds a unit to teach it, not to maintain the syllabus - adding,
+   * editing or deleting a unit, and assigning other teachers to it, stays with
+   * the admin. A student can only ever read.
+   */
+  const canEdit = isAdmin;
 
-      if (groupId) {
-        const groupRes = await axiosInstance.get(`/course-group/${groupId}`);
-        setGroupName(groupRes.data?.data?.name || '');
+  /** Registers are staff business; a student never sees the attendance tab. */
+  const canSeeAttendance = isAdmin || isTeacher;
+
+  // ── Fetch units & header meta ──────────────────────────────────────────
+  const fetchUnitsData = useCallback(
+    async (page = 1, limit = entriesPerPage) => {
+      if (!courseId) return;
+      if (!roleResolved) return;
+
+      try {
+        setLoading(true);
+        const courseRes = await axiosInstance.get(`/courses/${courseId}`);
+        setCourseName(courseRes.data?.data?.name || 'Course');
+
+        if (groupId) {
+          const groupRes = await axiosInstance.get(`/course-group/${groupId}`);
+          setGroupName(groupRes.data?.data?.name || '');
+        }
+
+        if (termId) {
+          const termRes = await axiosInstance.get(`/course-term/${termId}`);
+          setTermName(termRes.data?.data?.name || '');
+        }
+
+        // A teacher's list is narrowed to their own units after it arrives, so
+        // it has to arrive whole - paging first would hand them a page that
+        // filters down to nothing while their units sat on page two.
+        const unitsRes = await axiosInstance.get('/course-unit', {
+          params: {
+            courseId,
+            groupId,
+            termId,
+            ...(teacherScoped ? { limit: 'all' } : { page, limit })
+          }
+        });
+
+        setUnits(unitsRes.data?.data?.result || []);
+        // The API returns `totalPage` (singular) in its meta.
+        setTotalPages(unitsRes.data?.data?.meta?.totalPage || 1);
+        setCurrentPage(page);
+      } catch {
+        toast({
+          title: 'Error',
+          description: 'Failed to load course units.',
+          variant: 'destructive'
+        });
+        setUnits([]);
+      } finally {
+        setLoading(false);
       }
+    },
+    [courseId, groupId, termId, entriesPerPage, toast, teacherScoped, roleResolved]
+  );
 
-      if (termId) {
-        const termRes = await axiosInstance.get(`/course-term/${termId}`);
-        setTermName(termRes.data?.data?.name || '');
-      }
-
-      const unitsRes = await axiosInstance.get('/course-unit', {
-        params: { courseId, groupId, termId, page, limit }
-      });
-
-      setUnits(unitsRes.data?.data?.result || []);
-      setTotalPages(unitsRes.data?.data?.meta?.totalPages || 1);
-      setCurrentPage(page);
-    } catch {
-      toast({ title: 'Error', description: 'Failed to load course units.', variant: 'destructive' });
-      setUnits([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // ── Fetch Attendance Sheets by Course/Group/Term & Applied Date Range ──
+  // ── Fetch attendance sheets for the applied range ─────────────────────
   const fetchAttendanceData = useCallback(async () => {
     if (!courseId) return;
     const [appliedStart, appliedEnd] = appliedDateRange;
-    
+
     try {
       setAttendanceLoading(true);
-      const params: Record<string, any> = {
-        courseId,
-        limit: 'all'
-      };
+      const params: Record<string, any> = { courseId, limit: 'all' };
       if (groupId) params.groupId = groupId;
       if (termId) params.termId = termId;
-      if (appliedStart) params.startDate = moment(appliedStart).format('YYYY-MM-DD');
+      if (appliedStart)
+        params.startDate = moment(appliedStart).format('YYYY-MM-DD');
       if (appliedEnd) params.endDate = moment(appliedEnd).format('YYYY-MM-DD');
 
       const res = await axiosInstance.get('/student-attendance', { params });
@@ -335,41 +520,55 @@ function CourseUnitPage() {
     }
   }, [courseId, groupId, termId, appliedDateRange]);
 
-  // Apply date range filter
-  const handleApplyDateRange = () => {
-    setAppliedDateRange(dateRange);
-  };
-
-  // ── Fetch Assigned Students & Teachers by Course/Term/Group ───────────
+  // ── Fetch cohort & teaching team ──────────────────────────────────────
+  /**
+   * The cohort and the teaching team.
+   *
+   * Fetched independently rather than through one `Promise.all`: the two reads
+   * are unrelated, and sharing a failure meant a student - who is not
+   * necessarily allowed to list the group's other students - lost the teaching
+   * team as well, so the unit rows showed no teacher at all. The teacher read
+   * is the one a student actually needs, so it must not depend on the other.
+   */
   const fetchGroupMembers = useCallback(async () => {
-    if (!courseId || !groupId) return;
-    try {
-      setMembersLoading(true);
-      const params: Record<string, any> = {
-        courseId,
-        groupId,
-        limit: 'all'
-      };
-      if (termId) params.courseTermId = termId;
+    // Only the course is required. This page is mounted on two route shapes -
+    // `my-courses/:id/terms/:tid/groups/:gid/units`, which carries the group,
+    // and `courses/:id/unit`, which does not - and bailing out without a group
+    // meant the teaching team was never even requested on the second, so a
+    // student arriving that way saw no teacher on any unit.
+    if (!courseId) return;
 
-      const [studentsRes, teachersRes] = await Promise.all([
-        axiosInstance.get('/student-assign-group', { params }),
-        axiosInstance.get('/teacher-courses', { params })
-      ]);
-      setAssignedStudents(studentsRes.data?.data?.result || []);
-      setAssignedTeachers(teachersRes.data?.data?.result || []);
-    } catch (error) {
-      console.error('Failed to load assigned students/teachers:', error);
+    const params: Record<string, any> = { courseId, limit: 'all' };
+    if (groupId) params.groupId = groupId;
+    if (termId) params.courseTermId = termId;
+
+    setMembersLoading(true);
+
+    const [students, teachers] = await Promise.allSettled([
+      axiosInstance.get('/student-assign-group', { params }),
+      axiosInstance.get('/teacher-courses', { params })
+    ]);
+
+    if (students.status === 'fulfilled') {
+      setAssignedStudents(students.value.data?.data?.result || []);
+    } else {
+      console.error('Failed to load assigned students:', students.reason);
       setAssignedStudents([]);
-      setAssignedTeachers([]);
-    } finally {
-      setMembersLoading(false);
     }
+
+    if (teachers.status === 'fulfilled') {
+      setAssignedTeachers(teachers.value.data?.data?.result || []);
+    } else {
+      console.error('Failed to load assigned teachers:', teachers.reason);
+      setAssignedTeachers([]);
+    }
+
+    setMembersLoading(false);
   }, [courseId, groupId, termId]);
 
-  // ── Fetch Course Students (Application Course with same courseId) ─────
   const fetchCourseStudents = useCallback(async () => {
-    if (!courseId) return;
+    // Only ever used to fill the admin's "assign student" picker.
+    if (!courseId || !canEdit) return;
     try {
       const res = await axiosInstance.get('/application-course', {
         params: { courseId, limit: 'all' }
@@ -379,17 +578,158 @@ function CourseUnitPage() {
       console.error('Failed to load course students:', error);
       setCourseStudents([]);
     }
-  }, [courseId]);
+  }, [courseId, canEdit]);
 
-  // ── Assign Student / Teacher ──────────────────────────────────────────
-  const openAssignDialog = (type: 'student' | 'teacher') => {
-    setAssignType(type);
-    setSelectedUser(null);
+  useEffect(() => {
+    if (!courseId) return;
+    fetchUnitsData(currentPage, entriesPerPage);
+  }, [courseId, currentPage, entriesPerPage, fetchUnitsData]);
+
+  useEffect(() => {
+    fetchAttendanceData();
+  }, [fetchAttendanceData]);
+
+  useEffect(() => {
+    fetchGroupMembers();
+    fetchCourseStudents();
+  }, [fetchGroupMembers, fetchCourseStudents]);
+
+  // ── Derived ────────────────────────────────────────────────────────────
+
+  /** Teachers keyed by the unit they teach — the row renders straight off this. */
+  const teachersByUnit = useMemo(() => {
+    const map = new Map<string, AssignedMember[]>();
+    assignedTeachers.forEach((item) => {
+      const uid = idOf(item.unitId);
+      if (!uid) return;
+      if (!map.has(uid)) map.set(uid, []);
+      map.get(uid)!.push(item);
+    });
+    return map;
+  }, [assignedTeachers]);
+
+
+  /**
+   * A teacher only ever sees the units they hold.
+   *
+   * Teachers are assigned per unit, so the unit list has to be cut down to
+   * theirs - the group's other units belong to other teachers and are not
+   * theirs to open, edit or take a register for. Admins and staff keep the
+   * whole group, which is the view they need to assign from.
+   *
+   * `assignedTeachers` is the same `/teacher-courses` read the teaching-team
+   * column uses, already scoped to this course, term and group.
+   */
+  const teacherOwnUnitIds = useMemo(() => {
+    if (!isTeacher) return null;
+    const mine = new Set<string>();
+    assignedTeachers.forEach((item) => {
+      if (idOf(item.teacherId) !== String(user?._id)) return;
+      const uid = idOf(item.unitId);
+      if (uid) mine.add(uid);
+    });
+    return mine;
+  }, [isTeacher, assignedTeachers, user?._id]);
+
+  const scopedUnits = useMemo(
+    () =>
+      teacherOwnUnitIds
+        ? units.filter((unit) => teacherOwnUnitIds.has(unit._id))
+        : units,
+    [units, teacherOwnUnitIds]
+  );
+
+  const filteredUnits = useMemo(() => {
+    const term = unitSearch.trim().toLowerCase();
+    if (!term) return scopedUnits;
+    return scopedUnits.filter((unit) =>
+      [unit.unitReference, unit.title, unit.level]
+        .filter(Boolean)
+        .some((field) => field.toLowerCase().includes(term))
+    );
+  }, [scopedUnits, unitSearch]);
+
+  /**
+   * The registers on screen.
+   *
+   * Narrowed twice: to the units in scope - a teacher's own, an admin's all -
+   * and then to whatever the unit filter is set to. Without the first pass a
+   * teacher could read the register for a unit another teacher holds, since
+   * the sheets themselves are fetched for the whole group.
+   */
+  const visibleSheets = useMemo(() => {
+    const inScope = teacherOwnUnitIds
+      ? attendanceSheets.filter((sheet) => {
+          const uid = idOf(sheet.unitId) || idOf(sheet.classRoutineId?.unitId);
+          return uid && teacherOwnUnitIds.has(uid);
+        })
+      : attendanceSheets;
+
+    if (attendanceUnitFilter.value === 'all') return inScope;
+
+    return inScope.filter((sheet) => {
+      const uid = idOf(sheet.unitId) || idOf(sheet.classRoutineId?.unitId);
+      return uid === attendanceUnitFilter.value;
+    });
+  }, [attendanceSheets, attendanceUnitFilter, teacherOwnUnitIds]);
+
+  /** Roll-up across whatever the filters currently show. */
+  const attendanceTotals = useMemo(() => {
+    return visibleSheets.reduce(
+      (totals, sheet) => {
+        const entries = sheet.attendance || [];
+        const present = entries.filter((a) => a.status === 'present').length;
+        const absent = entries.filter((a) => a.status === 'absent').length;
+        const late = entries.filter((a) => a.status === 'late').length;
+        return {
+          sessions: totals.sessions + 1,
+          present: totals.present + present,
+          absent: totals.absent + absent,
+          late: totals.late + late,
+          unmarked:
+            totals.unmarked + (entries.length - present - absent - late)
+        };
+      },
+      { sessions: 0, present: 0, absent: 0, late: 0, unmarked: 0 }
+    );
+  }, [visibleSheets]);
+
+  const rangeLabel = useMemo(() => {
+    const [from, to] = appliedDateRange;
+    if (!from && !to) return 'All dates';
+    const format = (date: Date | null) =>
+      date ? moment(date).format('DD MMM YYYY') : '…';
+    return from && to && moment(from).isSame(to, 'day')
+      ? format(from)
+      : `${format(from)} – ${format(to)}`;
+  }, [appliedDateRange]);
+
+  const unitFilterOptions = useMemo<Option[]>(
+    () => [
+      { value: 'all', label: 'All units' },
+      ...scopedUnits.map((unit) => ({
+        value: unit._id,
+        label: unit.title || unit.unitReference || 'Untitled unit'
+      }))
+    ],
+    [scopedUnits]
+  );
+
+  // ── Assign student / teacher ───────────────────────────────────────────
+  const openAssignStudent = () => {
+    setAssignType('student');
+    setAssignUnit(null);
+    setSelectedUsers([]);
     setUserOptions([]);
     setAssignDialogOpen(true);
-    if (type === 'student' && courseStudents.length === 0) {
-      fetchCourseStudents();
-    }
+  };
+
+  const openAssignTeacher = (unit: CourseUnit) => {
+    setAssignType('teacher');
+    setAssignUnit(unit);
+    setSelectedUsers([]);
+    setUserOptions([]);
+    setAssignDialogOpen(true);
   };
 
   useEffect(() => {
@@ -397,54 +737,38 @@ function CourseUnitPage() {
 
     if (assignType === 'student') {
       const assignedIds = new Set(
-        assignedStudents
-          .map((item) => {
-            const student = item.studentId;
-            return typeof student === 'object' && student?._id ? student._id : typeof student === 'string' ? student : '';
-          })
-          .filter(Boolean)
+        assignedStudents.map((item) => idOf(item.studentId)).filter(Boolean)
       );
       setUserOptions(
         courseStudents
           .filter((app) => {
-            const sid = typeof app.studentId === 'object' ? app.studentId?._id : app.studentId;
+            const sid = idOf(app.studentId);
             return !sid || !assignedIds.has(sid);
           })
-          .map((app) => {
-            const student = app.studentId;
-            return {
-              value: typeof student === 'object' && student?._id ? student._id : typeof student === 'string' ? student : '',
-              label: studentName(student)
-            };
-          })
+          .map((app) => ({
+            value: idOf(app.studentId),
+            label: studentName(
+              typeof app.studentId === 'object' ? app.studentId : null
+            )
+          }))
+          .filter((option) => option.value)
       );
       setUserOptionsLoading(false);
       return;
     }
 
+    // Teachers already holding *this unit* are the ones to exclude — the same
+    // person may well teach another unit of the same group.
     const fetchTeachers = async () => {
       setUserOptionsLoading(true);
       try {
-        const assignedIds = new Set(
-          assignedTeachers
-            .map((item) => {
-              const teacher = item.teacherId;
-              return typeof teacher === 'object' && teacher?._id ? teacher._id : typeof teacher === 'string' ? teacher : '';
-            })
+        const heldHere = new Set(
+          (teachersByUnit.get(assignUnit?._id || '') || [])
+            .map((item) => idOf(item.teacherId))
             .filter(Boolean)
         );
-        const res = await axiosInstance.get('/users', {
-          params: { role: 'teacher', status: 'active', limit: 'all' }
-        });
-        const result = res.data?.data?.result || [];
-        setUserOptions(
-          result
-            .filter((u: any) => !assignedIds.has(u._id))
-            .map((u: any) => ({
-              value: u._id,
-              label: u.name || [u.firstName, u.lastName].filter(Boolean).join(' ').trim() || u.email
-            }))
-        );
+        const options = await fetchTeacherOptions();
+        setUserOptions(options.filter((option) => !heldHere.has(option.value)));
       } catch (error) {
         console.error('Failed to fetch teachers:', error);
         setUserOptions([]);
@@ -453,29 +777,81 @@ function CourseUnitPage() {
       }
     };
     fetchTeachers();
-  }, [assignDialogOpen, assignType, courseStudents, assignedStudents, assignedTeachers]);
+  }, [
+    assignDialogOpen,
+    assignType,
+    assignUnit,
+    courseStudents,
+    assignedStudents,
+    teachersByUnit
+  ]);
 
   const handleAssign = async () => {
-    if (!selectedUser || !courseId || !groupId) return;
+    if (selectedUsers.length === 0 || !courseId || !groupId) return;
+    const isStudent = assignType === 'student';
+
+    if (!isStudent && !assignUnit) {
+      toast({
+        title: 'Pick a unit',
+        description: 'A teacher is assigned to a specific unit.',
+        variant: 'destructive'
+      });
+      return;
+    }
+
     setAssigning(true);
     try {
-      const isStudent = assignType === 'student';
-      const memberKey = isStudent ? 'studentId' : 'teacherId';
+      // Each assignment is its own record, so a batch is one request per
+      // person; failures are collected rather than aborting the whole batch.
+      const results = await Promise.allSettled(
+        selectedUsers.map((option) =>
+          axiosInstance.post(
+            isStudent ? '/student-assign-group' : '/teacher-courses',
+            {
+              courseId,
+              courseTermId: termId,
+              groupId,
+              ...(isStudent
+                ? { studentId: option.value }
+                : { unitId: assignUnit!._id, teacherId: option.value })
+            }
+          )
+        )
+      );
 
-      await axiosInstance.post(isStudent ? '/student-assign-group' : '/teacher-courses', {
-        courseId,
-        courseTermId: termId,
-        groupId,
-        [memberKey]: selectedUser.value
-      });
+      const failed = results
+        .map((result, index) => ({ result, option: selectedUsers[index] }))
+        .filter((entry) => entry.result.status === 'rejected');
+      const succeeded = results.length - failed.length;
 
-      toast({ title: 'Success', description: `${isStudent ? 'Student' : 'Teacher'} assigned successfully.` });
-      setAssignDialogOpen(false);
+      if (succeeded > 0) {
+        toast({
+          title: `${succeeded} ${isStudent ? 'student' : 'teacher'}${
+            succeeded === 1 ? '' : 's'
+          } assigned`,
+          description: isStudent
+            ? `Added to ${groupName || 'the group'}.`
+            : `Now teaching ${assignUnit?.title || 'this unit'}.`
+        });
+      }
+
+      if (failed.length > 0) {
+        toast({
+          title: `${failed.length} could not be assigned`,
+          description: failed
+            .map((entry) => entry.option.label)
+            .join(', '),
+          variant: 'destructive'
+        });
+      }
+
+      if (succeeded > 0) setAssignDialogOpen(false);
       await fetchGroupMembers();
     } catch (error: any) {
       toast({
         title: 'Error',
-        description: error?.response?.data?.message || `Failed to assign ${assignType}.`,
+        description:
+          error?.response?.data?.message || `Failed to assign ${assignType}.`,
         variant: 'destructive'
       });
     } finally {
@@ -483,7 +859,10 @@ function CourseUnitPage() {
     }
   };
 
-  const openUnassignDialog = (item: AssignedMember, type: 'student' | 'teacher') => {
+  const openUnassignDialog = (
+    item: AssignedMember,
+    type: 'student' | 'teacher'
+  ) => {
     const member = type === 'student' ? item.studentId : item.teacherId;
     const name =
       typeof member === 'object'
@@ -497,11 +876,15 @@ function CourseUnitPage() {
     if (!memberToUnassign) return;
     try {
       await axiosInstance.delete(
-        `${memberToUnassign.type === 'student' ? '/student-assign-group' : '/teacher-courses'}/${memberToUnassign._id}`
+        `${
+          memberToUnassign.type === 'student'
+            ? '/student-assign-group'
+            : '/teacher-courses'
+        }/${memberToUnassign._id}`
       );
       toast({
-        title: 'Success',
-        description: `${memberToUnassign.type === 'student' ? 'Student' : 'Teacher'} unassigned successfully.`
+        title: 'Unassigned',
+        description: `${memberToUnassign.name} was removed.`
       });
       setUnassignDialogOpen(false);
       setMemberToUnassign(null);
@@ -515,46 +898,37 @@ function CourseUnitPage() {
     }
   };
 
-  // Handle Today button
+  // ── Date range shortcuts ───────────────────────────────────────────────
+  const applyRange = (start: Date, end: Date) => {
+    const next: [Date | null, Date | null] = [start, end];
+    setDateRange(next);
+    setAppliedDateRange(next);
+  };
+
   const handleToday = () => {
     const today = moment().startOf('day').toDate();
-    const newRange: [Date | null, Date | null] = [today, today];
-    setDateRange(newRange);
-    setAppliedDateRange(newRange);
+    applyRange(today, today);
   };
+  const handleThisWeek = () =>
+    applyRange(
+      moment().startOf('isoWeek').startOf('day').toDate(),
+      moment().endOf('isoWeek').startOf('day').toDate()
+    );
+  const handleThisMonth = () =>
+    applyRange(
+      moment().startOf('month').startOf('day').toDate(),
+      moment().endOf('month').startOf('day').toDate()
+    );
 
-  // Handle This Week button
-  const handleThisWeek = () => {
-    const start = moment().startOf('isoWeek').startOf('day').toDate();
-    const end = moment().endOf('isoWeek').startOf('day').toDate();
-    const newRange: [Date | null, Date | null] = [start, end];
-    setDateRange(newRange);
-    setAppliedDateRange(newRange);
-  };
-
-  // Handle This Month button
-  const handleThisMonth = () => {
-    const start = moment().startOf('month').startOf('day').toDate();
-    const end = moment().endOf('month').startOf('day').toDate();
-    const newRange: [Date | null, Date | null] = [start, end];
-    setDateRange(newRange);
-    setAppliedDateRange(newRange);
-  };
-
-  useEffect(() => {
-    if (courseId) {
-      fetchUnitsData(currentPage, entriesPerPage);
-      fetchAttendanceData();
-      fetchGroupMembers();
-      fetchCourseStudents();
-    }
-  }, [courseId, groupId, termId, currentPage, entriesPerPage, fetchAttendanceData, fetchGroupMembers, fetchCourseStudents]);
-
-  // ── Handlers for Units ─────────────────────────────────────────────────
+  // ── Unit CRUD ──────────────────────────────────────────────────────────
   const openAddDialog = () => {
     setIsEditing(false);
     setCurrentUnitId(null);
-    setUnitReference(''); setTitle(''); setLevel(''); setGls(''); setCredit('');
+    setUnitReference('');
+    setTitle('');
+    setLevel('');
+    setGls('');
+    setCredit('');
     setDialogOpen(true);
   };
 
@@ -575,13 +949,32 @@ function CourseUnitPage() {
   };
 
   const handleUnitSubmit = async () => {
-    if (!unitReference.trim() || !title.trim() || !level.trim() || !gls.trim() || !credit.trim()) {
-      toast({ title: 'Error', description: 'All fields are required.', variant: 'destructive' });
+    if (
+      !unitReference.trim() ||
+      !title.trim() ||
+      !level.trim() ||
+      !gls.trim() ||
+      !credit.trim()
+    ) {
+      toast({
+        title: 'Error',
+        description: 'All fields are required.',
+        variant: 'destructive'
+      });
       return;
     }
     setSubmitting(true);
     try {
-      const payload = { courseId, groupId, termId, unitReference, title, level, gls, credit };
+      const payload = {
+        courseId,
+        groupId,
+        termId,
+        unitReference,
+        title,
+        level,
+        gls,
+        credit
+      };
       if (isEditing && currentUnitId) {
         await axiosInstance.patch(`/course-unit/${currentUnitId}`, payload);
         toast({ title: 'Unit updated successfully!' });
@@ -592,7 +985,11 @@ function CourseUnitPage() {
       fetchUnitsData(currentPage, entriesPerPage);
       setDialogOpen(false);
     } catch {
-      toast({ title: 'Error', description: 'Failed to save unit.', variant: 'destructive' });
+      toast({
+        title: 'Error',
+        description: 'Failed to save unit.',
+        variant: 'destructive'
+      });
     } finally {
       setSubmitting(false);
     }
@@ -606,19 +1003,24 @@ function CourseUnitPage() {
       fetchUnitsData(currentPage, entriesPerPage);
       setDeleteDialogOpen(false);
     } catch {
-      toast({ title: 'Error', description: 'Failed to delete unit.', variant: 'destructive' });
+      toast({
+        title: 'Error',
+        description: 'Failed to delete unit.',
+        variant: 'destructive'
+      });
     }
   };
 
-  const handleViewModules = (unit: CourseUnit) => navigate(`${unit._id}`);
+  const handleViewModules = (unit: CourseUnit) =>
+    navigate(`${unit._id}`);
 
-  // ── Handlers for Attendance Modal & Updates ────────────────────────────
+  // ── Attendance modal ───────────────────────────────────────────────────
   const openAttendanceModal = (sheet: AttendanceSheet) => {
     setSelectedSheet(sheet);
     const statuses: Record<string, AttendanceStatus> = {};
     const remarks: Record<string, string> = {};
     sheet.attendance?.forEach((item) => {
-      const sid = item.studentId?._id || item.studentId;
+      const sid = idOf(item.studentId);
       if (sid) {
         if (item.status) statuses[sid] = item.status;
         if (item.remark) remarks[sid] = item.remark;
@@ -643,18 +1045,19 @@ function CourseUnitPage() {
     setSheetStatuses((prev) => {
       const next = { ...prev };
       selectedSheet?.attendance?.forEach((item) => {
-        const sid = item.studentId?._id || item.studentId;
+        const sid = idOf(item.studentId);
         if (sid) next[sid] = 'present';
       });
       return next;
     });
+    setUnmarkedIds(new Set());
   };
 
   const saveAttendanceChanges = async () => {
     if (!selectedSheet) return;
     const entries = (selectedSheet.attendance || [])
       .map((item) => {
-        const sid = item.studentId?._id || item.studentId;
+        const sid = idOf(item.studentId);
         const status = sheetStatuses[sid];
         const remark = sheetRemarks[sid]?.trim();
         if (!sid) return null;
@@ -668,11 +1071,15 @@ function CourseUnitPage() {
     if (!parsed.success) {
       const missing = new Set<string>();
       selectedSheet.attendance?.forEach((item) => {
-        const sid = item.studentId?._id || item.studentId;
+        const sid = idOf(item.studentId);
         if (sid && !sheetStatuses[sid]) missing.add(sid);
       });
       setUnmarkedIds(missing);
-      toast({ title: 'Validation Warning', description: 'Please mark attendance for all students before saving.', variant: 'destructive' });
+      toast({
+        title: 'Validation Warning',
+        description: 'Please mark attendance for all students before saving.',
+        variant: 'destructive'
+      });
       return;
     }
 
@@ -680,7 +1087,7 @@ function CourseUnitPage() {
     try {
       await axiosInstance.patch(`/student-attendance/${selectedSheet._id}`, {
         attendance: parsed.data,
-        userId: user._id,
+        userId: user._id
       });
       toast({ title: 'Attendance updated successfully!' });
       setAttendanceModalOpen(false);
@@ -688,7 +1095,8 @@ function CourseUnitPage() {
     } catch (error: any) {
       toast({
         title: 'Error',
-        description: error?.response?.data?.message || 'Failed to update attendance.',
+        description:
+          error?.response?.data?.message || 'Failed to update attendance.',
         variant: 'destructive'
       });
     } finally {
@@ -701,391 +1109,404 @@ function CourseUnitPage() {
     setViewLogsModalOpen(true);
   };
 
-  // ── Role Permissions ──
-  const canEdit =user?.role === 'admin';
-  const isAdmin = user?.role === 'admin';
-  const isTeacher = user?.role === 'teacher';
-  const isStudent = user?.role === 'student';
-
-  // Card visibility checks
-  const canSeeAttendance = isTeacher || isAdmin;
-  const canSeeStudents = isTeacher || isAdmin;
-  const canSeeTeachers = isTeacher || isAdmin || isStudent;
-  const canManageMembers = isAdmin; // Only Admin can assign/unassign teachers and students
-
   // ────────────────────────────────────────────────────────────────────────
   // Render
   // ────────────────────────────────────────────────────────────────────────
 
+  const sheetUnitOf = (sheet: AttendanceSheet) =>
+    (typeof sheet.unitId === 'object' && sheet.unitId) ||
+    (typeof sheet.classRoutineId?.unitId === 'object' &&
+      sheet.classRoutineId.unitId) ||
+    null;
+
   return (
-    <div className="space-y-6 pb-10">
-      {/* ── Delete Unit Dialog ── */}
-      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Are you sure?</DialogTitle>
-            <DialogDescription>
-              This will permanently delete the unit{' '}
-              <span className="font-semibold">"{unitToDelete?.title}"</span> and all associated data.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-            <Button variant="destructive" onClick={handleUnitDelete} className="bg-red-600 hover:bg-red-700">
-              Delete
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* ── Unit Add/Edit Dialog ── */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>{isEditing ? 'Edit Course Unit' : 'Add New Course Unit'}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="grid grid-cols-1 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="unitRef">Unit Reference</Label>
-                <Input id="unitRef" value={unitReference} onChange={(e) => setUnitReference(e.target.value)} placeholder="e.g., CS101" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="title">Title</Label>
-                <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g., Intro to Programming" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="level">Level</Label>
-                <Input id="level" value={level} type="number" min="0" onChange={(e) => setLevel(e.target.value)} placeholder="e.g., 4" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="gls">GLS</Label>
-                <Input id="gls" type="number" min="0" value={gls} onChange={(e) => setGls(e.target.value)} placeholder="e.g., 3" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="credit">Credit</Label>
-                <Input id="credit" type="number" min="0" value={credit} onChange={(e) => setCredit(e.target.value)} placeholder="e.g., 15" />
-              </div>
-            </div>
-            <div className="flex flex-col-reverse justify-between gap-2 pt-4 sm:flex-row sm:justify-end sm:gap-2">
-              <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-              <Button onClick={handleUnitSubmit} disabled={submitting} className="bg-watney text-white hover:bg-watney/90">
-                {submitting ? (isEditing ? 'Updating...' : 'Adding...') : (isEditing ? 'Update' : 'Add Unit')}
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* ── Edit Attendance Sheet Modal ── */}
-      <Dialog open={attendanceModalOpen} onOpenChange={setAttendanceModalOpen}>
-        <DialogContent className="flex max-h-[90vh] w-[95vw] max-w-4xl flex-col overflow-hidden p-0">
-          <div className="px-6 py-4 border-b">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-lg">
-                <ClipboardCheck className="h-5 w-5 text-watney" />
-                Manage Attendance — {formatDate(selectedSheet?.classDate || '')}
-              </DialogTitle>
-            </DialogHeader>
-          </div>
-
-          <ScrollArea className="flex-1 px-6 py-4">
-            {unmarkedIds.size > 0 && (
-              <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700">
-                {unmarkedIds.size} student(s) unmarked. All students must be marked before saving.
-              </div>
-            )}
-            <div className="space-y-3">
-              {selectedSheet?.attendance?.map((item) => {
-                const sid = item.studentId?._id || item.studentId;
-                const status = sheetStatuses[sid];
-                const isUnmarked = unmarkedIds.has(sid);
-                return (
-                  <div
-                    key={sid}
-                    className={clsx(
-                      'flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-center sm:justify-between',
-                      isUnmarked ? 'border-rose-300 bg-rose-50/50' : 'border-gray-200 bg-white'
-                    )}
-                  >
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900">{studentName(item.studentId)}</p>
-                      <p className="text-xs text-gray-500">{item.studentId?.email || ''}</p>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <div className="flex overflow-hidden rounded-md border border-gray-200">
-                        {(Object.keys(STATUS_META) as AttendanceStatus[]).map((key) => {
-                          const meta = STATUS_META[key];
-                          const Icon = meta.icon;
-                          const isActive = status === key;
-                          return (
-                            <button
-                              key={key}
-                              type="button"
-                              onClick={() => toggleStatus(sid, key)}
-                              className={clsx(
-                                'flex items-center gap-1 px-3 py-1.5 text-xs font-semibold transition-colors',
-                                isActive ? meta.active : 'bg-white text-gray-700 hover:bg-gray-50'
-                              )}
-                            >
-                              <Icon className="h-3.5 w-3.5" />
-                              <span className="hidden sm:inline">{meta.label}</span>
-                            </button>
-                          );
-                        })}
-                      </div>
-                      <Input
-                        placeholder="Remark (optional)"
-                        value={sheetRemarks[sid] || ''}
-                        onChange={(e) =>
-                          setSheetRemarks((prev) => ({ ...prev, [sid]: e.target.value }))
-                        }
-                        className="h-8 w-full sm:w-44 text-xs"
-                      />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </ScrollArea>
-
-          <div className="px-6 py-4 border-t bg-gray-50 flex items-center justify-between">
-            <Button variant="outline" size="sm" onClick={markAllPresent}>
-              <UserCheck className="mr-1.5 h-4 w-4" /> Mark All Present
-            </Button>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => setAttendanceModalOpen(false)}>
-                Cancel
-              </Button>
-              <Button
-                size="sm"
-                className="bg-watney text-white hover:bg-watney/90"
-                onClick={saveAttendanceChanges}
-                disabled={savingAttendance}
-              >
-                {savingAttendance && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}
-                Save Changes
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* ── View Change Logs Modal ── */}
-      <Dialog open={viewLogsModalOpen} onOpenChange={setViewLogsModalOpen}>
-        <DialogContent className="max-w-3xl max-h-[85vh] overflow-hidden flex flex-col">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <History className="h-5 w-5 text-watney" /> Attendance Change History 
-            </DialogTitle>
-          </DialogHeader>
-          <ScrollArea className="flex-1 my-2 pr-4">
-            {activeLogs.length === 0 ? (
-              <div className="py-8 text-center text-sm text-gray-500">No change logs recorded for this session yet.</div>
-            ) : (
-              <div className="space-y-4">
-                {[...activeLogs]
-                  .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
-                  .map((log, idx) => (
-                  <div key={log._id || idx} className="rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-2">
-                    <div className="flex items-center justify-between text-xs font-semibold">
-                      <span className="font-semibold ">
-                        {log.message || ""}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </ScrollArea>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setViewLogsModalOpen(false)}>Close</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* ── Page Header ── */}
-      <Card className="shadow-sm">
-        <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <CardTitle className="text-2xl font-bold">{courseName || 'Course'} Management</CardTitle>
-            <div className="mt-1 flex flex-wrap items-center gap-2 text-sm font-medium ">
-              {groupName && (
-                <span className="text-gray-700">
-                  Group: <span className="font-semibold">{groupName}</span>
+    <TooltipProvider delayDuration={200}>
+      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+        {/* ── Page header ──────────────────────────────────────────────── */}
+        <header className="border-b border-gray-200 px-5 py-4">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div className="min-w-0">
+              <nav className="flex items-center gap-1.5 text-[11px] font-medium text-black">
+                <button
+                  type="button"
+                  onClick={() => navigate(-1)}
+                  className="transition-colors hover:text-watney"
+                >
+                  Courses
+                </button>
+                <ChevronRight className="h-3 w-3" />
+                <span className="truncate text-black">
+                  {courseName || 'Course'}
                 </span>
-              )}
-              {groupName && termName && <span>•</span>}
-              {termName && (
-                <span className="text-gray-700">
-                  Term: <span className="font-semibold">{termName}</span>
-                </span>
-              )}
+                <ChevronRight className="h-3 w-3" />
+                <span className="text-black">Units</span>
+              </nav>
+
+              <h1 className="mt-1.5 truncate text-2xl font-bold tracking-tight text-black">
+                {courseName || 'Course'}
+              </h1>
+
+              <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                {termName && <MetaChip label="Term" value={termName} />}
+                {groupName && <MetaChip label="Group" value={groupName} />}
+                <MetaChip label="Units" value={String(scopedUnits.length)} />
+              </div>
             </div>
-          </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            <Button
-              className="bg-watney text-white hover:bg-watney/90"
-              onClick={() => navigate(-1)}
-              size="sm"
-            >
-              <MoveLeft className="mr-2 h-4 w-4" /> Back
-            </Button>
-            {canEdit && (
+            <div className="flex flex-wrap items-center gap-2">
               <Button
-                className="bg-watney text-white hover:bg-watney/90"
-                onClick={openAddDialog}
+                variant="outline"
                 size="sm"
+                onClick={() => navigate(-1)}
+                className="h-9"
               >
-                <Plus className="mr-2 h-4 w-4" /> Add Unit
+                <MoveLeft className="mr-2 h-4 w-4" /> Back
               </Button>
-            )}
-            {/* <Button
-              className="bg-watney text-white hover:bg-watney/90"
-              onClick={() => navigate('class-routine')}
-              size="sm"
-            >
-              <CalendarRange className="mr-2 h-4 w-4" /> Routine
-            </Button> */}
-          </div>
-        </CardHeader>
-      </Card>
-
-      {/* ── Main Layout: Units, Attendance, Students & Teachers ── */}
-      <div className="grid grid-cols-1 items-start gap-2 lg:grid-cols-4">
-        {/* ── Course Units ── */}
-        <Card
-          className={`shadow-sm ${
-            canSeeAttendance
-              ? 'lg:col-span-2'
-              : canSeeTeachers || canSeeStudents
-                ? 'lg:col-span-3'
-                : 'lg:col-span-4'
-          }`}
-        >
-          <CardHeader className="p-2 pb-3">
-            <CardTitle className="text-lg font-semibold">Course Units</CardTitle>
-          </CardHeader>
-          <CardContent className="p-2 pt-0">
-            {loading ? (
-              <div className="flex items-center justify-center py-12">
-                <BlinkingDots size="large" color="bg-watney" />
-              </div>
-            ) : units.length === 0 ? (
-              <div className="py-12 text-center">
-                <FileText className="mx-auto h-12 w-12 /50" />
-                <h3 className="mt-2 text-sm font-medium ">No course units added yet</h3>
-              </div>
-            ) : (
-              <>
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Unit Reference</TableHead>
-                        <TableHead>Title</TableHead>
-                        <TableHead>Level</TableHead>
-                        <TableHead>GLS</TableHead>
-                        <TableHead>Credit</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {units.map((unit) => (
-                        <TableRow key={unit._id}>
-                          <TableCell className="font-medium">{unit.unitReference}</TableCell>
-                          <TableCell>{unit.title}</TableCell>
-                          <TableCell>{unit.level}</TableCell>
-                          <TableCell>{unit.gls}</TableCell>
-                          <TableCell>{unit.credit}</TableCell>
-                          <TableCell className="text-right">
-                            <div className="flex justify-end gap-2">
-                              <Button
-                                size="sm"
-                                onClick={() => handleViewModules(unit)}
-                                className="bg-watney text-white hover:bg-watney/90"
-                              >
-                                <FileText className="mr-1.5 h-4 w-4" /> Modules
-                              </Button>
-                              {canEdit && (
-                                <>
-                                  <Button
-                                    size="sm"
-                                    onClick={() => openEditDialog(unit)}
-                                    className="bg-watney text-white hover:bg-watney/90"
-                                  >
-                                    <Pen className="h-4 w-4" />
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    variant="destructive"
-                                    onClick={() => openDeleteDialog(unit)}
-                                    className="bg-red-600 hover:bg-red-700"
-                                  >
-                                    <Trash2 className="h-4 w-4" />
-                                  </Button>
-                                </>
-                              )}
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-                {totalPages > 1 && (
-                  <div className="mt-4 flex justify-center">
-                    <DataTablePagination
-                      pageSize={entriesPerPage}
-                      setPageSize={setEntriesPerPage}
-                      currentPage={currentPage}
-                      totalPages={totalPages}
-                      onPageChange={setCurrentPage}
-                    />
-                  </div>
-                )}
-              </>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* ── Attendance (list view) — Teacher and Admin ── */}
-        {canSeeAttendance && (
-          <Card className="shadow-sm">
-            <CardHeader className="p-2 pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2 text-lg font-semibold">
-                  <ClipboardCheck className="h-5 w-5 text-watney" />
-                  Attendance
-                </CardTitle>
-              </div>
-
-              {/* Date Filter */}
-              <div className="mt-3 space-y-2">
-                <DatePicker
-                  selectsRange
-                  startDate={startDate}
-                  endDate={endDate}
-                  onChange={(update: [Date | null, Date | null]) => setDateRange(update)}
-                  dateFormat="dd MMM yyyy"
-                  isClearable={true}
-                  placeholderText="Select date range"
-                  wrapperClassName="w-full"
-                  className="h-9 w-full rounded-md border border-gray-300 bg-white px-3 text-xs shadow-sm focus:outline-none focus:ring-1 focus:ring-watney"
-                />
+              {canEdit && (
                 <Button
                   size="sm"
-                  className="h-8 w-full bg-watney text-white hover:bg-watney/90 text-[11px]"
-                  onClick={handleApplyDateRange}
+                  onClick={openAddDialog}
+                  className="h-9 bg-watney text-white hover:bg-watney/90"
                 >
-                  <Search className="mr-1.5 h-3.5 w-3.5" /> Apply Date Filter
+                  <Plus className="mr-2 h-4 w-4" /> Add unit
                 </Button>
-                <div className="flex items-center gap-2">
+              )}
+            </div>
+          </div>
+        </header>
+
+        {/* ── Stats ────────────────────────────────────────────────────── */}
+        {/* ── Workspace ────────────────────────────────────────────────── */}
+        <Tabs defaultValue="units">
+          <TabsList className="h-auto w-full justify-start gap-1 rounded-none border-b border-gray-200 bg-watney/5 px-4 py-2">
+            <TabsTrigger
+              value="units"
+              className="gap-1.5 rounded-lg text-xs data-[state=active]:bg-watney data-[state=active]:text-white"
+            >
+              <BookOpen className="h-3.5 w-3.5" /> Units
+            </TabsTrigger>
+            {canSeeAttendance && (
+              <TabsTrigger
+                value="attendance"
+                className="gap-1.5 rounded-lg text-xs data-[state=active]:bg-watney data-[state=active]:text-white"
+              >
+                <ClipboardCheck className="h-3.5 w-3.5" /> Attendance
+              </TabsTrigger>
+            )}
+            <TabsTrigger
+              value="students"
+              className="gap-1.5 rounded-lg text-xs data-[state=active]:bg-watney data-[state=active]:text-white"
+            >
+              <Users className="h-3.5 w-3.5" /> Students
+            </TabsTrigger>
+          </TabsList>
+
+          {/* ── Units ──────────────────────────────────────────────────── */}
+          <TabsContent value="units" className="m-0">
+            <section>
+              <div className="flex flex-col gap-3 border-b border-gray-200 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h2 className="text-sm font-semibold text-black">
+                    Course units
+                  </h2>
+                  <p className="text-[11px] text-black">
+                    Each unit carries its own timetable and teaching team.
+                  </p>
+                </div>
+                <div className="relative w-full sm:w-64">
+                  <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-black" />
+                  <Input
+                    value={unitSearch}
+                    onChange={(e) => setUnitSearch(e.target.value)}
+                    placeholder="Search reference, title or level"
+                    className="h-9 pl-8 text-xs"
+                  />
+                  {unitSearch && (
+                    <button
+                      type="button"
+                      onClick={() => setUnitSearch('')}
+                      aria-label="Clear search"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-black hover:text-black"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {loading ? (
+                <div className="flex items-center justify-center py-16">
+                  <BlinkingDots size="large" color="bg-watney" />
+                </div>
+              ) : filteredUnits.length === 0 ? (
+                <div className="p-4">
+                  <EmptyState
+                    icon={BookOpen}
+                    title={
+                      unitSearch
+                        ? 'No unit matches that search'
+                        : 'No course units yet'
+                    }
+                    description={
+                      unitSearch
+                        ? 'Try a different reference, title or level.'
+                        : 'Add the first unit to start scheduling classes and assigning teachers.'
+                    }
+                    action={
+                      !unitSearch && canEdit ? (
+                        <Button
+                          size="sm"
+                          onClick={openAddDialog}
+                          className="bg-watney text-white hover:bg-watney/90"
+                        >
+                          <Plus className="mr-1.5 h-4 w-4" /> Add unit
+                        </Button>
+                      ) : null
+                    }
+                  />
+                </div>
+              ) : (
+                <>
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="border-gray-200 bg-watney/5 hover:bg-watney/5">
+                          <TableHead className="text-[11px] font-semibold uppercase tracking-wide text-black">
+                            Unit
+                          </TableHead>
+                          <TableHead className="w-24 text-[11px] font-semibold uppercase tracking-wide text-black">
+                            Level
+                          </TableHead>
+                          <TableHead className="w-20 text-[11px] font-semibold uppercase tracking-wide text-black">
+                            GLS
+                          </TableHead>
+                          <TableHead className="w-20 text-[11px] font-semibold uppercase tracking-wide text-black">
+                            Credit
+                          </TableHead>
+                          <TableHead className="min-w-[220px] text-[11px] font-semibold uppercase tracking-wide text-black">
+                            Teaching team
+                          </TableHead>
+                          <TableHead className="w-[190px] text-right text-[11px] font-semibold uppercase tracking-wide text-black">
+                            Actions
+                          </TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredUnits.map((unit) => {
+                          const unitTeachers =
+                            teachersByUnit.get(unit._id) || [];
+                          return (
+                            <TableRow
+                              key={unit._id}
+                              className="border-gray-200 align-top transition-colors hover:bg-watney/5"
+                            >
+                              <TableCell className="py-3">
+                                <div className="flex items-start gap-2.5">
+                                  <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-watney/10 text-watney">
+                                    <BookOpen className="h-4 w-4" />
+                                  </div>
+                                  <div className="min-w-0">
+                                    <p className="text-sm font-semibold text-black">
+                                      {unit.title || 'Untitled unit'}
+                                    </p>
+                                    <p className="mt-0.5 font-mono text-[11px] text-black">
+                                      {unit.unitReference || '—'}
+                                    </p>
+                                  </div>
+                                </div>
+                              </TableCell>
+                              <TableCell className="py-3 text-xs text-black">
+                                {unit.level || '—'}
+                              </TableCell>
+                              <TableCell className="py-3 text-xs text-black">
+                                {unit.gls || '—'}
+                              </TableCell>
+                              <TableCell className="py-3">
+                                <span className="inline-flex items-center rounded-md bg-watney/10 px-2 py-0.5 text-[11px] font-semibold text-black">
+                                  {unit.credit || '—'}
+                                </span>
+                              </TableCell>
+                              <TableCell
+                                className="py-3"
+                                onClick={(event) => event.stopPropagation()}
+                              >
+                                {unitTeachers.length === 0 ? (
+                                  canEdit ? (
+                                    <button
+                                      type="button"
+                                      onClick={() => openAssignTeacher(unit)}
+                                      className="inline-flex items-center gap-1.5 rounded-md border border-dashed border-gray-200 px-2 py-1 text-[11px] font-medium text-black transition-colors hover:border-watney/40 hover:text-watney"
+                                    >
+                                      <Plus className="h-3 w-3" /> Assign teacher
+                                    </button>
+                                  ) : (
+                                    <span className="text-[11px] text-black">
+                                      No teacher assigned
+                                    </span>
+                                  )
+                                ) : (
+                                  <div className="flex flex-wrap items-center gap-1.5">
+                                    {unitTeachers.map((item) => {
+                                      const name = userName(item.teacherId);
+                                      const email =
+                                        typeof item.teacherId === 'object'
+                                          ? item.teacherId?.email
+                                          : '';
+                                      return (
+                                        <span
+                                          key={item._id}
+                                          className="group inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white py-0.5 pl-0.5 pr-1.5 text-[11px] font-medium text-black"
+                                        >
+                                          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-watney/10 text-[9px] font-bold text-watney">
+                                            {initialsOf(name)}
+                                          </span>
+                                          <span className="flex min-w-0 flex-col leading-tight">
+                                            <span className="max-w-[160px] truncate">
+                                              {name}
+                                            </span>
+                                            {email && (
+                                              <a
+                                                href={`mailto:${email}`}
+                                                className="max-w-[160px] truncate text-[10px] font-normal text-black hover:text-watney hover:underline"
+                                              >
+                                                {email}
+                                              </a>
+                                            )}
+                                          </span>
+                                          {canEdit && (
+                                            <button
+                                              type="button"
+                                              aria-label={`Unassign ${name}`}
+                                              onClick={() =>
+                                                openUnassignDialog(
+                                                  item,
+                                                  'teacher'
+                                                )
+                                              }
+                                              className="text-black transition-colors hover:text-rose-500"
+                                            >
+                                              <X className="h-3 w-3" />
+                                            </button>
+                                          )}
+                                        </span>
+                                      );
+                                    })}
+                                    {canEdit && (
+                                      <button
+                                        type="button"
+                                        aria-label="Assign another teacher"
+                                        onClick={() => openAssignTeacher(unit)}
+                                        className="flex h-5 w-5 items-center justify-center rounded-full border border-dashed border-gray-200 text-black transition-colors hover:border-watney/40 hover:text-watney"
+                                      >
+                                        <Plus className="h-3 w-3" />
+                                      </button>
+                                    )}
+                                  </div>
+                                )}
+                              </TableCell>
+                              <TableCell
+                                className="py-3"
+                                onClick={(event) => event.stopPropagation()}
+                              >
+                                <div className="flex items-center justify-end gap-1.5">
+                                  <IconAction
+                                    label="Modules & resources"
+                                    icon={FileText}
+                                    onClick={() => handleViewModules(unit)}
+                                  />
+                                  {canEdit && (
+                                    <>
+                                      <IconAction
+                                        label="Edit unit"
+                                        icon={Pen}
+                                        onClick={() => openEditDialog(unit)}
+                                      />
+                                      <IconAction
+                                        label="Delete unit"
+                                        icon={Trash2}
+                                        tone="danger"
+                                        onClick={() => openDeleteDialog(unit)}
+                                      />
+                                    </>
+                                  )}
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
+
+                  {totalPages > 1 && !isTeacher && (
+                    <div className="border-t border-gray-200 px-4 py-3">
+                      <DataTablePagination
+                        pageSize={entriesPerPage}
+                        setPageSize={setEntriesPerPage}
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={setCurrentPage}
+                      />
+                    </div>
+                  )}
+                </>
+              )}
+            </section>
+          </TabsContent>
+
+          {/* ── Attendance ─────────────────────────────────────────────── */}
+          {canSeeAttendance && (
+          <TabsContent value="attendance" className="m-0">
+            <section>
+              {/* Filters - one row, so the list starts near the top */}
+              <div className="flex flex-wrap items-center gap-2 border-b border-gray-200 px-4 py-3">
+                <div className="w-48">
+                  <Select
+                    options={unitFilterOptions}
+                    value={attendanceUnitFilter}
+                    onChange={(option) =>
+                      setAttendanceUnitFilter(
+                        (option as Option) || {
+                          value: 'all',
+                          label: 'All units'
+                        }
+                      )
+                    }
+                    isSearchable
+                    menuPortalTarget={menuPortalTarget}
+                    styles={selectStyles}
+                  />
+                </div>
+
+                <div className="w-52">
+                  <DatePicker
+                    selectsRange
+                    startDate={startDate}
+                    endDate={endDate}
+                    onChange={(update: [Date | null, Date | null]) =>
+                      setDateRange(update)
+                    }
+                    dateFormat="dd MMM yyyy"
+                    isClearable
+                    placeholderText="Select date range"
+                    wrapperClassName="w-full"
+                    className="h-[38px] w-full rounded-md border border-gray-200 bg-white px-3 text-xs text-black focus:outline-none focus:ring-1 focus:ring-watney"
+                  />
+                </div>
+
+                <Button
+                  size="sm"
+                  className="h-[38px] bg-watney text-white hover:bg-watney/90"
+                  onClick={() => setAppliedDateRange(dateRange)}
+                >
+                  <Search className="mr-1.5 h-3.5 w-3.5" /> Apply
+                </Button>
+
+                <div className="ml-auto flex items-center gap-1.5">
                   <Button
                     size="sm"
                     variant="outline"
-                    className="h-7 flex-1 text-[11px]"
+                    className="h-8 px-2.5 text-[11px]"
                     onClick={handleToday}
                   >
                     Today
@@ -1093,326 +1514,804 @@ function CourseUnitPage() {
                   <Button
                     size="sm"
                     variant="outline"
-                    className="h-7 flex-1 text-[11px]"
+                    className="h-8 px-2.5 text-[11px]"
                     onClick={handleThisWeek}
                   >
-                    This Week
+                    This week
                   </Button>
                   <Button
                     size="sm"
                     variant="outline"
-                    className="h-7 flex-1 text-[11px]"
+                    className="h-8 px-2.5 text-[11px]"
                     onClick={handleThisMonth}
                   >
-                    This Month
+                    This month
                   </Button>
                 </div>
               </div>
-            </CardHeader>
 
-            <CardContent className="p-2 pt-0">
               {attendanceLoading ? (
-                <div className="flex justify-center py-12">
+                <div className="flex justify-center py-16">
                   <BlinkingDots size="large" color="bg-watney" />
                 </div>
-              ) : attendanceSheets.length === 0 ? (
-                <div className="px-4 py-12 text-center text-sm text-gray-500">
-                  No attendance records found for the selected date range.
+              ) : visibleSheets.length === 0 ? (
+                <div className="p-4">
+                  <EmptyState
+                    icon={ClipboardCheck}
+                    title="No attendance in this range"
+                    description="Widen the date range, or pick a different unit."
+                  />
                 </div>
               ) : (
-                <ScrollArea className="max-h-[calc(100vh-22rem)]">
-                  <div className="divide-y divide-gray-100">
-                    {attendanceSheets.map((sheet) => {
-                      const totalStudents = sheet.attendance?.length || 0;
-                      const presentCount = sheet.attendance?.filter((a) => a.status === 'present').length || 0;
-                      const absentCount = sheet.attendance?.filter((a) => a.status === 'absent').length || 0;
-                      const lateCount = sheet.attendance?.filter((a) => a.status === 'late').length || 0;
-                      const unmarkedCount = totalStudents - presentCount - absentCount - lateCount;
-                      const dateMoment = moment.utc(sheet.classDate).local();
+                <>
+                  {/* Totals across everything currently shown */}
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 border-b border-gray-200 bg-watney/5 px-4 py-2 text-[11px]">
+                    <span className="font-semibold text-black">
+                      {attendanceTotals.sessions} session
+                      {attendanceTotals.sessions === 1 ? '' : 's'}
+                    </span>
+                    <span className="text-black">
+                      {rangeLabel}
+                    </span>
+                    <span className="ml-auto flex flex-wrap items-center gap-1.5">
+                      <span
+                        className={clsx(
+                          'flex items-center gap-1 rounded border px-1.5 py-0.5 font-semibold',
+                          STATUS_META.present.chip
+                        )}
+                      >
+                        {attendanceTotals.present} present
+                      </span>
+                      <span
+                        className={clsx(
+                          'flex items-center gap-1 rounded border px-1.5 py-0.5 font-semibold',
+                          STATUS_META.absent.chip
+                        )}
+                      >
+                        {attendanceTotals.absent} absent
+                      </span>
+                      <span
+                        className={clsx(
+                          'flex items-center gap-1 rounded border px-1.5 py-0.5 font-semibold',
+                          STATUS_META.late.chip
+                        )}
+                      >
+                        {attendanceTotals.late} late
+                      </span>
+                      {attendanceTotals.unmarked > 0 && (
+                        <span className="flex items-center gap-1 rounded border border-gray-200 bg-white px-1.5 py-0.5 font-semibold text-black">
+                          {attendanceTotals.unmarked} unmarked
+                        </span>
+                      )}
+                    </span>
+                  </div>
 
-                      return (
-                        <div key={sheet._id} className="group px-4 py-3 transition-colors hover:bg-slate-50/80">
-                          <div className="flex items-start gap-3">
-                            {/* Date badge */}
-                            <div className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-lg border border-watney/20 bg-watney/5 text-watney">
-                              <span className="text-[9px] font-bold uppercase leading-none">
-                                {dateMoment.format('MMM')}
-                              </span>
-                              <span className="text-sm font-bold leading-tight">{dateMoment.format('DD')}</span>
-                            </div>
+                  <ScrollArea className="max-h-[calc(100vh-20rem)]">
+                    <Table>
+                      <TableHeader className="sticky top-0 z-10 bg-watney/5">
+                        <TableRow className="hover:bg-watney/5">
+                          <TableHead className="w-[120px] text-[11px] font-semibold uppercase tracking-wide text-black">
+                            Date
+                          </TableHead>
+                          <TableHead className="min-w-[200px] text-[11px] font-semibold uppercase tracking-wide text-black">
+                            Unit
+                          </TableHead>
+                          <TableHead className="w-[130px] text-[11px] font-semibold uppercase tracking-wide text-black">
+                            Time
+                          </TableHead>
+                          <TableHead className="min-w-[190px] text-[11px] font-semibold uppercase tracking-wide text-black">
+                            Attendance
+                          </TableHead>
+                          <TableHead className="w-[110px] text-[11px] font-semibold uppercase tracking-wide text-black">
+                            Marked
+                          </TableHead>
+                          <TableHead className="min-w-[150px] text-[11px] font-semibold uppercase tracking-wide text-black">
+                            Last updated
+                          </TableHead>
+                          <TableHead className="w-[150px] text-right text-[11px] font-semibold uppercase tracking-wide text-black">
+                            Actions
+                          </TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {visibleSheets.map((sheet) => {
+                          const total = sheet.attendance?.length || 0;
+                          const present =
+                            sheet.attendance?.filter(
+                              (a) => a.status === 'present'
+                            ).length || 0;
+                          const absent =
+                            sheet.attendance?.filter(
+                              (a) => a.status === 'absent'
+                            ).length || 0;
+                          const late =
+                            sheet.attendance?.filter((a) => a.status === 'late')
+                              .length || 0;
+                          const unmarked = total - present - absent - late;
+                          const dateMoment = moment.utc(sheet.classDate).local();
+                          const unit = sheetUnitOf(sheet);
+                          const completion = total
+                            ? Math.round(((total - unmarked) / total) * 100)
+                            : 0;
 
-                            {/* Session info */}
-                            <div className="min-w-0 flex-1">
-                              <div className="flex items-start justify-between gap-2">
-                                <p className="truncate text-sm font-semibold text-gray-900">
+                          return (
+                            <TableRow
+                              key={sheet._id}
+                              className="align-top hover:bg-watney/5"
+                            >
+                              {/* Date */}
+                              <TableCell className="py-3">
+                                <p className="text-xs font-semibold text-black">
+                                  {dateMoment.format('DD MMM YYYY')}
+                                </p>
+                                <p className="text-[11px] text-black">
                                   {dateMoment.format('dddd')}
                                 </p>
-                              </div>
-                              <div className="mt-0.5 flex flex-wrap items-center gap-x-2.5 gap-y-0.5 text-[11px] text-gray-500">
-                                <span className="flex items-center gap-1">
-                                  <Clock className="h-3 w-3" />
-                                  {sheet.classRoutineId?.startTime || '09:00'}–{sheet.classRoutineId?.endTime || '10:00'}
-                                </span>
+                              </TableCell>
+
+                              {/* Unit */}
+                              <TableCell className="py-3">
+                                <p className="text-xs font-medium text-black">
+                                  {unit ? unit.title || unit.unitReference : '-'}
+                                </p>
+                                {unit?.unitReference && (
+                                  <p className="font-mono text-[10px] text-black">
+                                    {unit.unitReference}
+                                  </p>
+                                )}
                                 {sheet.classRoutineId?.note && (
-                                  <span className="flex items-center gap-1">
-                                    <FileText className="h-3 w-3" />
-                                    Note: {sheet.classRoutineId.note}
-                                  </span>
+                                  <p className="mt-1 flex items-start gap-1 text-[11px] text-black">
+                                    <FileText className="mt-0.5 h-3 w-3 shrink-0" />
+                                    <span className="line-clamp-2">
+                                      {sheet.classRoutineId.note}
+                                    </span>
+                                  </p>
                                 )}
-                              </div>
+                              </TableCell>
 
-                              {/* Status pills */}
-                              <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                                <span className={clsx('flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px] font-semibold', STATUS_META.present.chip)}>
-                                  <Circle className="h-1.5 w-1.5 fill-current" /> {presentCount} Present
+                              {/* Time */}
+                              <TableCell className="py-3">
+                                <span className="flex items-center gap-1 text-[11px] text-black">
+                                  <Clock className="h-3 w-3" />
+                                  {sheet.classRoutineId?.startTime || '-'}
+                                  {'-'}
+                                  {sheet.classRoutineId?.endTime || '-'}
                                 </span>
-                                <span className={clsx('flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px] font-semibold', STATUS_META.absent.chip)}>
-                                  <Circle className="h-1.5 w-1.5 fill-current" /> {absentCount} Absent
+                                <span className="mt-0.5 flex items-center gap-1 text-[11px] text-black">
+                                  <Users className="h-3 w-3" />
+                                  {total} student{total === 1 ? '' : 's'}
                                 </span>
-                                <span className={clsx('flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px] font-semibold', STATUS_META.late.chip)}>
-                                  <Circle className="h-1.5 w-1.5 fill-current" /> {lateCount} Late
-                                </span>
-                                {unmarkedCount > 0 && (
-                                  <span className="flex items-center gap-1 rounded border border-gray-200 bg-gray-50 px-1.5 py-0.5 text-[10px] font-semibold text-gray-500">
-                                    <Circle className="h-1.5 w-1.5 fill-current" /> {unmarkedCount} Unmarked
+                              </TableCell>
+
+                              {/* Attendance breakdown - one bar, split by
+                                  status, reads faster at a glance than three
+                                  separate numbers. */}
+                              <TableCell className="py-3">
+                                <div className="flex h-1.5 overflow-hidden rounded-full bg-watney/10">
+                                  {[
+                                    { value: present, cls: 'bg-emerald-500' },
+                                    { value: late, cls: 'bg-amber-400' },
+                                    { value: absent, cls: 'bg-rose-500' }
+                                  ].map(({ value, cls }, index) =>
+                                    value > 0 ? (
+                                      <span
+                                        key={index}
+                                        className={cls}
+                                        style={{
+                                          width: `${(value / (total || 1)) * 100}%`
+                                        }}
+                                      />
+                                    ) : null
+                                  )}
+                                </div>
+                                <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                                  <span
+                                    className={clsx(
+                                      'flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px] font-semibold',
+                                      STATUS_META.present.chip
+                                    )}
+                                  >
+                                    <Circle className="h-1.5 w-1.5 fill-current" />
+                                    {present}
                                   </span>
-                                )}
-                              </div>
+                                  <span
+                                    className={clsx(
+                                      'flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px] font-semibold',
+                                      STATUS_META.absent.chip
+                                    )}
+                                  >
+                                    <Circle className="h-1.5 w-1.5 fill-current" />
+                                    {absent}
+                                  </span>
+                                  <span
+                                    className={clsx(
+                                      'flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px] font-semibold',
+                                      STATUS_META.late.chip
+                                    )}
+                                  >
+                                    <Circle className="h-1.5 w-1.5 fill-current" />
+                                    {late}
+                                  </span>
+                                  {unmarked > 0 && (
+                                    <span className="flex items-center gap-1 rounded border border-gray-200 bg-white px-1.5 py-0.5 text-[10px] font-semibold text-black">
+                                      <Circle className="h-1.5 w-1.5 fill-current" />
+                                      {unmarked}
+                                    </span>
+                                  )}
+                                </div>
+                              </TableCell>
 
-                              <p className="mt-2 truncate text-[10.5px] text-gray-400">
-                                Updated by <span className="font-medium text-gray-500">{userName(sheet.updatedBy)}</span>
-                                {sheet.updatedAt ? ` · ${moment(sheet.updatedAt).format('DD MMM, HH:mm')}` : ''}
+                              {/* Completion */}
+                              <TableCell className="py-3">
+                                <span
+                                  className={clsx(
+                                    'inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold',
+                                    completion === 100
+                                      ? 'bg-emerald-50 text-emerald-700'
+                                      : 'bg-amber-50 text-amber-700'
+                                  )}
+                                >
+                                  {completion}%
+                                </span>
+                              </TableCell>
+
+                              {/* Last updated */}
+                              <TableCell className="py-3">
+                                <p className="truncate text-[11px] text-black">
+                                  {userName(sheet.updatedBy)}
+                                </p>
+                                {sheet.updatedAt && (
+                                  <p className="text-[10.5px] text-black">
+                                    {moment(sheet.updatedAt).format(
+                                      'DD MMM, HH:mm'
+                                    )}
+                                  </p>
+                                )}
+                              </TableCell>
+
+                              {/* Actions - a teacher takes the register for
+                                  the units they hold, so this is not gated on
+                                  canEdit (which is admin-only). */}
+                              <TableCell className="py-3">
+                                <div className="flex items-center justify-end gap-1.5">
+                                  {sheet.logs && sheet.logs.length > 0 && (
+                                    <IconAction
+                                      label="Change history"
+                                      icon={History}
+                                      onClick={() => openLogsModal(sheet.logs)}
+                                    />
+                                  )}
+                                  {canSeeAttendance && (
+                                    <Button
+                                      size="sm"
+                                      onClick={() => openAttendanceModal(sheet)}
+                                      className="h-8 bg-watney text-[11px] text-white hover:bg-watney/90"
+                                    >
+                                      <Pen className="mr-1 h-3.5 w-3.5" /> Update
+                                    </Button>
+                                  )}
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </ScrollArea>
+                </>
+              )}
+            </section>
+          </TabsContent>
+          )}
+
+
+          {/* ── Cohort ─────────────────────────────────────────────────── */}
+          <TabsContent value="students" className="m-0">
+            <section>
+              <div className="flex flex-col gap-3 border-b border-gray-200 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h2 className="text-sm font-semibold text-black">
+                    Enrolled students
+                  </h2>
+                  <p className="text-[11px] text-black">
+                    Students are enrolled onto {groupName || 'the group'}, so
+                    they sit every unit in it.
+                  </p>
+                </div>
+                {canEdit && (
+                  <Button
+                    size="sm"
+                    onClick={openAssignStudent}
+                    className="h-9 bg-watney text-white hover:bg-watney/90"
+                  >
+                    <Plus className="mr-1.5 h-4 w-4" /> Assign student
+                  </Button>
+                )}
+              </div>
+
+              {membersLoading ? (
+                <div className="flex justify-center py-16">
+                  <BlinkingDots size="large" color="bg-watney" />
+                </div>
+              ) : assignedStudents.length === 0 ? (
+                <div className="p-4">
+                  <EmptyState
+                    icon={GraduationCap}
+                    title="No students assigned yet"
+                    description="Assign students from this course to build the group roster."
+                  />
+                </div>
+              ) : (
+                <div className="grid gap-2 p-4 sm:grid-cols-2 xl:grid-cols-3">
+                  {assignedStudents.map((item) => {
+                    const student = item.studentId;
+                    const name = userName(student);
+                    const email =
+                      typeof student === 'object' ? student?.email || '' : '';
+                    return (
+                      <div
+                        key={item._id}
+                        className="flex items-center justify-between gap-3 rounded-lg border border-gray-200 px-3 py-2.5 transition-colors hover:border-gray-200 hover:bg-watney/[0.02]"
+                      >
+                        <div className="flex min-w-0 items-center gap-2.5">
+                          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-watney/10 text-[11px] font-bold text-watney">
+                            {initialsOf(name)}
+                          </span>
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-semibold text-black">
+                              {name}
+                            </p>
+                            {email && (
+                              <p className="truncate text-[11px] text-black">
+                                {email}
                               </p>
-
-                              {/* Actions */}
-                              <div className="mt-2.5 flex items-center gap-2">
-                                {sheet.logs && sheet.logs.length > 0 && (
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => openLogsModal(sheet.logs)}
-                                    className="h-7 text-[11px]"
-                                  >
-                                    <History className="mr-1 h-3.5 w-3.5" /> Logs
-                                  </Button>
-                                )}
-                                {canEdit && (
-                                  <Button
-                                    size="sm"
-                                    onClick={() => openAttendanceModal(sheet)}
-                                    className="h-7 bg-watney text-white hover:bg-watney/90 text-[11px]"
-                                  >
-                                    <Pen className="mr-1 h-3.5 w-3.5" /> Update
-                                  </Button>
-                                )}
-                              </div>
-                            </div>
+                            )}
                           </div>
                         </div>
-                      );
-                    })}
-                  </div>
-                </ScrollArea>
+                        {canEdit && (
+                          <IconAction
+                            label="Unassign student"
+                            icon={UserMinus}
+                            tone="danger"
+                            onClick={() => openUnassignDialog(item, 'student')}
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               )}
-            </CardContent>
-          </Card>
-        )}
+            </section>
+          </TabsContent>
+        </Tabs>
 
-        {/* ── Assigned Members Column (Students & Teachers) ── */}
-        {(canSeeStudents || canSeeTeachers) && (
-          <div className="flex flex-col gap-2">
-            {/* ── Assigned Students — Teacher and Admin ── */}
-            {canSeeStudents && (
-              <Card className="shadow-sm">
-                <CardHeader className="p-2 pb-3">
-                  <div className="flex items-center justify-between gap-2">
-                    <CardTitle className="flex items-center gap-2 text-sm font-semibold">
-                      Student List
-                    </CardTitle>
-                    {canManageMembers && (
-                      <Button size="sm" onClick={() => openAssignDialog('student')}>
-                        <Plus className="mr-1 h-3.5 w-3.5" /> Assign Student
-                      </Button>
-                    )}
-                  </div>
-                </CardHeader>
-                <CardContent className="p-2 pt-0">
-                  {membersLoading ? (
-                    <div className="flex justify-center py-8">
-                      <BlinkingDots size="large" color="bg-watney" />
-                    </div>
-                  ) : assignedStudents.length === 0 ? (
-                    <div className="py-8 text-center text-sm text-gray-500">
-                      No students assigned to this group yet.
-                    </div>
-                  ) : (
-                    <ScrollArea className="max-h-80">
-                      <div className="space-y-2">
-                        {assignedStudents.map((item) => {
-                          const student = item.studentId;
-                          const name =
-                            typeof student === 'object'
-                              ? student?.name || student?.email || 'Unknown Student'
-                              : 'Unknown Student';
-                          const email = typeof student === 'object' ? student?.email || '' : '';
-                          return (
-                            <div
-                              key={item._id}
-                              className="flex items-center justify-between gap-3 rounded-lg border border-gray-200 p-3"
-                            >
-                              <div className="min-w-0">
-                                <p className="truncate text-sm font-semibold text-gray-900">{name}</p>
-                                {email && <p className="truncate text-xs text-gray-500">{email}</p>}
-                              </div>
-                              {canManageMembers && (
-                                <button
-                                  type="button"
-                                  onClick={() => openUnassignDialog(item, 'student')}
-                                  title="Unassign student"
-                                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-rose-50 hover:text-rose-600"
-                                >
-                                  <UserMinus className="h-4 w-4" />
-                                </button>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </ScrollArea>
-                  )}
-                </CardContent>
-              </Card>
-            )}
+        {/* ── Delete unit ──────────────────────────────────────────────── */}
+        <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Delete this unit?</DialogTitle>
+              <DialogDescription>
+                This permanently deletes{' '}
+                <span className="font-semibold text-black">
+                  &quot;{unitToDelete?.title}&quot;
+                </span>{' '}
+                along with its routine, modules and teaching assignments.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="gap-2 sm:gap-0">
+              <Button
+                variant="outline"
+                onClick={() => setDeleteDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleUnitDelete}
+                className="bg-rose-600 hover:bg-rose-700"
+              >
+                Delete unit
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
-            {/* ── Assigned Teachers — Student, Teacher, and Admin ── */}
-            {canSeeTeachers && (
-              <Card className="shadow-sm">
-                <CardHeader className="p-2 pb-3">
-                  <div className="flex items-center justify-between gap-2">
-                    <CardTitle className="flex items-center gap-2 text-sm font-semibold">
-                       Teacher List
-                    </CardTitle>
-                    {canManageMembers && (
-                      <Button size="sm" onClick={() => openAssignDialog('teacher')}>
-                        <Plus className="mr-1 h-3.5 w-3.5" /> Assign Teacher
-                      </Button>
-                    )}
-                  </div>
-                </CardHeader>
-                <CardContent className="p-2 pt-0">
-                  {membersLoading ? (
-                    <div className="flex justify-center py-8">
-                      <BlinkingDots size="large" color="bg-watney" />
-                    </div>
-                  ) : assignedTeachers.length === 0 ? (
-                    <div className="py-8 text-center text-sm text-gray-500">
-                      No teachers assigned to this group yet.
-                    </div>
-                  ) : (
-                    <ScrollArea className="max-h-80">
-                      <div className="space-y-2">
-                        {assignedTeachers.map((item) => {
-                          const teacher = item.teacherId;
-                          const name =
-                            typeof teacher === 'object'
-                              ? teacher?.name || teacher?.email || 'Unknown Teacher'
-                              : 'Unknown Teacher';
-                          const email = typeof teacher === 'object' ? teacher?.email || '' : '';
-                          return (
-                            <div
-                              key={item._id}
-                              className="flex items-center justify-between gap-3 rounded-lg border border-gray-200 p-3"
-                            >
-                              <div className="min-w-0">
-                                <p className="truncate text-sm font-semibold text-gray-900">{name}</p>
-                                {email && <p className="truncate text-xs text-gray-500">{email}</p>}
-                              </div>
-                              {canManageMembers && (
-                                <button
-                                  type="button"
-                                  onClick={() => openUnassignDialog(item, 'teacher')}
-                                  title="Unassign teacher"
-                                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-rose-50 hover:text-rose-600"
-                                >
-                                  <UserMinus className="h-4 w-4" />
-                                </button>
-                              )}
-                            </div>
-                          );
-                        })}
+        {/* ── Add / edit unit ──────────────────────────────────────────── */}
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <DialogContent className="sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle>
+                {isEditing ? 'Edit course unit' : 'Add course unit'}
+              </DialogTitle>
+              <DialogDescription className="text-xs">
+                {termName && groupName
+                  ? `${termName} · ${groupName}`
+                  : 'Unit details'}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="grid gap-4 py-2 sm:grid-cols-2">
+              <div className="space-y-1.5 sm:col-span-2">
+                <Label className="text-xs">Unit reference *</Label>
+                <Input
+                  value={unitReference}
+                  onChange={(e) => setUnitReference(e.target.value)}
+                  placeholder="e.g. H/615/1625"
+                  className="h-9 text-xs"
+                />
+              </div>
+              <div className="space-y-1.5 sm:col-span-2">
+                <Label className="text-xs">Title *</Label>
+                <Input
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="e.g. Business Environment"
+                  className="h-9 text-xs"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">Level *</Label>
+                <Input
+                  value={level}
+                  onChange={(e) => setLevel(e.target.value)}
+                  placeholder="e.g. 4"
+                  className="h-9 text-xs"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">GLS *</Label>
+                <Input
+                  value={gls}
+                  onChange={(e) => setGls(e.target.value)}
+                  placeholder="Guided learning hours"
+                  className="h-9 text-xs"
+                />
+              </div>
+              <div className="space-y-1.5 sm:col-span-2">
+                <Label className="text-xs">Credit *</Label>
+                <Input
+                  value={credit}
+                  onChange={(e) => setCredit(e.target.value)}
+                  placeholder="e.g. 15"
+                  className="h-9 text-xs"
+                />
+              </div>
+            </div>
+
+            <DialogFooter className="gap-2 sm:gap-0">
+              <Button variant="outline" onClick={() => setDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                onClick={handleUnitSubmit}
+                disabled={submitting}
+                className="bg-watney text-white hover:bg-watney/90"
+              >
+                {submitting && (
+                  <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+                )}
+                {isEditing ? 'Save changes' : 'Add unit'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* ── Edit attendance sheet ────────────────────────────────────── */}
+        <Dialog
+          open={attendanceModalOpen}
+          onOpenChange={setAttendanceModalOpen}
+        >
+          <DialogContent className="flex max-h-[90vh] w-[95vw] max-w-4xl flex-col overflow-hidden p-0">
+            <div className="border-b border-gray-200 px-6 py-4">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2 text-base">
+                  <ClipboardCheck className="h-5 w-5 text-watney" />
+                  Attendance — {formatDate(selectedSheet?.classDate || '')}
+                </DialogTitle>
+                <DialogDescription className="text-xs">
+                  {selectedSheet && sheetUnitOf(selectedSheet)
+                    ? unitLabel(sheetUnitOf(selectedSheet))
+                    : groupName}
+                </DialogDescription>
+              </DialogHeader>
+            </div>
+
+            <ScrollArea className="flex-1 px-6 py-4">
+              {unmarkedIds.size > 0 && (
+                <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700">
+                  {unmarkedIds.size} student(s) unmarked. Every student must be
+                  marked before saving.
+                </div>
+              )}
+              <div className="space-y-2.5">
+                {selectedSheet?.attendance?.map((item) => {
+                  const sid = idOf(item.studentId);
+                  const status = sheetStatuses[sid];
+                  const isUnmarked = unmarkedIds.has(sid);
+                  const name = studentName(item.studentId);
+                  return (
+                    <div
+                      key={sid}
+                      className={clsx(
+                        'flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-center sm:justify-between',
+                        isUnmarked
+                          ? 'border-rose-300 bg-rose-50/50'
+                          : 'border-gray-200 bg-white'
+                      )}
+                    >
+                      <div className="flex min-w-0 items-center gap-2.5">
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-watney/10 text-[11px] font-bold text-black">
+                          {initialsOf(name)}
+                        </span>
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-semibold text-black">
+                            {name}
+                          </p>
+                          <p className="truncate text-[11px] text-black">
+                            {item.studentId?.email || ''}
+                          </p>
+                        </div>
                       </div>
-                    </ScrollArea>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <div className="flex overflow-hidden rounded-md border border-gray-200">
+                          {(
+                            Object.keys(STATUS_META) as AttendanceStatus[]
+                          ).map((key) => {
+                            const meta = STATUS_META[key];
+                            const Icon = meta.icon;
+                            const isActive = status === key;
+                            return (
+                              <button
+                                key={key}
+                                type="button"
+                                onClick={() => toggleStatus(sid, key)}
+                                className={clsx(
+                                  'flex items-center gap-1 px-3 py-1.5 text-xs font-semibold transition-colors',
+                                  isActive
+                                    ? meta.active
+                                    : 'bg-white text-black hover:bg-watney/5'
+                                )}
+                              >
+                                <Icon className="h-3.5 w-3.5" />
+                                <span className="hidden sm:inline">
+                                  {meta.label}
+                                </span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                        <Input
+                          placeholder="Remark (optional)"
+                          value={sheetRemarks[sid] || ''}
+                          onChange={(e) =>
+                            setSheetRemarks((prev) => ({
+                              ...prev,
+                              [sid]: e.target.value
+                            }))
+                          }
+                          className="h-8 w-full text-xs sm:w-44"
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </ScrollArea>
+
+            <div className="flex items-center justify-between border-t border-gray-200 bg-watney/5 px-6 py-4">
+              <Button variant="outline" size="sm" onClick={markAllPresent}>
+                <UserCheck className="mr-1.5 h-4 w-4" /> Mark all present
+              </Button>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setAttendanceModalOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  size="sm"
+                  className="bg-watney text-white hover:bg-watney/90"
+                  onClick={saveAttendanceChanges}
+                  disabled={savingAttendance}
+                >
+                  {savingAttendance && (
+                    <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
                   )}
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        )}
+                  Save changes
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* ── Attendance history ───────────────────────────────────────── */}
+        <Dialog open={viewLogsModalOpen} onOpenChange={setViewLogsModalOpen}>
+          <DialogContent className="flex max-h-[85vh] max-w-3xl flex-col overflow-hidden">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-base">
+                <History className="h-5 w-5 text-watney" /> Attendance history
+              </DialogTitle>
+            </DialogHeader>
+            <ScrollArea className="my-2 flex-1 pr-4">
+              {activeLogs.length === 0 ? (
+                <div className="py-8 text-center text-sm text-black">
+                  No changes recorded for this session yet.
+                </div>
+              ) : (
+                <ol className="relative space-y-3 border-l border-gray-200 pl-5">
+                  {[...activeLogs]
+                    .sort(
+                      (a, b) =>
+                        new Date(b.updatedAt).getTime() -
+                        new Date(a.updatedAt).getTime()
+                    )
+                    .map((log, idx) => (
+                      <li key={log._id || idx} className="relative">
+                        <span className="absolute -left-[1.55rem] top-1.5 flex h-2.5 w-2.5 rounded-full bg-watney ring-4 ring-white" />
+                        <div className="rounded-lg border border-gray-200 bg-watney/5 px-3 py-2.5">
+                          <p className="text-xs font-medium text-black">
+                            {log.message || 'Attendance updated'}
+                          </p>
+                          {log.updatedAt && (
+                            <p className="mt-0.5 text-[11px] text-black">
+                              {moment(log.updatedAt).format(
+                                'DD MMM YYYY, HH:mm'
+                              )}
+                            </p>
+                          )}
+                        </div>
+                      </li>
+                    ))}
+                </ol>
+              )}
+            </ScrollArea>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setViewLogsModalOpen(false)}
+              >
+                Close
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* ── Unassign ─────────────────────────────────────────────────── */}
+        <Dialog open={unassignDialogOpen} onOpenChange={setUnassignDialogOpen}>
+          <DialogContent className="sm:max-w-[420px]">
+            <DialogHeader>
+              <DialogTitle>
+                Unassign{' '}
+                {memberToUnassign?.type === 'teacher' ? 'teacher' : 'student'}?
+              </DialogTitle>
+              <DialogDescription>
+                <span className="font-semibold text-black">
+                  {memberToUnassign?.name}
+                </span>{' '}
+                will be removed from{' '}
+                {memberToUnassign?.type === 'teacher'
+                  ? 'this unit'
+                  : groupName || 'this group'}
+                .
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="gap-2 sm:gap-0">
+              <Button
+                variant="outline"
+                onClick={() => setUnassignDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleUnassign}
+                className="bg-rose-600 hover:bg-rose-700"
+              >
+                Unassign
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* ── Assign student / teacher ─────────────────────────────────── */}
+        <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
+          <DialogContent className="sm:max-w-[460px]">
+            <DialogHeader>
+              <DialogTitle>
+                {assignType === 'student'
+                  ? 'Assign student'
+                  : 'Assign teacher to unit'}
+              </DialogTitle>
+              <DialogDescription className="text-xs">
+                {assignType === 'student'
+                  ? `Add a student from this course to ${groupName || 'this group'}.`
+                  : `Choose who teaches ${assignUnit?.title || 'this unit'}.`}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-3 py-2">
+              {assignType === 'teacher' && assignUnit && (
+                <div className="rounded-lg border border-gray-200 bg-watney/5 px-3 py-2">
+                  <p className="text-[10px] uppercase tracking-wide text-black">
+                    Unit
+                  </p>
+                  <p className="text-sm font-semibold text-black">
+                    {assignUnit.title}
+                  </p>
+                  <p className="font-mono text-[11px] text-black">
+                    {assignUnit.unitReference}
+                  </p>
+                </div>
+              )}
+
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs">
+                    {assignType === 'student' ? 'Students' : 'Teachers'} *
+                  </Label>
+                  {selectedUsers.length > 0 && (
+                    <span className="text-[11px] font-medium text-black">
+                      {selectedUsers.length} selected
+                    </span>
+                  )}
+                </div>
+                <Select
+                  isMulti
+                  closeMenuOnSelect={false}
+                  options={userOptions}
+                  value={selectedUsers}
+                  onChange={(option) =>
+                    setSelectedUsers((option as Option[]) || [])
+                  }
+                  placeholder={
+                    userOptionsLoading
+                      ? 'Loading…'
+                      : `Select one or more ${assignType}s`
+                  }
+                  isLoading={userOptionsLoading}
+                  isDisabled={userOptionsLoading}
+                  menuPortalTarget={menuPortalTarget}
+                  styles={selectStyles}
+                  noOptionsMessage={() =>
+                    assignType === 'student'
+                      ? 'Every student on this course is already assigned'
+                      : 'No further teachers available for this unit'
+                  }
+                />
+                <p className="text-[11px] text-black">
+                  {assignType === 'student'
+                    ? 'Pick several students to assign them all at once.'
+                    : 'A unit can be taught by more than one teacher.'}
+                </p>
+              </div>
+            </div>
+
+            <DialogFooter className="gap-2 sm:gap-0">
+              <Button
+                variant="outline"
+                onClick={() => setAssignDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleAssign}
+                disabled={selectedUsers.length === 0 || assigning}
+                className="bg-watney text-white hover:bg-watney/90"
+              >
+                {assigning && (
+                  <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+                )}
+                {selectedUsers.length > 1
+                  ? `Assign ${selectedUsers.length}`
+                  : 'Assign'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
-
-      {/* ── Unassign Student / Teacher Dialog ── */}
-      <Dialog open={unassignDialogOpen} onOpenChange={setUnassignDialogOpen}>
-        <DialogContent className="sm:max-w-[400px]">
-          <DialogHeader>
-            <DialogTitle>
-              Unassign {memberToUnassign?.type === 'teacher' ? 'Teacher' : 'Student'}?
-            </DialogTitle>
-            <DialogDescription>
-              Are you sure you want to unassign{' '}
-              <span className="font-semibold">{memberToUnassign?.name}</span> from this group?
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button variant="outline" onClick={() => setUnassignDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleUnassign}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              Unassign
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* ── Assign Student / Teacher Dialog ── */}
-      <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
-        <DialogContent className="sm:max-w-[450px]">
-          <DialogHeader>
-            <DialogTitle>{assignType === 'student' ? 'Assign Student' : 'Assign Teacher'}</DialogTitle>
-            <DialogDescription>
-              Select a {assignType} to assign to {groupName ? `group "${groupName}"` : 'this group'}.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-2 py-4">
-            <Label>{assignType === 'student' ? 'Student' : 'Teacher'} *</Label>
-            <Select
-              options={userOptions}
-              value={selectedUser}
-              onChange={(option) => setSelectedUser(option as { value: string; label: string } | null)}
-              placeholder={userOptionsLoading ? 'Loading...' : `Select a ${assignType}`}
-              isLoading={userOptionsLoading}
-              isDisabled={userOptionsLoading}
-              styles={{
-                control: (base: any) => ({ ...base, fontSize: '14px', borderColor: '#e5e7eb', boxShadow: 'none' }),
-                menu: (base: any) => ({ ...base, fontSize: '14px', zIndex: 50 })
-              }}
-              noOptionsMessage={() => `No ${assignType}s available`}
-            />
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setAssignDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleAssign} disabled={!selectedUser || assigning}>
-              {assigning ? 'Assigning...' : 'Assign'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
+    </TooltipProvider>
   );
 }
 

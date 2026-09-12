@@ -86,7 +86,7 @@ const ComplianceData = ({
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {/* Immigration Status / Visa Status */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-black">
               Visa/Immigration Status
             </label>
             {isEditing ? (
@@ -105,14 +105,14 @@ const ComplianceData = ({
                 classNamePrefix="react-select"
               />
             ) : (
-              <div className="mt-1 text-gray-900">
+              <div className="mt-1 text-black">
                 {capitalizeFirstLetter(localData?.immigrationStatus || '-')}
               </div>
             )}
           </div>
           {/* Disability */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-black">
               Do you have any disabilities or learning difficulties?
             </label>
             {isEditing ? (
@@ -131,7 +131,7 @@ const ComplianceData = ({
                 classNamePrefix="react-select"
               />
             ) : (
-              <div className="mt-1 text-gray-900">
+              <div className="mt-1 text-black">
                 {capitalizeFirstLetter(localData?.disability || '-')}
               </div>
             )}
@@ -139,7 +139,7 @@ const ComplianceData = ({
           {/* Disability Details (Conditional) */}
           {localData?.disability === 'yes' && (
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-black">
                 Please provide disability details
               </label>
               {isEditing ? (
@@ -151,14 +151,14 @@ const ComplianceData = ({
                   }
                 />
               ) : (
-                <div className="mt-1 text-gray-900">
+                <div className="mt-1 text-black">
                   {localData?.disabilityDetails || '-'}
                 </div>
               )}
             </div>
           )}{' '}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-black">
               Where did I hear about Watney College?
             </label>
             {isEditing ? (
@@ -177,14 +177,14 @@ const ComplianceData = ({
                 classNamePrefix="react-select"
               />
             ) : (
-              <div className="mt-1 text-gray-900">
+              <div className="mt-1 text-black">
                 {capitalizeFirstLetter(localData?.hearAboutUs || '-')}
               </div>
             )}
           </div>
           {/* National Insurance Number */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-black">
               National Insurance Number
             </label>
             {isEditing ? (
@@ -195,14 +195,14 @@ const ComplianceData = ({
                 placeholder="AB123456C"
               />
             ) : (
-              <div className="mt-1 text-gray-900">
+              <div className="mt-1 text-black">
                 {localData?.niNumber || '-'}
               </div>
             )}
           </div>
           {/* LTR/BRP Code */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-black">
               LTR/BRP Code
             </label>
             {isEditing ? (
@@ -212,14 +212,14 @@ const ComplianceData = ({
                 onChange={(e) => handleInputChange('ltrCode', e.target.value)}
               />
             ) : (
-              <div className="mt-1 text-gray-900">
+              <div className="mt-1 text-black">
                 {localData?.ltrCode || '-'}
               </div>
             )}
           </div>
           {/* Criminal Conviction */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-black">
               Do I have any criminal convictions?
             </label>
             {isEditing ? (
@@ -253,7 +253,7 @@ const ComplianceData = ({
                 menuPortalTarget={document.body}
               />
             ) : (
-              <div className="mt-1 text-gray-900">
+              <div className="mt-1 text-black">
                 {localData?.criminalConviction ? 'Yes' : 'No'}
               </div>
             )}
@@ -261,7 +261,7 @@ const ComplianceData = ({
           {/* Conviction Details (Conditional) */}
           {(localData?.criminalConviction || localData?.convictionDetails) && (
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-black">
                 Conviction details
               </label>
               {isEditing ? (
@@ -274,7 +274,7 @@ const ComplianceData = ({
                   }
                 />
               ) : (
-                <div className="mt-1 text-gray-900">
+                <div className="mt-1 text-black">
                   {localData?.convictionDetails || '-'}
                 </div>
               )}
@@ -282,7 +282,7 @@ const ComplianceData = ({
           )}
           {/* Student Finance */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-black">
               Have I apply for student finance?
             </label>
             {isEditing ? (
@@ -315,7 +315,7 @@ const ComplianceData = ({
                 menuPortalTarget={document.body}
               />
             ) : (
-              <div className="mt-1 text-gray-900">
+              <div className="mt-1 text-black">
                 {capitalizeFirstLetter(localData?.studentFinance || '-')}
               </div>
             )}

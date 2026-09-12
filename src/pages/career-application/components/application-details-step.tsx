@@ -191,7 +191,7 @@ export function ApplicationDetailsStep({
                           futureDate={false}
                         />
                       </FormControl>
-                      <p className="text-xs  text-gray-400">
+                      <p className="text-xs  text-black">
                         Example: 01/06/2025
                       </p>
 
@@ -223,7 +223,7 @@ export function ApplicationDetailsStep({
                       }
                       className="text-sm"
                     />
-                    <p className="text-xs  text-gray-400">Example: Yes</p>
+                    <p className="text-xs  text-black">Example: Yes</p>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -252,7 +252,7 @@ export function ApplicationDetailsStep({
                       }
                       className="text-sm"
                     />
-                    <p className="text-xs  text-gray-400">Example: Yes</p>
+                    <p className="text-xs  text-black">Example: Yes</p>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -281,7 +281,7 @@ export function ApplicationDetailsStep({
                       }
                       className="text-sm"
                     />
-                    <p className="text-xs  text-gray-400">Example: Yes</p>
+                    <p className="text-xs  text-black">Example: Yes</p>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -320,7 +320,7 @@ export function ApplicationDetailsStep({
                       )}
                     />
 
-                    <p className="text-xs text-gray-400">
+                    <p className="text-xs text-black">
                       Example: Job board, referral, social media, company
                       website, other
                     </p>
@@ -345,7 +345,7 @@ export function ApplicationDetailsStep({
                           placeholder="Enter the employee name"
                         />
                       </FormControl>
-                      <p className="text-xs  text-gray-400">
+                      <p className="text-xs  text-black">
                         Example: Emma Watson
                       </p>
 
@@ -425,7 +425,7 @@ export function ApplicationDetailsStep({
                       Select All
                     </Button>
                   </div>
-                  <p className="pb-2 text-xs text-gray-400">
+                  <p className="pb-2 text-xs text-black">
                     Select all the days you are available to work.
                   </p>
 
@@ -488,7 +488,7 @@ export function ApplicationDetailsStep({
                       className="text-sm"
                     />
 
-                    <p className="text-xs text-gray-400">Example: Yes / No</p>
+                    <p className="text-xs text-black">Example: Yes / No</p>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -520,7 +520,7 @@ export function ApplicationDetailsStep({
                       className="text-sm"
                     />
 
-                    <p className="text-xs text-gray-400">Example: Yes / No</p>
+                    <p className="text-xs text-black">Example: Yes / No</p>
                     <FormMessage />
                   </FormItem>
                 )}

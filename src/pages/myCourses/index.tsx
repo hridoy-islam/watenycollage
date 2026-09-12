@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '@/lib/axios';
-import { useSelector } from 'react-redux';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -16,6 +15,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { useEffectiveRole } from '@/hooks/use-effective-role';
 
 interface IntakeInfo {
   _id: string;
@@ -122,20 +122,20 @@ const getGradingOptions = (group: GroupInfo | string): string[] =>
 const applicationStatusStyle = (status?: string) => {
   if (!status) return null;
   const label =
-    status === 'approved'
+    status === 'enrolled'
       ? 'Enrolled'
       : status === 'cancelled'
         ? 'Rejected'
         : status;
   switch (status) {
-    case 'approved':
+    case 'enrolled':
       return { label, badge: 'bg-emerald-100 text-emerald-700' };
     case 'applied':
       return { label, badge: 'bg-blue-100 text-blue-700' };
     case 'cancelled':
       return { label, badge: 'bg-rose-100 text-rose-700' };
     default:
-      return { label, badge: 'bg-gray-100 text-gray-600' };
+      return { label, badge: 'bg-gray-100 text-black' };
   }
 };
 
@@ -144,14 +144,27 @@ const applicationStatusStyle = (status?: string) => {
 // ---------------------------------------------------------
 
 function MyCoursesPage() {
-  const { user } = useSelector((state: any) => state.auth);
+  // Teaching staff are stored as `role: "employee"` with a designation titled
+  // "Teacher" - only accounts created as teachers carry `role: "teacher"`. This
+  // page used to branch on the raw role, so a teacher held that way fell
+  // through to the student path: it asked for their applications and group
+  // placements, they have none, and their assigned courses were never
+  // requested at all. `resolved` guards the fetch because the designation may
+  // take a request to read, and firing the student query first shows its empty
+  // result before the answer arrives.
+  const {
+    user,
+    isTeacher: teachesCourses,
+    isAdmin,
+    resolved: roleResolved
+  } = useEffectiveRole();
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const [loading, setLoading] = useState(true);
   const [courses, setCourses] = useState<CourseGroup[]>([]);
 
-  const isTeacher = user?.role === 'teacher' || user?.role === 'admin';
+  const isTeacher = teachesCourses || isAdmin;
 
   // -------------------------------------------------------
   // Fetch Courses
@@ -269,7 +282,7 @@ function MyCoursesPage() {
               courseName,
               courseCode,
               intakeName,
-              applicationStatus: 'approved',
+              applicationStatus: 'enrolled',
               terms: []
             });
           }
@@ -320,10 +333,10 @@ function MyCoursesPage() {
   };
 
   useEffect(() => {
-    if (user?._id) {
+    if (user?._id && roleResolved) {
       fetchMyCourses();
     }
-  }, [user?._id]);
+  }, [user?._id, roleResolved, isTeacher]);
 
   const handleOpenTerm = (
     course: CourseGroup,
@@ -431,10 +444,10 @@ function MyCoursesPage() {
                               <AlertCircle className="h-4 w-4" />
                             </div>
                             <div>
-                              <p className="text-sm font-semibold text-gray-800">
+                              <p className="text-sm font-semibold text-black">
                                 Group not assigned yet
                               </p>
-                              <p className="text-xs text-gray-500">
+                              <p className="text-xs text-black">
                                 Your course enrollment is confirmed. You will
                                 see term details here once assigned to a group.
                               </p>

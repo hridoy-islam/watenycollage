@@ -16,9 +16,9 @@ const TabSection = ({
     <section className="animate-fadeIn">
       <div className="mb-6 flex items-start justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
+          <h2 className="text-2xl font-bold text-black">{title}</h2>
           {/* {description && (
-            <p className="mt-1 text-sm text-gray-500">{description}</p>
+            <p className="mt-1 text-sm text-black">{description}</p>
           )} */}
         </div>
 
@@ -34,7 +34,7 @@ const TabSection = ({
               </button>
               <button
                 onClick={onCancel}
-                className="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-watney focus:ring-offset-2"
+                className="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium leading-4 text-black transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-watney focus:ring-offset-2"
               >
                 <X size={16} className="mr-1" />
                 Cancel
@@ -43,7 +43,7 @@ const TabSection = ({
           ) : (
             <button
               onClick={onEdit}
-              className="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-watney focus:ring-offset-2"
+              className="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium leading-4 text-black transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-watney focus:ring-offset-2"
             >
               <Edit2 size={16} className="mr-1" />
               Edit

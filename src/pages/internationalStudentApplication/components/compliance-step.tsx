@@ -191,7 +191,7 @@ export function ComplianceStep({
                         }}
                       />
                     </FormControl>
-                    <p className="mt-1 text-xs text-gray-400">
+                    <p className="mt-1 text-xs text-black">
                       Example: Yes or No
                     </p>
                     <FormMessage />
@@ -226,7 +226,7 @@ export function ComplianceStep({
                         }}
                       />
                     </FormControl>
-                    <p className="mt-1 text-xs text-gray-400">
+                    <p className="mt-1 text-xs text-black">
                       Example: Yes or No
                     </p>
                     <FormMessage />
@@ -254,7 +254,7 @@ export function ComplianceStep({
                           futureDate={false}
                         />
                       </FormControl>
-                      <p className="text-xs  text-gray-400">
+                      <p className="text-xs  text-black">
                         Example: 01/06/2025
                       </p>
 
@@ -291,7 +291,7 @@ export function ComplianceStep({
                         }}
                       />
                     </FormControl>
-                    <p className="mt-1 text-xs text-gray-400">
+                    <p className="mt-1 text-xs text-black">
                       Example: Yes or No
                     </p>
                     <FormMessage />
@@ -324,7 +324,7 @@ export function ComplianceStep({
                         }}
                       />
                     </FormControl>
-                    <p className="mt-1 text-xs text-gray-400">
+                    <p className="mt-1 text-xs text-black">
                       Example: Website
                     </p>
                     <FormMessage />
@@ -360,7 +360,7 @@ export function ComplianceStep({
                         }}
                       />
                     </FormControl>
-                    <p className="mt-1 text-xs text-gray-400">
+                    <p className="mt-1 text-xs text-black">
                       Example: Yes or No
                     </p>
                     <FormMessage />
@@ -382,11 +382,11 @@ export function ComplianceStep({
                         <Textarea
                           {...field}
                           placeholder="Please provide your visa refusal details"
-                          className="!placeholder:text-gray-500  border-gray-200 placeholder:text-xs placeholder:text-gray-500"
+                          className="!placeholder:text-black  border-gray-200 placeholder:text-xs placeholder:text-black"
                         />
                       </FormControl>
 
-                      <p className="mt-1 text-xs text-gray-400">
+                      <p className="mt-1 text-xs text-black">
                         Example: I was refused a UK student visa due to a
                         documentation issue.
                       </p>
@@ -396,8 +396,8 @@ export function ComplianceStep({
                   )}
                 />
               )}
-              <div className="col-span-1 mt-4 space-y-4 rounded-md bg-gray-50 p-4 text-sm text-gray-700 md:col-span-2">
-                <h3 className="font-semibold text-gray-900">
+              <div className="col-span-1 mt-4 space-y-4 rounded-md bg-gray-50 p-4 text-sm text-black md:col-span-2">
+                <h3 className="font-semibold text-black">
                   Equality Act 2010 Declaration
                 </h3>
                 <p>
@@ -444,7 +444,7 @@ export function ComplianceStep({
                         }}
                       />
                     </FormControl>
-                    <p className="mt-1 text-xs text-gray-400">
+                    <p className="mt-1 text-xs text-black">
                       Example: Yes, No, Prefer not to say
                     </p>
                     <FormMessage />
@@ -466,11 +466,11 @@ export function ComplianceStep({
                         <Textarea
                           {...field}
                           placeholder="Please provide your disabiility details"
-                          className="!placeholder:text-gray-500  border-gray-200 placeholder:text-xs placeholder:text-gray-500"
+                          className="!placeholder:text-black  border-gray-200 placeholder:text-xs placeholder:text-black"
                         />
                       </FormControl>
 
-                      <p className="mt-1 text-xs text-gray-400">
+                      <p className="mt-1 text-xs text-black">
                         Example: I have a visual impairment that affects my
                         ability to read small text.
                       </p>
@@ -481,7 +481,7 @@ export function ComplianceStep({
                 />
               )}
 
-                <div className="col-span-1 mt-4 space-y-4 rounded-md bg-gray-50 p-4 text-sm text-gray-700 md:col-span-2">
+                <div className="col-span-1 mt-4 space-y-4 rounded-md bg-gray-50 p-4 text-sm text-black md:col-span-2">
                
                
                 <p>

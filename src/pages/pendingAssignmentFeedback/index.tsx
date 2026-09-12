@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '@/lib/axios';
+import { useEffectiveRole } from '@/hooks/use-effective-role';
 import {
   Table,
   TableBody,
@@ -22,7 +23,6 @@ import {
   X
 } from 'lucide-react';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
-import { useSelector } from 'react-redux';
 
 interface Assignment {
   _id: string;
@@ -72,7 +72,9 @@ interface SelectOption {
 }
 
 export function AssignmentFeedbackList() {
-  const { user } = useSelector((state: any) => state.auth);
+  // See the note in assignmentReport: a teacher held as an employee with a
+  // "Teacher" designation matched neither branch and got an empty filter.
+  const { user, isTeacher, isAdmin, resolved: roleResolved } = useEffectiveRole();
   const navigate = useNavigate();
 
   const [courses, setCourses] = useState<SelectOption[]>([]);
@@ -121,7 +123,7 @@ export function AssignmentFeedbackList() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        if (user?.role === 'admin') {
+        if (isAdmin) {
           const [coursesRes, termsRes, studentRes] = await Promise.all([
             axiosInstance.get('/courses', {
               params: { status: 1, limit: 'all' }
@@ -158,7 +160,7 @@ export function AssignmentFeedbackList() {
                 'Unknown Student'
             }))
           );
-        } else if (user?.role === 'teacher') {
+        } else if (isTeacher) {
           const [res, studentRes] = await Promise.all([
             axiosInstance.get('/teacher-courses', {
               params: { teacherId: user._id, limit: 'all' }
@@ -209,8 +211,8 @@ export function AssignmentFeedbackList() {
       }
     };
 
-    if (user) fetchData();
-  }, [user]);
+    if (user && roleResolved) fetchData();
+  }, [user, isAdmin, isTeacher, roleResolved]);
 
   // Load units when course or term changes
   useEffect(() => {

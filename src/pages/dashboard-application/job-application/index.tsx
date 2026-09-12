@@ -117,8 +117,8 @@ export default function JobApplicationPage() {
   if (!job) {
     return (
       <div className=" flex flex-col items-center justify-center p-6 text-center">
-        <h2 className="text-2xl font-semibold text-gray-700">Job not found</h2>
-        <p className="mt-2 text-gray-500">
+        <h2 className="text-2xl font-semibold text-black">Job not found</h2>
+        <p className="mt-2 text-black">
           We couldn't find the requested job.
         </p>
 
@@ -151,7 +151,7 @@ export default function JobApplicationPage() {
   <div className="mb-8 rounded-lg border border-gray-200 bg-white p-6 sm:p-8 shadow-xl">
     <div className="flex flex-col md:flex-row md:items-start md:justify-between md:gap-4">
       <div className="flex-1">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{job.jobTitle}</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-black">{job.jobTitle}</h1>
 
         {/* Application Deadline */}
         <div className="mt-2 inline-flex items-center rounded-full bg-watney/10 px-3 py-1 text-xs sm:text-sm text-watney">
@@ -187,7 +187,7 @@ export default function JobApplicationPage() {
 
     {/* Job Description */}
     <div
-      className="prose mt-6 max-w-full text-gray-600"
+      className="prose mt-6 max-w-full text-black"
       dangerouslySetInnerHTML={{
         __html: job.jobDetail || '<p>No description available for this position.</p>'
       }}
@@ -197,8 +197,8 @@ export default function JobApplicationPage() {
     {user.role !== 'admin' && (
       <div className="mt-10 rounded-lg border border-gray-100 bg-gray-50 p-4 sm:p-6 shadow-sm">
         <div className="mb-6 flex flex-col items-start gap-2 border-b pb-4">
-          <h2 className="text-lg sm:text-xl font-semibold text-gray-800">Apply Now</h2>
-          <p className="text-xs sm:text-sm text-gray-500">
+          <h2 className="text-lg sm:text-xl font-semibold text-black">Apply Now</h2>
+          <p className="text-xs sm:text-sm text-black">
             Submit your application below to apply for this position.
           </p>
         </div>
@@ -212,7 +212,7 @@ export default function JobApplicationPage() {
             />
 
             <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4">
-              <p className="text-center sm:text-left text-gray-600 mb-2 sm:mb-0">
+              <p className="text-center sm:text-left text-black mb-2 sm:mb-0">
                 Ready to apply? Click the button below to submit your application.
               </p>
 

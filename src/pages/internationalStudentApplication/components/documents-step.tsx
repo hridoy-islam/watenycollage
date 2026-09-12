@@ -127,7 +127,7 @@ export function DocumentsStep({
                     href={fileUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center space-x-2 text-sm font-medium text-gray-900 transition-colors hover:text-watney/90"
+                    className="flex items-center space-x-2 text-sm font-medium text-black transition-colors hover:text-watney/90"
                   >
                     <span className="truncate sm:hidden">
                       {fileName.length > 20
@@ -145,7 +145,7 @@ export function DocumentsStep({
                 variant="ghost"
                 size="sm"
                 onClick={() => handleRemoveFile(field, fileUrl)}
-                className="h-8 w-8 p-0 text-gray-400 hover:bg-red-50 hover:text-red-500"
+                className="h-8 w-8 p-0 text-black hover:bg-red-50 hover:text-red-500"
               >
                 <Trash2 className="h-4 w-4" />
               </Button>
@@ -178,7 +178,7 @@ export function DocumentsStep({
                       href={fileUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center space-x-2 text-sm font-medium text-gray-900 transition-colors hover:text-watney/90"
+                      className="flex items-center space-x-2 text-sm font-medium text-black transition-colors hover:text-watney/90"
                     >
                       <span className="truncate sm:hidden">
                         {fileName.length > 20
@@ -196,7 +196,7 @@ export function DocumentsStep({
                   variant="ghost"
                   size="sm"
                   onClick={() => handleRemoveFile(field, fileUrl)}
-                  className="h-8 w-8 p-0 text-gray-400 hover:bg-red-50 hover:text-red-500"
+                  className="h-8 w-8 p-0 text-black hover:bg-red-50 hover:text-red-500"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -298,26 +298,26 @@ export function DocumentsStep({
         <CardHeader>
           <div className="space-y-4">
             <div>
-              <h2 className="text-xl font-bold text-gray-900 sm:text-2xl">
+              <h2 className="text-xl font-bold text-black sm:text-2xl">
                 Document Upload
               </h2>
-              <p className="mt-1 text-sm text-gray-600 sm:text-base">
+              <p className="mt-1 text-sm text-black sm:text-base">
                 Please upload all required documents to complete your
                 application
               </p>
             </div>
 
             <div className="rounded-lg border border-gray-200 bg-white p-4 sm:p-6">
-              <h3 className="mb-3 flex items-center font-semibold text-gray-900">
+              <h3 className="mb-3 flex items-center font-semibold text-black">
                 <CheckCircle className="mr-2 h-5 w-5 text-blue-600" />
                 Document Requirements
               </h3>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <p className="mb-2 font-medium text-gray-700">
+                  <p className="mb-2 font-medium text-black">
                     Required Documents:
                   </p>
-                  <ul className="space-y-1 text-sm text-gray-600">
+                  <ul className="space-y-1 text-sm text-black">
                     <li className="flex items-center">
                       <div className="mr-2 h-2 w-2 rounded-full bg-red-500"></div>
                       Passport or ID document
@@ -329,10 +329,10 @@ export function DocumentsStep({
                   </ul>
                 </div>
                 <div>
-                  <p className="mb-2 font-medium text-gray-700">
+                  <p className="mb-2 font-medium text-black">
                     Optional Documents:
                   </p>
-                  <ul className="space-y-1 text-sm text-gray-600">
+                  <ul className="space-y-1 text-sm text-black">
                     <li className="flex items-center">
                       <div className="mr-2 h-2 w-2 rounded-full bg-gray-400"></div>
                       Photograph
@@ -395,12 +395,12 @@ export function DocumentsStep({
                                     ? 'text-red-600'
                                     : hasFiles
                                       ? 'text-green-600'
-                                      : 'text-gray-600'
+                                      : 'text-black'
                                 }`}
                               />
                             </div>
                             <div>
-                              <h3 className="flex flex-wrap items-center text-base font-semibold text-gray-900 sm:text-lg">
+                              <h3 className="flex flex-wrap items-center text-base font-semibold text-black sm:text-lg">
                                 {label}
                                 {required && (
                                   <span className="ml-1 text-red-500">*</span>
@@ -409,13 +409,13 @@ export function DocumentsStep({
                                   <CheckCircle className="ml-2 h-4 w-4 text-green-600 sm:h-5 sm:w-5" />
                                 )}
                               </h3>
-                              <p className="text-sm text-gray-600">
+                              <p className="text-sm text-black">
                                 {instructions}
                               </p>
-                              <p className="mt-1 text-xs text-gray-500">
+                              <p className="mt-1 text-xs text-black">
                                 Accepted formats: {formats}
                               </p>
-                              <p className="mt-1 text-xs font-semibold text-gray-800">
+                              <p className="mt-1 text-xs font-semibold text-black">
                                 {uploadLabel}
                               </p>
                             </div>

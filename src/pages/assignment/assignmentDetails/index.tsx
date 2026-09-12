@@ -24,7 +24,11 @@ import {
 } from 'lucide-react';
 import moment, { type Moment } from 'moment';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
-import { useSelector } from 'react-redux';
+import { useEffectiveRole } from '@/hooks/use-effective-role';
+import {
+  formatReleaseMoment,
+  isResultVisible
+} from '@/lib/result-release';
 import { AssignmentList } from './components/AssignmentList';
 import { AssignmentHeader } from './components/AssignmentHeader';
 import { AssignmentContent } from './components/AssignmentContent';
@@ -172,7 +176,11 @@ const AssignmentDetailPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user } = useSelector((state: any) => state.auth);
+  // A teacher held as an employee with a "Teacher" designation has to reach
+  // the teacher controls too, so the effective role decides rather than the
+  // one stored on the record.
+  const { user, effectiveRole, isTeacher: teaches, isAdmin } =
+    useEffectiveRole();
   const [unitMaterial, setUnitMaterial] = useState<any>(null);
   const [assignmentSettings, setAssignmentSettings] = useState<any[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
@@ -202,8 +210,8 @@ const AssignmentDetailPage = () => {
     setCount((prev) => prev + 1);
   };
 
-  const isStudent = user?.role === 'student';
-  const isTeacher = user?.role === 'admin' || user?.role === 'teacher';
+  const isStudent = effectiveRole === 'student';
+  const isTeacher = isAdmin || teaches;
 
   const location = useLocation();
   const assignmentIdFromState =
@@ -403,7 +411,7 @@ const AssignmentDetailPage = () => {
 
       // Teacher/Student: only show assignments that have been published
       const visibleSettings =
-        user?.role === 'admin'
+        isAdmin
           ? settingsList
           : settingsList.filter((s: any) => s.status === 'published');
 
@@ -1738,7 +1746,7 @@ const AssignmentDetailPage = () => {
     > = {
       not_submitted: {
         label: 'Not Submitted',
-        className: 'bg-gray-100 text-gray-800 text-xs'
+        className: 'bg-gray-100 text-black text-xs'
       },
       submitted: {
         label: 'Submitted',
@@ -1949,11 +1957,19 @@ const AssignmentDetailPage = () => {
                 selectedAssignmentName={selectedAssignment.assignmentName}
                 unitMaterial={unitMaterial}
                 assignmentSettings={assignmentSettings}
-                isResultPublished={
-                  assignmentSettings.find(
-                    (s: any) =>
-                      s._id.toString() === selectedAssignment?.assignmentSettingId
-                  )?.isResultPublished
+                // The publish flag alone is not the answer - a result
+                // published with a release scheduled for next week is not
+                // visible yet. Same rule the API applies to the lists.
+                isResultPublished={isResultVisible(selectedSetting)}
+                // The date is only a promise once the results are published,
+                // so an unpublished release date is not announced.
+                resultReleaseLabel={
+                  selectedSetting?.isResultPublished
+                    ? formatReleaseMoment(
+                        selectedSetting?.resultReleaseDate,
+                        selectedSetting?.resultReleaseTime
+                      )
+                    : ''
                 }
                 gradingOptions={gradingOptions}
                 finalGrade={selectedAssignment.finalGrade || ''}

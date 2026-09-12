@@ -109,7 +109,7 @@ export default function DocumentData({
                       href={fileUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center space-x-2 text-sm font-medium text-gray-900 transition-colors hover:text-watney/90"
+                      className="flex items-center space-x-2 text-sm font-medium text-black transition-colors hover:text-watney/90"
                     >
                       <Button className="flex flex-row items-center gap-4 bg-watney text-white hover:bg-watney/90">
                         View <ExternalLink className="h-3 w-3 flex-shrink-0" />
@@ -122,7 +122,7 @@ export default function DocumentData({
                 variant="ghost"
                 size="sm"
                 onClick={() => handleRemoveFile(field, fileUrl)}
-                className="h-8 w-8 p-0 text-gray-400 hover:bg-red-50 hover:text-red-500"
+                className="h-8 w-8 p-0 text-black hover:bg-red-50 hover:text-red-500"
               >
                 <Trash2 className="h-4 w-4" />
               </Button>
@@ -152,7 +152,7 @@ export default function DocumentData({
                       href={fileUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center space-x-2 text-sm font-medium text-gray-900 transition-colors hover:text-watney/90"
+                      className="flex items-center space-x-2 text-sm font-medium text-black transition-colors hover:text-watney/90"
                     >
                       <Button className="flex flex-row items-center gap-4 bg-watney text-white hover:bg-watney/90">
                         View <ExternalLink className="h-3 w-3 flex-shrink-0" />
@@ -164,7 +164,7 @@ export default function DocumentData({
                   variant="ghost"
                   size="sm"
                   onClick={() => handleRemoveFile(field, fileUrl)}
-                  className="h-8 w-8 p-0 text-gray-400 hover:bg-red-50 hover:text-red-500"
+                  className="h-8 w-8 p-0 text-black hover:bg-red-50 hover:text-red-500"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -267,7 +267,7 @@ export default function DocumentData({
         <CardHeader className="">
           <div className="space-y-4">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">Document</h2>
+              <h2 className="text-2xl font-bold text-black">Document</h2>
             </div>
           </div>
         </CardHeader>
@@ -320,12 +320,12 @@ export default function DocumentData({
                                     ? 'text-red-600'
                                     : hasFiles
                                       ? 'text-green-600'
-                                      : 'text-gray-600'
+                                      : 'text-black'
                                 }`}
                               />
                             </div>
                             <div>
-                              <h3 className="flex items-center text-lg font-semibold text-gray-900">
+                              <h3 className="flex items-center text-lg font-semibold text-black">
                                 {label}
                                 {required && (
                                   <span className="ml-2 text-red-500">*</span>
@@ -334,14 +334,14 @@ export default function DocumentData({
                                   <CheckCircle className="ml-2 h-5 w-5 text-green-600" />
                                 )}
                               </h3>
-                              <p className="text-sm text-gray-600">
+                              <p className="text-sm text-black">
                                 {instructions}
                               </p>
-                              <p className="mt-1 text-xs text-gray-500">
+                              <p className="mt-1 text-xs text-black">
                                 Accepted formats: {formats}
                               </p>
                               {uploadLabel && (
-                                <p className="mt-1 text-xs font-semibold text-gray-800">
+                                <p className="mt-1 text-xs font-semibold text-black">
                                   {uploadLabel}
                                 </p>
                               )}

@@ -621,7 +621,7 @@ function StudentMailPage() {
             )}
           </>
         ) : (
-          <p className="py-6 text-center text-gray-500">
+          <p className="py-6 text-center text-black">
             No emails found for this student.
           </p>
         )}
@@ -739,10 +739,10 @@ function StudentMailPage() {
 
             {/* {selectedPdfDraft && (
               <div className="rounded-md bg-gray-50 p-3">
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-black">
                   <strong>Subject:</strong> {selectedPdfDraft.subject}
                 </p>
-                <p className="mt-2 text-sm text-gray-600">
+                <p className="mt-2 text-sm text-black">
                   <strong>Preview:</strong>{' '}
                   {selectedPdfDraft.body.substring(0, 100)}...
                 </p>

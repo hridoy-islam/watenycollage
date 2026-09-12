@@ -65,8 +65,8 @@ export function FileUpload({ onFileSelected, value, className }: FileUploadProps
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-full w-32 h-32 mx-auto">
-          <Upload className="h-8 w-8 text-gray-400" />
-          <span className="text-xs text-gray-500 mt-1 ">Upload Photo</span>
+          <Upload className="h-8 w-8 text-black" />
+          <span className="text-xs text-black mt-1 ">Upload Photo</span>
         </div>
       )}
 

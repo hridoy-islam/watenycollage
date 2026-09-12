@@ -171,7 +171,7 @@ export default function ApplicationForm({
                       New User
                     </Button>
                   </div>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-black">
                     You will be asked to create a Username (your email address)
                     and Password on the next screen. Please make a note of your
                     username and password as you will need these to log back in

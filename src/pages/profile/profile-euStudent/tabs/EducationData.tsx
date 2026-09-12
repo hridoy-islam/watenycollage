@@ -114,14 +114,14 @@ const EducationData = ({
         {localData.educationData && localData.educationData.length > 0 ? (
           localData.educationData.map((entry, index) => (
             <div key={index} className="mb-6 rounded-md border p-4">
-              <h4 className="text-md mb-2 font-semibold text-gray-800">
+              <h4 className="text-md mb-2 font-semibold text-black">
                 Education {index + 1}
               </h4>
 
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 {/* Institution */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-black">
                     Institution
                   </label>
                   {isEditing ? (
@@ -137,7 +137,7 @@ const EducationData = ({
                       }
                     />
                   ) : (
-                    <div className="mt-1 text-gray-900">
+                    <div className="mt-1 text-black">
                       {entry.institution || '-'}
                     </div>
                   )}
@@ -145,7 +145,7 @@ const EducationData = ({
 
                 {/* Qualification */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-black">
                     Qualification
                   </label>
                   {isEditing ? (
@@ -161,7 +161,7 @@ const EducationData = ({
                       }
                     />
                   ) : (
-                    <div className="mt-1 text-gray-900">
+                    <div className="mt-1 text-black">
                       {entry.qualification || '-'}
                     </div>
                   )}
@@ -169,7 +169,7 @@ const EducationData = ({
 
                 {/* Award Date */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-black">
                     Award Date
                   </label>
                   {isEditing ? (
@@ -187,7 +187,7 @@ const EducationData = ({
                       }
                     />
                   ) : (
-                    <div className="mt-1 text-gray-900">
+                    <div className="mt-1 text-black">
                       {entry.awardDate
                         ? new Date(entry.awardDate).toLocaleDateString()
                         : '-'}
@@ -197,7 +197,7 @@ const EducationData = ({
 
                 {/* Grade */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-black">
                     Grade
                   </label>
                   {isEditing ? (
@@ -213,7 +213,7 @@ const EducationData = ({
                       }
                     />
                   ) : (
-                    <div className="mt-1 text-gray-900">
+                    <div className="mt-1 text-black">
                       {entry.grade || '-'}
                     </div>
                   )}
@@ -221,7 +221,7 @@ const EducationData = ({
 
                 {/* Certificate Upload */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-black">
                     Certificate
                   </label>
                   {isEditing ? (
@@ -238,13 +238,13 @@ const EducationData = ({
                       >
                         Upload Certificate
                       </button>
-                      <p className="mt-1 text-xs text-gray-500">
+                      <p className="mt-1 text-xs text-black">
                         Accepted formats: PDF, JPG, PNG. Max size 5MB.
                       </p>
 
                       {entry.certificate && (
                         <>
-                          <p className="mt-2 text-sm text-gray-900">
+                          <p className="mt-2 text-sm text-black">
                             {decodeURIComponent(
                               entry.certificate.split('/').pop() ||
                                 'Uploaded File'
@@ -262,7 +262,7 @@ const EducationData = ({
                       )}
                     </div>
                   ) : (
-                    <div className="mt-1 text-gray-900">
+                    <div className="mt-1 text-black">
                       {entry.certificate ? (
                         <a
                           href={entry.certificate}
@@ -282,7 +282,7 @@ const EducationData = ({
             </div>
           ))
         ) : (
-          <p className="text-sm text-gray-600 italic">
+          <p className="text-sm text-black italic">
             No education data available.
           </p>
         )}

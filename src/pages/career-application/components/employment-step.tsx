@@ -300,7 +300,7 @@ export function EmploymentStep({
                         className="text-sm"
                       />
 
-                      <p className="text-xs text-gray-400">
+                      <p className="text-xs text-black">
                         Select "Yes" if you are employed at the moment.
                       </p>
 
@@ -331,10 +331,10 @@ export function EmploymentStep({
                                 <Input
                                   {...field}
                                   placeholder="Company Name"
-                                  className="!placeholder:text-gray-400   placeholder:text-xs  placeholder:text-gray-400"
+                                  className="!placeholder:text-black   placeholder:text-xs  placeholder:text-black"
                                 />
                               </FormControl>
-                              <p className="text-xs  text-gray-400">
+                              <p className="text-xs  text-black">
                                 Enter the name of your current employer (e.g.,
                                 NHS Trust){' '}
                               </p>
@@ -357,10 +357,10 @@ export function EmploymentStep({
                                 <Input
                                   {...field}
                                   placeholder="Position"
-                                  className="!placeholder:text-gray-400   placeholder:text-xs  placeholder:text-gray-400"
+                                  className="!placeholder:text-black   placeholder:text-xs  placeholder:text-black"
                                 />
                               </FormControl>
-                              <p className="text-xs  text-gray-400">
+                              <p className="text-xs  text-black">
                                 State your current job title (e.g., Support
                                 Worker)
                               </p>
@@ -392,7 +392,7 @@ export function EmploymentStep({
                                     
                                   />
                                 </FormControl>
-                                <p className="text-xs  text-gray-400">
+                                <p className="text-xs  text-black">
                                   Select the date you started this position(e.g.
                                   11/01/2000)
                                 </p>
@@ -429,7 +429,7 @@ export function EmploymentStep({
                                 />
                               </FormControl>
 
-                              <p className="mt-1 text-xs text-gray-400">
+                              <p className="mt-1 text-xs text-black">
                                 Select from options: Full-Time, Part-Time,
                                 Contract, Freelance
                               </p>
@@ -452,11 +452,11 @@ export function EmploymentStep({
                               <FormControl>
                                 <Textarea
                                   {...field}
-                                  className="!placeholder:text-gray-400 min-h-[80px] border border-gray-200   placeholder:text-xs  placeholder:text-gray-400"
+                                  className="!placeholder:text-black min-h-[80px] border border-gray-200   placeholder:text-xs  placeholder:text-black"
                                   placeholder="Job Duties"
                                 />
                               </FormControl>
-                              <p className="mt-1 text-xs text-gray-400">
+                              <p className="mt-1 text-xs text-black">
                                 Briefly describe your key responsibilities{' '}
                               </p>
                               <FormMessage />
@@ -495,7 +495,7 @@ export function EmploymentStep({
                             />
                           </FormControl>
 
-                          <p className="mt-1 text-xs text-gray-400">
+                          <p className="mt-1 text-xs text-black">
                             List any previous jobs you've held. Include job
                             title, employer, dates, and responsibilities.
                           </p>
@@ -534,7 +534,7 @@ export function EmploymentStep({
                                       placeholder="Company Name"
                                     />
                                   </FormControl>
-                                  <p className="text-xs  text-gray-400">
+                                  <p className="text-xs  text-black">
                                     Enter the name of your current employer
                                     (e.g., NHS Trust){' '}
                                   </p>
@@ -556,7 +556,7 @@ export function EmploymentStep({
                                   <FormControl>
                                     <Input {...field} placeholder="Position" />
                                   </FormControl>
-                                  <p className="text-xs  text-gray-400">
+                                  <p className="text-xs  text-black">
                                     State your current job title (e.g., Support
                                     Worker)
                                   </p>
@@ -590,7 +590,7 @@ export function EmploymentStep({
                                          futureDate={true}
                                       />
                                     </FormControl>
-                                    <p className="text-xs  text-gray-400">
+                                    <p className="text-xs  text-black">
                                       Select the date you started this position
                                       (e.g. 11/01/2000)
                                     </p>{' '}
@@ -625,7 +625,7 @@ export function EmploymentStep({
                                          futureDate={true}
                                       />
                                     </FormControl>
-                                    <p className="mt-1 text-xs text-gray-400">
+                                    <p className="mt-1 text-xs text-black">
                                       Select the end date (e.g. 11/01/2000)
                                     </p>
                                     <FormMessage />
@@ -650,7 +650,7 @@ export function EmploymentStep({
                                       placeholder="Enter the reason"
                                     />
                                   </FormControl>
-                                  <p className="mt-1 text-xs text-gray-400">
+                                  <p className="mt-1 text-xs text-black">
                                     Reason for Leaving the Position
                                   </p>
                                   <FormMessage />
@@ -675,7 +675,7 @@ export function EmploymentStep({
                                       placeholder="Job Duties"
                                     />
                                   </FormControl>
-                                  <p className="mt-1 text-xs text-gray-400">
+                                  <p className="mt-1 text-xs text-black">
                                     Briefly describe your key responsibilities{' '}
                                   </p>
                                   <FormMessage />
@@ -733,7 +733,7 @@ export function EmploymentStep({
                               className="text-sm"
                             />
 
-                            <p className="mt-1 text-xs text-gray-400">
+                            <p className="mt-1 text-xs text-black">
                               Have you had any periods of 1 month or more
                               without employment in the past 5 years?
                             </p>
@@ -761,7 +761,7 @@ export function EmploymentStep({
 "
                                 />
                               </FormControl>
-                              <p className="mt-1 text-xs text-gray-400">
+                              <p className="mt-1 text-xs text-black">
                                 Briefly explain the reason for any gaps (e.g.,
                                 study break, health reasons, relocation)
                               </p>

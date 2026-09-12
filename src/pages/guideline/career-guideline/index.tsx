@@ -31,7 +31,7 @@ const steps: React.ReactNode[] = [
       Thank you for your interest in joining our team. Before you proceed with
       your job application, please read this guide carefully.
     </p>
-    <ul className="mt-4 list-disc space-y-2 pl-8 text-xl text-gray-700">
+    <ul className="mt-4 list-disc space-y-2 pl-8 text-xl text-black">
       <li>We are an equal opportunity employer</li>
       <li>
         We welcome applications from all backgrounds and experience levels
@@ -50,7 +50,7 @@ const steps: React.ReactNode[] = [
       To complete your application successfully, make sure you have the
       following ready:
     </p>
-    <ul className="mt-4 list-disc space-y-2 pl-8 text-xl text-gray-700">
+    <ul className="mt-4 list-disc space-y-2 pl-8 text-xl text-black">
       <li>
         <strong>Personal Details:</strong> Title, First Name, Middle
         Name(Initial), Last Name, Date of birth, Gender, Country Of Residence
@@ -92,7 +92,7 @@ const steps: React.ReactNode[] = [
   // Step 4: Important Reminders
   <div key="step-3" className="space-y-4">
     <h3 className="text-2xl font-semibold">✅ Important Reminders</h3>
-    <ul className="mt-4 list-disc space-y-2 pl-8 text-xl text-gray-700">
+    <ul className="mt-4 list-disc space-y-2 pl-8 text-xl text-black">
       <li>
         <strong>Accuracy matters:</strong> Double-check all details before
         submission.
@@ -106,7 +106,7 @@ const steps: React.ReactNode[] = [
         assistance or accommodations.
       </li>
     </ul>
-    <p className="mt-4 text-xl text-gray-700">
+    <p className="mt-4 text-xl text-black">
       We are here to help you succeed — make sure to reach out if you need any
       clarification.
     </p>
@@ -115,13 +115,13 @@ const steps: React.ReactNode[] = [
   // Step 5: Data & Support + Final Call to Action
   <div key="step-4" className="space-y-6 text-start">
     <h3 className="text-2xl font-semibold">🔐 Data Privacy & Support</h3>
-    <p className="text-xl text-gray-700">
+    <p className="text-xl text-black">
       Watney College handles your data securely in compliance with UK GDPR. Your
       personal information will only be used for application purposes.
     </p>
 
     <p className="mb-2 mt-6 text-3xl font-bold">🎓 Ready to Apply?</p>
-    <p className="text-xl text-gray-700">
+    <p className="text-xl text-black">
       By clicking "Continue Application” you agree to provide honest and
       accurate information.
     </p>
@@ -170,7 +170,7 @@ export default function CareerGuideline() {
   </CardHeader>
 
   {/* Content */}
-  <CardContent className="flex-1 overflow-y-auto px-4 py-4 sm:px-8 sm:py-6 text-gray-700 text-sm sm:text-base leading-relaxed">
+  <CardContent className="flex-1 overflow-y-auto px-4 py-4 sm:px-8 sm:py-6 text-black text-sm sm:text-base leading-relaxed">
     {steps[step]}
   </CardContent>
 

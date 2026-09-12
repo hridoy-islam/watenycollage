@@ -159,10 +159,10 @@ const formatPostCode = (str: string | undefined): string => {
                         <Input
                           {...field}
                           placeholder="Enter the primary address (e.g., flat number, street name)"
-                          className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
+                          className="!placeholder:text-black  placeholder:text-xs placeholder:text-black"
                         />
                       </FormControl>
-                      <p className="mt-1 text-xs text-gray-400">
+                      <p className="mt-1 text-xs text-black">
                         Example: 123 Baker Street
                       </p>
 
@@ -181,10 +181,10 @@ const formatPostCode = (str: string | undefined): string => {
                         <Input
                           {...field}
                           placeholder="Additional address information (e.g., apartment, building name)"
-                          className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
+                          className="!placeholder:text-black  placeholder:text-xs placeholder:text-black"
                         />
                       </FormControl>
-                      <p className="mt-1 text-xs text-gray-400">
+                      <p className="mt-1 text-xs text-black">
                         Example: 23 Walton Street
                       </p>
                       <FormMessage />
@@ -205,10 +205,10 @@ const formatPostCode = (str: string | undefined): string => {
                           <Input
                             {...field}
                             placeholder="Enter your city"
-                            className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
+                            className="!placeholder:text-black  placeholder:text-xs placeholder:text-black"
                           />
                         </FormControl>
-                        <p className="mt-1 text-xs text-gray-400">
+                        <p className="mt-1 text-xs text-black">
                           Example: London
                         </p>
                         <FormMessage />
@@ -228,10 +228,10 @@ const formatPostCode = (str: string | undefined): string => {
                           <Input
                             {...field}
                             placeholder="Enter the Postcode or ZIP Code"
-                            className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
+                            className="!placeholder:text-black  placeholder:text-xs placeholder:text-black"
                           />
                         </FormControl>
-                        <p className="mt-1 text-xs text-gray-400">
+                        <p className="mt-1 text-xs text-black">
                           Example: W1U 6RS
                         </p>
                         <FormMessage />
@@ -273,7 +273,7 @@ const formatPostCode = (str: string | undefined): string => {
                         />
                       </FormControl>
 
-                      <p className="mt-1 text-xs text-gray-400">
+                      <p className="mt-1 text-xs text-black">
                         Example: England
                       </p>
                       <FormMessage />
@@ -327,12 +327,12 @@ const formatPostCode = (str: string | undefined): string => {
                           className={
                             sameAsResidential
                               ? 'bg-gray-100'
-                              : '!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500'
+                              : '!placeholder:text-black  placeholder:text-xs placeholder:text-black'
                           }
                           placeholder="Enter the address (e.g., flat number, street name)"
                         />
                       </FormControl>
-                      <p className="mt-1 text-xs text-gray-400">
+                      <p className="mt-1 text-xs text-black">
                         Example: 123 Baker Street
                       </p>
                       <FormMessage />
@@ -353,12 +353,12 @@ const formatPostCode = (str: string | undefined): string => {
                           className={
                             sameAsResidential
                               ? 'bg-gray-100'
-                              : '!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500'
+                              : '!placeholder:text-black  placeholder:text-xs placeholder:text-black'
                           }
                           placeholder="Enter the address (e.g., flat number, street name)"
                         />
                       </FormControl>
-                      <p className="mt-1 text-xs text-gray-400">
+                      <p className="mt-1 text-xs text-black">
                         Example: 13 Walton Street
                       </p>
                       <FormMessage />
@@ -382,12 +382,12 @@ const formatPostCode = (str: string | undefined): string => {
                             className={
                               sameAsResidential
                                 ? 'bg-gray-100'
-                                : '!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500'
+                                : '!placeholder:text-black  placeholder:text-xs placeholder:text-black'
                             }
                             placeholder="Enter the address (e.g., flat number, street name)"
                           />
                         </FormControl>
-                        <p className="mt-1 text-xs text-gray-400">
+                        <p className="mt-1 text-xs text-black">
                           Example: London
                         </p>
                         <FormMessage />
@@ -410,12 +410,12 @@ const formatPostCode = (str: string | undefined): string => {
                             className={
                               sameAsResidential
                                 ? 'bg-gray-100'
-                                : '!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500'
+                                : '!placeholder:text-black  placeholder:text-xs placeholder:text-black'
                             }
                             placeholder="Enter the Postcode or ZIP Code"
                           />
                         </FormControl>
-                        <p className="mt-1 text-xs text-gray-400">
+                        <p className="mt-1 text-xs text-black">
                           Example: M13 9PL
                         </p>
                         <FormMessage />
@@ -462,7 +462,7 @@ const formatPostCode = (str: string | undefined): string => {
                           placeholder="Select the country where you were born."
                         />
                       </FormControl>
-                      <p className="mt-1 text-xs text-gray-400">
+                      <p className="mt-1 text-xs text-black">
                         Example: Canada
                       </p>
                       <FormMessage />

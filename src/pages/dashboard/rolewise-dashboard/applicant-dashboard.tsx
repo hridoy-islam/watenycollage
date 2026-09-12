@@ -185,7 +185,7 @@ export function ApplicantDashboard({ user }: ApplicantDashboardProps) {
           </div>
         </>
       ) : (
-        <p className="py-4 text-center text-gray-500">No applications found.</p>
+        <p className="py-4 text-center text-black">No applications found.</p>
       )}
     </TabsContent>
 
@@ -268,7 +268,7 @@ export function ApplicantDashboard({ user }: ApplicantDashboardProps) {
           </div>
         </>
       ) : (
-        <p className="py-4 text-center text-gray-500">No jobs available at the moment.</p>
+        <p className="py-4 text-center text-black">No jobs available at the moment.</p>
       )}
     </TabsContent>
   </Tabs>

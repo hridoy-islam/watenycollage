@@ -263,7 +263,7 @@ export default function CareerApplicationsPage() {
             <BlinkingDots size="large" color="bg-watney" />
           </div>
         ) : allApplications.length === 0 ? (
-          <div className="flex justify-center py-6 text-gray-500">
+          <div className="flex justify-center py-6 text-black">
             No matching results found.
           </div>
         ) : (
@@ -344,47 +344,47 @@ export default function CareerApplicationsPage() {
           {currentStep === 1 && selectedApplication && (
             <div className="space-y-6">
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900">
+                <h3 className="text-lg font-semibold text-black">
                   Applicant Details
                 </h3>
 
                 <div className="grid grid-cols-2 space-y-2">
                   <div>
-                    <p className="text-sm font-semibold text-gray-700">Name</p>
-                    <p className="text-lg text-gray-900">
+                    <p className="text-sm font-semibold text-black">Name</p>
+                    <p className="text-lg text-black">
                       {getApplicantName(selectedApplication)}
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-sm font-semibold text-gray-700">Email</p>
-                    <p className="text-lg text-gray-900">
+                    <p className="text-sm font-semibold text-black">Email</p>
+                    <p className="text-lg text-black">
                       {selectedApplication.applicantId?.email || 'N/A'}
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-sm font-semibold text-gray-700">Phone</p>
-                    <p className="text-lg text-gray-900">
+                    <p className="text-sm font-semibold text-black">Phone</p>
+                    <p className="text-lg text-black">
                       {selectedApplication.applicantId?.phone || 'N/A'}
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-sm font-semibold text-gray-700">
+                    <p className="text-sm font-semibold text-black">
                       Address
                     </p>
-                    <p className="text-lg text-gray-900">
+                    <p className="text-lg text-black">
                       {selectedApplication.applicantId?.postalAddressLine1 ||
                         'N/A'}
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-sm font-semibold text-gray-700">
+                    <p className="text-sm font-semibold text-black">
                       Job Title
                     </p>
-                    <p className="text-lg text-gray-900">
+                    <p className="text-lg text-black">
                       {selectedApplication.jobId?.jobTitle || 'N/A'}
                     </p>
                   </div>
@@ -392,7 +392,7 @@ export default function CareerApplicationsPage() {
               </div>
 
               <div className="border-t pt-4">
-                <p className="mb-4 text-lg font-semibold text-gray-900">
+                <p className="mb-4 text-lg font-semibold text-black">
                   Are you sure you want to recruit this applicant?
                 </p>
               </div>
@@ -419,7 +419,7 @@ export default function CareerApplicationsPage() {
           {currentStep === 2 && (
             <div className="space-y-2">
               <div>
-                <p className="mb-4 text-lg font-semibold text-gray-900">
+                <p className="mb-4 text-lg font-semibold text-black">
                  Would you like to continue with assigning a course?{' '}
                 </p>
 
@@ -437,7 +437,7 @@ export default function CareerApplicationsPage() {
                       }
                       placeholder="Select a course..."
                       isClearable
-                      className="text-gray-900"
+                      className="text-black"
                       styles={{
                         control: (base) => ({
                           ...base,
@@ -462,7 +462,7 @@ export default function CareerApplicationsPage() {
                       }
                       placeholder="Select a term..."
                       isClearable
-                      className="text-gray-900"
+                      className="text-black"
                       styles={{
                         control: (base) => ({
                           ...base,

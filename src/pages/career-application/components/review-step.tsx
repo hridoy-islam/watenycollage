@@ -207,10 +207,10 @@ export function ReviewStep({
             <tbody className="divide-y divide-gray-200">
               {rows.map(([label, value], index) => (
                 <tr key={index}>
-                  <td className="break-words px-2 md:px-6 py-4 text-sm font-medium text-gray-900">
+                  <td className="break-words px-2 md:px-6 py-4 text-sm font-medium text-black">
                     {label}
                   </td>
-                  <td className="break-words px-2 md:px-6 py-4 text-sm text-gray-500">
+                  <td className="break-words px-2 md:px-6 py-4 text-sm text-black">
                     {value}
                   </td>
                 </tr>
@@ -353,7 +353,7 @@ export function ReviewStep({
           <h1 className="text-xl sm:text-2xl font-semibold">
             Consent & Permissions
           </h1>
-          <p className="text-gray-400 text-sm sm:text-base">
+          <p className="text-black text-sm sm:text-base">
             Please confirm the following by selecting the appropriate
             responses:
           </p>
@@ -461,7 +461,7 @@ export function ReviewStep({
                 </FormControl>
               </div>
               <FormMessage />
-              <p className="mt-2 text-xs text-gray-400">
+              <p className="mt-2 text-xs text-black">
                 If yes, you may be asked to provide further information later.
               </p>
             </FormItem>
@@ -544,7 +544,7 @@ export function ReviewStep({
           </div>
         </div>
 
-        <p className="font-medium text-gray-800 text-sm sm:text-base">
+        <p className="font-medium text-black text-sm sm:text-base">
           Please tick the boxes to confirm:
         </p>
         <div className="space-y-4">
@@ -563,7 +563,7 @@ export function ReviewStep({
                 </FormControl>
                 <FormLabel
                   htmlFor="terms"
-                  className="text-sm text-gray-700"
+                  className="text-sm text-black"
                 >
                   I accept the terms and conditions of this application
                   process.
@@ -588,7 +588,7 @@ export function ReviewStep({
                 </FormControl>
                 <FormLabel
                   htmlFor="data-processing"
-                  className="text-sm text-gray-700"
+                  className="text-sm text-black"
                 >
                   I consent to the processing of my personal data in line
                   with UK GDPR and the Data Protection Act 2018.

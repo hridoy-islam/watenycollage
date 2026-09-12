@@ -370,7 +370,7 @@ export const SubmissionDialog: React.FC<SubmissionDialogProps> = ({
 
             {/* File requirement hint */}
             {requiresFiles() && (
-              <p className="mt-1 text-xs text-gray-500">
+              <p className="mt-1 text-xs text-black">
                 At least one file is required for{' '}
                 {isEditing ? 'updating' : 'submitting'} this assignment. Maximum
                 file size: 20MB.
@@ -390,7 +390,7 @@ export const SubmissionDialog: React.FC<SubmissionDialogProps> = ({
                     className="flex w-full items-center justify-between rounded-lg bg-gray-200 px-3 py-1 text-xs sm:w-[48%] lg:w-[32%]"
                   >
                     <div className="flex items-center gap-2 overflow-hidden">
-                      <File className="h-4 w-4 flex-shrink-0 text-gray-500" />
+                      <File className="h-4 w-4 flex-shrink-0 text-black" />
                       <span className="truncate text-xs">{file.name}</span>
                     </div>
 
@@ -452,7 +452,7 @@ export const SubmissionDialog: React.FC<SubmissionDialogProps> = ({
 
                     {formState?.requireResubmit && (
                       <div className="flex items-center gap-2 pl-6">
-                        <Info className="h-4 w-4 text-gray-500" />
+                        <Info className="h-4 w-4 text-black" />
                         <Label className="text-sm">
                           Resubmission Deadline:
                         </Label>

@@ -46,15 +46,15 @@ export default function TeachersPage() {
   const fetchData = async (page: number, limit: number, search = '') => {
     try {
       if (initialLoading) setInitialLoading(true);
-      const response = await axiosInstance.get('/users', {
+      const response = await axiosInstance.get('/users/teachers', {
         params: {
-          role: 'teacher',
+          status: 'all',
           page,
           limit,
           ...(search ? { searchTerm: search } : {})
         }
       });
-      setTeachers(response.data.data.result);
+      setTeachers(response.data.data.result || []);
       setTotalPages(response.data.data.meta.totalPage);
     } catch (error) {
       console.error('Error fetching teachers:', error);
@@ -218,7 +218,7 @@ export default function TeachersPage() {
             <BlinkingDots size="large" color="bg-watney" />
           </div>
         ) : teachers.length === 0 ? (
-          <div className="flex justify-center py-6 text-gray-500">
+          <div className="flex justify-center py-6 text-black">
             No records found.
           </div>
         ) : (

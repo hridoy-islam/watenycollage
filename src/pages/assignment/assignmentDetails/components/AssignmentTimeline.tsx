@@ -125,9 +125,9 @@
 //     return (
 //       <div className="flex flex-1 items-center justify-center">
 //         <Card className="px-6 py-10 text-center">
-//           <FileText className="mx-auto mb-3 h-12 w-12 text-gray-400" />
+//           <FileText className="mx-auto mb-3 h-12 w-12 text-black" />
 //           <h3 className="text-lg font-medium">No Assignment Selected</h3>
-//           <p className="text-gray-500">Select an assignment to continue.</p>
+//           <p className="text-black">Select an assignment to continue.</p>
 //         </Card>
 //       </div>
 //     );
@@ -140,9 +140,9 @@
 //     <div className="flex flex-1 flex-col">
 //       <div className="flex-1 space-y-4 overflow-y-auto p-4">
 //         {timeline.length === 0 && loadingItemIds.length === 0 ? (
-//           <div className="flex h-[100px] items-center justify-center text-gray-500">
+//           <div className="flex h-[100px] items-center justify-center text-black">
 //             <div className="text-center">
-//               <MessageCircle className="mx-auto mb-2 h-12 w-12 text-gray-300" />
+//               <MessageCircle className="mx-auto mb-2 h-12 w-12 text-black" />
 //               <p>No submissions or feedback yet</p>
 //             </div>
 //           </div>
@@ -377,9 +377,9 @@ export const AssignmentTimeline: React.FC<AssignmentTimelineProps> = ({
     return (
       <div className="flex flex-1 items-center justify-center">
         <Card className="px-6 py-10 text-center">
-          <FileText className="mx-auto mb-3 h-12 w-12 text-gray-400" />
+          <FileText className="mx-auto mb-3 h-12 w-12 text-black" />
           <h3 className="text-lg font-medium">No Assignment Selected</h3>
-          <p className="text-gray-500">Select an assignment to continue.</p>
+          <p className="text-black">Select an assignment to continue.</p>
         </Card>
       </div>
     );
@@ -396,9 +396,9 @@ export const AssignmentTimeline: React.FC<AssignmentTimelineProps> = ({
       {/* Timeline Section */}
       <div className="flex-1 space-y-4 overflow-y-auto p-4">
         {timeline.length === 0 && loadingItemIds.length === 0 ? (
-          <div className="flex h-[100px] items-center justify-center text-gray-500">
+          <div className="flex h-[100px] items-center justify-center text-black">
             <div className="text-center">
-              <MessageCircle className="mx-auto mb-2 h-12 w-12 text-gray-300" />
+              <MessageCircle className="mx-auto mb-2 h-12 w-12 text-black" />
               <p>No submissions or feedback yet</p>
             </div>
           </div>
@@ -462,7 +462,7 @@ export const AssignmentTimeline: React.FC<AssignmentTimelineProps> = ({
               {/* Content */}
               <div className="flex-1">
                 <div className="flex flex-wrap items-center gap-2 text-sm">
-                  <span className="font-semibold text-gray-900">
+                  <span className="font-semibold text-black">
                     {observationFeedback.submitBy?.name || 'Instructor'}
                   </span>
                   <span className="font-medium text-green-800">
@@ -480,7 +480,7 @@ export const AssignmentTimeline: React.FC<AssignmentTimelineProps> = ({
                   onClick={onEditObservationFeedback}
                   className="p-1  text-white hover:bg-gray-100"
                 >
-                  <Edit className="h-4 w-4 text-gray-500" />
+                  <Edit className="h-4 w-4 text-black" />
                 </button>
               )}
             </div>
@@ -507,7 +507,7 @@ export const AssignmentTimeline: React.FC<AssignmentTimelineProps> = ({
                     <tr className="bg-gray-50">
                       <td
                         colSpan={3}
-                        className="border border-gray-300 px-4 py-2 font-semibold text-gray-800"
+                        className="border border-gray-300 px-4 py-2 font-semibold text-black"
                       >
                         {lo.learningOutcomeTitle}
                       </td>
@@ -549,7 +549,7 @@ export const AssignmentTimeline: React.FC<AssignmentTimelineProps> = ({
               {/* Content */}
               <div className="flex-1">
                 <div className="flex flex-wrap items-center gap-2 text-sm">
-                  <span className="font-semibold text-gray-900">
+                  <span className="font-semibold text-black">
                     {finalFeedback.submitBy?.name || 'Instructor'}
                   </span>
                   <span className="font-medium text-green-800">
@@ -567,7 +567,7 @@ export const AssignmentTimeline: React.FC<AssignmentTimelineProps> = ({
                   onClick={onEditFinalFeedback}
                   className="p-1  text-white hover:bg-gray-100"
                 >
-                  <Edit className="h-4 w-4 text-gray-500" />
+                  <Edit className="h-4 w-4 text-black" />
                 </button>
               )}
             </div>
@@ -594,7 +594,7 @@ export const AssignmentTimeline: React.FC<AssignmentTimelineProps> = ({
                     <tr className="bg-gray-50">
                       <td
                         colSpan={3}
-                        className="border border-gray-300 px-4 py-2 font-semibold text-gray-800"
+                        className="border border-gray-300 px-4 py-2 font-semibold text-black"
                       >
                         {lo.learningOutcomeTitle}
                       </td>

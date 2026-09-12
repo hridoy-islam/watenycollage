@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import Select from 'react-select';
 import moment from 'moment-timezone';
 import axiosInstance from '@/lib/axios';
+import { fetchTeachers, teacherName } from '@/lib/teachers';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -323,8 +324,16 @@ const ReportPage = () => {
   const fetchUsers = async () => {
     setUsersLoading(true);
     try {
-      const response = await axiosInstance.get('/users?role=teacher&limit=all');
-      setUsers(response.data.data?.result || response.data || []);
+      // fetchTeachers returns the full user shape; this page only needs the
+      // id, name and email it renders.
+      const teachers = await fetchTeachers();
+      setUsers(
+        teachers.map((teacher) => ({
+          _id: teacher._id,
+          name: teacherName(teacher),
+          email: teacher.email || ''
+        }))
+      );
     } catch (error) {
       toast({
         title: 'Error',

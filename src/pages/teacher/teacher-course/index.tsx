@@ -29,6 +29,24 @@ import {
   TooltipTrigger
 } from '@/components/ui/tooltip';
 
+/**
+ * The units an assignment holds, whichever shape it was written in.
+ *
+ * A teacher holds several units of a group, carried as a list on one
+ * assignment. Rows written before that still hold a single `unitId`, so both
+ * are read and those assignments keep showing their unit until the backfill
+ * has run.
+ */
+const unitsOf = (assignment: any): any[] => {
+  const many = assignment?.unitIds;
+  if (Array.isArray(many) && many.length > 0) return many;
+  return assignment?.unitId ? [assignment.unitId] : [];
+};
+
+const unitLabel = (unit: any) =>
+  [unit?.unitReference, unit?.title].filter(Boolean).join(' - ') ||
+  'Untitled unit';
+
 const TeacherDetailsPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -109,9 +127,13 @@ const TeacherDetailsPage = () => {
         termName: item?.courseTermId?.name || '-',
         termYear: item?.courseTermId?.year || '-',
 
-        // Group
+        // Group - what students are assigned to
         groupId: item?.groupId?._id || '',
         groupName: item?.groupId?.name || '-',
+
+        // Units - what this teacher is assigned to within the group
+        units: unitsOf(item),
+        unitIds: unitsOf(item).map((unit: any) => unit?._id || unit),
 
         // Teacher
         teacherId: item?.teacherId?._id || '',
@@ -280,7 +302,7 @@ const TeacherDetailsPage = () => {
              */
             <div className="flex flex-col items-center justify-center py-14 text-center">
               <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
-                <FileText className="h-8 w-8 text-gray-400" />
+                <FileText className="h-8 w-8 text-black" />
               </div>
 
               <h3 className="mb-1 text-lg font-semibold ">
@@ -311,15 +333,15 @@ const TeacherDetailsPage = () => {
                       </TableHead>
 
                       <TableHead className="whitespace-nowrap text-xs font-semibold">
-                        Intake
-                      </TableHead>
-
-                      <TableHead className="whitespace-nowrap text-xs font-semibold">
                         Course Term
                       </TableHead>
 
                       <TableHead className="whitespace-nowrap text-xs font-semibold">
                         Group
+                      </TableHead>
+
+                      <TableHead className="whitespace-nowrap text-xs font-semibold">
+                        Units
                       </TableHead>
 
                       {/* <TableHead className="w-44 whitespace-nowrap text-right text-xs font-semibold">
@@ -345,6 +367,12 @@ const TeacherDetailsPage = () => {
                             <div className="min-w-0">
                               <p className="truncate font-medium ">
                                 {course?.name || '-'}
+                                {course?.intakeName &&
+                                  course.intakeName !== '-' && (
+                                    <span className="ml-1 font-normal text-black">
+                                      - {course.intakeName}
+                                    </span>
+                                  )}
                               </p>
                             </div>
 
@@ -379,13 +407,6 @@ const TeacherDetailsPage = () => {
                           </div>
                         </TableCell>
 
-                        {/* Intake */}
-                        <TableCell className="whitespace-nowrap text-xs">
-                          <span className="">
-                            {course?.intakeName || '-'}
-                          </span>
-                        </TableCell>
-
                         {/* Course Term */}
                         <TableCell className="whitespace-nowrap text-xs">
                           <div className="flex flex-col">
@@ -407,6 +428,24 @@ const TeacherDetailsPage = () => {
                           <span className="inline-flex rounded-md bg-gray-100 px-2.5 py-1 font-medium ">
                             {course?.groupName || '-'}
                           </span>
+                        </TableCell>
+
+                        {/* Units */}
+                        <TableCell className="text-xs">
+                          {course?.units?.length ? (
+                            <div className="flex flex-wrap gap-1">
+                              {course.units.map((unit: any) => (
+                                <span
+                                  key={unit?._id || unit}
+                                  className="inline-flex rounded-md bg-watney/10 px-2.5 py-1 font-medium text-watney"
+                                >
+                                  {unitLabel(unit)}
+                                </span>
+                              ))}
+                            </div>
+                          ) : (
+                            <span className="text-black">-</span>
+                          )}
                         </TableCell>
 
                         {/* Actions */}
@@ -458,7 +497,7 @@ const TeacherDetailsPage = () => {
                               </TooltipProvider>
                             </div>
                           ) : (
-                            <span className="text-xs text-gray-400">
+                            <span className="text-xs text-black">
                               No actions
                             </span>
                           )}

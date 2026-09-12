@@ -88,10 +88,10 @@ export default function JobApplication() {
       <Card className="w-full rounded-xl border border-gray-100 bg-white shadow-lg">
         <CardHeader className="border-b border-gray-100 bg-gray-50 px-8 py-5">
           <div className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-gray-800">
+            <CardTitle className="text-2xl font-bold text-black">
               Application Details
             </CardTitle>
-            <CardDescription className="text-sm text-gray-600">
+            <CardDescription className="text-sm text-black">
               Review your application details before submission
             </CardDescription>
           </div>
@@ -102,14 +102,14 @@ export default function JobApplication() {
             {/* Role Applied For */}
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <Briefcase className="h-5 w-5 text-gray-400" />
-                <span className="text-sm font-medium uppercase tracking-wider text-gray-500">
+                <Briefcase className="h-5 w-5 text-black" />
+                <span className="text-sm font-medium uppercase tracking-wider text-black">
                   Job Title
                 </span>
               </div>
-              <p className="text-lg font-semibold text-gray-800">
+              <p className="text-lg font-semibold text-black">
                 {application?.jobTitle || (
-                  <span className="italic text-gray-400">
+                  <span className="italic text-black">
                     No position selected
                   </span>
                 )}
@@ -119,19 +119,19 @@ export default function JobApplication() {
             {/* Application Deadline */}
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-gray-400" />
-                <span className="text-sm font-medium uppercase tracking-wider text-gray-500">
+                <Calendar className="h-5 w-5 text-black" />
+                <span className="text-sm font-medium uppercase tracking-wider text-black">
                   Application Deadline
                 </span>
               </div>
               <div className="flex items-center gap-3">
-                <p className="text-lg font-semibold text-gray-800">
+                <p className="text-lg font-semibold text-black">
                   {application?.applicationDeadline ? (
                     moment(application.applicationDeadline).format(
                       'MMMM D, YYYY'
                     )
                   ) : (
-                    <span className="italic text-gray-400">
+                    <span className="italic text-black">
                       No deadline specified
                     </span>
                   )}
@@ -168,7 +168,7 @@ export default function JobApplication() {
                 New User
               </Button>
             </div>
-            <p className="text-center text-sm text-gray-600">
+            <p className="text-center text-sm text-black">
               You will be asked to create a Username (your email address)
               and Password on the next screen. Please make a note of your
               username and Password as you will need these to log back in to

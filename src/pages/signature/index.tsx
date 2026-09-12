@@ -228,7 +228,7 @@ export default function SignaturePage() {
             <BlinkingDots size="large" color="bg-watney" />
           </div>
         ) : signatures.length === 0 ? (
-          <div className="flex justify-center py-6 text-gray-500">
+          <div className="flex justify-center py-6 text-black">
             No signatures found.
           </div>
         ) : (
@@ -280,7 +280,7 @@ export default function SignaturePage() {
                         )}
                       </a>
                     ) : (
-                      <span className="text-gray-400">No document</span>
+                      <span className="text-black">No document</span>
                     )}
                   </TableCell>
                   <TableCell className="flex justify-center gap-2">
@@ -345,7 +345,7 @@ export default function SignaturePage() {
 
               <div>
                 <FormLabel>Upload Signature Document</FormLabel>
-                <p className="mb-2 text-xs text-gray-500">
+                <p className="mb-2 text-xs text-black">
                   Upload a PNG, JPG, or PDF file (recommended: transparent PNG
                   for best results)
                 </p>
@@ -363,7 +363,7 @@ export default function SignaturePage() {
                       className="hidden"
                     />
                     <svg
-                      className="mb-2 h-8 w-8 text-gray-400"
+                      className="mb-2 h-8 w-8 text-black"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -375,7 +375,7 @@ export default function SignaturePage() {
                         d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
                       />
                     </svg>
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-black">
                       Click to upload (PNG, JPG, PDF)
                     </span>
                   </label>

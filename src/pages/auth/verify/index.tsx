@@ -143,14 +143,14 @@ export default function VerifyPage({ user }) {
       {/* Verification Card */}
       <Card className="w-full max-w-2xl border border-gray-200 p-6 shadow-lg">
         <div className="flex flex-col items-center space-y-4 text-center">
-          <h2 className="text-xl font-medium text-gray-900">
+          <h2 className="text-xl font-medium text-black">
             VERIFY YOUR EMAIL ADDRESS
           </h2>
-          <p className="font-medium text-gray-700">
+          <p className="font-medium text-black">
             A verification code has been sent to <br />
             <span className="text-sm font-bold">{user?.email}</span>
           </p>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-black">
             Please check your inbox and enter the verification code below to
             verify your email address.
           </p>
@@ -185,14 +185,14 @@ export default function VerifyPage({ user }) {
           </Button>
 
           <div className="mt-2 flex items-center justify-center space-x-1 text-sm">
-            <span className="text-gray-600">
+            <span className="text-black">
               Didn&apos;t receive the code?
             </span>
             <button
               onClick={handleResendOtp}
               disabled={isCooldownActive}
               type="button"
-              className={`font-medium transition-opacity duration-200 ${isCooldownActive ? 'cursor-not-allowed opacity-70' : 'hover:text-black/90'}`}
+              className={`font-medium transition-opacity duration-200 ${isCooldownActive ? 'cursor-not-allowed opacity-70' : 'hover:text-black'}`}
             >
               {isCooldownActive ? (
                 <span className="flex items-center">
@@ -217,7 +217,7 @@ export default function VerifyPage({ user }) {
                   Resend in {resendCooldown}s
                 </span>
               ) : (
-                <span className="font-semibold text-gray-600 hover:underline">
+                <span className="font-semibold text-black hover:underline">
                   Resend code
                 </span>
               )}

@@ -99,7 +99,7 @@ export default function CourseSelectionForm({
         <motion.div variants={itemVariants} className="mb-8 flex flex-row items-center justify-center gap-4">
           <img src={logo} alt="Watney College Logo" className="w-12 md:w-16" />
           <div className="border-l-2 border-gray-300 h-12"></div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900">
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-black">
             Watney College
           </h1>
         </motion.div>
@@ -108,7 +108,7 @@ export default function CourseSelectionForm({
         <motion.div variants={itemVariants} className="mb-3">
           {isPreselectedCourse ? (
             <>
-              <h2 className="mb-2 text-2xl font-bold text-gray-900 md:text-3xl">
+              <h2 className="mb-2 text-2xl font-bold text-black md:text-3xl">
                 Apply for
                 <span className="mt-1 block bg-gradient-to-r from-watney to-blue-700 bg-clip-text text-transparent">
                   {formData.courseName}
@@ -133,7 +133,7 @@ export default function CourseSelectionForm({
                 <motion.div className="group" whileHover={{ scale: 1.01 }}>
                   <label
                     htmlFor="courseName"
-                    className="mb-1 block text-left text-sm font-semibold text-gray-700"
+                    className="mb-1 block text-left text-sm font-semibold text-black"
                   >
                     I would like to study for
                   </label>
@@ -141,7 +141,7 @@ export default function CourseSelectionForm({
                     value={formData.courseName}
                     onValueChange={handleCourseChange}
                   >
-                    <SelectTrigger className="relative flex w-full items-center rounded-lg border border-gray-300 bg-white py-4 pl-10 pr-3 text-sm text-gray-800 focus:ring-2 focus:ring-watney">
+                    <SelectTrigger className="relative flex w-full items-center rounded-lg border border-gray-300 bg-white py-4 pl-10 pr-3 text-sm text-black focus:ring-2 focus:ring-watney">
                       <BookAIcon
                         className="absolute left-3 top-1/2 -translate-y-1/2 text-watney"
                         size={16}
@@ -163,7 +163,7 @@ export default function CourseSelectionForm({
               <motion.div className="group" whileHover={{ scale: 1.01 }}>
                 <label
                   htmlFor="termName"
-                  className="mb-1 block text-left text-sm font-semibold text-gray-700"
+                  className="mb-1 block text-left text-sm font-semibold text-black"
                 >
                   I am interested to start in
                 </label>
@@ -173,7 +173,7 @@ export default function CourseSelectionForm({
                     setFormData({ ...formData, termName: value })
                   }
                 >
-                  <SelectTrigger className="relative flex w-full items-center rounded-lg border border-gray-300 bg-white py-4 pl-10 pr-3 text-sm text-gray-800 focus:ring-2 focus:ring-watney">
+                  <SelectTrigger className="relative flex w-full items-center rounded-lg border border-gray-300 bg-white py-4 pl-10 pr-3 text-sm text-black focus:ring-2 focus:ring-watney">
                     <Calendar
                       className="absolute left-3 top-1/2 -translate-y-1/2 text-watney"
                       size={16}
@@ -194,7 +194,7 @@ export default function CourseSelectionForm({
               <motion.div className="group" whileHover={{ scale: 1.01 }}>
                 <label
                   htmlFor="studentType"
-                  className="mb-1 block text-left text-sm font-semibold text-gray-700"
+                  className="mb-1 block text-left text-sm font-semibold text-black"
                 >
                   My location
                 </label>
@@ -204,7 +204,7 @@ export default function CourseSelectionForm({
                     setFormData({ ...formData, studentType: value })
                   }
                 >
-                  <SelectTrigger className="relative flex w-full items-center rounded-lg border border-gray-300 bg-white py-4 pl-10 pr-3 text-sm text-gray-800 focus:ring-2 focus:ring-watney">
+                  <SelectTrigger className="relative flex w-full items-center rounded-lg border border-gray-300 bg-white py-4 pl-10 pr-3 text-sm text-black focus:ring-2 focus:ring-watney">
                     <MapPin
                       className="absolute left-3 top-1/2 -translate-y-1/2 text-watney"
                       size={16}

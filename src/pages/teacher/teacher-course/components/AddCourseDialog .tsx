@@ -303,7 +303,7 @@ const AddCourseDialog = ({ onAddCourses, editCourse = null }) => {
                         }}
                         placeholder="Select a course..."
                         isClearable
-                        className="text-gray-900"
+                        className="text-black"
                         styles={{
                           control: (base) => ({
                             ...base,
@@ -341,7 +341,7 @@ const AddCourseDialog = ({ onAddCourses, editCourse = null }) => {
                         placeholder={selectedCourseId ? "Select a course term..." : "Select a course first"}
                         isClearable
                         isDisabled={!selectedCourseId}
-                        className="text-gray-900"
+                        className="text-black"
                         styles={{
                           control: (base) => ({
                             ...base,
@@ -379,7 +379,7 @@ const AddCourseDialog = ({ onAddCourses, editCourse = null }) => {
                         placeholder={selectedCourseTermId ? "Select a group..." : "Select a course term first"}
                         isClearable
                         isDisabled={!selectedCourseTermId}
-                        className="text-gray-900"
+                        className="text-black"
                         styles={{
                           control: (base) => ({
                             ...base,

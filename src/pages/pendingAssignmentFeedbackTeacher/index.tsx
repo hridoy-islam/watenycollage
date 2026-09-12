@@ -33,7 +33,9 @@ import { useSelector } from 'react-redux';
 interface Assignment {
   _id: string;
   courseMaterialAssignmentId: string;
-  courseId?: { _id: string; name: string } | string;
+  courseId?:
+    | { _id: string; name: string; intakeId?: { _id: string; termName: string } }
+    | string;
   termId?: { _id: string; name: string } | string;
   groupId?: { _id: string; name: string } | string;
   studentId: {
@@ -45,7 +47,11 @@ interface Assignment {
   };
   applicationId: {
     _id: string;
-    courseId: { _id: string; name: string };
+    courseId: {
+      _id: string;
+      name: string;
+      intakeId?: { _id: string; termName: string };
+    };
     intakeId?: { _id: string; termName: string };
   };
   unitId: { _id: string; title: string };
@@ -113,9 +119,8 @@ export function TeacherAssignmentFeedbackList() {
   const { user } = useSelector((state: any) => state.auth);
 
   const [assignments, setAssignments] = useState<Assignment[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [hasSearched, setHasSearched] = useState(false);
 
   // Filters loaded from teacher assignments
   const [courses, setCourses] = useState<SelectOption[]>([]);
@@ -139,7 +144,11 @@ export function TeacherAssignmentFeedbackList() {
 
   // Load filters from teacher-courses (assigned only)
   useEffect(() => {
-    if (!user || user.role !== 'teacher') return;
+    // Whoever is signed in loads their own assignments: the route already
+    // decides who may open this page, and every call below is scoped to
+    // `user._id`. Reading a role here only ever excluded real teachers, who
+    // are employees on the user record rather than a `teacher` role.
+    if (!user?._id) return;
 
     const loadFilters = async () => {
       try {
@@ -163,10 +172,14 @@ export function TeacherAssignmentFeedbackList() {
           }
         });
 
+        // The same course runs again every intake, so the name alone does not
+        // say which one - it is spelled the way the table spells it.
         setCourses(
           Array.from(uniqueCourses.values()).map((c: any) => ({
             value: String(c?._id || c),
-            label: c?.name || 'Course'
+            label:
+              [c?.name, c?.intakeId?.termName].filter(Boolean).join(' - ') ||
+              'Course'
           }))
         );
 
@@ -178,7 +191,7 @@ export function TeacherAssignmentFeedbackList() {
           setTerms(
             assignedTerms.map((t: any) => ({ value: t._id, label: t.name || 'Term' }))
           );
-          const uniqueYears = [...new Set(assignedTerms.map((t: any) => normalizeYear(t.year)))];
+          const uniqueYears = [...new Set<string>(assignedTerms.map((t: any) => normalizeYear(t.year)))];
           setYears(
             uniqueYears.sort((a, b) => (YEAR_ORDER[a] ?? 99) - (YEAR_ORDER[b] ?? 99)).map((y: string) => ({
               value: y,
@@ -341,7 +354,6 @@ export function TeacherAssignmentFeedbackList() {
 
   // Search
   const searchAssignments = async () => {
-    setHasSearched(true);
     setLoading(true);
     setError(null);
     try {
@@ -362,6 +374,19 @@ export function TeacherAssignmentFeedbackList() {
     }
   };
 
+  /*
+   * Everything the teacher has pending, before a single filter is touched.
+   * Every filter is optional on the API, so the unfiltered call is simply the
+   * whole list - there is nothing to wait for a course selection for.
+   */
+  useEffect(() => {
+    if (!user?._id) return;
+    searchAssignments();
+    // Re-running on the filter state would search on every keystroke of the
+    // drill-down; the Search button is what re-runs it.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?._id]);
+
   const getAssignmentTitle = (assignment: Assignment): string => {
     return assignment.assignmentSettings?.assignmentTitle || assignment.assignmentTitle || 'Unknown Assignment';
   };
@@ -369,6 +394,20 @@ export function TeacherAssignmentFeedbackList() {
   const getCourseName = (assignment: Assignment) => {
     if (typeof assignment.courseId === 'object' && assignment.courseId?.name) return assignment.courseId.name;
     return assignment.applicationId?.courseId?.name || 'N/A';
+  };
+
+  /**
+   * The intake the course runs in, shown beside the course name - the same
+   * course is re-run every intake, so the name alone does not say which.
+   */
+  const getIntakeName = (assignment: Assignment) => {
+    if (
+      typeof assignment.courseId === 'object' &&
+      assignment.courseId?.intakeId?.termName
+    ) {
+      return assignment.courseId.intakeId.termName;
+    }
+    return assignment.applicationId?.courseId?.intakeId?.termName || '';
   };
 
   const getTermName = (assignment: Assignment) => {
@@ -400,9 +439,10 @@ export function TeacherAssignmentFeedbackList() {
     setSelectedGroup(null);
     setSelectedUnit(null);
     setSelectedAssignment(null);
-    setHasSearched(false);
     setError(null);
-    setAssignments([]);
+    // Clearing the filters returns the page to what it opens on - everything -
+    // rather than to an empty table the teacher has to search their way out of.
+    searchAssignments();
   };
 
   return (
@@ -413,7 +453,7 @@ export function TeacherAssignmentFeedbackList() {
             <div>
               <CardTitle className="text-xl font-bold">Assignment Pending Feedbacks</CardTitle>
               <p className="mt-1 text-xs text-muted-foreground">
-                Select a course first, then drill down through term, group, unit and assignment.
+                Everything pending, narrowed by course, term, group, unit and assignment.
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -453,7 +493,7 @@ export function TeacherAssignmentFeedbackList() {
               <Select options={assignmentOptions} value={selectedAssignment} onChange={(opt) => setSelectedAssignment(opt as SelectOption | null)} isClearable isDisabled={!selectedUnit} placeholder={selectedUnit ? 'Select assignment' : 'Select unit first'} styles={selectStyles} />
             </div>
             <div className="flex items-end gap-2">
-              <Button size="sm" onClick={searchAssignments} disabled={!selectedCourse} className="flex h-9 w-full items-center gap-2 bg-watney text-xs text-white hover:bg-watney/90">
+              <Button size="sm" onClick={searchAssignments} className="flex h-9 w-full items-center gap-2 bg-watney text-xs text-white hover:bg-watney/90">
                 <Search className="h-4 w-4" /> Search
               </Button>
               <Button size="sm" variant="outline" onClick={clearFilters} className="flex h-9 w-full items-center gap-2 text-xs">
@@ -466,11 +506,6 @@ export function TeacherAssignmentFeedbackList() {
             <div className="flex items-center justify-center py-8"><BlinkingDots size="large" color="bg-watney" /></div>
           ) : error ? (
             <div className="text-center py-4 text-red-500">{error}</div>
-          ) : !hasSearched ? (
-            <div className="flex flex-col items-center justify-center py-8 text-center">
-              <FileText className="mb-4 h-12 w-12 text-muted-foreground" />
-              <h3 className="text-lg font-semibold">Set filters and click "Search"</h3>
-            </div>
           ) : assignments.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 text-center">
               <FileText className="mb-4 h-12 w-12 text-muted-foreground" />
@@ -496,7 +531,15 @@ export function TeacherAssignmentFeedbackList() {
                       <TableCell onClick={() => handleViewAssignment(a)} className="cursor-pointer">
                         <div className="flex items-center gap-2">
                           <BookOpen className="h-4 w-4 text-muted-foreground" />
-                          {getCourseName(a)}
+                          <span>
+                            {getCourseName(a)}
+                            {getIntakeName(a) && (
+                              <span className="text-muted-foreground">
+                                {' '}
+                                - {getIntakeName(a)}
+                              </span>
+                            )}
+                          </span>
                         </div>
                       </TableCell>
                       <TableCell onClick={() => handleViewAssignment(a)} className="cursor-pointer">{getTermName(a)}</TableCell>

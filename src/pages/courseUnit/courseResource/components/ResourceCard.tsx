@@ -2,13 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle
-} from '@/components/ui/card';
-import {
   AccordionItem,
   AccordionTrigger,
   AccordionContent
@@ -27,11 +20,13 @@ import {
   Calendar,
   ArrowRight,
   CheckCircle2,
-  Pencil
+  Pencil,
+  CalendarClock,
+  Clock
 } from 'lucide-react';
 import moment from 'moment';
 import { Resource } from './types';
-import { useSelector } from 'react-redux';
+import { useEffectiveRole } from '@/hooks/use-effective-role';
 import { useToast } from '@/components/ui/use-toast';
 import axiosInstance from '@/lib/axios';
 import {
@@ -43,6 +38,12 @@ import {
   DialogFooter,
   DialogClose
 } from '@/components/ui/dialog';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/ui/tooltip';
 import { useNavigate, useParams } from 'react-router-dom';
 
 interface ResourceCardProps {
@@ -51,6 +52,85 @@ interface ResourceCardProps {
   onEdit: (resource: Resource) => void;
   onDelete: (id: string) => void;
   applicationId: any;
+}
+
+/**
+ * Every resource type shares one surface: a themed icon tile, a black title
+ * and a low-opacity subtitle. The only per-type colour is the badge, so the
+ * list reads as one family rather than five.
+ */
+const TYPE_CONFIG: Record<
+  string,
+  { icon: React.ReactElement; label: string; badge: string }
+> = {
+  'learning-outcome': {
+    icon: <Target className="h-4 w-4" />,
+    label: 'Learning outcome',
+    badge: 'bg-watney/10 text-watney ring-1 ring-inset ring-watney/20'
+  },
+  'study-guide': {
+    icon: <BookOpen className="h-4 w-4" />,
+    label: 'Study guide',
+    badge: 'bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200'
+  },
+  lecture: {
+    icon: <BookAIcon className="h-4 w-4" />,
+    label: 'Lecture',
+    badge: 'bg-violet-50 text-violet-700 ring-1 ring-inset ring-violet-200'
+  },
+  introduction: {
+    icon: <GraduationCap className="h-4 w-4" />,
+    label: 'Introduction',
+    badge: 'bg-watney/10 text-watney ring-1 ring-inset ring-watney/20'
+  },
+  assignment: {
+    icon: <FileText className="h-4 w-4" />,
+    label: 'Assignment',
+    badge: 'bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-200'
+  }
+};
+
+const FALLBACK_CONFIG = {
+  icon: <FileText className="h-4 w-4" />,
+  label: 'Resource',
+  badge: 'bg-watney/10 text-black ring-1 ring-inset ring-watney/20'
+};
+
+/** Icon-only action with a tooltip, so a dense row still explains itself. */
+function IconAction({
+  label,
+  icon: Icon,
+  onClick,
+  tone = 'default'
+}: {
+  label: string;
+  icon: any;
+  onClick: (event: React.MouseEvent) => void;
+  tone?: 'default' | 'danger';
+}) {
+  return (
+    <TooltipProvider delayDuration={200}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            aria-label={label}
+            onClick={onClick}
+            className={`flex h-8 w-8 items-center justify-center rounded-md border transition-colors ${
+              tone === 'danger'
+                ? 'border-gray-200 text-black hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600'
+                : 'border-gray-200 text-black hover:border-watney/50 hover:bg-watney/10 hover:text-watney'
+            }`}
+          >
+            <Icon className="h-4 w-4" />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent side="top" className="text-xs">
+          {label}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
 }
 
 const ResourceCard: React.FC<ResourceCardProps> = ({
@@ -63,90 +143,74 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
   const { toast } = useToast();
   const navigate = useNavigate();
   const { id, unitId } = useParams();
-  const user = useSelector((state: any) => state.auth.user);
-  const isAdmin = user?.role === 'admin' || user?.role === 'teacher';
-  const isStudent = user?.role === 'student';
+  // `isAdmin` here means "may manage resources", which teachers may too - and
+  // a teacher held as an employee with a "Teacher" designation is one, so the
+  // effective role decides rather than the one stored on the record.
+  const {
+    user,
+    effectiveRole,
+    isTeacher,
+    isAdmin: isAdminRole
+  } = useEffectiveRole();
+  const isAdmin = isAdminRole || isTeacher;
+  const isStudent = effectiveRole === 'student';
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [threadData, setThreadData] = useState<{ assignment: any } | null>(
+    null
+  );
 
-  const getResourceTypeConfig = (type: string) => {
-    switch (type) {
-      case 'learning-outcome':
-        return {
-          icon: <Target className="h-4 w-4" />,
-          gradient: 'from-indigo-500 to-indigo-600 shadow-indigo-200',
-          badge: 'bg-indigo-50 text-indigo-700 ring-1 ring-inset ring-indigo-200',
-          label: 'Learning Outcome',
-          bgColor: 'bg-indigo-50/10',
-          borderAccent: 'border-l-4 border-l-indigo-500'
-        };
-      case 'study-guide':
-        return {
-          icon: <BookOpen className="h-4 w-4" />,
-          gradient: 'from-emerald-500 to-emerald-600 shadow-emerald-200',
-          badge: 'bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200',
-          label: 'Study Guide',
-          bgColor: 'bg-emerald-50/10',
-          borderAccent: 'border-l-4 border-l-emerald-500'
-        };
-      case 'lecture':
-        return {
-          icon: <BookAIcon className="h-4 w-4" />,
-          gradient: 'from-violet-500 to-violet-600 shadow-violet-200',
-          badge: 'bg-violet-50 text-violet-700 ring-1 ring-inset ring-violet-200',
-          label: 'Lecture',
-          bgColor: 'bg-violet-50/10',
-          borderAccent: 'border-l-4 border-l-violet-500'
-        };
-      case 'introduction':
-        return {
-          icon: <GraduationCap className="h-4 w-4" />,
-          gradient: 'from-blue-500 to-blue-600',
-          badge: 'bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-200',
-          label: 'Introduction',
-          bgColor: 'bg-blue-50/10',
-          borderAccent: 'border-l-4 border-l-blue-500'
-        };
-      case 'assignment':
-        return {
-          icon: <FileText className="h-4 w-4" />,
-          gradient: 'from-amber-500 to-amber-600',
-          badge: 'bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-200',
-          label: 'Assignment',
-          bgColor: 'bg-amber-50/10',
-          borderAccent: 'border-l-4 border-l-amber-500'
-        };
-      default:
-        return {
-          icon: <FileText className="h-4 w-4" />,
-          gradient: 'from-slate-500 to-slate-600',
-          badge: 'bg-slate-50  ring-1 ring-inset ring-slate-200',
-          label: 'Resource',
-          bgColor: 'bg-white',
-          borderAccent: ''
-        };
-    }
-  };
+  const isAssignment = resource.type === 'assignment';
 
-  // Delete confirmation component
+  // A student opening an assignment needs their own submission thread, which
+  // is keyed on the assignment title rather than on the settings document.
+  useEffect(() => {
+    if (!isAssignment || !isStudent || !user?._id || !id || !unitId) return;
+
+    const loadAssignment = async () => {
+      try {
+        const assignmentRes = await axiosInstance.get(
+          `/assignment?studentId=${user._id}&assignmentName=${encodeURIComponent(
+            resource.title || ''
+          )}&unitId=${unitId}`
+        );
+
+        const assignmentData = Array.isArray(assignmentRes.data.data.result)
+          ? assignmentRes.data.data.result[0]
+          : assignmentRes.data.data;
+
+        setThreadData({ assignment: assignmentData });
+      } catch (err) {
+        console.error('Failed to load assignment', err);
+        toast({
+          title: 'Error',
+          description: 'Could not load assignment.',
+          variant: 'destructive'
+        });
+      }
+    };
+
+    loadAssignment();
+  }, [isAssignment, isStudent, user?._id, id, unitId, resource.title, toast]);
+
   const DeleteConfirmDialog = () => (
     <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-      <DialogContent className="rounded-2xl border-slate-200 p-6 sm:max-w-md">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-50 ring-8 ring-red-50/50">
-            <Trash2 className="h-6 w-6 text-red-600" />
+          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-rose-50">
+            <Trash2 className="h-5 w-5 text-rose-600" />
           </div>
-          <DialogTitle className="text-center text-lg font-semibold text-slate-900">
-            Delete Resource
+          <DialogTitle className="text-center text-base font-semibold text-black">
+            Delete this resource?
           </DialogTitle>
-          <DialogDescription className="text-center text-sm leading-relaxed ">
-            Are you sure you want to delete this resource? This action cannot be
-            undone and all associated data will be permanently removed.
+          <DialogDescription className="text-center text-xs leading-relaxed text-black">
+            {resource.title || TYPE_CONFIG[resource.type]?.label} will be
+            removed from this unit. This cannot be undone.
           </DialogDescription>
         </DialogHeader>
-        <DialogFooter className="mt-2 gap-2 sm:gap-2">
+        <DialogFooter className="mt-1 gap-2 sm:gap-2">
           <DialogClose asChild>
-            <Button variant="outline" className="w-full rounded-lg sm:w-auto">
+            <Button variant="outline" className="w-full sm:w-auto">
               Cancel
             </Button>
           </DialogClose>
@@ -156,98 +220,119 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
               onDelete(resource._id);
               setDeleteDialogOpen(false);
             }}
-            className="w-full rounded-lg bg-red-600 hover:bg-red-700 sm:w-auto"
+            className="w-full bg-rose-600 hover:bg-rose-700 sm:w-auto"
           >
-            Delete Resource
+            Delete
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 
-  // Assignment Card
-  if (resource.type === 'assignment') {
-    const [threadData, setThreadData] = useState<{
-      assignment: any;
-    } | null>(null);
-
-    useEffect(() => {
-      if (!isStudent || !user?._id || !id || !unitId) return;
-
-      const loadAssignment = async () => {
-        try {
-          const assignmentRes = await axiosInstance.get(
-            `/assignment?studentId=${user._id}&assignmentName=${encodeURIComponent(resource.title || '')}&unitId=${unitId}`
-          );
-
-          const assignmentData = Array.isArray(assignmentRes.data.data.result)
-            ? assignmentRes.data.data.result[0]
-            : assignmentRes.data.data;
-
-          setThreadData({
-            assignment: assignmentData
-          });
-        } catch (err) {
-          console.error('Failed to load assignment', err);
-          toast({
-            title: 'Error',
-            description: 'Could not load assignment.',
-            variant: 'destructive'
-          });
-        }
-      };
-
-      loadAssignment();
-    }, [isStudent, user?._id, id, unitId]);
-
-    const isOverdue = resource.finalDeadline
-      ? moment(resource.finalDeadline).isBefore(moment())
-      : false;
+  // ── Assignment ─────────────────────────────────────────────────────────
+  if (isAssignment) {
+    const deadline = resource.finalDeadline
+      ? moment(resource.finalDeadline)
+      : null;
+    const isOverdue = deadline ? deadline.isBefore(moment()) : false;
+    const daysLeft = deadline ? deadline.diff(moment(), 'days') : null;
+    const submitted = Boolean(studentSubmission);
 
     return (
       <>
-        <div className="group relative overflow-hidden rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md">
-          <div className="mb-4 flex items-start justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 shadow-sm shadow-amber-200">
-                <FileText className="h-4.5 w-4.5 text-white" />
-              </div>
-              <div>
-                <h3 className="font-semibold tracking-tight text-slate-900">
+        <div className="group rounded-xl border border-gray-200 bg-white p-4 transition-all hover:border-watney/40 hover:shadow-sm">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex min-w-0 items-start gap-3">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amber-50 text-amber-600">
+                <FileText className="h-4.5 w-4.5" />
+              </span>
+              <div className="min-w-0">
+                <h3 className="truncate text-sm font-semibold text-black">
                   {resource.title}
                 </h3>
-                {resource.finalDeadline && (
-                  <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs">
-                    <span className="inline-flex items-center gap-1.5 ">
-                      <Calendar className="h-3.5 w-3.5 " />
-                      Due {moment(resource.finalDeadline).format('MMM D, YYYY')}
+
+                <div className="mt-1.5 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[11px]">
+                  {resource.startDate && (
+                    <span className="inline-flex items-center gap-1 text-black">
+                      <Calendar className="h-3 w-3" />
+                      Opens {moment(resource.startDate).format('DD MMM YYYY')}
                     </span>
-                    {isOverdue && (
-                      <Badge className="gap-1 rounded-full border-0 bg-red-50 px-2 py-0.5 font-medium text-red-700 ring-1 ring-inset ring-red-200 hover:bg-red-50">
-                        <AlertCircle className="h-3 w-3" />
-                        Overdue
+                  )}
+                  {deadline && (
+                    <span className="inline-flex items-center gap-1 text-black">
+                      <CalendarClock className="h-3 w-3" />
+                      Due {deadline.format('DD MMM YYYY')}
+                    </span>
+                  )}
+                </div>
+
+                <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                  {isOverdue ? (
+                    <Badge className="gap-1 rounded-full border-0 bg-rose-50 px-2 py-0.5 text-[10px] font-semibold text-rose-700 ring-1 ring-inset ring-rose-200 hover:bg-rose-50">
+                      <AlertCircle className="h-3 w-3" />
+                      Overdue
+                    </Badge>
+                  ) : (
+                    daysLeft !== null && (
+                      <Badge className="gap-1 rounded-full border-0 bg-watney/10 px-2 py-0.5 text-[10px] font-semibold text-watney ring-1 ring-inset ring-watney/20 hover:bg-watney/10">
+                        <Clock className="h-3 w-3" />
+                        {daysLeft === 0
+                          ? 'Due today'
+                          : `${daysLeft} day${daysLeft === 1 ? '' : 's'} left`}
                       </Badge>
-                    )}
-                  </div>
-                )}
+                    )
+                  )}
+                  {resource.finalFeedback && (
+                    <Badge className="gap-1 rounded-full border-0 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200 hover:bg-emerald-50">
+                      <CheckCircle2 className="h-3 w-3" />
+                      Final feedback
+                    </Badge>
+                  )}
+                  {resource.observation && (
+                    <Badge className="gap-1 rounded-full border-0 bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700 ring-1 ring-inset ring-amber-200 hover:bg-amber-50">
+                      <Eye className="h-3 w-3" />
+                      Observation
+                    </Badge>
+                  )}
+                  {isStudent && submitted && (
+                    <Badge className="gap-1 rounded-full border-0 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200 hover:bg-emerald-50">
+                      <CheckCircle2 className="h-3 w-3" />
+                      Submitted
+                    </Badge>
+                  )}
+                  {/* Only staff ever see this - a draft is filtered out of the
+                      student's list - so it says why the assignment has not
+                      reached them yet. */}
+                  {!isStudent && resource.status === 'draft' && (
+                    <Badge className="gap-1 rounded-full border-0 bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-black ring-1 ring-inset ring-gray-200 hover:bg-gray-100">
+                      Draft - not visible to students
+                    </Badge>
+                  )}
+                </div>
               </div>
             </div>
 
-            {/* Admin Actions */}
             {isAdmin && (
-              <div className="flex flex-shrink-0 items-center gap-1 ">
-                <Button
-                  size="sm"
-                  variant={'outline'}
+              <div className="flex shrink-0 items-center gap-1.5">
+                {/* <IconAction
+                  label="Edit assignment"
+                  icon={Pencil}
                   onClick={() => onEdit(resource)}
-                >
-                  <Pencil className="h-4 w-4 " />
-                </Button>
+                /> */}
+                {/* Assignment settings is an admin-side page; this app mounts
+                    no route for it, so the button is left out rather than
+                    leading nowhere. */}
               </div>
             )}
           </div>
 
-          {/* Student Action */}
+          {resource.content?.trim() && (
+            <div
+              className="prose prose-sm mt-3 max-w-none rounded-lg bg-watney/5 p-3 text-xs leading-relaxed text-black [&>ol]:list-decimal [&>ol]:pl-5 [&>ul]:list-disc [&>ul]:pl-5"
+              dangerouslySetInnerHTML={{ __html: resource.content }}
+            />
+          )}
+
           {isStudent && applicationId && (
             <Button
               onClick={() =>
@@ -256,10 +341,12 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
                   { state: { assignmentId: threadData?.assignment?._id } }
                 )
               }
-              className="group/btn w-full justify-between rounded-lg  transition-colors"
+              className="group/btn mt-3 w-full justify-between"
             >
-              <span className="font-medium">View Assignment</span>
-              <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover/btn:translate-x-0.5" />
+              <span className="font-medium ">
+                {submitted ? 'View submission' : 'Open assignment'}
+              </span>
+              <ArrowRight className="h-4 w-4" />
             </Button>
           )}
         </div>
@@ -268,113 +355,112 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
     );
   }
 
-  // Introduction Card
+  // ── Introduction ───────────────────────────────────────────────────────
   if (resource.type === 'introduction') {
     return (
       <>
-        <Card className="overflow-hidden rounded-xl border-slate-200 shadow-sm transition-shadow duration-300 hover:shadow-md">
-          <CardHeader className="border-b border-slate-100 bg-green-400 pb-4">
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 ">
-                  <GraduationCap className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <CardTitle className="text-lg font-semibold tracking-tight text-white">
-                    Introduction
-                  </CardTitle>
-                  <CardDescription className="text-sm text-white">
-                    Course overview and objectives
-                  </CardDescription>
-                </div>
+        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+          <div className="flex items-center justify-between gap-3 border-b border-gray-200 bg-watney/5 px-4 py-3">
+            <div className="flex min-w-0 items-center gap-3">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-watney text-white">
+                <GraduationCap className="h-5 w-5" />
+              </span>
+              <div className="min-w-0">
+                <h3 className="text-sm font-semibold text-black">
+                  Introduction
+                </h3>
+                <p className="text-[11px] text-black">
+                  How this unit opens for the student
+                </p>
               </div>
-
-              {isAdmin && (
-                <div className="flex flex-shrink-0 items-center gap-1">
-                  <Button
-                    size="sm"
-                    onClick={() => onEdit(resource)}
-                    className="h-9 w-9 "
-                  >
-                    <Pencil className="h-4 w-4 " />
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => setDeleteDialogOpen(true)}
-                    className="h-9 w-9 "
-                  >
-                    <Trash2 className="h-4 w-4 " />
-                  </Button>
-                </div>
-              )}
             </div>
-          </CardHeader>
 
-          <CardContent className="pt-5">
-            <div className="prose prose-slate max-w-none">
-              <div
-                className="text-sm leading-relaxed  [&>ol]:list-decimal [&>ol]:pl-5 [&>ul]:list-disc [&>ul]:pl-5"
-                dangerouslySetInnerHTML={{ __html: resource.content || '' }}
-              />
-            </div>
-          </CardContent>
-        </Card>
+            {isAdmin && (
+              <div className="flex shrink-0 items-center gap-1.5">
+                <IconAction
+                  label="Edit introduction"
+                  icon={Pencil}
+                  onClick={() => onEdit(resource)}
+                />
+                <IconAction
+                  label="Delete introduction"
+                  icon={Trash2}
+                  tone="danger"
+                  onClick={() => setDeleteDialogOpen(true)}
+                />
+              </div>
+            )}
+          </div>
+
+          <div className="px-4 py-4">
+            <div
+              className="prose prose-sm max-w-none text-sm leading-relaxed text-black [&>ol]:list-decimal [&>ol]:pl-5 [&>ul]:list-disc [&>ul]:pl-5"
+              dangerouslySetInnerHTML={{ __html: resource.content || '' }}
+            />
+          </div>
+        </div>
         <DeleteConfirmDialog />
       </>
     );
   }
 
-  const typeConfig = getResourceTypeConfig(resource.type);
+  // ── Learning outcome / study guide / lecture ───────────────────────────
+  const typeConfig = TYPE_CONFIG[resource.type] || FALLBACK_CONFIG;
+  const criteriaCount = resource.assessmentCriteria?.length || 0;
 
-  // Unified Dropdown Accordion Render for Learning Outcomes, Study Guides, and Lectures
   return (
     <>
       <AccordionItem
         key={resource._id}
         value={resource._id}
-        className={`mb-3 overflow-hidden rounded-xl border border-slate-200 px-0 shadow-sm transition-all duration-300 last:mb-0 hover:shadow-md ${typeConfig.bgColor} ${typeConfig.borderAccent}`}
+        className="mb-2 overflow-hidden rounded-xl border border-gray-200 bg-white px-0 transition-shadow last:mb-0 hover:shadow-sm"
       >
-        <AccordionTrigger className="px-4 py-4 hover:bg-slate-50/80 hover:no-underline [&[data-state=open]]:bg-slate-50/60">
-          <div className="flex w-full items-center justify-between gap-4">
-            <div className="flex flex-1 items-center gap-3">
-              <div
-                className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br ${typeConfig.gradient} shadow-sm`}
-              >
+        <AccordionTrigger className="px-4 py-3 hover:bg-watney/5 hover:no-underline [&[data-state=open]]:bg-watney/5">
+          <div className="flex w-full items-center justify-between gap-3">
+            <div className="flex min-w-0 flex-1 items-center gap-3">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-watney/10 text-watney">
                 {React.cloneElement(typeConfig.icon, {
-                  className: 'h-4 w-4 text-white'
+                  className: 'h-4 w-4'
                 })}
-              </div>
-              <div className="flex-1 text-left">
-                <span className="text-sm font-semibold text-slate-900">
-                  {resource.type === 'learning-outcome' 
-                    ? (resource.title || resource.learningOutcomes || 'Learning Outcome')
-                    : resource.title
-                  }
+              </span>
+              <div className="min-w-0 flex-1 text-left">
+                <span className="block truncate text-sm font-semibold text-black">
+                  {resource.type === 'learning-outcome'
+                    ? resource.title ||
+                      resource.learningOutcomes ||
+                      'Learning outcome'
+                    : resource.title}
                 </span>
-                <div className="mt-1 flex flex-wrap gap-1.5 items-center">
-                  <p className="text-[10px] font-bold uppercase tracking-wide  mr-1">
+                <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${typeConfig.badge}`}
+                  >
                     {typeConfig.label}
-                  </p>
+                  </span>
+                  {resource.type === 'learning-outcome' && (
+                    <span className="rounded-full bg-watney/10 px-2 py-0.5 text-[10px] font-semibold text-black">
+                      {criteriaCount} criteri{criteriaCount === 1 ? 'on' : 'a'}
+                    </span>
+                  )}
+                  {resource.fileUrl?.trim() && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-watney/10 px-2 py-0.5 text-[10px] font-semibold text-black">
+                      <File className="h-2.5 w-2.5" />
+                      File
+                    </span>
+                  )}
                   {isAdmin && resource.type === 'learning-outcome' && (
                     <>
-                      {resource?.finalFeedback && (
-                        <Badge
-                          variant="secondary"
-                          className="rounded-full border border-emerald-200 bg-gradient-to-r from-emerald-50 to-teal-50 text-[11px] font-medium text-emerald-700 shadow-sm hover:from-emerald-50 hover:to-teal-50 py-0 px-2"
-                        >
-                          <CheckCircle2 className="mr-1 h-3 w-3" />
-                          Final Feedback
-                        </Badge>
+                      {resource.finalFeedback && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200">
+                          <CheckCircle2 className="h-2.5 w-2.5" />
+                          Final feedback
+                        </span>
                       )}
-                      {resource?.observation && (
-                        <Badge
-                          variant="secondary"
-                          className="rounded-full border border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 text-[11px] font-medium text-amber-700 shadow-sm hover:from-amber-50 hover:to-orange-50 py-0 px-2"
-                        >
-                          <Eye className="mr-1 h-3 w-3" />
+                      {resource.observation && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700 ring-1 ring-inset ring-amber-200">
+                          <Eye className="h-2.5 w-2.5" />
                           Observation
-                        </Badge>
+                        </span>
                       )}
                     </>
                   )}
@@ -383,137 +469,129 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
             </div>
 
             {isAdmin && (
-              <div className="flex flex-shrink-0 items-center gap-1">
-                <Button
-                  
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
+              <div className="flex shrink-0 items-center gap-1.5">
+                <IconAction
+                  label="Edit resource"
+                  icon={Pencil}
+                  onClick={(event) => {
+                    event.stopPropagation();
                     onEdit(resource);
                   }}
-                  className="h-8 w-8 "
-                >
-                  <Pencil className="h-4 w-4 " />
-                </Button>
-                <Button
-                  variant={'destructive'}
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
+                />
+                <IconAction
+                  label="Delete resource"
+                  icon={Trash2}
+                  tone="danger"
+                  onClick={(event) => {
+                    event.stopPropagation();
                     setDeleteDialogOpen(true);
                   }}
-                  className="h-8 w-8 "
-                >
-                  <Trash2 className="h-4 w-4 " />
-                </Button>
+                />
               </div>
             )}
           </div>
         </AccordionTrigger>
-        <AccordionContent className="border-t border-slate-100 bg-white px-4 pb-4 pt-3">
+
+        <AccordionContent className="border-t border-gray-200 bg-white px-4 pb-4 pt-3">
           <div className="space-y-3">
-            {/* Rich text content / description */}
             {resource.content?.trim() && (
-              <div className="rounded-lg border border-slate-100 bg-slate-50/40 p-4">
-                <div
-                  className="prose prose-slate max-w-none text-sm leading-relaxed  [&>ol]:list-decimal [&>ol]:pl-5 [&>ul]:list-disc [&>ul]:pl-5"
-                  dangerouslySetInnerHTML={{ __html: resource.content }}
-                />
-              </div>
+              <div
+                className="prose prose-sm max-w-none rounded-lg bg-watney/5 p-4 text-sm leading-relaxed text-black [&>ol]:list-decimal [&>ol]:pl-5 [&>ul]:list-disc [&>ul]:pl-5"
+                dangerouslySetInnerHTML={{ __html: resource.content }}
+              />
             )}
 
-            {/* Assessment Criteria Custom Block (Specific to Learning Outcomes) */}
-            {resource.type === 'learning-outcome' && (
-              <>
-                {resource.assessmentCriteria && resource.assessmentCriteria.length > 0 ? (
-                  <div className="space-y-2.5">
-                    <h4 className="text-xs font-semibold uppercase tracking-wide ">
-                      Assessment Criteria
-                    </h4>
-                    {resource.assessmentCriteria.map((criteria, index) => (
-                      <div
-                        key={(criteria as any)._id || index}
-                        className="rounded-lg border border-slate-100 bg-slate-50/60 p-4 transition-colors hover:bg-slate-50"
-                      >
-                        <div className="flex items-start gap-3">
-                          <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xs font-semibold text-indigo-700">
-                            {index + 1}
-                          </div>
-                          <div className="flex-1 text-sm leading-relaxed ">
-                            {(criteria as any).title && (
-                              <p className="mb-1 font-medium">{(criteria as any).title}</p>
-                            )}
-                            {criteria.description ? (
-                              <div
-                                className="[&>ol]:list-decimal [&>ol]:pl-5 [&>ul]:list-disc [&>ul]:pl-5"
-                                dangerouslySetInnerHTML={{
-                                  __html: criteria.description
-                                }}
-                              />
-                            ) : (
-                              <span className="italic ">
-                                No description available
-                              </span>
-                            )}
-                          </div>
+            {resource.type === 'learning-outcome' &&
+              (criteriaCount > 0 ? (
+                <div className="space-y-2">
+                  <h4 className="text-[10px] font-semibold uppercase tracking-wide text-black">
+                    Assessment criteria
+                  </h4>
+                  {resource.assessmentCriteria!.map((criteria: any, index) => (
+                    <div
+                      key={criteria._id || index}
+                      className="rounded-lg border border-gray-200 bg-watney/5 p-3.5 transition-colors hover:bg-watney/10"
+                    >
+                      <div className="flex items-start gap-3">
+                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-watney text-[11px] font-bold text-white">
+                          {index + 1}
+                        </span>
+                        <div className="min-w-0 flex-1 text-sm leading-relaxed text-black">
+                          {criteria.title && (
+                            <p className="mb-1 font-medium text-black">
+                              {criteria.title}
+                            </p>
+                          )}
+                          {criteria.description ? (
+                            <div
+                              className="[&>ol]:list-decimal [&>ol]:pl-5 [&>ul]:list-disc [&>ul]:pl-5"
+                              dangerouslySetInnerHTML={{
+                                __html: criteria.description
+                              }}
+                            />
+                          ) : (
+                            <span className="italic text-black">
+                              No description available
+                            </span>
+                          )}
                         </div>
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50/30 p-6 text-center">
-                    <p className="text-sm ">
-                      No assessment criteria defined yet
-                    </p>
-                  </div>
-                )}
-              </>
-            )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-lg border border-dashed border-gray-200 bg-watney/5 p-5 text-center">
+                  <p className="text-xs text-black">
+                    No assessment criteria defined yet
+                  </p>
+                </div>
+              ))}
 
-            {/* File attachment rendering for non-assignment resources (Lectures / Study Guides) */}
             {resource.fileUrl?.trim() && (
-              <div className="group/file flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50/60 p-4 transition-colors hover:bg-slate-50">
-                <div className="min-w-0 items-center gap-3 flex">
-                  <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white">
-                    <File className="h-4 w-4 " />
-                  </div>
+              <div className="group/file flex items-center justify-between gap-3 rounded-lg border border-gray-200 bg-watney/5 p-3.5 transition-colors hover:bg-watney/10">
+                <div className="flex min-w-0 items-center gap-3">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-watney">
+                    <File className="h-4 w-4" />
+                  </span>
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-medium ">
-                      {resource.fileName || 'Attached File'}
+                    <p className="truncate text-sm font-medium text-black">
+                      {resource.fileName || 'Attached file'}
                     </p>
-                    <p className="text-xs ">Click to view</p>
+                    <p className="text-[11px] text-black">
+                      Opens in a new tab
+                    </p>
                   </div>
                 </div>
                 <Button
-                  
                   size="sm"
                   asChild
-                  className="flex-shrink-0 rounded-lg hover:bg-white"
+                  className="shrink-0 bg-watney text-xs text-white hover:bg-watney/90"
                 >
                   <a
                     href={resource.fileUrl.trim()}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 "
+                    className="flex items-center gap-1.5"
                   >
-                    <ExternalLink className="h-4 w-4 transition-transform duration-200 group-hover/file:translate-x-0.5" />
+                    <ExternalLink className="h-3.5 w-3.5 transition-transform duration-200 group-hover/file:translate-x-0.5" />
                     <span className="hidden sm:inline">Open</span>
                   </a>
                 </Button>
               </div>
             )}
 
-            {/* Empty state fallback if neither content nor file exists */}
-            {!resource.content?.trim() && !resource.fileUrl?.trim() && resource.type !== 'learning-outcome' && (
-              <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50/30 p-6 text-center">
-                <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-slate-100">
-                  <File className="h-5 w-5 " />
+            {!resource.content?.trim() &&
+              !resource.fileUrl?.trim() &&
+              resource.type !== 'learning-outcome' && (
+                <div className="rounded-lg border border-dashed border-gray-200 bg-watney/5 p-5 text-center">
+                  <span className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-white text-black">
+                    <File className="h-4 w-4" />
+                  </span>
+                  <p className="mt-2 text-xs text-black">
+                    No content available
+                  </p>
                 </div>
-                <p className="mt-2.5 text-sm ">
-                  No content available
-                </p>
-              </div>
-            )}
+              )}
           </div>
         </AccordionContent>
       </AccordionItem>

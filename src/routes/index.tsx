@@ -48,6 +48,7 @@ import CourseModule from '@/pages/courseUnit/courseResource';
 import CourseResource from '@/pages/courseUnit/courseResource';
 import AssignmentDetailPage from '@/pages/assignment/assignmentDetails';
 import MyCoursesPage from '@/pages/myCourses';
+import StudentAttendancePage from '@/pages/studentAttendance';
 import { AssignmentFeedbackList } from '@/pages/pendingAssignmentFeedback';
 import { StudentAssignmentFeedbackList } from '@/pages/pendingAssignmentFeedbackStudent';
 import { StudentAssignmentsPage } from '@/pages/studentAssignmentList';
@@ -60,6 +61,7 @@ import ReportPage from '@/pages/report';
 import TeacherProfile from '@/pages/profile/profile-teacher';
 import AttendancePage from '@/pages/staff-attendance';
 import AssignmentReportsPage from '@/pages/assignmentReport';
+import MyCoursesResultPage from '@/pages/myCourses/courseResult';
 import StudentRoutinePage from '@/pages/student-routine';
 import StudentVerificationPage from '@/pages/studentVerification';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
@@ -72,6 +74,19 @@ export default function AppRouter() {
   // 1. Get user role from Redux
   const user = useSelector((state) => state.auth.user);
   const role = user?.role;
+
+  const isTeacherEmployee = (() => {
+    if (user?.role !== 'employee') return false;
+    const ids = user?.designationId;
+    if (!Array.isArray(ids) || ids.length === 0) return false;
+    return ids.some((d: any) => {
+      if (typeof d === 'string') return d.toLowerCase() === 'teacher';
+      const label = (d?.name ?? d?.title ?? '').toString().toLowerCase();
+      return label === 'teacher';
+    });
+  })();
+
+  const effectiveRole = user?.role === 'employee' && isTeacherEmployee ? 'teacher' : user?.role;
 
   const withRole = (element, roles) => (
     <ProtectedRoute allowedRoles={roles}>{element}</ProtectedRoute>
@@ -182,7 +197,9 @@ export default function AppRouter() {
         { path: 'student-applications', element: withRole(<StudentApplicationsPage />, ['student']) },
         { path: 'student-applications/:id/assignment/:studentId', element: withRole(<AssignmentPage />, ['student']) },
         { path: 'student-applications/:id/assignment/:studentId/unit-assignments/:unitId', element: withRole(<AssignmentDetailPage />, ['student']) },
-        { path: 'student-routine', element: withRole(<StudentRoutinePage />, ['student']) }
+        { path: 'my-courses/result', element: withRole(<MyCoursesResultPage />, ['student']) },
+        { path: 'student-routine', element: withRole(<StudentRoutinePage />, ['student']) },
+        { path: 'student-attendance', element: withRole(<StudentAttendancePage />, ['student']) }
       ]
     }
   ];
@@ -203,9 +220,9 @@ export default function AppRouter() {
   // 2. Select route set based on active role
   let authenticatedRoutes:any = [];
   
-  if (role === 'admin' || role === 'employee' || role === 'teacher') {
+  if (effectiveRole === 'admin' || effectiveRole === 'employee' || effectiveRole === 'teacher') {
     authenticatedRoutes = adminRoutes;
-  } else if (role === 'student' || role === 'applicant') {
+  } else if (effectiveRole === 'student' || effectiveRole === 'applicant') {
     authenticatedRoutes = studentRoutes;
   }
 

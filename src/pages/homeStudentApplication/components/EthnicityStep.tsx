@@ -208,7 +208,7 @@ export function EthnicityStep({
               {/* Header Info - Full Width */}
               <div className="col-span-1 md:col-span-2 flex flex-col items-start space-y-2 mb-4">
                 <h2 className="text-2xl font-semibold">Equality & Diversity Monitoring</h2>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-black">
                   This information helps us ensure our recruitment practices are
                   fair and inclusive. Your response is optional and will not affect
                   your application.
@@ -217,7 +217,7 @@ export function EthnicityStep({
 
               {/* --- Section 8: Ethnicity (Spans 2 columns to allow split inside) --- */}
               <div className="col-span-1 md:col-span-2 space-y-4">
-                 <h3 className="text-xl font-semibold text-gray-900">Ethnicity</h3>
+                 <h3 className="text-xl font-semibold text-black">Ethnicity</h3>
                  
                  {/* Inner Grid for Ethnicity Fields */}
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -291,7 +291,7 @@ export function EthnicityStep({
                               <Textarea
                                 {...field}
                                 placeholder="e.g., Polish, Nigerian, Filipino, etc."
-                                className="min-h-[100px] border border-gray-300 p-4 text-lg resize-none placeholder:text-gray-400"
+                                className="min-h-[100px] border border-gray-300 p-4 text-lg resize-none placeholder:text-black"
                               />
                             </FormControl>
                             <FormMessage />
@@ -304,7 +304,7 @@ export function EthnicityStep({
 
               {/* --- Section 9: Religion (1 Column) --- */}
               <div className="space-y-4">
-                 <h3 className="text-xl font-semibold text-gray-900">Religion or Belief</h3>
+                 <h3 className="text-xl font-semibold text-black">Religion or Belief</h3>
                  <FormField
                   control={form.control}
                   name="religion"
@@ -333,7 +333,7 @@ export function EthnicityStep({
 
               {/* --- Section 10: Sexual Orientation (1 Column) --- */}
               <div className="space-y-4">
-                 <h3 className="text-xl font-semibold text-gray-900">Sexual Orientation</h3>
+                 <h3 className="text-xl font-semibold text-black">Sexual Orientation</h3>
                  <FormField
                   control={form.control}
                   name="sexualOrientation"
@@ -362,7 +362,7 @@ export function EthnicityStep({
 
               {/* --- Section 11: Gender Identity (Full Width) --- */}
               <div className=" space-y-4">
-                 <h3 className="text-xl font-semibold text-gray-900">Gender Identity</h3>
+                 <h3 className="text-xl font-semibold text-black">Gender Identity</h3>
                  <FormField
                   control={form.control}
                   name="genderIdentitySameAtBirth"

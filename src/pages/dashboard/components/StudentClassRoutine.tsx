@@ -116,7 +116,7 @@ const STATUS_META: Record<
 
 const PENDING_META = {
   label: 'Pending',
-  text: 'text-gray-500',
+  text: 'text-black',
   border: 'border-gray-200',
   hex: '#9ca3af',
   soft: 'bg-gray-50'
@@ -333,7 +333,7 @@ export function StudentClassRoutine({ studentId }: StudentClassRoutineProps) {
     setIsCustomMode(true);
   };
 
-  // ── Fetch all approved course routines + attendance for the range ──────
+  // ── Fetch all enrolled course routines + attendance for the range ──────
   const fetchData = useCallback(async () => {
     if (!studentId || weekDays.length === 0) return;
     setLoading(true);
@@ -346,7 +346,7 @@ export function StudentClassRoutine({ studentId }: StudentClassRoutineProps) {
       });
       const apps: StudentCourse[] = (
         (appRes.data?.data?.result || []) as StudentCourse[]
-      ).filter((a) => a.status === 'approved');
+      ).filter((a) => a.status === 'enrolled');
 
       const comboMap = new Map<
         string,
@@ -529,10 +529,10 @@ export function StudentClassRoutine({ studentId }: StudentClassRoutineProps) {
               <CalendarClock className="h-5 w-5 text-watney" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-gray-800">
+              <h2 className="text-lg font-bold text-black">
                 My Class Routine & Attendance
               </h2>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-black">
                 Your weekly schedule for all enrolled courses
               </p>
             </div>
@@ -564,7 +564,7 @@ export function StudentClassRoutine({ studentId }: StudentClassRoutineProps) {
                   isClearable={false}
                   popperPlacement="bottom-start"
                   popperProps={{ strategy: 'fixed' }}
-                  className="w-52 border-none bg-transparent text-xs font-semibold text-gray-700 outline-none placeholder:text-gray-400"
+                  className="w-52 border-none bg-transparent text-xs font-semibold text-black outline-none placeholder:text-black"
                 />
                 <button
                   onClick={handleApply}
@@ -575,7 +575,7 @@ export function StudentClassRoutine({ studentId }: StudentClassRoutineProps) {
                 </button>
                 <button
                   onClick={() => setIsCustomMode(false)}
-                  className="mr-1 flex h-7 w-7 items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                  className="mr-1 flex h-7 w-7 items-center justify-center rounded-full text-black hover:bg-gray-100 hover:text-black"
                 >
                   <X className="h-3.5 w-3.5" />
                 </button>
@@ -584,7 +584,7 @@ export function StudentClassRoutine({ studentId }: StudentClassRoutineProps) {
               <button
                 type="button"
                 onClick={openCustomMode}
-                className="flex min-w-[180px] items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-center text-sm font-semibold text-gray-700 transition-colors hover:border-gray-200 hover:bg-gray-50"
+                className="flex min-w-[180px] items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-center text-sm font-semibold text-black transition-colors hover:border-gray-200 hover:bg-gray-50"
               >
                 <CalendarIcon className="h-3.5 w-3.5 text-watney" />
                 {rangeLabel}
@@ -601,7 +601,7 @@ export function StudentClassRoutine({ studentId }: StudentClassRoutineProps) {
             {!isCustomMode && (
               <>
                 <button
-                  className="h-8 rounded-md border border-gray-200 px-3 text-xs font-semibold text-gray-700 transition-colors hover:bg-gray-50"
+                  className="h-8 rounded-md border border-gray-200 px-3 text-xs font-semibold text-black transition-colors hover:bg-gray-50"
                   onClick={goThisWeek}
                 >
                   This Week
@@ -616,7 +616,7 @@ export function StudentClassRoutine({ studentId }: StudentClassRoutineProps) {
             )}
           </div>
 
-          <span className="text-xs text-gray-400">
+          <span className="text-xs text-black">
             {classes.length} class{classes.length === 1 ? '' : 'es'} in range
           </span>
         </div>
@@ -625,8 +625,8 @@ export function StudentClassRoutine({ studentId }: StudentClassRoutineProps) {
         {!loading && classes.length > 0 && (
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
             <div className="rounded-lg bg-gray-50 p-3 text-center">
-              <p className="text-xl font-bold text-gray-800">{stats.total}</p>
-              <p className="text-[10px] font-semibold uppercase text-gray-500">
+              <p className="text-xl font-bold text-black">{stats.total}</p>
+              <p className="text-[10px] font-semibold uppercase text-black">
                 Classes
               </p>
             </div>
@@ -663,7 +663,7 @@ export function StudentClassRoutine({ studentId }: StudentClassRoutineProps) {
         {!loading && classes.length > 0 && (
           <div className="rounded-lg border border-gray-100 bg-gray-50/50 p-3">
             <div className="mb-1.5 flex items-center justify-between">
-              <span className="text-xs font-semibold text-gray-600">
+              <span className="text-xs font-semibold text-black">
                 Attendance Rate (Present + Late)
               </span>
               <span className="text-sm font-bold text-watney">
@@ -688,14 +688,14 @@ export function StudentClassRoutine({ studentId }: StudentClassRoutineProps) {
           {/* ── Weekly grid calendar view ── */}
           <TabsContent value="calendar" className="mt-4">
             <div className="mb-3 flex flex-wrap items-center gap-x-4 gap-y-2">
-              <span className="text-sm font-bold text-gray-700">
+              <span className="text-sm font-bold text-black">
                 Click a class to see full details
               </span>
               <div className="flex flex-wrap items-center gap-3">
                 {(Object.keys(STATUS_META) as AttendanceStatus[]).map((key) => (
                   <span
                     key={key}
-                    className="flex items-center gap-1.5 text-xs font-medium text-gray-600"
+                    className="flex items-center gap-1.5 text-xs font-medium text-black"
                   >
                     <span
                       className="h-2.5 w-2.5 rounded-full"
@@ -704,7 +704,7 @@ export function StudentClassRoutine({ studentId }: StudentClassRoutineProps) {
                     {STATUS_META[key].label}
                   </span>
                 ))}
-                <span className="flex items-center gap-1.5 text-xs font-medium text-gray-600">
+                <span className="flex items-center gap-1.5 text-xs font-medium text-black">
                   <span
                     className="h-2.5 w-2.5 rounded-full"
                     style={{ backgroundColor: PENDING_META.hex }}
@@ -719,7 +719,7 @@ export function StudentClassRoutine({ studentId }: StudentClassRoutineProps) {
                 <BlinkingDots size="small" color="bg-watney" />
               </div>
             ) : classes.length === 0 ? (
-              <p className="py-8 text-center text-sm text-gray-400">
+              <p className="py-8 text-center text-sm text-black">
                 No classes scheduled in this date range.
               </p>
             ) : (
@@ -749,7 +749,7 @@ export function StudentClassRoutine({ studentId }: StudentClassRoutineProps) {
                                   : 'bg-slate-50'
                             }`}
                           >
-                            <div className="text-[10px] font-semibold uppercase tracking-wide text-black/80">
+                            <div className="text-[10px] font-semibold uppercase tracking-wide text-black">
                               {d.toLocaleDateString('en-GB', {
                                 weekday: 'short'
                               })}
@@ -763,7 +763,7 @@ export function StudentClassRoutine({ studentId }: StudentClassRoutineProps) {
                                 {d.getDate()}
                               </div>
                             )}
-                            <div className="mt-0.5 text-[9px] font-medium text-black/50">
+                            <div className="mt-0.5 text-[9px] font-medium text-black">
                               {d.toLocaleDateString('en-GB', { month: 'short' })}
                             </div>
                           </th>
@@ -774,7 +774,7 @@ export function StudentClassRoutine({ studentId }: StudentClassRoutineProps) {
                   <tbody>
                     {HOURS.map((hr, hi) => (
                       <tr key={hr}>
-                        <td className="sticky left-0 z-50 w-16 min-w-[64px] border-b border-r border-gray-200 bg-white px-2 pt-1 text-right align-top text-[11px] font-semibold text-black/70 shadow-[4px_0_8px_-3px_rgba(0,0,0,0.15)]">
+                        <td className="sticky left-0 z-50 w-16 min-w-[64px] border-b border-r border-gray-200 bg-white px-2 pt-1 text-right align-top text-[11px] font-semibold text-black shadow-[4px_0_8px_-3px_rgba(0,0,0,0.15)]">
                           {fmtH(hr)}
                         </td>
                         {hi === 0
@@ -950,7 +950,7 @@ export function StudentClassRoutine({ studentId }: StudentClassRoutineProps) {
                       <TableRow>
                         <TableCell
                           colSpan={8}
-                          className="py-6 text-center text-gray-500"
+                          className="py-6 text-center text-black"
                         >
                           No classes scheduled for this course.
                         </TableCell>
@@ -995,7 +995,7 @@ export function StudentClassRoutine({ studentId }: StudentClassRoutineProps) {
                                 {meta.label}
                               </span>
                             </TableCell>
-                            <TableCell className="max-w-[220px] truncate text-xs text-gray-600">
+                            <TableCell className="max-w-[220px] truncate text-xs text-black">
                               {cls.remark || '—'}
                             </TableCell>
                           </TableRow>
@@ -1080,7 +1080,7 @@ export function StudentClassRoutine({ studentId }: StudentClassRoutineProps) {
                   )}
 
                   <div className="rounded-lg border border-gray-100 p-3">
-                    <span className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+                    <span className="text-[10px] font-semibold uppercase tracking-wide text-black">
                       Attendance Status
                     </span>
                     <div className="mt-1 flex items-center gap-2">
@@ -1129,12 +1129,12 @@ function DetailRow({
 }) {
   return (
     <div className="flex items-start gap-2 rounded-lg border border-gray-100 bg-gray-50/60 px-3 py-2">
-      <span className="mt-0.5 shrink-0 text-gray-500">{icon}</span>
+      <span className="mt-0.5 shrink-0 text-black">{icon}</span>
       <div className="min-w-0 flex-1">
-        <span className="block text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+        <span className="block text-[10px] font-semibold uppercase tracking-wide text-black">
           {label}
         </span>
-        <span className="mt-0.5 block break-words text-sm text-gray-800">
+        <span className="mt-0.5 block break-words text-sm text-black">
           {children || '—'}
         </span>
       </div>

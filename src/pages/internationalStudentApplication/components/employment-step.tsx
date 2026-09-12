@@ -266,7 +266,7 @@ export function EmploymentStep({
                         className="text-sm"
                       />
 
-                      <p className="text-xs text-gray-400">
+                      <p className="text-xs text-black">
                         Select "Yes" if you are employed at the moment.
                       </p>
 
@@ -297,10 +297,10 @@ export function EmploymentStep({
                                 <Input
                                   {...field}
                                   placeholder="Company Name"
-                                  className="!placeholder:text-gray-400   placeholder:text-xs  placeholder:text-gray-400"
+                                  className="!placeholder:text-black   placeholder:text-xs  placeholder:text-black"
                                 />
                               </FormControl>
-                              <p className="text-xs  text-gray-400">
+                              <p className="text-xs  text-black">
                                 Enter the name of your current employer (e.g.,
                                 NHS Trust){' '}
                               </p>
@@ -323,10 +323,10 @@ export function EmploymentStep({
                                 <Input
                                   {...field}
                                   placeholder="Position"
-                                  className="!placeholder:text-gray-400   placeholder:text-xs  placeholder:text-gray-400"
+                                  className="!placeholder:text-black   placeholder:text-xs  placeholder:text-black"
                                 />
                               </FormControl>
-                              <p className="text-xs  text-gray-400">
+                              <p className="text-xs  text-black">
                                 State your current job title (e.g., Support
                                 Worker)
                               </p>
@@ -357,7 +357,7 @@ export function EmploymentStep({
                                     placeholder="Employment Start Date"
                                   />
                                 </FormControl>
-                                <p className="text-xs  text-gray-400">
+                                <p className="text-xs  text-black">
                                   Select the date you started this position(e.g.
                                   11/01/2000)
                                 </p>
@@ -394,7 +394,7 @@ export function EmploymentStep({
                                 />
                               </FormControl>
 
-                              <p className="mt-1 text-xs text-gray-400">
+                              <p className="mt-1 text-xs text-black">
                                 Select from options: Full-Time, Part-Time,
                                 Contract, Freelance
                               </p>
@@ -435,7 +435,7 @@ export function EmploymentStep({
                             />
                           </FormControl>
 
-                          <p className="mt-1 text-xs text-gray-400">
+                          <p className="mt-1 text-xs text-black">
                             List any previous jobs you've held. Include job
                             title, employer, dates, and responsibilities.
                           </p>
@@ -474,7 +474,7 @@ export function EmploymentStep({
                                       placeholder="Company Name"
                                     />
                                   </FormControl>
-                                  <p className="text-xs  text-gray-400">
+                                  <p className="text-xs  text-black">
                                     Enter the name of your employer
                                   </p>
                                   <FormMessage />
@@ -498,7 +498,7 @@ export function EmploymentStep({
                                       placeholder="Position"
                                     />
                                   </FormControl>
-                                  <p className="text-xs  text-gray-400">
+                                  <p className="text-xs  text-black">
                                     State your job title
                                   </p>
                                   <FormMessage />
@@ -530,7 +530,7 @@ export function EmploymentStep({
                                         placeholder="Employment Start Date"
                                       />
                                     </FormControl>
-                                    <p className="text-xs  text-gray-400">
+                                    <p className="text-xs  text-black">
                                       Select the date you started this position
                                     </p>{' '}
                                     <FormMessage />
@@ -563,7 +563,7 @@ export function EmploymentStep({
                                         placeholder="Employment End Date"
                                       />
                                     </FormControl>
-                                    <p className="mt-1 text-xs text-gray-400">
+                                    <p className="mt-1 text-xs text-black">
                                       Select the end date
                                     </p>
                                     <FormMessage />
@@ -603,7 +603,7 @@ export function EmploymentStep({
                                     />
                                   </FormControl>
 
-                                  <p className="mt-1 text-xs text-gray-400">
+                                  <p className="mt-1 text-xs text-black">
                                     Select from options: Full-Time, Part-Time,
                                     Contract, Freelance
                                   </p>

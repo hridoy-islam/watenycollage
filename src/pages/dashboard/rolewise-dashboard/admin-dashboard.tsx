@@ -409,11 +409,11 @@ return (
         <div className="">
         <Card className=" shadow-none">
           <CardHeader className="p-0 pb-4">
-            <CardTitle className="text-xl text-gray-700">
+            <CardTitle className="text-xl text-black">
               <div className="flex flex-row items-center gap-20">
                 <div>
-                  <div className="text-lg text-gray-600">Current Time</div>
-                  <div className="text-xl font-bold text-gray-800">
+                  <div className="text-lg text-black">Current Time</div>
+                  <div className="text-xl font-bold text-black">
                     {currentTime}
                   </div>
                 </div>
@@ -421,7 +421,7 @@ return (
                 {/* Working Time (if clocked in) */}
                 {timeLog && (
                   <div>
-                    <div className="flex flex-row items-center gap-2 text-lg text-gray-600">
+                    <div className="flex flex-row items-center gap-2 text-lg text-black">
                       Working Time
                       {isOnBreak && (
                         <div className="text-lg font-medium text-orange-600">
@@ -429,7 +429,7 @@ return (
                         </div>
                       )}
                     </div>
-                    <div className="text-xl font-bold text-gray-800">
+                    <div className="text-xl font-bold text-black">
                       {formatDurationWithSeconds(
                         calculateNetWorkingSeconds(timeLog)
                       )}

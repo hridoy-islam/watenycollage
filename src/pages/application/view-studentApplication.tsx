@@ -689,7 +689,7 @@ export default function ViewStudentApplicationPage() {
                 <TabsTrigger
                   key={value}
                   value={value}
-                  className="flex w-full items-center justify-start rounded-lg px-4 py-2.5 text-sm font-medium  transition-all duration-200 hover:bg-slate-100 hover:text-slate-900 data-[state=active]:bg-watney data-[state=active]:text-white data-[state=active]:shadow-md"
+                  className="flex w-full items-center justify-start rounded-lg px-4 py-2.5 text-sm font-medium  transition-all duration-200 hover:bg-slate-100 hover:text-black data-[state=active]:bg-watney data-[state=active]:text-white data-[state=active]:shadow-md"
                 >
                   {label}
                 </TabsTrigger>
@@ -1735,13 +1735,13 @@ export default function ViewStudentApplicationPage() {
                             className="mb-4 bg-watney text-white hover:bg-watney/90"
                             variant="default"
                             size="sm"
-                            disabled={courseEntry.status === 'approved'}
+                            disabled={courseEntry.status === 'enrolled'}
                             onClick={async () => {
                               try {
                                 await axiosInstance.patch(
                                   `/application-course/${courseEntry._id}`,
                                   {
-                                    status: 'approved'
+                                    status: 'enrolled'
                                   }
                                 );
 
@@ -1759,7 +1759,7 @@ export default function ViewStudentApplicationPage() {
                               }
                             }}
                           >
-                            {courseEntry.status === 'approved'
+                            {courseEntry.status === 'enrolled'
                               ? 'Approved'
                               : 'Approve'}
                           </Button>

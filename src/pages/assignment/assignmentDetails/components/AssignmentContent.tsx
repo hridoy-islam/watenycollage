@@ -5,7 +5,10 @@ import { Badge } from '@/components/ui/badge';
 
 interface AssignmentContentProps {
   assignmentSettingId: string;
+  /** Already release-aware: published *and* the UK release moment has passed. */
   isResultPublished?: boolean;
+  /** "01 Sep 2026, 04:00" when a release is still pending, else empty. */
+  resultReleaseLabel?: string;
   effectiveDeadline: moment.Moment | null;
   isDeadlinePassed: boolean;
   isTeacher: boolean;
@@ -31,6 +34,7 @@ interface AssignmentContentProps {
 export const AssignmentContent: React.FC<AssignmentContentProps> = ({
   assignmentSettingId,
   isResultPublished,
+  resultReleaseLabel,
   effectiveDeadline,
   isDeadlinePassed,
   isTeacher,
@@ -76,7 +80,7 @@ export const AssignmentContent: React.FC<AssignmentContentProps> = ({
         {/* Header Row */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 w-full">
           {/* Assignment Title */}
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 text-left w-full sm:w-auto">
+          <h2 className="text-xl sm:text-2xl font-bold text-black text-left w-full sm:w-auto">
             {assignmentName}
           </h2>
 
@@ -101,6 +105,20 @@ export const AssignmentContent: React.FC<AssignmentContentProps> = ({
           )}
           </div>
         </div>
+
+        {/* A student waiting on a scheduled release is told when, rather than
+            being shown an empty space where the grade will be. Staff are not
+            gated - they set the release, so they can always see the mark. */}
+        {!isTeacher && !isResultPublished && resultReleaseLabel ? (
+          <div className="flex w-full items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 p-3">
+            <Award className="h-5 w-5 text-black" />
+            <span className="text-sm text-black">
+              Result available from{' '}
+              <span className="font-semibold">{resultReleaseLabel}</span> (UK
+              time)
+            </span>
+          </div>
+        ) : null}
 
         {/* Final Grade Section */}
         {(isTeacher || isResultPublished) && (gradingOptions.length > 0 || finalGrade) ? (
@@ -156,7 +174,7 @@ export const AssignmentContent: React.FC<AssignmentContentProps> = ({
         {assignmentContent && (
           <div className="w-full">
             <div
-              className="whitespace-pre-wrap text-sm sm:text-base text-gray-700 leading-relaxed"
+              className="whitespace-pre-wrap text-sm sm:text-base text-black leading-relaxed"
               dangerouslySetInnerHTML={{
                 __html: assignmentContent
               }}

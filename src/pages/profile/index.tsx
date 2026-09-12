@@ -34,7 +34,7 @@ const ProfilePage: React.FC = () => {
         <InternationalStudentProfile />
       )}
       {user.role === 'applicant'  && <ApplicantProfile />}
-      {(user.role === 'teacher' || user.role === 'admin') && <TeacherProfile />}
+      {(user.role === 'teacher'|| user.role === 'employee' || user.role === 'admin') && <TeacherProfile />}
     </div>
   );
 };

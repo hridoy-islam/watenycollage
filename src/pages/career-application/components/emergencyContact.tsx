@@ -126,10 +126,10 @@ export function EmergencyContact({
                           <Input
                             {...field}
                             placeholder="Enter the full name of your emergency contact"
-                            className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
+                            className="!placeholder:text-black  placeholder:text-xs placeholder:text-black"
                           />
                         </FormControl>
-                        <p className="mt-1 text-xs text-gray-400">
+                        <p className="mt-1 text-xs text-black">
                           Example: Jane Doe
                         </p>
                         <FormMessage />
@@ -147,9 +147,9 @@ export function EmergencyContact({
                         </FormLabel>
                         <FormControl>
                           <Input {...field}  placeholder="Enter a phone number where this person can be reached in an emergency"
-                            className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500" />
+                            className="!placeholder:text-black  placeholder:text-xs placeholder:text-black" />
                         </FormControl>
-                         <p className="mt-1 text-xs text-gray-400">
+                         <p className="mt-1 text-xs text-black">
                          Example: +44 7700 900123
                         </p>
                         <FormMessage />
@@ -165,10 +165,10 @@ export function EmergencyContact({
                         <FormLabel>Email <span className="text-red-500">*</span></FormLabel>
                         <FormControl>
                           <Input type="email" {...field} placeholder="Provide an email address for non-urgent communication"
-                      className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
+                      className="!placeholder:text-black  placeholder:text-xs placeholder:text-black"
  />
                         </FormControl>
-                         <p className="mt-1 text-xs text-gray-400">
+                         <p className="mt-1 text-xs text-black">
                          Example: jane.doe@example.com
                         </p>
                         <FormMessage />
@@ -207,7 +207,7 @@ export function EmergencyContact({
 
                           />
                         </FormControl>
-                         <p className="mt-1 text-xs text-gray-400">
+                         <p className="mt-1 text-xs text-black">
                           Example: Parent
                         </p>
                         <FormMessage />
@@ -223,10 +223,10 @@ export function EmergencyContact({
 
                         <FormControl>
                           <Input type="text" {...field} placeholder="Enter the full address of your emergency contact"
-                      className="!placeholder:text-gray-500  placeholder:text-xs placeholder:text-gray-500"
+                      className="!placeholder:text-black  placeholder:text-xs placeholder:text-black"
  />
                         </FormControl>
-                         <p className="mt-1 text-xs text-gray-400">
+                         <p className="mt-1 text-xs text-black">
                           Example: 12 High Street, Bristol, BS1 4ST, United Kingdom
                         </p>
                         <FormMessage />

@@ -67,7 +67,7 @@ const FundingData: React.FC<FundingDataProps> = ({
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {/* Funding Type */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-black">
               Who is funding your course?
             </label>
             {isEditing ? (
@@ -85,7 +85,7 @@ const FundingData: React.FC<FundingDataProps> = ({
                 }}
               />
             ) : (
-              <div className="mt-1 text-gray-900">
+              <div className="mt-1 text-black">
                 {localData?.fundingType || '-'}
               </div>
             )}
@@ -94,7 +94,7 @@ const FundingData: React.FC<FundingDataProps> = ({
           {/* Grant Details */}
           {/* {localData?.fundingType === 'Bursary/Grant' && (
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-black">
                 Grant Details
               </label>
               {isEditing ? (
@@ -105,7 +105,7 @@ const FundingData: React.FC<FundingDataProps> = ({
                   }
                 />
               ) : (
-                <div className="mt-1 text-gray-900">
+                <div className="mt-1 text-black">
                   {localData?.grantDetails || '-'}
                 </div>
               )}
@@ -116,7 +116,7 @@ const FundingData: React.FC<FundingDataProps> = ({
           {localData?.fundingType === 'Employer' && (
             <>
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium text-black">
                   Funding Employer Name
                 </label>
                 {isEditing ? (
@@ -128,14 +128,14 @@ const FundingData: React.FC<FundingDataProps> = ({
                     }
                   />
                 ) : (
-                  <div className="mt-1 text-gray-900">
+                  <div className="mt-1 text-black">
                     {localData?.fundingCompanyName || '-'}
                   </div>
                 )}
               </div>
 
               {/* <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium text-black">
                   Contact Person
                 </label>
                 {isEditing ? (
@@ -147,14 +147,14 @@ const FundingData: React.FC<FundingDataProps> = ({
                     }
                   />
                 ) : (
-                  <div className="mt-1 text-gray-900">
+                  <div className="mt-1 text-black">
                     {localData?.fundingContactPerson || '-'}
                   </div>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium text-black">
                   Email
                 </label>
                 {isEditing ? (
@@ -166,14 +166,14 @@ const FundingData: React.FC<FundingDataProps> = ({
                     }
                   />
                 ) : (
-                  <div className="mt-1 text-gray-900">
+                  <div className="mt-1 text-black">
                     {localData?.fundingEmail || '-'}
                   </div>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium text-black">
                   Phone Number
                 </label>
                 {isEditing ? (
@@ -185,7 +185,7 @@ const FundingData: React.FC<FundingDataProps> = ({
                     }
                   />
                 ) : (
-                  <div className="mt-1 text-gray-900">
+                  <div className="mt-1 text-black">
                     {localData?.fundingPhoneNumber || '-'}
                   </div>
                 )}

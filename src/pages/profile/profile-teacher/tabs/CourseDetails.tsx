@@ -41,7 +41,7 @@ const CourseDetails: React.FC<CourseDetailsProps> = ({ userData, isEditing = fal
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Course</label>
+            <label className="block text-sm font-medium text-black">Course</label>
             {isEditing ? (
               <select
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
@@ -56,12 +56,12 @@ const CourseDetails: React.FC<CourseDetailsProps> = ({ userData, isEditing = fal
                 <option value="MBA">MBA</option>
               </select>
             ) : (
-              <div className="mt-1 text-gray-900">{courseData.course || '-'}</div>
+              <div className="mt-1 text-black">{courseData.course || '-'}</div>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Intake</label>
+            <label className="block text-sm font-medium text-black">Intake</label>
             {isEditing ? (
               <select
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
@@ -76,13 +76,13 @@ const CourseDetails: React.FC<CourseDetailsProps> = ({ userData, isEditing = fal
                 <option value="September 2024">September 2024</option>
               </select>
             ) : (
-              <div className="mt-1 text-gray-900">{courseData.intake || '-'}</div>
+              <div className="mt-1 text-black">{courseData.intake || '-'}</div>
             )}
           </div>
         </div>
 
         <div className="mt-8 border-t border-gray-200 pt-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Course Resources</h3>
+          <h3 className="text-lg font-medium text-black mb-4">Course Resources</h3>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <a 
@@ -95,8 +95,8 @@ const CourseDetails: React.FC<CourseDetailsProps> = ({ userData, isEditing = fal
                 </svg>
               </div>
               <div className="ml-4">
-                <h4 className="text-sm font-medium text-gray-900">Course Handbook</h4>
-                <p className="text-xs text-gray-500">PDF Document</p>
+                <h4 className="text-sm font-medium text-black">Course Handbook</h4>
+                <p className="text-xs text-black">PDF Document</p>
               </div>
             </a>
 
@@ -110,8 +110,8 @@ const CourseDetails: React.FC<CourseDetailsProps> = ({ userData, isEditing = fal
                 </svg>
               </div>
               <div className="ml-4">
-                <h4 className="text-sm font-medium text-gray-900">Module Details</h4>
-                <p className="text-xs text-gray-500">Course Structure</p>
+                <h4 className="text-sm font-medium text-black">Module Details</h4>
+                <p className="text-xs text-black">Course Structure</p>
               </div>
             </a>
 
@@ -125,8 +125,8 @@ const CourseDetails: React.FC<CourseDetailsProps> = ({ userData, isEditing = fal
                 </svg>
               </div>
               <div className="ml-4">
-                <h4 className="text-sm font-medium text-gray-900">Academic Calendar</h4>
-                <p className="text-xs text-gray-500">Important Dates</p>
+                <h4 className="text-sm font-medium text-black">Academic Calendar</h4>
+                <p className="text-xs text-black">Important Dates</p>
               </div>
             </a>
           </div>

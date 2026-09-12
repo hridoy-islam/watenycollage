@@ -1,7 +1,8 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { UserNav } from './user-nav';
 import logo from '@/assets/imges/home/logo.png';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import { useEffectiveRole } from '@/hooks/use-effective-role';
 import { AppDispatch } from '@/redux/store';
 import { logout } from '@/redux/features/authSlice';
 import { Edit, Edit2, LogOut } from 'lucide-react';
@@ -15,7 +16,9 @@ export function TopNav() {
     await dispatch(logout());
     navigate('/');
   };
-  const { user } = useSelector((state: any) => state.auth);
+  // Teaching staff carry `role: "employee"` with a "Teacher" designation, so
+  // the nav is chosen on the effective role - otherwise they get no links.
+  const { user, effectiveRole } = useEffectiveRole();
   const isCompleted = user?.isCompleted;
 
   // Dynamic navigation links configuration
@@ -64,7 +67,7 @@ export function TopNav() {
         )}
       </div>
 
-      {user?.role === 'admin' && (
+      {effectiveRole === 'admin' && (
         <div className="flex items-center space-x-4">
           {navLinks.map((link) => (
             <Link
@@ -78,7 +81,7 @@ export function TopNav() {
         </div>
       )}
 
-      {user?.role === 'teacher' && (
+      {effectiveRole === 'teacher' && (
         <div className="flex items-center space-x-4">
           {navLinksForTeacher.map((link) => (
             <Link
@@ -92,7 +95,7 @@ export function TopNav() {
         </div>
       )}
 
-      {user?.role === 'student' && (
+      {effectiveRole === 'student' && (
         <div className="flex items-center space-x-4">
           {navLinksForStudent.map((link) => (
             <Link

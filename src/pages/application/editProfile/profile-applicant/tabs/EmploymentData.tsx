@@ -62,7 +62,7 @@ const EmploymentData = ({
       <div className="space-y-8">
         {/* Employment Status */}
         <div>
-          <label className="mb-2 block text-sm font-medium text-gray-700">
+          <label className="mb-2 block text-sm font-medium text-black">
             Currently employed?
           </label>
           {isEditing ? (
@@ -87,20 +87,20 @@ const EmploymentData = ({
               }}
             />
           ) : (
-            <div className="text-gray-900">{localData.isEmployed || '-'}</div>
+            <div className="text-black">{localData.isEmployed || '-'}</div>
           )}
         </div>
 
         {/* Current Employment */}
         {localData.isEmployed === 'yes' && (
           <div>
-            <h3 className="mb-4 text-lg font-medium text-gray-900">
+            <h3 className="mb-4 text-lg font-medium text-black">
               Current Employment
             </h3>
             <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-black">
                     Employer Name
                   </label>
                   {isEditing ? (
@@ -116,13 +116,13 @@ const EmploymentData = ({
                       }
                     />
                   ) : (
-                    <div className="mt-1 text-gray-900">
+                    <div className="mt-1 text-black">
                       {localData.currentEmployment?.employer || '-'}
                     </div>
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-black">
                     Job Title
                   </label>
                   {isEditing ? (
@@ -138,13 +138,13 @@ const EmploymentData = ({
                       }
                     />
                   ) : (
-                    <div className="mt-1 text-gray-900">
+                    <div className="mt-1 text-black">
                       {localData.currentEmployment?.jobTitle || '-'}
                     </div>
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-black">
                     Start Date
                   </label>
                   {isEditing ? (
@@ -165,7 +165,7 @@ const EmploymentData = ({
                       placeholder="Start date"
                     />
                   ) : (
-                    <div className="mt-1 text-gray-900">
+                    <div className="mt-1 text-black">
                       {localData.currentEmployment?.startDate
                         ? new Date(
                             localData.currentEmployment.startDate
@@ -175,7 +175,7 @@ const EmploymentData = ({
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-black">
                     Employment Type
                   </label>
                   {isEditing ? (
@@ -214,13 +214,13 @@ const EmploymentData = ({
                       }}
                     />
                   ) : (
-                    <div className="mt-1 text-gray-900">
+                    <div className="mt-1 text-black">
                       {localData.currentEmployment?.employmentType || '-'}
                     </div>
                   )}
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-black">
                     Main Responsibilities
                   </label>
                   {isEditing ? (
@@ -238,7 +238,7 @@ const EmploymentData = ({
                       }
                     />
                   ) : (
-                    <div className="mt-1 text-gray-900">
+                    <div className="mt-1 text-black">
                       {localData.currentEmployment?.responsibilities || '-'}
                     </div>
                   )}
@@ -250,7 +250,7 @@ const EmploymentData = ({
 
         {/* Has Previous Employment */}
         <div>
-          <label className="mb-2 block text-sm font-medium text-gray-700">
+          <label className="mb-2 block text-sm font-medium text-black">
             Previous employment?
           </label>
           {isEditing ? (
@@ -282,7 +282,7 @@ const EmploymentData = ({
               menuPortalTarget={document.body}
             />
           ) : (
-            <div className="text-gray-900">
+            <div className="text-black">
               {localData.hasPreviousEmployment || '-'}
             </div>
           )}
@@ -292,7 +292,7 @@ const EmploymentData = ({
         {localData.hasPreviousEmployment === 'yes' && (
           <div>
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-medium text-gray-900">
+              <h3 className="text-lg font-medium text-black">
                 Previous Employment
               </h3>
               {isEditing && (
@@ -345,7 +345,7 @@ const EmploymentData = ({
                     )}
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700">
+                        <label className="block text-sm font-medium text-black">
                           Employer Name
                         </label>
                         {isEditing ? (
@@ -367,13 +367,13 @@ const EmploymentData = ({
                             }
                           />
                         ) : (
-                          <div className="mt-1 text-gray-900">
+                          <div className="mt-1 text-black">
                             {job.employer || '-'}
                           </div>
                         )}
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700">
+                        <label className="block text-sm font-medium text-black">
                           Job Title
                         </label>
                         {isEditing ? (
@@ -395,13 +395,13 @@ const EmploymentData = ({
                             }
                           />
                         ) : (
-                          <div className="mt-1 text-gray-900">
+                          <div className="mt-1 text-black">
                             {job.jobTitle || '-'}
                           </div>
                         )}
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700">
+                        <label className="block text-sm font-medium text-black">
                           Start Date
                         </label>
                         {isEditing ? (
@@ -426,7 +426,7 @@ const EmploymentData = ({
                             placeholder="Start date"
                           />
                         ) : (
-                          <div className="mt-1 text-gray-900">
+                          <div className="mt-1 text-black">
                             {job.startDate
                               ? new Date(job.startDate).toLocaleDateString()
                               : '-'}
@@ -434,7 +434,7 @@ const EmploymentData = ({
                         )}
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700">
+                        <label className="block text-sm font-medium text-black">
                           End Date
                         </label>
                         {isEditing ? (
@@ -459,7 +459,7 @@ const EmploymentData = ({
                             placeholder="End date"
                           />
                         ) : (
-                          <div className="mt-1 text-gray-900">
+                          <div className="mt-1 text-black">
                             {job.endDate
                               ? new Date(job.endDate).toLocaleDateString()
                               : '-'}
@@ -467,7 +467,7 @@ const EmploymentData = ({
                         )}
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700">
+                        <label className="block text-sm font-medium text-black">
                           Reason for Leaving
                         </label>
                         {isEditing ? (
@@ -489,13 +489,13 @@ const EmploymentData = ({
                             }
                           />
                         ) : (
-                          <div className="mt-1 text-gray-900">
+                          <div className="mt-1 text-black">
                             {job.reasonForLeaving || '-'}
                           </div>
                         )}
                       </div>
                       <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-gray-700">
+                        <label className="block text-sm font-medium text-black">
                           Main Responsibilities
                         </label>
                         {isEditing ? (
@@ -517,7 +517,7 @@ const EmploymentData = ({
                             }
                           />
                         ) : (
-                          <div className="mt-1 text-gray-900">
+                          <div className="mt-1 text-black">
                             {job.responsibilities || '-'}
                           </div>
                         )}
@@ -528,7 +528,7 @@ const EmploymentData = ({
               </div>
             ) : (
               <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 py-6 text-center">
-                <p className="text-gray-500">No previous employment records</p>
+                <p className="text-black">No previous employment records</p>
               </div>
             )}
           </div>
@@ -537,7 +537,7 @@ const EmploymentData = ({
         {/* Employment Gaps - Only shown if hasPreviousEmployment is "yes" */}
         {localData.hasPreviousEmployment === 'yes' && (
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700">
+            <label className="mb-2 block text-sm font-medium text-black">
               Gaps in my employment history?
             </label>
             {isEditing ? (
@@ -569,13 +569,13 @@ const EmploymentData = ({
                 menuPortalTarget={document.body}
               />
             ) : (
-              <div className="mb-4 text-gray-900">
+              <div className="mb-4 text-black">
                 {localData.hasEmploymentGaps || '-'}
               </div>
             )}
             {localData.hasEmploymentGaps === 'yes' && (
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium text-black">
                   Gaps Details
                 </label>
                 {isEditing ? (
@@ -591,7 +591,7 @@ const EmploymentData = ({
                     }
                   />
                 ) : (
-                  <div className="mt-1 text-gray-900">
+                  <div className="mt-1 text-black">
                     {localData.employmentGapsExplanation || '-'}
                   </div>
                 )}

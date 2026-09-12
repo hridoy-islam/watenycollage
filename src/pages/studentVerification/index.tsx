@@ -462,12 +462,12 @@ export default function StudentVerificationPage() {
         <div className="w-full max-w-lg overflow-hidden rounded-xl bg-white shadow-2xl duration-200 animate-in fade-in zoom-in">
           {/* Header */}
           <div className="flex items-center justify-between bg-slate-50 p-4">
-            <h3 className="font-bold text-gray-900">
+            <h3 className="font-bold text-black">
               Documents: {studentName}
             </h3>
             <button
               onClick={onClose}
-              className="p-1 text-gray-400 transition-colors hover:text-gray-600"
+              className="p-1 text-black transition-colors hover:text-black"
             >
               <Plus className="h-6 w-6 rotate-45" />
             </button>
@@ -520,7 +520,7 @@ export default function StudentVerificationPage() {
                       })
                     ) : (
                       // Fallback UI when no files are found for this specific category
-                      <div className="flex items-center gap-2 rounded-lg border border-gray-100 bg-gray-50/80 p-3 text-sm italic text-gray-500">
+                      <div className="flex items-center gap-2 rounded-lg border border-gray-100 bg-gray-50/80 p-3 text-sm italic text-black">
                          No document found
                       </div>
                     )}
@@ -597,7 +597,7 @@ export default function StudentVerificationPage() {
             <BlinkingDots size="large" color="bg-watney" />
           </div>
         ) : verifications.length === 0 ? (
-          <div className="flex justify-center py-6 text-gray-500">
+          <div className="flex justify-center py-6 text-black">
             No records found.
           </div>
         ) : (
@@ -616,10 +616,10 @@ export default function StudentVerificationPage() {
               {verifications.map((verification: any) => (
                 <TableRow key={verification._id}>
                   <TableCell className="align-middle">
-                    <div className="font-semibold text-gray-900">
+                    <div className="font-semibold text-black">
                       {verification?.name || 'N/A'}
                     </div>
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs text-black">
                       {verification?.applicationId?.studentId?.email || 'N/A'}
                     </div>
                   </TableCell>
@@ -755,7 +755,7 @@ export default function StudentVerificationPage() {
 
               <div className="h-[500px] overflow-y-auto rounded-md border bg-white">
                 {!hasSearchedApps && !loadingApps ? (
-                  <div className="flex h-full min-h-[200px] items-center justify-center text-gray-500">
+                  <div className="flex h-full min-h-[200px] items-center justify-center text-black">
                     Enter search criteria and click Search to find students.
                   </div>
                 ) : (
@@ -781,7 +781,7 @@ export default function StudentVerificationPage() {
                         <TableRow>
                           <TableCell
                             colSpan={6}
-                            className="py-8 text-center text-gray-500"
+                            className="py-8 text-center text-black"
                           >
                             No applications found.
                           </TableCell>
@@ -796,11 +796,11 @@ export default function StudentVerificationPage() {
                               {app?.refId || '-'}
                             </TableCell>
                             <TableCell>
-                              <div className="font-semibold text-gray-900">
+                              <div className="font-semibold text-black">
                                 {app.studentId?.firstName}{' '}
                                 {app.studentId?.lastName}
                               </div>
-                              <div className="text-[10px] text-gray-500">
+                              <div className="text-[10px] text-black">
                                 {app.studentId?.email ?? 'N/A'}
                               </div>
                             </TableCell>
@@ -814,13 +814,13 @@ export default function StudentVerificationPage() {
                                   'capitalize',
                                   app?.status === 'applied' &&
                                     'bg-blue-500 text-white',
-                                  app?.status === 'approved' &&
+                                  app?.status === 'enrolled' &&
                                     'bg-green-500 text-white',
                                   app?.status === 'cancelled' &&
                                     'bg-red-500 text-white'
                                 )}
                               >
-                                {app?.status === 'approved'
+                                {app?.status === 'enrolled'
                                   ? 'Enrolled'
                                   : app?.status === 'cancelled'
                                     ? 'Rejected'
@@ -852,7 +852,7 @@ export default function StudentVerificationPage() {
               {selectedStudent && !editingVerification && (
                 <div className="grid grid-cols-4 gap-4 rounded-md border border-slate-200 bg-slate-50 p-4 text-sm">
                   <div>
-                    <div className="font-semibold text-gray-800">
+                    <div className="font-semibold text-black">
                       Student Name:
                     </div>
                     <div>
@@ -861,17 +861,17 @@ export default function StudentVerificationPage() {
                     </div>
                   </div>
                   <div className="flex flex-col">
-                    <span className="font-semibold text-gray-800">DOB:</span>
+                    <span className="font-semibold text-black">DOB:</span>
                     <span>
                       {formatDate(selectedStudent.studentId?.dateOfBirth)}
                     </span>
                   </div>
                   <div className="flex flex-col">
-                    <span className="font-semibold text-gray-800">Course:</span>
+                    <span className="font-semibold text-black">Course:</span>
                     <span>{selectedStudent.courseId?.name || 'N/A'}</span>
                   </div>
                   <div className="flex flex-col">
-                    <span className="font-semibold text-gray-800">Term:</span>
+                    <span className="font-semibold text-black">Term:</span>
                     <span>{selectedStudent.intakeId?.termName || 'N/A'}</span>
                   </div>
                 </div>
@@ -881,28 +881,28 @@ export default function StudentVerificationPage() {
               {editingVerification && (
                 <div className="grid grid-cols-4 gap-4 rounded-md border border-slate-200 bg-slate-50 p-4 text-sm">
                   <div>
-                    <div className="font-semibold text-gray-800">
+                    <div className="font-semibold text-black">
                       Student Name:
                     </div>
                     <div>{editingVerification.name}</div>
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs text-black">
                       {editingVerification?.applicationId?.studentId?.email ||
                         'N/A'}
                     </div>
                   </div>
                   <div className="flex flex-col">
-                    <span className="font-semibold text-gray-800">DOB:</span>
+                    <span className="font-semibold text-black">DOB:</span>
                     <span>{editingVerification.dob || 'N/A'}</span>
                   </div>
                   <div className="flex flex-col">
-                    <span className="font-semibold text-gray-800">Course:</span>
+                    <span className="font-semibold text-black">Course:</span>
                     <span>
                       {editingVerification?.applicationId?.courseId?.name ||
                         'N/A'}
                     </span>
                   </div>
                   <div className="flex flex-col">
-                    <span className="font-semibold text-gray-800">Term:</span>
+                    <span className="font-semibold text-black">Term:</span>
                     <span>
                       {editingVerification?.applicationId?.intakeId?.termName ||
                         'N/A'}
@@ -947,7 +947,7 @@ export default function StudentVerificationPage() {
                 {/* Dynamic Upload Zones */}
                 <div className="h-[34vh] space-y-4 overflow-y-auto pr-2">
                   {selectedCategories.length === 0 && (
-                    <p className="text-sm italic text-gray-500">
+                    <p className="text-sm italic text-black">
                       Select at least one document type above to start
                       uploading.
                     </p>

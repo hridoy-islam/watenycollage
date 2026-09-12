@@ -510,7 +510,7 @@ export default function CareerApplicationForm() {
         return (
           <div className="rounded-lg bg-gray-50 p-8 text-center">
             <h2 className="mb-4 text-xl font-semibold">Step {currentStep}</h2>
-            <p className="mb-4 text-gray-600">
+            <p className="mb-4 text-black">
               This step is not implemented yet.
             </p>
             <div className="flex justify-center space-x-4">

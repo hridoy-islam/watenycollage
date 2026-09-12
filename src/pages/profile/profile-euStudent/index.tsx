@@ -39,7 +39,7 @@ const [refreshCounter, setRefreshCounter] = useState(0);
   return (
     <div className="min-h-full ">
       <div className=" mx-auto  px-4 ">
-        {/* <h1 className="text-3xl font-bold text-gray-900 mb-8">My Profile</h1> */}
+        {/* <h1 className="text-3xl font-bold text-black mb-8">My Profile</h1> */}
 
         <div className="flex flex-col overflow-hidden rounded-xl bg-white shadow-md md:flex-row">
           <div className=" border-gray-200 bg-gray-50 md:border-r">

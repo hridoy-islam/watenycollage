@@ -124,7 +124,7 @@ export function FundingInformation({
         <CardContent className="p-0">
           <div className="space-y-4">
             <h2 className="text-xl font-semibold">Funding Information</h2>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-black">
               Please indicate who is funding your course.
             </p>
 
@@ -178,7 +178,7 @@ export function FundingInformation({
                         {...field}
                         rows={4}
                         placeholder="Please provide the name of the bursary or grant, and any relevant details."
-                        className="!placeholder:text-gray-500 border-gray-300 placeholder:text-xs"
+                        className="!placeholder:text-black border-gray-300 placeholder:text-xs"
                       />
                     </FormControl>
                     <FormMessage />

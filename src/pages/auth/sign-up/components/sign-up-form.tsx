@@ -150,7 +150,7 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="block text-sm font-medium text-gray-700">
+                  <FormLabel className="block text-sm font-medium text-black">
                     Title <span className="text-red-500">*</span>
                   </FormLabel>
                   <FormControl>
@@ -178,7 +178,7 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
               name="firstName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="block text-sm font-medium text-gray-700">
+                  <FormLabel className="block text-sm font-medium text-black">
                     First Name <span className="text-red-500">*</span>
                   </FormLabel>
                   <FormControl>
@@ -195,7 +195,7 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
               name="initial"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="block text-sm font-medium text-gray-700">
+                  <FormLabel className="block text-sm font-medium text-black">
                     Middle Name
                   </FormLabel>
                   <FormControl>
@@ -212,7 +212,7 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
               name="lastName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="block text-sm font-medium text-gray-700">
+                  <FormLabel className="block text-sm font-medium text-black">
                     Last Name <span className="text-red-500">*</span>
                   </FormLabel>
                   <FormControl>
@@ -229,7 +229,7 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="block text-sm font-medium text-gray-700">
+                  <FormLabel className="block text-sm font-medium text-black">
                     Phone Number <span className="text-red-500">*</span>
                   </FormLabel>
                   <FormControl>
@@ -246,7 +246,7 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
               name="nationality"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="block text-sm font-medium text-gray-700">
+                  <FormLabel className="block text-sm font-medium text-black">
                     Nationality <span className="text-red-500">*</span>
                   </FormLabel>
                   <FormControl>
@@ -276,7 +276,7 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
                 const today = new Date().toISOString().split("T")[0];
                 return (
                   <FormItem>
-                    <FormLabel className="block text-sm font-medium text-gray-700">
+                    <FormLabel className="block text-sm font-medium text-black">
                       Date of Birth <span className="text-red-500">*</span>
                     </FormLabel>
                     <FormControl>
@@ -294,7 +294,7 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
               name="role"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="block text-sm font-medium text-gray-700">
+                  <FormLabel className="block text-sm font-medium text-black">
                    Choose Your Role 
                     <span className="text-red-500">*</span>
                   </FormLabel>
@@ -324,7 +324,7 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
                 name="studentType"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="block text-sm font-medium text-gray-700">
+                    <FormLabel className="block text-sm font-medium text-black">
                       Student Type <span className="text-red-500">*</span>
                     </FormLabel>
                     <FormControl>
@@ -356,7 +356,7 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="block text-sm font-medium text-gray-700">
+                  <FormLabel className="block text-sm font-medium text-black">
                     Email Address <span className="text-red-500">*</span>
                   </FormLabel>
                   <FormControl>
@@ -377,7 +377,7 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="block text-sm font-medium text-gray-700">
+                  <FormLabel className="block text-sm font-medium text-black">
                     Password <span className="text-red-500">*</span>
                   </FormLabel>
                   <div className="relative">
@@ -391,7 +391,7 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
                     <button
                       type="button"
                       onClick={() => setShowPassword((prev) => !prev)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-black hover:text-black"
                       aria-label={
                         showPassword ? 'Hide password' : 'Show password'
                       }
@@ -404,7 +404,7 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
                     </button>
                   </div>
                   <FormMessage className="text-xs text-red-600" />
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p className="mt-1 text-xs text-black">
                     Password must be at least 6 characters
                   </p>
                 </FormItem>

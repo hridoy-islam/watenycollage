@@ -285,7 +285,7 @@ export function EducationStep({
                                 placeholder="Grade (e.g., 3.91)"
                               />
                             </FormControl>
-                            <p className="mt-1 text-xs text-gray-400">
+                            <p className="mt-1 text-xs text-black">
                               Example: 3.91
                             </p>
                             <FormMessage />
@@ -306,7 +306,7 @@ export function EducationStep({
                                 placeholder="Institution name"
                               />
                             </FormControl>
-                            <p className="text-xs text-gray-400">
+                            <p className="text-xs text-black">
                               Example: University of Manchester
                             </p>
                             <FormMessage />
@@ -330,7 +330,7 @@ export function EducationStep({
                                   onChange={(date) => formField.onChange(date)}
                                 />
                               </FormControl>
-                              <p className="text-xs text-gray-400">
+                              <p className="text-xs text-black">
                                 Example: 01/16/2022
                               </p>
                               <FormMessage />
@@ -357,7 +357,7 @@ export function EducationStep({
                             >
                               Upload Certificate
                             </Button>
-                            <p className="text-xs text-gray-500 mt-1">
+                            <p className="text-xs text-black mt-1">
                               PDF, JPG, PNG (≤5MB)
                             </p>
                             {formField.value && (
@@ -401,7 +401,7 @@ export function EducationStep({
               >
                 {/* Qualification */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-black mb-1">
                     Qualification <span className="text-red-500">*</span>
                   </label>
                   <FormField
@@ -424,7 +424,7 @@ export function EducationStep({
 
                 {/* Grade */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-black mb-1">
                     Grade <span className="text-red-500">*</span>
                   </label>
                   <FormField
@@ -435,7 +435,7 @@ export function EducationStep({
                         <FormControl>
                           <Input {...formField} placeholder="e.g., 3.91" />
                         </FormControl>
-                        <p className="text-xs text-gray-400">Example: 3.91</p>
+                        <p className="text-xs text-black">Example: 3.91</p>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -444,7 +444,7 @@ export function EducationStep({
 
                 {/* Institution */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-black mb-1">
                     Institution <span className="text-red-500">*</span>
                   </label>
                   <FormField
@@ -459,7 +459,7 @@ export function EducationStep({
                             placeholder="University name"
                           />
                         </FormControl>
-                        <p className="text-xs text-gray-400">
+                        <p className="text-xs text-black">
                           Example: University of Manchester
                         </p>
                         <FormMessage />
@@ -470,7 +470,7 @@ export function EducationStep({
 
                 {/* Award Date */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-black mb-1">
                     Date of Award <span className="text-red-500">*</span>
                   </label>
                   <FormField
@@ -489,7 +489,7 @@ export function EducationStep({
                               className="w-full"
                             />
                           </FormControl>
-                          <p className="text-xs text-gray-400">
+                          <p className="text-xs text-black">
                             Example: 01/16/2022
                           </p>
                           <FormMessage />
@@ -501,7 +501,7 @@ export function EducationStep({
 
                 {/* Certificate Upload */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-black mb-1">
                     Certificate <span className="text-red-500">*</span>
                   </label>
                   <FormField
@@ -521,7 +521,7 @@ export function EducationStep({
                         >
                           Upload Certificate
                         </Button>
-                        <p className="text-xs text-gray-500 mt-1">
+                        <p className="text-xs text-black mt-1">
                           PDF, JPG, PNG (≤5MB)
                         </p>
                         {formField.value && (

@@ -78,7 +78,7 @@ export function RefereeDetailsStep({
   ) => (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold">{title} <span className="text-red-500">*</span></h3>
-      <p className="text-sm text-gray-600">{description}</p>
+      <p className="text-sm text-black">{description}</p>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {/* Name */}
@@ -92,10 +92,10 @@ export function RefereeDetailsStep({
                 <Input
                   {...field}
                   placeholder="Enter the full name of the referee."
-                  className="placeholder:text-xs placeholder:text-gray-400"
+                  className="placeholder:text-xs placeholder:text-black"
                 />
               </FormControl>
-              <p className="mt-2 text-xs text-gray-400">Example: Sarah Johnson</p>
+              <p className="mt-2 text-xs text-black">Example: Sarah Johnson</p>
               <FormMessage />
             </FormItem>
           )}
@@ -112,10 +112,10 @@ export function RefereeDetailsStep({
                 <Input
                   {...field}
                   placeholder="Enter organisation name"
-                  className="placeholder:text-xs placeholder:text-gray-400"
+                  className="placeholder:text-xs placeholder:text-black"
                 />
               </FormControl>
-              <p className="mt-2 text-xs text-gray-400">
+              <p className="mt-2 text-xs text-black">
                 Example: ABC Health Services Ltd.
               </p>
               <FormMessage />
@@ -134,10 +134,10 @@ export function RefereeDetailsStep({
                 <Input
                   {...field}
                   placeholder="Provide the company or business address."
-                  className="placeholder:text-xs placeholder:text-gray-400"
+                  className="placeholder:text-xs placeholder:text-black"
                 />
               </FormControl>
-              <p className="mt-2 text-xs text-gray-400">
+              <p className="mt-2 text-xs text-black">
                 Example: 123 High Street, London, W1A 1AA
               </p>
               <FormMessage />
@@ -156,10 +156,10 @@ export function RefereeDetailsStep({
                 <Input
                   {...field}
                   placeholder="Kindly indicate your relationship with the person mentioned."
-                  className="!placeholder:text-gray-400   placeholder:text-xs  placeholder:text-gray-400"
+                  className="!placeholder:text-black   placeholder:text-xs  placeholder:text-black"
                 />
               </FormControl>
-              <p className="mt-2 text-xs text-gray-400">
+              <p className="mt-2 text-xs text-black">
                   Example: Line Manager at XYZ Ltd.
                 </p>
               <FormMessage />
@@ -179,10 +179,10 @@ export function RefereeDetailsStep({
                   {...field}
                   type="test"
                   placeholder="Enter your post code"
-                  className="placeholder:text-xs placeholder:text-gray-400"
+                  className="placeholder:text-xs placeholder:text-black"
                 />
               </FormControl>
-              <p className="mt-2 text-xs text-gray-400">
+              <p className="mt-2 text-xs text-black">
                 Example:  SW1A 0AA
               </p>
               <FormMessage />
@@ -204,10 +204,10 @@ export function RefereeDetailsStep({
                   {...field}
                   type="email"
                   placeholder="Email address"
-                  className="placeholder:text-xs placeholder:text-gray-400"
+                  className="placeholder:text-xs placeholder:text-black"
                 />
               </FormControl>
-              <p className="mt-2 text-xs text-gray-400">
+              <p className="mt-2 text-xs text-black">
                 Example: s.johnson@abcservices.com
               </p>
               <FormMessage />
@@ -226,10 +226,10 @@ export function RefereeDetailsStep({
                 <Input
                   {...field}
                   placeholder="+Include country code"
-                  className="placeholder:text-xs placeholder:text-gray-400"
+                  className="placeholder:text-xs placeholder:text-black"
                 />
               </FormControl>
-              <p className="mt-2 text-xs text-gray-400">
+              <p className="mt-2 text-xs text-black">
                 Example: +44 7911 123456
               </p>
               <FormMessage />
@@ -244,10 +244,10 @@ export function RefereeDetailsStep({
     <Card className="border-none shadow-none">
       <CardHeader>
         <h2 className="text-xl font-semibold">Reference Details</h2>
-        <p className="text-sm text-gray-400">
+        <p className="text-sm text-black">
           Please provide two referees as part of the recruitment process. Referees must be able to speak to your skills, experience, and character, and must not be friends or relatives. 
         </p>
-        <p className='text-sm text-gray-400 font-semibold'>
+        <p className='text-sm text-black font-semibold'>
           We will contact your referees, so please ensure their contact details are accurate and up to date.
         </p>
       </CardHeader>

@@ -12,6 +12,11 @@ export type ContentType = 'text' | 'upload';
 export type LearningOutcomeFormType = 'learning-outcome' | 'assessment-criteria';
 
 export interface LearningOutcomeItem {
+  _id?: string;
+  /** Optional heading shown above the criterion body. */
+  title?: string;
+  /** Set on nested criteria that hang off another item. */
+  parentId?: string;
   description: string;
 }
 
@@ -28,7 +33,15 @@ export interface FormData {
 
 export interface Resource {
   _id: string;
+  /** The unit the resource belongs to; stamped on every optimistic update. */
+  unitId?: string;
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
+  /** Legacy alias kept for fixtures that predate `finalDeadline`. */
+  deadline?: string | Date;
   type: ResourceType;
+  /** Assignments only: `draft` is hidden from students. */
+  status?: 'draft' | 'published' | 'closed';
   title?: string;
   content?: string;
   fileUrl?: string;
@@ -42,12 +55,13 @@ export interface Resource {
   observation?: boolean;
   description?: string;
   assessmentCriteria?: LearningOutcomeItem[];
-  unitId?: string;
 }
 
 export interface UploadState {
   selectedDocument: string | null;
   fileName: string | null;
+  /** Mirror of `selectedDocument` used when syncing back into form state. */
+  fileUrl?: string | null;
 }
 
 export interface Assignment {

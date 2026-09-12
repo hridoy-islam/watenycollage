@@ -59,7 +59,7 @@ interface StudentApplication {
     _id?: string;
     name?: string;
   };
-  status?: 'applied' | 'approved' | 'cancelled';
+  status?: 'applied' | 'enrolled' | 'cancelled';
 }
 
 interface CourseOption {
@@ -99,9 +99,9 @@ export default function StudentApplicationsPage() {
       const res = await axiosInstance.get('/application-course/export', { params });
       const allData: any[] = res.data?.data?.result || [];
 
-      // Exclude rejected (cancelled) — only applied & enrolled (approved)
+      // Exclude rejected (cancelled) — only applied & enrolled
       const filtered = allData.filter(
-        (app: any) => app.status === 'applied' || app.status === 'approved'
+        (app: any) => app.status === 'applied' || app.status === 'enrolled'
       );
 
       if (filtered.length === 0) {
@@ -151,7 +151,7 @@ export default function StudentApplicationsPage() {
           : '';
 
         const statusLabel =
-          app.status === 'approved' ? 'Enrolled' : app.status === 'applied' ? 'Applied' : '';
+          app.status === 'enrolled' ? 'Enrolled' : app.status === 'applied' ? 'Applied' : '';
 
         // Extract up to 3 education records
         const edu1 = educationArr[0] || {};
@@ -313,7 +313,7 @@ export default function StudentApplicationsPage() {
 
   const updateApplicationStatus = async (
     applicationId: string,
-    status: 'approved' | 'cancelled'
+    status: 'enrolled' | 'cancelled'
   ) => {
     // 1. Optimistically update UI immediately
     setApplications((prev) =>
@@ -333,7 +333,7 @@ export default function StudentApplicationsPage() {
 
       toast({
         title:
-          status === 'approved'
+          status === 'enrolled'
             ? 'Application approved successfully!'
             : 'Application rejected successfully!',
         className: 'bg-watney text-white border-none'
@@ -487,7 +487,7 @@ export default function StudentApplicationsPage() {
             <BlinkingDots size="large" color="bg-watney" />
           </div>
         ) : filteredApplications.length === 0 ? (
-          <div className="flex justify-center py-6 text-gray-500">
+          <div className="flex justify-center py-6 text-black">
             {searchTerm || selectedCourse || selectedTerm
               ? 'No matching results found.'
               : 'No student applications found.'}
@@ -532,7 +532,7 @@ export default function StudentApplicationsPage() {
                       {app.studentId?.title} {app.studentId?.firstName}{' '}
                       {app.studentId?.initial} {app.studentId?.lastName}
                       </div>
-                      <span className='text-[10px] text-gray-600'>
+                      <span className='text-[10px] text-black'>
 
                        {app.studentId?.email ?? 'N/A'}
                       </span>
@@ -579,12 +579,12 @@ export default function StudentApplicationsPage() {
                         className={clsx(
                           'capitalize',
                           app?.status === 'applied' && 'bg-blue-500 text-white',
-                          app?.status === 'approved' &&
+                          app?.status === 'enrolled' &&
                             'bg-green-500 text-white',
                           app?.status === 'cancelled' && 'bg-red-500 text-white'
                         )}
                       >
-                        {app?.status === 'approved'
+                        {app?.status === 'enrolled'
                           ? 'Enrolled'
                           : app?.status === 'cancelled'
                             ? 'Rejected'
@@ -648,7 +648,7 @@ export default function StudentApplicationsPage() {
                             <>
                               <DropdownMenuItem
                                 onClick={() =>
-                                  updateApplicationStatus(app._id, 'approved')
+                                  updateApplicationStatus(app._id, 'enrolled')
                                 }
                                 disabled={updatingStatus === app._id}
                               >
@@ -668,7 +668,7 @@ export default function StudentApplicationsPage() {
                             </>
                           )}
 
-                          {app.status === 'approved' && (
+                          {app.status === 'enrolled' && (
                             <DropdownMenuItem
                               onClick={() =>
                                 updateApplicationStatus(app._id, 'cancelled')
@@ -683,7 +683,7 @@ export default function StudentApplicationsPage() {
                           {app.status === 'cancelled' && (
                             <DropdownMenuItem
                               onClick={() =>
-                                updateApplicationStatus(app._id, 'approved')
+                                updateApplicationStatus(app._id, 'enrolled')
                               }
                               disabled={updatingStatus === app._id}
                             >

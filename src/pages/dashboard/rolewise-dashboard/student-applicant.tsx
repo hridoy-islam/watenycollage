@@ -71,6 +71,10 @@ interface ClassEntry {
   groupName?: string | null;
   termId?: string;
   termName?: string | null;
+  // A session is scheduled under a course unit - that is what names the class.
+  unitId?: string;
+  unitTitle?: string | null;
+  unitReference?: string | null;
   teacherId?: string;
   teacherName?: string | null;
   teacherEmail?: string | null;
@@ -447,7 +451,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
       });
       const result = res.data?.data?.result || [];
       const approved = (Array.isArray(result) ? result : []).filter(
-        (app: StudentCourse) => app.status === 'approved'
+        (app: StudentCourse) => app.status === 'enrolled'
       );
       setCourses(approved);
     } catch (error) {
@@ -476,10 +480,25 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
     setRoutineLoading(true);
     const fetchAll = async () => {
       try {
+        // The student's placement (term + group) lives on the group
+        // assignment, not on the application, so the routine query is keyed
+        // on that - otherwise every group's timetable would show up.
+        const placementsRes = await axiosInstance
+          .get(`/student-assign-group/my-courses/${user._id}`)
+          .catch(() => null);
+        const placements = placementsRes?.data?.data || [];
+        const placementByCourse = new Map<string, any>();
+        (Array.isArray(placements) ? placements : []).forEach((p: any) => {
+          const cid = asId(p.courseId);
+          if (cid && !placementByCourse.has(cid)) placementByCourse.set(cid, p);
+        });
+
         const routinePromises = courses.map((application) => {
           const courseId = asId(application.courseId);
-          const groupId = asId(application.groupId);
-          const termId = asId(application.intakeId);
+          const placement = placementByCourse.get(courseId || '');
+          const groupId = asId(placement?.groupId) || asId(application.groupId);
+          const termId =
+            asId(placement?.courseTermId) || asId(application.intakeId);
           if (!courseId) return Promise.resolve({ application, result: [] });
 
           return axiosInstance
@@ -488,6 +507,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                 limit: 500,
                 courseId,
                 ...(groupId ? { groupId } : {}),
+                ...(placement?.courseTermId ? { termId } : {}),
                 startDate: startDateStr,
                 endDate: endDateStr
               }
@@ -527,15 +547,20 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
         const byRoutineId = new Map<string, ClassEntry>();
         routineResponses.forEach(({ application, result }) => {
           const courseId = asId(application.courseId);
-          const groupId = asId(application.groupId);
-          const termId = asId(application.intakeId);
+          const placement = placementByCourse.get(courseId || '');
+          const groupId = asId(placement?.groupId) || asId(application.groupId);
+          const termId =
+            asId(placement?.courseTermId) || asId(application.intakeId);
           const routineResults = Array.isArray(result) ? result : [];
           const firstRoutine = routineResults[0] || {};
           const courseName =
             asName(application.courseId) || asName(firstRoutine.courseId);
           const groupName =
-            asName(application.groupId) || asName(firstRoutine.groupId);
-          const termName = asName(firstRoutine.termId);
+            asName(placement?.groupId) ||
+            asName(application.groupId) ||
+            asName(firstRoutine.groupId);
+          const termName =
+            asName(placement?.courseTermId) || asName(firstRoutine.termId);
 
           routineResults.forEach((routine: any) => {
             const matched = historyById[routine._id];
@@ -554,6 +579,19 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
               groupName: matched?.groupName || groupName,
               termId: asId(routine.termId) || termId,
               termName: matched?.termName || termName,
+              unitId: asId(routine.unitId) || matched?.unitId,
+              unitTitle:
+                (typeof routine.unitId === 'object'
+                  ? routine.unitId?.title
+                  : null) ??
+                matched?.unitTitle ??
+                null,
+              unitReference:
+                (typeof routine.unitId === 'object'
+                  ? routine.unitId?.unitReference
+                  : null) ??
+                matched?.unitReference ??
+                null,
               teacherId: routine.teacherId?._id ?? matched?.teacherId,
               teacherName: routine.teacherId?.name ?? matched?.teacherName,
               teacherEmail: routine.teacherId?.email ?? matched?.teacherEmail
@@ -611,13 +649,13 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
 
   const applicationStatusStyle = (status: string) => {
     const label =
-      status === 'approved'
+      status === 'enrolled'
         ? 'Enrolled'
         : status === 'cancelled'
           ? 'Rejected'
           : status;
     switch (status) {
-      case 'approved':
+      case 'enrolled':
         return {
           label,
           badge: 'bg-emerald-100 text-emerald-700',
@@ -628,7 +666,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
       case 'cancelled':
         return { label, badge: 'bg-rose-100 text-rose-700', viewable: false };
       default:
-        return { label, badge: 'bg-gray-100 text-gray-600', viewable: false };
+        return { label, badge: 'bg-gray-100 text-black', viewable: false };
     }
   };
 
@@ -645,10 +683,10 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
   return (
     <Card className="w-full min-w-0 max-w-full flex-1 border-none shadow-sm">
       <CardHeader>
-        <CardTitle className="text-xl font-bold text-gray-800">
-        <CardTitle className="text-xl font-bold text-gray-800">
+        <CardTitle className="text-xl font-bold text-black">
+        <CardTitle className="text-xl font-bold text-black">
   {user?.name && (
-    <p className="text-2xl font-bold text-gray-800">
+    <p className="text-2xl font-bold text-black">
       Welcome,{" "}
       {isCompleted ? (
         <Link
@@ -680,17 +718,17 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                   <GraduationCap className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-gray-700">
+                  <p className="text-sm font-semibold text-black">
                     Total Assignments
                   </p>
-                  <p className="text-[11px] text-gray-400">
+                  <p className="text-[11px] text-black">
                     Across all your courses
                   </p>
                 </div>
               </div>
-              <ChevronRight className="h-4 w-4 text-gray-300 transition-transform group-hover:translate-x-0.5 group-hover:text-watney" />
+              <ChevronRight className="h-4 w-4 text-black transition-transform group-hover:translate-x-0.5 group-hover:text-watney" />
             </div>
-            <p className="mt-4 text-3xl font-bold text-gray-900">
+            <p className="mt-4 text-3xl font-bold text-black">
               {totalAssignment}
             </p>
           </div>
@@ -706,17 +744,17 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                   <BookOpen className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-gray-700">
+                  <p className="text-sm font-semibold text-black">
                     My Course
                   </p>
-                  <p className="text-[11px] text-gray-400">
+                  <p className="text-[11px] text-black">
                     Total applications
                   </p>
                 </div>
               </div>
-              <ChevronRight className="h-4 w-4 text-gray-300 transition-transform group-hover:translate-x-0.5 group-hover:text-watney" />
+              <ChevronRight className="h-4 w-4 text-black transition-transform group-hover:translate-x-0.5 group-hover:text-watney" />
             </div>
-            <p className="mt-4 text-3xl font-bold text-gray-900">
+            <p className="mt-4 text-3xl font-bold text-black">
               {totalApplication}
             </p>
           </div>
@@ -732,15 +770,15 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                   <MessageSquare className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-gray-700">
+                  <p className="text-sm font-semibold text-black">
                     Assignment Feedbacks
                   </p>
-                  <p className="text-[11px] text-gray-400">Pending review</p>
+                  <p className="text-[11px] text-black">Pending review</p>
                 </div>
               </div>
-              <ChevronRight className="h-4 w-4 text-gray-300 transition-transform group-hover:translate-x-0.5 group-hover:text-watney" />
+              <ChevronRight className="h-4 w-4 text-black transition-transform group-hover:translate-x-0.5 group-hover:text-watney" />
             </div>
-            <p className="mt-4 text-3xl font-bold text-gray-900">
+            <p className="mt-4 text-3xl font-bold text-black">
               {pendingFeedbackCount}
             </p>
           </div>
@@ -756,7 +794,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                   <CalendarClock className="h-5 w-5 text-watney" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-gray-800">
+                  <h2 className="text-lg font-bold text-black">
                     Class Routine & Attendance
                   </h2>
                 </div>
@@ -789,7 +827,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                         isClearable={false}
                         popperPlacement="bottom-start"
                         popperProps={{ strategy: 'fixed' }}
-                        className="w-52 border-none bg-transparent text-xs font-semibold text-gray-700 outline-none placeholder:text-gray-400"
+                        className="w-52 border-none bg-transparent text-xs font-semibold text-black outline-none placeholder:text-black"
                       />
                       <button
                         onClick={handleApply}
@@ -800,7 +838,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                       </button>
                       <button
                         onClick={() => setIsCustomMode(false)}
-                        className="mr-1 flex h-7 w-7 items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                        className="mr-1 flex h-7 w-7 items-center justify-center rounded-full text-black hover:bg-gray-100 hover:text-black"
                       >
                         <X className="h-3.5 w-3.5" />
                       </button>
@@ -809,7 +847,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                     <button
                       type="button"
                       onClick={openCustomMode}
-                      className="flex min-w-[180px] items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-center text-sm font-semibold text-gray-700 transition-colors hover:border-gray-200 hover:bg-gray-50"
+                      className="flex min-w-[180px] items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-center text-sm font-semibold text-black transition-colors hover:border-gray-200 hover:bg-gray-50"
                     >
                       <CalendarIcon className="h-3.5 w-3.5 text-watney" />
                       {rangeLabel}
@@ -842,7 +880,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                   )}
                 </div>
 
-                <span className="text-xs text-gray-400">
+                <span className="text-xs text-black">
                   {classes.length} class{classes.length === 1 ? '' : 'es'} in
                   range
                 </span>
@@ -869,7 +907,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                         (key) => (
                           <span
                             key={key}
-                            className="flex items-center gap-1.5 text-xs font-medium text-gray-600"
+                            className="flex items-center gap-1.5 text-xs font-medium text-black"
                           >
                             <span
                               className="h-2.5 w-2.5 rounded-full"
@@ -916,7 +954,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                                         : ''
                                   }`}
                                 >
-                                  <div className="text-[10px] font-semibold uppercase tracking-wide text-black/80">
+                                  <div className="text-[10px] font-semibold uppercase tracking-wide text-black">
                                     {dayName}
                                   </div>
                                   {today ? (
@@ -928,7 +966,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                                       {d.getDate()}
                                     </div>
                                   )}
-                                  <div className="mt-0.5 text-[9px] font-medium text-black/50">
+                                  <div className="mt-0.5 text-[9px] font-medium text-black">
                                     {d.toLocaleDateString('en-GB', {
                                       month: 'short'
                                     })}
@@ -941,7 +979,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                         <tbody>
                           {HOURS.map((hr) => (
                             <tr key={hr}>
-                              <td className="sticky left-0 z-20 w-16 min-w-[64px] border-b border-r border-gray-200 bg-white px-2 pt-1 text-right align-top text-[11px] font-semibold text-black/70 shadow-[4px_0_8px_-3px_rgba(0,0,0,0.15)]">
+                              <td className="sticky left-0 z-20 w-16 min-w-[64px] border-b border-r border-gray-200 bg-white px-2 pt-1 text-right align-top text-[11px] font-semibold text-black shadow-[4px_0_8px_-3px_rgba(0,0,0,0.15)]">
                                 {fmtH(hr)}
                               </td>
                               {weekDays.map((_, di) => {
@@ -1021,18 +1059,26 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                                             {entry.startTime} – {entry.endTime}
                                           </div>
                                           <div className="mt-0.5 shrink-0 truncate text-[11px] font-bold text-black">
-                                            {entry.courseName || 'Course'}
+                                            {entry.unitTitle ||
+                                              entry.courseName ||
+                                              'Class'}
                                           </div>
+                                          {entry.unitTitle &&
+                                            entry.courseName && (
+                                              <div className="mt-0.5 shrink-0 truncate text-[9px] font-medium text-black">
+                                                {entry.courseName}
+                                              </div>
+                                            )}
                                           {(entry.groupName ||
                                             entry.termName) && (
-                                            <div className="mt-0.5 shrink-0 truncate text-[9px] text-black/60">
+                                            <div className="mt-0.5 shrink-0 truncate text-[9px] text-black">
                                               {[entry.groupName, entry.termName]
                                                 .filter(Boolean)
                                                 .join(' · ')}
                                             </div>
                                           )}
                                           {entry.teacherName && (
-                                            <div className="mt-0.5 flex shrink-0 items-center gap-1 overflow-hidden text-black/70">
+                                            <div className="mt-0.5 flex shrink-0 items-center gap-1 overflow-hidden text-black">
                                               <User className="h-2.5 w-2.5 shrink-0" />
                                               <span className="truncate text-[9px]">
                                                 {entry.teacherName}
@@ -1082,6 +1128,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                           <TableRow>
                             <TableHead>Date</TableHead>
                             <TableHead>Time</TableHead>
+                            <TableHead>Unit</TableHead>
                             <TableHead>Course</TableHead>
                             <TableHead>Teacher</TableHead>
                             <TableHead>Status</TableHead>
@@ -1092,8 +1139,8 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                           {classes.length === 0 ? (
                             <TableRow>
                               <TableCell
-                                colSpan={6}
-                                className="py-6 text-center text-gray-500"
+                                colSpan={7}
+                                className="py-6 text-center text-black"
                               >
                                 No classes scheduled in this date range.
                               </TableCell>
@@ -1118,10 +1165,20 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                                   </TableCell>
                                   <TableCell>
                                     <div className="font-medium">
+                                      {cls.unitTitle || '—'}
+                                    </div>
+                                    {cls.unitReference && (
+                                      <div className="font-mono text-xs text-black">
+                                        {cls.unitReference}
+                                      </div>
+                                    )}
+                                  </TableCell>
+                                  <TableCell>
+                                    <div className="font-medium">
                                       {cls.courseName || 'Course'}
                                     </div>
                                     {(cls.groupName || cls.termName) && (
-                                      <div className="text-xs text-gray-500">
+                                      <div className="text-xs text-black">
                                         {[cls.groupName, cls.termName]
                                           .filter(Boolean)
                                           .join(' · ')}
@@ -1149,7 +1206,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                                       '—'
                                     )}
                                   </TableCell>
-                                  <TableCell className="max-w-[220px] truncate text-xs text-gray-600">
+                                  <TableCell className="max-w-[220px] truncate text-xs text-black">
                                     {cls.remark || '—'}
                                   </TableCell>
                                 </TableRow>
@@ -1180,23 +1237,30 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
             {selectedEntry && (
               <>
                 <DialogHeader>
-                  <DialogTitle className="text-base font-bold text-gray-900">
-                    {selectedEntry.courseName || 'Class Details'}
+                  <DialogTitle className="flex items-center gap-2 text-base font-bold text-black">
+                    <BookOpen className="h-4 w-4 shrink-0 text-watney" />
+                    <span className="min-w-0 truncate">
+                      {selectedEntry.unitTitle ||
+                        selectedEntry.courseName ||
+                        'Class Details'}
+                    </span>
                   </DialogTitle>
-                  {(selectedEntry.groupName || selectedEntry.termName) && (
-                    <p className="text-xs font-medium text-black/70">
-                      {[selectedEntry.groupName, selectedEntry.termName]
-                        .filter(Boolean)
-                        .join(' · ')}
-                    </p>
-                  )}
+                  <p className="text-xs font-medium text-black">
+                    {[
+                      selectedEntry.unitTitle ? selectedEntry.courseName : null,
+                      selectedEntry.groupName,
+                      selectedEntry.termName
+                    ]
+                      .filter(Boolean)
+                      .join(' · ')}
+                  </p>
                 </DialogHeader>
 
                 <div className="rounded-lg border border-gray-200 bg-white shadow-none">
                   <div className="divide-y divide-gray-100 px-4 py-1">
                     {statusOf(selectedEntry.status) && (
                       <div className="flex items-center justify-between gap-3 py-3">
-                        <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black/80">
+                        <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black">
                           Status
                         </span>
                         <span
@@ -1219,7 +1283,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                     )}
 
                     <div className="flex items-start justify-between gap-3 py-2.5">
-                      <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black/80">
+                      <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black">
                         Date
                       </span>
                       <span className="text-right text-black">
@@ -1230,7 +1294,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                     </div>
 
                     <div className="flex items-start justify-between gap-3 py-2.5">
-                      <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black/80">
+                      <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black">
                         Time
                       </span>
                       <span className="text-right text-black">
@@ -1239,9 +1303,25 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                       </span>
                     </div>
 
+                    {selectedEntry.unitTitle && (
+                      <div className="flex items-start justify-between gap-3 py-2.5">
+                        <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black">
+                          Unit
+                        </span>
+                        <div className="text-right text-black">
+                          <div>{selectedEntry.unitTitle}</div>
+                          {selectedEntry.unitReference && (
+                            <div className="font-mono text-xs text-black">
+                              {selectedEntry.unitReference}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
                     {selectedEntry.groupName && (
                       <div className="flex items-start justify-between gap-3 py-2.5">
-                        <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black/80">
+                        <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black">
                           Group
                         </span>
                         <span className="text-right text-black">
@@ -1252,7 +1332,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
 
                     {selectedEntry.termName && (
                       <div className="flex items-start justify-between gap-3 py-2.5">
-                        <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black/80">
+                        <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black">
                           Term
                         </span>
                         <span className="text-right text-black">
@@ -1263,13 +1343,13 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
 
                     {selectedEntry.teacherName && (
                       <div className="flex items-start justify-between gap-3 py-2.5">
-                        <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black/80">
+                        <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black">
                           Teacher
                         </span>
                         <div className="text-right text-black">
                           <div>{selectedEntry.teacherName}</div>
                           {selectedEntry.teacherEmail && (
-                            <div className="text-xs text-black/60">
+                            <div className="text-xs text-black">
                               {selectedEntry.teacherEmail}
                             </div>
                           )}
@@ -1279,7 +1359,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
 
                     {selectedEntry.roomNumber && (
                       <div className="flex items-start justify-between gap-3 py-2.5">
-                        <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black/80">
+                        <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black">
                           Room
                         </span>
                         <span className="text-right text-black">
@@ -1290,7 +1370,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
 
                     {selectedEntry.remark && (
                       <div className="flex items-start justify-between gap-3 py-2.5">
-                        <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black/80">
+                        <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black">
                           Remark
                         </span>
                         <span className="text-right text-black">

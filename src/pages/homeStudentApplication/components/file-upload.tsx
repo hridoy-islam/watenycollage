@@ -43,7 +43,7 @@ export function FileUpload({
       case 'primary':
         return 'bg-teal-500 hover:bg-teal-600 text-white';
       case 'outline':
-        return 'border border-gray-300 hover:border-gray-400 bg-white text-gray-700 hover:bg-watney';
+        return 'border border-gray-300 hover:border-gray-400 bg-white text-black hover:bg-watney';
       default:
         return '';
     }
@@ -76,7 +76,7 @@ export function FileUpload({
       {files.length > 0 && (
         <div className="mt-2">
           {files.map((file, index) => (
-            <div key={index} className="truncate text-xs text-gray-600">
+            <div key={index} className="truncate text-xs text-black">
               {file.name}
             </div>
           ))}

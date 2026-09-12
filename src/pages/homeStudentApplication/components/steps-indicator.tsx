@@ -76,7 +76,7 @@ export function StepsIndicator({
                     ? 'scale-110 bg-green-500 text-white shadow-lg'
                     : isCompleted || isPrevious
                       ? 'bg-blue-600 text-white'
-                      : 'border-2 border-gray-300 bg-white text-gray-500 hover:border-blue-400'
+                      : 'border-2 border-gray-300 bg-white text-black hover:border-blue-400'
                 )}
               >
                 {isCompleted ? (
@@ -92,7 +92,7 @@ export function StepsIndicator({
                     ? 'text-green-600'
                     : isCompleted || isPrevious
                       ? 'text-blue-600'
-                      : 'text-gray-600'
+                      : 'text-black'
                 )}
               >
                 {step.label}

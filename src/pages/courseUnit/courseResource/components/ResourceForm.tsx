@@ -58,6 +58,9 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editContent, setEditContent] = useState<string>('');
   const [currentStep, setCurrentStep] = useState(1);
+  // Hoisted out of the step-2 renderer: a hook declared inside a conditional
+  // render helper changes hook order whenever the step changes.
+  const [isAddingNew, setIsAddingNew] = useState(false);
   const [selectedStartDate, setSelectedStartDate] = useState<Date | null>(null);
   const [selectedFinalDeadline, setSelectedFinalDeadline] = useState<Date | null>(null);
 
@@ -125,12 +128,12 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
       (selectedResourceType === 'study-guide' ||
         selectedResourceType === 'lecture') &&
       uploadState.fileName &&
-      uploadState.selectedDocument
+      uploadState.fileUrl
     ) {
       setFormData((prev) => ({
         ...prev,
         fileName: uploadState.fileName,
-        fileUrl: uploadState.selectedDocument
+        fileUrl: uploadState.fileUrl
       }));
     }
   }, [uploadState, selectedResourceType, setFormData]);
@@ -202,7 +205,7 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
   );
 
   const renderAssignmentForm = () => (
-    <div className="h-[70vh] space-y-2 overflow-y-auto ">
+    <div className="max-h-[70vh] space-y-4 overflow-y-auto pr-1">
       <div>
         <Label htmlFor="assignment-title">Assignment Title</Label>
         <Input
@@ -241,11 +244,10 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
               dateFormat="dd-MM-yyyy"
               showMonthDropdown
               showYearDropdown
-                            wrapperClassName='w-full'
-
               dropdownMode="select"
               placeholderText="Select start date"
-              className="w-full rounded-md border border-slate-300 px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-watney"
+              wrapperClassName="w-full"
+              className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-watney"
               isClearable
             />
           </div>
@@ -261,64 +263,22 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
               showMonthDropdown
               showYearDropdown
               dropdownMode="select"
-              wrapperClassName='w-full'
               placeholderText="Select final deadline"
-              className="w-full rounded-md border border-slate-300 px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-watney"
+              wrapperClassName="w-full"
+              className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-watney"
               isClearable
             />
           </div>
         </div>
       </div>
 
-      <div className="space-y-2">
-        <h3 className="text-lg font-semibold text-slate-700">
-          Assessment Options ( Select at least one assessment method)
-        </h3>
-
-        <div className="flex gap-6">
-          {/* Final Feedback Checkbox */}
-          <div className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              id="finalFeedback"
-              checked={formData.finalFeedback || false}
-              onChange={() => handleCheckboxChange('finalFeedback')}
-              className="h-5 w-5 rounded border-slate-300 text-watney focus:ring-watney"
-            />
-            <Label
-              htmlFor="finalFeedback"
-              className="text-md font-medium text-slate-700"
-            >
-              Final Feedback
-            </Label>
-          </div>
-
-          {/* Observation Checkbox */}
-          <div className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              id="observation"
-              checked={formData.observation || false}
-              onChange={() => handleCheckboxChange('observation')}
-              className="h-5 w-5 rounded border-slate-300 text-watney focus:ring-watney"
-            />
-            <Label
-              htmlFor="observation"
-              className="text-md font-medium text-slate-700"
-            >
-              Observation
-            </Label>
-          </div>
-        </div>
-      </div>
+      {renderAssessmentOptions()}
 
       {renderActionButtons()}
     </div>
   );
 
   const renderCreateLearningOutcomeForm = () => {
-    const [isAddingNew, setIsAddingNew] = useState(false);
-
     if (currentStep === 1) {
       return (
         <div className="space-y-6">
@@ -372,7 +332,7 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
         {/* Assessment Criteria Section */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="font-medium text-slate-700">Assessment Criteria</h3>
+            <h3 className="font-medium text-black">Assessment Criteria</h3>
             <Button
               type="button"
               variant="outline"
@@ -447,11 +407,11 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
                   // View mode
                   <div className="flex items-start justify-between">
                     <div className="flex flex-row gap-4">
-                      <span className="font-medium text-slate-700">
+                      <span className="font-medium text-black">
                         {index + 1}.
                       </span>
                       <div
-                        className="ql-snow text-slate-800"
+                        className="ql-snow text-black"
                         dangerouslySetInnerHTML={{
                           __html: item.description || ''
                         }}
@@ -543,46 +503,7 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
         </div>
 
          {/* Checkboxes Section */}
-        <div className="space-y-2 ">
-          <h3 className="font-semibold text-lg  text-slate-700">Assessment Options ( Select at least one assessment method)</h3>
-
-          <div className="flex gap-6">
-            {/* Final Feedback Checkbox */}
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="finalFeedback"
-                checked={formData.finalFeedback || false}
-                onChange={() => handleCheckboxChange('finalFeedback')}
-                className="h-5 w-5 rounded border-slate-300 text-watney focus:ring-watney"
-              />
-              <Label
-                htmlFor="finalFeedback"
-                className="text-md font-medium text-slate-700"
-              >
-                Final Feedback
-              </Label>
-            </div>
-
-            {/* Observation Checkbox */}
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="observation"
-                checked={formData.observation || false}
-                onChange={() => handleCheckboxChange('observation')}
-                className="h-5 w-5 rounded border-slate-300 text-watney focus:ring-watney"
-              />
-              <Label
-                htmlFor="observation"
-                className="text-md font-medium text-slate-700"
-              >
-                Observation
-              </Label>
-            </div>
-          </div>
-
-        </div>
+        {renderAssessmentOptions()}
 
         {/* Action Buttons for Step 2 */}
         <div className="flex justify-end gap-3">
@@ -650,8 +571,64 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
     }
   })();
 
+  /**
+   * Both the assignment and the learning-outcome forms carry the same pair of
+   * assessment methods, and at least one has to stay selected - which is why
+   * `handleCheckboxChange` refuses to clear the last one.
+   */
+  const renderAssessmentOptions = () => (
+    <div className="rounded-xl border border-gray-200 bg-watney/5 p-4">
+      <p className="text-xs font-semibold text-black">Assessment method</p>
+      <p className="mt-0.5 text-[11px] text-black">
+        Select at least one. This drives how the work is marked.
+      </p>
+
+      <div className="mt-3 grid gap-2 sm:grid-cols-2">
+        {[
+          {
+            field: 'finalFeedback' as const,
+            label: 'Final feedback',
+            hint: 'Marked once, at the end'
+          },
+          {
+            field: 'observation' as const,
+            label: 'Observation',
+            hint: 'Assessed by watching the student work'
+          }
+        ].map(({ field, label, hint }) => {
+          const checked = Boolean(formData[field]);
+          return (
+            <label
+              key={field}
+              htmlFor={field}
+              className={`flex cursor-pointer items-start gap-2.5 rounded-lg border bg-white p-3 transition-colors ${
+                checked
+                  ? 'border-watney ring-1 ring-watney/30'
+                  : 'border-gray-200 hover:border-watney/40'
+              }`}
+            >
+              <input
+                type="checkbox"
+                id={field}
+                checked={checked}
+                onChange={() => handleCheckboxChange(field)}
+                className="mt-0.5 h-4 w-4 rounded border-gray-200 text-watney focus:ring-watney"
+              />
+              <span className="min-w-0">
+                <span className="block text-xs font-semibold text-black">
+                  {label}
+                </span>
+                <span className="block text-[11px] text-black">{hint}</span>
+              </span>
+            </label>
+          );
+        })}
+      </div>
+    </div>
+  );
+
   const renderActionButtons = () => (
-    <div className="flex justify-end gap-3">
+    <div className="flex justify-end gap-2 border-t border-gray-200 pt-4">
       <Button variant="outline" onClick={onCancel}>
         Cancel
       </Button>

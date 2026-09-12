@@ -31,7 +31,14 @@ import { useSelector } from 'react-redux';
 
 interface StudentRow {
   _id: string;
-  courseId: { _id: string; name: string; courseCode?: string } | string;
+  courseId:
+    | {
+        _id: string;
+        name: string;
+        courseCode?: string;
+        intakeId?: { termName?: string } | string;
+      }
+    | string;
   courseTermId: { _id: string; name: string; year?: string; order?: number } | string;
   groupId: { _id: string; name: string } | string;
   studentId: {
@@ -59,6 +66,23 @@ const YEAR_ORDER: Record<string, number> = {
 
 const normalizeYear = (year?: string): string =>
   (year || 'year 1').toString().trim().toLowerCase();
+
+/**
+ * "<course> - <intake>". The same course runs again every intake, so the name
+ * on its own does not say which one a student is on.
+ */
+const courseLabel = (course: unknown): string | undefined => {
+  if (!course || typeof course === 'string') return undefined;
+  const c = course as {
+    name?: string;
+    courseCode?: string;
+    intakeId?: { termName?: string } | string;
+  };
+  const intake =
+    c.intakeId && typeof c.intakeId !== 'string' ? c.intakeId.termName : undefined;
+
+  return [c.name || c.courseCode, intake].filter(Boolean).join(' - ') || undefined;
+};
 
 const selectStyles = {
   control: (base: any) => ({ ...base, minHeight: 36, fontSize: 12, color: '#000' }),
@@ -90,12 +114,21 @@ export default function TeacherStudentListPage() {
 
   // Load filters from teacher-courses and initial student list
   useEffect(() => {
-    if (!user?._id || user?.role !== 'teacher') return;
+    /*
+     * Whoever is signed in loads their own students. There is no `teacher`
+     * role on the user record - a teacher is an `employee` carrying the
+     * Teacher designation - so reading `role === 'teacher'` here meant nothing
+     * ever loaded for the very people this page is for. The route already
+     * decides who may open it, and every call below is scoped to `user._id`.
+     */
+    if (!user?._id) return;
 
     const loadFiltersFromTeacherCourses = async () => {
       setLoading(true);
       try {
-        const res = await axiosInstance.get(`/teacher-courses?teacherId=${user._id}`);
+        const res = await axiosInstance.get('/teacher-courses', {
+          params: { teacherId: user._id, limit: 'all' }
+        });
         const data: any[] = res.data?.data?.result || [];
         const courseIds = new Set();
         const termIds = new Set();
@@ -107,7 +140,13 @@ export default function TeacherStudentListPage() {
             courseIds.add(String(tc.courseId._id));
             setCourses((prev) => {
               if (prev.find((c) => c.value === String(tc.courseId._id))) return prev;
-              return [...prev, { value: String(tc.courseId._id), label: tc.courseId.name || 'Course' }];
+              return [
+                ...prev,
+                {
+                  value: String(tc.courseId._id),
+                  label: courseLabel(tc.courseId) || tc.courseId.name || 'Course'
+                }
+              ];
             });
           }
           if (tc.courseTermId?._id) {
@@ -237,9 +276,7 @@ export default function TeacherStudentListPage() {
     setSelectedGroup(null);
   };
 
-  const getCourseName = (s: StudentRow) => {
-    return typeof s.courseId === 'object' && s.courseId?.name ? s.courseId.name : 'N/A';
-  };
+  const getCourseName = (s: StudentRow) => courseLabel(s.courseId) || 'N/A';
 
   const getTermName = (s: StudentRow) => {
     return typeof s.courseTermId === 'object' && s.courseTermId?.name ? s.courseTermId.name : 'N/A';
@@ -393,7 +430,7 @@ const getYearName = (s: StudentRow) => {
       <span className=" font-medium">
         {getStudentName(s)}
       </span>
-      <span className=" text-sm text-gray-800">
+      <span className=" text-sm text-black">
         {getStudentEmail(s)}
       </span>
     </div>

@@ -100,7 +100,7 @@ const ComplianceData = ({
       <div className="space-y-6">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-black">
               Do you require visa to come or stay to the UK? 
             </label>
             {isEditing ? (
@@ -119,13 +119,13 @@ const ComplianceData = ({
                 classNamePrefix="react-select"
               />
             ) : (
-              <div className="mt-1 text-gray-900">
+              <div className="mt-1 text-black">
                 {capitalizeFirstLetter(localData?.visaRequired || '-')}
               </div>
             )}
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-black">
               Have you entered into the UK before? 
             </label>
             {isEditing ? (
@@ -144,13 +144,13 @@ const ComplianceData = ({
                 classNamePrefix="react-select"
               />
             ) : (
-              <div className="mt-1 text-gray-900">
+              <div className="mt-1 text-black">
                 {capitalizeFirstLetter(localData?.enteredUKBefore || '-')}
               </div>
             )}
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-black">
               Have you completed any course from the UK before?
             </label>
             {isEditing ? (
@@ -183,13 +183,13 @@ const ComplianceData = ({
                 menuPortalTarget={document.body}
               />
             ) : (
-              <div className="mt-1 text-gray-900">
+              <div className="mt-1 text-black">
                 {capitalizeFirstLetter(localData?.completedUKCourse || '-')}
               </div>
             )}
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-black">
               Where did I hear about Watney College?
             </label>
             {isEditing ? (
@@ -222,7 +222,7 @@ const ComplianceData = ({
                 menuPortalTarget={document.body}
               />
             ) : (
-              <div className="mt-1 text-gray-900">
+              <div className="mt-1 text-black">
                 {capitalizeFirstLetter(localData?.hearAboutUs || '-')}
               </div>
             )}
@@ -230,7 +230,7 @@ const ComplianceData = ({
 
           {/* Disability */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-black">
               Do you have any disabilities or learning difficulties?
             </label>
             {isEditing ? (
@@ -249,7 +249,7 @@ const ComplianceData = ({
                 classNamePrefix="react-select"
               />
             ) : (
-              <div className="mt-1 text-gray-900">
+              <div className="mt-1 text-black">
                 {capitalizeFirstLetter(localData?.disability || '-')}
               </div>
             )}
@@ -258,7 +258,7 @@ const ComplianceData = ({
           {/* Disability Details (Conditional) */}
           {localData?.disability === 'yes' && (
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-black">
                 Please provide disability details
               </label>
               {isEditing ? (
@@ -270,7 +270,7 @@ const ComplianceData = ({
                   }
                 />
               ) : (
-                <div className="mt-1 text-gray-900">
+                <div className="mt-1 text-black">
                   {localData?.disabilityDetails || '-'}
                 </div>
               )}
@@ -279,7 +279,7 @@ const ComplianceData = ({
 
           {/* Criminal Conviction */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-black">
               Do I have any visa refusal?
             </label>
             {isEditing ? (
@@ -299,7 +299,7 @@ const ComplianceData = ({
                 classNamePrefix="react-select"
               />
             ) : (
-              <div className="mt-1 text-gray-900">
+              <div className="mt-1 text-black">
                 {localData?.visaRefusal ? 'Yes' : 'No'}
               </div>
             )}
@@ -308,7 +308,7 @@ const ComplianceData = ({
           {/* Conviction Details (Conditional) */}
           {(localData?.visaRefusal === 'yes' || localData?.visaRefusal) && (
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-black">
                 Visa Refusal Details
               </label>
               {isEditing ? (
@@ -321,7 +321,7 @@ const ComplianceData = ({
                   }
                 />
               ) : (
-                <div className="mt-1 text-gray-900">
+                <div className="mt-1 text-black">
                   {localData?.visaRefusalDetail || '-'}
                 </div>
               )}

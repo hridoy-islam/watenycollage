@@ -165,7 +165,7 @@ export default function TermPage() {
             <BlinkingDots size="large" color="bg-watney" />
           </div>
         ) : terms.length === 0 ? (
-          <div className="flex justify-center py-6 text-gray-500">
+          <div className="flex justify-center py-6 text-black">
             No records found.
           </div>
         ) : (

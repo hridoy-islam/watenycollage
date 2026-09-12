@@ -36,7 +36,7 @@ const FileUploadArea: React.FC<FileUploadAreaProps> = ({
 
       {uploadingFile ? (
         <div className="space-y-4">
-          <div className="text-sm text-slate-600">Uploading...</div>
+          <div className="text-sm text-black">Uploading...</div>
           <Progress value={uploadProgress} className="mx-auto max-w-xs" />
         </div>
       ) : (
@@ -51,7 +51,7 @@ const FileUploadArea: React.FC<FileUploadAreaProps> = ({
               <Upload className="mr-2 h-4 w-4" />
               Upload Document
             </Button>
-            <p className="text-xs text-slate-500 font-semibold">
+            <p className="text-xs text-black font-semibold">
               Maximum Size 20MB <br />
               You can upload multiple documents.
             </p>

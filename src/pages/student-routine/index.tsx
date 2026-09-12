@@ -19,6 +19,7 @@ import {
   ChevronRight,
   X,
   User,
+  BookOpen,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -65,6 +66,11 @@ interface ClassEntry {
   groupName?: string | null;
   termId?: string;
   termName?: string | null;
+  // A session is scheduled under a course unit, so the unit is what actually
+  // tells the student what the class is about.
+  unitId?: string;
+  unitTitle?: string | null;
+  unitReference?: string | null;
   teacherId?: string;
   teacherName?: string | null;
   teacherEmail?: string | null;
@@ -294,7 +300,7 @@ export default function StudentRoutinePage() {
       });
       const result = res.data?.data?.result || [];
       const approved = (Array.isArray(result) ? result : []).filter(
-        (app: StudentCourse) => app.status === 'approved'
+        (app: StudentCourse) => app.status === 'enrolled'
       );
       setCourses(approved);
     } catch (error) {
@@ -323,10 +329,25 @@ export default function StudentRoutinePage() {
     setRoutineLoading(true);
     const fetchAll = async () => {
       try {
+        // The student's placement (term + group) lives on the group
+        // assignment, not on the application, so the routine query is keyed
+        // on that - otherwise every group's timetable would show up.
+        const placementsRes = await axiosInstance
+          .get(`/student-assign-group/my-courses/${user._id}`)
+          .catch(() => null);
+        const placements = placementsRes?.data?.data || [];
+        const placementByCourse = new Map<string, any>();
+        (Array.isArray(placements) ? placements : []).forEach((p: any) => {
+          const cid = asId(p.courseId);
+          if (cid && !placementByCourse.has(cid)) placementByCourse.set(cid, p);
+        });
+
         const routinePromises = courses.map((application) => {
           const courseId = asId(application.courseId);
-          const groupId = asId(application.groupId);
-          const termId = asId(application.intakeId);
+          const placement = placementByCourse.get(courseId || '');
+          const groupId = asId(placement?.groupId) || asId(application.groupId);
+          const termId =
+            asId(placement?.courseTermId) || asId(application.intakeId);
           if (!courseId) return Promise.resolve({ application, result: [] });
 
           return axiosInstance
@@ -335,6 +356,7 @@ export default function StudentRoutinePage() {
                 limit: 500,
                 courseId,
                 ...(groupId ? { groupId } : {}),
+                ...(placement?.courseTermId ? { termId } : {}),
                 startDate: startDateStr,
                 endDate: endDateStr,
               },
@@ -374,15 +396,20 @@ export default function StudentRoutinePage() {
         const byRoutineId = new Map<string, ClassEntry>();
         routineResponses.forEach(({ application, result }) => {
           const courseId = asId(application.courseId);
-          const groupId = asId(application.groupId);
-          const termId = asId(application.intakeId);
+          const placement = placementByCourse.get(courseId || '');
+          const groupId = asId(placement?.groupId) || asId(application.groupId);
+          const termId =
+            asId(placement?.courseTermId) || asId(application.intakeId);
           const routineResults = Array.isArray(result) ? result : [];
           const firstRoutine = routineResults[0] || {};
           const courseName =
             asName(application.courseId) || asName(firstRoutine.courseId);
           const groupName =
-            asName(application.groupId) || asName(firstRoutine.groupId);
-          const termName = asName(firstRoutine.termId);
+            asName(placement?.groupId) ||
+            asName(application.groupId) ||
+            asName(firstRoutine.groupId);
+          const termName =
+            asName(placement?.courseTermId) || asName(firstRoutine.termId);
 
           routineResults.forEach((routine: any) => {
             const matched = historyById[routine._id];
@@ -401,6 +428,19 @@ export default function StudentRoutinePage() {
               groupName: matched?.groupName || groupName,
               termId: asId(routine.termId) || termId,
               termName: matched?.termName || termName,
+              unitId: asId(routine.unitId) || matched?.unitId,
+              unitTitle:
+                (typeof routine.unitId === 'object'
+                  ? routine.unitId?.title
+                  : null) ??
+                matched?.unitTitle ??
+                null,
+              unitReference:
+                (typeof routine.unitId === 'object'
+                  ? routine.unitId?.unitReference
+                  : null) ??
+                matched?.unitReference ??
+                null,
               teacherId: routine.teacherId?._id ?? matched?.teacherId,
               teacherName: routine.teacherId?.name ?? matched?.teacherName,
               teacherEmail: routine.teacherId?.email ?? matched?.teacherEmail,
@@ -463,7 +503,7 @@ export default function StudentRoutinePage() {
                     <CalendarClock className="h-5 w-5 text-watney" />
                   </div>
                   <div>
-                    <h2 className="text-lg font-bold text-gray-800">
+                    <h2 className="text-lg font-bold text-black">
                       Class Routine & Attendance
                     </h2>
                   </div>
@@ -482,7 +522,7 @@ export default function StudentRoutinePage() {
                     </button>
 
                     {isCustomMode ? (
-                      <div className="z-50 flex items-center gap-2 rounded-full border border-watney/40 bg-white p-1 shadow-sm">
+                      <div className="z-50 flex w-[19rem] items-center gap-2 rounded-full border border-watney/40 bg-white p-1 shadow-sm">
                         <CalendarRange className="ml-2 h-3.5 w-3.5 shrink-0 text-watney" />
                         <DatePicker
                           selectsRange
@@ -496,7 +536,8 @@ export default function StudentRoutinePage() {
                           isClearable={false}
                           popperPlacement="bottom-start"
                           popperProps={{ strategy: 'fixed' }}
-                          className="w-52 border-none bg-transparent text-xs font-semibold text-gray-700 outline-none placeholder:text-gray-400"
+                          wrapperClassName="w-full"
+                          className="w-full border-none bg-transparent text-xs font-semibold text-black outline-none placeholder:text-black"
                         />
                         <button
                           onClick={handleApply}
@@ -507,7 +548,7 @@ export default function StudentRoutinePage() {
                         </button>
                         <button
                           onClick={() => setIsCustomMode(false)}
-                          className="mr-1 flex h-7 w-7 items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                          className="mr-1 flex h-7 w-7 items-center justify-center rounded-full text-black hover:bg-gray-100 hover:text-black"
                         >
                           <X className="h-3.5 w-3.5" />
                         </button>
@@ -516,7 +557,7 @@ export default function StudentRoutinePage() {
                       <button
                         type="button"
                         onClick={openCustomMode}
-                        className="flex min-w-[180px] items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-center text-sm font-semibold text-gray-700 transition-colors hover:border-gray-200 hover:bg-gray-50"
+                        className="flex min-w-[180px] items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-center text-sm font-semibold text-black transition-colors hover:border-gray-200 hover:bg-gray-50"
                       >
                         <CalendarIcon className="h-3.5 w-3.5 text-watney" />
                         {rangeLabel}
@@ -549,7 +590,7 @@ export default function StudentRoutinePage() {
                     )}
                   </div>
 
-                  <span className="text-xs text-gray-400">
+                  <span className="text-xs text-black">
                     {classes.length} class{classes.length === 1 ? '' : 'es'} in
                     range
                   </span>
@@ -576,7 +617,7 @@ export default function StudentRoutinePage() {
                           (key) => (
                             <span
                               key={key}
-                              className="flex items-center gap-1.5 text-xs font-medium text-gray-600"
+                              className="flex items-center gap-1.5 text-xs font-medium text-black"
                             >
                               <span
                                 className="h-2.5 w-2.5 rounded-full"
@@ -625,7 +666,7 @@ export default function StudentRoutinePage() {
                                           : ''
                                     }`}
                                   >
-                                    <div className="text-[10px] font-semibold uppercase tracking-wide text-black/80">
+                                    <div className="text-[10px] font-semibold uppercase tracking-wide text-black">
                                       {dayName}
                                     </div>
                                     {today ? (
@@ -637,7 +678,7 @@ export default function StudentRoutinePage() {
                                         {d.getDate()}
                                       </div>
                                     )}
-                                    <div className="mt-0.5 text-[9px] font-medium text-black/50">
+                                    <div className="mt-0.5 text-[9px] font-medium text-black">
                                       {d.toLocaleDateString('en-GB', {
                                         month: 'short',
                                       })}
@@ -650,7 +691,7 @@ export default function StudentRoutinePage() {
                           <tbody>
                             {HOURS.map((hr) => (
                               <tr key={hr}>
-                                <td className="sticky left-0 z-20 w-16 min-w-[64px] border-b border-r border-gray-200 bg-white px-2 pt-1 text-right align-top text-[11px] font-semibold text-black/70 shadow-[4px_0_8px_-3px_rgba(0,0,0,0.15)]">
+                                <td className="sticky left-0 z-20 w-16 min-w-[64px] border-b border-r border-gray-200 bg-white px-2 pt-1 text-right align-top text-[11px] font-semibold text-black shadow-[4px_0_8px_-3px_rgba(0,0,0,0.15)]">
                                   {fmtH(hr)}
                                 </td>
                                 {weekDays.map((_, di) => {
@@ -734,11 +775,19 @@ export default function StudentRoutinePage() {
                                               {entry.startTime} – {entry.endTime}
                                             </div>
                                             <div className="mt-0.5 shrink-0 truncate text-[11px] font-bold text-black">
-                                              {entry.courseName || 'Course'}
+                                              {entry.unitTitle ||
+                                                entry.courseName ||
+                                                'Class'}
                                             </div>
+                                            {entry.unitTitle &&
+                                              entry.courseName && (
+                                                <div className="mt-0.5 shrink-0 truncate text-[9px] font-medium text-black">
+                                                  {entry.courseName}
+                                                </div>
+                                              )}
                                             {(entry.groupName ||
                                               entry.termName) && (
-                                              <div className="mt-0.5 shrink-0 truncate text-[9px] text-black/60">
+                                              <div className="mt-0.5 shrink-0 truncate text-[9px] text-black">
                                                 {[
                                                   entry.groupName,
                                                   entry.termName,
@@ -748,7 +797,7 @@ export default function StudentRoutinePage() {
                                               </div>
                                             )}
                                             {entry.teacherName && (
-                                              <div className="mt-0.5 flex shrink-0 items-center gap-1 overflow-hidden text-black/70">
+                                              <div className="mt-0.5 flex shrink-0 items-center gap-1 overflow-hidden text-black">
                                                 <User className="h-2.5 w-2.5 shrink-0" />
                                                 <span className="truncate text-[9px]">
                                                   {entry.teacherName}
@@ -798,6 +847,7 @@ export default function StudentRoutinePage() {
                             <TableRow>
                               <TableHead>Date</TableHead>
                               <TableHead>Time</TableHead>
+                              <TableHead>Unit</TableHead>
                               <TableHead>Course</TableHead>
                               <TableHead>Teacher</TableHead>
                               <TableHead>Status</TableHead>
@@ -808,8 +858,8 @@ export default function StudentRoutinePage() {
                             {classes.length === 0 ? (
                               <TableRow>
                                 <TableCell
-                                  colSpan={6}
-                                  className="py-6 text-center text-gray-500"
+                                  colSpan={7}
+                                  className="py-6 text-center text-black"
                                 >
                                   No classes scheduled in this date range.
                                 </TableCell>
@@ -834,10 +884,20 @@ export default function StudentRoutinePage() {
                                     </TableCell>
                                     <TableCell>
                                       <div className="font-medium">
+                                        {cls.unitTitle || '—'}
+                                      </div>
+                                      {cls.unitReference && (
+                                        <div className="font-mono text-xs text-black">
+                                          {cls.unitReference}
+                                        </div>
+                                      )}
+                                    </TableCell>
+                                    <TableCell>
+                                      <div className="font-medium">
                                         {cls.courseName || 'Course'}
                                       </div>
                                       {(cls.groupName || cls.termName) && (
-                                        <div className="text-xs text-gray-500">
+                                        <div className="text-xs text-black">
                                           {[cls.groupName, cls.termName]
                                             .filter(Boolean)
                                             .join(' · ')}
@@ -867,7 +927,7 @@ export default function StudentRoutinePage() {
                                         '—'
                                       )}
                                     </TableCell>
-                                    <TableCell className="max-w-[220px] truncate text-xs text-gray-600">
+                                    <TableCell className="max-w-[220px] truncate text-xs text-black">
                                       {cls.remark || '—'}
                                     </TableCell>
                                   </TableRow>
@@ -899,23 +959,30 @@ export default function StudentRoutinePage() {
               {selectedEntry && (
                 <>
                   <DialogHeader>
-                    <DialogTitle className="text-base font-bold text-gray-900">
-                      {selectedEntry.courseName || 'Class Details'}
+                    <DialogTitle className="flex items-center gap-2 text-base font-bold text-black">
+                      <BookOpen className="h-4 w-4 shrink-0 text-watney" />
+                      <span className="min-w-0 truncate">
+                        {selectedEntry.unitTitle ||
+                          selectedEntry.courseName ||
+                          'Class Details'}
+                      </span>
                     </DialogTitle>
-                    {(selectedEntry.groupName || selectedEntry.termName) && (
-                      <p className="text-xs font-medium text-black/70">
-                        {[selectedEntry.groupName, selectedEntry.termName]
-                          .filter(Boolean)
-                          .join(' · ')}
-                      </p>
-                    )}
+                    <p className="text-xs font-medium text-black">
+                      {[
+                        selectedEntry.unitTitle ? selectedEntry.courseName : null,
+                        selectedEntry.groupName,
+                        selectedEntry.termName,
+                      ]
+                        .filter(Boolean)
+                        .join(' · ')}
+                    </p>
                   </DialogHeader>
 
                   <div className="rounded-lg border border-gray-200 bg-white shadow-none">
                     <div className="divide-y divide-gray-100 px-4 py-1">
                       {statusOf(selectedEntry.status) && (
                         <div className="flex items-center justify-between gap-3 py-3">
-                          <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black/80">
+                          <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black">
                             Status
                           </span>
                           <span
@@ -939,7 +1006,7 @@ export default function StudentRoutinePage() {
                       )}
 
                       <div className="flex items-start justify-between gap-3 py-2.5">
-                        <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black/80">
+                        <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black">
                           Date
                         </span>
                         <span className="text-right text-black">
@@ -950,7 +1017,7 @@ export default function StudentRoutinePage() {
                       </div>
 
                       <div className="flex items-start justify-between gap-3 py-2.5">
-                        <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black/80">
+                        <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black">
                           Time
                         </span>
                         <span className="text-right text-black">
@@ -959,9 +1026,25 @@ export default function StudentRoutinePage() {
                         </span>
                       </div>
 
+                      {selectedEntry.unitTitle && (
+                        <div className="flex items-start justify-between gap-3 py-2.5">
+                          <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black">
+                            Unit
+                          </span>
+                          <div className="text-right text-black">
+                            <div>{selectedEntry.unitTitle}</div>
+                            {selectedEntry.unitReference && (
+                              <div className="font-mono text-xs text-black">
+                                {selectedEntry.unitReference}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
                       {selectedEntry.groupName && (
                         <div className="flex items-start justify-between gap-3 py-2.5">
-                          <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black/80">
+                          <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black">
                             Group
                           </span>
                           <span className="text-right text-black">
@@ -972,7 +1055,7 @@ export default function StudentRoutinePage() {
 
                       {selectedEntry.termName && (
                         <div className="flex items-start justify-between gap-3 py-2.5">
-                          <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black/80">
+                          <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black">
                             Term
                           </span>
                           <span className="text-right text-black">
@@ -983,13 +1066,13 @@ export default function StudentRoutinePage() {
 
                       {selectedEntry.teacherName && (
                         <div className="flex items-start justify-between gap-3 py-2.5">
-                          <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black/80">
+                          <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black">
                             Teacher
                           </span>
                           <div className="text-right text-black">
                             <div>{selectedEntry.teacherName}</div>
                             {selectedEntry.teacherEmail && (
-                              <div className="text-xs text-black/60">
+                              <div className="text-xs text-black">
                                 {selectedEntry.teacherEmail}
                               </div>
                             )}
@@ -999,7 +1082,7 @@ export default function StudentRoutinePage() {
 
                       {selectedEntry.roomNumber && (
                         <div className="flex items-start justify-between gap-3 py-2.5">
-                          <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black/80">
+                          <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black">
                             Room
                           </span>
                           <span className="text-right text-black">
@@ -1010,7 +1093,7 @@ export default function StudentRoutinePage() {
 
                       {selectedEntry.remark && (
                         <div className="flex items-start justify-between gap-3 py-2.5">
-                          <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black/80">
+                          <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black">
                             Remark
                           </span>
                           <span className="text-right text-black">

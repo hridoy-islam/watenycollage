@@ -172,13 +172,13 @@ export function EmailDraftDialog({
           >
             {/* Left Panel: Variables */}
             <div className="md:col-span-2">
-              <h3 className="mb-3 text-sm font-semibold text-gray-700">
+              <h3 className="mb-3 text-sm font-semibold text-black">
                 Available Variables
               </h3>
 
               {/* Search Input */}
               <div className="mb-3 flex items-center gap-2">
-                <Search className="h-4 w-4 text-gray-400" />
+                <Search className="h-4 w-4 text-black" />
                 <Input
                   type="text"
                   placeholder="Search variables..."
@@ -201,7 +201,7 @@ export function EmailDraftDialog({
                           type="button"
                           variant="default"
                           size="icon"
-                          className="h-6 w-6 p-0 text-gray-500 hover:text-blue-600"
+                          className="h-6 w-6 p-0 text-black hover:text-blue-600"
                           onClick={() => handleCopy(v)}
                         >
                           {copiedVar === v ? (
@@ -212,9 +212,9 @@ export function EmailDraftDialog({
                         </Button>
                       </div>
                       {EXAMPLE_VALUES[v] && (
-                        <span className="mt-1 text-xs text-gray-600">
+                        <span className="mt-1 text-xs text-black">
                           Example:{' '}
-                          <span className="font-mono text-gray-800">
+                          <span className="font-mono text-black">
                             {EXAMPLE_VALUES[v]}
                           </span>
                         </span>

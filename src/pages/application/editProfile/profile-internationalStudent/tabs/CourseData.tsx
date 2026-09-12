@@ -186,7 +186,7 @@ export default function CourseData() {
                                 ? 'bg-blue-500'
                                 : application.status === 'cancelled'
                                   ? 'bg-red-500'
-                                  : application.status === 'approved'
+                                  : application.status === 'enrolled'
                                     ? 'bg-green-500'
                                     : 'bg-green-500'
                             }`}
@@ -196,7 +196,7 @@ export default function CourseData() {
                         </TableCell>
                         <TableCell className="text-right">
                           {application.status !== 'cancelled' &&
-                            application.status !== 'approved' && (
+                            application.status !== 'enrolled' && (
                               <Button
                                 onClick={() => openDeleteModal(application._id)}
                                 className="border-none bg-destructive text-white hover:bg-destructive/90"
@@ -237,7 +237,7 @@ export default function CourseData() {
           <DialogHeader>
             <DialogTitle>Are you sure?</DialogTitle>
           </DialogHeader>
-          <p className="text-gray-600">
+          <p className="text-black">
             Do you want to cancel this application? This action cannot be
             undone.
           </p>

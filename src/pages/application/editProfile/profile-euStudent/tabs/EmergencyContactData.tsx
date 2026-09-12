@@ -44,12 +44,12 @@ const EmergencyContactData = ({
       <div className="space-y-8">
         {/* Residential Address */}
         <div>
-          <h3 className="mb-4 text-lg font-medium text-gray-900">
+          <h3 className="mb-4 text-lg font-medium text-black">
             Emergency Contact Information
           </h3>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-black">
                 Full Name
               </label>
               {isEditing ? (
@@ -61,14 +61,14 @@ const EmergencyContactData = ({
                   }
                 />
               ) : (
-                <div className="mt-1 text-gray-900">
+                <div className="mt-1 text-black">
                   {localData?.emergencyFullName || '-'}
                 </div>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-black">
                 Relationship
               </label>
               {isEditing ? (
@@ -80,14 +80,14 @@ const EmergencyContactData = ({
                   }
                 />
               ) : (
-                <div className="mt-1 text-gray-900">
+                <div className="mt-1 text-black">
                   {localData?.emergencyRelationship || '-'}
                 </div>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-black">
                 Contact Number
               </label>
               {isEditing ? (
@@ -99,14 +99,14 @@ const EmergencyContactData = ({
                   }
                 />
               ) : (
-                <div className="mt-1 text-gray-900">
+                <div className="mt-1 text-black">
                   {localData?.emergencyContactNumber || '-'}
                 </div>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-black">
                 Email
               </label>
               {isEditing ? (
@@ -118,14 +118,14 @@ const EmergencyContactData = ({
                   }
                 />
               ) : (
-                <div className="mt-1 text-gray-900">
+                <div className="mt-1 text-black">
                   {localData?.emergencyEmail || '-'}
                 </div>
               )}
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-black">
                 Address
               </label>
               {isEditing ? (
@@ -137,7 +137,7 @@ const EmergencyContactData = ({
                   }
                 />
               ) : (
-                <div className="mt-1 text-gray-900">
+                <div className="mt-1 text-black">
                   {localData?.emergencyAddress || '-'}
                 </div>
               )}

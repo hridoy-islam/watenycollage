@@ -99,7 +99,7 @@ export const AssignmentList: React.FC<AssignmentListProps> = ({
       <Card className="border border-gray-300">
         <CardContent className="space-y-2 p-4">
           {assignments.length === 0 ? (
-            <p className="py-6 text-center text-sm sm:text-base text-gray-500">
+            <p className="py-6 text-center text-sm sm:text-base text-black">
               No assignments found in this unit
             </p>
           ) : (
@@ -121,7 +121,7 @@ export const AssignmentList: React.FC<AssignmentListProps> = ({
                 >
                   {/* === Assignment Header === */}
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
-                    <span className="text-sm sm:text-base font-medium text-gray-800 break-words">
+                    <span className="text-sm sm:text-base font-medium text-black break-words">
                       {assignmentTitle}
                     </span>
 
@@ -138,7 +138,7 @@ export const AssignmentList: React.FC<AssignmentListProps> = ({
 
                   {/* === Deadline Info === */}
                   {assignmentDeadline && (
-                    <div className="mt-2 flex items-center gap-2 text-xs sm:text-sm font-medium text-gray-500">
+                    <div className="mt-2 flex items-center gap-2 text-xs sm:text-sm font-medium text-black">
                       <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
                       <span>
                         Deadline: {moment(assignmentDeadline).format('DD MMM YYYY')}

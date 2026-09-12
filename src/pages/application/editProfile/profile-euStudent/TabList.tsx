@@ -31,7 +31,7 @@ const TabItem: React.FC<TabItemProps> = ({
       className={`text-md flex w-full items-center px-4 py-3 text-left ${
         isActive
           ? 'border-l-4 border-watney/60 bg-indigo-50 font-medium text-watney'
-          : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+          : 'text-black hover:bg-gray-100 hover:text-black'
       } transition-all duration-200`}
     >
       <span className="mr-3">{icon}</span>
@@ -112,7 +112,7 @@ const TabList: React.FC<TabListProps> = ({
   return (
     <div className="py-2">
       <div className="border-b border-gray-200 px-4 py-4">
-        <h2 className="text-md font-semibold text-gray-800">
+        <h2 className="text-md font-semibold text-black">
           {userData?.name}
         </h2>
       </div>

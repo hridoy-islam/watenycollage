@@ -11,12 +11,12 @@ import {
 } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
 import axiosInstance from '@/lib/axios';
+import { useEffectiveRole } from '@/hooks/use-effective-role';
 import Select, { SingleValue } from 'react-select';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
-import { useSelector } from 'react-redux';
 
 // Types
 type Course = { _id: string; name: string; courseCode: string };
@@ -95,7 +95,11 @@ export default function AssignmentReportsPage() {
     assignment: SelectOption | null;
   } | null>(null);
 
-  const user = useSelector((state: any) => state.auth.user); // Get user from Redux state
+  // Teaching staff are stored as `role: "employee"` with a designation titled
+  // "Teacher", so the raw role sent them down neither branch and left the
+  // course filter empty. `resolved` guards the fetch because the designation
+  // can take a request to read.
+  const { user, isTeacher, isAdmin, resolved: roleResolved } = useEffectiveRole();
 
   // Report type options
   const reportTypeOptions = [
@@ -111,7 +115,7 @@ export default function AssignmentReportsPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        if (user?.role === 'admin') {
+        if (isAdmin) {
           // Admin: Fetch all courses
           const [coursesRes, termsRes] = await Promise.all([
             axiosInstance.get('/courses', {
@@ -133,7 +137,7 @@ export default function AssignmentReportsPage() {
               label: t.termName
             }))
           );
-        } else if (user?.role === 'teacher') {
+        } else if (isTeacher) {
           // Teacher: Fetch only assigned courses
           const [teacherCoursesRes] = await Promise.all([
             axiosInstance.get('/teacher-courses', {
@@ -170,8 +174,8 @@ export default function AssignmentReportsPage() {
         console.error(err);
       }
     };
-    fetchData();
-  }, [user]); // Add user as dependency
+    if (roleResolved) fetchData();
+  }, [user, isAdmin, isTeacher, roleResolved]);
 
   // Fetch units when course/term changes
   useEffect(() => {
@@ -461,7 +465,7 @@ export default function AssignmentReportsPage() {
               }}
               placeholder={
                 courses.length === 0
-                  ? user?.role === 'teacher'
+                  ? isTeacher
                     ? 'No assigned courses found'
                     : 'No courses available'
                   : 'Select course'
@@ -470,7 +474,7 @@ export default function AssignmentReportsPage() {
               menuPortalTarget={document.body}
               isDisabled={!reportType || courses.length === 0}
             />
-            {user?.role === 'teacher' && courses.length === 0 && (
+            {isTeacher && courses.length === 0 && (
               <p className="text-xs ">
                 You don't have any assigned courses. Please contact administrator.
               </p>

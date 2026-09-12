@@ -56,14 +56,14 @@ const RefereeData: React.FC<RefereeDataProps> = ({
     return (
       <div className="rounded-lg border p-4 shadow-sm">
         <div className="mb-4 border-b pb-2">
-          <h4 className="text-base font-semibold text-gray-900">{title}</h4>
-          <p className="text-xs text-gray-500">{subTitle}</p>
+          <h4 className="text-base font-semibold text-black">{title}</h4>
+          <p className="text-xs text-black">{subTitle}</p>
         </div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {/* Name */}
           <div className="col-span-1 md:col-span-2">
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-black">
               Full Name
             </label>
             {isEditing ? (
@@ -75,7 +75,7 @@ const RefereeData: React.FC<RefereeDataProps> = ({
                 placeholder="e.g. Sarah Johnson"
               />
             ) : (
-              <div className="mt-1 text-gray-900 font-medium">
+              <div className="mt-1 text-black font-medium">
                 {data.name || '-'}
               </div>
             )}
@@ -83,7 +83,7 @@ const RefereeData: React.FC<RefereeDataProps> = ({
 
           {/* Email */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-black">
               Email Address
             </label>
             {isEditing ? (
@@ -96,13 +96,13 @@ const RefereeData: React.FC<RefereeDataProps> = ({
                 placeholder="e.g. s.johnson@example.com"
               />
             ) : (
-              <div className="mt-1 text-gray-900">{data.email || '-'}</div>
+              <div className="mt-1 text-black">{data.email || '-'}</div>
             )}
           </div>
 
           {/* Phone */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-black">
               Phone Number
             </label>
             {isEditing ? (
@@ -115,13 +115,13 @@ const RefereeData: React.FC<RefereeDataProps> = ({
                 placeholder="e.g. +44 7911 123456"
               />
             ) : (
-              <div className="mt-1 text-gray-900">{data.phone || '-'}</div>
+              <div className="mt-1 text-black">{data.phone || '-'}</div>
             )}
           </div>
 
           {/* Address */}
           <div className="col-span-1 md:col-span-2">
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-black">
               Address
             </label>
             {isEditing ? (
@@ -133,13 +133,13 @@ const RefereeData: React.FC<RefereeDataProps> = ({
                 placeholder="Company or Business Address"
               />
             ) : (
-              <div className="mt-1 text-gray-900">{data.address || '-'}</div>
+              <div className="mt-1 text-black">{data.address || '-'}</div>
             )}
           </div>
 
           {/* Post Code */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-black">
               Post Code
             </label>
             {isEditing ? (
@@ -151,7 +151,7 @@ const RefereeData: React.FC<RefereeDataProps> = ({
                 placeholder="e.g. SW1A 0AA"
               />
             ) : (
-              <div className="mt-1 text-gray-900">{data.postCode || '-'}</div>
+              <div className="mt-1 text-black">{data.postCode || '-'}</div>
             )}
           </div>
         </div>

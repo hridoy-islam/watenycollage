@@ -235,10 +235,10 @@ export function ReviewModal({
             <tbody className="divide-y divide-gray-200">
               {rows.map(([label, value], index) => (
                 <tr key={index}>
-                  <td className="break-words px-2 md:px-6 py-4 text-sm font-medium text-gray-900">
+                  <td className="break-words px-2 md:px-6 py-4 text-sm font-medium text-black">
                     {label}
                   </td>
-                  <td className="break-words px-2 md:px-6 py-4 text-sm text-gray-500">
+                  <td className="break-words px-2 md:px-6 py-4 text-sm text-black">
                     {value}
                   </td>
                 </tr>
@@ -424,7 +424,7 @@ export function ReviewModal({
                 )
               )
             ) : (
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-black">
                 No previous employment records found.
               </p>
             )}

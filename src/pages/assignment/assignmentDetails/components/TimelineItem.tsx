@@ -191,7 +191,7 @@ const showEditDeleteButtons = () => {
               className="flex h-7 w-7 items-center justify-center rounded transition hover:bg-blue-100"
               title={isStudent ? 'Edit submission' : 'Edit'}
             >
-              <Edit className="h-4 w-4 text-gray-500" />
+              <Edit className="h-4 w-4 text-black" />
             </button>
             {/* Uncomment if delete is needed */}
             {/* <button
@@ -208,14 +208,14 @@ const showEditDeleteButtons = () => {
 
       {/* === Comment Text === */}
       {/* {data.comment && (
-      <p className="mb-3 text-sm sm:text-base text-gray-800 leading-relaxed break-words">
+      <p className="mb-3 text-sm sm:text-base text-black leading-relaxed break-words">
         {data.comment}
       </p>
     )} */}
 
       {data.comment && (
         <div
-          className="mb-3 break-words text-sm leading-relaxed text-gray-800 sm:text-base"
+          className="mb-3 break-words text-sm leading-relaxed text-black sm:text-base"
           dangerouslySetInnerHTML={{ __html: data.comment }}
         />
       )}

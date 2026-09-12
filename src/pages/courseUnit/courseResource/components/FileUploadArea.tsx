@@ -1,9 +1,9 @@
 import React, { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Upload, FileText } from 'lucide-react';
+import { Upload, FileText, AlertCircle } from 'lucide-react';
 import { UploadState } from './types';
-import { cn } from '@/lib/utils'; 
+import { cn } from '@/lib/utils';
 
 interface FileUploadAreaProps {
   uploadState: UploadState;
@@ -23,7 +23,6 @@ const FileUploadArea: React.FC<FileUploadAreaProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
 
-  // 1. Handle Drag Events
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
@@ -36,7 +35,6 @@ const FileUploadArea: React.FC<FileUploadAreaProps> = ({
     setIsDragging(false);
   };
 
-  // 2. Handle Drop Event
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
@@ -45,16 +43,16 @@ const FileUploadArea: React.FC<FileUploadAreaProps> = ({
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       const droppedFile = e.dataTransfer.files[0];
 
-      // This logic ensures compatibility with your existing onFileChange prop
+      // Routed through the same hidden input so the drop path and the click
+      // path hand `onFileChange` an identical event shape.
       if (fileInputRef.current) {
         const dataTransfer = new DataTransfer();
         dataTransfer.items.add(droppedFile);
         fileInputRef.current.files = dataTransfer.files;
 
-        // Manually trigger the change event
         const event = {
           target: fileInputRef.current,
-          currentTarget: fileInputRef.current,
+          currentTarget: fileInputRef.current
         } as unknown as React.ChangeEvent<HTMLInputElement>;
 
         onFileChange(event);
@@ -63,77 +61,102 @@ const FileUploadArea: React.FC<FileUploadAreaProps> = ({
   };
 
   return (
-    <div
-      // 3. Attach Drag Handlers to the container
-      onDragOver={handleDragOver}
-      onDragLeave={handleDragLeave}
-      onDrop={handleDrop}
-      className={cn(
-        "rounded-lg border-2 border-dashed p-4 text-center transition-colors duration-200 ease-in-out",
-        // 4. Conditional Styling for Drag State
-        isDragging 
-          ? "border-blue-500 bg-blue-50/50" 
-          : "border-slate-300 hover:bg-slate-50/50"
-      )}
-    >
-      <input
-        type="file"
-        onChange={onFileChange}
-        className="hidden"
-        ref={fileInputRef}
-      />
+    <div className="space-y-2">
+      <div
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        className={cn(
+          'rounded-xl border-2 border-dashed p-5 text-center transition-colors duration-200',
+          isDragging
+            ? 'border-watney bg-watney/10'
+            : 'border-gray-200 bg-watney/[0.03] hover:border-watney/40 hover:bg-watney/5'
+        )}
+      >
+        <input
+          type="file"
+          onChange={onFileChange}
+          className="hidden"
+          ref={fileInputRef}
+        />
 
-      {uploadingFile ? (
-        <div className="space-y-4 pointer-events-none">
-          <div className="text-sm text-slate-600">Uploading...</div>
-          <Progress value={uploadProgress} className="mx-auto max-w-xs" />
-        </div>
-      ) : uploadState.selectedDocument ? (
-        <div className="space-y-4">
-          <div className="inline-flex items-center rounded-lg bg-green-100 px-4 py-2 text-green-800">
-            <FileText className="mr-2 h-4 w-4" />
-            {uploadState.fileName}
+        {uploadingFile ? (
+          <div className="pointer-events-none space-y-3">
+            <Upload className="mx-auto h-8 w-8 animate-pulse text-watney" />
+            <p className="text-sm font-medium text-black">
+              Uploading… {uploadProgress}%
+            </p>
+            <Progress value={uploadProgress} className="mx-auto max-w-xs" />
           </div>
-          <br />
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => fileInputRef.current?.click()}
-            className="mt-2"
-          >
-            Change File
-          </Button>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          <Upload 
-            className={cn(
-              "mx-auto h-12 w-12 transition-colors",
-              isDragging ? "text-blue-500" : "text-slate-400"
-            )} 
-          />
-          <div>
+        ) : uploadState.selectedDocument ? (
+          <div className="flex flex-col items-center gap-3">
+            <div className="flex w-full max-w-md items-center gap-3 rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-left">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-watney/10 text-watney">
+                <FileText className="h-4 w-4" />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium text-black">
+                  {uploadState.fileName || 'Attached file'}
+                </p>
+                <p className="text-[11px] text-black">Ready to save</p>
+              </div>
+              <a
+                href={uploadState.selectedDocument}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="shrink-0 text-[11px] font-semibold text-watney hover:underline"
+              >
+                Preview
+              </a>
+            </div>
+
             <Button
               type="button"
               variant="outline"
+              size="sm"
               onClick={() => fileInputRef.current?.click()}
-              className="bg-blue-50 text-blue-600 hover:bg-blue-400 hover:text-white"
             >
-              <Upload className="mr-2 h-4 w-4" />
-              Upload Document
+              <Upload className="mr-1.5 h-3.5 w-3.5" />
+              Replace file
             </Button>
-            <p className="mt-2 text-sm text-slate-500">
-              {isDragging ? "Drop file here" : "Drag & drop or click to upload"}
-            </p>
-            <p className="text-xs text-slate-400">
-              Maximum Size 20MB
-            </p>
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="space-y-3">
+            <span
+              className={cn(
+                'mx-auto flex h-12 w-12 items-center justify-center rounded-full transition-colors',
+                isDragging ? 'bg-watney text-white' : 'bg-watney/10 text-watney'
+              )}
+            >
+              <Upload className="h-5 w-5" />
+            </span>
+            <div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => fileInputRef.current?.click()}
+                className="border-gray-200 text-watney hover:bg-watney hover:text-white"
+              >
+                <Upload className="mr-1.5 h-3.5 w-3.5" />
+                Choose a file
+              </Button>
+              <p className="mt-2 text-xs font-medium text-black">
+                {isDragging ? 'Drop the file here' : 'or drag and drop it here'}
+              </p>
+              <p className="mt-0.5 text-[11px] text-black">
+                PDF, Word, image, audio or video · up to 20MB
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
 
       {uploadError && (
-        <p className="mt-2 text-sm text-red-600">{uploadError}</p>
+        <p className="flex items-center gap-1.5 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-medium text-rose-700">
+          <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+          {uploadError}
+        </p>
       )}
     </div>
   );

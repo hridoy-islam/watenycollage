@@ -575,7 +575,7 @@ export default function ViewCareerApplicationPage() {
                         <tr>
                           <td
                             colSpan={3}
-                            className="pb-2 pt-6 text-left font-semibold text-gray-900"
+                            className="pb-2 pt-6 text-left font-semibold text-black"
                           >
                             Previous Address
                           </td>

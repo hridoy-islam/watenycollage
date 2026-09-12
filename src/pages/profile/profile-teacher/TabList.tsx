@@ -29,7 +29,7 @@ const TabItem: React.FC<TabItemProps> = ({
       className={`text-md flex w-full items-center px-4 py-3 text-left ${
         isActive
           ? 'border-l-4 border-watney/60 bg-indigo-50 font-medium text-watney'
-          : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+          : 'text-black hover:bg-gray-100 hover:text-black'
       } transition-all duration-200`}
     >
       <span className="mr-3">{icon}</span>
@@ -90,8 +90,8 @@ const TabList: React.FC<TabListProps> = ({ activeTab, setActiveTab,userData }) =
   return (
     <div className="py-2">
       <div className="border-b border-gray-200 px-4 py-4">
-        {/* <h2 className="text-lg font-medium text-gray-800">Profile Sections</h2> */}
-        {/* <p className="mt-1 text-sm text-gray-500">Manage your profile information</p> */}
+        {/* <h2 className="text-lg font-medium text-black">Profile Sections</h2> */}
+        {/* <p className="mt-1 text-sm text-black">Manage your profile information</p> */}
         <p className="text-md font-semibold">{userData?.name}</p>
       </div>
       <nav className="mt-2">

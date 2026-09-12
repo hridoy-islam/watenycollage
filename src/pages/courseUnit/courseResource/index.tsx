@@ -1,40 +1,121 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger
 } from '@/components/ui/dialog';
-import { Plus, GraduationCap, MoveLeft } from 'lucide-react';
+import {
+  Plus,
+  GraduationCap,
+  MoveLeft,
+  ChevronRight,
+  BookOpen,
+  CalendarRange
+} from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { useToast } from '@/components/ui/use-toast';
 import { MAX_FILE_SIZE } from './components/utils';
 
 import axiosInstance from '@/lib/axios';
-import { useSelector } from 'react-redux';
+import { useEffectiveRole } from '@/hooks/use-effective-role';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
 import {
   ContentType,
+  FormData as ResourceFormData,
   Resource,
   ResourceType,
   UploadState
 } from './components/types';
-import type { FormData } from './components/types';
 import ResourceTypeSelector from './components/ResourceTypeSelector';
 import ResourceForm from './components/ResourceForm';
 import ResourceList from './components/ResourceList';
+
+/** Maps a CourseUnitMaterial document to the flat resource list the UI renders. */
+const mapMaterialToResources = (
+  material: any,
+  unitId?: string
+): Resource[] => {
+  if (!material) return [];
+
+  const mapped: Resource[] = [];
+
+  if (material.introduction) {
+    mapped.push({
+      // The introduction is a single embedded field, so the material's own id
+      // is what identifies it.
+      _id: material._id,
+      type: 'introduction',
+      content: material.introduction.content || '',
+      title: undefined,
+      unitId
+    });
+  }
+
+  const typeMap: Record<string, ResourceType> = {
+    studyGuides: 'study-guide',
+    lectures: 'lecture',
+    learningOutcomes: 'learning-outcome'
+  };
+
+  Object.entries(typeMap).forEach(([key, resourceType]) => {
+    (material[key] || []).forEach((item: any) => {
+      mapped.push({
+        _id: item._id,
+        type: resourceType,
+        title: item.title || '',
+        content: item.content || '',
+        fileUrl: item.fileUrl?.trim() || '',
+        fileName: item.fileName?.trim() || '',
+        learningOutcomes: item.learningOutcomes || '',
+        assessmentCriteria:
+          item.assessmentCriteria?.map((ao: any) => ({
+            _id: ao._id,
+            description: ao.description
+          })) || [],
+        finalFeedback: item.finalFeedback || false,
+        observation: item.observation || false,
+        unitId
+      });
+    });
+  });
+
+  return mapped;
+};
+
+/** Maps an AssignmentSettings document to a resource row. */
+const mapSettingsToResource = (settings: any, unitId?: string): Resource => ({
+  _id: settings._id,
+  type: 'assignment',
+  status: settings.status,
+  title: settings.assignmentTitle || '',
+  content: settings.description || '',
+  startDate: settings.startDate || '',
+  finalDeadline: settings.finalDeadline || '',
+  finalFeedback: settings.finalFeedback || false,
+  observation: settings.observation || false,
+  unitId
+});
 
 function CourseModule() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { id, unitId } = useParams();
-  const user = useSelector((state: any) => state.auth.user);
-  const isAdmin = user?.role === 'admin' || user?.role === 'teacher';
-  const isStudent = user?.role === 'student';
+  // `isAdmin` here means "may manage resources", which teachers may too - and
+  // a teacher held as an employee with a "Teacher" designation is one, so the
+  // effective role decides rather than the one stored on the record.
+  const {
+    user,
+    effectiveRole,
+    isTeacher,
+    isAdmin: isAdminRole
+  } = useEffectiveRole();
+  const isAdmin = isAdminRole || isTeacher;
+  const isStudent = effectiveRole === 'student';
   const [groupName, setGroupName] = useState<string>('');
   const [termName, setTermName] = useState<string>('');
   const [unitGroupId, setUnitGroupId] = useState<string>('');
@@ -49,7 +130,7 @@ function CourseModule() {
   const [editingResource, setEditingResource] = useState<Resource | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState<ResourceFormData>({
     title: '',
     content: '',
     startDate: null,
@@ -113,78 +194,29 @@ function CourseModule() {
       setTermName(unitRes.data.data.termId?.name || '');
       setUnitGroupId(unitRes.data.data.groupId?._id || '');
       setUnitTermId(unitRes.data.data.termId?._id || '');
-
+      
       // Process resources
       const materialRes = responses[1];
       const material = materialRes.data.data.result[0];
-      const mappedResources: Resource[] = [];
       setUnitMaterial(material || {});
 
-      if (material) {
-        if (material.introduction) {
-          mappedResources.push({
-            _id: material._id,
-            type: 'introduction',
-            content: material.introduction.content || '',
-            title: undefined,
-            unitId
-          });
-        }
-
-        const typeMap: Record<string, ResourceType> = {
-          studyGuides: 'study-guide',
-          lectures: 'lecture',
-          learningOutcomes: 'learning-outcome'
-        };
-
-        Object.entries(typeMap).forEach(([key, resourceType]) => {
-          const items = material[key] || [];
-          items.forEach((item: any) => {
-            mappedResources.push({
-              _id: item._id,
-              type: resourceType,
-              title: item.title || '',
-              content: item.content || '',
-              fileUrl: item.fileUrl?.trim() || '',
-              fileName: item.fileName?.trim() || '',
-              learningOutcomes: item.learningOutcomes || '',
-              assessmentCriteria:
-                item.assessmentCriteria?.map((ao: any) => ({
-                  _id: ao._id,
-                  description: ao.description
-                })) || [],
-              finalFeedback: item.finalFeedback || false, // Added
-              observation: item.observation || false, // Added
-
-              unitId
-            });
-          });
-        });
-      }
-
-      // Process assignments (stored in AssignmentSettings)
-      // Teacher/Student: only show assignments that have been published
       const settingsRes = responses[2];
       const settingsList = settingsRes.data.data.result || [];
-      const visibleSettings =
-        user?.role === 'admin'
-          ? settingsList
-          : settingsList.filter((s: any) => s.status === 'published');
-      visibleSettings.forEach((s: any) => {
-        mappedResources.push({
-          _id: s._id,
-          type: 'assignment',
-          title: s.assignmentTitle || '',
-          content: s.description || '',
-          startDate: s.startDate || '',
-          finalDeadline: s.finalDeadline || '',
-          finalFeedback: s.finalFeedback || false,
-          observation: s.observation || false,
-          unitId
-        });
-      });
 
-      setResources(mappedResources);
+      // A draft assignment is not a student's to see. The detail page behind
+      // the "Open assignment" button already hides drafts from them, so
+      // listing one here produced a card that led to an empty page - the
+      // student was being offered an assignment that does not exist yet.
+      const visibleSettings = isStudent
+        ? settingsList.filter((settings: any) => settings.status === 'published')
+        : settingsList;
+
+      setResources([
+        ...mapMaterialToResources(material, unitId),
+        ...visibleSettings.map((settings: any) =>
+          mapSettingsToResource(settings, unitId)
+        )
+      ]);
 
       // Process student submissions (if applicable)
       if (isStudent && responses[3]) {
@@ -331,8 +363,8 @@ function CourseModule() {
     setFormData({
       title: '',
       content: '',
-      startDate: null,
-      finalDeadline: null,
+      startDate: undefined,
+      finalDeadline: undefined,
       learningOutcomes: '',
       assessmentCriteria: [],
       finalFeedback: false,
@@ -349,8 +381,8 @@ function CourseModule() {
     setFormData({
       title: '',
       content: '',
-      startDate: null,
-      finalDeadline: null,
+      startDate: undefined,
+      finalDeadline: undefined,
       learningOutcomes: '',
       assessmentCriteria: [],
       finalFeedback: false,
@@ -360,6 +392,15 @@ function CourseModule() {
     setContentType('text');
   };
 
+  /**
+   * Saves whichever resource kind the form is on.
+   *
+   * Both endpoints echo the saved document back, so local state is rebuilt
+   * from the response rather than from the request payload - the payload has
+   * no `type` and no server-assigned `_id`, which is why a newly created
+   * resource used to stay invisible until the page was reloaded. Nothing here
+   * refetches, and nothing here touches the page-level loading state.
+   */
   const validateAndSaveResource = async () => {
     if (!id || !unitId) {
       toast({
@@ -370,17 +411,29 @@ function CourseModule() {
       return;
     }
 
-    // === Handle Assignment Definition (Admin only) ===
-    if (selectedResourceType === 'assignment') {
-      if (!isAdmin) {
-        toast({
-          title: 'Access Denied',
-          description: 'Only instructors can create assignments.',
-          variant: 'destructive'
-        });
-        return;
-      }
+    if (!isAdmin) {
+      toast({
+        title: 'Access Denied',
+        description: 'Only instructors can manage resources.',
+        variant: 'destructive'
+      });
+      return;
+    }
 
+    // The parent material may not exist yet on the very first resource.
+    const findExistingMaterial = async () => {
+      try {
+        const res = await axiosInstance.get(
+          `/unit-material?unitId=${unitId}&limit=1`
+        );
+        return res.data.data.result[0] || null;
+      } catch {
+        return null;
+      }
+    };
+
+    // ── Assignments live in AssignmentSettings, not in the material ──────
+    if (selectedResourceType === 'assignment') {
       if (!formData.title?.trim()) {
         toast({
           title: 'Error',
@@ -391,17 +444,9 @@ function CourseModule() {
       }
 
       try {
-        let existingMaterial: any = null;
-        try {
-          const res = await axiosInstance.get(
-            `/unit-material?unitId=${unitId}&limit=1`
-          );
-          existingMaterial = res.data.data.result[0] || null;
-        } catch (err) {
-          // OK if not exists
-        }
+        const existingMaterial = await findExistingMaterial();
 
-        // Convert dates to UTC midnight format
+        /** A picked date, stored as the calendar day it reads as. */
         const toUtcIso = (date: any) => {
           const d = date ? new Date(date) : null;
           if (!d || isNaN(d.getTime())) return undefined;
@@ -419,94 +464,64 @@ function CourseModule() {
           observation: formData.observation || false
         };
 
-        let response;
-        if (editingResource) {
-          response = await axiosInstance.patch(
-            `/assignment-settings/${editingResource._id}`,
-            newAssignment
-          );
-          toast({ title: 'Assignment updated successfully!' });
-        } else {
-          response = await axiosInstance.post('/assignment-settings', {
-            courseId: id,
-            termId: unitTermId,
-            groupId: unitGroupId,
-            unitId,
-            createdBy: user._id,
-            unitMaterialId: existingMaterial?._id || unitMaterial?._id,
-            assignmentResourceId: 'assignment-' + Date.now(),
+        const response = editingResource
+          ? await axiosInstance.patch(
+              `/assignment-settings/${editingResource._id}`,
+              newAssignment
+            )
+          : await axiosInstance.post('/assignment-settings', {
+              courseId: id,
+              termId: unitTermId,
+              groupId: unitGroupId,
+              unitId,
+              createdBy: user._id,
+              unitMaterialId: existingMaterial?._id || unitMaterial?._id,
+              assignmentResourceId: 'assignment-' + Date.now(),
+              ...newAssignment
+            });
+
+        const saved = response.data?.data?.settings || response.data?.data || {};
+
+        // Keep the material in sync when the API creates one alongside.
+        if (response.data?.data?.courseUnitMaterial) {
+          setUnitMaterial(response.data.data.courseUnitMaterial);
+        }
+
+        const savedAssignment = mapSettingsToResource(
+          {
+            _id: editingResource?._id || saved._id,
             ...newAssignment
-          });
-          toast({ title: 'Assignment added successfully!' });
-        }
-
-        if (response.data?.data) {
-          if (response.data.data.settings) {
-            setUnitMaterial(
-              response.data.data.courseUnitMaterial || unitMaterial
-            );
-          }
-        }
-
-        // ✅ Optmistic State Update (NO REFETCH)
-        const updatedSettings = response.data?.data?.settings;
-        const updatedId = editingResource
-          ? editingResource._id
-          : updatedSettings?._id || Date.now().toString();
-        const optimisticAssignment = {
-          _id: updatedId,
-          type: 'assignment' as ResourceType,
-          title: newAssignment.assignmentTitle,
-          content: newAssignment.description,
-          startDate: newAssignment.startDate,
-          finalDeadline: newAssignment.finalDeadline,
-          finalFeedback: newAssignment.finalFeedback,
-          observation: newAssignment.observation,
+          },
           unitId
-        };
-        setResources(prev => {
-          if (editingResource) {
-            return prev.map(r =>
-              r._id === editingResource._id
-                ? { ...r, ...optimisticAssignment }
-                : r
-            );
-          }
-          return [...prev, optimisticAssignment as Resource];
-        });
+        );
 
+        setResources((prev) =>
+          editingResource
+            ? prev.map((r) =>
+                r._id === editingResource._id ? savedAssignment : r
+              )
+            : [...prev, savedAssignment]
+        );
+
+        toast({
+          title: editingResource
+            ? 'Assignment updated successfully!'
+            : 'Assignment added successfully!'
+        });
         resetForm();
-        return;
       } catch (error) {
         console.error('Save assignment definition error:', error);
         toast({
           title: 'Failed to save assignment.',
           variant: 'destructive'
         });
-        return;
       }
-    }
-
-    // === Handle other unit-material resources ===
-    if (!isAdmin) {
-      toast({
-        title: 'Access Denied',
-        description: 'Only instructors can create this type of resource.',
-        variant: 'destructive'
-      });
       return;
     }
 
+    // ── Everything else hangs off the unit material ──────────────────────
     try {
-      let existingMaterial: any = null;
-      try {
-        const res = await axiosInstance.get(
-          `/unit-material?unitId=${unitId}&limit=1`
-        );
-        existingMaterial = res.data.data.result[0] || null;
-      } catch (err) {
-        // OK
-      }
+      const existingMaterial = await findExistingMaterial();
 
       let newResource: any = {
         title: formData.title?.trim() || undefined,
@@ -537,48 +552,37 @@ function CourseModule() {
         newResource.fileName = uploadState.fileName;
       }
 
-      let response;
-      if (editingResource) {
-        response = await axiosInstance.patch('/unit-material/resource', {
-          materialId: existingMaterial?._id || unitMaterial?._id,
-          resourceId: editingResource._id,
-          resourceType: selectedResourceType,
-          resource: newResource
-        });
-        toast({ title: 'Resource updated!' });
-      } else {
-        response = await axiosInstance.post('/unit-material/resource', {
-          materialId: existingMaterial?._id,
-          courseId: id,
-          termId: unitTermId,
-          groupId: unitGroupId,
-          unitId,
-          resourceType: selectedResourceType,
-          resource: newResource
-        });
-        toast({ title: 'Resource added!' });
+      const response = editingResource
+        ? await axiosInstance.patch('/unit-material/resource', {
+            materialId: existingMaterial?._id || unitMaterial?._id,
+            resourceId: editingResource._id,
+            resourceType: selectedResourceType,
+            resource: newResource
+          })
+        : await axiosInstance.post('/unit-material/resource', {
+            materialId: existingMaterial?._id,
+            courseId: id,
+            termId: unitTermId,
+            groupId: unitGroupId,
+            unitId,
+            resourceType: selectedResourceType,
+            resource: newResource
+          });
+
+      // The whole material comes back on both create and update, so the rows
+      // are re-derived from it. Assignments are not part of it, so they are
+      // carried over untouched.
+      const savedMaterial = response.data?.data;
+
+      if (savedMaterial) {
+        setUnitMaterial(savedMaterial);
+        setResources((prev) => [
+          ...mapMaterialToResources(savedMaterial, unitId),
+          ...prev.filter((r) => r.type === 'assignment')
+        ]);
       }
 
-      if (response.data?.data) {
-        setUnitMaterial(response.data.data); // Store newly created parent doc
-      }
-
-      // ✅ Optmistic State Update (NO REFETCH)
-      const updatedId = editingResource ? editingResource._id : (response.data?.data?._id || Date.now().toString());
-
-      setResources(prev => {
-        if (selectedResourceType === 'introduction') {
-           const filtered = prev.filter(r => r.type !== 'introduction');
-           return [...filtered, { _id: updatedId, type: 'introduction', content: formData.content || '', unitId }];
-        }
-
-        if (editingResource) {
-          return prev.map(r => r._id === editingResource._id ? { ...r, ...newResource } : r);
-        }
-
-        return [...prev, { ...newResource, _id: updatedId, unitId } as Resource];
-      });
-
+      toast({ title: editingResource ? 'Resource updated!' : 'Resource added!' });
       resetForm();
     } catch (error) {
       console.error('Save resource error:', error);
@@ -588,6 +592,7 @@ function CourseModule() {
       });
     }
   };
+
 
   const handleDeleteResource = async (id: string) => {
     const resource = resources.find((r) => r._id === id);
@@ -671,33 +676,61 @@ function CourseModule() {
   }
 
   return (
-    <div className="min-h-screen rounded-2xl p-4 bg-white">
-      <div className="space-y-2">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          {/* Left Section (Course + Unit Info) */}
-          <div className="flex flex-col items-start gap-1 text-left">
-            {/* Course Name on top */}
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-              {courseName || "Loading Course..."}
+    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+      {/* Unit header */}
+      <header className="border-b border-gray-200 px-5 py-4">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div className="min-w-0">
+            <nav className="flex flex-wrap items-center gap-1.5 text-[11px] font-medium text-black">
+              <span className="truncate">{courseName || 'Course'}</span>
+              {termName && (
+                <>
+                  <ChevronRight className="h-3 w-3" />
+                  <span className="truncate">{termName}</span>
+                </>
+              )}
+              {groupName && (
+                <>
+                  <ChevronRight className="h-3 w-3" />
+                  <span className="truncate">{groupName}</span>
+                </>
+              )}
+              <ChevronRight className="h-3 w-3" />
+              <span className="text-black">Resources</span>
+            </nav>
+
+            <h1 className="mt-1.5 flex items-center gap-2 text-2xl font-bold tracking-tight text-black">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-watney/10 text-watney">
+                <BookOpen className="h-5 w-5" />
+              </span>
+              <span className="min-w-0 truncate">
+                {unitTitle || 'Course unit'}
+              </span>
             </h1>
 
-            {/* Breadcrumb below: Group -> Term -> Unit Title */}
-            <div className="flex flex-wrap items-center gap-2 text-sm text-slate-500">
-              <GraduationCap className="h-4 w-4 " />
-              <span>{groupName}</span>
-              <span className="">/</span>
-              <span>{termName}</span>
-              <span className="">/</span>
-              <span className="font-semibold text-watney">{unitTitle}</span>
+            <div className="mt-2 flex flex-wrap items-center gap-1.5">
+              <span className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-watney/5 px-2 py-1 text-[11px] font-medium text-black">
+                <GraduationCap className="h-3 w-3" />
+                {courseName || 'Course'}
+              </span>
+              {termName && (
+                <span className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-watney/5 px-2 py-1 text-[11px] font-medium text-black">
+                  <CalendarRange className="h-3 w-3" />
+                  {termName}
+                </span>
+              )}
+              <span className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-watney/5 px-2 py-1 text-[11px] font-medium text-black">
+                {resources.length} resource{resources.length === 1 ? '' : 's'}
+              </span>
             </div>
           </div>
 
-          {/* Right Section (Buttons) */}
-          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center sm:gap-4">
+          <div className="flex flex-wrap items-center gap-2">
             <Button
+              variant="outline"
               onClick={() => navigate(-1)}
               size="sm"
-              className="w-full bg-watney text-white hover:bg-watney/90 sm:w-auto"
+              className="h-9"
             >
               <MoveLeft className="mr-2 h-4 w-4" /> Back
             </Button>
@@ -713,19 +746,22 @@ function CourseModule() {
                 <DialogTrigger asChild>
                   <Button
                     size="sm"
-                    className="w-full bg-watney text-white hover:bg-watney/90 sm:w-auto"
+                    className="h-9 bg-watney text-white hover:bg-watney/90"
                   >
-                    <Plus className="mr-2 h-5 w-5" /> Add Resource
+                    <Plus className="mr-2 h-4 w-4" /> Add resource
                   </Button>
                 </DialogTrigger>
 
                 <DialogContent className="z-[9999] max-h-[90vh] max-w-4xl overflow-y-auto">
                   <DialogHeader>
-                    <DialogTitle className="text-2xl">
-                      {editingResource
-                        ? 'Edit Resource'
-                        : 'Create New Resource'}
+                    <DialogTitle className="text-lg font-semibold text-black">
+                      {editingResource ? 'Edit resource' : 'Add a resource'}
                     </DialogTitle>
+                    <DialogDescription className="text-xs text-black">
+                      {unitTitle
+                        ? `For ${unitTitle}`
+                        : 'For this course unit'}
+                    </DialogDescription>
                   </DialogHeader>
 
                   {!selectedResourceType ? (
@@ -759,7 +795,10 @@ function CourseModule() {
             )}
           </div>
         </div>
+      </header>
 
+      {/* Resources */}
+      <div className="px-5 py-4">
         {resources.length > 0 ? (
           <ResourceList
             resources={resources}
@@ -769,17 +808,28 @@ function CourseModule() {
             applicationId={applicationId}
           />
         ) : (
-          <Card className="shadow-lg">
-            <CardContent className=" text-center">
-              <GraduationCap className="mx-auto mb-4 h-16 w-16 text-slate-300" />
-              <h3 className="mb-2 text-xl font-semibold">No Resources Yet</h3>
-              <p className="mb-6 text-slate-600">
-                {isAdmin
-                  ? 'Get started by creating your first course resource.'
-                  : 'No assignments available yet.'}
-              </p>
-            </CardContent>
-          </Card>
+          <div className="rounded-xl border border-dashed border-gray-200 bg-watney/5 px-6 py-16 text-center">
+            <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-white text-watney shadow-sm">
+              <GraduationCap className="h-6 w-6" />
+            </span>
+            <h3 className="mt-3 text-base font-semibold text-black">
+              No resources yet
+            </h3>
+            <p className="mx-auto mt-1 max-w-sm text-xs text-black">
+              {isAdmin
+                ? 'Add an introduction, learning outcomes, study guides, lectures or assignments to build this unit out.'
+                : 'Your tutor has not published anything for this unit yet.'}
+            </p>
+            {isAdmin && (
+              <Button
+                size="sm"
+                onClick={() => setIsCreateDialogOpen(true)}
+                className="mt-4 bg-watney text-white hover:bg-watney/90"
+              >
+                <Plus className="mr-1.5 h-4 w-4" /> Add the first resource
+              </Button>
+            )}
+          </div>
         )}
       </div>
     </div>

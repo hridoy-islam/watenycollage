@@ -138,13 +138,13 @@ export default function CourseApplicationPage() {
           </Button>
         </div>
         {user.role !== "admin" && <motion.div variants={itemVariants} className="mb-3">
-          <h1 className="mb-2 text-3xl font-bold text-gray-900 md:text-4xl">
+          <h1 className="mb-2 text-3xl font-bold text-black md:text-4xl">
             Enroll the Course
             <span className="mt-1 block bg-gradient-to-r from-watney to-blue-700 bg-clip-text text-transparent">
               Unlock Your Potential with Expert-Led Learning
             </span>
           </h1>
-          <p className="mx-auto max-w-2xl text-base font-medium text-gray-600">
+          <p className="mx-auto max-w-2xl text-base font-medium text-black">
             Take the next step in your learning journey. Enroll the course today
             and gain skills that make a difference.
           </p>
@@ -161,15 +161,15 @@ export default function CourseApplicationPage() {
           <form onSubmit={handleSubmit} className="space-y-6 text-left">
             {/* Course Display */}
             <motion.div className="group" whileHover={{ scale: 1.01 }}>
-              <label className="mb-1 block text-sm font-semibold text-gray-700">
+              <label className="mb-1 block text-sm font-semibold text-black">
                 Course
               </label>
               {course ? (
-                <h1 className="text-base font-medium text-gray-800">
+                <h1 className="text-base font-medium text-black">
                   {course.name}
                 </h1>
               ) : (
-                <h1 className="italic text-gray-500">
+                <h1 className="italic text-black">
                   Course information not available
                 </h1>
               )}
@@ -177,7 +177,7 @@ export default function CourseApplicationPage() {
 
             {/* Term Selection */}
             <motion.div className="group" whileHover={{ scale: 1.01 }}>
-              <label className="mb-1 block text-sm font-semibold text-gray-700">
+              <label className="mb-1 block text-sm font-semibold text-black">
                 Intake / Term
               </label>
               <Select

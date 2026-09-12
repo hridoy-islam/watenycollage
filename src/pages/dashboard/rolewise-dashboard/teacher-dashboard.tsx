@@ -22,7 +22,8 @@ import {
   File,
   Users,
   CalendarRange,
-  CalendarIcon
+  CalendarIcon,
+  BookOpen
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -50,6 +51,14 @@ import {
 // ── Types & Interfaces ──────────────────────────────────────────────────
 type AttendanceStatus = 'present' | 'absent' | 'late';
 
+interface CourseUnitRef {
+  _id: string;
+  title?: string;
+  unitReference?: string;
+  level?: string;
+  credit?: string;
+}
+
 interface RoutineEntry {
   _id: string;
   classDate: string;
@@ -59,6 +68,8 @@ interface RoutineEntry {
   courseId?: { _id: string; name: string } | string;
   groupId?: { _id: string; name: string } | string;
   termId?: { _id: string; name: string } | string;
+  // A session belongs to a unit, so the unit is what names the class.
+  unitId?: CourseUnitRef | string;
 }
 
 interface SheetStudent {
@@ -76,6 +87,7 @@ interface AttendanceSheet {
   courseId?: { _id: string; name: string } | string;
   groupId?: { _id: string; name: string } | string;
   termId?: { _id: string; name: string } | string;
+  unitId?: CourseUnitRef | string;
 }
 
 interface SlotInfo {
@@ -247,6 +259,17 @@ const courseNameOf = (r?: RoutineEntry | null) => {
   if (!r) return '';
   return asObject(r.courseId)?.name || 'Course';
 };
+/**
+ * The course as it should be read: name plus the intake it runs in. The same
+ * course is re-run every intake, so the bare name picks out several of them.
+ */
+const courseLabelOf = (r?: RoutineEntry | null) => {
+  if (!r) return '';
+  const course = asObject(r.courseId);
+  const intake = asObject(course?.intakeId)?.termName;
+  const name = course?.name || 'Course';
+  return intake ? `${name} - ${intake}` : name;
+};
 const groupNameOf = (s?: AttendanceSheet | null) => {
   return asObject(s?.groupId)?.name || '';
 };
@@ -258,6 +281,12 @@ const routineGroupNameOf = (r?: RoutineEntry | null) => {
 };
 const routineTermNameOf = (r?: RoutineEntry | null) => {
   return asObject(r?.termId)?.name || '';
+};
+const unitTitleOf = (r?: RoutineEntry | AttendanceSheet | null) => {
+  return asObject((r as any)?.unitId)?.title || '';
+};
+const unitRefOf = (r?: RoutineEntry | AttendanceSheet | null) => {
+  return asObject((r as any)?.unitId)?.unitReference || '';
 };
 
 // ── Main Dashboard Component ─────────────────────────────────────────────
@@ -841,7 +870,13 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
     : '';
 
   const selectedCourseName =
-    courseNameOf(sheet as any) || courseNameOf(selectedRoutine);
+    courseLabelOf(sheet as any) || courseLabelOf(selectedRoutine);
+
+  // The dialog is titled by the unit being taught, with the course as context.
+  const selectedUnitTitle =
+    unitTitleOf(selectedRoutine) || unitTitleOf(sheet);
+  const selectedUnitReference =
+    unitRefOf(selectedRoutine) || unitRefOf(sheet);
 
   const rangeLabel =
     weekDays.length > 0
@@ -863,23 +898,23 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
       {/* <div className="">
         <Card className="  shadow-none">
           <CardHeader className='p-0 pb-4'>
-            <CardTitle className="text-xl text-gray-700">
+            <CardTitle className="text-xl text-black">
               <div className="flex flex-row items-center gap-20">
                 <div>
-                  <div className="text-lg text-gray-600">Current Time</div>
-                  <div className="text-xl font-bold text-gray-800">
+                  <div className="text-lg text-black">Current Time</div>
+                  <div className="text-xl font-bold text-black">
                     {currentTime}
                   </div>
                 </div>
 
                 {timeLog && (
                   <div>
-                    <div className="text-lg text-gray-600 flex flex-row items-center gap-2">Working Time {isOnBreak && (
+                    <div className="text-lg text-black flex flex-row items-center gap-2">Working Time {isOnBreak && (
                       <div className=" text-lg font-medium text-orange-600">
                         On Break
                       </div>
                     )}</div>
-                    <div className="text-xl font-bold text-gray-800">
+                    <div className="text-xl font-bold text-black">
                       {formatDurationWithSeconds(
                         calculateNetWorkingSeconds(timeLog)
                       )}
@@ -945,11 +980,11 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
               </div> */}
               <div>
                 {user?.name && (
-                  <p className="text-2xl font-bold text-gray-800">
+                  <p className="text-2xl font-bold text-black">
                     Welcome, <span className="text-watney">{user.name}</span>
                   </p>
                 )}
-                {/* <p className="text-xs text-gray-500">
+                {/* <p className="text-xs text-black">
                   Click a class block to take or update attendance
                 </p> */}
               </div>
@@ -992,11 +1027,11 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
               </div>
               <div>
                 {user?.name && (
-                  <p className="text-lg font-bold text-gray-800">
+                  <p className="text-lg font-bold text-black">
                     Class Routine & Attendance
                   </p>
                 )}
-                {/* <p className="text-xs text-gray-500">
+                {/* <p className="text-xs text-black">
                   Click a class block to take or update attendance
                 </p> */}
               </div>
@@ -1029,7 +1064,7 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
                     isClearable={false}
                     popperPlacement="bottom-start"
                     popperProps={{ strategy: 'fixed' }}
-                    className="w-52 border-none bg-transparent text-xs font-semibold text-gray-700 outline-none placeholder:text-gray-400"
+                    className="w-52 border-none bg-transparent text-xs font-semibold text-black outline-none placeholder:text-black"
                   />
                   <Button
                     size="sm"
@@ -1041,7 +1076,7 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
                   </Button>
                   <button
                     onClick={() => setIsCustomMode(false)}
-                    className="mr-1 flex h-7 w-7 items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                    className="mr-1 flex h-7 w-7 items-center justify-center rounded-full text-black hover:bg-gray-100 hover:text-black"
                   >
                     <X className="h-3.5 w-3.5" />
                   </button>
@@ -1050,7 +1085,7 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
                 <button
                   type="button"
                   onClick={openCustomMode}
-                  className="flex min-w-[180px] items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-center text-sm font-semibold text-gray-700 transition-colors hover:border-gray-200 hover:bg-gray-50"
+                  className="flex min-w-[180px] items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-center text-sm font-semibold text-black transition-colors hover:border-gray-200 hover:bg-gray-50"
                 >
                   <CalendarIcon className="h-3.5 w-3.5 text-watney" />
                   {rangeLabel}
@@ -1090,7 +1125,7 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
               </Button>
             </div>
 
-          <span className="text-xs font-medium text-gray-600">
+          <span className="text-xs font-medium text-black">
   Total: {routines.length} class{routines.length === 1 ? '' : 'es'} within this period
 </span>
           </div>
@@ -1126,7 +1161,7 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
                             today ? 'bg-blue-50' : wknd ? 'bg-slate-100/60' : ''
                           }`}
                         >
-                          <div className="text-[10px] font-semibold uppercase tracking-wide text-black/80">
+                          <div className="text-[10px] font-semibold uppercase tracking-wide text-black">
                             {dayName}
                           </div>
                           {today ? (
@@ -1138,7 +1173,7 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
                               {d.getDate()}
                             </div>
                           )}
-                          <div className="mt-0.5 text-[9px] font-medium text-black/50">
+                          <div className="mt-0.5 text-[9px] font-medium text-black">
                             {d.toLocaleDateString('en-GB', { month: 'short' })}
                           </div>
                         </th>
@@ -1149,7 +1184,7 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
                 <tbody>
                   {HOURS.map((hr) => (
                     <tr key={hr}>
-                      <td className="sticky left-0 z-20 w-16 min-w-[64px] border-b border-r border-gray-200 bg-white px-2 pt-1 text-right align-top text-[11px] font-semibold text-black/70 shadow-[4px_0_8px_-3px_rgba(0,0,0,0.15)]">
+                      <td className="sticky left-0 z-20 w-16 min-w-[64px] border-b border-r border-gray-200 bg-white px-2 pt-1 text-right align-top text-[11px] font-semibold text-black shadow-[4px_0_8px_-3px_rgba(0,0,0,0.15)]">
                         {fmtH(hr)}
                       </td>
                       {weekDays.map((_, di) => {
@@ -1179,7 +1214,7 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
                         const { entry, span, topPx, heightPx } = slot;
                         const color =
                           courseColor[courseIdOf(entry)] || '#3b82f6';
-                        const courseName = courseNameOf(entry);
+                        const courseName = courseLabelOf(entry);
                         const attendanceTaken = attendanceTakenIds.has(
                           entry._id
                         );
@@ -1220,8 +1255,13 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
                                     {entry.startTime} – {entry.endTime}
                                   </div>
                                   <div className="mt-0.5 shrink-0 truncate text-[10px] font-bold text-black">
-                                    {courseName}
+                                    {unitTitleOf(entry) || courseName}
                                   </div>
+                                  {unitTitleOf(entry) && (
+                                    <div className="shrink-0 truncate text-[8px] font-medium text-black">
+                                      {courseName}
+                                    </div>
+                                  )}
                                   {(routineGroupNameOf(entry) ||
                                     routineTermNameOf(entry)) && (
                                     <div className="mt-0.5 flex shrink-0 items-center gap-1 overflow-hidden text-[8px] font-medium text-black">
@@ -1288,14 +1328,29 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
                   <ClipboardCheck className="h-4 w-4 shrink-0 text-watney sm:h-5 sm:w-5" />
                   <span className="break-words">
                     Take Attendance
-                    {selectedCourseName ? ` — ${selectedCourseName}` : ''}
+                    {selectedUnitTitle
+                      ? ` — ${selectedUnitTitle}`
+                      : selectedCourseName
+                        ? ` — ${selectedCourseName}`
+                        : ''}
                   </span>
+                  {selectedUnitReference && (
+                    <span className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-black">
+                      {selectedUnitReference}
+                    </span>
+                  )}
                 </DialogTitle>
                 <DialogDescription className="space-y-1 text-xs text-black">
                   <div className="font-medium text-black">
                     {routineDate} · {selectedRoutine?.startTime || '--:--'} –{' '}
                     {selectedRoutine?.endTime || '--:--'}
                   </div>
+                  {selectedUnitTitle && selectedCourseName && (
+                    <div className="flex items-center gap-1">
+                      <BookOpen className="h-3 w-3 shrink-0" />
+                      <span>Course: {selectedCourseName}</span>
+                    </div>
+                  )}
                   {(groupNameOf(sheet) || termNameOf(sheet)) && (
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5">
                       {groupNameOf(sheet) && (
@@ -1402,7 +1457,7 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
                                   <p className="truncate text-xs font-semibold text-black">
                                     {studentName(entry.studentId)}
                                   </p>
-                                  <p className="truncate text-[11px] text-black/60">
+                                  <p className="truncate text-[11px] text-black">
                                     {entry.studentId?.email || ''}
                                   </p>
                                 </div>
@@ -1448,7 +1503,7 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
                                       [sid]: e.target.value
                                     }))
                                   }
-                                  className="h-8 w-full text-xs text-black placeholder:text-black/40 sm:w-48 md:w-56"
+                                  className="h-8 w-full text-xs text-black placeholder:text-black sm:w-48 md:w-56"
                                 />
                               </div>
                             </div>

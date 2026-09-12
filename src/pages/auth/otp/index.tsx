@@ -182,7 +182,7 @@ export default function Otp() {
                   Didn't receive the code?
                 </span>
                 <button
-                  className={`font-medium text-black ${isCooldownActive ? 'cursor-not-allowed opacity-70' : 'hover:text-black/90'}`}
+                  className={`font-medium text-black ${isCooldownActive ? 'cursor-not-allowed opacity-70' : 'hover:text-black'}`}
                   onClick={handleResendOtp}
                   disabled={isCooldownActive}
                   type="button"

@@ -115,7 +115,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
                   className="h-full w-full object-cover"
                 />
               ) : (
-                <div className="flex h-full items-center justify-center bg-gray-100 text-gray-400">
+                <div className="flex h-full items-center justify-center bg-gray-100 text-black">
                  <img
                   src="/placeholder.png"
                   alt="Profile"
@@ -138,14 +138,14 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
           </div>
 
           <div>
-            <h3 className="text-xl font-semibold text-gray-900">
+            <h3 className="text-xl font-semibold text-black">
               {capitalizeFirstLetter(localData.title)}{' '}
               {capitalizeFirstLetter(localData.firstName)}{' '}
               {capitalizeFirstLetter(localData.initial)}{' '}
               {capitalizeFirstLetter(localData?.lastName)}
             </h3>
-            <p className="text-gray-500">{localData.email}</p>
-            <p className="text-gray-500">{localData.phone}</p>
+            <p className="text-black">{localData.email}</p>
+            <p className="text-black">{localData.phone}</p>
             <p className="mt-1 inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
               {localData?.studentType === 'eu'
                 ? 'Home'
@@ -157,7 +157,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
           <div className="space-y-4">
             {/* Form Fields */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-black">
                 Title
               </label>
               {isEditing ? (
@@ -173,14 +173,14 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
                   }
                 />
               ) : (
-                <div className="mt-1 text-gray-900">
+                <div className="mt-1 text-black">
                   {capitalizeFirstLetter(localData?.title || '-')}
                 </div>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-black">
                 First Name
               </label>
               {isEditing ? (
@@ -193,14 +193,14 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
                   }
                 />
               ) : (
-                <div className="mt-1 text-gray-900">
+                <div className="mt-1 text-black">
                   {capitalizeFirstLetter(localData?.firstName || '-')}
                 </div>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-black">
                 Middle Name
               </label>
               {isEditing ? (
@@ -211,14 +211,14 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
                   onChange={(e) => handleInputChange('initial', e.target.value)}
                 />
               ) : (
-                <div className="mt-1 text-gray-900">
+                <div className="mt-1 text-black">
                   {capitalizeFirstLetter(localData?.initial || '-')}
                 </div>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-black">
                 Last Name
               </label>
               {isEditing ? (
@@ -231,14 +231,14 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
                   }
                 />
               ) : (
-                <div className="mt-1 text-gray-900">
+                <div className="mt-1 text-black">
                   {capitalizeFirstLetter(localData?.lastName || '-')}
                 </div>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-black">
                 Phone
               </label>
               {isEditing ? (
@@ -249,14 +249,14 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
                   onChange={(e) => handleInputChange('phone', e.target.value)}
                 />
               ) : (
-                <div className="mt-1 text-gray-900">
+                <div className="mt-1 text-black">
                   {capitalizeFirstLetter(localData?.phone || '-')}
                 </div>
               )}
             </div>
 
             {/* <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-black">
                 Ethnicity
               </label>
               {isEditing ? (
@@ -269,14 +269,14 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
                   }
                 />
               ) : (
-                <div className="mt-1 text-gray-900">
+                <div className="mt-1 text-black">
                   {capitalizeFirstLetter(localData?.ethnicity || '-')}
                 </div>
               )}
             </div>
             {localData.ethnicity === 'other' && (
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium text-black">
                   Specify Ethnicity
                 </label>
                 {isEditing ? (
@@ -289,7 +289,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
                     }
                   />
                 ) : (
-                  <div className="mt-1 text-gray-900">
+                  <div className="mt-1 text-black">
                     {capitalizeFirstLetter(localData?.customEthnicity || '-')}
                   </div>
                 )}
@@ -297,7 +297,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
             )} */}
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-black">
                 Country of Birth
               </label>
               {isEditing ? (
@@ -325,7 +325,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
                   }}
                 />
               ) : (
-                <div className="mt-1 text-gray-900">
+                <div className="mt-1 text-black">
                   {capitalizeFirstLetter(localData?.countryOfBirth || '-')}
                 </div>
               )}
@@ -336,7 +336,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
             {/* Additional Personal Info Fields */}
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-black">
                 Date of Birth
               </label>
               {isEditing ? (
@@ -355,7 +355,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
                   placeholder="Use your official birth date"
                 />
               ) : (
-                <div className="mt-1 text-gray-900">
+                <div className="mt-1 text-black">
                   {localData?.dateOfBirth
                     ? new Date(localData.dateOfBirth).toLocaleDateString()
                     : '-'}
@@ -364,7 +364,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-black">
                 Marital Status
               </label>
               {isEditing ? (
@@ -380,14 +380,14 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
                   }
                 />
               ) : (
-                <div className="mt-1 text-gray-900">
+                <div className="mt-1 text-black">
                   {capitalizeFirstLetter(localData?.maritalStatus || '-')}
                 </div>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-black">
                 Country Of Residence
               </label>
               {isEditing ? (
@@ -415,14 +415,14 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
                   }}
                 />
               ) : (
-                <div className="mt-1 text-gray-900">
+                <div className="mt-1 text-black">
                   {capitalizeFirstLetter(localData?.countryOfBirth || '-')}
                 </div>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-black">
                 Gender
               </label>
               {isEditing ? (
@@ -438,14 +438,14 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
                   }
                 />
               ) : (
-                <div className="mt-1 text-gray-900">
+                <div className="mt-1 text-black">
                   {capitalizeFirstLetter(localData?.gender || '-')}
                 </div>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-black">
                 Nationality
               </label>
               {isEditing ? (
@@ -473,7 +473,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = (props) => {
                   }}
                 />
               ) : (
-                <div className="mt-1 text-gray-900">
+                <div className="mt-1 text-black">
                   {capitalizeFirstLetter(localData?.nationality || '-')}
                 </div>
               )}

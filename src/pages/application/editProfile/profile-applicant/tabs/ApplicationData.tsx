@@ -68,7 +68,7 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {/* Extended Fields */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-black">
               Available From Date
             </label>
             {isEditing ? (
@@ -86,7 +86,7 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
                 placeholder="Available From Date"
               />
             ) : (
-              <div className="mt-1 text-gray-900">
+              <div className="mt-1 text-black">
                 {localData?.availableFromDate
                   ? new Date(localData.availableFromDate).toLocaleDateString()
                   : '-'}
@@ -95,7 +95,7 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
           </div>
           <div>
             {/* Source */}
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-black">
               How did you hear about us?
             </label>
             {isEditing ? (
@@ -111,7 +111,7 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
                 classNamePrefix="react-select"
               />
             ) : (
-              <div className="mt-1 text-gray-900">
+              <div className="mt-1 text-black">
                 {capitalizeFirstLetter(localData.source || '-')}
               </div>
             )}
@@ -119,7 +119,7 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
 
           {localData.source === 'referral' && (
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-black">
                 Referral Employee
               </label>
               {isEditing ? (
@@ -131,7 +131,7 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
                   }
                 />
               ) : (
-                <div className="mt-1 text-gray-900">
+                <div className="mt-1 text-black">
                   {localData.referralEmployee || '-'}
                 </div>
               )}
@@ -139,7 +139,7 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-black">
               Is Student?
             </label>
             {isEditing ? (
@@ -155,7 +155,7 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
                 classNamePrefix="react-select"
               />
             ) : (
-              <div className="mt-1 text-gray-900">
+              <div className="mt-1 text-black">
                 {localData.isStudent ? 'Yes' : 'No'}
               </div>
             )}
@@ -163,7 +163,7 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
 
           {/* Is Under State Pension Age? */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-black">
               Is Under State Pension Age?
             </label>
             {isEditing ? (
@@ -182,7 +182,7 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
                 classNamePrefix="react-select"
               />
             ) : (
-              <div className="mt-1 text-gray-900">
+              <div className="mt-1 text-black">
                 {localData.isUnderStatePensionAge ? 'Yes' : 'No'}
               </div>
             )}
@@ -190,7 +190,7 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
 
           {/* Is Over 18? */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-black">
               Are you aged 18 or over?
               <span className="text-red-500">*</span>
             </label>
@@ -207,7 +207,7 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
                 classNamePrefix="react-select"
               />
             ) : (
-              <div className="mt-1 text-gray-900">
+              <div className="mt-1 text-black">
                 {localData.isOver18 ? 'Yes' : 'No'}
               </div>
             )}
@@ -215,7 +215,7 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
 
           {/* Is Subject to Immigration Control? */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-black">
               Are you subject to immigration control?
               <span className="text-red-500">*</span>
             </label>
@@ -235,7 +235,7 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
                 classNamePrefix="react-select"
               />
             ) : (
-              <div className="mt-1 text-gray-900">
+              <div className="mt-1 text-black">
                 {localData.isSubjectToImmigrationControl ? 'Yes' : 'No'}
               </div>
             )}
@@ -243,7 +243,7 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
 
           {/* Can Work in UK? */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-black">
               Are you free to remain and take up employment in the UK?
               <span className="text-red-500">*</span>
             </label>
@@ -260,7 +260,7 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
                 classNamePrefix="react-select"
               />
             ) : (
-              <div className="mt-1 text-gray-900">
+              <div className="mt-1 text-black">
                 {localData.canWorkInUK ? 'Yes' : 'No'}
               </div>
             )}
@@ -269,7 +269,7 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
 
         {/* Weekly Availability */}
         <div>
-          <label className="mb-2 block text-sm font-medium text-gray-700">
+          <label className="mb-2 block text-sm font-medium text-black">
             Weekly Availability
           </label>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">

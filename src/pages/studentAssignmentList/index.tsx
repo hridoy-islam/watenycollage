@@ -42,6 +42,12 @@ interface StudentAssignmentItem {
   termId?: string;
   courseTermName?: string;
   year?: string;
+  finalGrade?: string | null;
+  resultReleaseDate?: string | null;
+  resultReleaseTime?: string | null;
+  /** The API's own verdict: published *and* the UK release moment has passed. */
+  resultReleased?: boolean;
+  isResultPublished?: boolean;
 }
 
 interface FilterOption {
@@ -91,6 +97,37 @@ const sortBySerialNumber = (resources: any[]) => {
   });
 };
 
+/**
+ * What the Result column shows.
+ *
+ * Whether the mark may be seen is the API's call - it reads the publish flag
+ * and the UK release moment together - so this only decides the wording. The
+ * scheduled moment is worth showing while a student waits, because "Result on
+ * 01 Sep 2026, 04:00" answers the question the blank cell otherwise raises.
+ */
+const describeResult = (assignment: StudentAssignmentItem) => {
+  if (assignment.resultReleased && assignment.finalGrade) {
+    return { label: assignment.finalGrade, tone: 'text-green-700 font-bold' };
+  }
+
+  if (assignment.resultReleased) {
+    return { label: 'Awaiting grade', tone: 'text-black' };
+  }
+
+  // The date is only a promise once staff have published the results. An
+  // unpublished assignment may carry a release date that is still being moved
+  // around, so showing it would announce a time nobody has committed to.
+  if (assignment.isResultPublished && assignment.resultReleaseDate) {
+    const at = moment(assignment.resultReleaseDate).format('DD MMM YYYY');
+    const clock = assignment.resultReleaseTime
+      ? `, ${assignment.resultReleaseTime}`
+      : '';
+    return { label: `Result on ${at}${clock}`, tone: 'text-black' };
+  }
+
+  return { label: 'Not released', tone: 'text-black' };
+};
+
 const selectStyles = {
   control: (base: any) => ({ ...base, minHeight: 36, fontSize: 12, color: '#000' }),
   menu: (base: any) => ({ ...base, fontSize: 12 }),
@@ -124,14 +161,14 @@ export function StudentAssignmentsPage() {
   // Auto-resolved group
   const [autoGroupId, setAutoGroupId] = useState<string | null>(null);
 
-  // 1. Load student's approved courses on mount
+  // 1. Load student's enrolled courses on mount
   useEffect(() => {
     if (!user?._id) return;
 
     const fetchStudentCourses = async () => {
       try {
         const res = await axiosInstance.get('/application-course', {
-          params: { studentId: user._id, status: 'approved', limit: 'all' }
+          params: { studentId: user._id, status: 'enrolled', limit: 'all' }
         });
         const apps = res.data?.data?.result || [];
         const uniqueCoursesMap = new Map<string, FilterOption>();
@@ -332,6 +369,11 @@ export function StudentAssignmentsPage() {
           termId: item.intakeId || item.termId || '',
           courseTermName: item.courseTermName || '',
           year: item.year || '',
+          finalGrade: item.finalGrade ?? null,
+          resultReleaseDate: item.resultReleaseDate ?? null,
+          resultReleaseTime: item.resultReleaseTime ?? null,
+          resultReleased: Boolean(item.resultReleased),
+          isResultPublished: Boolean(item.isResultPublished),
         }))
       );
     } catch (err) {
@@ -392,7 +434,8 @@ export function StudentAssignmentsPage() {
             <div>
               <CardTitle>My Assignments</CardTitle>
               <CardDescription>
-                Select a course first, then drill down through term, unit and assignment.
+                Every assignment on your courses. Narrow the list by course,
+                term, unit or assignment.
               </CardDescription>
             </div>
             <Button size="sm" onClick={() => navigate(-1)} className="bg-watney text-white hover:bg-watney/90">
@@ -471,7 +514,6 @@ export function StudentAssignmentsPage() {
               <Button
                 size="sm"
                 onClick={handleSearch}
-                disabled={!selectedCourse}
                 className="flex h-9 w-full items-center gap-2 bg-watney text-xs text-white hover:bg-watney/90"
               >
                 <Search className="h-4 w-4" /> Search
@@ -509,6 +551,7 @@ export function StudentAssignmentsPage() {
                     <TableHead className="text-xs text-black">Assignment</TableHead>
                     <TableHead className="text-xs text-black">Deadline</TableHead>
                     <TableHead className="text-xs text-black">Status</TableHead>
+                    <TableHead className="text-xs text-black">Result</TableHead>
                     <TableHead className="text-right text-xs text-black">Action</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -566,6 +609,14 @@ export function StudentAssignmentsPage() {
                         >
                           {formatStatus(assignment.assignmentStatus)}
                         </span>
+                      </TableCell>
+                      <TableCell className="text-xs">
+                        {(() => {
+                          const result = describeResult(assignment);
+                          return (
+                            <span className={result.tone}>{result.label}</span>
+                          );
+                        })()}
                       </TableCell>
                       <TableCell className="text-right flex justify-end">
                         <Button size="sm" onClick={() => handleViewAssignment(assignment)} className="bg-watney text-white hover:bg-watney/90 flex items-center gap-1 text-xs">
