@@ -307,10 +307,10 @@ export default function StudentAttendancePage() {
           <div className="flex items-center justify-between gap-3">
             <div>
               <CardTitle>My Attendance</CardTitle>
-              <CardDescription>
+              {/* <CardDescription>
                 Every class on your courses and how you were marked. Narrow the
                 list by course, term, unit, status or date.
-              </CardDescription>
+              </CardDescription> */}
             </div>
             <Button
               size="sm"
@@ -324,7 +324,7 @@ export default function StudentAttendancePage() {
 
         <CardContent className="space-y-4">
           {/* Totals across everything the filters match, not just this page. */}
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {/* <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {stats.map((stat) => (
               <div
                 key={stat.label}
@@ -346,7 +346,7 @@ export default function StudentAttendancePage() {
                 </div>
               </div>
             ))}
-          </div>
+          </div> */}
 
           {/* Filters */}
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
