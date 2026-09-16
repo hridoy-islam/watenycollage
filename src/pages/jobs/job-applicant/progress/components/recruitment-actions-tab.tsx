@@ -69,6 +69,44 @@ interface Applicant {
   [key: string]: any
 }
 
+type RefereeKey = "ref1" | "ref2" | "ref3"
+
+const REFEREE_CONFIG: { key: RefereeKey; label: string; field: string; sentField: string; submitField: string }[] = [
+  { key: "ref1", label: "Professional Referee 1", field: "professionalReferee1", sentField: "ref1MailSent", submitField: "ref1Submit" },
+  { key: "ref2", label: "Professional Referee 2", field: "professionalReferee2", sentField: "ref2MailSent", submitField: "ref2Submit" },
+  { key: "ref3", label: "Personal Referee", field: "personalReferee", sentField: "ref3MailSent", submitField: "ref3Submit" }
+]
+
+// Older records only carry the single `referenceMailSent` flag. Fall back to it only
+// when no per-referee flag exists yet, otherwise a single send would mark all three.
+const buildReferenceSentState = (application?: Applicant): Record<RefereeKey, boolean> => {
+  const hasPerRefereeFlags = REFEREE_CONFIG.some(ref => !!application?.[ref.sentField])
+  return REFEREE_CONFIG.reduce((acc, ref) => {
+    acc[ref.key] = hasPerRefereeFlags
+      ? !!application?.[ref.sentField]
+      : !!application?.referenceMailSent
+    return acc
+  }, {} as Record<RefereeKey, boolean>)
+}
+
+const UNLOCK_FIELDS = [
+  "postEmploymentUnlock",
+  "dbsUnlock",
+  "ecertUnlock",
+  "bankDetailsUnlock",
+  "startDateUnlock",
+  "jobContractUnlock",
+  "confidentialityFormUnlock",
+  "statementOfUnderstandingUnlock"
+] as const
+
+// Unlock status is always derived from a server document, never assumed.
+const buildUnlockState = (source?: Record<string, any>): { [key: string]: boolean } =>
+  UNLOCK_FIELDS.reduce((acc, field) => {
+    acc[field] = !!source?.[field]
+    return acc
+  }, {} as { [key: string]: boolean })
+
 const AVAILABLE_VARIABLES = [
   'name', 'title', 'firstName', 'lastName', 'phone', 'email',
   'nationality', 'countryOfResidence', 'dateOfBirth',
@@ -102,8 +140,13 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
   const [emailDialogOpen, setEmailDialogOpen] = useState(false)
   const [activeEmailContext, setActiveEmailContext] = useState<string>("")
 
-  const [referenceAlertOpen, setReferenceAlertOpen] = useState(false)
-  const [referenceLoading, setReferenceLoading] = useState(false)
+  // Reference requests are tracked per referee so each one can be sent/resent on its own
+  const [referenceTarget, setReferenceTarget] = useState<RefereeKey | null>(null)
+  const [referenceLoading, setReferenceLoading] = useState<Record<RefereeKey, boolean>>({
+    ref1: false,
+    ref2: false,
+    ref3: false
+  })
 
   // Loading states for each action
   const [actionLoading, setActionLoading] = useState<{ [key: string]: boolean }>({})
@@ -134,34 +177,20 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
   const [localJobOfferSent, setLocalJobOfferSent] = useState(application?.jobOfferMailSent)
   const [localInterviewSent, setLocalInterviewSent] = useState(application?.interviewMailSent)
   const [localInductionSent, setLocalInductionSent] = useState(!!application?.inductionMailSent)
-  const [localReferenceSent, setLocalReferenceSent] = useState(application?.referenceMailSent)
-  const [localUnlocks, setLocalUnlocks] = useState<{ [key: string]: boolean }>({
-    postEmploymentUnlock: !!application?.postEmploymentUnlock,
-    dbsUnlock: !!application?.dbsUnlock,
-    ecertUnlock: !!application?.ecertUnlock,
-    bankDetailsUnlock: !!application?.bankDetailsUnlock,
-    startDateUnlock: !!application?.startDateUnlock,
-    jobContractUnlock: !!application?.jobContractUnlock,
-    confidentialityFormUnlock: !!application?.confidentialityFormUnlock,
-    statementOfUnderstandingUnlock: !!application?.statementOfUnderstandingUnlock,
-  })
+  const [localReferenceSent, setLocalReferenceSent] = useState<Record<RefereeKey, boolean>>(
+    () => buildReferenceSentState(application)
+  )
+  const [localUnlocks, setLocalUnlocks] = useState<{ [key: string]: boolean }>(
+    () => buildUnlockState(application)
+  )
 
   // Update local states when application prop changes
   useEffect(() => {
     if (application?.jobOfferMailSent !== undefined) setLocalJobOfferSent(application.jobOfferMailSent)
     if (application?.interviewMailSent !== undefined) setLocalInterviewSent(application.interviewMailSent)
     if (application?.inductionMailSent !== undefined) setLocalInductionSent(application.inductionMailSent)
-    if (application?.referenceMailSent !== undefined) setLocalReferenceSent(application.referenceMailSent)
-    setLocalUnlocks({
-      postEmploymentUnlock: !!application?.postEmploymentUnlock,
-      dbsUnlock: !!application?.dbsUnlock,
-      ecertUnlock: !!application?.ecertUnlock,
-      bankDetailsUnlock: !!application?.bankDetailsUnlock,
-      startDateUnlock: !!application?.startDateUnlock,
-      jobContractUnlock: !!application?.jobContractUnlock,
-      confidentialityFormUnlock: !!application?.confidentialityFormUnlock,
-      statementOfUnderstandingUnlock: !!application?.statementOfUnderstandingUnlock,
-    })
+    setLocalReferenceSent(buildReferenceSentState(application))
+    setLocalUnlocks(buildUnlockState(application))
   }, [application])
 
   useEffect(() => {
@@ -376,18 +405,22 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
     }
   }
 
-  const handleSendReferenceEmail = async () => {
+  const handleSendReferenceEmail = async (target: RefereeKey) => {
     if (!userId || !user) return
-    setReferenceLoading(true)
+    setReferenceLoading(prev => ({ ...prev, [target]: true }))
     try {
-      const res = await axiosInstace.patch(`/users/${userId}`, { referenceMailSent: true, jobApplicationId: applicationId })
+      const res = await axiosInstace.patch(`/users/${userId}`, {
+        referenceMailSent: true,
+        jobApplicationId: applicationId,
+        referenceTarget: target
+      })
       if (res.data.success) {
         toast({
           title: "Success",
-          description: "Reference Request Sent",
+          description: `Reference request sent to ${REFEREE_CONFIG.find(r => r.key === target)?.label}`,
         })
-        setLocalReferenceSent(true)
-        setReferenceAlertOpen(false)
+        setLocalReferenceSent(prev => ({ ...prev, [target]: true }))
+        setReferenceTarget(null)
       }
     } catch (error: any) {
       toast({
@@ -396,7 +429,7 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
         variant: "destructive"
       })
     } finally {
-      setReferenceLoading(false)
+      setReferenceLoading(prev => ({ ...prev, [target]: false }))
     }
   }
 
@@ -433,7 +466,25 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
   const isJobOfferSent = localJobOfferSent
   const isInterviewSent = localInterviewSent
   const isInductionSent = localInductionSent
-  const isReferenceSent = localReferenceSent
+  // One row per referee, each independently sendable / resendable
+  const referenceActions = REFEREE_CONFIG.map(ref => {
+    const referee = application?.[ref.field] || {}
+    const hasEmail = !!referee?.email
+    const sent = !!localReferenceSent[ref.key]
+    return {
+      label: `Reference Mail – ${ref.label}`,
+      description: hasEmail
+        ? [referee?.name, referee?.email].filter(Boolean).join(" · ")
+        : "No referee email provided",
+      sent,
+      loading: referenceLoading[ref.key],
+      icon: sent ? <MailCheck className="h-4 w-4" /> : <Mail className="h-4 w-4" />,
+      onClick: () => setReferenceTarget(ref.key),
+      isViewOnly: false,
+      disabled: !hasEmail,
+      submitted: !!application?.[ref.submitField]
+    }
+  })
 
   const handleUnlockAction = async (field: string) => {
     if (!userId) return
@@ -459,17 +510,23 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
     setUnlockLoading(prev => ({ ...prev, [field]: true }))
     try {
       const payload = { [field]: true, jobApplicationId: applicationId }
-      await axiosInstace.patch(`/users/${userId}`, payload)
+      const res = await axiosInstace.patch(`/users/${userId}`, payload)
+
+      // Trust the saved document, not the request we just made
+      const updated = res?.data?.data
+      if (!res?.data?.success || !updated?.[field]) {
+        throw new Error("Section was not unlocked on the server. Please try again.")
+      }
+      setLocalUnlocks(buildUnlockState(updated))
 
       toast({
         title: "Success",
         description: "Section Unlocked Successfully",
       })
-      setLocalUnlocks(prev => ({ ...prev, [field]: true }))
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error?.response?.data?.message || "Failed to unlock section",
+        description: error?.response?.data?.message || error?.message || "Failed to unlock section",
         variant: "destructive"
       })
     } finally {
@@ -649,8 +706,8 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
     }
   }
 
-  const handleSaveTemplateToUser = async () => {
-    if (!userId) return
+  const handleSaveTemplateToUser = async (): Promise<boolean> => {
+    if (!userId) return false
     setSavingTemplate(true)
     try {
       await axiosInstace.patch(`/users/${userId}`, {
@@ -658,12 +715,14 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
         contractTypeId: selectedContractType
       })
       toast({ title: "Success", description: "Template saved to user profile" })
+      return true
     } catch (error: any) {
       toast({
         title: "Error",
         description: error?.response?.data?.message || "Failed to save template",
         variant: "destructive"
       })
+      return false
     } finally {
       setSavingTemplate(false)
     }
@@ -676,26 +735,34 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
     }
     setContractTypeSelectError("")
 
-    if (editableTemplate) {
-      await handleSaveTemplateToUser()
+    // Don't unlock off the back of a template save that failed
+    if (editableTemplate && !(await handleSaveTemplateToUser())) {
+      return
     }
 
     setUnlockLoading(prev => ({ ...prev, jobContractUnlock: true }))
     try {
       const payload = { contractTypeId: selectedContractType, jobContractUnlock: true, jobApplicationId: applicationId }
-      await axiosInstace.patch(`/users/${userId}`, payload)
+      const res = await axiosInstace.patch(`/users/${userId}`, payload)
+
+      // Trust the saved document, not the request we just made
+      const updated = res?.data?.data
+      if (!res?.data?.success || !updated?.jobContractUnlock) {
+        throw new Error("Job contract was not unlocked on the server. Please try again.")
+      }
+      setLocalUnlocks(buildUnlockState(updated))
+
       toast({
         title: "Success",
         description: "Job Contract Unlocked Successfully",
       })
-      setLocalUnlocks(prev => ({ ...prev, jobContractUnlock: true }))
       setContractTypeDialogOpen(false)
       setSelectedContractType("")
       setEditableTemplate("")
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error?.response?.data?.message || "Failed to unlock job contract",
+        description: error?.response?.data?.message || error?.message || "Failed to unlock job contract",
         variant: "destructive"
       })
     } finally {
@@ -706,8 +773,6 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
   const handleActionClick = async (actionType: string) => {
     if (actionType === "job-offer" || actionType === "interview" || actionType === "induction") {
       await handleOpenEmailDialog(actionType)
-    } else if (actionType === "reference") {
-      setReferenceAlertOpen(true)
     }
   }
 
@@ -722,7 +787,18 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
     { field: "statementOfUnderstandingUnlock", label: "Unlock Statement of Understanding", done: localUnlocks.statementOfUnderstandingUnlock },
   ]
 
-  const actions = [
+  const actions: {
+    label: string
+    description?: string
+    sent?: boolean
+    loading?: boolean
+    icon: JSX.Element
+    onClick: () => void
+    isViewOnly: boolean
+    hasPreview?: boolean
+    disabled?: boolean
+    submitted?: boolean
+  }[] = [
     {
       label: "Job Offer",
       sent: isJobOfferSent,
@@ -750,14 +826,7 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
       isViewOnly: false,
       hasPreview: true
     },
-    {
-      label: "Reference Mail",
-      sent: isReferenceSent,
-      loading: referenceLoading,
-      icon: isReferenceSent ? <MailCheck className="h-4 w-4" /> : <Mail className="h-4 w-4" />,
-      onClick: () => setReferenceAlertOpen(true),
-      isViewOnly: false
-    },
+    ...referenceActions,
     {
       label: "DBS",
       sent: false,
@@ -817,7 +886,7 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
                     key={action.label}
                     className={`${!action.sent && !action.isViewOnly ? "cursor-pointer" : ""} ${i !== actions.length - 1 ? "border-b border-gray-200" : ""}`}
                     onClick={() => {
-                      if (!action.sent && !action.isViewOnly) {
+                      if (!action.sent && !action.isViewOnly && !action.disabled) {
                         action.onClick()
                       }
                     }}
@@ -827,6 +896,12 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
                          {action.loading ? <Loader2 className="h-4 w-4 animate-spin" /> : action.icon}
                          {action.label}
                        </span>
+                       {action.description && (
+                         <span className="mt-0.5 block pl-7 text-xs text-gray-500">{action.description}</span>
+                       )}
+                       {action.submitted && (
+                         <span className="mt-0.5 block pl-7 text-xs font-medium text-green-700">Reference received</span>
+                       )}
                      </TableCell>
                      <TableCell className="px-6 py-4 text-right">
                        {action.isViewOnly ? (
@@ -847,7 +922,7 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
                              size="sm"
                              className="h-8 px-3 text-xs font-medium"
                              onClick={(e) => { e.stopPropagation(); action.onClick() }}
-                             disabled={action.loading || emailLoading}
+                             disabled={action.loading || emailLoading || action.disabled}
                            >
                              Resend
                            </Button>
@@ -900,7 +975,7 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
                            size="sm"
                            className="bg-watney text-white hover:bg-watney/90 h-8 px-4 text-xs font-medium rounded"
                            onClick={(e) => { e.stopPropagation(); action.onClick() }}
-                           disabled={action.loading || emailLoading}
+                           disabled={action.loading || emailLoading || action.disabled}
                          >
                           {action.loading ? (
                             <>
@@ -954,7 +1029,7 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
                     <TableCell className="px-6 py-4 text-right">
                       {item.done ? (
                         <span className="inline-flex items-center gap-1.5 text-sm font-bold text-white bg-green-600 px-2.5 py-1 rounded">
-                          <Check className="h-3.5 w-3.5" /> Done
+                          <Check className="h-3.5 w-3.5" /> Unlocked
                         </span>
                       ) : (
                         <Button
@@ -982,34 +1057,50 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
         </Card>
       </div>
 
-      {/* Reference Email Confirmation Dialog */}
-      <AlertDialog open={referenceAlertOpen} onOpenChange={setReferenceAlertOpen}>
+      {/* Reference Email Confirmation Dialog (per referee) */}
+      <AlertDialog open={!!referenceTarget} onOpenChange={(open) => { if (!open) setReferenceTarget(null) }}>
         <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Send Reference Request</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will send an automated reference request email to {application?.firstName} {application?.lastName}'s referees. Are you sure you want to proceed?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setReferenceAlertOpen(false)} disabled={referenceLoading}>
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={(e) => { e.preventDefault(); handleSendReferenceEmail() }}
-              className="bg-watney text-white hover:bg-watney/90"
-              disabled={referenceLoading}
-            >
-              {referenceLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Sending...
-                </>
-              ) : (
-                "Confirm Send"
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
+          {(() => {
+            const target = referenceTarget
+            const config = REFEREE_CONFIG.find(r => r.key === target)
+            const referee = config ? application?.[config.field] : null
+            const loading = target ? referenceLoading[target] : false
+            const alreadySent = target ? !!localReferenceSent[target] : false
+            return (
+              <>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>
+                    {alreadySent ? "Resend Reference Request" : "Send Reference Request"}
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will {alreadySent ? "resend" : "send"} an automated reference request email for{" "}
+                    {application?.firstName} {application?.lastName} to{" "}
+                    <span className="font-medium text-black">{referee?.name || config?.label}</span>
+                    {referee?.email ? ` (${referee.email})` : ""}. Are you sure you want to proceed?
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel onClick={() => setReferenceTarget(null)} disabled={loading}>
+                    Cancel
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={(e) => { e.preventDefault(); if (target) handleSendReferenceEmail(target) }}
+                    className="bg-watney text-white hover:bg-watney/90"
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      alreadySent ? "Confirm Resend" : "Confirm Send"
+                    )}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </>
+            )
+          })()}
         </AlertDialogContent>
       </AlertDialog>
 
@@ -1136,7 +1227,7 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
                           <label className="text-sm font-medium text-gray-700">Template Body</label>
                           <Button
                             size="sm"
-                            onClick={handleSaveTemplateToUser}
+                            onClick={() => { void handleSaveTemplateToUser() }}
                             disabled={savingTemplate}
                             className="bg-watney text-white hover:bg-watney/90"
                           >

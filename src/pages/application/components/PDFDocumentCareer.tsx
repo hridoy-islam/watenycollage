@@ -37,6 +37,8 @@ const CheckboxView = ({ checked }: { checked: boolean | undefined }) => (
 const styles = StyleSheet.create({
   page: {
     padding: 30,
+    // Keeps flowing content clear of the fixed footer at the bottom of each page
+    paddingBottom: 45,
     fontFamily: 'Helvetica',
     fontSize: 10
   },
@@ -216,24 +218,11 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
 }) => {
   // Ensure formData is not undefined
   const data = formData || {};
-  const totalPages = 3;
-  const PDFooter = ({
-    pageNumber,
-    totalPages
-  }: {
-    pageNumber: number;
-    totalPages: number;
-  }) => (
-    <Text style={styles.footer}>
-      Application Form Page {pageNumber} of {totalPages} - {getTodaysDate()}
-    </Text>
-  );
-
   const logoPath = import.meta.env.VITE_LOGO;
 
   return (
     <Document>
-      {/* Page 1 */}
+      {/* Single flowing page: react-pdf paginates automatically */}
       <Page size="A4" style={styles.page}>
         <View
           style={{
@@ -638,15 +627,6 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
   </View>
 </>
 
-        <Text style={styles.footer}>
-          Application Form Page{' '}
-          <PDFooter pageNumber={1} totalPages={totalPages} /> -{' '}
-          {getTodaysDate()}
-        </Text>
-      </Page>
-
-      {/* Page 2 */}
-      <Page size="A4" style={styles.page}>
         {/* Education  */}
         <Text style={[styles.sectionHeader, { marginBottom: 0 }]}>
           QUALIFICATIONS OBTAINED
@@ -880,15 +860,6 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
 
        
 
-        <Text style={styles.footer}>
-          Application Form Page{' '}
-          <PDFooter pageNumber={1} totalPages={totalPages} /> -{' '}
-          {getTodaysDate()}
-        </Text>
-      </Page>
-
-      <Page size="A4" style={styles.page}>
-
         <Text style={styles.sectionHeader}>Life Skills & Interests</Text>
         <View style={{ border: '0.5px solid #999', minHeight: 30, padding: 5, marginBottom: 10 }}>
           <Text>{capitalizeFirstLetter(data.lifeSkillsAndInterests || '')}</Text>
@@ -1002,11 +973,14 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
           <Text>Phone: +44 1708 693057</Text>
         </View>
 
-        <Text style={styles.footer}>
-          Application Form Page{' '}
-          <PDFooter pageNumber={1} totalPages={totalPages} /> -{' '}
-          {getTodaysDate()}
-        </Text>
+        {/* Repeated on every page; react-pdf fills in the real numbers */}
+        <Text
+          style={styles.footer}
+          fixed
+          render={({ pageNumber, totalPages }) =>
+            `Application Form Page ${pageNumber} of ${totalPages} - ${getTodaysDate()}`
+          }
+        />
       </Page>
     </Document>
   );

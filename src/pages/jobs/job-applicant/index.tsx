@@ -52,7 +52,7 @@ export default function CareerApplicationsPage() {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [entriesPerPage, setEntriesPerPage] = useState(10);
+  const [entriesPerPage, setEntriesPerPage] = useState(100);
   const [jobTitle, setJobTitle] = useState('');
 
   const fetchAllApplications = async (page: number, limit: number) => {

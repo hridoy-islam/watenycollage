@@ -531,7 +531,7 @@ return (
         </TabContent> */}
 
         <TabContent value="terms" activeTab={activeTab}>
-          <TermTab application={application} renderFieldRow={renderFieldRow} />
+          <TermTab application={application} applicationJob={applicationJob} renderFieldRow={renderFieldRow} />
         </TabContent>
 
         <TabContent value="actions" activeTab={activeTab}>
