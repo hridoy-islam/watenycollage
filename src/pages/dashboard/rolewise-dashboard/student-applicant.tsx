@@ -6,8 +6,6 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
 import axiosInstance from '@/lib/axios';
-import { BlinkingDots } from '@/components/shared/blinking-dots';
-import Loader from '@/components/shared/loader';
 import { DataTablePagination } from '@/components/shared/data-table-pagination';
 import {
   CalendarDays,
@@ -23,7 +21,9 @@ import {
   FileText,
   MessageSquare,
   GraduationCap,
-  User
+  User,
+  ExternalLink,
+  ClipboardList
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -43,6 +43,7 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 
 // ── Types and Interfaces ──────────────────────────────────────────────────
 
@@ -54,6 +55,19 @@ interface StudentCourse {
   groupId?: { _id: string; name: string } | string;
   intakeId?: { _id: string; termName: string } | string;
   status: string;
+}
+
+/**
+ * A lesson uploaded against a session. The routine endpoint hangs these off
+ * each routine, so the timetable can say what is being taught rather than
+ * just when - no extra request per slot.
+ */
+interface RoutineLesson {
+  _id: string;
+  title?: string;
+  fileUrl?: string;
+  fileName?: string;
+  hasContent?: boolean;
 }
 
 interface ClassEntry {
@@ -78,6 +92,7 @@ interface ClassEntry {
   teacherId?: string;
   teacherName?: string | null;
   teacherEmail?: string | null;
+  lessons?: RoutineLesson[];
 }
 
 interface Course {
@@ -281,6 +296,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
   const [routineLoading, setRoutineLoading] = useState(false);
   const [view, setView] = useState<'calendar' | 'list'>('calendar');
   const [selectedEntry, setSelectedEntry] = useState<ClassEntry | null>(null);
+  const [entryTab, setEntryTab] = useState<'details' | 'lessons'>('details');
 
   const [appliedRange, setAppliedRange] = useState<[Date | null, Date | null]>([
     moment().startOf('isoWeek').toDate(),
@@ -469,10 +485,8 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
     if (user._id) fetchCourses();
   }, [user._id, fetchCourses]);
 
-  const hasCourses = courses.length > 0;
-
   useEffect(() => {
-    if (!hasCourses || weekDays.length === 0) return;
+    if (weekDays.length === 0) return;
 
     const startDateStr = toLocalDateString(weekDays[0]);
     const endDateStr = toLocalDateString(weekDays[weekDays.length - 1]);
@@ -493,37 +507,83 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
           if (cid && !placementByCourse.has(cid)) placementByCourse.set(cid, p);
         });
 
-        const routinePromises = courses.map((application) => {
-          const courseId = asId(application.courseId);
-          const placement = placementByCourse.get(courseId || '');
-          const groupId = asId(placement?.groupId) || asId(application.groupId);
-          const termId =
-            asId(placement?.courseTermId) || asId(application.intakeId);
-          if (!courseId) return Promise.resolve({ application, result: [] });
+        /**
+         * Every course/group/term the student sits in, however it is known.
+         * The placement is what puts a student in front of a timetable, so it
+         * leads: a student whose application row does not read `enrolled` is
+         * still in a group and still has classes. The enrolment only fills in
+         * a course the placement call did not return.
+         */
+        type RoutineSource = {
+          courseId: string;
+          groupId?: string;
+          termId?: string;
+          hasTerm: boolean;
+          application?: StudentCourse;
+          placement?: any;
+        };
+        const sources = new Map<string, RoutineSource>();
 
-          return axiosInstance
+        (Array.isArray(placements) ? placements : []).forEach(
+          (placement: any) => {
+            const courseId = asId(placement.courseId);
+            if (!courseId) return;
+            sources.set(courseId, {
+              courseId,
+              groupId: asId(placement.groupId),
+              termId: asId(placement.courseTermId),
+              hasTerm: Boolean(placement.courseTermId),
+              placement
+            });
+          }
+        );
+
+        courses.forEach((application) => {
+          const courseId = asId(application.courseId);
+          if (!courseId) return;
+          const existing = sources.get(courseId);
+          const placement = placementByCourse.get(courseId);
+          sources.set(courseId, {
+            courseId,
+            groupId: existing?.groupId || asId(application.groupId),
+            termId: existing?.termId || asId(application.intakeId),
+            hasTerm: existing?.hasTerm || Boolean(placement?.courseTermId),
+            application,
+            placement: existing?.placement || placement
+          });
+        });
+
+        if (sources.size === 0) {
+          setClasses([]);
+          return;
+        }
+
+        const routinePromises = Array.from(sources.values()).map((source) =>
+          axiosInstance
             .get('/course-routine', {
               params: {
                 limit: 500,
-                courseId,
-                ...(groupId ? { groupId } : {}),
-                ...(placement?.courseTermId ? { termId } : {}),
+                courseId: source.courseId,
+                ...(source.groupId ? { groupId: source.groupId } : {}),
+                ...(source.hasTerm && source.termId
+                  ? { termId: source.termId }
+                  : {}),
                 startDate: startDateStr,
                 endDate: endDateStr
               }
             })
             .then((res) => ({
-              application,
+              source,
               result: res.data?.data?.result || []
             }))
             .catch((error) => {
               console.error(
-                `Failed to load routine for course ${courseId}:`,
+                `Failed to load routine for course ${source.courseId}:`,
                 error
               );
-              return { application, result: [] };
-            });
-        });
+              return { source, result: [] };
+            })
+        );
 
         const [routineResponses, historyRes] = await Promise.all([
           Promise.all(routinePromises),
@@ -545,19 +605,17 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
         );
 
         const byRoutineId = new Map<string, ClassEntry>();
-        routineResponses.forEach(({ application, result }) => {
-          const courseId = asId(application.courseId);
-          const placement = placementByCourse.get(courseId || '');
-          const groupId = asId(placement?.groupId) || asId(application.groupId);
-          const termId =
-            asId(placement?.courseTermId) || asId(application.intakeId);
+        routineResponses.forEach(({ source, result }) => {
+          const { courseId, groupId, termId, application, placement } = source;
           const routineResults = Array.isArray(result) ? result : [];
           const firstRoutine = routineResults[0] || {};
           const courseName =
-            asName(application.courseId) || asName(firstRoutine.courseId);
+            asName(application?.courseId) ||
+            asName(placement?.courseId) ||
+            asName(firstRoutine.courseId);
           const groupName =
             asName(placement?.groupId) ||
-            asName(application.groupId) ||
+            asName(application?.groupId) ||
             asName(firstRoutine.groupId);
           const termName =
             asName(placement?.courseTermId) || asName(firstRoutine.termId);
@@ -594,7 +652,8 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                 null,
               teacherId: routine.teacherId?._id ?? matched?.teacherId,
               teacherName: routine.teacherId?.name ?? matched?.teacherName,
-              teacherEmail: routine.teacherId?.email ?? matched?.teacherEmail
+              teacherEmail: routine.teacherId?.email ?? matched?.teacherEmail,
+              lessons: Array.isArray(routine.lessons) ? routine.lessons : []
             });
           });
         });
@@ -614,15 +673,14 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
       }
     };
     fetchAll();
-  }, [hasCourses, courses, user._id, weekDays]);
+  }, [courses, user._id, weekDays]);
 
   const slotMap = useMemo(
     () => buildSlotMap(classes, weekDays),
     [classes, weekDays]
   );
 
-    const isCompleted = user?.isCompleted;
-
+  const isCompleted = user?.isCompleted;
 
   const stats = useMemo(() => {
     const present = classes.filter((c) => c.status === 'present').length;
@@ -641,6 +699,19 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
           weekDays[weekDays.length - 1]
         ).format('DD MMM YYYY')}`
       : 'Select dates';
+
+  /** A class always opens on its details, whichever view it was clicked in. */
+  const openEntry = (entry: ClassEntry) => {
+    setEntryTab('details');
+    setSelectedEntry(entry);
+  };
+
+  /** The unit page the lessons are kept on, when the class names a unit. */
+  const unitHrefOf = (entry: ClassEntry | null) => {
+    if (!entry?.courseId || !entry?.unitId) return '';
+    if (!entry.termId || !entry.groupId) return '';
+    return `/dashboard/my-courses/${entry.courseId}/terms/${entry.termId}/groups/${entry.groupId}/units/${entry.unitId}`;
+  };
 
   const statusOf = (status?: AttendanceStatus) => {
     if (!status || !STATUS_META[status]) return null;
@@ -672,35 +743,27 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
 
   // ── Render ──
 
-  if (dashboardLoading) {
-    return (
-      <div className="flex h-[80vh] flex-1 items-center justify-center">
-        <Loader />
-      </div>
-    );
-  }
-
   return (
     <Card className="w-full min-w-0 max-w-full flex-1 border-none shadow-sm">
       <CardHeader>
         <CardTitle className="text-xl font-bold text-black">
-        <CardTitle className="text-xl font-bold text-black">
-  {user?.name && (
-    <p className="text-2xl font-bold text-black">
-      Welcome,{" "}
-      {isCompleted ? (
-        <Link
-          to="/dashboard/profile"
-          className="cursor-pointer text-watney"
-        >
-          {user.name}
-        </Link>
-      ) : (
-        <span className="text-watney">{user.name}</span>
-      )}
-    </p>
-  )}
-</CardTitle>
+          <CardTitle className="text-xl font-bold text-black">
+            {user?.name && (
+              <p className="text-2xl font-bold text-black">
+                Welcome,{' '}
+                {isCompleted ? (
+                  <Link
+                    to="/dashboard/profile"
+                    className="cursor-pointer text-watney"
+                  >
+                    {user.name}
+                  </Link>
+                ) : (
+                  <span className="text-watney">{user.name}</span>
+                )}
+              </p>
+            )}
+          </CardTitle>
         </CardTitle>
       </CardHeader>
 
@@ -729,7 +792,11 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
               <ChevronRight className="h-4 w-4 text-black transition-transform group-hover:translate-x-0.5 group-hover:text-watney" />
             </div>
             <p className="mt-4 text-3xl font-bold text-black">
-              {totalAssignment}
+              {dashboardLoading ? (
+                <Skeleton className="h-8 w-12" />
+              ) : (
+                totalAssignment
+              )}
             </p>
           </div>
 
@@ -744,18 +811,18 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                   <BookOpen className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-black">
-                    My Course
-                  </p>
-                  <p className="text-[11px] text-black">
-                    Total applications
-                  </p>
+                  <p className="text-sm font-semibold text-black">My Course</p>
+                  <p className="text-[11px] text-black">Total applications</p>
                 </div>
               </div>
               <ChevronRight className="h-4 w-4 text-black transition-transform group-hover:translate-x-0.5 group-hover:text-watney" />
             </div>
             <p className="mt-4 text-3xl font-bold text-black">
-              {totalApplication}
+              {dashboardLoading ? (
+                <Skeleton className="h-8 w-12" />
+              ) : (
+                totalApplication
+              )}
             </p>
           </div>
 
@@ -779,7 +846,11 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
               <ChevronRight className="h-4 w-4 text-black transition-transform group-hover:translate-x-0.5 group-hover:text-watney" />
             </div>
             <p className="mt-4 text-3xl font-bold text-black">
-              {pendingFeedbackCount}
+              {dashboardLoading ? (
+                <Skeleton className="h-8 w-12" />
+              ) : (
+                pendingFeedbackCount
+              )}
             </p>
           </div>
         </div>
@@ -802,430 +873,419 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
             </div>
 
             {/* Date range controls */}
-            {hasCourses && (
-              <div className="flex flex-wrap items-center justify-between gap-2 border-y border-gray-100 py-3">
-                <div className="flex flex-wrap items-center gap-2">
-                  <button
-                    className="flex h-8 w-8 items-center justify-center rounded-md bg-watney text-white transition-colors hover:bg-watney/90"
-                    onClick={() => shiftRange(-(weekDays.length || 7))}
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </button>
+            <div className="flex flex-wrap items-center justify-between gap-2 border-y border-gray-100 py-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  className="flex h-8 w-8 items-center justify-center rounded-md bg-watney text-white transition-colors hover:bg-watney/90"
+                  onClick={() => shiftRange(-(weekDays.length || 7))}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
 
-                  {isCustomMode ? (
-                    <div className="z-50 flex items-center gap-2 rounded-full border border-watney/40 bg-white p-1 shadow-sm">
-                      <CalendarRange className="ml-2 h-3.5 w-3.5 shrink-0 text-watney" />
-                      <DatePicker
-                        selectsRange
-                        startDate={tempStart}
-                        endDate={tempEnd}
-                        onChange={(dates: [Date | null, Date | null]) =>
-                          setCustomRange(dates)
-                        }
-                        dateFormat="dd MMM yyyy"
-                        placeholderText="Select date range..."
-                        isClearable={false}
-                        popperPlacement="bottom-start"
-                        popperProps={{ strategy: 'fixed' }}
-                        className="w-52 border-none bg-transparent text-xs font-semibold text-black outline-none placeholder:text-black"
-                      />
-                      <button
-                        onClick={handleApply}
-                        disabled={!tempStart || !tempEnd}
-                        className="h-7 rounded-full bg-watney px-3 text-[11px] font-bold text-white transition-colors hover:bg-watney/90 disabled:opacity-40"
-                      >
-                        Apply
-                      </button>
-                      <button
-                        onClick={() => setIsCustomMode(false)}
-                        className="mr-1 flex h-7 w-7 items-center justify-center rounded-full text-black hover:bg-gray-100 hover:text-black"
-                      >
-                        <X className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
-                  ) : (
+                {isCustomMode ? (
+                  <div className="z-50 flex items-center gap-2 rounded-full border border-watney/40 bg-white p-1 shadow-sm">
+                    <CalendarRange className="ml-2 h-3.5 w-3.5 shrink-0 text-watney" />
+                    <DatePicker
+                      selectsRange
+                      startDate={tempStart}
+                      endDate={tempEnd}
+                      onChange={(dates: [Date | null, Date | null]) =>
+                        setCustomRange(dates)
+                      }
+                      dateFormat="dd MMM yyyy"
+                      placeholderText="Select date range..."
+                      isClearable={false}
+                      popperPlacement="bottom-start"
+                      popperProps={{ strategy: 'fixed' }}
+                      className="w-52 border-none bg-transparent text-xs font-semibold text-black outline-none placeholder:text-black"
+                    />
                     <button
-                      type="button"
-                      onClick={openCustomMode}
-                      className="flex min-w-[180px] items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-center text-sm font-semibold text-black transition-colors hover:border-gray-200 hover:bg-gray-50"
+                      onClick={handleApply}
+                      disabled={!tempStart || !tempEnd}
+                      className="h-7 rounded-full bg-watney px-3 text-[11px] font-bold text-white transition-colors hover:bg-watney/90 disabled:opacity-40"
                     >
-                      <CalendarIcon className="h-3.5 w-3.5 text-watney" />
-                      {rangeLabel}
+                      Apply
                     </button>
-                  )}
-
+                    <button
+                      onClick={() => setIsCustomMode(false)}
+                      className="mr-1 flex h-7 w-7 items-center justify-center rounded-full text-black hover:bg-gray-100 hover:text-black"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                ) : (
                   <button
-                    className="flex h-8 w-8 items-center justify-center rounded-md bg-watney text-white transition-colors hover:bg-watney/90"
-                    onClick={() => shiftRange(weekDays.length || 7)}
+                    type="button"
+                    onClick={openCustomMode}
+                    className="flex min-w-[180px] items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-center text-sm font-semibold text-black transition-colors hover:border-gray-200 hover:bg-gray-50"
                   >
-                    <ChevronRight className="h-4 w-4" />
+                    <CalendarIcon className="h-3.5 w-3.5 text-watney" />
+                    {rangeLabel}
                   </button>
+                )}
 
-                  {!isCustomMode && (
-                    <>
-                      <Button
-                        variant="outline"
-                        className="h-8 rounded-md border border-gray-200 px-3 text-xs font-semibold transition-colors"
-                        onClick={goThisWeek}
-                      >
-                        This Week
-                      </Button>
-                      <Button
-                        className="h-8 rounded-md bg-watney px-3 text-xs font-semibold text-white transition-colors hover:bg-watney/90"
-                        onClick={goToday}
-                      >
-                        Today
-                      </Button>
-                    </>
-                  )}
-                </div>
+                <button
+                  className="flex h-8 w-8 items-center justify-center rounded-md bg-watney text-white transition-colors hover:bg-watney/90"
+                  onClick={() => shiftRange(weekDays.length || 7)}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </button>
 
-                <span className="text-xs text-black">
-                  {classes.length} class{classes.length === 1 ? '' : 'es'} in
-                  range
-                </span>
+                {!isCustomMode && (
+                  <>
+                    <Button
+                      variant="outline"
+                      className="h-8 rounded-md border border-gray-200 px-3 text-xs font-semibold transition-colors"
+                      onClick={goThisWeek}
+                    >
+                      This Week
+                    </Button>
+                    <Button
+                      className="h-8 rounded-md bg-watney px-3 text-xs font-semibold text-white transition-colors hover:bg-watney/90"
+                      onClick={goToday}
+                    >
+                      Today
+                    </Button>
+                  </>
+                )}
               </div>
-            )}
+
+              <span className="flex items-center gap-2 text-xs text-black">
+                {classes.length} class{classes.length === 1 ? '' : 'es'} in
+                range
+                {/* {routineLoading && (
+                  <span className="inline-flex items-center gap-1 font-medium text-black">
+                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-watney" />
+                    Loading…
+                  </span>
+                )} */}
+              </span>
+            </div>
 
             {/* View toggle */}
-            {!routineLoading && hasCourses && (
-              <Tabs value={view} onValueChange={(v) => setView(v as any)}>
-                <TabsList>
-                  <TabsTrigger value="calendar">
-                    <CalendarDays className="mr-1.5 h-4 w-4" /> Calendar
-                  </TabsTrigger>
-                  <TabsTrigger value="list">
-                    <List className="mr-1.5 h-4 w-4" /> List View
-                  </TabsTrigger>
-                </TabsList>
+            <Tabs value={view} onValueChange={(v) => setView(v as any)}>
+              <TabsList>
+                <TabsTrigger value="calendar">
+                  <CalendarDays className="mr-1.5 h-4 w-4" /> Calendar
+                </TabsTrigger>
+                <TabsTrigger value="list">
+                  <List className="mr-1.5 h-4 w-4" /> List View
+                </TabsTrigger>
+              </TabsList>
 
-                {/* ── Weekly grid calendar view ── */}
-                <TabsContent value="calendar" className="mt-4">
-                  <div className="mb-3 flex flex-wrap items-center gap-x-4 gap-y-2">
-                    <div className="flex flex-wrap items-center gap-3">
-                      {(Object.keys(STATUS_META) as AttendanceStatus[]).map(
-                        (key) => (
+              {/* ── Weekly grid calendar view ── */}
+              <TabsContent value="calendar" className="mt-4">
+                <div className="mb-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+                  <div className="flex flex-wrap items-center gap-3">
+                    {(Object.keys(STATUS_META) as AttendanceStatus[]).map(
+                      (key) => (
+                        <span
+                          key={key}
+                          className="flex items-center gap-1.5 text-xs font-medium text-black"
+                        >
                           <span
-                            key={key}
-                            className="flex items-center gap-1.5 text-xs font-medium text-black"
-                          >
-                            <span
-                              className="h-2.5 w-2.5 rounded-full"
-                              style={{ backgroundColor: STATUS_META[key].hex }}
-                            />
-                            {STATUS_META[key].label}
-                          </span>
-                        )
-                      )}
-                    </div>
+                            className="h-2.5 w-2.5 rounded-full"
+                            style={{ backgroundColor: STATUS_META[key].hex }}
+                          />
+                          {STATUS_META[key].label}
+                        </span>
+                      )
+                    )}
                   </div>
+                </div>
 
-                  {routineLoading ? (
-                    <div className="flex justify-center py-8">
-                      <BlinkingDots size="small" color="bg-watney" />
-                    </div>
-                  ) : (
-                    <div className="relative max-h-[650px] w-full min-w-0 max-w-full overflow-auto rounded-sm border border-gray-300 bg-white shadow-sm">
-                      <table className="w-max min-w-full border-collapse text-sm">
-                        <thead className="sticky top-0 z-30 bg-slate-50">
-                          <tr>
-                            <th className="sticky left-0 top-0 z-40 w-16 min-w-[64px] border-b border-r border-gray-200 bg-slate-50 px-2 py-2 text-right text-[10px] font-semibold uppercase tracking-wide shadow-[4px_0_8px_-3px_rgba(0,0,0,0.15)]">
-                              Time
+                {/*
+                 * The frame is drawn straight away - only the class blocks
+                 * are waiting on the fetch, so there is nothing to swap the
+                 * whole timetable out for.
+                 */}
+                <div className="relative max-h-[650px] w-full min-w-0 max-w-full overflow-auto rounded-sm border border-gray-300 bg-white shadow-sm">
+                  <table className="w-max min-w-full border-collapse text-sm">
+                    <thead className="sticky top-0 z-30 bg-slate-50">
+                      <tr>
+                        <th className="sticky left-0 top-0 z-40 w-16 min-w-[64px] border-b border-r border-gray-200 bg-slate-50 px-2 py-2 text-right text-[10px] font-semibold uppercase tracking-wide shadow-[4px_0_8px_-3px_rgba(0,0,0,0.15)]">
+                          Time
+                        </th>
+                        {weekDays.map((d, di) => {
+                          const today = isToday(d);
+                          const wknd = [0, 6].includes(d.getDay());
+                          const dayName = d.toLocaleDateString('en-GB', {
+                            weekday: 'short'
+                          });
+                          return (
+                            <th
+                              key={di}
+                              style={{
+                                width: COLUMN_WIDTH,
+                                minWidth: `${COLUMN_MIN_PX}px`,
+                                maxWidth: `${COLUMN_MAX_PX}px`
+                              }}
+                              className={`border-b border-r border-gray-200 py-2 text-center ${
+                                today
+                                  ? 'bg-blue-50'
+                                  : wknd
+                                    ? 'bg-slate-100/60'
+                                    : ''
+                              }`}
+                            >
+                              <div className="text-[10px] font-semibold uppercase tracking-wide text-black">
+                                {dayName}
+                              </div>
+                              {today ? (
+                                <div className="mx-auto mt-1 flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-[13px] font-medium text-white">
+                                  {d.getDate()}
+                                </div>
+                              ) : (
+                                <div className="mt-1 text-sm font-medium text-black">
+                                  {d.getDate()}
+                                </div>
+                              )}
+                              <div className="mt-0.5 text-[9px] font-medium text-black">
+                                {d.toLocaleDateString('en-GB', {
+                                  month: 'short'
+                                })}
+                              </div>
                             </th>
-                            {weekDays.map((d, di) => {
-                              const today = isToday(d);
-                              const wknd = [0, 6].includes(d.getDay());
-                              const dayName = d.toLocaleDateString('en-GB', {
-                                weekday: 'short'
-                              });
+                          );
+                        })}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {HOURS.map((hr) => (
+                        <tr key={hr}>
+                          <td className="sticky left-0 z-20 w-16 min-w-[64px] border-b border-r border-gray-200 bg-white px-2 pt-1 text-right align-top text-[11px] font-semibold text-black shadow-[4px_0_8px_-3px_rgba(0,0,0,0.15)]">
+                            {fmtH(hr)}
+                          </td>
+                          {weekDays.map((_, di) => {
+                            const slot = slotMap[di]?.[hr];
+                            if (slot && !slot.isStart) return null;
+
+                            const today = isToday(weekDays[di]);
+                            const wknd = [0, 6].includes(weekDays[di].getDay());
+                            const cellCls = `border-b border-r border-gray-200 p-0 align-top transition-colors relative ${
+                              today
+                                ? 'bg-blue-50/20'
+                                : wknd
+                                  ? 'bg-slate-50/60'
+                                  : ''
+                            }`;
+
+                            if (!slot)
                               return (
-                                <th
+                                <td
                                   key={di}
+                                  className={cellCls}
                                   style={{
+                                    height: ROW_HEIGHT,
                                     width: COLUMN_WIDTH,
                                     minWidth: `${COLUMN_MIN_PX}px`,
                                     maxWidth: `${COLUMN_MAX_PX}px`
                                   }}
-                                  className={`border-b border-r border-gray-200 py-2 text-center ${
-                                    today
-                                      ? 'bg-blue-50'
-                                      : wknd
-                                        ? 'bg-slate-100/60'
-                                        : ''
-                                  }`}
-                                >
-                                  <div className="text-[10px] font-semibold uppercase tracking-wide text-black">
-                                    {dayName}
-                                  </div>
-                                  {today ? (
-                                    <div className="mx-auto mt-1 flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-[13px] font-medium text-white">
-                                      {d.getDate()}
-                                    </div>
-                                  ) : (
-                                    <div className="mt-1 text-sm font-medium text-black">
-                                      {d.getDate()}
-                                    </div>
-                                  )}
-                                  <div className="mt-0.5 text-[9px] font-medium text-black">
-                                    {d.toLocaleDateString('en-GB', {
-                                      month: 'short'
-                                    })}
-                                  </div>
-                                </th>
+                                />
                               );
-                            })}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {HOURS.map((hr) => (
-                            <tr key={hr}>
-                              <td className="sticky left-0 z-20 w-16 min-w-[64px] border-b border-r border-gray-200 bg-white px-2 pt-1 text-right align-top text-[11px] font-semibold text-black shadow-[4px_0_8px_-3px_rgba(0,0,0,0.15)]">
-                                {fmtH(hr)}
-                              </td>
-                              {weekDays.map((_, di) => {
-                                const slot = slotMap[di]?.[hr];
-                                if (slot && !slot.isStart) return null;
 
-                                const today = isToday(weekDays[di]);
-                                const wknd = [0, 6].includes(
-                                  weekDays[di].getDay()
-                                );
-                                const cellCls = `border-b border-r border-gray-200 p-0 align-top transition-colors relative ${
-                                  today
-                                    ? 'bg-blue-50/20'
-                                    : wknd
-                                      ? 'bg-slate-50/60'
-                                      : ''
-                                }`;
+                            const { entry, span, topPx, heightPx } = slot;
+                            const meta = statusOf(entry.status);
 
-                                if (!slot)
-                                  return (
-                                    <td
-                                      key={di}
-                                      className={cellCls}
-                                      style={{
-                                        height: ROW_HEIGHT,
-                                        width: COLUMN_WIDTH,
-                                        minWidth: `${COLUMN_MIN_PX}px`,
-                                        maxWidth: `${COLUMN_MAX_PX}px`
-                                      }}
-                                    />
-                                  );
-
-                                const { entry, span, topPx, heightPx } = slot;
-                                const meta = statusOf(entry.status);
-
-                                return (
-                                  <td
-                                    key={di}
-                                    rowSpan={span}
-                                    className={cellCls}
+                            return (
+                              <td
+                                key={di}
+                                rowSpan={span}
+                                className={cellCls}
+                                style={{
+                                  height: span * ROW_HEIGHT,
+                                  width: COLUMN_WIDTH,
+                                  minWidth: `${COLUMN_MIN_PX}px`,
+                                  maxWidth: `${COLUMN_MAX_PX}px`
+                                }}
+                              >
+                                <div
+                                  className="relative h-full w-full p-1"
+                                  title={entry.remark || undefined}
+                                >
+                                  <button
+                                    type="button"
+                                    onClick={() => openEntry(entry)}
+                                    className={clsx(
+                                      'absolute left-1 right-1 z-10 flex cursor-pointer flex-col overflow-hidden rounded-md border bg-white p-2 text-left text-xs shadow-sm transition-shadow hover:shadow-md',
+                                      meta ? meta.border : 'border-gray-200'
+                                    )}
                                     style={{
-                                      height: span * ROW_HEIGHT,
-                                      width: COLUMN_WIDTH,
-                                      minWidth: `${COLUMN_MIN_PX}px`,
-                                      maxWidth: `${COLUMN_MAX_PX}px`
+                                      top: topPx + 2,
+                                      height: Math.max(heightPx - 4, 32),
+                                      borderLeft: meta
+                                        ? `3px solid ${meta.hex}`
+                                        : '3px solid #e5e7eb'
                                     }}
                                   >
-                                    <div
-                                      className="relative h-full w-full p-1"
-                                      title={entry.remark || undefined}
-                                    >
-                                      <button
-                                        type="button"
-                                        onClick={() => setSelectedEntry(entry)}
-                                        className={clsx(
-                                          'absolute left-1 right-1 z-10 flex cursor-pointer flex-col overflow-hidden rounded-md border bg-white p-2 text-left text-xs shadow-sm transition-shadow hover:shadow-md',
-                                          meta ? meta.border : 'border-gray-200'
-                                        )}
-                                        style={{
-                                          top: topPx + 2,
-                                          height: Math.max(heightPx - 4, 32),
-                                          borderLeft: meta
-                                            ? `3px solid ${meta.hex}`
-                                            : '3px solid #e5e7eb'
-                                        }}
-                                      >
-                                        <div className="flex h-full select-none flex-col justify-start overflow-hidden">
-                                          <div className="flex shrink-0 items-center gap-1 whitespace-nowrap text-[9px] font-semibold text-black">
-                                            <Clock
-                                              className="h-2.5 w-2.5 shrink-0"
-                                              style={{
-                                                color: meta
-                                                  ? meta.hex
-                                                  : '#9ca3af'
-                                              }}
-                                            />
-                                            {entry.startTime} – {entry.endTime}
-                                          </div>
-                                          <div className="mt-0.5 shrink-0 truncate text-[11px] font-bold text-black">
-                                            {entry.unitTitle ||
-                                              entry.courseName ||
-                                              'Class'}
-                                          </div>
-                                          {entry.unitTitle &&
-                                            entry.courseName && (
-                                              <div className="mt-0.5 shrink-0 truncate text-[9px] font-medium text-black">
-                                                {entry.courseName}
-                                              </div>
-                                            )}
-                                          {(entry.groupName ||
-                                            entry.termName) && (
-                                            <div className="mt-0.5 shrink-0 truncate text-[9px] text-black">
-                                              {[entry.groupName, entry.termName]
-                                                .filter(Boolean)
-                                                .join(' · ')}
-                                            </div>
-                                          )}
-                                          {entry.teacherName && (
-                                            <div className="mt-0.5 flex shrink-0 items-center gap-1 overflow-hidden text-black">
-                                              <User className="h-2.5 w-2.5 shrink-0" />
-                                              <span className="truncate text-[9px]">
-                                                {entry.teacherName}
-                                              </span>
-                                            </div>
-                                          )}
-                                          {meta && (
-                                            <div
-                                              className={clsx(
-                                                'mt-auto flex shrink-0 items-center gap-1 pt-1 text-[9px] font-bold',
-                                                meta.text
-                                              )}
-                                            >
-                                              <span
-                                                className="h-1.5 w-1.5 shrink-0 rounded-full"
-                                                style={{
-                                                  backgroundColor: meta.hex
-                                                }}
-                                              />
-                                              {meta.label}
-                                            </div>
-                                          )}
+                                    <div className="flex h-full select-none flex-col justify-start overflow-hidden">
+                                      <div className="flex shrink-0 items-center gap-1 whitespace-nowrap text-[9px] font-semibold text-black">
+                                        <Clock
+                                          className="h-2.5 w-2.5 shrink-0"
+                                          style={{
+                                            color: meta ? meta.hex : '#9ca3af'
+                                          }}
+                                        />
+                                        {entry.startTime} – {entry.endTime}
+                                      </div>
+                                      <div className="mt-0.5 shrink-0 truncate text-[11px] font-bold text-black">
+                                        {entry.unitTitle ||
+                                          entry.courseName ||
+                                          'Class'}
+                                      </div>
+                                      {entry.unitTitle && entry.courseName && (
+                                        <div className="mt-0.5 shrink-0 truncate text-[9px] font-medium text-black">
+                                          {entry.courseName}
                                         </div>
-                                      </button>
+                                      )}
+                                      {(entry.groupName || entry.termName) && (
+                                        <div className="mt-0.5 shrink-0 truncate text-[9px] text-black">
+                                          {[entry.groupName, entry.termName]
+                                            .filter(Boolean)
+                                            .join(' · ')}
+                                        </div>
+                                      )}
+                                      {entry.teacherName && (
+                                        <div className="mt-0.5 flex shrink-0 items-center gap-1 overflow-hidden text-black">
+                                          <User className="h-2.5 w-2.5 shrink-0" />
+                                          <span className="truncate text-[9px]">
+                                            {entry.teacherName}
+                                          </span>
+                                        </div>
+                                      )}
+                                      {meta && (
+                                        <div
+                                          className={clsx(
+                                            'mt-auto flex shrink-0 items-center gap-1 pt-1 text-[9px] font-bold',
+                                            meta.text
+                                          )}
+                                        >
+                                          <span
+                                            className="h-1.5 w-1.5 shrink-0 rounded-full"
+                                            style={{
+                                              backgroundColor: meta.hex
+                                            }}
+                                          />
+                                          {meta.label}
+                                        </div>
+                                      )}
                                     </div>
-                                  </td>
-                                );
-                              })}
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </TabsContent>
+                                  </button>
+                                </div>
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </TabsContent>
 
-                {/* ── List view ── */}
-                <TabsContent value="list" className="mt-4">
-                  {routineLoading ? (
-                    <div className="flex justify-center py-8">
-                      <BlinkingDots size="small" color="bg-watney" />
-                    </div>
-                  ) : (
-                    <div className="w-full min-w-0 overflow-x-auto rounded-lg border border-gray-100">
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Date</TableHead>
-                            <TableHead>Time</TableHead>
-                            <TableHead>Unit</TableHead>
-                            <TableHead>Course</TableHead>
-                            <TableHead>Teacher</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Remark</TableHead>
+              {/* ── List view ── */}
+              <TabsContent value="list" className="mt-4">
+                <div className="w-full min-w-0 overflow-x-auto rounded-lg border border-gray-100">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Time</TableHead>
+                        <TableHead>Unit</TableHead>
+                        <TableHead>Course</TableHead>
+                        <TableHead>Teacher</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Remark</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {routineLoading && classes.length === 0 ? (
+                        [0, 1, 2].map((row) => (
+                          <TableRow key={row}>
+                            <TableCell colSpan={7} className="py-3">
+                              <Skeleton className="h-6 w-full" />
+                            </TableCell>
                           </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {classes.length === 0 ? (
-                            <TableRow>
-                              <TableCell
-                                colSpan={7}
-                                className="py-6 text-center text-black"
-                              >
-                                No classes scheduled in this date range.
+                        ))
+                      ) : classes.length === 0 ? (
+                        <TableRow>
+                          <TableCell
+                            colSpan={7}
+                            className="py-6 text-center text-black"
+                          >
+                            No classes scheduled in this date range.
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        classes.map((cls) => {
+                          const meta = statusOf(cls.status);
+                          return (
+                            <TableRow
+                              key={cls._id}
+                              onClick={() => openEntry(cls)}
+                              className="h-16 cursor-pointer hover:bg-gray-50"
+                            >
+                              <TableCell className="whitespace-nowrap">
+                                {moment
+                                  .utc(cls.classDate)
+                                  .format('ddd, DD MMM YYYY')}
+                              </TableCell>
+                              <TableCell className="whitespace-nowrap">
+                                {cls.startTime || '--:--'} –{' '}
+                                {cls.endTime || '--:--'}
+                              </TableCell>
+                              <TableCell>
+                                <div className="font-medium">
+                                  {cls.unitTitle || '—'}
+                                </div>
+                                {cls.unitReference && (
+                                  <div className="font-mono text-xs text-black">
+                                    {cls.unitReference}
+                                  </div>
+                                )}
+                              </TableCell>
+                              <TableCell>
+                                <div className="font-medium">
+                                  {cls.courseName || 'Course'}
+                                </div>
+                                {(cls.groupName || cls.termName) && (
+                                  <div className="text-xs text-black">
+                                    {[cls.groupName, cls.termName]
+                                      .filter(Boolean)
+                                      .join(' · ')}
+                                  </div>
+                                )}
+                              </TableCell>
+                              <TableCell>{cls.teacherName || '—'}</TableCell>
+                              <TableCell>
+                                {meta ? (
+                                  <span
+                                    className={clsx(
+                                      'inline-flex items-center gap-1.5 text-xs font-bold',
+                                      meta.text
+                                    )}
+                                  >
+                                    <span
+                                      className="h-2 w-2 rounded-full"
+                                      style={{ backgroundColor: meta.hex }}
+                                    />
+                                    {meta.label}
+                                  </span>
+                                ) : (
+                                  '—'
+                                )}
+                              </TableCell>
+                              <TableCell className="max-w-[220px] truncate text-xs text-black">
+                                {cls.remark || '—'}
                               </TableCell>
                             </TableRow>
-                          ) : (
-                            classes.map((cls) => {
-                              const meta = statusOf(cls.status);
-                              return (
-                                <TableRow
-                                  key={cls._id}
-                                  onClick={() => setSelectedEntry(cls)}
-                                  className="h-16 cursor-pointer hover:bg-gray-50"
-                                >
-                                  <TableCell className="whitespace-nowrap">
-                                    {moment
-                                      .utc(cls.classDate)
-                                      .format('ddd, DD MMM YYYY')}
-                                  </TableCell>
-                                  <TableCell className="whitespace-nowrap">
-                                    {cls.startTime || '--:--'} –{' '}
-                                    {cls.endTime || '--:--'}
-                                  </TableCell>
-                                  <TableCell>
-                                    <div className="font-medium">
-                                      {cls.unitTitle || '—'}
-                                    </div>
-                                    {cls.unitReference && (
-                                      <div className="font-mono text-xs text-black">
-                                        {cls.unitReference}
-                                      </div>
-                                    )}
-                                  </TableCell>
-                                  <TableCell>
-                                    <div className="font-medium">
-                                      {cls.courseName || 'Course'}
-                                    </div>
-                                    {(cls.groupName || cls.termName) && (
-                                      <div className="text-xs text-black">
-                                        {[cls.groupName, cls.termName]
-                                          .filter(Boolean)
-                                          .join(' · ')}
-                                      </div>
-                                    )}
-                                  </TableCell>
-                                  <TableCell>
-                                    {cls.teacherName || '—'}
-                                  </TableCell>
-                                  <TableCell>
-                                    {meta ? (
-                                      <span
-                                        className={clsx(
-                                          'inline-flex items-center gap-1.5 text-xs font-bold',
-                                          meta.text
-                                        )}
-                                      >
-                                        <span
-                                          className="h-2 w-2 rounded-full"
-                                          style={{ backgroundColor: meta.hex }}
-                                        />
-                                        {meta.label}
-                                      </span>
-                                    ) : (
-                                      '—'
-                                    )}
-                                  </TableCell>
-                                  <TableCell className="max-w-[220px] truncate text-xs text-black">
-                                    {cls.remark || '—'}
-                                  </TableCell>
-                                </TableRow>
-                              );
-                            })
-                          )}
-                        </TableBody>
-                      </Table>
-                    </div>
-                  )}
-                </TabsContent>
-              </Tabs>
-            )}
-
-            {routineLoading && hasCourses && (
-              <div className="flex justify-center py-8">
-                <BlinkingDots size="small" color="bg-watney" />
-              </div>
-            )}
+                          );
+                        })
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
 
@@ -1233,7 +1293,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
           open={!!selectedEntry}
           onOpenChange={(open) => !open && setSelectedEntry(null)}
         >
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-h-[92vh] w-[95vw] max-w-2xl overflow-hidden">
             {selectedEntry && (
               <>
                 <DialogHeader>
@@ -1256,130 +1316,228 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                   </p>
                 </DialogHeader>
 
-                <div className="rounded-lg border border-gray-200 bg-white shadow-none">
-                  <div className="divide-y divide-gray-100 px-4 py-1">
-                    {statusOf(selectedEntry.status) && (
-                      <div className="flex items-center justify-between gap-3 py-3">
-                        <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black">
-                          Status
-                        </span>
-                        <span
-                          className={clsx(
-                            'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold',
-                            statusOf(selectedEntry.status)!.text,
-                            statusOf(selectedEntry.status)!.border
-                          )}
+                <Tabs
+                  value={entryTab}
+                  onValueChange={(value) =>
+                    setEntryTab(value as 'details' | 'lessons')
+                  }
+                >
+                  <TabsList>
+                    <TabsTrigger value="details">
+                      <ClipboardList className="mr-1.5 h-4 w-4" /> Details
+                    </TabsTrigger>
+                    <TabsTrigger value="lessons">
+                      <BookOpen className="mr-1.5 h-4 w-4" /> Lessons
+                      <span className="ml-1.5 rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-black">
+                        {selectedEntry.lessons?.length || 0}
+                      </span>
+                    </TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent
+                    value="details"
+                    className="mt-3 max-h-[60vh] overflow-y-auto"
+                  >
+                    <div className="rounded-lg border border-gray-200 bg-white shadow-none">
+                      <div className="divide-y divide-gray-100 px-4 py-1">
+                        {statusOf(selectedEntry.status) && (
+                          <div className="flex items-center justify-between gap-3 py-3">
+                            <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black">
+                              Status
+                            </span>
+                            <span
+                              className={clsx(
+                                'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold',
+                                statusOf(selectedEntry.status)!.text,
+                                statusOf(selectedEntry.status)!.border
+                              )}
+                            >
+                              <span
+                                className="h-2 w-2 rounded-full"
+                                style={{
+                                  backgroundColor: statusOf(
+                                    selectedEntry.status
+                                  )!.hex
+                                }}
+                              />
+                              {statusOf(selectedEntry.status)!.label}
+                            </span>
+                          </div>
+                        )}
+
+                        <div className="flex items-start justify-between gap-3 py-2.5">
+                          <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black">
+                            Date
+                          </span>
+                          <span className="text-right text-black">
+                            {moment
+                              .utc(selectedEntry.classDate)
+                              .format('dddd, DD MMM YYYY')}
+                          </span>
+                        </div>
+
+                        <div className="flex items-start justify-between gap-3 py-2.5">
+                          <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black">
+                            Time
+                          </span>
+                          <span className="text-right text-black">
+                            {selectedEntry.startTime || '--:--'} –{' '}
+                            {selectedEntry.endTime || '--:--'}
+                          </span>
+                        </div>
+
+                        {selectedEntry.unitTitle && (
+                          <div className="flex items-start justify-between gap-3 py-2.5">
+                            <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black">
+                              Unit
+                            </span>
+                            <div className="text-right text-black">
+                              <div>{selectedEntry.unitTitle}</div>
+                              {selectedEntry.unitReference && (
+                                <div className="font-mono text-xs text-black">
+                                  {selectedEntry.unitReference}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        {selectedEntry.groupName && (
+                          <div className="flex items-start justify-between gap-3 py-2.5">
+                            <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black">
+                              Group
+                            </span>
+                            <span className="text-right text-black">
+                              {selectedEntry.groupName}
+                            </span>
+                          </div>
+                        )}
+
+                        {selectedEntry.termName && (
+                          <div className="flex items-start justify-between gap-3 py-2.5">
+                            <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black">
+                              Term
+                            </span>
+                            <span className="text-right text-black">
+                              {selectedEntry.termName}
+                            </span>
+                          </div>
+                        )}
+
+                        {selectedEntry.teacherName && (
+                          <div className="flex items-start justify-between gap-3 py-2.5">
+                            <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black">
+                              Teacher
+                            </span>
+                            <div className="text-right text-black">
+                              <div>{selectedEntry.teacherName}</div>
+                              {selectedEntry.teacherEmail && (
+                                <div className="text-xs text-black">
+                                  {selectedEntry.teacherEmail}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        {selectedEntry.roomNumber && (
+                          <div className="flex items-start justify-between gap-3 py-2.5">
+                            <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black">
+                              Room
+                            </span>
+                            <span className="text-right text-black">
+                              {selectedEntry.roomNumber}
+                            </span>
+                          </div>
+                        )}
+
+                        {selectedEntry.remark && (
+                          <div className="flex items-start justify-between gap-3 py-2.5">
+                            <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black">
+                              Remark
+                            </span>
+                            <span className="text-right text-black">
+                              {selectedEntry.remark}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent
+                    value="lessons"
+                    className="mt-3 max-h-[60vh] space-y-2 overflow-y-auto"
+                  >
+                    {(selectedEntry.lessons?.length || 0) === 0 ? (
+                      <div className="rounded-lg border border-dashed border-gray-300 px-4 py-8 text-center">
+                        <BookOpen className="mx-auto h-5 w-5 text-black" />
+                        <p className="mt-2 text-sm font-medium text-black">
+                          No lesson for this class yet
+                        </p>
+                        <p className="mt-1 text-xs text-black">
+                          Your tutor has not uploaded anything for this session.
+                        </p>
+                      </div>
+                    ) : (
+                      selectedEntry.lessons!.map((lesson) => (
+                        <div
+                          key={lesson._id}
+                          className="flex w-full min-w-0 flex-col gap-2 rounded-lg border border-gray-200 p-3 sm:flex-row sm:items-center sm:justify-between"
                         >
-                          <span
-                            className="h-2 w-2 rounded-full"
-                            style={{
-                              backgroundColor: statusOf(selectedEntry.status)!
-                                .hex
-                            }}
-                          />
-                          {statusOf(selectedEntry.status)!.label}
-                        </span>
-                      </div>
-                    )}
-
-                    <div className="flex items-start justify-between gap-3 py-2.5">
-                      <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black">
-                        Date
-                      </span>
-                      <span className="text-right text-black">
-                        {moment
-                          .utc(selectedEntry.classDate)
-                          .format('dddd, DD MMM YYYY')}
-                      </span>
-                    </div>
-
-                    <div className="flex items-start justify-between gap-3 py-2.5">
-                      <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black">
-                        Time
-                      </span>
-                      <span className="text-right text-black">
-                        {selectedEntry.startTime || '--:--'} –{' '}
-                        {selectedEntry.endTime || '--:--'}
-                      </span>
-                    </div>
-
-                    {selectedEntry.unitTitle && (
-                      <div className="flex items-start justify-between gap-3 py-2.5">
-                        <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black">
-                          Unit
-                        </span>
-                        <div className="text-right text-black">
-                          <div>{selectedEntry.unitTitle}</div>
-                          {selectedEntry.unitReference && (
-                            <div className="font-mono text-xs text-black">
-                              {selectedEntry.unitReference}
+                          <div className="flex min-w-0 flex-1 items-center gap-2">
+                            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-watney/10 text-watney">
+                              <BookOpen className="h-4 w-4" />
+                            </span>
+                            <div className="min-w-0">
+                              <p className="truncate text-xs font-semibold text-black">
+                                {lesson.title || 'Lesson'}
+                              </p>
+                              {lesson.fileName && (
+                                <p className="truncate text-[11px] text-black">
+                                  {lesson.fileName}
+                                </p>
+                              )}
                             </div>
+                          </div>
+
+                          {lesson.fileUrl && (
+                            <Button
+                              asChild
+                              size="sm"
+                              variant="outline"
+                              className="w-full shrink-0 text-xs sm:w-auto"
+                            >
+                              <a
+                                href={lesson.fileUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
+                                Open file
+                              </a>
+                            </Button>
                           )}
                         </div>
-                      </div>
+                      ))
                     )}
 
-                    {selectedEntry.groupName && (
-                      <div className="flex items-start justify-between gap-3 py-2.5">
-                        <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black">
-                          Group
-                        </span>
-                        <span className="text-right text-black">
-                          {selectedEntry.groupName}
-                        </span>
-                      </div>
+                    {unitHrefOf(selectedEntry) && (
+                      <Button
+                        size="sm"
+                        className="w-full bg-watney text-xs text-white hover:bg-watney/90"
+                        onClick={() => {
+                          const href = unitHrefOf(selectedEntry);
+                          setSelectedEntry(null);
+                          navigate(href);
+                        }}
+                      >
+                        <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
+                        Open unit resources
+                      </Button>
                     )}
-
-                    {selectedEntry.termName && (
-                      <div className="flex items-start justify-between gap-3 py-2.5">
-                        <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black">
-                          Term
-                        </span>
-                        <span className="text-right text-black">
-                          {selectedEntry.termName}
-                        </span>
-                      </div>
-                    )}
-
-                    {selectedEntry.teacherName && (
-                      <div className="flex items-start justify-between gap-3 py-2.5">
-                        <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black">
-                          Teacher
-                        </span>
-                        <div className="text-right text-black">
-                          <div>{selectedEntry.teacherName}</div>
-                          {selectedEntry.teacherEmail && (
-                            <div className="text-xs text-black">
-                              {selectedEntry.teacherEmail}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    {selectedEntry.roomNumber && (
-                      <div className="flex items-start justify-between gap-3 py-2.5">
-                        <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black">
-                          Room
-                        </span>
-                        <span className="text-right text-black">
-                          {selectedEntry.roomNumber}
-                        </span>
-                      </div>
-                    )}
-
-                    {selectedEntry.remark && (
-                      <div className="flex items-start justify-between gap-3 py-2.5">
-                        <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-black">
-                          Remark
-                        </span>
-                        <span className="text-right text-black">
-                          {selectedEntry.remark}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                  </TabsContent>
+                </Tabs>
               </>
             )}
           </DialogContent>

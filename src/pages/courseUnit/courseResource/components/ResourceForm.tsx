@@ -8,6 +8,7 @@ import { Plus, Trash2, Pencil } from 'lucide-react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import FileUploadArea from './FileUploadArea';
+import LessonRoutineSelect from './LessonRoutineSelect';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import {
@@ -35,6 +36,12 @@ interface ResourceFormProps {
   allResources: Resource[];
   selectedParentId: string | null;
   setSelectedParentId: (id: string | null) => void;
+  /** Context for the lesson's session picker - lectures only. */
+  courseId?: string;
+  termId?: string;
+  groupId?: string;
+  unitId?: string;
+  routineError?: string | null;
 }
 
 const ResourceForm: React.FC<ResourceFormProps> = ({
@@ -53,7 +60,12 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
   editingResource,
   allResources,
   selectedParentId,
-  setSelectedParentId
+  setSelectedParentId,
+  courseId,
+  termId,
+  groupId,
+  unitId,
+  routineError
 }) => {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editContent, setEditContent] = useState<string>('');
@@ -160,6 +172,22 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
 
   const renderContentForm = () => (
     <div className="-mt-4 space-y-4">
+      {selectedResourceType === 'lecture' && (
+        <div className="rounded-lg border border-gray-200 bg-gray-50/70 p-3">
+          <LessonRoutineSelect
+            courseId={courseId}
+            termId={termId}
+            groupId={groupId}
+            unitId={unitId}
+            value={formData.classRoutineId ?? null}
+            onChange={(routineId) =>
+              setFormData((prev) => ({ ...prev, classRoutineId: routineId }))
+            }
+            error={routineError}
+          />
+        </div>
+      )}
+
       <div>
         <Label htmlFor="resource-title">Title</Label>
         <Input

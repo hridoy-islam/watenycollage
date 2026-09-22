@@ -21,7 +21,8 @@ import {
   X,
   User,
   CalendarClock,
-  CalendarCheck
+  CalendarCheck,
+  LifeBuoy
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { cn } from '@/lib/utils';
@@ -64,6 +65,13 @@ export function SideNav() {
     { path: '/dashboard/student-attendance', label: 'Attendance', icon: CalendarCheck },
     { path: '/dashboard/student-assignments', label: 'Assignments', icon: ClipboardList },
     { path: '/dashboard/student-assignments-feedback', label: 'Feedbacks', icon: MessageSquare },
+    // A ticket hangs off a student User, and an applicant is not one yet, so
+    // this link is shown to students only - `studentLinks` is shared with
+    // applicants, and offering them a page the API would refuse is worse than
+    // not offering it.
+    ...(user?.role === 'student'
+      ? [{ path: '/dashboard/support-tickets', label: 'Raise Ticket', icon: LifeBuoy }]
+      : []),
     { path: '/dashboard/profile', label: 'My Profile', icon: User },
   ];
 

@@ -23,7 +23,11 @@ import {
   Users,
   CalendarRange,
   CalendarIcon,
-  BookOpen
+  BookOpen,
+  Plus,
+  ExternalLink,
+  CalendarDays,
+  List as ListIcon
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,6 +41,8 @@ import {
   DialogFooter
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -59,6 +65,19 @@ interface CourseUnitRef {
   credit?: string;
 }
 
+/**
+ * A lesson uploaded against a session. The routine endpoint hangs these off
+ * each routine, so the timetable can say what is being taught rather than just
+ * when - no extra request per slot.
+ */
+interface RoutineLesson {
+  _id: string;
+  title?: string;
+  fileUrl?: string;
+  fileName?: string;
+  hasContent?: boolean;
+}
+
 interface RoutineEntry {
   _id: string;
   classDate: string;
@@ -70,6 +89,7 @@ interface RoutineEntry {
   termId?: { _id: string; name: string } | string;
   // A session belongs to a unit, so the unit is what names the class.
   unitId?: CourseUnitRef | string;
+  lessons?: RoutineLesson[];
 }
 
 interface SheetStudent {
@@ -171,7 +191,7 @@ const attendancePayloadSchema = z.array(
 const START_H = 8;
 const END_H = 23;
 const HOURS = Array.from({ length: END_H - START_H }, (_, i) => START_H + i);
-const ROW_HEIGHT = 96;
+const ROW_HEIGHT = 120;
 const COLUMN_MIN_PX = 120;
 const COLUMN_MAX_PX = 150;
 const COLUMN_WIDTH = `clamp(${COLUMN_MIN_PX}px, calc((100vw - 64px) / 7), ${COLUMN_MAX_PX}px)`;
@@ -282,6 +302,23 @@ const routineGroupNameOf = (r?: RoutineEntry | null) => {
 const routineTermNameOf = (r?: RoutineEntry | null) => {
   return asObject(r?.termId)?.name || '';
 };
+/**
+ * The unit resource page a session's lessons live on. The teacher reaches it
+ * through their own course path when the term and group are known, and through
+ * the plain course path otherwise.
+ */
+const lessonsHrefOf = (r?: RoutineEntry | null) => {
+  if (!r) return '';
+  const courseId = asObject(r.courseId)?._id;
+  const unitId = asObject(r.unitId)?._id;
+  if (!courseId || !unitId) return '';
+  const termId = asObject(r.termId)?._id;
+  const groupId = asObject(r.groupId)?._id;
+  return termId && groupId
+    ? `/dashboard/my-courses/${courseId}/terms/${termId}/groups/${groupId}/units/${unitId}`
+    : `/dashboard/courses/${courseId}/unit/${unitId}`;
+};
+
 const unitTitleOf = (r?: RoutineEntry | AttendanceSheet | null) => {
   return asObject((r as any)?.unitId)?.title || '';
 };
@@ -602,6 +639,15 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
   const [selectedRoutine, setSelectedRoutine] = useState<RoutineEntry | null>(
     null
   );
+  // The timetable reads as a calendar by default; the list is the same
+  // classes one under another, easier to scan on a phone or a long range.
+  const [viewMode, setViewMode] = useState<'calendar' | 'list'>('calendar');
+
+  // The dialog opens on attendance - the lessons are there to be looked up,
+  // not the reason the teacher clicked the block.
+  const [activeTab, setActiveTab] = useState<'attendance' | 'lessons'>(
+    'attendance'
+  );
 
   const weekDays = useMemo(() => {
     if (!startDate || !endDate) return [];
@@ -737,41 +783,61 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
     [routines, weekDays]
   );
 
- const openAttendance = async (routine: RoutineEntry) => {
-  setSelectedRoutine(routine);
-  setDialogOpen(true);
-  setSheet(null);
-  setStatuses({});
-  setRemarks({});
-  setUnmarkedIds(new Set());
-  setSheetLoading(true);
-  try {
-    const res = await axiosInstance.get(
-      `/student-attendance/by-routine/${routine._id}`
-    );
-    const sheetData: AttendanceSheet = res.data?.data;
-    setSheet(sheetData);
-    const initialStatuses: Record<string, AttendanceStatus> = {};
-    const initialRemarks: Record<string, string> = {};
-    sheetData?.attendance?.forEach((entry) => {
-      const sid = entry.studentId?._id || entry.studentId;
-      if (sid) {
-        if (entry.status) initialStatuses[sid] = entry.status;
-        if (entry.remark) initialRemarks[sid] = entry.remark;
-      }
-    });
-    setStatuses(initialStatuses);
-    setRemarks(initialRemarks);
-  } catch (error: any) {
-    toast({
-      title: 'Failed to load attendance sheet',
-      description: error?.response?.data?.message || 'Please try again',
-      variant: 'destructive'
-    });
-  } finally {
-    setSheetLoading(false);
-  }
-};
+  /** The same classes grouped by day, in time order - what the list shows. */
+  const dayGroups = useMemo(
+    () =>
+      weekDays
+        .map((day) => ({
+          day,
+          entries: routines
+            .filter((entry) => routineToFormDay(entry, [day]) === 0)
+            .sort((a, b) =>
+              (a.startTime || '').localeCompare(b.startTime || '')
+            )
+        }))
+        .filter((group) => group.entries.length > 0),
+    [routines, weekDays]
+  );
+
+  // Both fetches feed the same grid, so they read as one wait.
+  const classesLoading = loading || routinesLoading;
+
+  const openAttendance = async (routine: RoutineEntry) => {
+    setSelectedRoutine(routine);
+    setActiveTab('attendance');
+    setDialogOpen(true);
+    setSheet(null);
+    setStatuses({});
+    setRemarks({});
+    setUnmarkedIds(new Set());
+    setSheetLoading(true);
+    try {
+      const res = await axiosInstance.get(
+        `/student-attendance/by-routine/${routine._id}`
+      );
+      const sheetData: AttendanceSheet = res.data?.data;
+      setSheet(sheetData);
+      const initialStatuses: Record<string, AttendanceStatus> = {};
+      const initialRemarks: Record<string, string> = {};
+      sheetData?.attendance?.forEach((entry) => {
+        const sid = entry.studentId?._id || entry.studentId;
+        if (sid) {
+          if (entry.status) initialStatuses[sid] = entry.status;
+          if (entry.remark) initialRemarks[sid] = entry.remark;
+        }
+      });
+      setStatuses(initialStatuses);
+      setRemarks(initialRemarks);
+    } catch (error: any) {
+      toast({
+        title: 'Failed to load attendance sheet',
+        description: error?.response?.data?.message || 'Please try again',
+        variant: 'destructive'
+      });
+    } finally {
+      setSheetLoading(false);
+    }
+  };
 
   const toggleStatus = (studentId: string, status: AttendanceStatus) => {
     setUnmarkedIds((prev) => {
@@ -873,10 +939,18 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
     courseLabelOf(sheet as any) || courseLabelOf(selectedRoutine);
 
   // The dialog is titled by the unit being taught, with the course as context.
-  const selectedUnitTitle =
-    unitTitleOf(selectedRoutine) || unitTitleOf(sheet);
-  const selectedUnitReference =
-    unitRefOf(selectedRoutine) || unitRefOf(sheet);
+  const selectedUnitTitle = unitTitleOf(selectedRoutine) || unitTitleOf(sheet);
+  const selectedUnitReference = unitRefOf(selectedRoutine) || unitRefOf(sheet);
+
+  const selectedLessons = selectedRoutine?.lessons || [];
+  const lessonsHref = lessonsHrefOf(selectedRoutine);
+
+  /** The resource page owns adding a lesson, so the dialog hands over to it. */
+  const goToLessonsPage = () => {
+    if (!lessonsHref) return;
+    setDialogOpen(false);
+    navigate(lessonsHref);
+  };
 
   const rangeLabel =
     weekDays.length > 0
@@ -885,16 +959,8 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
         ).format('DD MMM YYYY')}`
       : 'Select dates';
 
-  if (loading) {
-    return (
-      <div className="flex justify-center py-10">
-        <BlinkingDots size="large" color="bg-watney" />
-      </div>
-    );
-  }
-
   return (
-    <div className="w-full min-w-0 max-w-full space-y-6 rounded-md bg-white p-5 shadow-sm">
+    <div className="w-full min-w-0 max-w-full space-y-6 rounded-md bg-white p-3 shadow-sm sm:p-5">
       {/* <div className="">
         <Card className="  shadow-none">
           <CardHeader className='p-0 pb-4'>
@@ -980,7 +1046,7 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
               </div> */}
               <div>
                 {user?.name && (
-                  <p className="text-2xl font-bold text-black">
+                  <p className="text-xl font-bold text-black sm:text-2xl">
                     Welcome, <span className="text-watney">{user.name}</span>
                   </p>
                 )}
@@ -991,7 +1057,7 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
             </div>
           </div>
           {/* Dashboard Summary Cards (unchanged) */}
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-5">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-5">
             <Card
               onClick={() => navigate(`teachers/courses/${user._id}`)}
               className="cursor-pointer border border-gray-300 transition-colors hover:bg-gray-50"
@@ -1000,7 +1066,9 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
                 <CardTitle>All Courses</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold">{allCourses}</div>
+                <div className="text-3xl font-bold">
+                  {loading ? <Skeleton className="h-8 w-12" /> : allCourses}
+                </div>
               </CardContent>
             </Card>
 
@@ -1012,15 +1080,18 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
                 <CardTitle>Pending Feedbacks</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold">{pendingFeedbacks}</div>
+                <div className="text-3xl font-bold">
+                  {loading ? (
+                    <Skeleton className="h-8 w-12" />
+                  ) : (
+                    pendingFeedbacks
+                  )}
+                </div>
               </CardContent>
             </Card>
-
-          
           </div>
 
-         
-          <div className="flex items-center justify-between gap-3 mt-5">
+          <div className="mt-5 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <div className="rounded-lg bg-watney/10 p-2">
                 <ClipboardCheck className="h-5 w-5 text-watney" />
@@ -1039,103 +1110,149 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
           </div>
           {/* Date range controls */}
           <div className="flex flex-wrap items-center justify-between gap-2 border-y border-gray-100 py-3">
-            <div className="flex flex-wrap items-center gap-2">
-              <Button
-                size="icon"
-                className="h-8 w-8 bg-watney text-white hover:bg-watney/90"
-                onClick={() => shiftRange(-(weekDays.length || 7))}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-
-              {/* Range display / Custom picker switcher */}
-              {isCustomMode ? (
-                <div className="z-50 flex items-center gap-2 rounded-full border border-watney/40 bg-white p-1 shadow-sm">
-                  <CalendarRange className="ml-2 h-3.5 w-3.5 shrink-0 text-watney" />
-                  <DatePicker
-                    selectsRange
-                    startDate={tempStart}
-                    endDate={tempEnd}
-                    onChange={(dates: [Date | null, Date | null]) =>
-                      setCustomRange(dates)
-                    }
-                    dateFormat="dd MMM yyyy"
-                    placeholderText="Select date range..."
-                    isClearable={false}
-                    popperPlacement="bottom-start"
-                    popperProps={{ strategy: 'fixed' }}
-                    className="w-52 border-none bg-transparent text-xs font-semibold text-black outline-none placeholder:text-black"
-                  />
-                  <Button
-                    size="sm"
-                    onClick={handleApply}
-                    disabled={!tempStart || !tempEnd}
-                    className="h-7 rounded-full bg-watney px-3 text-[11px] font-bold text-white hover:bg-watney/90 disabled:opacity-40"
-                  >
-                    Apply
-                  </Button>
-                  <button
-                    onClick={() => setIsCustomMode(false)}
-                    className="mr-1 flex h-7 w-7 items-center justify-center rounded-full text-black hover:bg-gray-100 hover:text-black"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  onClick={openCustomMode}
-                  className="flex min-w-[180px] items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-center text-sm font-semibold text-black transition-colors hover:border-gray-200 hover:bg-gray-50"
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
+              {/* The range fills the width of a phone, on a row of its own. */}
+              <div className="flex w-full items-center gap-2 sm:w-auto">
+                <Button
+                  size="icon"
+                  className="h-8 w-8 shrink-0 bg-watney text-white hover:bg-watney/90"
+                  onClick={() => shiftRange(-(weekDays.length || 7))}
                 >
-                  <CalendarIcon className="h-3.5 w-3.5 text-watney" />
-                  {rangeLabel}
-                </button>
-              )}
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
 
-              <Button
-                size="icon"
-                className="h-8 w-8 bg-watney text-white hover:bg-watney/90"
-                onClick={() => shiftRange(weekDays.length || 7)}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
+                {/* Range display / Custom picker switcher */}
+                {isCustomMode ? (
+                  <div className="z-50 flex w-full flex-wrap items-center gap-2 rounded-2xl border border-watney/40 bg-white p-1 shadow-sm sm:w-auto sm:flex-nowrap sm:rounded-full">
+                    <CalendarRange className="ml-2 h-3.5 w-3.5 shrink-0 text-watney" />
+                    <DatePicker
+                      selectsRange
+                      startDate={tempStart}
+                      endDate={tempEnd}
+                      onChange={(dates: [Date | null, Date | null]) =>
+                        setCustomRange(dates)
+                      }
+                      dateFormat="dd MMM yyyy"
+                      placeholderText="Select date range..."
+                      isClearable={false}
+                      popperPlacement="bottom-start"
+                      popperProps={{ strategy: 'fixed' }}
+                      className="w-full border-none bg-transparent text-xs font-semibold text-black outline-none placeholder:text-black sm:w-52"
+                      wrapperClassName="min-w-0 flex-1"
+                    />
+                    <Button
+                      size="sm"
+                      onClick={handleApply}
+                      disabled={!tempStart || !tempEnd}
+                      className="h-7 rounded-full bg-watney px-3 text-[11px] font-bold text-white hover:bg-watney/90 disabled:opacity-40"
+                    >
+                      Apply
+                    </Button>
+                    <button
+                      onClick={() => setIsCustomMode(false)}
+                      className="mr-1 flex h-7 w-7 items-center justify-center rounded-full text-black hover:bg-gray-100 hover:text-black"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={openCustomMode}
+                    className="flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-center text-sm font-semibold text-black transition-colors hover:border-gray-200 hover:bg-gray-50 sm:min-w-[180px] sm:flex-none"
+                  >
+                    <CalendarIcon className="h-3.5 w-3.5 text-watney" />
+                    {rangeLabel}
+                  </button>
+                )}
 
-              <Button
-                size="sm"
-                variant="outline"
-                className="h-8 text-xs"
-                onClick={goThisWeek}
-              >
-                This Week
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                className="h-8 text-xs"
-                onClick={goThisMonth}
-              >
-                This Month
-              </Button>
-              <Button
-                size="sm"
-                className="h-8 bg-watney text-xs text-white hover:bg-watney/90"
-                onClick={goToday}
-              >
-                Today
-              </Button>
+                <Button
+                  size="icon"
+                  className="h-8 w-8 shrink-0 bg-watney text-white hover:bg-watney/90"
+                  onClick={() => shiftRange(weekDays.length || 7)}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+
+              {/* The shortcuts sit under the range rather than beside it. */}
+              <div className="flex w-full items-center gap-2 sm:w-auto">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-8 flex-1 text-xs sm:flex-none"
+                  onClick={goThisWeek}
+                >
+                  This Week
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-8 flex-1 text-xs sm:flex-none"
+                  onClick={goThisMonth}
+                >
+                  This Month
+                </Button>
+                <Button
+                  size="sm"
+                  className="h-8 flex-1 bg-watney text-xs text-white hover:bg-watney/90 sm:flex-none"
+                  onClick={goToday}
+                >
+                  Today
+                </Button>
+              </div>
             </div>
 
-          <span className="text-xs font-medium text-black">
-  Total: {routines.length} class{routines.length === 1 ? '' : 'es'} within this period
-</span>
+            {/* Calendar or list - the same classes, read two ways. */}
+            <div className="flex w-full items-center gap-1 rounded-md border border-gray-200 p-0.5 sm:w-auto">
+              <button
+                type="button"
+                onClick={() => setViewMode('calendar')}
+                className={clsx(
+                  'flex flex-1 items-center justify-center gap-1.5 rounded px-2.5 py-1 text-xs font-semibold transition-colors sm:flex-none',
+                  viewMode === 'calendar'
+                    ? 'bg-watney text-white'
+                    : 'text-black hover:bg-gray-50'
+                )}
+              >
+                <CalendarDays className="h-3.5 w-3.5" />
+                Calendar
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode('list')}
+                className={clsx(
+                  'flex flex-1 items-center justify-center gap-1.5 rounded px-2.5 py-1 text-xs font-semibold transition-colors sm:flex-none',
+                  viewMode === 'list'
+                    ? 'bg-watney text-white'
+                    : 'text-black hover:bg-gray-50'
+                )}
+              >
+                <ListIcon className="h-3.5 w-3.5" />
+                List
+              </button>
+            </div>
+
+            <span className="hidden items-center gap-2 text-xs font-medium text-black sm:flex">
+              Total: {routines.length} class
+              {routines.length === 1 ? '' : 'es'} within this period
+            </span>
+
+            {/* {classesLoading && (
+              <span className="flex items-center gap-1.5 text-xs font-medium text-black">
+                <Loader2 className="h-3.5 w-3.5 animate-spin text-watney" />
+                Loading…
+              </span>
+            )} */}
           </div>
 
-          {/* Scrollable 2D Grid View */}
-          {routinesLoading ? (
-            <div className="flex justify-center py-8">
-              <BlinkingDots size="small" color="bg-watney" />
-            </div>
-          ) : (
+          {/*
+           * Scrollable 2D grid - the same timetable at every width, scrolled
+           * sideways on a phone. The frame stays put while the fetch runs:
+           * only the class blocks are waiting on it, so there is nothing to
+           * swap the whole timetable out for.
+           */}
+          {viewMode === 'calendar' && (
             <div className="relative max-h-[650px] w-full min-w-0 max-w-full overflow-auto rounded-sm border border-gray-300 bg-white shadow-sm">
               <table className="w-max min-w-full border-collapse text-sm">
                 <thead className="sticky top-0 z-30 bg-slate-50">
@@ -1318,6 +1435,114 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
               </table>
             </div>
           )}
+
+          {/*
+           * The same classes one under another - a dense row per class, so a
+           * week reads without scrolling sideways or down through cards.
+           */}
+          {viewMode === 'list' && (
+            <div className="max-h-[650px] w-full min-w-0 overflow-y-auto rounded-sm bg-white">
+              {classesLoading && routines.length === 0 ? (
+                <div className="space-y-1.5 p-2">
+                  <Skeleton className="h-9 w-full" />
+                  <Skeleton className="h-9 w-full" />
+                  <Skeleton className="h-9 w-full" />
+                </div>
+              ) : dayGroups.length === 0 ? (
+                <p className="px-4 py-8 text-center text-xs text-black">
+                  No classes in this period.
+                </p>
+              ) : (
+                dayGroups.map((group) => (
+                  <div key={group.day.toISOString()}>
+                    <div
+                      className={clsx(
+                        'sticky top-0 z-10 flex items-center justify-between gap-2 px-3 py-1 text-[11px] font-bold',
+                        isToday(group.day)
+                          ? 'bg-blue-50 text-blue-700'
+                          : 'bg-slate-50 text-black'
+                      )}
+                    >
+                      <span>{moment(group.day).format('ddd DD MMM YYYY')}</span>
+                      <span className="font-medium">
+                        {group.entries.length} class
+                        {group.entries.length === 1 ? '' : 'es'}
+                      </span>
+                    </div>
+
+                    {group.entries.map((entry) => {
+                      const color = courseColor[courseIdOf(entry)] || '#3b82f6';
+                      const attendanceTaken = attendanceTakenIds.has(entry._id);
+                      const unit = unitTitleOf(entry);
+                      // Everything that is context rather than the class
+                      // itself goes on one muted line, so a row stays a row.
+                      const meta = [
+                        unit && courseLabelOf(entry),
+                        routineGroupNameOf(entry) &&
+                          `G: ${routineGroupNameOf(entry)}`,
+                        routineTermNameOf(entry) &&
+                          `T: ${routineTermNameOf(entry)}`,
+                        entry.note
+                      ]
+                        .filter(Boolean)
+                        .join(' · ');
+
+                      return (
+                        <button
+                          key={entry._id}
+                          onClick={() => openAttendance(entry)}
+                          title={
+                            attendanceTaken
+                              ? 'View / update attendance'
+                              : 'Take attendance'
+                          }
+                          className="flex w-full items-center gap-2 rounded px-3 py-1.5 text-left transition-colors hover:bg-gray-50 sm:gap-3"
+                        >
+                          <span
+                            className="h-7 w-1 shrink-0 rounded-full"
+                            style={{ backgroundColor: color }}
+                          />
+
+                          <span className="w-[84px] shrink-0 text-[11px] font-semibold tabular-nums text-black">
+                            {entry.startTime}–{entry.endTime}
+                          </span>
+
+                          <span className="min-w-0 flex-1">
+                            <span className="block truncate text-[13px] font-semibold leading-tight text-black">
+                              {unit || courseLabelOf(entry)}
+                            </span>
+                            {meta && (
+                              <span className="block truncate text-[11px] leading-tight text-black">
+                                {meta}
+                              </span>
+                            )}
+                          </span>
+
+                          <span
+                            className={clsx(
+                              'inline-flex shrink-0 items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold',
+                              attendanceTaken
+                                ? 'bg-emerald-50 text-emerald-700'
+                                : 'bg-slate-100 text-black'
+                            )}
+                          >
+                            {attendanceTaken ? (
+                              <>
+                                <UserCheck className="h-3 w-3" />
+                                View Attendance
+                              </>
+                            ) : (
+                              <>Take Attendance →</>
+                            )}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                ))
+              )}
+            </div>
+          )}
         </div>
 
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -1377,156 +1602,272 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
               </DialogHeader>
             </div>
 
-            <ScrollArea className="flex-1 overflow-y-auto">
-              <div className="px-4 py-4 sm:px-6">
-                {sheetLoading ? (
-                  <div className="flex justify-center py-12">
-                    <BlinkingDots size="medium" color="bg-watney" />
-                  </div>
-                ) : !sheet ? (
-                  <p className="py-12 text-center text-sm text-black">
-                    Could not load the attendance sheet.
-                  </p>
-                ) : (
-                  <>
-                    <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                      <div className="rounded-lg bg-gray-100 p-2 text-center sm:p-3">
-                        <p className="text-lg font-bold text-black sm:text-xl">
-                          {stats.total}
-                        </p>
-                        <p className="text-[9px] font-semibold uppercase text-black sm:text-[10px]">
-                          Students
-                        </p>
-                      </div>
-                      <div className="rounded-lg bg-emerald-50 p-2 text-center sm:p-3">
-                        <p className="text-lg font-bold text-emerald-700 sm:text-xl">
-                          {stats.present}
-                        </p>
-                        <p className="text-[9px] font-semibold uppercase text-emerald-700 sm:text-[10px]">
-                          Present
-                        </p>
-                      </div>
-                      <div className="rounded-lg bg-rose-50 p-2 text-center sm:p-3">
-                        <p className="text-lg font-bold text-rose-700 sm:text-xl">
-                          {stats.absent}
-                        </p>
-                        <p className="text-[9px] font-semibold uppercase text-rose-700 sm:text-[10px]">
-                          Absent
-                        </p>
-                      </div>
-                      <div className="rounded-lg bg-amber-50 p-2 text-center sm:p-3">
-                        <p className="text-lg font-bold text-amber-700 sm:text-xl">
-                          {stats.late}
-                        </p>
-                        <p className="text-[9px] font-semibold uppercase text-amber-700 sm:text-[10px]">
-                          Late
-                        </p>
-                      </div>
-                    </div>
-
-                    {unmarkedIds.size > 0 && (
-                      <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700">
-                        {unmarkedIds.size} student
-                        {unmarkedIds.size === 1 ? '' : 's'} not marked yet —
-                        every student must be marked before saving.
-                      </div>
-                    )}
-
-                    <div className="space-y-2">
-                      {sheet.attendance?.length === 0 ? (
-                        <p className="py-8 text-center text-sm text-black">
-                          No enrolled students found for this class.
-                        </p>
-                      ) : (
-                        sheet.attendance?.map((entry) => {
-                          const sid = entry.studentId?._id || entry.studentId;
-                          const status = statuses[sid];
-                          const isUnmarked = unmarkedIds.has(sid);
-                          return (
-                            <div
-                              key={sid || entry.applicationCourseId}
-                              className={clsx(
-                                'flex flex-col gap-3 rounded-lg border p-3 transition-colors sm:flex-row sm:items-center sm:justify-between',
-                                isUnmarked
-                                  ? 'border-rose-300 bg-rose-50/60 ring-1 ring-rose-200'
-                                  : 'border-gray-100 hover:bg-gray-50/60'
-                              )}
-                            >
-                              <div className="flex min-w-0 flex-1 items-center gap-3">
-                                <div className="min-w-0">
-                                  <p className="truncate text-xs font-semibold text-black">
-                                    {studentName(entry.studentId)}
-                                  </p>
-                                  <p className="truncate text-[11px] text-black">
-                                    {entry.studentId?.email || ''}
-                                  </p>
-                                </div>
-                              </div>
-
-                              <div className="flex flex-wrap items-center gap-2">
-                                <div className="flex flex-wrap overflow-hidden rounded-md border border-gray-200">
-                                  {(
-                                    Object.keys(
-                                      STATUS_META
-                                    ) as AttendanceStatus[]
-                                  ).map((key) => {
-                                    const meta = STATUS_META[key];
-                                    const Icon = meta.icon;
-                                    const isActive = status === key;
-                                    return (
-                                      <button
-                                        key={key}
-                                        onClick={() => toggleStatus(sid, key)}
-                                        title={meta.label}
-                                        className={clsx(
-                                          'flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold transition-colors',
-                                          isActive
-                                            ? meta.active
-                                            : 'bg-white text-black hover:bg-gray-50'
-                                        )}
-                                      >
-                                        <Icon className="h-3.5 w-3.5" />
-                                        <span className="hidden sm:inline">
-                                          {meta.label}
-                                        </span>
-                                      </button>
-                                    );
-                                  })}
-                                </div>
-
-                                <Input
-                                  placeholder="Remark (optional)"
-                                  value={remarks[sid] || ''}
-                                  onChange={(e) =>
-                                    setRemarks((prev) => ({
-                                      ...prev,
-                                      [sid]: e.target.value
-                                    }))
-                                  }
-                                  className="h-8 w-full text-xs text-black placeholder:text-black sm:w-48 md:w-56"
-                                />
-                              </div>
-                            </div>
-                          );
-                        })
-                      )}
-                    </div>
-                  </>
-                )}
+            <Tabs
+              value={activeTab}
+              onValueChange={(value) =>
+                setActiveTab(value as 'attendance' | 'lessons')
+              }
+              className="flex min-h-0 flex-1 flex-col"
+            >
+              <div className="shrink-0 border-b border-gray-100 px-4 sm:px-6">
+                <TabsList className="h-auto w-full justify-start gap-0 rounded-none bg-transparent p-0">
+                  <TabsTrigger
+                    value="attendance"
+                    className="flex items-center gap-1.5 rounded-none border-b-2 border-transparent bg-transparent px-3 py-2.5 text-xs font-medium text-black data-[state=active]:border-watney data-[state=active]:bg-transparent data-[state=active]:text-watney data-[state=active]:shadow-none sm:px-4 sm:text-sm"
+                  >
+                    <ClipboardCheck className="h-4 w-4" />
+                    Attendance
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="lessons"
+                    className="flex items-center gap-1.5 rounded-none border-b-2 border-transparent bg-transparent px-3 py-2.5 text-xs font-medium text-black data-[state=active]:border-watney data-[state=active]:bg-transparent data-[state=active]:text-watney data-[state=active]:shadow-none sm:px-4 sm:text-sm"
+                  >
+                    <BookOpen className="h-4 w-4" />
+                    Lessons
+                    <span className="rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-black">
+                      {selectedLessons.length}
+                    </span>
+                  </TabsTrigger>
+                </TabsList>
               </div>
-            </ScrollArea>
+
+              <ScrollArea className="flex-1 overflow-y-auto">
+                <TabsContent
+                  value="attendance"
+                  className="m-0 px-4 py-4 focus-visible:outline-none sm:px-6"
+                >
+                  {sheetLoading ? (
+                    <div className="flex justify-center py-12">
+                      <BlinkingDots size="medium" color="bg-watney" />
+                    </div>
+                  ) : !sheet ? (
+                    <p className="py-12 text-center text-sm text-black">
+                      Could not load the attendance sheet.
+                    </p>
+                  ) : (
+                    <>
+                      <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                        <div className="rounded-lg bg-gray-100 p-2 text-center sm:p-3">
+                          <p className="text-lg font-bold text-black sm:text-xl">
+                            {stats.total}
+                          </p>
+                          <p className="text-[9px] font-semibold uppercase text-black sm:text-[10px]">
+                            Students
+                          </p>
+                        </div>
+                        <div className="rounded-lg bg-emerald-50 p-2 text-center sm:p-3">
+                          <p className="text-lg font-bold text-emerald-700 sm:text-xl">
+                            {stats.present}
+                          </p>
+                          <p className="text-[9px] font-semibold uppercase text-emerald-700 sm:text-[10px]">
+                            Present
+                          </p>
+                        </div>
+                        <div className="rounded-lg bg-rose-50 p-2 text-center sm:p-3">
+                          <p className="text-lg font-bold text-rose-700 sm:text-xl">
+                            {stats.absent}
+                          </p>
+                          <p className="text-[9px] font-semibold uppercase text-rose-700 sm:text-[10px]">
+                            Absent
+                          </p>
+                        </div>
+                        <div className="rounded-lg bg-amber-50 p-2 text-center sm:p-3">
+                          <p className="text-lg font-bold text-amber-700 sm:text-xl">
+                            {stats.late}
+                          </p>
+                          <p className="text-[9px] font-semibold uppercase text-amber-700 sm:text-[10px]">
+                            Late
+                          </p>
+                        </div>
+                      </div>
+
+                      {unmarkedIds.size > 0 && (
+                        <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700">
+                          {unmarkedIds.size} student
+                          {unmarkedIds.size === 1 ? '' : 's'} not marked yet —
+                          every student must be marked before saving.
+                        </div>
+                      )}
+
+                      <div className="space-y-2">
+                        {sheet.attendance?.length === 0 ? (
+                          <p className="py-8 text-center text-sm text-black">
+                            No enrolled students found for this class.
+                          </p>
+                        ) : (
+                          sheet.attendance?.map((entry) => {
+                            const sid = entry.studentId?._id || entry.studentId;
+                            const status = statuses[sid];
+                            const isUnmarked = unmarkedIds.has(sid);
+                            return (
+                              <div
+                                key={sid || entry.applicationCourseId}
+                                className={clsx(
+                                  'flex flex-col gap-3 rounded-lg border p-3 transition-colors sm:flex-row sm:items-center sm:justify-between',
+                                  isUnmarked
+                                    ? 'border-rose-300 bg-rose-50/60 ring-1 ring-rose-200'
+                                    : 'border-gray-100 hover:bg-gray-50/60'
+                                )}
+                              >
+                                <div className="flex min-w-0 flex-1 items-center gap-3">
+                                  <div className="min-w-0">
+                                    <p className="truncate text-xs font-semibold text-black">
+                                      {studentName(entry.studentId)}
+                                    </p>
+                                    <p className="truncate text-[11px] text-black">
+                                      {entry.studentId?.email || ''}
+                                    </p>
+                                  </div>
+                                </div>
+
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <div className="flex flex-wrap overflow-hidden rounded-md border border-gray-200">
+                                    {(
+                                      Object.keys(
+                                        STATUS_META
+                                      ) as AttendanceStatus[]
+                                    ).map((key) => {
+                                      const meta = STATUS_META[key];
+                                      const Icon = meta.icon;
+                                      const isActive = status === key;
+                                      return (
+                                        <button
+                                          key={key}
+                                          onClick={() => toggleStatus(sid, key)}
+                                          title={meta.label}
+                                          className={clsx(
+                                            'flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold transition-colors',
+                                            isActive
+                                              ? meta.active
+                                              : 'bg-white text-black hover:bg-gray-50'
+                                          )}
+                                        >
+                                          <Icon className="h-3.5 w-3.5" />
+                                          <span className="hidden sm:inline">
+                                            {meta.label}
+                                          </span>
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+
+                                  <Input
+                                    placeholder="Remark (optional)"
+                                    value={remarks[sid] || ''}
+                                    onChange={(e) =>
+                                      setRemarks((prev) => ({
+                                        ...prev,
+                                        [sid]: e.target.value
+                                      }))
+                                    }
+                                    className="h-8 w-full text-xs text-black placeholder:text-black sm:w-48 md:w-56"
+                                  />
+                                </div>
+                              </div>
+                            );
+                          })
+                        )}
+                      </div>
+                    </>
+                  )}
+                </TabsContent>
+
+                <TabsContent
+                  value="lessons"
+                  className="m-0 px-4 py-4 focus-visible:outline-none sm:px-6"
+                >
+                  <div className="space-y-3">
+                    <div className="flex flex-col gap-2 rounded-lg border border-gray-100 bg-slate-50/60 p-3 sm:flex-row sm:items-center sm:justify-between">
+                      <p className="text-xs text-black">
+                        Lessons taught in this session
+                        {selectedUnitTitle ? ` of ${selectedUnitTitle}` : ''}.
+                      </p>
+                      <Button
+                        size="sm"
+                        className="w-full bg-watney text-white hover:bg-watney/90 sm:w-auto"
+                        onClick={goToLessonsPage}
+                        disabled={!lessonsHref}
+                        title={
+                          lessonsHref
+                            ? 'Open the unit resources'
+                            : 'This session is not linked to a unit'
+                        }
+                      >
+                        <Plus className="mr-1.5 h-4 w-4" /> Add lesson
+                      </Button>
+                    </div>
+
+                    {selectedLessons.length === 0 ? (
+                      <div className="rounded-lg border border-dashed border-gray-300 px-4 py-10 text-center">
+                        <BookOpen className="mx-auto h-6 w-6 text-black" />
+                        <p className="mt-2 text-sm font-medium text-black">
+                          No lesson uploaded for this session
+                        </p>
+                        <p className="mt-1 text-xs text-black">
+                          Add one on the unit resources page and it shows here
+                          and on the student routine.
+                        </p>
+                      </div>
+                    ) : (
+                      selectedLessons.map((lesson) => (
+                        <div
+                          key={lesson._id}
+                          className="flex flex-col gap-2 rounded-lg border border-gray-100 p-3 transition-colors hover:bg-gray-50/60 sm:flex-row sm:items-center sm:justify-between"
+                        >
+                          <div className="flex min-w-0 items-center gap-2">
+                            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-watney/10 text-watney">
+                              <BookOpen className="h-4 w-4" />
+                            </span>
+                            <div className="min-w-0">
+                              <p className="truncate text-xs font-semibold text-black">
+                                {lesson.title || 'Lesson'}
+                              </p>
+                              {lesson.fileName && (
+                                <p className="truncate text-[11px] text-black">
+                                  {lesson.fileName}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+
+                          {lesson.fileUrl && (
+                            <Button
+                              asChild
+                              size="sm"
+                              variant="outline"
+                              className="w-full shrink-0 text-xs sm:w-auto"
+                            >
+                              <a
+                                href={lesson.fileUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
+                                Open file
+                              </a>
+                            </Button>
+                          )}
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </TabsContent>
+              </ScrollArea>
+            </Tabs>
 
             <div className="shrink-0 px-4 py-4 sm:px-6">
               <DialogFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={markAllPresent}
-                  disabled={!sheet || sheetLoading}
-                  className="w-full sm:w-auto"
-                >
-                  <UserCheck className="mr-1.5 h-4 w-4" /> Mark All Present
-                </Button>
+                {activeTab === 'attendance' && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={markAllPresent}
+                    disabled={!sheet || sheetLoading}
+                    className="w-full sm:w-auto"
+                  >
+                    <UserCheck className="mr-1.5 h-4 w-4" /> Mark All Present
+                  </Button>
+                )}
                 <div className="flex flex-1 flex-col-reverse justify-end gap-2 sm:flex-row">
                   <Button
                     variant="outline"
@@ -1537,21 +1878,24 @@ export function TeacherDashboard({ user }: TeacherDashboardProps) {
                     }}
                     className="w-full sm:w-auto"
                   >
-                    <X className="mr-1.5 h-4 w-4" /> Cancel
+                    <X className="mr-1.5 h-4 w-4" />
+                    {activeTab === 'attendance' ? 'Cancel' : 'Close'}
                   </Button>
-                  <Button
-                    size="sm"
-                    className="w-full bg-watney text-white hover:bg-watney/90 sm:w-auto"
-                    onClick={saveAttendance}
-                    disabled={saving || !sheet || sheetLoading}
-                  >
-                    {saving ? (
-                      <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
-                    ) : (
-                      <Check className="mr-1.5 h-4 w-4" />
-                    )}
-                    Save Attendance
-                  </Button>
+                  {activeTab === 'attendance' && (
+                    <Button
+                      size="sm"
+                      className="w-full bg-watney text-white hover:bg-watney/90 sm:w-auto"
+                      onClick={saveAttendance}
+                      disabled={saving || !sheet || sheetLoading}
+                    >
+                      {saving ? (
+                        <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Check className="mr-1.5 h-4 w-4" />
+                      )}
+                      Save Attendance
+                    </Button>
+                  )}
                 </div>
               </DialogFooter>
             </div>

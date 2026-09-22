@@ -136,7 +136,7 @@ const FileUploadArea: React.FC<FileUploadAreaProps> = ({
                 variant="outline"
                 size="sm"
                 onClick={() => fileInputRef.current?.click()}
-                className="border-gray-200 text-watney hover:bg-watney hover:text-white"
+                className=""
               >
                 <Upload className="mr-1.5 h-3.5 w-3.5" />
                 Choose a file

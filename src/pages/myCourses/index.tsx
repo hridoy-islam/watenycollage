@@ -30,6 +30,7 @@ interface TermInfo {
   order: number;
   year: string;
   status: 'active' | 'inactive';
+  isCompleted?: boolean;
 }
 
 interface GroupInfo {
@@ -69,6 +70,7 @@ interface CourseGroup {
     year: string;
     order: number;
     status: 'active' | 'inactive';
+    isCompleted: boolean;
     groupId: string;
     groupName: string;
     gradingOptions: string[];
@@ -95,6 +97,9 @@ const getTermYear = (term: TermInfo | string): string =>
 
 const getTermStatus = (term: TermInfo | string): 'active' | 'inactive' =>
   typeof term === 'object' && term.status ? term.status : 'active';
+
+const getTermCompleted = (term: TermInfo | string): boolean =>
+  typeof term === 'object' && term.isCompleted === true;
 
 const getCourseId = (course: CourseInfo | string): string =>
   typeof course === 'object' && course?._id ? course._id : String(course);
@@ -193,6 +198,7 @@ function MyCoursesPage() {
           const order = getTermOrder(record.courseTermId);
           const year = getTermYear(record.courseTermId);
           const termStatus = getTermStatus(record.courseTermId);
+          const termCompleted = getTermCompleted(record.courseTermId);
 
           const groupId = getGroupId(record.groupId);
           const groupName = getGroupName(record.groupId);
@@ -218,6 +224,7 @@ function MyCoursesPage() {
               year,
               order,
               status: termStatus,
+              isCompleted: termCompleted,
               groupId,
               groupName,
               gradingOptions
@@ -271,6 +278,15 @@ function MyCoursesPage() {
           const order = getTermOrder(record.courseTermId);
           const year = getTermYear(record.courseTermId);
           const termStatus = getTermStatus(record.courseTermId);
+          const termCompleted = getTermCompleted(record.courseTermId);
+
+          // An inactive term means one of two opposite things, and only the
+          // completed flag tells them apart. Inactive because it has been
+          // taught out is a term the student should keep - their work and
+          // results live on it. Inactive because it has not started yet is a
+          // term the student cannot open, so it is skipped rather than shown
+          // as a row that leads nowhere. An active term always shows.
+          if (termStatus !== 'active' && !termCompleted) continue;
 
           const groupId = getGroupId(record.groupId);
           const groupName = getGroupName(record.groupId);
@@ -297,6 +313,7 @@ function MyCoursesPage() {
               year,
               order,
               status: termStatus,
+              isCompleted: termCompleted,
               groupId,
               groupName,
               gradingOptions
@@ -307,15 +324,24 @@ function MyCoursesPage() {
 
       // Sort terms per course
       courseMap.forEach((course) => {
-        const active = course.terms
-          .filter((t) => t.status === 'active')
+        // Completion, not status, decides where a term sits: a finished term
+        // belongs at the bottom whether or not anyone has switched it off yet,
+        // and the most recently finished one is the one worth reading first.
+        // The upcoming group only ever has rows for teachers - a student's
+        // unreleased terms were skipped above.
+        const current = course.terms
+          .filter((t) => !t.isCompleted && t.status === 'active')
           .sort((a, b) => a.order - b.order);
 
-        const inactive = course.terms
-          .filter((t) => t.status !== 'active')
+        const upcoming = course.terms
+          .filter((t) => !t.isCompleted && t.status !== 'active')
+          .sort((a, b) => a.order - b.order);
+
+        const completed = course.terms
+          .filter((t) => t.isCompleted)
           .sort((a, b) => b.order - a.order);
 
-        course.terms = [...active, ...inactive];
+        course.terms = [...current, ...upcoming, ...completed];
       });
 
       setCourses(Array.from(courseMap.values()));
@@ -455,7 +481,18 @@ function MyCoursesPage() {
                           </div>
                         ) : (
                           course.terms.map((term) => {
-                            const isCurrent = term.status === 'active';
+                            // Three states, not two. A student only ever sees
+                            // the first two - a term that is neither running
+                            // nor finished was filtered out above - but a
+                            // teacher sees their unreleased terms, and calling
+                            // one of those "Completed" would be a lie.
+                            const isCurrent =
+                              term.status === 'active' && !term.isCompleted;
+                            const termLabel = term.isCompleted
+                              ? 'Completed'
+                              : isCurrent
+                                ? 'Current'
+                                : 'Upcoming';
 
                             return (
                               <div
@@ -486,7 +523,7 @@ function MyCoursesPage() {
                                             : 'bg-gray-100 text-black'
                                         }
                                       >
-                                        {isCurrent ? 'Current' : 'Completed'}
+                                        {termLabel}
                                       </Badge>
                                       <span className="flex items-center gap-1 text-[11px] text-black">
                                         <Users className="h-3 w-3" />

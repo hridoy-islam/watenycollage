@@ -22,6 +22,8 @@ export interface LearningOutcomeItem {
 
 export interface FormData {
   title?: string;
+  /** Lectures only: the scheduled session the lesson is taught in. */
+  classRoutineId?: string | null;
   content?: string;
   startDate?: Date | null;
   finalDeadline?: Date | null;
@@ -43,6 +45,11 @@ export interface Resource {
   /** Assignments only: `draft` is hidden from students. */
   status?: 'draft' | 'published' | 'closed';
   title?: string;
+  /**
+   * Lectures only. Comes back populated on a read, so it is either the id or
+   * the session itself - `routineIdOf` in the page normalises the two.
+   */
+  classRoutineId?: string | ClassRoutineRef | null;
   content?: string;
   fileUrl?: string;
   fileName?: string;
@@ -55,6 +62,15 @@ export interface Resource {
   observation?: boolean;
   description?: string;
   assessmentCriteria?: LearningOutcomeItem[];
+}
+
+/** The slice of a class routine the resource lists show beside a lesson. */
+export interface ClassRoutineRef {
+  _id: string;
+  classDate?: string;
+  startTime?: string;
+  endTime?: string;
+  note?: string;
 }
 
 export interface UploadState {

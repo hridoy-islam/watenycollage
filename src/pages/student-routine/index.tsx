@@ -6,8 +6,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import axiosInstance from '@/lib/axios';
 import { useToast } from '@/components/ui/use-toast';
-import { BlinkingDots } from '@/components/shared/blinking-dots';
-import Loader from '@/components/shared/loader';
+import { useNavigate } from 'react-router-dom';
 import {
   CalendarDays,
   CalendarRange,
@@ -20,6 +19,8 @@ import {
   X,
   User,
   BookOpen,
+  ClipboardList,
+  ExternalLink,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -38,6 +39,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 
 // ── Types and Interfaces ──────────────────────────────────────────────────
 
@@ -49,6 +51,15 @@ interface StudentCourse {
   groupId?: { _id: string; name: string } | string;
   intakeId?: { _id: string; termName: string } | string;
   status: string;
+}
+
+/** A lesson uploaded against the session, as the routine endpoint returns it. */
+interface RoutineLesson {
+  _id: string;
+  title?: string;
+  fileUrl?: string;
+  fileName?: string;
+  hasContent?: boolean;
 }
 
 interface ClassEntry {
@@ -74,6 +85,7 @@ interface ClassEntry {
   teacherId?: string;
   teacherName?: string | null;
   teacherEmail?: string | null;
+  lessons?: RoutineLesson[];
 }
 
 interface SlotInfo {
@@ -215,6 +227,7 @@ const asName = (v: unknown): string | undefined => {
 export default function StudentRoutinePage() {
   const { user } = useSelector((state: any) => state.auth);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const [courses, setCourses] = useState<StudentCourse[]>([]);
   const [coursesLoading, setCoursesLoading] = useState(true);
@@ -222,6 +235,7 @@ export default function StudentRoutinePage() {
   const [routineLoading, setRoutineLoading] = useState(false);
   const [view, setView] = useState<'calendar' | 'list'>('calendar');
   const [selectedEntry, setSelectedEntry] = useState<ClassEntry | null>(null);
+  const [entryTab, setEntryTab] = useState<'details' | 'lessons'>('details');
 
   const [appliedRange, setAppliedRange] = useState<[Date | null, Date | null]>([
     moment().startOf('isoWeek').toDate(),
@@ -318,10 +332,8 @@ export default function StudentRoutinePage() {
     fetchCourses();
   }, [fetchCourses]);
 
-  const hasCourses = courses.length > 0;
-
   useEffect(() => {
-    if (!hasCourses || weekDays.length === 0 || !user?._id) return;
+    if (weekDays.length === 0 || !user?._id) return;
 
     const startDateStr = toLocalDateString(weekDays[0]);
     const endDateStr = toLocalDateString(weekDays[weekDays.length - 1]);
@@ -342,37 +354,83 @@ export default function StudentRoutinePage() {
           if (cid && !placementByCourse.has(cid)) placementByCourse.set(cid, p);
         });
 
-        const routinePromises = courses.map((application) => {
-          const courseId = asId(application.courseId);
-          const placement = placementByCourse.get(courseId || '');
-          const groupId = asId(placement?.groupId) || asId(application.groupId);
-          const termId =
-            asId(placement?.courseTermId) || asId(application.intakeId);
-          if (!courseId) return Promise.resolve({ application, result: [] });
+        /**
+         * Every course/group/term the student sits in, however it is known.
+         * The placement is what puts a student in front of a timetable, so it
+         * leads: a student whose application row does not read `enrolled` is
+         * still in a group and still has classes. The enrolment only fills in
+         * a course the placement call did not return.
+         */
+        type RoutineSource = {
+          courseId: string;
+          groupId?: string;
+          termId?: string;
+          hasTerm: boolean;
+          application?: StudentCourse;
+          placement?: any;
+        };
+        const sources = new Map<string, RoutineSource>();
 
-          return axiosInstance
+        (Array.isArray(placements) ? placements : []).forEach(
+          (placement: any) => {
+            const courseId = asId(placement.courseId);
+            if (!courseId) return;
+            sources.set(courseId, {
+              courseId,
+              groupId: asId(placement.groupId),
+              termId: asId(placement.courseTermId),
+              hasTerm: Boolean(placement.courseTermId),
+              placement,
+            });
+          }
+        );
+
+        courses.forEach((application) => {
+          const courseId = asId(application.courseId);
+          if (!courseId) return;
+          const existing = sources.get(courseId);
+          const placement = placementByCourse.get(courseId);
+          sources.set(courseId, {
+            courseId,
+            groupId: existing?.groupId || asId(application.groupId),
+            termId: existing?.termId || asId(application.intakeId),
+            hasTerm: existing?.hasTerm || Boolean(placement?.courseTermId),
+            application,
+            placement: existing?.placement || placement,
+          });
+        });
+
+        if (sources.size === 0) {
+          setClasses([]);
+          return;
+        }
+
+        const routinePromises = Array.from(sources.values()).map((source) =>
+          axiosInstance
             .get('/course-routine', {
               params: {
                 limit: 500,
-                courseId,
-                ...(groupId ? { groupId } : {}),
-                ...(placement?.courseTermId ? { termId } : {}),
+                courseId: source.courseId,
+                ...(source.groupId ? { groupId: source.groupId } : {}),
+                ...(source.hasTerm && source.termId
+                  ? { termId: source.termId }
+                  : {}),
                 startDate: startDateStr,
                 endDate: endDateStr,
               },
             })
             .then((res) => ({
-              application,
+              source,
               result: res.data?.data?.result || [],
             }))
             .catch((error) => {
               console.error(
-                `Failed to load routine for course ${courseId}:`,
+                `Failed to load routine for course ${source.courseId}:`,
                 error
               );
-              return { application, result: [] };
-            });
-        });
+              return { source, result: [] };
+            })
+        );
 
         const [routineResponses, historyRes] = await Promise.all([
           Promise.all(routinePromises),
@@ -394,19 +452,17 @@ export default function StudentRoutinePage() {
         );
 
         const byRoutineId = new Map<string, ClassEntry>();
-        routineResponses.forEach(({ application, result }) => {
-          const courseId = asId(application.courseId);
-          const placement = placementByCourse.get(courseId || '');
-          const groupId = asId(placement?.groupId) || asId(application.groupId);
-          const termId =
-            asId(placement?.courseTermId) || asId(application.intakeId);
+        routineResponses.forEach(({ source, result }) => {
+          const { courseId, groupId, termId, application, placement } = source;
           const routineResults = Array.isArray(result) ? result : [];
           const firstRoutine = routineResults[0] || {};
           const courseName =
-            asName(application.courseId) || asName(firstRoutine.courseId);
+            asName(application?.courseId) ||
+            asName(placement?.courseId) ||
+            asName(firstRoutine.courseId);
           const groupName =
             asName(placement?.groupId) ||
-            asName(application.groupId) ||
+            asName(application?.groupId) ||
             asName(firstRoutine.groupId);
           const termName =
             asName(placement?.courseTermId) || asName(firstRoutine.termId);
@@ -444,6 +500,7 @@ export default function StudentRoutinePage() {
               teacherId: routine.teacherId?._id ?? matched?.teacherId,
               teacherName: routine.teacherId?.name ?? matched?.teacherName,
               teacherEmail: routine.teacherId?.email ?? matched?.teacherEmail,
+              lessons: Array.isArray(routine.lessons) ? routine.lessons : [],
             });
           });
         });
@@ -463,7 +520,7 @@ export default function StudentRoutinePage() {
       }
     };
     fetchAll();
-  }, [hasCourses, courses, user?._id, weekDays]);
+  }, [courses, user?._id, weekDays]);
 
   const slotMap = useMemo(
     () => buildSlotMap(classes, weekDays),
@@ -482,13 +539,18 @@ export default function StudentRoutinePage() {
     return STATUS_META[status];
   };
 
-  if (coursesLoading) {
-    return (
-      <div className="flex h-[80vh] flex-1 items-center justify-center">
-        <Loader />
-      </div>
-    );
-  }
+  /** A class always opens on its details, whichever view it was clicked in. */
+  const openEntry = (entry: ClassEntry) => {
+    setEntryTab('details');
+    setSelectedEntry(entry);
+  };
+
+  /** The unit page the lessons are kept on, when the class names a unit. */
+  const unitHrefOf = (entry: ClassEntry | null) => {
+    if (!entry?.courseId || !entry?.unitId) return '';
+    if (!entry.termId || !entry.groupId) return '';
+    return `/dashboard/my-courses/${entry.courseId}/terms/${entry.termId}/groups/${entry.groupId}/units/${entry.unitId}`;
+  };
 
   return (
     <div className="w-full p-2 md:p-4">
@@ -511,8 +573,7 @@ export default function StudentRoutinePage() {
               </div>
 
               {/* Date range controls */}
-              {hasCourses && (
-                <div className="flex flex-wrap items-center justify-between gap-2 border-y border-gray-100 py-3">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-y border-gray-100 py-3">
                   <div className="flex flex-wrap items-center gap-2">
                     <button
                       className="flex h-8 w-8 items-center justify-center rounded-md bg-watney text-white transition-colors hover:bg-watney/90"
@@ -590,16 +651,20 @@ export default function StudentRoutinePage() {
                     )}
                   </div>
 
-                  <span className="text-xs text-black">
+                  <span className="flex items-center gap-2 text-xs text-black">
                     {classes.length} class{classes.length === 1 ? '' : 'es'} in
                     range
+                    {/* {(routineLoading || coursesLoading) && (
+                      <span className="inline-flex items-center gap-1 font-medium text-black">
+                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-watney" />
+                        Loading…
+                      </span>
+                    )} */}
                   </span>
-                </div>
-              )}
+              </div>
 
               {/* View Toggle (Calendar / List) */}
-              {!routineLoading && hasCourses && (
-                <Tabs value={view} onValueChange={(v) => setView(v as any)}>
+              <Tabs value={view} onValueChange={(v) => setView(v as any)}>
                   <TabsList>
                     <TabsTrigger value="calendar">
                       <CalendarDays className="mr-1.5 h-4 w-4" /> Calendar
@@ -632,12 +697,12 @@ export default function StudentRoutinePage() {
                       </div>
                     </div>
 
-                    {routineLoading ? (
-                      <div className="flex justify-center py-8">
-                        <BlinkingDots size="small" color="bg-watney" />
-                      </div>
-                    ) : (
-                      <div className="relative max-h-[650px] w-full min-w-0 max-w-full overflow-auto rounded-sm border border-gray-300 bg-white shadow-sm">
+                    {/*
+                     * The frame is drawn straight away - only the class
+                     * blocks are waiting on the fetch, so there is nothing to
+                     * swap the whole timetable out for.
+                     */}
+                    <div className="relative max-h-[650px] w-full min-w-0 max-w-full overflow-auto rounded-sm border border-gray-300 bg-white shadow-sm">
                         <table className="w-max min-w-full border-collapse text-sm">
                           <thead className="sticky top-0 z-30 bg-slate-50">
                             <tr>
@@ -746,7 +811,7 @@ export default function StudentRoutinePage() {
                                         <button
                                           type="button"
                                           onClick={() =>
-                                            setSelectedEntry(entry)
+                                            openEntry(entry)
                                           }
                                           className={clsx(
                                             'absolute left-1 right-1 z-10 flex cursor-pointer flex-col overflow-hidden rounded-md border bg-white p-2 text-left text-xs shadow-sm transition-shadow hover:shadow-md',
@@ -830,18 +895,12 @@ export default function StudentRoutinePage() {
                             ))}
                           </tbody>
                         </table>
-                      </div>
-                    )}
+                    </div>
                   </TabsContent>
 
                   {/* ── List View ── */}
                   <TabsContent value="list" className="mt-4">
-                    {routineLoading ? (
-                      <div className="flex justify-center py-8">
-                        <BlinkingDots size="small" color="bg-watney" />
-                      </div>
-                    ) : (
-                      <div className="w-full min-w-0 overflow-x-auto rounded-lg border border-gray-100">
+                    <div className="w-full min-w-0 overflow-x-auto rounded-lg border border-gray-100">
                         <Table>
                           <TableHeader>
                             <TableRow>
@@ -855,7 +914,15 @@ export default function StudentRoutinePage() {
                             </TableRow>
                           </TableHeader>
                           <TableBody>
-                            {classes.length === 0 ? (
+                            {routineLoading && classes.length === 0 ? (
+                              [0, 1, 2].map((row) => (
+                                <TableRow key={row}>
+                                  <TableCell colSpan={7} className="py-3">
+                                    <Skeleton className="h-6 w-full" />
+                                  </TableCell>
+                                </TableRow>
+                              ))
+                            ) : classes.length === 0 ? (
                               <TableRow>
                                 <TableCell
                                   colSpan={7}
@@ -870,7 +937,7 @@ export default function StudentRoutinePage() {
                                 return (
                                   <TableRow
                                     key={cls._id}
-                                    onClick={() => setSelectedEntry(cls)}
+                                    onClick={() => openEntry(cls)}
                                     className="h-16 cursor-pointer hover:bg-gray-50"
                                   >
                                     <TableCell className="whitespace-nowrap">
@@ -936,17 +1003,9 @@ export default function StudentRoutinePage() {
                             )}
                           </TableBody>
                         </Table>
-                      </div>
-                    )}
+                    </div>
                   </TabsContent>
                 </Tabs>
-              )}
-
-              {routineLoading && hasCourses && (
-                <div className="flex justify-center py-8">
-                  <BlinkingDots size="small" color="bg-watney" />
-                </div>
-              )}
             </div>
           </div>
 
@@ -955,7 +1014,7 @@ export default function StudentRoutinePage() {
             open={!!selectedEntry}
             onOpenChange={(open) => !open && setSelectedEntry(null)}
           >
-            <DialogContent className="max-w-md">
+            <DialogContent className="max-h-[92vh] w-[95vw] max-w-2xl overflow-hidden">
               {selectedEntry && (
                 <>
                   <DialogHeader>
@@ -978,6 +1037,28 @@ export default function StudentRoutinePage() {
                     </p>
                   </DialogHeader>
 
+                  <Tabs
+                    value={entryTab}
+                    onValueChange={(value) =>
+                      setEntryTab(value as 'details' | 'lessons')
+                    }
+                  >
+                    <TabsList>
+                      <TabsTrigger value="details">
+                        <ClipboardList className="mr-1.5 h-4 w-4" /> Details
+                      </TabsTrigger>
+                      <TabsTrigger value="lessons">
+                        <BookOpen className="mr-1.5 h-4 w-4" /> Lessons
+                        <span className="ml-1.5 rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-black">
+                          {selectedEntry.lessons?.length || 0}
+                        </span>
+                      </TabsTrigger>
+                    </TabsList>
+
+                    <TabsContent
+                      value="details"
+                      className="mt-3 max-h-[60vh] overflow-y-auto"
+                    >
                   <div className="rounded-lg border border-gray-200 bg-white shadow-none">
                     <div className="divide-y divide-gray-100 px-4 py-1">
                       {statusOf(selectedEntry.status) && (
@@ -1103,6 +1184,82 @@ export default function StudentRoutinePage() {
                       )}
                     </div>
                   </div>
+                    </TabsContent>
+
+                    <TabsContent
+                      value="lessons"
+                      className="mt-3 max-h-[60vh] space-y-2 overflow-y-auto"
+                    >
+                      {(selectedEntry.lessons?.length || 0) === 0 ? (
+                        <div className="rounded-lg border border-dashed border-gray-300 px-4 py-8 text-center">
+                          <BookOpen className="mx-auto h-5 w-5 text-black" />
+                          <p className="mt-2 text-sm font-medium text-black">
+                            No lesson for this class yet
+                          </p>
+                          <p className="mt-1 text-xs text-black">
+                            Your tutor has not uploaded anything for this
+                            session.
+                          </p>
+                        </div>
+                      ) : (
+                        selectedEntry.lessons!.map((lesson) => (
+                          <div
+                            key={lesson._id}
+                            className="flex w-full min-w-0 flex-col gap-2 rounded-lg border border-gray-200 p-3 sm:flex-row sm:items-center sm:justify-between"
+                          >
+                            <div className="flex min-w-0 flex-1 items-center gap-2">
+                              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-watney/10 text-watney">
+                                <BookOpen className="h-4 w-4" />
+                              </span>
+                              <div className="min-w-0">
+                                <p className="truncate text-xs font-semibold text-black">
+                                  {lesson.title || 'Lesson'}
+                                </p>
+                                {lesson.fileName && (
+                                  <p className="truncate text-[11px] text-black">
+                                    {lesson.fileName}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+
+                            {lesson.fileUrl && (
+                              <Button
+                                asChild
+                                size="sm"
+                                variant="outline"
+                                className="w-full shrink-0 text-xs sm:w-auto"
+                              >
+                                <a
+                                  href={lesson.fileUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
+                                  Open file
+                                </a>
+                              </Button>
+                            )}
+                          </div>
+                        ))
+                      )}
+
+                      {unitHrefOf(selectedEntry) && (
+                        <Button
+                          size="sm"
+                          className="w-full bg-watney text-xs text-white hover:bg-watney/90"
+                          onClick={() => {
+                            const href = unitHrefOf(selectedEntry);
+                            setSelectedEntry(null);
+                            navigate(href);
+                          }}
+                        >
+                          <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
+                          Open unit resources
+                        </Button>
+                      )}
+                    </TabsContent>
+                  </Tabs>
                 </>
               )}
             </DialogContent>

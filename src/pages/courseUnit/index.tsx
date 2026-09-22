@@ -35,12 +35,6 @@ import {
 } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
-} from '@/components/ui/tooltip';
-import {
   Plus,
   FileText,
   MoveLeft,
@@ -286,39 +280,35 @@ function EmptyState({
   );
 }
 
-/** Icon-only action button with a tooltip — keeps the row dense but legible. */
+/** An action button: its icon, then what it does, so nothing has to be hovered. */
 function IconAction({
   label,
+  title,
   icon: Icon,
   onClick,
   tone = 'default'
 }: {
   label: string;
+  title: any;
   icon: any;
   onClick: () => void;
   tone?: 'default' | 'danger';
 }) {
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <button
-          type="button"
-          aria-label={label}
-          onClick={onClick}
-          className={clsx(
-            'flex h-8 w-8 items-center justify-center rounded-md border transition-colors',
-            tone === 'danger'
-              ? 'border-gray-200 text-black hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600'
-              : 'border-gray-200 text-black hover:border-watney/40 hover:bg-watney/5 hover:text-watney'
-          )}
-        >
-          <Icon className="h-4 w-4" />
-        </button>
-      </TooltipTrigger>
-      <TooltipContent side="top" className="text-xs">
-        {label}
-      </TooltipContent>
-    </Tooltip>
+    <button
+      type="button"
+      title={label}
+      onClick={onClick}
+      className={clsx(
+        'flex h-8 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 text-xs font-medium transition-colors',
+        tone === 'danger'
+          ? 'border-gray-200 text-black hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600'
+          : 'border-gray-200 text-black hover:border-watney/40 hover:bg-watney/5 hover:text-watney'
+      )}
+    >
+      <Icon className="h-4 w-4 shrink-0" />
+      {title}
+    </button>
   );
 }
 
@@ -1120,8 +1110,7 @@ function CourseUnitPage() {
     null;
 
   return (
-    <TooltipProvider delayDuration={200}>
-      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
         {/* ── Page header ──────────────────────────────────────────────── */}
         <header className="border-b border-gray-200 px-5 py-4">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -1411,6 +1400,7 @@ function CourseUnitPage() {
                                 <div className="flex items-center justify-end gap-1.5">
                                   <IconAction
                                     label="Modules & resources"
+                                    title='Resource'
                                     icon={FileText}
                                     onClick={() => handleViewModules(unit)}
                                   />
@@ -2310,8 +2300,7 @@ function CourseUnitPage() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-      </div>
-    </TooltipProvider>
+    </div>
   );
 }
 

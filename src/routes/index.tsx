@@ -64,6 +64,7 @@ import AssignmentReportsPage from '@/pages/assignmentReport';
 import MyCoursesResultPage from '@/pages/myCourses/courseResult';
 import StudentRoutinePage from '@/pages/student-routine';
 import StudentVerificationPage from '@/pages/studentVerification';
+import SupportTicketsPage from '@/pages/support-tickets';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
 
 const SignInPage = lazy(() => import('@/pages/auth/signin/index'));
@@ -199,7 +200,8 @@ export default function AppRouter() {
         { path: 'student-applications/:id/assignment/:studentId/unit-assignments/:unitId', element: withRole(<AssignmentDetailPage />, ['student']) },
         { path: 'my-courses/result', element: withRole(<MyCoursesResultPage />, ['student']) },
         { path: 'student-routine', element: withRole(<StudentRoutinePage />, ['student']) },
-        { path: 'student-attendance', element: withRole(<StudentAttendancePage />, ['student']) }
+        { path: 'student-attendance', element: withRole(<StudentAttendancePage />, ['student']) },
+        { path: 'support-tickets', element: withRole(<SupportTicketsPage />, ['student']) }
       ]
     }
   ];

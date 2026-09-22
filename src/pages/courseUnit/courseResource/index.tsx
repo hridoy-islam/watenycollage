@@ -35,6 +35,15 @@ import ResourceTypeSelector from './components/ResourceTypeSelector';
 import ResourceForm from './components/ResourceForm';
 import ResourceList from './components/ResourceList';
 
+/**
+ * A lecture's `classRoutineId` comes back populated from the API and goes back
+ * up as a plain id, so both shapes have to read the same.
+ */
+const routineIdOf = (routine: any): string | null => {
+  if (!routine) return null;
+  return typeof routine === 'object' ? routine._id || null : routine;
+};
+
 /** Maps a CourseUnitMaterial document to the flat resource list the UI renders. */
 const mapMaterialToResources = (
   material: any,
@@ -68,6 +77,8 @@ const mapMaterialToResources = (
         _id: item._id,
         type: resourceType,
         title: item.title || '',
+        // Populated on a read, so this is the session itself for a lecture.
+        classRoutineId: item.classRoutineId || null,
         content: item.content || '',
         fileUrl: item.fileUrl?.trim() || '',
         fileName: item.fileName?.trim() || '',
@@ -133,6 +144,7 @@ function CourseModule() {
   const [formData, setFormData] = useState<ResourceFormData>({
     title: '',
     content: '',
+    classRoutineId: null,
     startDate: null,
     finalDeadline: null,
     learningOutcomes: '',
@@ -145,6 +157,14 @@ function CourseModule() {
     selectedDocument: null,
     fileName: null
   });
+  // Cleared as soon as a session is chosen, so the message does not outlive
+  // the problem it describes.
+  const [routineError, setRoutineError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (formData.classRoutineId) setRoutineError(null);
+  }, [formData.classRoutineId]);
+
   const [uploadingFile, setUploadingFile] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -257,6 +277,7 @@ function CourseModule() {
     if (editingResource) {
       setFormData({
         title: editingResource.title || '',
+        classRoutineId: routineIdOf(editingResource.classRoutineId),
         content: editingResource.content || '',
         startDate: editingResource.startDate
           ? new Date(editingResource.startDate)
@@ -279,6 +300,7 @@ function CourseModule() {
       setFormData({
         title: '',
         content: '',
+        classRoutineId: null,
         startDate: null,
         finalDeadline: null,
         learningOutcomes: '',
@@ -363,6 +385,7 @@ function CourseModule() {
     setFormData({
       title: '',
       content: '',
+      classRoutineId: null,
       startDate: undefined,
       finalDeadline: undefined,
       learningOutcomes: '',
@@ -378,9 +401,11 @@ function CourseModule() {
     setIsCreateDialogOpen(false);
     setSelectedResourceType(null);
     setEditingResource(null);
+    setRoutineError(null);
     setFormData({
       title: '',
       content: '',
+      classRoutineId: null,
       startDate: undefined,
       finalDeadline: undefined,
       learningOutcomes: '',
@@ -543,6 +568,20 @@ function CourseModule() {
       if (selectedResourceType === 'learning-outcome') {
         newResource.finalFeedback = formData.finalFeedback;
         newResource.observation = formData.observation;
+      }
+
+      if (selectedResourceType === 'lecture') {
+        if (!formData.classRoutineId) {
+          setRoutineError('Select the class routine this lesson is taught in');
+          toast({
+            title: 'Pick a class routine',
+            description:
+              'A lesson is shown on the student and teacher routine, so it has to belong to a session.',
+            variant: 'destructive'
+          });
+          return;
+        }
+        newResource.classRoutineId = formData.classRoutineId;
       }
 
       if (uploadState.selectedDocument) {
@@ -788,6 +827,11 @@ function CourseModule() {
                       allResources={resources}
                       selectedParentId={null}
                       setSelectedParentId={() => {}}
+                      courseId={id}
+                      termId={unitTermId}
+                      groupId={unitGroupId}
+                      unitId={unitId}
+                      routineError={routineError}
                     />
                   )}
                 </DialogContent>

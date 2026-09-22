@@ -25,7 +25,7 @@ import {
   Clock
 } from 'lucide-react';
 import moment from 'moment';
-import { Resource } from './types';
+import { ClassRoutineRef, Resource } from './types';
 import { useEffectiveRole } from '@/hooks/use-effective-role';
 import { useToast } from '@/components/ui/use-toast';
 import axiosInstance from '@/lib/axios';
@@ -89,6 +89,29 @@ const TYPE_CONFIG: Record<
     badge: 'bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-200'
   }
 };
+
+/**
+ * A lesson's session comes back populated on a read but goes back up as a bare
+ * id, so only the object shape has a date worth printing.
+ */
+const routineOf = (
+  routine: Resource['classRoutineId']
+): ClassRoutineRef | null =>
+  routine && typeof routine === 'object' ? routine : null;
+
+/** `Wed 08 Oct 2025 | 09:00 - 11:00` - the same read as the picker's. */
+const routineLabel = (routine: ClassRoutineRef) =>
+  [
+    routine.classDate
+      ? moment(routine.classDate).format('ddd DD MMM YYYY')
+      : null,
+    routine.startTime && routine.endTime
+      ? `${routine.startTime} - ${routine.endTime}`
+      : null,
+    routine.note
+  ]
+    .filter(Boolean)
+    .join(' | ');
 
 const FALLBACK_CONFIG = {
   icon: <FileText className="h-4 w-4" />,
@@ -407,6 +430,10 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
   // ── Learning outcome / study guide / lecture ───────────────────────────
   const typeConfig = TYPE_CONFIG[resource.type] || FALLBACK_CONFIG;
   const criteriaCount = resource.assessmentCriteria?.length || 0;
+  // Lessons taught before the routine was made compulsory have none, so the
+  // card has to read the same with and without one.
+  const isLecture = resource.type === 'lecture';
+  const lessonRoutine = isLecture ? routineOf(resource.classRoutineId) : null;
 
   return (
     <>
@@ -440,6 +467,12 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
                   {resource.type === 'learning-outcome' && (
                     <span className="rounded-full bg-watney/10 px-2 py-0.5 text-[10px] font-semibold text-black">
                       {criteriaCount} criteri{criteriaCount === 1 ? 'on' : 'a'}
+                    </span>
+                  )}
+                  {lessonRoutine && routineLabel(lessonRoutine) && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-violet-50 px-2 py-0.5 text-[10px] font-semibold text-violet-700 ring-1 ring-inset ring-violet-200">
+                      <CalendarClock className="h-2.5 w-2.5" />
+                      {routineLabel(lessonRoutine)}
                     </span>
                   )}
                   {resource.fileUrl?.trim() && (
@@ -494,6 +527,20 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
 
         <AccordionContent className="border-t border-gray-200 bg-white px-4 pb-4 pt-3">
           <div className="space-y-3">
+            {/*
+              * The session reads on the row itself, so it is not repeated
+              * here - only its absence is worth saying, and only to whoever
+              * can fix it. A save echoes the id back rather than the session,
+              * so the warning is held back unless the lesson truly has none.
+              */}
+            {isLecture && isAdmin && !resource.classRoutineId && (
+              <div className="flex items-center gap-2 rounded-lg border border-dashed border-amber-200 bg-amber-50 p-3 text-[11px] text-amber-700">
+                <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                This lesson is not on a class routine yet, so it does not show
+                on the student or teacher timetable.
+              </div>
+            )}
+
             {resource.content?.trim() && (
               <div
                 className="prose prose-sm max-w-none rounded-lg bg-watney/5 p-4 text-sm leading-relaxed text-black [&>ol]:list-decimal [&>ol]:pl-5 [&>ul]:list-disc [&>ul]:pl-5"

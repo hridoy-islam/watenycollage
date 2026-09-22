@@ -64,31 +64,31 @@ export default function DashboardPage() {
   }, [user]);
 
 
-  console.log('User data in DashboardPage:', user);
-  useEffect(() => {
-    if (user && user.isValided) {
-      if (!user.authorized) {
-        if (user.role === 'student') {
-          navigate('/dashboard/student-guideline');
-        } else if (user.role === 'applicant') {
-          navigate('/dashboard/career-guideline');
-        }
-      } else {
-        if (!user.isCompleted) {
-          if (user.role === 'student') {
-            if (user.studentType == 'eu') {
-              navigate('/dashboard/eu/student-form');
-            } else {
-              navigate('/dashboard/international/student-form');
-            }
-          }
-          if (user.role === 'applicant') {
-            navigate('/dashboard/career');
-          }
-        }
-      }
-    }
-  }, [user, navigate]);
+  // console.log('User data in DashboardPage:', user);
+  // useEffect(() => {
+  //   if (user && user.isValided) {
+  //     if (!user.authorized) {
+  //       if (user.role === 'student') {
+  //         navigate('/dashboard/student-guideline');
+  //       } else if (user.role === 'applicant') {
+  //         navigate('/dashboard/career-guideline');
+  //       }
+  //     } else {
+  //       if (!user.isCompleted) {
+  //         if (user.role === 'student') {
+  //           if (user.studentType == 'eu') {
+  //             navigate('/dashboard/eu/student-form');
+  //           } else {
+  //             navigate('/dashboard/international/student-form');
+  //           }
+  //         }
+  //         if (user.role === 'applicant') {
+  //           navigate('/dashboard/career');
+  //         }
+  //       }
+  //     }
+  //   }
+  // }, [user, navigate]);
 
   const showSkeleton =
     loading || (user?.role === 'employee' && !designationChecked);
