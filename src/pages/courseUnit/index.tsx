@@ -1289,7 +1289,8 @@ function CourseUnitPage() {
                               key={unit._id}
                               className="border-gray-200 align-top transition-colors hover:bg-watney/5"
                             >
-                              <TableCell className="py-3">
+                              <TableCell className="py-3"                                     onClick={() => handleViewModules(unit)}
+>
                                 <div className="flex items-start gap-2.5">
                                   <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-watney/10 text-watney">
                                     <BookOpen className="h-4 w-4" />
@@ -1304,13 +1305,16 @@ function CourseUnitPage() {
                                   </div>
                                 </div>
                               </TableCell>
-                              <TableCell className="py-3 text-xs text-black">
+                              <TableCell className="py-3 text-xs text-black"                                     onClick={() => handleViewModules(unit)}
+>
                                 {unit.level || '—'}
                               </TableCell>
-                              <TableCell className="py-3 text-xs text-black">
+                              <TableCell className="py-3 text-xs text-black"                                     onClick={() => handleViewModules(unit)}
+>
                                 {unit.gls || '—'}
                               </TableCell>
-                              <TableCell className="py-3">
+                              <TableCell className="py-3"                                     onClick={() => handleViewModules(unit)}
+>
                                 <span className="inline-flex items-center rounded-md bg-watney/10 px-2 py-0.5 text-[11px] font-semibold text-black">
                                   {unit.credit || '—'}
                                 </span>
