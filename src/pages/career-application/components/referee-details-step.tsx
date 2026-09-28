@@ -118,7 +118,7 @@ export function RefereeDetailsStep({
     fieldName: string
   ): boolean => {
     if (refKey === 'personalReferee') {
-      return ['name', 'relationship', 'tel', 'email'].includes(fieldName);
+      return ['name', 'relationship', 'tel', 'email','position'].includes(fieldName);
     }
     // For professional referees, all except 'fax' are required
     return fieldName !== 'fax';
