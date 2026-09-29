@@ -108,7 +108,7 @@ export default function ForgotPassword() {
               {/* <ForgotForm /> */}
               <p className="mt-4 px-8 text-center text-sm text-muted">
                 Back to{'  '}
-                <Link to="/login" className="underline underline-offset-4">
+                <Link to="/" className="underline underline-offset-4">
                   Sign In
                 </Link>
                 .
