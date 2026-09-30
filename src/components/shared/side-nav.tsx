@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch } from '@/redux/store';
 import { logout } from '@/redux/features/authSlice';
@@ -28,6 +28,7 @@ import { Button } from '../ui/button';
 import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 import axiosInstance from '@/lib/axios';
+import { TICKETS_READ_EVENT } from '@/pages/support-tickets/components/ticket-utils';
 
 const adminLinks = [
   { path: '/dashboard/my-courses', label: 'My Courses', icon: BookOpen },
@@ -50,6 +51,27 @@ export function SideNav() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isTeacherDesignation, setIsTeacherDesignation] = useState(false);
   const [designationChecked, setDesignationChecked] = useState(false);
+  const location = useLocation();
+
+  // Replies from the support team the student has not opened yet - the count
+  // on Raise Ticket. Re-read on every page change, and straight away when a
+  // ticket is opened and read.
+  const [unreadReplies, setUnreadReplies] = useState(0);
+  useEffect(() => {
+    if (user?.role !== 'student') return;
+    let cancelled = false;
+    const load = () =>
+      axiosInstance
+        .get('/tickets/unread-count')
+        .then((res) => !cancelled && setUnreadReplies(res.data?.data?.unread || 0))
+        .catch(() => {});
+    load();
+    window.addEventListener(TICKETS_READ_EVENT, load);
+    return () => {
+      cancelled = true;
+      window.removeEventListener(TICKETS_READ_EVENT, load);
+    };
+  }, [user?.role, location.pathname]);
 
   const teacherLinks = [
     { path: '/dashboard/my-courses', label: 'My Courses', icon: BookOpen },
@@ -169,6 +191,14 @@ export function SideNav() {
           >
             <Icon className="h-4 w-4 flex-shrink-0" />
             <span className="flex-1">{label}</span>
+            {path === '/dashboard/support-tickets' && unreadReplies > 0 && (
+              <span
+                className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-600 px-1.5 text-[10px] font-bold text-white"
+                title={`${unreadReplies} new ${unreadReplies === 1 ? 'reply' : 'replies'} on your tickets`}
+              >
+                {unreadReplies}
+              </span>
+            )}
           </NavLink>
         ))}
       </nav>

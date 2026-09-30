@@ -65,6 +65,7 @@ import MyCoursesResultPage from '@/pages/myCourses/courseResult';
 import StudentRoutinePage from '@/pages/student-routine';
 import StudentVerificationPage from '@/pages/studentVerification';
 import SupportTicketsPage from '@/pages/support-tickets';
+import SupportTicketDetailsPage from '@/pages/support-tickets/details';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
 
 const SignInPage = lazy(() => import('@/pages/auth/signin/index'));
@@ -201,7 +202,8 @@ export default function AppRouter() {
         { path: 'my-courses/result', element: withRole(<MyCoursesResultPage />, ['student']) },
         { path: 'student-routine', element: withRole(<StudentRoutinePage />, ['student']) },
         { path: 'student-attendance', element: withRole(<StudentAttendancePage />, ['student']) },
-        { path: 'support-tickets', element: withRole(<SupportTicketsPage />, ['student']) }
+        { path: 'support-tickets', element: withRole(<SupportTicketsPage />, ['student']) },
+        { path: 'support-tickets/:id', element: withRole(<SupportTicketDetailsPage />, ['student']) }
       ]
     }
   ];

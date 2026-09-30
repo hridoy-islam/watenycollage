@@ -3,25 +3,17 @@
  *
  * One card rather than a list and a separate form: raising a ticket is the
  * thing a student comes here to do, and the history is what tells them whether
- * they already have. The detail of a ticket - what they wrote and what the
- * college wrote back - opens in place rather than on its own route, because
- * there is nothing to link to or come back to.
+ * they already have. A ticket opens on its own page, where the conversation
+ * with the support team carries on; a red count on a row is replies from the
+ * team the student has not opened yet.
  */
 
 import { useCallback, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import Select from 'react-select';
 import moment from 'moment';
-import {
-  CheckCircle2,
-  CircleDot,
-  Clock,
-  LifeBuoy,
-  Loader2,
-  MessageSquareText,
-  Plus,
-  Search
-} from 'lucide-react';
+import { LifeBuoy, Loader2, Plus, Search } from 'lucide-react';
 
 import axiosInstance from '@/lib/axios';
 import { Button } from '@/components/ui/button';
@@ -53,75 +45,17 @@ import {
 import { BlinkingDots } from '@/components/shared/blinking-dots';
 import { DataTablePagination } from '@/components/shared/data-table-pagination';
 import { useToast } from '@/components/ui/use-toast';
-
-// ─── Shared vocabulary — kept in step with the ticket module's enums ─────────
-
-type Option = { value: string; label: string };
-
-const TICKET_TYPES: Option[] = [
-  { value: 'academic', label: 'Academic' },
-  { value: 'technical', label: 'Technical / IT' },
-  { value: 'finance', label: 'Finance & Fees' },
-  { value: 'attendance', label: 'Attendance' },
-  { value: 'assignment', label: 'Assignments' },
-  { value: 'course-material', label: 'Course Material' },
-  { value: 'enrolment', label: 'Enrolment' },
-  { value: 'other', label: 'Other' }
-];
-
-const typeLabel = (value: string) =>
-  TICKET_TYPES.find((t) => t.value === value)?.label || value;
-
-// With no subject on a ticket, the type is what names it - except for "other",
-// where the type says nothing and the reason the student gave is the only
-// thing that describes the problem.
-const ticketTitle = (ticket: { type: string; otherReason?: string }) =>
-  ticket.type === 'other' && ticket.otherReason?.trim()
-    ? ticket.otherReason.trim()
-    : typeLabel(ticket.type);
-
-const STATUS_META: Record<
-  string,
-  { label: string; icon: typeof CircleDot; pill: string; dot: string }
-> = {
-  reported: {
-    label: 'Reported',
-    icon: CircleDot,
-    pill: 'border-amber-200 bg-amber-50 text-amber-800',
-    dot: 'bg-amber-500'
-  },
-  'in-progress': {
-    label: 'In progress',
-    icon: Clock,
-    pill: 'border-blue-200 bg-blue-50 text-blue-800',
-    dot: 'bg-blue-500'
-  },
-  resolved: {
-    label: 'Resolved',
-    icon: CheckCircle2,
-    pill: 'border-emerald-200 bg-emerald-50 text-emerald-800',
-    dot: 'bg-emerald-500'
-  }
-};
-
-const statusMeta = (status?: string) =>
-  STATUS_META[status || 'reported'] || STATUS_META.reported;
-
-/** A status as a pill, used in the table and again in the detail dialog. */
-function StatusPill({ status }: { status?: string }) {
-  const meta = statusMeta(status);
-  return (
-    <span
-      className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2 py-0.5 text-[11px] font-medium ${meta.pill}`}
-    >
-      <span className={`h-1.5 w-1.5 rounded-full ${meta.dot}`} />
-      {meta.label}
-    </span>
-  );
-}
-
-const formatDate = (value?: string) =>
-  value ? moment(value).format('DD MMM YYYY, HH:mm') : '—';
+import { StatusPill } from './components/status-pill';
+import { FilePicker } from './components/attachments';
+import {
+  TICKET_TYPES,
+  formatDate,
+  ticketTitle,
+  typeLabel,
+  uploadTicketFiles,
+  type Option,
+  type TicketRecord
+} from './components/ticket-utils';
 
 const formatRelative = (value?: string) =>
   value ? moment(value).fromNow() : '—';
@@ -185,18 +119,6 @@ const menuAwareDialogProps = {
   }
 };
 
-type TicketRecord = {
-  _id: string;
-  ticketId: string;
-  type: string;
-  otherReason?: string;
-  description: string;
-  status?: string;
-  resolution?: string;
-  resolvedAt?: string;
-  createdAt?: string;
-};
-
 const emptyForm = {
   type: '',
   otherReason: '',
@@ -245,7 +167,8 @@ export default function SupportTicketsPage() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitting, setSubmitting] = useState(false);
 
-  const [selected, setSelected] = useState<TicketRecord | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
+  const navigate = useNavigate();
 
   const fetchTickets = useCallback(async () => {
     if (!user?._id) return;
@@ -305,6 +228,7 @@ export default function SupportTicketsPage() {
 
   const openRaise = () => {
     setForm(emptyForm);
+    setFiles([]);
     setErrors({});
     setRaiseOpen(true);
   };
@@ -339,6 +263,9 @@ export default function SupportTicketsPage() {
         description: form.description.trim()
       };
       if (form.type === 'other') payload.otherReason = form.otherReason.trim();
+      if (files.length) {
+        payload.attachments = await uploadTicketFiles(files, user?._id);
+      }
 
       const res = await axiosInstance.post('/tickets', payload);
       const created = res.data?.data;
@@ -363,6 +290,7 @@ export default function SupportTicketsPage() {
         title: 'Error',
         description:
           error?.response?.data?.message ||
+          error?.message ||
           'We could not raise your ticket. Please try again.',
         variant: 'destructive'
       });
@@ -513,10 +441,20 @@ export default function SupportTicketsPage() {
                       <TableRow
                         key={ticket._id}
                         className="cursor-pointer"
-                        onClick={() => setSelected(ticket)}
+                        onClick={() => navigate(`/dashboard/support-tickets/${ticket._id}`)}
                       >
                         <TableCell className="whitespace-nowrap font-mono text-xs text-black">
-                          {ticket.ticketId}
+                          <span className="inline-flex items-center gap-2">
+                            {ticket.ticketId}
+                            {!!ticket.userUnread && (
+                              <span
+                                className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-600 px-1.5 font-sans text-[10px] font-bold text-white"
+                                title={`${ticket.userUnread} new ${ticket.userUnread === 1 ? 'reply' : 'replies'} from the support team`}
+                              >
+                                {ticket.userUnread}
+                              </span>
+                            )}
+                          </span>
                         </TableCell>
                         <TableCell className="whitespace-nowrap text-xs font-medium text-black">
                           {typeLabel(ticket.type)}
@@ -545,16 +483,11 @@ export default function SupportTicketsPage() {
                           <Button
                             size="sm"
                             className="h-8 whitespace-nowrap text-xs"
-                            onClick={() => setSelected(ticket)}
+                            onClick={() =>
+                              navigate(`/dashboard/support-tickets/${ticket._id}`)
+                            }
                           >
-                            {ticket.resolution ? (
-                              <>
-                                <MessageSquareText className="mr-1.5 h-3.5 w-3.5" />
-                                View Response
-                              </>
-                            ) : (
-                              'View'
-                            )}
+                            {ticket.userUnread ? 'View reply' : 'View'}
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -651,6 +584,13 @@ export default function SupportTicketsPage() {
                 <p className="text-xs text-red-600">{errors.description}</p>
               )}
             </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold text-black">
+                Supporting documents
+              </Label>
+              <FilePicker files={files} onChange={setFiles} disabled={submitting} />
+            </div>
           </div>
 
           <DialogFooter className="gap-2 sm:gap-0">
@@ -679,88 +619,6 @@ export default function SupportTicketsPage() {
         </DialogContent>
       </Dialog>
 
-      {/* One ticket, in full */}
-      <Dialog
-        open={!!selected}
-        onOpenChange={(open) => !open && setSelected(null)}
-      >
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
-          {selected && (
-            <>
-              <DialogHeader>
-                <DialogTitle className="pr-6 leading-snug">
-                  {ticketTitle(selected)}
-                </DialogTitle>
-                <DialogDescription className="flex flex-wrap items-center gap-2 pt-1">
-                  <span className="font-mono text-xs text-black">
-                    {selected.ticketId}
-                  </span>
-                  <StatusPill status={selected.status} />
-                </DialogDescription>
-              </DialogHeader>
-
-              <div className="space-y-4 py-1">
-                <dl className="overflow-hidden rounded-xl border border-gray-200 text-xs">
-                  {[
-                    ['Type', typeLabel(selected.type)],
-                    ['Raised', formatDate(selected.createdAt)],
-                    ...(selected.resolvedAt
-                      ? [['Resolved', formatDate(selected.resolvedAt)]]
-                      : [])
-                  ].map(([label, value], index) => (
-                    <div
-                      key={String(label)}
-                      className={`flex items-center justify-between gap-4 px-3 py-2 ${
-                        index % 2 === 0 ? 'bg-gray-50/60' : 'bg-white'
-                      }`}
-                    >
-                      <dt className="shrink-0 text-black">{label}</dt>
-                      <dd className="text-right font-medium text-black">
-                        {value}
-                      </dd>
-                    </div>
-                  ))}
-                </dl>
-
-                <div>
-                  <h3 className="mb-1.5 text-[11px] font-bold uppercase tracking-wide text-black">
-                    Description
-                  </h3>
-                  <p className="whitespace-pre-wrap rounded-xl border border-gray-200 bg-gray-50/60 p-3 text-sm leading-relaxed text-black">
-                    {selected.description}
-                  </p>
-                </div>
-
-                {selected.resolution ? (
-                  <div>
-                    <h3 className="mb-1.5 text-[11px] font-bold uppercase tracking-wide text-emerald-700">
-                       Response
-                    </h3>
-                    <p className="whitespace-pre-wrap rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm leading-relaxed text-emerald-900">
-                      {selected.resolution}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50 p-3">
-                    <Clock className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
-                    <p className="text-xs leading-relaxed text-amber-900">
-                      Our team has your ticket and will be in touch. You will get
-                      an email as soon as it is resolved — there is nothing you
-                      need to do in the meantime.
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setSelected(null)}>
-                  Close
-                </Button>
-              </DialogFooter>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
