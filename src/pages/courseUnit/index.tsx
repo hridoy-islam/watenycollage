@@ -119,9 +119,14 @@ interface AttendanceSheet {
   termId?: any;
 }
 
+type AssignedUnit = { _id: string; title?: string; unitReference?: string } | string;
+
 interface AssignedMember {
   _id: string;
-  unitId?: { _id: string; title?: string; unitReference?: string } | string;
+  /** The units a teacher holds in the group (one row per teacher per group). */
+  unitIds?: AssignedUnit[];
+  /** @deprecated Single unit on rows written before `unitIds`. */
+  unitId?: AssignedUnit;
   studentId?: { _id: string; name?: string; email?: string } | string;
   teacherId?: { _id: string; name?: string; email?: string } | string;
 }
@@ -213,6 +218,13 @@ const initialsOf = (name: string) =>
 
 const idOf = (value: any): string =>
   typeof value === 'object' && value?._id ? value._id : String(value ?? '');
+
+/** Unit ids a teacher assignment holds, coalescing the legacy single `unitId`. */
+const unitIdsOf = (item: AssignedMember): string[] => {
+  const many = Array.isArray(item.unitIds) ? item.unitIds : [];
+  const units = many.length > 0 ? many : item.unitId ? [item.unitId] : [];
+  return units.map(idOf).filter(Boolean);
+};
 
 /** "REF — Title", falling back to whichever half exists. */
 const unitLabel = (unit: any) => {
@@ -341,6 +353,9 @@ function CourseUnitPage() {
     _id: string;
     type: 'student' | 'teacher';
     name: string;
+    /** For a teacher: the unit being removed and the units the row holds. */
+    unitId?: string;
+    unitIds?: string[];
   } | null>(null);
 
   // Unit form
@@ -590,10 +605,10 @@ function CourseUnitPage() {
   const teachersByUnit = useMemo(() => {
     const map = new Map<string, AssignedMember[]>();
     assignedTeachers.forEach((item) => {
-      const uid = idOf(item.unitId);
-      if (!uid) return;
-      if (!map.has(uid)) map.set(uid, []);
-      map.get(uid)!.push(item);
+      unitIdsOf(item).forEach((uid) => {
+        if (!map.has(uid)) map.set(uid, []);
+        map.get(uid)!.push(item);
+      });
     });
     return map;
   }, [assignedTeachers]);
@@ -615,8 +630,7 @@ function CourseUnitPage() {
     const mine = new Set<string>();
     assignedTeachers.forEach((item) => {
       if (idOf(item.teacherId) !== String(user?._id)) return;
-      const uid = idOf(item.unitId);
-      if (uid) mine.add(uid);
+      unitIdsOf(item).forEach((uid) => mine.add(uid));
     });
     return mine;
   }, [isTeacher, assignedTeachers, user?._id]);
@@ -851,27 +865,43 @@ function CourseUnitPage() {
 
   const openUnassignDialog = (
     item: AssignedMember,
-    type: 'student' | 'teacher'
+    type: 'student' | 'teacher',
+    unitId?: string
   ) => {
     const member = type === 'student' ? item.studentId : item.teacherId;
     const name =
       typeof member === 'object'
         ? member?.name || member?.email || 'Unknown'
         : 'Unknown';
-    setMemberToUnassign({ _id: item._id, type, name });
+    setMemberToUnassign({
+      _id: item._id,
+      type,
+      name,
+      ...(type === 'teacher' ? { unitId, unitIds: unitIdsOf(item) } : {})
+    });
     setUnassignDialogOpen(true);
   };
 
   const handleUnassign = async () => {
     if (!memberToUnassign) return;
     try {
-      await axiosInstance.delete(
-        `${
-          memberToUnassign.type === 'student'
-            ? '/student-assign-group'
-            : '/teacher-courses'
-        }/${memberToUnassign._id}`
-      );
+      const { type, unitId, unitIds = [] } = memberToUnassign;
+      const remaining = unitIds.filter((id) => id !== unitId);
+
+      // A teacher's row holds every unit they teach in the group, so taking
+      // them off one unit trims the list; only the last unit deletes the row.
+      if (type === 'teacher' && unitId && remaining.length > 0) {
+        await axiosInstance.patch(
+          `/teacher-courses/${memberToUnassign._id}`,
+          { unitIds: remaining }
+        );
+      } else {
+        await axiosInstance.delete(
+          `${
+            type === 'student' ? '/student-assign-group' : '/teacher-courses'
+          }/${memberToUnassign._id}`
+        );
+      }
       toast({
         title: 'Unassigned',
         description: `${memberToUnassign.name} was removed.`
@@ -1373,7 +1403,8 @@ function CourseUnitPage() {
                                               onClick={() =>
                                                 openUnassignDialog(
                                                   item,
-                                                  'teacher'
+                                                  'teacher',
+                                                  unit._id
                                                 )
                                               }
                                               className="text-black transition-colors hover:text-rose-500"
