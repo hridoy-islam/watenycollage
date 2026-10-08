@@ -244,7 +244,9 @@ interface PDFProps {
   candidateName: string;
   jobTitle: string;
   interviewDate: Date;
+  interviewTime: string;
   interviewerName: string;
+  interviewerSignature?: string;
   assessments: Record<string, { score: number; comment: string }>;
   decision: string;
   decisionReason: string;
@@ -307,7 +309,9 @@ const InterviewPDF: React.FC<PDFProps> = ({
   candidateName,
   jobTitle,
   interviewDate,
+  interviewTime,
   interviewerName,
+  interviewerSignature,
   assessments,
   decision,
   decisionReason,
@@ -353,10 +357,9 @@ const InterviewPDF: React.FC<PDFProps> = ({
               {interviewDate.toLocaleDateString('en-GB', {
                 day: 'numeric',
                 month: 'long',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
+                year: 'numeric'
               })}
+              {interviewTime ? ` at ${interviewTime}` : ''}
             </Text>
           </View>
           <View style={styles.candidateField}>
@@ -592,6 +595,12 @@ const InterviewPDF: React.FC<PDFProps> = ({
             </View>
             <View style={styles.tableCell3}>
               <Text style={styles.fieldLabel}>SIGNATURE:</Text>
+              {interviewerSignature && (
+                <Image
+                  src={interviewerSignature}
+                  style={{ width: 100, height: 40, marginTop: 4 }}
+                />
+              )}
             </View>
           </View>
         </View>

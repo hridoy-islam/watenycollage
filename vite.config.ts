@@ -11,6 +11,13 @@ export default defineConfig({
   },
   build: {
     rollupOptions: {
+      output: {
+        manualChunks(id: string) {
+          if (!id.includes('node_modules')) return;
+          if (id.includes('@react-pdf') || id.includes('pdfjs-dist')) return 'pdf';
+          return 'vendor';
+        }
+      },
       plugins: [
         {
           name: 'skip-eslint',

@@ -236,7 +236,7 @@ export function ReviewStep({
       value instanceof Date ||
       moment(value, moment.ISO_8601, true).isValid()
     ) {
-      return moment(value).format('MM-DD-YYYY');
+      return moment(value).format('DD-MM-YYYY');
     }
     if (Array.isArray(value)) {
       if (value.length === 0) return 'None';

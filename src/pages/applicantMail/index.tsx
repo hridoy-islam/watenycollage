@@ -217,6 +217,9 @@ function ApplicantMailPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [studentName, setStudentName] = useState<string>('');
   const [studentData, setStudentData] = useState<any>(null);
+  const [jobOfferChecked, setJobOfferChecked] = useState(false);
+  const [interviewChecked, setInterviewChecked] = useState(false);
+  const [updatingUser, setUpdatingUser] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -316,6 +319,18 @@ function ApplicantMailPage() {
       const res = await axiosInstance.post('/email', payload);
 
       if (res.data.success) {
+        const userUpdate: Record<string, boolean> = {};
+        if (jobOfferChecked) userUpdate.jobOfferMailSent = true;
+        if (interviewChecked) userUpdate.interviewMailSent = true;
+
+        if (Object.keys(userUpdate).length > 0) {
+          setUpdatingUser(true);
+          await axiosInstance.patch(`/users/${userId}`, userUpdate);
+          const updatedRes = await axiosInstance.get(`/users/${userId}`);
+          setStudentData(updatedRes.data.data);
+          setUpdatingUser(false);
+        }
+
         const newLog: EmailLog = {
           id: res.data.data._id || Date.now().toString(),
           subject,
@@ -334,6 +349,8 @@ function ApplicantMailPage() {
         setSubject('');
         setBody('');
         setErrors({});
+        setJobOfferChecked(false);
+        setInterviewChecked(false);
         setOpen(false);
 
         setTimeout(() => {
@@ -640,11 +657,39 @@ function ApplicantMailPage() {
               <textarea
                 value={body}
                 onChange={(e) => setBody(e.target.value)}
-                className="h-[250px] w-full rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
+                className="h-[220px] w-full rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
               />
               {errors.body && (
                 <p className="mt-1 text-sm text-red-500">{errors.body}</p>
               )}
+            </div>
+
+            <div className="space-y-2 ">
+              <label className="block font-medium">Letter Type</label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={jobOfferChecked}
+                  disabled={studentData?.jobOfferMailSent || updatingUser}
+                  onChange={(e) => setJobOfferChecked(e.target.checked)}
+                  className="h-4 w-4 rounded border-gray-300 text-watney focus:ring-watney"
+                />
+                <span className={`text-sm ${studentData?.jobOfferMailSent ? 'text-green-600 font-semibold' : ''}`}>
+                  Job Offer Letter {studentData?.jobOfferMailSent ? '(Already Sent)' : ''}
+                </span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={interviewChecked}
+                  disabled={studentData?.interviewMailSent || updatingUser}
+                  onChange={(e) => setInterviewChecked(e.target.checked)}
+                  className="h-4 w-4 rounded border-gray-300 text-watney focus:ring-watney"
+                />
+                <span className={`text-sm ${studentData?.interviewMailSent ? 'text-green-600 font-semibold' : ''}`}>
+                  Interview Mail {studentData?.interviewMailSent ? '(Already Sent)' : ''}
+                </span>
+              </label>
             </div>
           </div>
 
@@ -657,6 +702,8 @@ function ApplicantMailPage() {
                 setSubject('');
                 setBody('');
                 setErrors({});
+                setJobOfferChecked(false);
+                setInterviewChecked(false);
                 setOpen(false);
               }}
             >

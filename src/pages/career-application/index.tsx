@@ -444,7 +444,7 @@ export default function CareerApplicationForm() {
   }, []);
 
   const handleSubmit = async (formData: any) => {
-    console.log('🔥 formData submitted:', formData);
+    // console.log('🔥 formData submitted:', formData);
     try {
       setSubmitting(true);
 

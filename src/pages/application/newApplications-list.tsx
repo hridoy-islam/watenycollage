@@ -115,7 +115,7 @@ export default function NewApplicationListPage() {
                 <TableRow key={application._id}>
                   <TableCell
                     onClick={() =>
-                      navigate(`/dashboard/applications/${application._id}`)
+                      navigate(`/dashboard/recruitment/applications/${application._id}`)
                     }
                   >
                     {capitalize(application.personalDetailsData.title)}{' '}
@@ -124,28 +124,28 @@ export default function NewApplicationListPage() {
                   </TableCell>
                   <TableCell
                     onClick={() =>
-                      navigate(`/dashboard/applications/${application._id}`)
+                      navigate(`/dashboard/recruitment/applications/${application._id}`)
                     }
                   >
                     {capitalize(application.contactData.email)}{' '}
                   </TableCell>
                   <TableCell
                     onClick={() =>
-                      navigate(`/dashboard/applications/${application._id}`)
+                      navigate(`/dashboard/recruitment/applications/${application._id}`)
                     }
                   >
                     {capitalize(application.contactData.contactNumber)}{' '}
                   </TableCell>
                   <TableCell
                     onClick={() =>
-                      navigate(`/dashboard/applications/${application._id}`)
+                      navigate(`/dashboard/recruitment/applications/${application._id}`)
                     }
                   >
                     {capitalize(application.courseDetailsData.course)}{' '}
                   </TableCell>
                   <TableCell
                     onClick={() =>
-                      navigate(`/dashboard/applications/${application._id}`)
+                      navigate(`/dashboard/recruitment/applications/${application._id}`)
                     }
                   >
                     {capitalize(application.courseDetailsData.intake)}{' '}
@@ -164,7 +164,7 @@ export default function NewApplicationListPage() {
                     <div
                       className="cursor-pointer rounded-sm border border-gray-200 bg-white p-1 hover:bg-watney hover:text-white"
                       onClick={() =>
-                        navigate(`/dashboard/applications/${application._id}`)
+                        navigate(`/dashboard/recruitment/applications/${application._id}`)
                       }
                     >
                       <Eye />

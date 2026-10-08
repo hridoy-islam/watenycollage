@@ -63,7 +63,7 @@ const documentTypes = [
   { id: 'utilityBills', label: 'Utility Bills', required: true, formats: 'PDF, JPG, PNG' },
   { id: 'bankStatement', label: 'Bank Statement', required: true, formats: 'PDF, JPG, PNG' },
   { id: 'proofOfNI', label: 'National Insurance', required: true, formats: 'PDF, JPG, PNG' },
-  { id: 'immigrationDocument', label: 'Immigration Details / Work Permit', required: false, formats: 'PDF, JPG, PNG' }
+  { id: 'immigrationDocument', label: 'Immigration share-code', required: false, formats: 'PDF, JPG, PNG' }
 ];
 
 interface DocOption {

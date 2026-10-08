@@ -70,8 +70,8 @@ function ReferenceSection({ title, data, pathPrefix, renderFieldRow }: Reference
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-1/3 text-left">Field</TableHead>
-              <TableHead className="text-right">Value</TableHead>
+              <TableHead className="w-1/3 text-left"></TableHead>
+              <TableHead className="text-right"></TableHead>
               <TableHead className="w-10 text-right"></TableHead>
             </TableRow>
           </TableHeader>

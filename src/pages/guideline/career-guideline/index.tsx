@@ -125,7 +125,7 @@ export default function CareerGuideline() {
       dispatch(updateAuthIsAuthorized(true));
       setOpen(false);
       if (user?.isCompleted && user?.role === 'applicant') {
-        navigate(`/dashboard/job-application/${applicationId}`);
+        navigate(`/dashboard/recruitment/job-application/${applicationId}`);
       } else {
         navigate('/dashboard/career-application');
       }

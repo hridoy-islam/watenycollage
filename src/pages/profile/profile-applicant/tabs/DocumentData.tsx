@@ -236,7 +236,7 @@ export default function DocumentData({
     },
     {
       id: 'immigrationDocument',
-      label: 'Immigration Details / Work Permit',
+      label: 'Immigration share-code',
       required: false,
       instructions: 'Visa, work permit, or immigration status documents',
       formats: 'PDF, JPG, PNG',

@@ -189,7 +189,7 @@ const EducationData = ({
                   ) : (
                     <div className="mt-1 text-gray-900">
                       {entry.awardDate
-                        ? new Date(entry.awardDate).toLocaleDateString()
+                        ? new Date(entry.awardDate).toLocaleDateString('en-GB')
                         : '-'}
                     </div>
                   )}

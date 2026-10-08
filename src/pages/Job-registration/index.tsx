@@ -73,10 +73,10 @@ export default function JobApplication() {
     else if (user.isCompleted) {
       const applicationId = localStorage.getItem('applicationId');
       if (applicationId) {
-        navigate(`/dashboard/job-application/${applicationId}`);
+        navigate(`/dashboard/recruitment/job-application/${applicationId}`);
       }
     }else{
-      navigate('/dashboard/career-application')
+      navigate('/dashboard/recruitment')
     }
     
     
@@ -182,7 +182,7 @@ export default function JobApplication() {
 
     {/* Registration Dialog */}
     <Dialog open={showRegisterDialog} onOpenChange={setShowRegisterDialog}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[800px]">
+      <DialogContent className="max-h-[95vh] overflow-y-auto sm:max-w-[800px]">
         <DialogHeader>
           <DialogTitle>Register</DialogTitle>
           <DialogDescription>

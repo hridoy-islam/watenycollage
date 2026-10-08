@@ -18,10 +18,17 @@ export function CustomDatePicker({
   futureDate = true 
 
 }: CustomDatePickerProps) {
-  const years = Array.from(
-    { length: 100 },
-    (_, i) => new Date().getFullYear() - i
-  );
+  // const years = Array.from(
+  //   { length: 100 },
+  //   (_, i) => new Date().getFullYear() - i
+  // );
+
+  const currentYear = new Date().getFullYear();
+
+const years = futureDate
+  ? Array.from({ length: 100 }, (_, i) => currentYear - i)
+  : Array.from({ length: 151 }, (_, i) => currentYear - 50 + i);
+  
   const months = [
     'Jan',
     'Feb',
@@ -42,10 +49,10 @@ export function CustomDatePicker({
       <DatePicker
         selected={selected}
         onChange={onChange}
-        dateFormat="MM/dd/yyyy"
+        dateFormat="dd/MM/yyyy"
         disabled={disabled}
         popperClassName="z-[1001]"
-        maxDate={futureDate ? new Date(): undefined  }
+        maxDate={futureDate ? undefined : new Date()}
         portalId="root-portal"
         className="w-full"
         wrapperClassName="w-full block"

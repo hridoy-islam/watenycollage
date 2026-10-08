@@ -1,15 +1,41 @@
 import type React from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import { ReferenceDeclarationPdf } from "./reference-declaration-pdf";
 
 type Application = any;
 
 interface TermTabProps {
   application: Application;
+  applicationJob?: any;
   renderFieldRow: (label: string, value: any, fieldPath: string) => React.ReactNode;
 }
 
-export function TermTab({ application, renderFieldRow }: TermTabProps) {
+export function TermTab({ application, applicationJob, renderFieldRow }: TermTabProps) {
+  // Only the name parts that were actually supplied make it into the declaration
+  const applicantName = [
+    application?.title,
+    application?.firstName,
+    application?.initial,
+    application?.lastName,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  const refereeDeclarationGiven =
+    application?.declarationContactReferee === true ||
+    application?.declarationContactReferee === "true";
+
+  const refereeDeclarationMissing =
+    application?.declarationContactReferee === undefined ||
+    application?.declarationContactReferee === null ||
+    application?.declarationContactReferee === "";
+
   return (
     <div className="grid grid-cols-1 gap-6">
       <Card>
@@ -31,11 +57,50 @@ export function TermTab({ application, renderFieldRow }: TermTabProps) {
                 "declarationCorrectUpload"
               )}
 
-              {renderFieldRow(
-                "I authorize Medicare Link to contact my referees as part of the recruitment process",
-                application.declarationContactReferee,
-                "declarationContactReferee"
-              )}
+              {/* Rendered inline rather than via renderFieldRow so the PDF
+                  download can sit next to the response */}
+              <TableRow className="hover:bg-muted/10">
+                <TableCell className="font-medium">
+                  I authorize Everycare Romford to contact my referees as part of the recruitment process
+                </TableCell>
+                <TableCell className="text-left">
+                  <div className="flex items-center gap-3">
+                    <span
+                      className={
+                        refereeDeclarationMissing ? "italic text-muted-foreground" : undefined
+                      }
+                    >
+                      {refereeDeclarationMissing
+                        ? "Not provided"
+                        : refereeDeclarationGiven
+                          ? "Yes"
+                          : "No"}
+                    </span>
+                    {refereeDeclarationGiven && (
+                      <PDFDownloadLink
+                        document={
+                          <ReferenceDeclarationPdf
+                            name={applicantName}
+                            signatureUrl={application?.signatureUrl}
+                            date={applicationJob?.createdAt}
+                          />
+                        }
+                        fileName={`declaration-reference-gdpr-${
+                          applicantName.replace(/\s+/g, "_") || "applicant"
+                        }.pdf`}
+                      >
+                        {({ loading: pdfLoading }) => (
+                          <Button size="sm" variant="outline" disabled={pdfLoading}>
+                            <Download className="mr-1 h-3 w-3" />
+                            {pdfLoading ? "Preparing..." : "Download PDF"}
+                          </Button>
+                        )}
+                      </PDFDownloadLink>
+                    )}
+                  </div>
+                </TableCell>
+                <TableCell className="w-10 text-right" />
+              </TableRow>
 
          
               {renderFieldRow(

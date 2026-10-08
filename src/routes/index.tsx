@@ -9,25 +9,26 @@ import NotificationsPage from '@/pages/notification';
 import Otp from '@/pages/auth/otp';
 import NewPassword from '@/pages/new-password';
 import AdminLayout from '@/components/layout/admin-layout';
+import PeoplePlannerLayout from '@/components/layout/people-planner-layout';
 import ApplicationListPage from '@/pages/application/applications-list';
 import CareerPage from '@/pages/career-application';
-import CareerResumeUpload from '@/pages/career-application/uploadResume/index';
+import { RecruitmentDashboard } from '@/pages/dashboard/rolewise-dashboard/recruitment-dashboard';
 
-import JobPage from '@/pages/dashboard/components/jobs';
+import JobPage from '@/pages/jobs';
 import JobApplication from '@/pages/Job-registration';
 import CareerGuideline from '@/pages/guideline/career-guideline';
 import JobApplicationPage from '@/pages/dashboard-application/job-application';
 import ViewCareerApplicationPage from '@/pages/application/applicantDetails/view-careerApplication';
-import CareerApplicationsPage from '@/pages/dashboard/components/jobs/job-applicant';
+import CareerApplicationsPage from '@/pages/jobs/job-applicant';
 import InterviewPage from '@/pages/interview';
-import CharacterReferencePage from '@/pages/character-reference';
-import EmploymentReferencePage from '@/pages/employment-reference';
 import ProfessionalReferencePage from '@/pages/professional-reference';
 import PersonalReferencePage from '@/pages/personal-reference';
 import ApplicantReferencePage from '@/pages/applicant-reference';
 import ReferenceDetailsPage from '@/pages/applicant-reference/referenceDetails';
 import TemplatePage from '@/pages/template';
 import SignaturePage from '@/pages/signature';
+import DesignationPage from '@/pages/designation';
+import ContractTypeTemplatePage from '@/pages/contract-type-template';
 import ApplicantMailPage from '@/pages/applicantMail';
 import PostEmploymentMedicalForm from '@/pages/postMedicalForm';
 import BankDetailsForm from '@/pages/bankDetailsForm';
@@ -42,11 +43,57 @@ import AdminEcertsPage from '@/pages/applicantModulesAdmin/ecertDetails';
 import AdminMedicalForm from '@/pages/applicantModulesAdmin/medicalQuestion';
 import EditApplicantProfile from '@/pages/application/editApplicant';
 import ApplicantLogsPage from '@/pages/logsPage';
+import ProgressPage from '@/pages/jobs/job-applicant/progress';
 import EditPostEmploymentMedicalForm from '@/pages/editPostMedicalForm';
 import EditBankDetailsForm from '@/pages/editBankDetailsForm';
 import EditTrainingCertificatesPage from '@/pages/editEcertFormPage';
 import EditStarterChecklistForm from '@/pages/editStarterChecklistForm';
 import EditDBSDetailsForm from '@/pages/editDBSForm';
+import JobContractForm from '@/pages/jobcontractform';
+import EditJobContractForm from '@/pages/editjobcontractform';
+import ConfidentialityFormPage from '@/pages/confidentialityForm';
+import EditConfidentialityForm from '@/pages/editConfidentialityForm';
+import StatementOfUnderstandingFormPage from '@/pages/statementOfUnderstandingForm';
+import EditStatementOfUnderstandingForm from '@/pages/editStatementOfUnderstanding';
+import EmployeePage from '@/pages/Employee';
+import EditEmployee from '@/pages/Employee/editEmployee';
+import PeoplePlannerAdminDashboardPage from '@/pages/dashboard/people-planner/AdminDashboard';
+import ServiceUserList from '@/pages/ServiceUser';
+import CreateServiceUserPage from '@/pages/ServiceUser/create';
+import ServiceuserDetailPage from '@/pages/ServiceUser/serviceUserDetail';
+import ServiceUserPlannerPage from '@/pages/ServiceUser/planner';
+import ServiceUserTask from '@/pages/ServiceUser/serviceuserSchedule';
+import GeneralCharts from '@/pages/serviceUserModules/General-Charts';
+import ChartDetailPage from '@/pages/serviceUserModules/General-Charts/components/ChartDetailPage';
+import RiskAssessmentScorePage from '@/pages/serviceUserModules/RiskAssessmentScore';
+import DocumentPage from '@/pages/serviceUserModules/Documents';
+import SupportPlanDetailPage from '@/pages/serviceUserModules/SupportPlan/components/SupportPlanDetailPage';
+import SupportPlanPage from '@/pages/serviceUserModules/SupportPlan';
+import InitialAssessmentPage from '@/pages/serviceUserModules/InitialAssessment';
+import InitialAssessmentDetailPage from '@/pages/serviceUserModules/InitialAssessment/components/InitialAssessmentDetailPage';
+import CreateRiskAssessmentPage from '@/pages/serviceUserModules/RiskAssessment/createPage';
+import RiskAssessmentPage from '@/pages/serviceUserModules/RiskAssessment';
+import ConsentPage from '@/pages/serviceUserModules/Consent';
+import AddCapacityFormPage from '@/pages/serviceUserModules/Consent/components/add-capacity-form';
+import EditCapacityFormPage from '@/pages/serviceUserModules/Consent/components/edit-capacity-form';
+import EditConsentFormPage from '@/pages/serviceUserModules/Consent/components/edit-consent-form';
+import MarChartPage from '@/pages/serviceUserModules/MARChart';
+import AddMedicationPage from '@/pages/serviceUserModules/MARChart/addMedicine';
+import RiskAssessmentDetailPage from '@/pages/serviceUserModules/RiskAssessment/components/AssessmentDetailPage';
+import StockPage from '@/pages/serviceUserModules/Stock';
+import StockDetailPage from '@/pages/serviceUserModules/Stock/components/StockDetailPage';
+import DailyLogs from '@/pages/serviceUserModules/DailyLogs';
+import AddConsentFormPage from '@/pages/serviceUserModules/Consent/components/add-consent-form';
+import NeedPage from '@/pages/NeedPage';
+import ServiceUserNeedPage from '@/pages/serviceUserModules/ServiceUserNeed';
+import ServiceUserEmergencyContractPage from '@/pages/serviceUserModules/ServiceUserEmergencyContract';
+import CreateEmergencyContractPage from '@/pages/serviceUserModules/ServiceUserEmergencyContract/create';
+import EditEmergencyContractPage from '@/pages/serviceUserModules/ServiceUserEmergencyContract/edit';
+import ServiceUserAssessmentPage from '@/pages/serviceuserAssessment';
+import CreateServiceUserAssessmentPage from '@/pages/serviceuserAssessment/create';
+import EditServiceUserAssessmentPage from '@/pages/serviceuserAssessment/edit';
+import ServiceUserAssessmentDetailPage from '@/pages/serviceuserAssessment/detail';
+import ServiceUserNeedsAssessmentPage from '@/pages/serviceUserModules/serviceuserNeedsAssessment';
 
 const SignInPage = lazy(() => import('@/pages/auth/signin/index'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
@@ -81,187 +128,404 @@ export default function AppRouter() {
           path: 'notifications',
           element: <NotificationsPage />
         },
-
         {
-          path: 'applications',
+          path: 'career-application',
+          element: withRole(<CareerPage />, ['admin', 'applicant']),
+          index: true
+        },
+        {
+          path: 'career-guideline',
+          element: withRole(<CareerGuideline />, ['admin', 'applicant']),
+          index: true
+        },
+        // Recruitment routes
+        {
+          path: 'recruitment',
+          element: <RecruitmentDashboard />
+        },
+        {
+          path: 'recruitment/applications',
           element: withRole(<ApplicationListPage />, ['admin']),
           index: true
         },
 
         {
-          path: 'job-application/:id',
+          path: 'recruitment/job-application/:id',
           element: withRole(<JobApplicationPage />, ['admin', 'applicant'])
         },
 
         {
-          path: 'career-application/:id/:userId',
+          path: 'recruitment/career-application/:id/:userId',
           element: withRole(<ViewCareerApplicationPage />, [
             'admin',
             'applicant'
           ])
         },
         {
-          path: 'career-application/:id/:userId/edit',
-          element: withRole(<EditApplicantProfile />, [
-            'admin',
-           
-          ])
+          path: 'recruitment/career-application/:id/:userId/edit',
+          element: withRole(<EditApplicantProfile />, ['admin'])
         },
         {
-          path: 'career-application/:id/references/:userId',
+          path: 'recruitment/career-application/:id/references/:userId',
           element: withRole(<ApplicantReferencePage />, ['admin', 'applicant'])
         },
         {
-          path: 'user/:id/reference/:refId/:refType',
+          path: 'recruitment/user/:id/reference/:refId/:refType',
           element: withRole(<ReferenceDetailsPage />, ['admin', 'applicant'])
         },
 
         {
-          path: 'career-application/:id/:userId/interview',
+          path: 'recruitment/career-application/:id/:userId/interview',
           element: withRole(<InterviewPage />, ['admin'])
+        },
+        {
+          path: 'recruitment/career-application/:id/:userId/progress',
+          element: withRole(<ProgressPage />, ['admin', 'applicant'])
         },
 
         {
-          path: 'career-application/:id/mail/:userId',
+          path: 'recruitment/career-application/:id/mail/:userId',
           element: withRole(<ApplicantMailPage />, ['admin'])
         },
         {
-          path: 'career-application/:id/logs/:userId',
+          path: 'recruitment/career-application/:id/logs/:userId',
           element: withRole(<ApplicantLogsPage />, ['admin'])
         },
 
         {
-          path: 'jobs',
+          path: 'recruitment/jobs',
           element: withRole(<JobPage />, ['admin', 'applicant']),
           index: true
         },
         {
-          path: 'jobs/:id',
+          path: 'recruitment/jobs/:id',
           element: withRole(<CareerApplicationsPage />, ['admin', 'applicant']),
-          index: true
-        },
-        {
-          path: 'career-application',
-          element: withRole(<CareerPage />, ['admin', 'applicant']),
-          index: true
-        },
-        // {
-        //   path: 'career',
-        //   element: withRole(<CareerResumeUpload />, ['applicant','admin']),
-        //   index: true
-        // },
-        {
-          path: 'career-guideline',
-          element: withRole(<CareerGuideline />, ['admin', 'applicant']),
           index: true
         },
 
         {
-          path: 'template',
+          path: 'recruitment/template',
           element: withRole(<TemplatePage />, ['admin', 'applicant']),
           index: true
         },
         {
-          path: 'signature',
+          path: 'recruitment/employee',
+          element: withRole(<EmployeePage />, ['admin']),
+          index: true
+        },
+        {
+          path: 'recruitment/employee/:eid',
+          element: withRole(<EditEmployee />, ['admin']),
+          index: true
+        },
+        {
+          path: 'recruitment/designation',
+          element: withRole(<DesignationPage />, ['admin']),
+          index: true
+        },
+        {
+          path: 'recruitment/contract-type-template',
+          element: withRole(<ContractTypeTemplatePage />, ['admin']),
+          index: true
+        },
+        {
+          path: 'recruitment/signature',
           element: withRole(<SignaturePage />, ['admin', 'applicant']),
           index: true
         },
         {
-          path: 'medical-form/:id',
+          path: 'recruitment/medical-form/:id',
           element: <PostEmploymentMedicalForm />,
           index: true
         },
         {
-          path: 'admin/medical-form/:id',
+          path: 'recruitment/admin/medical-form/:id',
           element: <AdminMedicalForm />,
           index: true
         },
         {
-          path: 'admin/medical-form/:id/edit',
+          path: 'recruitment/admin/medical-form/:id/edit',
           element: <EditPostEmploymentMedicalForm />,
           index: true
         },
         {
-          path: 'bank-details/:id',
+          path: 'recruitment/bank-details/:id',
           element: <BankDetailsForm />,
           index: true
         },
         {
-          path: 'bank-details/:id/edit',
+          path: 'recruitment/bank-details/:id/edit',
           element: <BankDetailsForm />,
           index: true
         },
         {
-          path: 'admin/bank-details/:id',
+          path: 'recruitment/admin/bank-details/:id',
           element: <AdminBankDetails />,
           index: true
         },
         {
-          path: 'admin/bank-details/:id/edit',
+          path: 'recruitment/admin/bank-details/:id/edit',
           element: <EditBankDetailsForm />,
           index: true
         },
         {
-          path: 'dbs-form/:id',
+          path: 'recruitment/dbs-form/:id',
           element: <DBSDetailsForm />,
           index: true
         },
         {
-          path: 'admin/dbs-form/:id',
+          path: 'recruitment/admin/dbs-form/:id',
           element: <AdminDBSDetails />,
           index: true
         },
         {
-          path: 'admin/dbs-form/:id/edit',
+          path: 'recruitment/admin/dbs-form/:id/edit',
           element: <EditDBSDetailsForm />,
           index: true
         },
         {
-          path: 'starter-checklist-form/:id',
+          path: 'recruitment/starter-checklist-form/:id',
           element: <StarterChecklistForm />,
           index: true
         },
         {
-          path: 'admin/starter-checklist-form/:id',
+          path: 'recruitment/admin/starter-checklist-form/:id',
           element: <AdminStarterChecklist />,
           index: true
         },
         {
-          path: 'admin/starter-checklist-form/:id/edit',
+          path: 'recruitment/admin/starter-checklist-form/:id/edit',
           element: <EditStarterChecklistForm />,
           index: true
         },
         {
-          path: 'ecert-form/:id',
+          path: 'recruitment/ecert-form/:id',
           element: <TrainingCertificatesPage />,
           index: true
         },
         {
-          path: 'admin/ecert-form/:id',
+          path: 'recruitment/admin/ecert-form/:id',
           element: <AdminEcertsPage />,
           index: true
         },
         {
-          path: 'admin/ecert-form/:id/edit',
+          path: 'recruitment/admin/ecert-form/:id/edit',
           element: <EditTrainingCertificatesPage />,
           index: true
         },
         {
-          path: 'ecerts',
+          path: 'recruitment/ecerts',
           element: withRole(<EcertsPage />, ['admin']),
           index: true
         },
+        {
+          path: 'recruitment/job-contract/:id',
+          element: <JobContractForm />,
+          index: true
+        },
+        {
+          path: 'recruitment/admin/job-contract/:id/edit',
+          element: <EditJobContractForm />,
+          index: true
+        },
+        {
+          path: 'recruitment/confidentiality/:id',
+          element: <ConfidentialityFormPage />,
+          index: true
+        },
+        {
+          path: 'recruitment/admin/confidentiality/:id/edit',
+          element: <EditConfidentialityForm />,
+          index: true
+        },
+        {
+          path: 'recruitment/statement-of-understanding/:id',
+          element: <StatementOfUnderstandingFormPage />,
+          index: true
+        },
+        {
+          path: 'recruitment/admin/statement-of-understanding/:id/edit',
+          element: <EditStatementOfUnderstandingForm />,
+          index: true
+        }
+      ]
+    }
+  ];
+
+  const peoplePlannerAdminRoutes = [
+    // People Planner routes
+    {
+      path: '/dashboard/people-planner',
+      element: (
+        <PeoplePlannerLayout>
+          <ProtectedRoute allowedRoles={['admin']}>
+            <Suspense>
+              <Outlet />
+            </Suspense>
+          </ProtectedRoute>
+        </PeoplePlannerLayout>
+      ),
+      children: [
+        {
+          element: <PeoplePlannerAdminDashboardPage />,
+          index: true
+        },
+        {
+          path: 'serviceuser',
+          element: <ServiceUserList />,
+          index: true
+        },
+        {
+          path: 'need',
+          element: <NeedPage />,
+          index: true
+        },
+        {
+          path: 'create-serviceuser',
+          element: <CreateServiceUserPage />,
+          index: true
+        },
+
+        {
+          path: 'serviceuser/:sid',
+          element: <ServiceuserDetailPage />,
+          index: true
+        },
+        {
+          path: 'serviceuser/:sid/planner',
+          element: <ServiceUserPlannerPage />,
+          index: true
+        },
+        {
+          path: 'serviceuser/:sid/schedule',
+          element: <ServiceUserTask />,
+          index: true
+        },
+        {
+          path: 'serviceuser/:sid/daily-logs',
+          element: <DailyLogs />
+        },
+        {
+          path: 'serviceuser/:sid/charts/general-charts',
+          element: <GeneralCharts />
+        },
+        {
+          path: 'serviceuser/:sid/charts/general-charts/:id',
+          element: <ChartDetailPage />
+        },
+        {
+          path: 'serviceuser/:sid/charts/risk-assessment-scores',
+          element: <RiskAssessmentScorePage />
+        },
+        {
+          path: 'serviceuser/:sid/documents',
+          element: <DocumentPage />
+        },
+        {
+          path: 'serviceuser/:sid/support-plans',
+          element: <SupportPlanPage />
+        },
+        {
+          path: 'serviceuser/:sid/support-plans/:id',
+          element: <SupportPlanDetailPage />
+        },
+        {
+          path: 'serviceuser/:sid/needs-assessment',
+          element: <ServiceUserNeedsAssessmentPage />
+        },
+        {
+          path: 'serviceuser/:sid/initial-assessment',
+          element: <InitialAssessmentPage />
+        },
+        {
+          path: 'serviceuser/:sid/initial-assessment/:id',
+          element: <InitialAssessmentDetailPage />
+        },
+        {
+          path: 'serviceuser/:sid/risk-assessments',
+          element: <RiskAssessmentPage />
+        },
+        {
+          path: 'serviceuser/:sid/risk-assessments/create',
+          element: <CreateRiskAssessmentPage />
+        },
+        {
+          path: 'serviceuser/:sid/risk-assessments/:id',
+          element: <RiskAssessmentDetailPage />
+        },
+        {
+          path: 'serviceuser/:sid/mar-chart',
+          element: <MarChartPage />
+        },
+        {
+          path: 'serviceuser/:sid/mar-chart/add-medication',
+          element: <AddMedicationPage />
+        },
+        {
+          path: 'serviceuser/:sid/stock',
+          element: <StockPage />
+        },
+        {
+          path: 'serviceuser/:sid/stock/:id',
+          element: <StockDetailPage />
+        },
+        {
+          path: 'serviceuser/:sid/consents',
+          element: <ConsentPage />
+        },
+        {
+          path: 'serviceuser/:sid/consents/add-capacity-form',
+          element: <AddCapacityFormPage />
+        },
+        {
+          path: 'serviceuser/:sid/consents/capacity-form/:capacityId',
+          element: <EditCapacityFormPage />
+        },
+        {
+          path: 'serviceuser/:sid/consents/add-consent-form',
+          element: <AddConsentFormPage />
+        },
+        {
+          path: 'serviceuser/:sid/consents/consent-form/:consentId',
+          element: <EditConsentFormPage />
+        },
+        {
+          path: 'serviceuser/:sid/needs',
+          element: <ServiceUserNeedPage />
+        },
+        {
+          path: 'serviceuser/:sid/emergency-contracts',
+          element: <ServiceUserEmergencyContractPage />
+        },
+        {
+          path: 'serviceuser/:sid/emergency-contracts/create',
+          element: <CreateEmergencyContractPage />
+        },
+        {
+          path: 'serviceuser/:sid/emergency-contracts/:id/edit',
+          element: <EditEmergencyContractPage />
+        },
+        {
+          path: 'serviceuser-assessment',
+          element: <ServiceUserAssessmentPage />
+        },
+        {
+          path: 'serviceuser-assessment/create',
+          element: <CreateServiceUserAssessmentPage />
+        },
+        {
+          path: 'serviceuser-assessment/:id',
+          element: <ServiceUserAssessmentDetailPage />
+        },
+        {
+          path: 'serviceuser-assessment/:id/edit',
+          element: <EditServiceUserAssessmentPage />
+        }
       ]
     }
   ];
 
   const publicRoutes = [
-    // {
-    //   path: '/',
-    //   element: <StudentApplication />,
-    //   index: true
-    // },
-
     {
       path: 'jobs/apply/:id',
       element: <JobApplication />,
@@ -314,7 +578,11 @@ export default function AppRouter() {
     }
   ];
 
-  const routes = useRoutes([...publicRoutes, ...adminRoutes]);
+  const routes = useRoutes([
+    ...publicRoutes,
+    ...adminRoutes,
+    ...peoplePlannerAdminRoutes
+  ]);
 
   return routes;
 }

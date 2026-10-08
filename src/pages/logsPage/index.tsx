@@ -38,7 +38,6 @@ function ApplicantLogsPage() {
           userId,
           page,
           limit,
-          sort: '-createdAt'
         }
       });
 

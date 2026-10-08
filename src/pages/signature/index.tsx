@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Pen, MoveLeft, Clipboard, Check, Copy } from 'lucide-react';
+import { Plus, Pen, MoveLeft, Clipboard, Check, Copy, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Table,
@@ -18,6 +18,16 @@ import {
   DialogTitle,
   DialogFooter
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   Form,
   FormControl,
@@ -63,6 +73,9 @@ export default function SignaturePage() {
   const [entriesPerPage, setEntriesPerPage] = useState(100);
   const [loading, setLoading] = useState(false);
   const [copiedId, setCopiedId] = useState<number | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deletingSignature, setDeletingSignature] = useState<Signature | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const navigate = useNavigate();
   const { user } = useSelector((state: any) => state.auth);
@@ -127,6 +140,29 @@ export default function SignaturePage() {
     form.reset({ name: signature.name, documentUrl: signature.documentUrl });
     setPreviewUrl(signature.documentUrl);
     setDialogOpen(true);
+  };
+
+  const handleDeleteClick = (signature: Signature) => {
+    setDeletingSignature(signature);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deletingSignature) return;
+    
+    setDeleting(true);
+    try {
+      const response = await axiosInstance.delete(`/signature/${deletingSignature._id}`);
+      if (response.data.success) {
+        setDeleteDialogOpen(false);
+        setDeletingSignature(null);
+        fetchSignatures(currentPage, entriesPerPage);
+      }
+    } catch (error) {
+      console.error('Failed to delete signature', error);
+    } finally {
+      setDeleting(false);
+    }
   };
 
   const onSubmit = async (data: SignatureFormValues) => {
@@ -197,7 +233,7 @@ export default function SignaturePage() {
     <div className="space-y-3">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Signatures</h1>
+        <h1 className="text-2xl font-semibold">Officer's Signatures</h1>
         <div className="flex gap-4">
           <Button
             className="bg-watney text-white hover:bg-watney/90"
@@ -284,15 +320,25 @@ export default function SignaturePage() {
                       <span className="text-gray-400">No document</span>
                     )}
                   </TableCell>
-                  <TableCell className="flex justify-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="bg-watney text-white hover:bg-watney/90"
-                      onClick={() => handleEdit(sig)}
-                    >
-                      <Pen className="h-4 w-4" />
-                    </Button>
+                  <TableCell>
+                    <div className="flex justify-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="bg-watney text-white hover:bg-watney/90"
+                        onClick={() => handleEdit(sig)}
+                      >
+                        <Pen className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="bg-red-500 text-white hover:bg-red-600"
+                        onClick={() => handleDeleteClick(sig)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -300,13 +346,14 @@ export default function SignaturePage() {
           </Table>
         )}
 
-        <DataTablePagination
+        {totalPages>1 &&  <DataTablePagination
           pageSize={entriesPerPage}
           setPageSize={setEntriesPerPage}
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={setCurrentPage}
-        />
+        />}
+       
       </div>
 
       {/* Add/Edit Dialog */}
@@ -451,6 +498,56 @@ export default function SignaturePage() {
           </Form>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete the signature{' '}
+              <span className="font-semibold">"{deletingSignature?.name}"</span>.
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              disabled={deleting}
+              className="bg-red-500 text-white hover:bg-red-600 focus:ring-red-500"
+            >
+              {deleting ? (
+                <>
+                  <svg
+                    className="mr-2 h-4 w-4 animate-spin"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                    ></path>
+                  </svg>
+                  Deleting...
+                </>
+              ) : (
+                'Delete'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

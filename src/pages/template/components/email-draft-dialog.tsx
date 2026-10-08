@@ -53,7 +53,7 @@ const AVAILABLE_VARIABLES = [
   'emergencyEmail',
   'emergencyFullName',
   'emergencyRelationship',
-  'admin',
+  'admin', 
   'adminEmail',
   'applicationTitle'
 ];

@@ -99,7 +99,7 @@ export default function ReferenceDetailsPage() {
   const formatDate = (dateString: string) => {
     if (!dateString) return 'N/A';
     try {
-      return new Date(dateString).toLocaleDateString();
+      return new Date(dateString).toLocaleDateString('en-GB');
     } catch {
       return dateString;
     }

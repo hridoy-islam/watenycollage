@@ -4,11 +4,14 @@ import TabContent from './TabContent';
 import { TabType } from './types';
 import axiosInstance from '@/lib/axios';
 import { useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
 
 const EditApplicantProfile: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('personalDetails');
   const { user } = useSelector((state: any) => state.auth);
+  const navigate = useNavigate();
   const [userData, setUserData] = useState<any>([]);
 const [refreshCounter, setRefreshCounter] = useState(0);
 const {id,userId}= useParams();
@@ -34,6 +37,13 @@ const refreshData = () => {
   return (
     <div className="min-h-full ">
       <div className=" mx-auto  ">
+        {/* <Button
+          onClick={() => navigate(-1)}
+          className="mb-2"
+        >
+          <ArrowLeft size={16} className='w-4 h-4 mr-2'/>
+          Back
+        </Button> */}
         {/* <h1 className="text-3xl font-bold text-gray-900 mb-8">My Profile</h1> */}
 
         <div className="flex flex-col overflow-hidden rounded-xl bg-white shadow-md md:flex-row">

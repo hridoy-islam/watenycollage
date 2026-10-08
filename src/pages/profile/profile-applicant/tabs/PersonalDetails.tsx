@@ -315,7 +315,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
               ) : (
                 <div className="mt-1 text-gray-900">
                   {localData.dateOfBirth
-                    ? new Date(localData.dateOfBirth).toLocaleDateString()
+                    ? new Date(localData.dateOfBirth).toLocaleDateString('en-GB')
                     : "-"}
                 </div>
               )}

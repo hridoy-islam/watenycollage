@@ -96,7 +96,7 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
             />
           ) : (
             localData.availableFromDate
-              ? new Date(localData.availableFromDate).toLocaleDateString()
+              ? new Date(localData.availableFromDate).toLocaleDateString('en-GB')
               : '-'
           ))}
 

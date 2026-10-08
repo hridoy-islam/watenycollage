@@ -120,6 +120,7 @@ interface MedicalFormData {
   hivTestDetails?: string;
   inocOther: boolean;
   inocOtherDetails?: string;
+  signatureUrl?: string;
   declTrueAccount: boolean;
   declDataProcessing: boolean;
   declVaccination: boolean;
@@ -313,7 +314,7 @@ const MedicalConditionRow = ({
 );
 
 const SectionHeader = ({ title }: { title: string }) => (
-  <View style={{ marginTop: 10, marginBottom: 5 }}>
+  <View style={{ marginTop: 2, marginBottom: 5 }}>
     <Text
       style={{
         fontWeight: 'bold',
@@ -327,9 +328,19 @@ const SectionHeader = ({ title }: { title: string }) => (
   </View>
 );
 
-const formatDate = (dateStr?: string) =>
-  dateStr ? new Date(dateStr).toLocaleDateString('en-GB') : '';
+const formatDate = (dateString: string) => {
+  if (!dateString) return "N/A";
 
+  try {
+    return new Date(dateString).toLocaleDateString("en-GB", {
+      month: "2-digit",
+      day: "2-digit",
+      year: "numeric",
+    });
+  } catch {
+    return dateString;
+  }
+};
 const MedicalFormPdf = ({ data }: { data: MedicalFormData }) => {
   const occupationalHistory = [
     {
@@ -599,7 +610,7 @@ const MedicalFormPdf = ({ data }: { data: MedicalFormData }) => {
         </View>
 
         {/* Personal Details */}
-        <View style={{ marginBottom: 15 }}>
+        <View style={{ marginBottom: 2 }}>
           <View style={styles.flexRow}>
             <Text style={styles.flexItem}>
               Employee Forename:
@@ -678,7 +689,7 @@ const MedicalFormPdf = ({ data }: { data: MedicalFormData }) => {
         </View>
 
         {/* Serious Illness Detail */}
-        <View style={{ marginTop: 15 }}>
+        <View style={{ marginTop: 2 }}>
           <Text style={{ fontSize: 10 }}>
             Please detail of any serious illness, hospital admission, operation
             or accident that has caused you to have five or more days off work
@@ -844,15 +855,19 @@ const MedicalFormPdf = ({ data }: { data: MedicalFormData }) => {
 
         {/* Signature Block */}
         <View style={[styles.flexRow, { marginTop: 40 }]}>
+          <View style={styles.flexItem}>
+            <Text>Signed (Applicant):</Text>
+            {data.signatureUrl ? (
+              <Image
+                src={data.signatureUrl}
+                style={{ width: 120, height: 35, marginTop: 4 }}
+              />
+            ) : (
+              <View style={{ borderBottom: '1px dashed black', width: '100%', height: 20, marginTop: 4 }} />
+            )}
+          </View>
           <Text style={styles.flexItem}>
-            Signed (Applicant):
-            <Text style={[styles.line, { width: 'auto', flexGrow: 1 }]}> </Text>
-          </Text>
-
-          <Text style={styles.flexItem}>
-            Date:
-            <Text style={[styles.line, { width: 'auto', flexGrow: 1 }]}>
-            </Text>
+            Date: {data.createdAt ? formatDate(data.createdAt) : ''}
           </Text>
         </View>
       </Page>

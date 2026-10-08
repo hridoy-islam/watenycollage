@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Check, Eye, EyeOff } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -21,6 +20,7 @@ import { nationalities } from '@/types';
 import ReactSelect from 'react-select';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { useToast } from '@/components/ui/use-toast';
 
 const registrationSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -58,8 +58,9 @@ export default function RegistrationForm({
   onSuccess
 }: RegistrationFormProps) {
   const [showPassword, setShowPassword] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
-
   // Initialize form with React Hook Form + Zod validation
   const form = useForm({
     resolver: zodResolver(registrationSchema),
@@ -67,6 +68,9 @@ export default function RegistrationForm({
   });
 
   const onSubmit = async (values: z.infer<typeof registrationSchema>) => {
+    setApiError(null);
+    setIsSubmitting(true);
+    
     try {
       const response = await axiosInstance.post('/auth/signup', {
         ...values,
@@ -77,7 +81,7 @@ export default function RegistrationForm({
         title: values.title,
         firstName: values.firstName,
         initial: values.initial,
-        email:values.email.toLowerCase(),
+        email: values.email.toLowerCase(),
         lastName: values.lastName,
         nationality: values.nationality,
         dateOfBirth: values.dateOfBirth
@@ -85,26 +89,25 @@ export default function RegistrationForm({
 
       setFormSubmitted(true);
 
-      toast({
-        title: 'Thank you',
-        description: 'Your account has been created.'
-      });
-
       if (onSuccess) {
         onSuccess();
       }
-    } catch (err: any) {
-      toast({
-        title: 'Server Error',
-        description: err.response?.data?.message || 'Please try again later.',
-        variant: 'destructive'
+
+       toast({
+        title: 'Thank you',
+        description: 'Your account has been created.'
       });
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || 'An error occurred. Please try again later.';
+      setApiError(errorMessage);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           {/* Title */}
           <FormField
@@ -126,32 +129,32 @@ export default function RegistrationForm({
                     }
                     onChange={(option) => field.onChange(option?.value)}
                     placeholder="Select title"
-                      styles={{
-                              placeholder: (provided) => ({
-                                ...provided,
-                                fontSize: '1.125rem',
-                                color: '#9CA3AF'
-                              }),
-                              control: (provided) => ({
-                                ...provided,
-                                borderRadius: '16px',
-                                fontSize: '1.125rem',
-                                minHeight: '3rem', // h-12 = 48px
-                                height: '3rem'
-                              }),
-                              singleValue: (provided) => ({
-                                ...provided,
-                                fontSize: '1.125rem'
-                              }),
-                              input: (provided) => ({
-                                ...provided,
-                                fontSize: '1.125rem'
-                              }),
-                              valueContainer: (provided) => ({
-                                ...provided,
-                                padding: '0 0.75rem' // px-3 for better spacing
-                              })
-                            }}
+                    styles={{
+                      placeholder: (provided) => ({
+                        ...provided,
+                        fontSize: '1.125rem',
+                        color: '#9CA3AF'
+                      }),
+                      control: (provided) => ({
+                        ...provided,
+                        borderRadius: '16px',
+                        fontSize: '1.125rem',
+                        minHeight: '3rem',
+                        height: '3rem'
+                      }),
+                      singleValue: (provided) => ({
+                        ...provided,
+                        fontSize: '1.125rem'
+                      }),
+                      input: (provided) => ({
+                        ...provided,
+                        fontSize: '1.125rem'
+                      }),
+                      valueContainer: (provided) => ({
+                        ...provided,
+                        padding: '0 0.75rem'
+                      })
+                    }}
                   />
                 </FormControl>
                 <FormMessage />
@@ -239,32 +242,32 @@ export default function RegistrationForm({
                     }
                     onChange={(option) => field.onChange(option?.value)}
                     placeholder="Select nationality"
-                      styles={{
-                              placeholder: (provided) => ({
-                                ...provided,
-                                fontSize: '1.125rem',
-                                color: '#9CA3AF'
-                              }),
-                              control: (provided) => ({
-                                ...provided,
-                                borderRadius: '16px',
-                                fontSize: '1.125rem',
-                                minHeight: '3rem', // h-12 = 48px
-                                height: '3rem'
-                              }),
-                              singleValue: (provided) => ({
-                                ...provided,
-                                fontSize: '1.125rem'
-                              }),
-                              input: (provided) => ({
-                                ...provided,
-                                fontSize: '1.125rem'
-                              }),
-                              valueContainer: (provided) => ({
-                                ...provided,
-                                padding: '0 0.75rem' // px-3 for better spacing
-                              })
-                            }}
+                    styles={{
+                      placeholder: (provided) => ({
+                        ...provided,
+                        fontSize: '1.125rem',
+                        color: '#9CA3AF'
+                      }),
+                      control: (provided) => ({
+                        ...provided,
+                        borderRadius: '16px',
+                        fontSize: '1.125rem',
+                        minHeight: '3rem',
+                        height: '3rem'
+                      }),
+                      singleValue: (provided) => ({
+                        ...provided,
+                        fontSize: '1.125rem'
+                      }),
+                      input: (provided) => ({
+                        ...provided,
+                        fontSize: '1.125rem'
+                      }),
+                      valueContainer: (provided) => ({
+                        ...provided,
+                        padding: '0 0.75rem'
+                      })
+                    }}
                   />
                 </FormControl>
                 <FormMessage />
@@ -280,9 +283,7 @@ export default function RegistrationForm({
               const today = new Date().toISOString().split('T')[0];
               return (
                 <FormItem>
-                  <FormLabel className="block text-sm font-medium text-gray-700">
-                    Date of Birth <span className="text-red-500">*</span>
-                  </FormLabel>
+                  <FormLabel>Date of Birth *</FormLabel>
                   <FormControl>
                     <Input type="date" max={today} {...field} />
                   </FormControl>
@@ -347,11 +348,17 @@ export default function RegistrationForm({
           )}
         />
 
+        {/* API Error Message - Plain text below the form */}
+        {apiError && (
+          <p className="text-xs font-semibold text-destructive ">{apiError}</p>
+        )}
+
         <Button
           type="submit"
           className="w-full bg-watney text-white hover:bg-watney/90"
+          disabled={isSubmitting}
         >
-          Create Account
+          {isSubmitting ? 'Creating Account...' : 'Create Account'}
         </Button>
       </form>
     </Form>

@@ -4,7 +4,9 @@ import {
   Text,
   View,
   StyleSheet,
-  Image
+  Image,
+  Svg,
+  Path
 } from '@react-pdf/renderer';
 import { useEffect, useState } from 'react';
 import axiosInstance from '@/lib/axios';
@@ -12,9 +14,31 @@ import axiosInstance from '@/lib/axios';
 const BORDER_WIDTH = 0.25;
 const BORDER_COLOR = '#999';
 
+const CheckboxView = ({ checked }: { checked: boolean | undefined }) => (
+  <View style={{
+    width: 16,
+    height: 16,
+    borderWidth: 1.5,
+    borderColor: '#000',
+    marginTop: 1,
+    flexShrink: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'transparent'
+  }}>
+    {checked === true && (
+      <Svg viewBox="0 0 10 10" width={10} height={10}>
+        <Path d="M1 5 L4 8 L9 2" stroke="#000" strokeWidth={2} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      </Svg>
+    )}
+  </View>
+);
+
 const styles = StyleSheet.create({
   page: {
     padding: 30,
+    // Keeps flowing content clear of the fixed footer at the bottom of each page
+    paddingBottom: 45,
     fontFamily: 'Helvetica',
     fontSize: 10
   },
@@ -104,6 +128,22 @@ const styles = StyleSheet.create({
     fontSize: 9,
     textAlign: 'center'
   },
+   headerText: {
+    fontSize: 10,        // Smaller font for headers
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  
+  subHeaderText: {
+    fontSize: 10,        // Even smaller for Month/Year sub-headers
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  
+  dataText: {
+    fontSize: 10,        // Smaller font for data cells
+    color: '#000',
+  },
 
   noBorderCol: {
     padding: 5,
@@ -113,11 +153,32 @@ const styles = StyleSheet.create({
 // Format date utility
 const formatDate = (dateString: string): string => {
   if (!dateString) return '';
+
   try {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-GB');
   } catch {
     return dateString;
+  }
+};
+
+const formatMonth = (dateString: string): string => {
+  if (!dateString) return '';
+  try {
+    const date = new Date(dateString);
+    return (date.getMonth() + 1).toString().padStart(2, '0');
+  } catch {
+    return '';
+  }
+};
+
+const formatYear = (dateString: string): string => {
+  if (!dateString) return '';
+  try {
+    const date = new Date(dateString);
+    return date.getFullYear().toString();
+  } catch {
+    return '';
   }
 };
 
@@ -157,24 +218,11 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
 }) => {
   // Ensure formData is not undefined
   const data = formData || {};
-  const totalPages = 3;
-  const PDFooter = ({
-    pageNumber,
-    totalPages
-  }: {
-    pageNumber: number;
-    totalPages: number;
-  }) => (
-    <Text style={styles.footer}>
-      Application Form Page {pageNumber} of {totalPages} - {getTodaysDate()}
-    </Text>
-  );
-
   const logoPath = import.meta.env.VITE_LOGO;
 
   return (
     <Document>
-      {/* Page 1 */}
+      {/* Single flowing page: react-pdf paginates automatically */}
       <Page size="A4" style={styles.page}>
         <View
           style={{
@@ -302,7 +350,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
           {/* Row A6 */}
           <View style={styles.tableRow}>
             <View style={[styles.tableCol, { width: '30%' }]}>
-              <Text>Date Of Birth (dd/mm/yyyy)</Text>
+              <Text>Date Of Birth(DD/MM/YYYY)</Text>
             </View>
             <View style={[styles.tableCol, { width: '70%' }]}>
               <Text>{formatDate(data.dateOfBirth)}</Text>
@@ -321,43 +369,44 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
             </View>
           </View>
 
-          {/* Row A9 */}
-          <View style={styles.tableRow}>
-            <View style={[styles.tableCol, { width: '30%' }]}>
-              <Text>Home address</Text>
-            </View>
-            <View style={[styles.tableCol, { width: '70%' }]}>
-              <Text>
-                First Line:{' '}
-                {capitalizeFirstLetter(data.postalAddressLine1 || '')}, Road /
-                Street: {capitalizeFirstLetter(data.postalAddressLine2 || '')},
-                City: {capitalizeFirstLetter(data.postalCity || '')}, Post Code:{' '}
-                {(data.postalPostCode || '').toUpperCase()}, Country:{' '}
-                {capitalizeFirstLetter(data.postalCountry || '')}
-              </Text>
-            </View>
-          </View>
+         {/* Row A9 */}
+<View style={styles.tableRow}>
+  <View style={[styles.tableCol, { width: '30%' }]}>
+    <Text>Present address</Text>
+  </View>
+  <View style={[styles.tableCol, { width: '70%' }]}>
+    <Text>
+      {[
+        data.postalAddressLine1 ? `First Line: ${capitalizeFirstLetter(data.postalAddressLine1)}` : '',
+        data.postalAddressLine2 ? `Road / Street: ${capitalizeFirstLetter(data.postalAddressLine2)}` : '',
+        data.postalCity ? `City: ${capitalizeFirstLetter(data.postalCity)}` : '',
+        data.postalPostCode ? `Post Code: ${(data.postalPostCode || '').toUpperCase()}` : '',
+        data.postalCountry ? `Country: ${capitalizeFirstLetter(data.postalCountry)}` : ''
+      ].filter(Boolean).join(', ')}
+    </Text>
+  </View>
+</View>
 
-          {/* Row A10 */}
-          <View style={styles.tableRow}>
-            <View style={[styles.tableCol, { width: '30%' }]}>
-              <Text>
-                Previous Address (if you have lived at your present address for
-                less than 12 months)
-              </Text>
-            </View>
-            <View style={[styles.tableCol, { width: '70%' }]}>
-              <Text>
-                First Line:{' '}
-                {capitalizeFirstLetter(data.prevPostalAddressLine1 || '')}, Road
-                / Street:{' '}
-                {capitalizeFirstLetter(data.prevPostalAddressLine2 || '')},
-                City: {capitalizeFirstLetter(data.prevPostalCity || '')}, Post
-                Code: {(data.prevPostalPostCode || '').toUpperCase()}, Country:{' '}
-                {capitalizeFirstLetter(data.prevPostalCountry || '')}
-              </Text>
-            </View>
-          </View>
+{/* Row A10 */}
+<View style={styles.tableRow}>
+  <View style={[styles.tableCol, { width: '30%' }]}>
+    <Text>
+      Previous Address (if you have lived at your present address for
+      less than 12 months)
+    </Text>
+  </View>
+  <View style={[styles.tableCol, { width: '70%' }]}>
+    <Text>
+      {[
+        data.prevPostalAddressLine1 ? `First Line: ${capitalizeFirstLetter(data.prevPostalAddressLine1)}` : '',
+        data.prevPostalAddressLine2 ? `Road / Street: ${capitalizeFirstLetter(data.prevPostalAddressLine2)}` : '',
+        data.prevPostalCity ? `City: ${capitalizeFirstLetter(data.prevPostalCity)}` : '',
+        data.prevPostalPostCode ? `Post Code: ${(data.prevPostalPostCode || '').toUpperCase()}` : '',
+        data.prevPostalCountry ? `Country: ${capitalizeFirstLetter(data.prevPostalCountry)}` : ''
+      ].filter(Boolean).join(', ')}
+    </Text>
+  </View>
+</View>
 
           {/* Row A11 */}
           <View style={styles.tableRow}>
@@ -420,178 +469,164 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
           </View>
         </View>
 
-        <>
-          <Text style={styles.sectionHeader}>
-            PRESENT OR MOST RECENT EMPLOYER
-          </Text>
-          <View style={styles.table}>
-            <View style={styles.tableRow}>
-              <View style={[styles.tableColHeader, { width: '25%' }]}>
-                <Text>Nature of work/training</Text>
+      <>
+  <Text style={styles.sectionHeader}>Employment History</Text>
+  <View style={styles.table}>
+    {/* Header row 1: top-level column groups */}
+    <View style={styles.tableRow}>
+      <View style={[styles.tableColHeader, { width: '28%', textAlign: 'center' }]}>
+        <Text style={styles.headerText}>Date</Text>
+      </View>
+      <View style={[styles.tableColHeader, { width: '20%' }]}>
+        <Text style={styles.headerText}>Employer's Name & Address</Text>
+      </View>
+      <View style={[styles.tableColHeader, { width: '20%' }]}>
+        <Text style={styles.headerText}>Department/Position & Duties</Text>
+      </View>
+      <View style={[styles.tableColHeader, { width: '12%' }]}>
+        <Text style={styles.headerText}>Reason For Leaving</Text>
+      </View>
+      <View style={[styles.tableColHeader, { width: '8%' }]}>
+        <Text style={styles.headerText}>Gaps in Employment?</Text>
+      </View>
+      <View style={[styles.tableColHeader, { width: '12%' }]}>
+        <Text style={styles.headerText}>Explanation for Employment Gaps</Text>
+      </View>
+    </View>
+
+    {/* Header row 2: From / To */}
+    <View style={styles.tableRow}>
+      <View style={[styles.tableColHeader, { width: '14%', textAlign: 'center' }]}>
+        <Text style={styles.headerText}>From</Text>
+      </View>
+      <View style={[styles.tableColHeader, { width: '14%', textAlign: 'center' }]}>
+        <Text style={styles.headerText}>To</Text>
+      </View>
+      <View style={[styles.tableColHeader, { width: '20%' }]}>
+        <Text style={styles.headerText}></Text>
+      </View>
+      <View style={[styles.tableColHeader, { width: '20%' }]}>
+        <Text style={styles.headerText}></Text>
+      </View>
+      <View style={[styles.tableColHeader, { width: '12%' }]}>
+        <Text style={styles.headerText}></Text>
+      </View>
+      <View style={[styles.tableColHeader, { width: '8%' }]}>
+        <Text style={styles.headerText}></Text>
+      </View>
+      <View style={[styles.tableColHeader, { width: '12%' }]}>
+        <Text style={styles.headerText}></Text>
+      </View>
+    </View>
+
+    {/* Header row 3: Month / Year sub-labels */}
+    <View style={styles.tableRow}>
+      <View style={[styles.tableColHeader, { width: '8%', textAlign: 'center' }]}>
+        <Text style={styles.subHeaderText}>Month</Text>
+      </View>
+      <View style={[styles.tableColHeader, { width: '6%', textAlign: 'center' }]}>
+        <Text style={styles.subHeaderText}>Year</Text>
+      </View>
+      <View style={[styles.tableColHeader, { width: '8%', textAlign: 'center' }]}>
+        <Text style={styles.subHeaderText}>Month</Text>
+      </View>
+      <View style={[styles.tableColHeader, { width: '6%', textAlign: 'center' }]}>
+        <Text style={styles.subHeaderText}>Year</Text>
+      </View>
+      <View style={[styles.tableColHeader, { width: '20%' }]}>
+        <Text style={styles.subHeaderText}></Text>
+      </View>
+      <View style={[styles.tableColHeader, { width: '20%' }]}>
+        <Text style={styles.subHeaderText}></Text>
+      </View>
+      <View style={[styles.tableColHeader, { width: '12%' }]}>
+        <Text style={styles.subHeaderText}></Text>
+      </View>
+      <View style={[styles.tableColHeader, { width: '8%' }]}>
+        <Text style={styles.subHeaderText}></Text>
+      </View>
+      <View style={[styles.tableColHeader, { width: '12%' }]}>
+        <Text style={styles.subHeaderText}></Text>
+      </View>
+    </View>
+
+    {(() => {
+      const allEmployments: any[] = [];
+      if (data.currentEmployment) {
+        allEmployments.push(data.currentEmployment);
+      }
+      if (Array.isArray(data.previousEmployments)) {
+        allEmployments.push(...data.previousEmployments);
+      }
+      return allEmployments.length > 0 ? (
+        allEmployments.map((emp: any, idx: number) => {
+          const startMonth = formatMonth(emp.startDate);
+          const startYear = formatYear(emp.startDate);
+          const endMonth = formatMonth(emp.endDate);
+          const endYear = formatYear(emp.endDate);
+          const employerInfo = [emp.employer, emp.employerAddress].filter(Boolean).join(', ');
+          const positionDuties = [emp.jobTitle, emp.responsibilities].filter(Boolean).join(' - ');
+          const hasGaps = emp.hasEmploymentGaps === 'yes' ? 'Yes' : emp.hasEmploymentGaps === 'no' ? 'No' : '';
+          const gapsExplanation = emp.employmentGapsExplanation || '';
+          return (
+            <View key={`emp-${idx}`} style={styles.tableRow}>
+              <View style={[styles.tableCol, { width: '8%', textAlign: 'center' }]}>
+                <Text style={styles.dataText}>{startMonth}</Text>
               </View>
-              <View style={[styles.tableColHeader, { width: '25%' }]}>
-                <Text>Name of organisation</Text>
+              <View style={[styles.tableCol, { width: '6%', textAlign: 'center' }]}>
+                <Text style={styles.dataText}>{startYear}</Text>
               </View>
-              <View style={[styles.tableColHeader, { width: '15%' }]}>
-                <Text>Full-time or Part-time</Text>
+              {emp.endDate ? (
+                <>
+                  <View style={[styles.tableCol, { width: '8%', textAlign: 'center' }]}>
+                    <Text style={styles.dataText}>{endMonth}</Text>
+                  </View>
+                  <View style={[styles.tableCol, { width: '6%', textAlign: 'center' }]}>
+                    <Text style={styles.dataText}>{endYear}</Text>
+                  </View>
+                </>
+              ) : (
+                <View style={[styles.tableCol, { width: '14%', textAlign: 'center' }]}>
+                  <Text style={styles.dataText}>Still Working</Text>
+                </View>
+              )}
+              <View style={[styles.tableCol, { width: '20%' }]}>
+                <Text style={styles.dataText}>{employerInfo}</Text>
               </View>
-              <View style={[styles.tableColHeader, { width: '15%' }]}>
-                <Text>From (dd/mm/yyyy)</Text>
+              <View style={[styles.tableCol, { width: '20%' }]}>
+                <Text style={styles.dataText}>{positionDuties}</Text>
               </View>
-              <View style={[styles.tableColHeader, { width: '20%' }]}>
-                <Text>To (dd/mm/yyyy)</Text>
+              <View style={[styles.tableCol, { width: '12%' }]}>
+                <Text style={styles.dataText}>{emp.reasonForLeaving || ''}</Text>
+              </View>
+              <View style={[styles.tableCol, { width: '8%', textAlign: 'center' }]}>
+                <Text style={styles.dataText}>{hasGaps}</Text>
+              </View>
+              <View style={[styles.tableCol, { width: '12%' }]}>
+                <Text style={styles.dataText}>{gapsExplanation}</Text>
               </View>
             </View>
-
-            {/* Employment Rows */}
-            {data.currentEmployment ? (
-              <>
-                {/* Current Employment */}
-                {data.currentEmployment && (
-                  <View style={styles.tableRow}>
-                    <View style={[styles.tableCol, { width: '25%' }]}>
-                      <Text>
-                        {capitalizeFirstLetter(
-                          safeGet(data.currentEmployment, 'jobTitle')
-                        )}
-                      </Text>
-                    </View>
-                    <View style={[styles.tableCol, { width: '25%' }]}>
-                      <Text>
-                        {capitalizeFirstLetter(
-                          safeGet(data.currentEmployment, 'employer')
-                        )}
-                      </Text>
-                    </View>
-                    <View style={[styles.tableCol, { width: '15%' }]}>
-                      <Text>
-                        {capitalizeFirstLetter(
-                          safeGet(data.currentEmployment, 'employmentType')
-                        )}
-                      </Text>
-                    </View>
-                    <View style={[styles.tableCol, { width: '15%' }]}>
-                      <Text>
-                        {formatDate(
-                          safeGet(data.currentEmployment, 'startDate')
-                        )}
-                      </Text>
-                    </View>
-                    <View style={[styles.tableCol, { width: '20%' }]}>
-                      <Text>Present</Text>
-                    </View>
-                  </View>
-                )}
-              </>
-            ) : (
-              Array.from({ length: 2 }).map((_, idx) => (
-                <View key={`empty-row-${idx}`} style={styles.tableRow}>
-                  <View style={[styles.tableCol, { width: '25%' }]}>
-                    <Text>&nbsp;</Text>
-                  </View>
-                  <View style={[styles.tableCol, { width: '25%' }]}>
-                    <Text>&nbsp;</Text>
-                  </View>
-                  <View style={[styles.tableCol, { width: '15%' }]}>
-                    <Text>&nbsp;</Text>
-                  </View>
-                  <View style={[styles.tableCol, { width: '15%' }]}>
-                    <Text>&nbsp;</Text>
-                  </View>
-                  <View style={[styles.tableCol, { width: '20%' }]}>
-                    <Text>&nbsp;</Text>
-                  </View>
-                </View>
-              ))
-            )}
+          );
+        })
+      ) : (
+        Array.from({ length: 2 }).map((_, idx) => (
+          <View key={`empty-row-${idx}`} style={styles.tableRow}>
+            <View style={[styles.tableCol, { width: '8%' }]}><Text>&nbsp;</Text></View>
+            <View style={[styles.tableCol, { width: '6%' }]}><Text>&nbsp;</Text></View>
+            <View style={[styles.tableCol, { width: '8%' }]}><Text>&nbsp;</Text></View>
+            <View style={[styles.tableCol, { width: '6%' }]}><Text>&nbsp;</Text></View>
+            <View style={[styles.tableCol, { width: '20%' }]}><Text>&nbsp;</Text></View>
+            <View style={[styles.tableCol, { width: '20%' }]}><Text>&nbsp;</Text></View>
+            <View style={[styles.tableCol, { width: '12%' }]}><Text>&nbsp;</Text></View>
+            <View style={[styles.tableCol, { width: '8%' }]}><Text>&nbsp;</Text></View>
+            <View style={[styles.tableCol, { width: '12%' }]}><Text>&nbsp;</Text></View>
           </View>
-        </>
+        ))
+      );
+    })()}
+  </View>
+</>
 
-        <>
-          {/* Section D */}
-          <Text style={[styles.sectionHeader, { marginBottom: 0 }]}>
-            PAST EMPLOYMENT RECORDS
-          </Text>
-          <Text style={styles.subSectionHeader}>
-            Please cover the last 5 years (if possible) starting with the most
-            recent employer and explain any age gaps in your employment
-          </Text>
-          <View style={styles.table}>
-            <View style={styles.tableRow}>
-              <View style={[styles.tableColHeader, { width: '30%' }]}>
-                <Text>Nature of work/training</Text>
-              </View>
-              <View style={[styles.tableColHeader, { width: '30%' }]}>
-                <Text>Name of organisation</Text>
-              </View>
-
-              <View style={[styles.tableColHeader, { width: '20%' }]}>
-                <Text>From (dd/mm/yyyy)</Text>
-              </View>
-              <View style={[styles.tableColHeader, { width: '20%' }]}>
-                <Text>To (dd/mm/yyyy)</Text>
-              </View>
-            </View>
-
-            {/* Employment Rows */}
-            {Array.isArray(data.previousEmployments) &&
-            data.previousEmployments.length > 0 ? (
-              <>
-                {/* Previous Employments */}
-                {Array.isArray(data.previousEmployments) &&
-                  data.previousEmployments.map((job: any, index: number) => (
-                    <View key={`prev-job-${index}`} style={styles.tableRow}>
-                      <View style={[styles.tableCol, { width: '30%' }]}>
-                        <Text>
-                          {capitalizeFirstLetter(safeGet(job, 'jobTitle'))}
-                        </Text>
-                      </View>
-                      <View style={[styles.tableCol, { width: '30%' }]}>
-                        <Text>
-                          {capitalizeFirstLetter(safeGet(job, 'employer'))}
-                        </Text>
-                      </View>
-
-                      <View style={[styles.tableCol, { width: '20%' }]}>
-                        <Text>{formatDate(safeGet(job, 'startDate'))}</Text>
-                      </View>
-                      <View style={[styles.tableCol, { width: '20%' }]}>
-                        <Text>{formatDate(safeGet(job, 'endDate'))}</Text>
-                      </View>
-                    </View>
-                  ))}
-              </>
-            ) : (
-              Array.from({ length: 2 }).map((_, idx) => (
-                <View key={`empty-row-${idx}`} style={styles.tableRow}>
-                  <View style={[styles.tableCol, { width: '30%' }]}>
-                    <Text>&nbsp;</Text>
-                  </View>
-                  <View style={[styles.tableCol, { width: '30%' }]}>
-                    <Text>&nbsp;</Text>
-                  </View>
-
-                  <View style={[styles.tableCol, { width: '20%' }]}>
-                    <Text>&nbsp;</Text>
-                  </View>
-                  <View style={[styles.tableCol, { width: '20%' }]}>
-                    <Text>&nbsp;</Text>
-                  </View>
-                </View>
-              ))
-            )}
-          </View>
-        </>
-
-        <Text style={styles.footer}>
-          Application Form Page{' '}
-          <PDFooter pageNumber={1} totalPages={totalPages} /> -{' '}
-          {getTodaysDate()}
-        </Text>
-      </Page>
-
-      {/* Page 2 */}
-      <Page size="A4" style={styles.page}>
         {/* Education  */}
         <Text style={[styles.sectionHeader, { marginBottom: 0 }]}>
           QUALIFICATIONS OBTAINED
@@ -606,7 +641,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
               <Text>Level / Qualification</Text>
             </View>
             <View style={[styles.tableColHeader, { width: '20%' }]}>
-              <Text>Award Date</Text>
+              <Text>Award Date (DD/MM/YYYY)</Text>
             </View>
             <View style={[styles.tableColHeader, { width: '30%' }]}>
               <Text>College/ University</Text>
@@ -665,96 +700,116 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
           with a character referee (non-relative) if you have never been in paid
           employment.
         </Text>
-        <View style={styles.table}>
-          <View style={styles.tableRow}>
-            {/* Referee 01 */}
-            <View style={[styles.tableColHeader, { width: '50%' }]}>
-              <Text>Referee 01:</Text>
-            </View>
-            {/* Referee 02 */}
-            <View style={[styles.tableColHeader, { width: '50%' }]}>
-              <Text>Referee 02:</Text>
-            </View>
-          </View>
-          {/* Full Name */}
-          <View style={styles.tableRow}>
-            <View style={[styles.tableCol, { width: '50%' }]}>
-              <Text>
-                Full Name: {capitalizeFirstLetter(data.referee1?.name || '')}
-              </Text>
-            </View>
-            <View style={[styles.tableCol, { width: '50%' }]}>
-              <Text>
-                Full Name: {capitalizeFirstLetter(data.referee2?.name || '')}
-              </Text>
-            </View>
-          </View>
 
-          {/* Work Relationship */}
-          <View style={styles.tableRow}>
-            <View style={[styles.tableCol, { width: '50%' }]}>
-              <Text>
-                Work Relationship:{' '}
-                {capitalizeFirstLetter(data.referee1?.relationship || '')}
-              </Text>
+        <View style={{ flexDirection: 'row', gap: 10 }}>
+          {data.professionalReferee1 && (
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 10, fontWeight: 'bold', marginTop: 8, marginBottom: 2 }}>Professional Referee 1</Text>
+              <View style={styles.table}>
+                <View style={styles.tableRow}>
+                  <View style={[styles.tableCol, { width: '35%' }]}><Text>Full Name</Text></View>
+                  <View style={[styles.tableCol, { width: '65%' }]}><Text>{capitalizeFirstLetter(data.professionalReferee1?.name || '')}</Text></View>
+                </View>
+                <View style={styles.tableRow}>
+                  <View style={[styles.tableCol, { width: '35%' }]}><Text>Position</Text></View>
+                  <View style={[styles.tableCol, { width: '65%' }]}><Text>{capitalizeFirstLetter(data.professionalReferee1?.position || '')}</Text></View>
+                </View>
+                <View style={styles.tableRow}>
+                  <View style={[styles.tableCol, { width: '35%' }]}><Text>Relationship</Text></View>
+                  <View style={[styles.tableCol, { width: '65%' }]}><Text>{capitalizeFirstLetter(data.professionalReferee1?.relationship || '')}</Text></View>
+                </View>
+                <View style={styles.tableRow}>
+                  <View style={[styles.tableCol, { width: '35%' }]}><Text>Organisation</Text></View>
+                  <View style={[styles.tableCol, { width: '65%' }]}><Text>{capitalizeFirstLetter(data.professionalReferee1?.organisation || '')}</Text></View>
+                </View>
+                <View style={styles.tableRow}>
+                  <View style={[styles.tableCol, { width: '35%' }]}><Text>Address</Text></View>
+                  <View style={[styles.tableCol, { width: '65%' }]}><Text>{capitalizeFirstLetter(data.professionalReferee1?.address || '')}</Text></View>
+                </View>
+                <View style={styles.tableRow}>
+                  <View style={[styles.tableCol, { width: '35%' }]}><Text>Tel No</Text></View>
+                  <View style={[styles.tableCol, { width: '65%' }]}><Text>{data.professionalReferee1?.tel || ''}</Text></View>
+                </View>
+                <View style={styles.tableRow}>
+                  <View style={[styles.tableCol, { width: '35%' }]}><Text>Email</Text></View>
+                  <View style={[styles.tableCol, { width: '65%' }]}><Text>{data.professionalReferee1?.email || ''}</Text></View>
+                </View>
+              </View>
             </View>
-            <View style={[styles.tableCol, { width: '50%' }]}>
-              <Text>
-                Work Relationship:{' '}
-                {capitalizeFirstLetter(data.referee2?.relationship || '')}
-              </Text>
-            </View>
-          </View>
-          {/* Organisation */}
-          <View style={styles.tableRow}>
-            <View style={[styles.tableCol, { width: '50%' }]}>
-              <Text>
-                Organisation:{' '}
-                {capitalizeFirstLetter(data.referee1?.organisation || '')}
-              </Text>
-            </View>
-            <View style={[styles.tableCol, { width: '50%' }]}>
-              <Text>
-                Organisation:{' '}
-                {capitalizeFirstLetter(data.referee2?.organisation || '')}
-              </Text>
-            </View>
-          </View>
-          {/* Full Address */}
-          <View style={styles.tableRow}>
-            <View style={[styles.tableCol, { width: '50%' }]}>
-              <Text>
-                Full Address:{' '}
-                {capitalizeFirstLetter(data.referee1?.address || '')}
-              </Text>
-            </View>
-            <View style={[styles.tableCol, { width: '50%' }]}>
-              <Text>
-                Full Address:{' '}
-                {capitalizeFirstLetter(data.referee2?.address || '')}
-              </Text>
-            </View>
-          </View>
+          )}
 
-          {/* Tel No */}
-          <View style={styles.tableRow}>
-            <View style={[styles.tableCol, { width: '50%' }]}>
-              <Text>Tel No: {data.referee1?.phone || ''}</Text>
+          {data.professionalReferee2 && (
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 10, fontWeight: 'bold', marginTop: 8, marginBottom: 2 }}>Professional Referee 2</Text>
+              <View style={styles.table}>
+                <View style={styles.tableRow}>
+                  <View style={[styles.tableCol, { width: '35%' }]}><Text>Full Name</Text></View>
+                  <View style={[styles.tableCol, { width: '65%' }]}><Text>{capitalizeFirstLetter(data.professionalReferee2?.name || '')}</Text></View>
+                </View>
+                <View style={styles.tableRow}>
+                  <View style={[styles.tableCol, { width: '35%' }]}><Text>Position</Text></View>
+                  <View style={[styles.tableCol, { width: '65%' }]}><Text>{capitalizeFirstLetter(data.professionalReferee2?.position || '')}</Text></View>
+                </View>
+                <View style={styles.tableRow}>
+                  <View style={[styles.tableCol, { width: '35%' }]}><Text>Relationship</Text></View>
+                  <View style={[styles.tableCol, { width: '65%' }]}><Text>{capitalizeFirstLetter(data.professionalReferee2?.relationship || '')}</Text></View>
+                </View>
+                <View style={styles.tableRow}>
+                  <View style={[styles.tableCol, { width: '35%' }]}><Text>Organisation</Text></View>
+                  <View style={[styles.tableCol, { width: '65%' }]}><Text>{capitalizeFirstLetter(data.professionalReferee2?.organisation || '')}</Text></View>
+                </View>
+                <View style={styles.tableRow}>
+                  <View style={[styles.tableCol, { width: '35%' }]}><Text>Address</Text></View>
+                  <View style={[styles.tableCol, { width: '65%' }]}><Text>{capitalizeFirstLetter(data.professionalReferee2?.address || '')}</Text></View>
+                </View>
+                <View style={styles.tableRow}>
+                  <View style={[styles.tableCol, { width: '35%' }]}><Text>Tel No</Text></View>
+                  <View style={[styles.tableCol, { width: '65%' }]}><Text>{data.professionalReferee2?.tel || ''}</Text></View>
+                </View>
+                <View style={styles.tableRow}>
+                  <View style={[styles.tableCol, { width: '35%' }]}><Text>Email</Text></View>
+                  <View style={[styles.tableCol, { width: '65%' }]}><Text>{data.professionalReferee2?.email || ''}</Text></View>
+                </View>
+              </View>
             </View>
-            <View style={[styles.tableCol, { width: '50%' }]}>
-              <Text>Tel No: {data.referee2?.phone || ''}</Text>
-            </View>
-          </View>
-          {/* E-mail */}
-          <View style={styles.tableRow}>
-            <View style={[styles.tableCol, { width: '50%' }]}>
-              <Text>E-mail: {data.referee1?.email || ''}</Text>
-            </View>
-            <View style={[styles.tableCol, { width: '50%' }]}>
-              <Text>E-mail: {data.referee2?.email || ''}</Text>
-            </View>
-          </View>
+          )}
         </View>
+
+        {data.personalReferee && (
+          <View style={{ marginTop: 8 }}>
+            <Text style={{ fontSize: 10, fontWeight: 'bold', marginBottom: 2 }}>Personal Referee</Text>
+            <View style={styles.table}>
+              <View style={styles.tableRow}>
+                <View style={[styles.tableCol, { width: '30%' }]}><Text>Full Name</Text></View>
+                <View style={[styles.tableCol, { width: '70%' }]}><Text>{capitalizeFirstLetter(data.personalReferee?.name || '')}</Text></View>
+              </View>
+              <View style={styles.tableRow}>
+                <View style={[styles.tableCol, { width: '30%' }]}><Text>Position</Text></View>
+                <View style={[styles.tableCol, { width: '70%' }]}><Text>{capitalizeFirstLetter(data.personalReferee?.position || '')}</Text></View>
+              </View>
+              <View style={styles.tableRow}>
+                <View style={[styles.tableCol, { width: '30%' }]}><Text>Relationship</Text></View>
+                <View style={[styles.tableCol, { width: '70%' }]}><Text>{capitalizeFirstLetter(data.personalReferee?.relationship || '')}</Text></View>
+              </View>
+              <View style={styles.tableRow}>
+                <View style={[styles.tableCol, { width: '30%' }]}><Text>Organisation</Text></View>
+                <View style={[styles.tableCol, { width: '70%' }]}><Text>{capitalizeFirstLetter(data.personalReferee?.organisation || '')}</Text></View>
+              </View>
+              <View style={styles.tableRow}>
+                <View style={[styles.tableCol, { width: '30%' }]}><Text>Address</Text></View>
+                <View style={[styles.tableCol, { width: '70%' }]}><Text>{capitalizeFirstLetter(data.personalReferee?.address || '')}</Text></View>
+              </View>
+              <View style={styles.tableRow}>
+                <View style={[styles.tableCol, { width: '30%' }]}><Text>Tel No</Text></View>
+                <View style={[styles.tableCol, { width: '70%' }]}><Text>{data.personalReferee?.tel || ''}</Text></View>
+              </View>
+              <View style={styles.tableRow}>
+                <View style={[styles.tableCol, { width: '30%' }]}><Text>Email</Text></View>
+                <View style={[styles.tableCol, { width: '70%' }]}><Text>{data.personalReferee?.email || ''}</Text></View>
+              </View>
+            </View>
+          </View>
+        )}
 
         {/* Section E */}
         <Text style={styles.sectionHeader}>EMERGENCY CONTACT</Text>
@@ -803,7 +858,19 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
           </View>
         </View>
 
-        {/* Section F */}
+       
+
+        <Text style={styles.sectionHeader}>Life Skills & Interests</Text>
+        <View style={{ border: '0.5px solid #999', minHeight: 30, padding: 5, marginBottom: 10 }}>
+          <Text>{capitalizeFirstLetter(data.lifeSkillsAndInterests || '')}</Text>
+        </View>
+
+        <Text style={styles.sectionHeader}>Relevant Experience</Text>
+        <View style={{ border: '0.5px solid #999', minHeight: 30, padding: 5, marginBottom: 10 }}>
+          <Text>{capitalizeFirstLetter(data.relevantExperience || '')}</Text>
+        </View>
+
+         {/* Section F */}
         <Text style={styles.sectionHeader}>DISABILITIES</Text>
         <View style={{ marginBottom: 10 }}>
           <Text>
@@ -829,49 +896,42 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
           <Text>{capitalizeFirstLetter(data.convictionDetails || '')}</Text>
         </View>
 
-        <Text style={styles.footer}>
-          Application Form Page{' '}
-          <PDFooter pageNumber={1} totalPages={totalPages} /> -{' '}
-          {getTodaysDate()}
-        </Text>
-      </Page>
-
-      <Page size="A4" style={styles.page}>
+        
         <Text style={styles.sectionHeader}>DECLARATION</Text>
-        <View style={{ marginBottom: 10 }}>
-          <Text>
-            I confirm that the information given on this form is true, complete
-            and accurate and that none of the information requested or other
-            material information has been omitted. I accept that if it is
-            discovered that I have supplied false, inaccurate or misleading
-            information, WATNEY COLLEGE reserves the right to cancel my
-            application, withdraw its offer of a place or terminate attendance
-            at the College and I shall have no claim against WATNEY COLLEGE in
-            relation thereto:{' '}
-            <Text style={{ fontWeight: 'bold' }}>
-              {data.termsAccepted ? 'Yes' : 'No'}
+        <View style={{ marginBottom: 10, flexDirection: 'row', alignItems: 'flex-start' }}>
+          <CheckboxView checked={data.termsAccepted} />
+          <View style={{ marginLeft: 6, flex: 1 }}>
+            <Text>
+              I confirm that the information given on this form is true, complete
+              and accurate and that none of the information requested or other
+              material information has been omitted. I accept that if it is
+              discovered that I have supplied false, inaccurate or misleading
+              information, Everycare Romford reserves the right to cancel my
+              application, withdraw its offer of a place or terminate attendance
+              at the College and I shall have no claim against Everycare Romford in
+              relation thereto.
             </Text>
-          </Text>
+          </View>
         </View>
 
         <Text style={styles.sectionHeader}>DATA PROTECTION</Text>
-        <View style={{ marginBottom: 10 }}>
-          <Text>
-            I consent to Watney College processing my personal data for purposes
-            related to my application, studies, health and safety, and
-            compliance with College policies. This includes academic
-            performance, learning support, disciplinary matters, CCTV usage, ID
-            card photos, and data required by the Higher Education Statistics
-            Agency (HESA) or other legitimate purposes. I consent to the
-            disclosure of this data for academic references, further education,
-            employment, council tax, or immigration matters, including
-            verification with the UK Border Agency. I understand I can request a
-            copy of my data and that details on HESA are available on the
-            College’s intranet:{' '}
-            <Text style={{ fontWeight: 'bold' }}>
-              {data.dataProcessingAccepted ? 'Yes' : 'No'}
+        <View style={{ marginBottom: 10, flexDirection: 'row', alignItems: 'flex-start' }}>
+          <CheckboxView checked={data.dataProcessingAccepted} />
+          <View style={{ marginLeft: 6, flex: 1 }}>
+            <Text>
+              I consent to Everycare Romford processing my personal data for purposes
+              related to my application, studies, health and safety, and
+              compliance with College policies. This includes academic
+              performance, learning support, disciplinary matters, CCTV usage, ID
+              card photos, and data required by the Higher Education Statistics
+              Agency (HESA) or other legitimate purposes. I consent to the
+              disclosure of this data for academic references, further education,
+              employment, council tax, or immigration matters, including
+              verification with the UK Border Agency. I understand I can request a
+              copy of my data and that details on HESA are available on the
+              College's intranet.
             </Text>
-          </Text>
+          </View>
         </View>
 
         {/* Signature */}
@@ -882,15 +942,19 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
               <Text>Signature</Text>
             </View>
             <View style={[styles.tableColHeader, { width: '30%' }]}>
-              <Text>Date (dd/mm/yy)</Text>
+              <Text>Date (DD/MM/YYYY)</Text>
             </View>
           </View>
           <View style={[styles.tableRow, { minHeight: 50 }]}>
             <View style={[styles.tableCol, { width: '70%' }]}>
-              <Text>&nbsp;</Text>
+              {data.signatureUrl ? (
+                <Image src={data.signatureUrl} style={{ width: 180, height: 45 }} />
+              ) : (
+                <Text>&nbsp;</Text>
+              )}
             </View>
             <View style={[styles.tableCol, { width: '30%' }]}>
-              <Text>&nbsp;</Text>
+              <Text>{data.createdAt ? formatDate(data.createdAt) : ''}</Text>
             </View>
           </View>
         </View>
@@ -909,11 +973,14 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
           <Text>Phone: 02030111145</Text>
         </View>
 
-        <Text style={styles.footer}>
-          Application Form Page{' '}
-          <PDFooter pageNumber={1} totalPages={totalPages} /> -{' '}
-          {getTodaysDate()}
-        </Text>
+        {/* Repeated on every page; react-pdf fills in the real numbers */}
+        <Text
+          style={styles.footer}
+          fixed
+          render={({ pageNumber, totalPages }) =>
+            `Application Form Page ${pageNumber} of ${totalPages} - ${getTodaysDate()}`
+          }
+        />
       </Page>
     </Document>
   );

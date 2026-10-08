@@ -1,5 +1,5 @@
 import React from 'react';
-import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
+import { Page, Text, View, Document, StyleSheet, Image } from '@react-pdf/renderer';
 
 // --- Types ---
 export interface starterCheckList {
@@ -26,6 +26,8 @@ export interface starterCheckList {
     fullName: string;
     date: string;
   };
+  signatureUrl?: string;
+  createdAt?: string;
 }
 
 // --- Styles ---
@@ -251,7 +253,7 @@ export const StarterCheckListPdf = ({ data }: { data: starterCheckList }) => (
             </View>
           </View>
 
-          <DataField label="4 Date of birth DD MM YYYY" value={data.employee.dob} />
+          <DataField label="4 Date of birth (DD/MM/YYYY)" value={data.employee.dob} />
         </View>
 
         {/* Right Column (5-7) */}
@@ -261,7 +263,7 @@ export const StarterCheckListPdf = ({ data }: { data: starterCheckList }) => (
           <DataField label="Country" value={data.employee.country} width="60%" />
           
           <DataField label="6 National Insurance number if known" value={data.employee.niNumber} />
-          <DataField label="7 Employment start date DD MM YYYY" value={data.employee.startDate} />
+          <DataField label="7 Employment start date (DD/MM/YYYY" value={data.employee.startDate} />
         </View>
       </View>
 
@@ -351,10 +353,10 @@ export const StarterCheckListPdf = ({ data }: { data: starterCheckList }) => (
       </View>
 
       <View style={{ flexDirection: 'row', marginTop: 8, marginBottom: 15 }}>
-        <View style={{ width: 160, padding: 6, border: '0.5px solid #999', marginRight: 8 }}>
+        <View style={{ width: 180, padding: 6, border: '0.5px solid #999', marginRight: 8 }}>
           <Checkbox checked={!data.studentLoan.hasNoLoans} label="If No, tick this box and go to question 10" />
         </View>
-        <View style={{ width: 160, padding: 6, border: '0.5px solid #999' }}>
+        <View style={{ width: 210, padding: 6, border: '0.5px solid #999' }}>
           <Checkbox checked={data.studentLoan.hasNoLoans} label="If Yes, tick this box and go straight to the Declaration" />
         </View>
       </View>
@@ -406,7 +408,14 @@ export const StarterCheckListPdf = ({ data }: { data: starterCheckList }) => (
       <View style={[styles.row, { marginTop: 15, alignItems: 'flex-end' }]}>
         <View style={{ width: '40%', marginRight: 15 }}>
           <Text style={styles.inputLabel}>Signature</Text>
-          <View style={{ borderBottom: '0.5px solid #999', height: 16, marginBottom: 4 }} />
+          {data.signatureUrl ? (
+            <Image
+              src={data.signatureUrl}
+              style={{ width: 120, height: 35, marginTop: 4 }}
+            />
+          ) : (
+            <View style={{ borderBottom: '0.5px solid #999', height: 16, marginBottom: 4 }} />
+          )}
         </View>
         <View style={{ flex: 1 }}>
           <DataField label="Full name" value={data.declaration.fullName} smallLabel={true} />
@@ -414,8 +423,19 @@ export const StarterCheckListPdf = ({ data }: { data: starterCheckList }) => (
       </View>
       
       <View style={{ width: '40%', marginTop: 8 }}>
-        <DataField label="Date DD MM YYYY" smallLabel={true} />
-      </View>
+<DataField
+  label="Date (DD/MM/YYYY)"
+  value={
+    data.createdAt
+      ? new Date(data.createdAt).toLocaleDateString("en-GB", {
+          month: "2-digit",
+          day: "2-digit",
+          year: "numeric",
+        })
+      : ""
+  }
+  smallLabel={true}
+/>      </View>
 
       <View style={styles.pageFooter}>
         <Text>Page 2</Text>

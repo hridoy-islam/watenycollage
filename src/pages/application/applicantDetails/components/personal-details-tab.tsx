@@ -28,9 +28,9 @@ export function PersonalDetailsTab({ application, renderFieldRow }: PersonalDeta
             <TableBody>
               {renderFieldRow("Title", application.title, "title")}
               {renderFieldRow("First Name", application.firstName, "firstName")}
-              {renderFieldRow("Last Name", application.lastName, "lastName")}
-              {renderFieldRow("Other Name", application.otherName, "otherName")}
+              {/* {renderFieldRow("Other Name", application.otherName, "otherName")} */}
               {renderFieldRow("Initial", application.initial, "initial")}
+              {renderFieldRow("Last Name", application.lastName, "lastName")}
               {renderFieldRow("Email", application.email, "email")}
             </TableBody>
           </Table>

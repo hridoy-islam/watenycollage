@@ -2,6 +2,12 @@ import type React from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
+const PROOF_TYPE_LABELS: Record<string, string> = {
+  bankStatement: 'Bank Statement',
+  utilityBill: 'Utility Bill',
+  drivingLicense: 'Driving License'
+};
+
 type Application = any
 
 interface DocumentsTabProps {
@@ -9,7 +15,38 @@ interface DocumentsTabProps {
   renderFieldRow: (label: string, value: any, fieldPath: string) => React.ReactNode
 }
 
+function isSatisfiedViaProofOfAddress(application: Application, field: string): boolean {
+  if (field === 'utilityBills') {
+    return (
+      (application.proofOfAddress1Type === 'utilityBill' && !!application.proofOfAddress1) ||
+      (application.proofOfAddress2Type === 'utilityBill' && !!application.proofOfAddress2)
+    );
+  }
+  if (field === 'bankStatement') {
+    return (
+      (application.proofOfAddress1Type === 'bankStatement' && !!application.proofOfAddress1) ||
+      (application.proofOfAddress2Type === 'bankStatement' && !!application.proofOfAddress2)
+    );
+  }
+  return false;
+}
+
 export function DocumentsTab({ application, renderFieldRow }: DocumentsTabProps) {
+  const showUtilityBills = !isSatisfiedViaProofOfAddress(application, 'utilityBills');
+  const showBankStatement = !isSatisfiedViaProofOfAddress(application, 'bankStatement');
+
+  const renderDocs = (label: string, value: any, fieldPrefix: string) => {
+    if (Array.isArray(value)) {
+      return value.map((url: string, index: number) =>
+        renderFieldRow(label, url, `${fieldPrefix}[${index}]`)
+      );
+    }
+    if (value) {
+      return renderFieldRow(label, value, fieldPrefix);
+    }
+    return null;
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
@@ -29,8 +66,16 @@ export function DocumentsTab({ application, renderFieldRow }: DocumentsTabProps)
 
             <TableBody>
               {renderFieldRow("CV / Resume", application.cvResume, "cvResume")}
-              {renderFieldRow("Proof of Address 1", application.proofOfAddress1, "proofOfAddress1")}
-              {renderFieldRow("Proof of Address 2", application.proofOfAddress2, "proofOfAddress2")}
+              {renderFieldRow(
+                `Proof of Address 1${application.proofOfAddress1Type ? ` (${PROOF_TYPE_LABELS[application.proofOfAddress1Type] || application.proofOfAddress1Type})` : ''}`,
+                application.proofOfAddress1,
+                "proofOfAddress1"
+              )}
+              {renderFieldRow(
+                `Proof of Address 2${application.proofOfAddress2Type ? ` (${PROOF_TYPE_LABELS[application.proofOfAddress2Type] || application.proofOfAddress2Type})` : ''}`,
+                application.proofOfAddress2,
+                "proofOfAddress2"
+              )}
             </TableBody>
           </Table>
         </CardContent>
@@ -51,25 +96,18 @@ export function DocumentsTab({ application, renderFieldRow }: DocumentsTabProps)
             </TableHeader>
 
             <TableBody>
-              {application.idDocuments?.map((url: string, index: number) =>
-                renderFieldRow("ID Document", url, `idDocuments[${index}]`)
-              )}
+              {renderDocs("ID Document", application.idDocuments, "idDocuments")}
 
-              {application.utilityBills?.map((url: string, index: number) =>
-                renderFieldRow("Utility Bill", url, `utilityBills[${index}]`)
-              )}
+              {showUtilityBills && renderDocs("Utility Bill", application.utilityBills, "utilityBills")}
 
-              {application.bankStatement?.map((url: string, index: number) =>
-                renderFieldRow("Bank Statement", url, `bankStatement[${index}]`)
-              )}
+              {showBankStatement && renderDocs("Bank Statement", application.bankStatement, "bankStatement")}
 
-              {application.proofOfNI?.map((url: string, index: number) =>
-                renderFieldRow("Proof of NI", url, `proofOfNI[${index}]`)
-              )}
+              {renderDocs("Proof of NI", application.proofOfNI, "proofOfNI")}
 
-              {application.immigrationDocument?.map((url: string, index: number) =>
-                renderFieldRow("Immigration Document", url, `immigrationDocument[${index}]`)
-              )}
+              {renderDocs("Immigration Document", application.immigrationDocument, "immigrationDocument")}
+              {renderDocs("Signature", application.signatureUrl, "signatureUrl")}
+
+             
             </TableBody>
           </Table>
         </CardContent>

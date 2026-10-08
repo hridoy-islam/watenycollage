@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Pen, Download } from 'lucide-react';
+import { Plus, Pen, Download, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Table,
@@ -17,6 +17,16 @@ import { DataTablePagination } from '@/components/shared/data-table-pagination';
 import { downloadEmailPDF } from './components/pdf-generator';
 import { EmailDraftDialog } from './components/email-draft-dialog';
 import { useNavigate } from 'react-router-dom';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const TemplatePage = () => {
   const [drafts, setDrafts] = useState<any>([]);
@@ -29,7 +39,11 @@ const TemplatePage = () => {
   const [entriesPerPage, setEntriesPerPage] = useState(100);
   const [searchTerm, setSearchTerm] = useState('');
   const [downloadingPdf, setDownloadingPdf] = useState<string | null>(null);
-const navigate = useNavigate()
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deletingDraft, setDeletingDraft] = useState<any>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const navigate = useNavigate();
+
   const fetchData = async (page, entriesPerPage, searchTerm = '') => {
     try {
       if (initialLoading) setInitialLoading(true);
@@ -81,6 +95,36 @@ const navigate = useNavigate()
     fetchData(currentPage, entriesPerPage, searchTerm);
   };
 
+  const handleDeleteClick = (draft: any) => {
+    setDeletingDraft(draft);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deletingDraft) return;
+    
+    try {
+      setIsDeleting(true);
+      await axiosInstance.delete(`/email-drafts/${deletingDraft._id}`);
+      toast({
+        title: 'Template deleted successfully',
+        className: 'bg-watney border-none text-white'
+      });
+      fetchData(currentPage, entriesPerPage);
+    } catch (error) {
+      console.error('Error deleting template:', error);
+      toast({
+        title: 'Error deleting template',
+        description: 'Please try again later',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsDeleting(false);
+      setDeleteDialogOpen(false);
+      setDeletingDraft(null);
+    }
+  };
+
   const handleDownloadPDF = async (draft: any) => {
     try {
       setDownloadingPdf(draft._id);
@@ -124,23 +168,22 @@ const navigate = useNavigate()
           </div>
         </div>
         <div className='flex gap-4'>
-
-        <Button
-          className="bg-watney text-white hover:bg-watney/90"
-          onClick={() => navigate('/dashboard/signature')}
-          size={'sm'}
+          <Button
+            className="bg-watney text-white hover:bg-watney/90"
+            onClick={() => navigate('/dashboard/recruitment/signature')}
+            size={'sm'}
           >
-          Signature
-        </Button>
-        <Button
-          className="bg-watney text-white hover:bg-watney/90"
-          onClick={() => setDraftDialogOpen(true)}
-          size={'sm'}
+            Signature
+          </Button>
+          <Button
+            className="bg-watney text-white hover:bg-watney/90"
+            onClick={() => setDraftDialogOpen(true)}
+            size={'sm'}
           >
-          <Plus className="mr-2 h-4 w-4" />
-          New Template
-        </Button>
-          </div>
+            <Plus className="mr-2 h-4 w-4" />
+            New Template
+          </Button>
+        </div>
       </div>
 
       <div className="rounded-md bg-white p-4 shadow-2xl">
@@ -180,9 +223,6 @@ const navigate = useNavigate()
                           <Download className="h-4 w-4" />
                         )}
                       </Button>
-                      <span className="absolute bottom-full left-1/2 z-10 mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-gray-800 px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100">
-                        Preview
-                      </span>
                       <Button
                         variant="outline"
                         size="icon"
@@ -195,6 +235,15 @@ const navigate = useNavigate()
                       >
                         <Pen className="h-4 w-4" />
                       </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => handleDeleteClick(draft)}
+                        className="border-red-600 bg-red-600 text-white hover:bg-red-700"
+                        title="Delete Template"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -202,23 +251,57 @@ const navigate = useNavigate()
             </TableBody>
           </Table>
         )}
-        <DataTablePagination
-          pageSize={entriesPerPage}
-          setPageSize={setEntriesPerPage}
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-        />
+
+        {
+          totalPages>1 &&
+          <DataTablePagination
+            pageSize={entriesPerPage}
+            setPageSize={setEntriesPerPage}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        }
       </div>
+
       <EmailDraftDialog
         open={draftDialogOpen}
         onOpenChange={(open) => {
           setDraftDialogOpen(open);
-          if (!open) setEditingDraft(null); // Reset editing agent when closing dialog
+          if (!open) setEditingDraft(null);
         }}
         onSubmit={handleSubmit}
         initialData={editingDraft}
       />
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the template
+              "{deletingDraft?.subject}" and remove it from our servers.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              disabled={isDeleting}
+              className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+            >
+              {isDeleting ? (
+                <div className="flex items-center gap-2">
+                  <BlinkingDots size="small" color="bg-white" />
+                  Deleting...
+                </div>
+              ) : (
+                'Delete'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
