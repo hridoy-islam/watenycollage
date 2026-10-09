@@ -650,7 +650,7 @@ export default function StarterChecklistForm() {
                             {signatureUrl && (
                               <>
                                 <img src={signatureUrl} alt="Signature" className="h-16 max-w-md rounded border border-gray-200" />
-                                <Button type="button" size="sm" variant="outline" onClick={() => { setShowSignaturePad(true); setTimeout(() => signatureRef.current?.clear(), 0); }}>
+                                <Button className="border border-solid border-black bg-black text-white hover:bg-black/90 hover:text-white" type="button" size="sm" variant="outline" onClick={() => { setShowSignaturePad(true); setTimeout(() => signatureRef.current?.clear(), 0); }}>
                                   <Pencil className="mr-1 h-3 w-3" /> Update Signature
                                 </Button>
                               </>

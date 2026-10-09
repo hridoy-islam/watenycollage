@@ -310,7 +310,7 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
             localData.travelAreas || '-'
           ))}
 
-          {/* Solely for Everycare */}
+          {/* Solely for Medicare Link */}
           {renderField('Will you be working solely for Medicare Link?', true, isEditing ? (
             <Select
               options={yesNoOptions}

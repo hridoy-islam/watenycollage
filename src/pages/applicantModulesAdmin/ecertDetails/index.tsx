@@ -116,7 +116,7 @@ export default function AdminEcertsPage() {
             Back
           </Button>
           <Button
-            className="border-none bg-watney text-white hover:bg-watney/90"
+            className="border border-solid border-black bg-black text-white hover:bg-black/90 hover:text-white"
             onClick={() => navigate('edit')}
           >
             <Pen className="mr-2 h-4 w-4" />

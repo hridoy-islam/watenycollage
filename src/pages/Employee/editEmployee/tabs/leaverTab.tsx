@@ -350,7 +350,7 @@ terminationDate: new Date(
                   variant="outline"
                   size="sm"
                   onClick={handleOpenEditLeaver}
-                  className="h-8 border-red-200 bg-white text-red-700 hover:bg-red-50 hover:text-red-800"
+                  className="h-8 border border-solid border-black bg-black text-white hover:bg-black/90 hover:text-white"
                 >
                   <Edit className="mr-1.5 h-3.5 w-3.5" /> Edit Record
                 </Button>

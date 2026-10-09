@@ -822,7 +822,7 @@ export default function ProfessionalReferencePage() {
                                   alt="Signature"
                                   className="h-16 max-w-md rounded border border-gray-200"
                                 />
-                                <Button
+                                <Button className="border border-solid border-black bg-black text-white hover:bg-black/90 hover:text-white"
                                   type="button"
                                   size="sm"
                                   variant="outline"

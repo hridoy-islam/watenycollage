@@ -617,7 +617,7 @@ export default function SickNoteTab() {
 
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
-                      <Button
+                      <Button className="border border-solid border-black bg-black text-white hover:bg-black/90 hover:text-white"
                         size="icon"
                         onClick={() => handleOpenEdit(noteRecord)}
                         title="Edit Note"

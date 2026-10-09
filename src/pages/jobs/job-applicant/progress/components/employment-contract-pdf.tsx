@@ -266,20 +266,20 @@ const HeaderComponent = () => (
 const undertakings = [
   'Adhere to all national codes and standards of the industry at all times.',
   'Agree to records relating to your employment being kept in accordance with the statutory minimum requirements.',
-  "That you have given Everycare the authority to store a photographic image of you electronically on Everycare's computer and in your personal file and permit Everycare to pass on a copy if requested by the contractor or service user for identification verification.",
-  "Abide strictly to Everycare's policies in relation to 'Confidentiality' and 'Data Protection'.",
-  'Maintain confidentiality of all Everycare copyright documents, materials, intellectual property, operating systems not to disclose their contents or make any copies.',
-  "Always carry out responsibilities with due regard to Everycare's Equal Opportunities Policy.",
+  "That you have given Medicare Link the authority to store a photographic image of you electronically on Medicare Link's computer and in your personal file and permit Medicare Link to pass on a copy if requested by the contractor or service user for identification verification.",
+  "Abide strictly to Medicare Link's policies in relation to 'Confidentiality' and 'Data Protection'.",
+  'Maintain confidentiality of all Medicare Link copyright documents, materials, intellectual property, operating systems not to disclose their contents or make any copies.',
+  "Always carry out responsibilities with due regard to Medicare Link's Equal Opportunities Policy.",
   'Always abide by the Health and Safety at Work Act 1974, to ensure that the agreed Health and Safety procedures are carried out to maintain a safe working environment for all including the service user yourself and your colleagues.',
-  'Notify Everycare management of any employment whatsoever taken up concurrent with your employment at Everycare, not disclosed on your application form.',
-  'That you have declared all information relating to your criminal record and that you will notify Everycare immediately of any conviction or police caution received whilst employed by Everycare. You will be required to obtain a satisfactory Enhanced Criminal Records Bureau disclosure and have it renewed every three years.',
-  'That you have never been dismissed from any post involving care services or been involved in any disciplinary process involving gross misconduct or any Safeguarding investigation taken against you, whether or not this resulted in dismissal, that you have not declared and to notify Everycare immediately of any disciplinary or Safeguarding action taking against you whilst employed by Everycare.',
-  'To inform your insurance company if you are using your car in connection with your job, to provide evidence of adequate insurance to Everycare and inform Everycare of any change in your vehicle insurance status.',
-  'Notify Everycare immediately of any driving convictions or penalties (except parking) whilst employed by Everycare.',
+  'Notify Medicare Link management of any employment whatsoever taken up concurrent with your employment at Medicare Link, not disclosed on your application form.',
+  'That you have declared all information relating to your criminal record and that you will notify Medicare Link immediately of any conviction or police caution received whilst employed by Medicare Link. You will be required to obtain a satisfactory Enhanced Criminal Records Bureau disclosure and have it renewed every three years.',
+  'That you have never been dismissed from any post involving care services or been involved in any disciplinary process involving gross misconduct or any Safeguarding investigation taken against you, whether or not this resulted in dismissal, that you have not declared and to notify Medicare Link immediately of any disciplinary or Safeguarding action taking against you whilst employed by Medicare Link.',
+  'To inform your insurance company if you are using your car in connection with your job, to provide evidence of adequate insurance to Medicare Link and inform Medicare Link of any change in your vehicle insurance status.',
+  'Notify Medicare Link immediately of any driving convictions or penalties (except parking) whilst employed by Medicare Link.',
   'That the information provided by yourself concerning your experience, personal details and history and your physical and mental health shall be true and accurate to the best of your knowledge.',
-  'Notify Everycare of any change in your physical or psychological status and that Everycare may contact your GP and obtain information on your health status if and when required and that if you work regular nights you will comply with the required annual health screening and complete the annual Health Declaration Questionnaire and that you will do so in any case if requested by management.',
-  'Undergo such supervision / appraisal as Everycare shall supply and specify at its sole discretion.',
-  "Be prepared to undergo such training as Everycare shall supply and specify at its sole discretion, the cost of which is recoverable from the employee under the terms of the 'Everycare Training Agreements'.",
+  'Notify Medicare Link of any change in your physical or psychological status and that Medicare Link may contact your GP and obtain information on your health status if and when required and that if you work regular nights you will comply with the required annual health screening and complete the annual Health Declaration Questionnaire and that you will do so in any case if requested by management.',
+  'Undergo such supervision / appraisal as Medicare Link shall supply and specify at its sole discretion.',
+  "Be prepared to undergo such training as Medicare Link shall supply and specify at its sole discretion, the cost of which is recoverable from the employee under the terms of the 'Medicare Link Training Agreements'.",
   'To be prepared to perform reasonable on call duties.',
   'To be and remain contactable by telephone.',
   "That you agree to the recovery from your weekly wages, the weekly agreed amount of any advances or loans that have been made to you at the organisations sole discretion and that any outstanding amount may be recovered from your final weeks pay or remaining money in your 'Personal Holiday Fund'."
@@ -340,8 +340,8 @@ export const EmploymentContractPdf = ({
         sets out certain particulars of the terms and conditions which, in
         conjunction with the Staff Handbook, Policies & Procedures, Job
         Description and any other operating procedures, form part of the
-        Contract of Employment on which Everycare employs. In your employment,
-        Everycare is acting as an employment business.
+        Contract of Employment on which Medicare Link employs. In your employment,
+        Medicare Link is acting as an employment business.
       </Text>
 
       <View style={{ flexDirection: 'row', marginBottom: 4 }}>
@@ -391,7 +391,7 @@ export const EmploymentContractPdf = ({
             You are employed as a Health and Social Care Assistant/Health Care
             Assistant. As a predominantly domiciliary based worker you will
             organise your duties from your home base. You will not be entitled
-            to any expenses or payment from Everycare towards the operation of
+            to any expenses or payment from Medicare Link towards the operation of
             your home-based office.
           </Text>
         </View>
@@ -409,13 +409,13 @@ export const EmploymentContractPdf = ({
           <Text style={styles.bulletNumber}>4.</Text>
           <Text style={styles.bulletContent}>
             The duties of this post are specified in your job description which
-            accompanies these terms of employment. Everycare's full personnel
+            accompanies these terms of employment. Medicare Link's full personnel
             system is found in the Staff Handbooks and Policies & Procedures
             available on-line at{' '}
             <Text style={{ color: 'blue', textDecoration: 'underline' }}>
-              www.everycare.co.uk
+              www.medicarelink.co.uk
             </Text>
-            . Everycare reserves the right to require you to perform other
+            . Medicare Link reserves the right to require you to perform other
             duties and work in various locations or geographical areas from time
             to time and it is a condition of your employment that you are
             prepared to do this. You will not be required to work outside the UK
@@ -429,7 +429,7 @@ export const EmploymentContractPdf = ({
             Your salary will be paid at weekly intervals by credit transfer in
             arrears (except during public holiday weeks). Details of your salary
             level have been notified to you. You will be paid in respect of the
-            work that you have undertaken as instructed by Everycare whether or
+            work that you have undertaken as instructed by Medicare Link whether or
             not it is paid by the hirer in respect of that work.
           </Text>
         </View>
@@ -485,14 +485,14 @@ export const EmploymentContractPdf = ({
           <Text style={styles.bulletNumber}>9.</Text>
           <Text style={styles.bulletContent}>
             It is a condition of employment that you maintain a high level of
-            physical and mental fitness whilst employed by Everycare.
+            physical and mental fitness whilst employed by Medicare Link.
           </Text>
         </View>
 
         <View style={styles.bulletItem}>
           <Text style={styles.bulletNumber}>10.</Text>
           <Text style={styles.bulletContent}>
-            Everycare rules and personnel policies and procedures form part of
+            Medicare Link rules and personnel policies and procedures form part of
             your conditions of employment. It is your responsibility to
             familiarise yourself with these and observe them at all times.
           </Text>
@@ -505,9 +505,9 @@ export const EmploymentContractPdf = ({
             required to work for a minimum period of thirteen weeks under this
             contract. Failure to fulfil this requirement will render you liable
             to repay <Text style={styles.underlinedValue}>£100.00</Text> for
-            training costs to Everycare, which will be deducted from your final
+            training costs to Medicare Link, which will be deducted from your final
             salary and / or money in your personal holiday fund. The cost of any
-            future training will be covered by 'Everycare's Training Agreement'
+            future training will be covered by 'Medicare Link's Training Agreement'
             and dealt with similarly.
           </Text>
         </View>
@@ -516,11 +516,11 @@ export const EmploymentContractPdf = ({
           <Text style={styles.bulletNumber}>12.</Text>
           <Text style={styles.bulletContent}>
             All items loaned to you to assist in the carrying out of your duties
-            are the property of Everycare and must be returned on termination of
+            are the property of Medicare Link and must be returned on termination of
             your employment. The final week's salary and any amount of money in
-            your holiday fund will be held at the Everycare office for
-            collection upon the return of all Everycare property, settlement of
-            any money due in accordance with 'Everycare Training Agreements' and
+            your holiday fund will be held at the Medicare Link office for
+            collection upon the return of all Medicare Link property, settlement of
+            any money due in accordance with 'Medicare Link Training Agreements' and
             repayment of any loans or wages advances made at the organisation's
             sole discretion.
           </Text>
@@ -537,11 +537,11 @@ export const EmploymentContractPdf = ({
         <View style={styles.bulletItem}>
           <Text style={styles.bulletNumber}>14.</Text>
           <Text style={styles.bulletContent}>
-            If whilst an employee of the Everycare company at the head of this
+            If whilst an employee of the Medicare Link company at the head of this
             contract you take up employment with another private health & social
-            care organisation, you must inform Everycare immediately. If you
-            enter into any private arrangement to provide services to an
-            Everycare Service User disciplinary action may be considered against
+            care organisation, you must inform Medicare Link immediately. If you
+            enter into any private arrangement to provide services to a
+            Medicare Link Service User disciplinary action may be considered against
             you which may include dismissal.
           </Text>
         </View>
@@ -555,11 +555,11 @@ export const EmploymentContractPdf = ({
             whatsoever, you will not, whether directly or indirectly as
             principal, agent, employee, director, partner or otherwise howsoever
             approach any individual or organisation who has during your period
-            of employment been a customer of an Everycare Franchise or of
-            Everycare (UK) Limited, if the purpose for such an approach is to
+            of employment been a customer of a Medicare Link Franchise or of
+            Medicare Link (UK) Limited, if the purpose for such an approach is to
             solicit business which could have been undertaken by them. Neither
             shall you set up a business in any capacity, in direct competition
-            with an Everycare Franchise or Everycare (UK) Limited within a{' '}
+            with a Medicare Link Franchise or Medicare Link (UK) Limited within a{' '}
             <Text style={styles.underlinedValue}>5 mile</Text> radius of any of
             their 'Territories' or duties, within the same{' '}
             <Text style={styles.underlinedValue}>12 month</Text> period.
@@ -622,9 +622,9 @@ export const EmploymentContractPdf = ({
       <Text style={[styles.paragraph, { marginTop: 6 }]}>
         I give an undertaking that I am able to satisfy all the above conditions
         and agree to all the terms imposed above as a condition of my employment
-        with Everycare. Should it prove that I have made any false statement
+        with Medicare Link. Should it prove that I have made any false statement
         relative to the above, I accept that this may result in the exercise of
-        Everycare's Disciplinary & Dismissal Policy.
+        Medicare Link's Disciplinary & Dismissal Policy.
       </Text>
 
       {/* SIGNATURE SECTION - no section labels */}

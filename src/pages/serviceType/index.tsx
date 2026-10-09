@@ -210,7 +210,7 @@ export default function ServiceTypePage() {
                     </div>
                   </TableCell>
                   <TableCell className="text-center">
-                    <Button size="icon" onClick={() => handleEdit(serviceType)}>
+                    <Button className="border border-solid border-black bg-black text-white hover:bg-black/90 hover:text-white" size="icon" onClick={() => handleEdit(serviceType)}>
                       <Pen className="h-3.5 w-3.5" />
                     </Button>
                   </TableCell>

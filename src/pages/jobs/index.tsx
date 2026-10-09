@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Plus, Pen, MoveLeft, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
 import {
   Table,
   TableBody,
@@ -251,13 +252,23 @@ export default function JobPage() {
                     </Button>
                   </TableCell>
                   <TableCell className="text-center">
-                    <Switch
-                      checked={job.status == 1}
-                      onCheckedChange={(checked) =>
-                        handleStatusChange(job._id, checked)
-                      }
-                      className="mx-auto"
-                    />
+                    <div className="flex items-center justify-center gap-2">
+                      <Switch
+                        checked={job.status == 1}
+                        onCheckedChange={(checked) =>
+                          handleStatusChange(job._id, checked)
+                        }
+                      />
+                      {job.status == 1 ? (
+                        <Badge className="bg-green-500 text-white hover:bg-green-500">
+                          Active
+                        </Badge>
+                      ) : (
+                        <Badge className="bg-red-500 text-white hover:bg-red-500">
+                          Inactive
+                        </Badge>
+                      )}
+                    </div>
                   </TableCell>
                   <TableCell className="flex flex-row items-center justify-center gap-4 text-center">
                     <Button
@@ -270,7 +281,7 @@ export default function JobPage() {
                     </Button>
                     <Button
                       variant="ghost"
-                      className="border-none bg-watney text-white hover:bg-watney/90"
+                      className="border border-solid border-black bg-black text-white hover:bg-black/90 hover:text-white"
                       size="icon"
                       onClick={() => handleEdit(job)}
                     >

@@ -425,7 +425,7 @@ export default function DocumentPage() {
                         <Button
                           size="icon"
                           onClick={(e) => { e.stopPropagation(); handleOpenEdit(doc); }}
-                          className="h-8 w-8"
+                          className="h-8 w-8 border border-solid border-black bg-black text-white hover:bg-black/90 hover:text-white"
                           title="Edit Document"
                         >
                           <Pencil className="h-4 w-4" />

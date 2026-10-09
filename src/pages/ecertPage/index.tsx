@@ -311,7 +311,7 @@ export default function EcertsPage() {
                             <TooltipTrigger asChild>
                               <Button
                                 variant="default"
-                                className="h-8 w-8"
+                                className="h-8 w-8 border border-solid border-black bg-black text-white hover:bg-black/90 hover:text-white"
                                 size="icon"
                                 onClick={() => handleEdit(ecert)}
                               >

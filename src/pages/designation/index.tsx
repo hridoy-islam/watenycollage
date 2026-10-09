@@ -167,7 +167,7 @@ export default function DesignationPage() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <Button
+                      <Button className="border border-solid border-black bg-black text-white hover:bg-black/90 hover:text-white"
                         size="icon"
                         onClick={() => openEditDialog(designation)}
                       >

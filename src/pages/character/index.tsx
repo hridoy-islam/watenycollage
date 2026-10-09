@@ -751,10 +751,10 @@ export default function CareerApplicationForm() {
   //                 <span className="text-xl">📧</span>
   //                 <strong>Email:</strong>
   //                 <a
-  //                   href="mailto:info@everycare.co.uk"
+  //                   href="mailto:info@medicarelink.co.uk"
   //                   className="underline hover:text-white transition-colors"
   //                 >
-  //                   info@everycare.co.uk
+  //                   info@medicarelink.co.uk
   //                 </a>
   //               </li>
   //               <li className="flex items-center justify-center gap-3 rounded-lg py-2 px-4 ">

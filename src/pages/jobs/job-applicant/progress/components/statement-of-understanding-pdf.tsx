@@ -99,7 +99,7 @@ export const StatementOfUnderstandingPdf = ({
       </Text>
 
       {/* Company Name */}
-      <Text style={styles.companyName}>EVERYCARE ROMFORD</Text>
+      <Text style={styles.companyName}>MEDICARE LINK</Text>
 
       {/* Stacked Signature Fields on Left */}
       <View style={styles.signatureSection}>

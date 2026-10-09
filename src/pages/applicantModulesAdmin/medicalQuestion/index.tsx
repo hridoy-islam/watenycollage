@@ -294,7 +294,7 @@ export default function AdminMedicalForm() {
                 <MoveLeft className="h-4 w-4 mr-2" />
                 Back
               </Button>
-              <Button
+              <Button className="border border-solid border-black bg-black text-white hover:bg-black/90 hover:text-white"
                 onClick={() => navigate('edit')}
                 >
                 <Pen className="h-4 w-4 mr-2" />

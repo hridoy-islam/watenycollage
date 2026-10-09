@@ -89,7 +89,7 @@ export function DBSFormTab({ userId }: Props) {
           <CardTitle className="text-lg font-semibold">DBS Certificate Details</CardTitle>
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Submitted</Badge>
-            <Button size="sm" variant="outline" onClick={() => navigate(`/dashboard/recruitment/admin/dbs-form/${userId}/edit`)}>
+            <Button className="border border-solid border-black bg-black text-white hover:bg-black/90 hover:text-white" size="sm" variant="outline" onClick={() => navigate(`/dashboard/recruitment/admin/dbs-form/${userId}/edit`)}>
               <Pen className="mr-1 h-3 w-3" /> Edit
             </Button>
             <PDFDownloadLink

@@ -264,9 +264,9 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
     basicVariables.forEach((variable) => {
       let value = ""
       if (variable === "admin") {
-        value = "Everycare Romford"
+        value = "Medicare Link"
       } else if (variable === "adminEmail") {
-        value = "admin@everycareromford.co.uk"
+        value = "info@medicarelink.co.uk"
       } else {
         value = applicant?.[variable] || ""
         if (variable === "name") {
@@ -1350,7 +1350,7 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
             {previewData && (
               <PDFViewer width="100%" height="100%" className="border-0">
                 <EmailPDF
-                  fromEmail="admin@everycareromford.co.uk"
+                  fromEmail="info@medicarelink.co.uk"
                   toEmail={previewData.email || application?.email}
                   sentDate={previewData.sentDate}
                   subject={previewData.subject}
@@ -1368,7 +1368,7 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
               <PDFDownloadLink
                 document={
                   <EmailPDF
-                    fromEmail="admin@everycareromford.co.uk"
+                    fromEmail="info@medicarelink.co.uk"
                     toEmail={previewData.email || application?.email}
                     sentDate={previewData.sentDate}
                     subject={previewData.subject}

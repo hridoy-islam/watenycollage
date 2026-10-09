@@ -181,7 +181,7 @@ export default function ServiceUserAssessmentPage() {
                       variant="ghost"
                       size="icon"
                       onClick={() => navigate(`${assessment._id}/edit`)}
-                      className="bg-watney text-white hover:bg-watney/90"
+                      className="border border-solid border-black bg-black text-white hover:bg-black/90 hover:text-white"
                     >
                       <Pen className="h-4 w-4" />
                     </Button>

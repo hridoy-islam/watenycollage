@@ -2519,11 +2519,11 @@ export const RiskAssessmentTab: React.FC = () => {
           {/* 4B. Agreed Action Service User */}
           <div className="space-y-2">
             <Label className="text-sm">
-              4B. AGREED ACTION: BY EVERYCARE NEEDED TO MINIMISE THE RISKS TO
+              4B. AGREED ACTION: BY MEDICARE LINK NEEDED TO MINIMISE THE RISKS TO
               SERVICE USER LISTED IN 4A ABOVE
             </Label>
             <h1 className="text-sm">
-              Everycare Romford will ensure that S/u’s care package needs are
+              Medicare Link will ensure that S/u’s care package needs are
               met accordingly. Carer to ensure that the S/u is safe in the
               premises. Carer to ensure that S/u is free from any risk of harm.
               Carer to ensure they follow all the Govt guideline with PPE and
@@ -2639,7 +2639,7 @@ export const RiskAssessmentTab: React.FC = () => {
           {/* 4D. Agreed Action Workers */}
           <div className="space-y-2">
             <Label className="text-sm">
-              4D. AGREED ACTION:BY EVERYCARE NEEDED TO MINIMISE THE RISKS TO
+              4D. AGREED ACTION:BY MEDICARE LINK NEEDED TO MINIMISE THE RISKS TO
               HEALTH & SOCIAL CARE WORKERS LISTED IN 4C ABOVE
             </Label>
             <Textarea
@@ -2656,7 +2656,7 @@ export const RiskAssessmentTab: React.FC = () => {
               RISKS ASSOCIATED WITH CLIENT'S BEHAVIOUR / CRIMINAL HISTORY
             </h4>
             <p className="text-center text-xs font-semibold ">
-              THIS SECTION IS CONFIDENTIAL TO THE STAFF OF EVERYCARE & MUST
+              THIS SECTION IS CONFIDENTIAL TO THE STAFF OF MEDICARE LINK & MUST
               NEVER FORM PART OF THE SERVICE USER'S HOUSE FILE
             </p>
             <p className="text-center text-xs font-semibold ">
@@ -5323,7 +5323,7 @@ export const RiskAssessmentTab: React.FC = () => {
                 to be used; valid tax, insurance certificate (explicitly stating
                 that the car can be used for business purposes), MOT
                 certificate/registration document must be seen, verified,
-                photocopied and expiry dates entered onto Everycare database.
+                photocopied and expiry dates entered onto Medicare Link database.
               </p>
             </div>
           </div>
@@ -5539,7 +5539,7 @@ export const RiskAssessmentTab: React.FC = () => {
                     I certify that I have discussed the risks identified and
                     action to minimise and manage the risks with the service
                     user, their carer, relative or representative (as
-                    appropriate) and Everycare staff. Further, a moving &
+                    appropriate) and Medicare Link staff. Further, a moving &
                     handling assessment has been carried out and the highlighted
                     action is required to comply with the Manual Handling
                     Regulations (Operations), 1992.

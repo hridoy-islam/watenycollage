@@ -69,7 +69,7 @@ export function SignatureField({
             alt={label}
             className="h-16 rounded border border-gray-300 bg-white object-contain"
           />
-          <Button
+          <Button className="border border-solid border-black bg-black text-white hover:bg-black/90 hover:text-white"
             type="button"
             size="sm"
             variant="outline"

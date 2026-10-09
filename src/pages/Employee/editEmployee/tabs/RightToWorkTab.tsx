@@ -770,7 +770,7 @@ function RightToWorkTab() {
                             </div>
                           </TableCell>
                           <TableCell className="text-right">
-                            <Button
+                            <Button className="border border-solid border-black bg-black text-white hover:bg-black/90 hover:text-white"
                               size={'icon'}
                               variant={'outline'}
                               onClick={() => openEditLogModal(entry)}

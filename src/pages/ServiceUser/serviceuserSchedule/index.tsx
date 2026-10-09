@@ -600,7 +600,7 @@ export default function ServiceUserTask() {
                       <div className="flex gap-1">
                         <button
                           onClick={() => editVisit(weekday.key, visit)}
-                          className="rounded-md p-1.5 text-gray-400 transition-colors hover:bg-watney/10 hover:text-theme"
+                          className="rounded-md p-1.5 transition-colors border border-solid border-black bg-black text-white hover:bg-black/90 hover:text-white"
                           title="Edit Visit"
                         >
                           <Edit className="h-6 w-6" />

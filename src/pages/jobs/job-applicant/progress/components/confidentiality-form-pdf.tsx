@@ -89,8 +89,8 @@ const HeaderComponent = () => (
 const bulletPoints = [
   'Mention another service user or member of staff, even their name in front of another person other than in the course of the performance of their duties.',
   'Discuss another member of staff or anything that another member of staff has done with any other person other than in the course of the performance of their duties.',
-  'Discuss anything that goes on in the Everycare office with any other person other than in the course of the performance of their duties.',
-  'No employee should place any comment or information (whether specific or implied) on social networking sites that could be misunderstood or misinterpreted by any person (whether or not they are associated with Everycare or its associated companies or franchised offices) that would reflect in any way on Everycare, its Business, Directors, Managers, Employees or Service Users. A breach of this may constitute gross misconduct.',
+  'Discuss anything that goes on in the Medicare Link office with any other person other than in the course of the performance of their duties.',
+  'No employee should place any comment or information (whether specific or implied) on social networking sites that could be misunderstood or misinterpreted by any person (whether or not they are associated with Medicare Link or its associated companies or franchised offices) that would reflect in any way on Medicare Link, its Business, Directors, Managers, Employees or Service Users. A breach of this may constitute gross misconduct.',
 ];
 
 interface ConfidentialityFormPdfProps {
@@ -107,11 +107,11 @@ export const ConfidentialityFormPdf = ({ name, signatureUrl, createdAt }: Confid
       <Text style={styles.title}>Confidentiality Undertaking</Text>
 
       <Text style={styles.paragraph}>
-        In accordance with the Care Standards & Data Protection Acts and Everycare's Policies & Procedures, staff must respect and treat in complete confidence and in the best interests of the service user all information given by service users or their representatives.
+        In accordance with the Care Standards & Data Protection Acts and Medicare Link's Policies & Procedures, staff must respect and treat in complete confidence and in the best interests of the service user all information given by service users or their representatives.
       </Text>
 
       <Text style={styles.paragraph}>
-        Service users and their relatives or representatives know that their personal information is handled appropriately and that their personal confidences are respected. In addition, service users have summaries of Everycare's policies and procedures on confidentiality which specifies the circumstances under which confidentiality may be breached and includes the process for dealing with inappropriate breaches of confidentiality.
+        Service users and their relatives or representatives know that their personal information is handled appropriately and that their personal confidences are respected. In addition, service users have summaries of Medicare Link's policies and procedures on confidentiality which specifies the circumstances under which confidentiality may be breached and includes the process for dealing with inappropriate breaches of confidentiality.
       </Text>
 
       <Text style={styles.paragraph}>
@@ -133,7 +133,7 @@ export const ConfidentialityFormPdf = ({ name, signatureUrl, createdAt }: Confid
       </View>
 
       <Text style={styles.paragraph}>
-        If it comes to Everycare's attention that any of the above has been breached, the offending member of staff will be subject to disciplinary procedures.
+        If it comes to Medicare Link's attention that any of the above has been breached, the offending member of staff will be subject to disciplinary procedures.
       </Text>
 
       <Text style={styles.paragraph}>
@@ -141,7 +141,7 @@ export const ConfidentialityFormPdf = ({ name, signatureUrl, createdAt }: Confid
       </Text>
 
       <Text style={styles.paragraph}>
-        I give an undertaking not to disclose anything about any service user, a service user's establishment, a member of staff to any other person or outsider, including the name or address of a service user, other than in the course of your duties. I undertake to maintain the strictest confidentiality in all matters related to Everycare and to abide by all the instructions contained in the Everycare Confidentiality Policy, both during the time of my employment at Everycare and after I have left.
+        I give an undertaking not to disclose anything about any service user, a service user's establishment, a member of staff to any other person or outsider, including the name or address of a service user, other than in the course of your duties. I undertake to maintain the strictest confidentiality in all matters related to Medicare Link and to abide by all the instructions contained in the Medicare Link Confidentiality Policy, both during the time of my employment at Medicare Link and after I have left.
       </Text>
 
       <View style={styles.signatureSection}>

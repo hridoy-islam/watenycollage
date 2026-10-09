@@ -294,7 +294,7 @@ export default function ConsentPage() {
                       )}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button size="icon" onClick={(e) => handleEdit(e, form)}>
+                      <Button className="border border-solid border-black bg-black text-white hover:bg-black/90 hover:text-white" size="icon" onClick={(e) => handleEdit(e, form)}>
                         <Pen className="h-5 w-5" />
                         <span className="sr-only">Edit</span>
                       </Button>
@@ -437,7 +437,7 @@ export default function ConsentPage() {
                 </div>
 
                 <div className="flex justify-end pt-4">
-                  <Button
+                  <Button className="border border-solid border-black bg-black text-white hover:bg-black/90 hover:text-white"
                     onClick={(e) => {
                       setIsDialogOpen(false);
                       handleEdit(e as any, selectedRecord);

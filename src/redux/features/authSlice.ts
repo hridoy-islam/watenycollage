@@ -192,14 +192,16 @@ export const changePassword = createAsyncThunk<
   ChangePasswordResponse,
   ChangePasswordCredentials
 >('auth/reset', async (userCredentials) => {
+  const { token, ...payload } = userCredentials;
   const request = await axios.patch(
     `${import.meta.env.VITE_API_URL}/auth/reset`,
-    userCredentials,
+    payload,
     {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json', //this line solved cors
-        // Authorization: `Bearer ${userCredentials.token}`
+        // The reset token from /auth/validate proves the OTP was verified
+        Authorization: `Bearer ${token}`
       }
     }
   );

@@ -259,7 +259,7 @@ export default function NeedPage() {
                       <div className="flex items-center justify-center gap-2">
                         <Button
                           variant="ghost"
-                          className="border-none bg-watney text-white hover:bg-watney/90"
+                          className="border border-solid border-black bg-black text-white hover:bg-black/90 hover:text-white"
                           size="icon"
                           onClick={() => handleEdit(group)}
                         >
@@ -288,7 +288,7 @@ export default function NeedPage() {
                         <div className="flex items-center justify-center gap-2">
                           <Button
                             variant="ghost"
-                            className="border-none bg-watney text-white hover:bg-watney/90"
+                            className="border border-solid border-black bg-black text-white hover:bg-black/90 hover:text-white"
                             size="icon"
                             onClick={() => handleEdit(child)}
                           >

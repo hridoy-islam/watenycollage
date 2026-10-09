@@ -423,7 +423,7 @@ export default function EditCapacityFormPage() {
                                 {cap.title}
                               </label>
                             </div>
-                            <Button
+                            <Button className="border border-solid border-black bg-black text-white hover:bg-black/90 hover:text-white"
                               size="icon"
                               variant="ghost"
                               onClick={(e) => {
@@ -432,7 +432,7 @@ export default function EditCapacityFormPage() {
                                 setEditTitle(cap.title);
                               }}
                             >
-                              <Edit2 className="h-4 w-4 text-muted-foreground" />
+                              <Edit2 className="h-4 w-4" />
                             </Button>
                           </>
                         )}

@@ -1586,7 +1586,7 @@ function FieldRenderer({
               size="sm"
               variant="outline"
               onClick={onUpdate}
-              className="border-gray-300"
+              className="border border-solid border-black bg-black text-white hover:bg-black/90 hover:text-white"
             >
               <Pencil className="mr-1 h-4 w-4" /> Update Signature
             </Button>

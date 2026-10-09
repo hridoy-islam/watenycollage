@@ -906,9 +906,9 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
               and accurate and that none of the information requested or other
               material information has been omitted. I accept that if it is
               discovered that I have supplied false, inaccurate or misleading
-              information, Everycare Romford reserves the right to cancel my
+              information, Medicare Link reserves the right to cancel my
               application, withdraw its offer of a place or terminate attendance
-              at the College and I shall have no claim against Everycare Romford in
+              at the College and I shall have no claim against Medicare Link in
               relation thereto.
             </Text>
           </View>
@@ -919,7 +919,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
           <CheckboxView checked={data.dataProcessingAccepted} />
           <View style={{ marginLeft: 6, flex: 1 }}>
             <Text>
-              I consent to Everycare Romford processing my personal data for purposes
+              I consent to Medicare Link processing my personal data for purposes
               related to my application, studies, health and safety, and
               compliance with College policies. This includes academic
               performance, learning support, disciplinary matters, CCTV usage, ID

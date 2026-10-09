@@ -231,7 +231,7 @@ export default function EditStatementOfUnderstanding() {
 
                   <p>I hereby confirm that I have received, read and understand the Medication Policy of</p>
 
-                  <p className="text-lg font-bold text-gray-900">EVERYCARE ROMFORD</p>
+                  <p className="text-lg font-bold text-gray-900">MEDICARE LINK</p>
                 </div>
               </div>
             </div>
@@ -254,7 +254,7 @@ export default function EditStatementOfUnderstanding() {
                         className="h-16 rounded border border-gray-300 bg-white object-contain"
                       />
                       <div className="flex flex-wrap gap-2">
-                        <Button
+                        <Button className="border border-solid border-black bg-black text-white hover:bg-black/90 hover:text-white"
                           type="button"
                           variant="outline"
                           size="sm"

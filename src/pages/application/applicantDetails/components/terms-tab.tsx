@@ -61,7 +61,7 @@ export function TermTab({ application, applicationJob, renderFieldRow }: TermTab
                   download can sit next to the response */}
               <TableRow className="hover:bg-muted/10">
                 <TableCell className="font-medium">
-                  I authorize Everycare Romford to contact my referees as part of the recruitment process
+                  I authorize Medicare Link to contact my referees as part of the recruitment process
                 </TableCell>
                 <TableCell className="text-left">
                   <div className="flex items-center gap-3">

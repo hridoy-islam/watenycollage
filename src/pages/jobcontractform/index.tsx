@@ -60,8 +60,8 @@ export default function JobContractForm() {
       postalPostCode: applicant.postalPostCode || '',
       postalCountry: applicant.postalCountry || '',
       availableFromDate: applicant.availableFromDate ? format(new Date(applicant.availableFromDate), 'dd/MM/yyyy') : '',
-      admin: 'Everycare Romford',
-      adminEmail: 'admin@everycareromford.co.uk',
+      admin: 'Medicare Link',
+      adminEmail: 'info@medicarelink.co.uk',
       userSignature: '',
     };
   }, [applicant, todayDate, appJobData]);
@@ -421,7 +421,7 @@ export default function JobContractForm() {
                     className="h-16 rounded border border-gray-300 bg-white object-contain"
                   />
                   <div className="flex flex-wrap gap-2">
-                    <Button
+                    <Button className="border border-solid border-black bg-black text-white hover:bg-black/90 hover:text-white"
                       type="button"
                       size="sm"
                       onClick={() => {

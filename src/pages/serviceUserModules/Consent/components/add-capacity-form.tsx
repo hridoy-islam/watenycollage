@@ -320,7 +320,7 @@ export default function AddCapacityFormPage() {
                               <Checkbox id={cap._id} checked={selectedCapacityId === cap._id} onCheckedChange={(checked) => setSelectedCapacityId(checked ? cap._id : null)} />
                               <label htmlFor={cap._id} className="pointer-events-none cursor-pointer truncate text-sm font-medium">{cap.title}</label>
                             </div>
-                            <Button size="icon"  onClick={(e) => { e.stopPropagation(); setEditingId(cap._id); setEditTitle(cap.title); }}>
+                            <Button className="border border-solid border-black bg-black text-white hover:bg-black/90 hover:text-white" size="icon"  onClick={(e) => { e.stopPropagation(); setEditingId(cap._id); setEditTitle(cap.title); }}>
                               <Edit2 className="h-4 w-4" />
                             </Button>
                           </>

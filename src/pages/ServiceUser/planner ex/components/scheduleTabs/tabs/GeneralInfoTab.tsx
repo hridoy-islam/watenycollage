@@ -329,7 +329,7 @@ const GeneralInfoTab: React.FC<GeneralInfoTabProps> = ({
             value={formData.branch}
             type="select"
             options={[
-              { value: 'Everycare Romford', label: 'Everycare Romford' }
+              { value: 'Medicare Link', label: 'Medicare Link' }
             ]}
             onUpdate={(val) => onSelectChange('branch', val)}
             isSaving={isFieldSaving.branch}
@@ -391,7 +391,7 @@ const GeneralInfoTab: React.FC<GeneralInfoTabProps> = ({
             value={formData.employeeBranch}
             type="select"
             options={[
-              { value: 'Everycare Romford', label: 'Everycare Romford' }
+              { value: 'Medicare Link', label: 'Medicare Link' }
             ]}
             onUpdate={(val) => onSelectChange('employeeBranch', val)}
             isSaving={isFieldSaving.employeeBranch}

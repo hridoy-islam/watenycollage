@@ -709,7 +709,7 @@ passportExpiryDate: new Date(
                                   <span className="text-gray-300">-</span>
                                 )}
                                 </div>
-                                  <Button
+                                  <Button className="border border-solid border-black bg-black text-white hover:bg-black/90 hover:text-white"
                                   variant="outline"
                                   size="icon"
                                   onClick={() => openEditLogModal(entry)}

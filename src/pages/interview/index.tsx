@@ -486,7 +486,7 @@ export default function InterviewAssessmentPage() {
                   type="button"
                   size="sm"
                   variant="outline"
-                  className="w-full bg-watney text-white hover:bg-watney/90 sm:w-auto"
+                  className="w-full sm:w-auto border border-solid border-black bg-black text-white hover:bg-black/90 hover:text-white"
                   onClick={() => setIsEditing(true)}
                 >
                   <Pencil className="mr-1 h-4 w-4" />
@@ -961,7 +961,7 @@ export default function InterviewAssessmentPage() {
                             className="h-16 max-w-md rounded border border-gray-200"
                           />
                           {isEditing && (
-                            <Button
+                            <Button className="border border-solid border-black bg-black text-white hover:bg-black/90 hover:text-white"
                               type="button"
                               size="sm"
                               variant="outline"

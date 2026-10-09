@@ -792,7 +792,7 @@ function SpotCheckTab() {
                             </div>
                           </TableCell>
                           <TableCell className="text-right">
-                            <Button size={'icon'} variant={'outline'} onClick={() => openEditLogModal(entry)}>
+                            <Button className="border border-solid border-black bg-black text-white hover:bg-black/90 hover:text-white" size={'icon'} variant={'outline'} onClick={() => openEditLogModal(entry)}>
                               <Pen className='w-4 h-4' />
                             </Button>
                           </TableCell>

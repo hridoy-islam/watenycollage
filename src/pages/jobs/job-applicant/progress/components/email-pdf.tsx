@@ -80,7 +80,7 @@ interface PDFProps {
 }
 
 export function EmailPDF({
-  fromEmail = "admin@everycareromford.co.uk",
+  fromEmail = "info@medicarelink.co.uk",
   toEmail = "",
   sentDate,
   subject = "",
@@ -177,7 +177,7 @@ export function EmailPDF({
           <Text>
             This email and its attachments may be confidential and are intended solely for the use of the individual to
             whom it is addressed. Any views or opinions expressed are solely those of the author and do not necessarily
-            represent those of Everycare. Access, disclosure, copying, distribution, or reliance on any of it by anyone
+            represent those of Medicare Link. Access, disclosure, copying, distribution, or reliance on any of it by anyone
             outside the intended recipient organisation is prohibited.
           </Text>
         </View>

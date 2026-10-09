@@ -643,7 +643,7 @@ const TrainingDetailsPage: React.FC = () => {
               Complete
             </Button>
           )}
-          <Button variant="outline" size={'sm'} onClick={onEdit}>
+          <Button className="border border-solid border-black bg-black text-white hover:bg-black/90 hover:text-white" variant="outline" size={'sm'} onClick={onEdit}>
             Edit
           </Button>
         </div>

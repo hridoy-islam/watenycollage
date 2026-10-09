@@ -266,7 +266,7 @@ export default function ServiceUserNeedPage() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="bg-watney text-white hover:bg-watney/90"
+                          className="border border-solid border-black bg-black text-white hover:bg-black/90 hover:text-white"
                           onClick={() => handleOpenEdit(item)}
                         >
                           <Pen className="h-4 w-4" />

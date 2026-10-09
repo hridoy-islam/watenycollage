@@ -130,7 +130,7 @@ export default function AdminBankDetails() {
               </Button>
               <Button
                 onClick={() => navigate('edit')}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 border border-solid border-black bg-black text-white hover:bg-black/90 hover:text-white"
               >
                 <Pen className="h-4 w-4 mr-2" />
                 Edit

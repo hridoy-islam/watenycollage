@@ -460,7 +460,7 @@ return (
       </Button>
       <div className="font-semibold">{applicationJob?.jobId?.jobTitle}</div>
       <div className="flex flex-row items-center  gap-4">
-      <Button className="bg-watney text-white hover:bg-watney/90" onClick={() => navigate(`edit`)}>
+      <Button className="border border-solid border-black bg-black text-white hover:bg-black/90 hover:text-white" onClick={() => navigate(`edit`)}>
         Edit
       </Button>
       <Button className="bg-watney text-white hover:bg-watney/90" onClick={() => setRecruitDialogOpen(true)}>

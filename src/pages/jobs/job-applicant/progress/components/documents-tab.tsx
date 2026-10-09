@@ -396,7 +396,7 @@ export function DocumentsTab({ application, userId, onUpdate }: DocumentsTabProp
                               ))}
                               
                               {/* Update Button */}
-                              <Button
+                              <Button className="border border-solid border-black bg-black text-white hover:bg-black/90 hover:text-white"
                                 size="sm"
                                 variant={'outline'}
                                 onClick={() => handleOpenDialog(doc.id)}

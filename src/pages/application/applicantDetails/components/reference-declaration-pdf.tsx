@@ -93,7 +93,7 @@ export const ReferenceDeclarationPdf = ({
 
       <Text style={styles.bodyParagraph}>
         I, <Text style={styles.nameValue}>{name || DOTS}</Text> hereby authorize
-        Everycare Romford to contact the mentioned referees to avail my reference
+        Medicare Link to contact the mentioned referees to avail my reference
         as a part of the recruitment process.
       </Text>
 

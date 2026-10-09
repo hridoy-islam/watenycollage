@@ -359,8 +359,8 @@ export default function EditConsentFormPage() {
                                 {consent.title}
                               </label>
                             </div>
-                            <Button size="icon" variant="ghost" onClick={(e) => { e.stopPropagation(); setEditingId(consent._id); setEditTitle(consent.title); }}>
-                              <Edit2 className="h-4 w-4 text-muted-foreground" />
+                            <Button className="border border-solid border-black bg-black text-white hover:bg-black/90 hover:text-white" size="icon" variant="ghost" onClick={(e) => { e.stopPropagation(); setEditingId(consent._id); setEditTitle(consent.title); }}>
+                              <Edit2 className="h-4 w-4" />
                             </Button>
                           </>
                         )}

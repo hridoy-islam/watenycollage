@@ -6,49 +6,49 @@ export const serviceUsers: ServiceUser[] = [
     name: 'Avis, Louise',
     initials: 'LA',
     type: 'Individual',
-    care: 'Everycare Romford, Care'
+    care: 'Medicare Link, Care'
   },
   {
     id: '2',
     name: 'Begum, Jafara (Jafara)',
     initials: 'JB',
     type: 'Individual',
-    care: 'Everycare Romford, Care'
+    care: 'Medicare Link, Care'
   },
   {
     id: '3',
     name: 'Begum, Saleha (Saleha)',
     initials: 'SB',
     type: 'Individual',
-    care: 'Everycare Romford, Care'
+    care: 'Medicare Link, Care'
   },
   {
     id: '4',
     name: 'Bhatt, Jyoti Champakial (Jyo)',
     initials: 'JB',
     type: 'Individual',
-    care: 'Everycare Romford, Care'
+    care: 'Medicare Link, Care'
   },
   {
     id: '5',
     name: 'Bhatt, Yogita (Yogita Bhatt)',
     initials: 'YB',
     type: 'Individual',
-    care: 'Everycare Romford, Care'
+    care: 'Medicare Link, Care'
   },
   {
     id: '6',
     name: 'Choudhuri, Ambia khanam (J)',
     initials: 'AC',
     type: 'Individual',
-    care: 'Everycare Romford, Care'
+    care: 'Medicare Link, Care'
   },
   {
     id: '7',
     name: 'De Horne-Rowland, Robert (R)',
     initials: 'RD',
     type: 'Individual',
-    care: 'Everycare Romford, Care'
+    care: 'Medicare Link, Care'
   }
 ];
 
@@ -58,49 +58,49 @@ export const employees: Employee[] = [
     name: 'Ahmjane, Zahra',
     initials: 'ZA',
     role: 'Care Worker',
-    care: 'Everycare Romford, Care'
+    care: 'Medicare Link, Care'
   },
   {
     id: '9',
     name: 'Akter, Amena (Amena Akter Anu)',
     initials: 'AA',
     role: 'HCA',
-    care: 'Everycare Romford, Care'
+    care: 'Medicare Link, Care'
   },
   {
     id: '10',
     name: 'AKTER, FARHANA',
     initials: 'FA',
     role: 'Care Worker',
-    care: 'Everycare Romford, Care'
+    care: 'Medicare Link, Care'
   },
   {
     id: '11',
     name: 'Akter, Nahida (Nahida)',
     initials: 'NA',
     role: 'Care Worker',
-    care: 'Everycare Romford, Care'
+    care: 'Medicare Link, Care'
   },
   {
     id: '12',
     name: 'Akter, Sharmin',
     initials: 'SA',
     role: 'Care Worker',
-    care: 'Everycare Romford, Care'
+    care: 'Medicare Link, Care'
   },
   {
     id: '13',
     name: 'Akter, Shirin',
     initials: 'SA',
     role: 'Care Worker',
-    care: 'Everycare Romford, Care'
+    care: 'Medicare Link, Care'
   },
   {
     id: '14',
     name: 'Akter, Tahima (Tahima)',
     initials: 'TA',
     role: 'Care Worker',
-    care: 'Everycare Romford, Care'
+    care: 'Medicare Link, Care'
   }
 ];
 

@@ -99,8 +99,8 @@ const applicationDetailsSchema = z
     }),
     travelAreas: z.string().min(1, { message: 'Please specify travel areas' }),
     solelyForEverycare: z.boolean({
-      required_error: 'Please select if you will work solely for Everycare',
-      invalid_type_error: 'Please select if you will work solely for Everycare'
+      required_error: 'Please select if you will work solely for Medicare Link',
+      invalid_type_error: 'Please select if you will work solely for Medicare Link'
     }),
     otherEmployers: z.string().optional(),
     professionalBody: z.boolean({
@@ -536,7 +536,7 @@ useEffect(() => {
                 )}
               />
 
-              {/* Solely for Everycare */}
+              {/* Solely for Medicare Link */}
               <FormField
                 control={form.control}
                 name="solelyForEverycare"

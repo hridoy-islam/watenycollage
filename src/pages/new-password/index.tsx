@@ -66,7 +66,8 @@ export default function NewPassword() {
     const result: any = await dispatch(
       changePassword({
         password: data.password,
-        userId: userData._id
+        userId: userData._id,
+        token: userData.token
       })
     );
     if (result?.payload?.success) {

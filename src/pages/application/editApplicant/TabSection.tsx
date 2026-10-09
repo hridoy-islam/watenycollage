@@ -49,7 +49,7 @@ const TabSection = ({
           ) : (
             <button
               onClick={onEdit}
-              className="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-watney focus:ring-offset-2"
+              className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium leading-4 transition-colors focus:outline-none focus:ring-2 focus:ring-watney focus:ring-offset-2 border border-solid border-black bg-black text-white hover:bg-black/90 hover:text-white"
             >
               <Edit2 size={16} className="mr-1" />
               Edit

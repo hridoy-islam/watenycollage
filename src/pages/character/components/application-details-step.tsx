@@ -458,7 +458,7 @@ export function ApplicationDetailsStep({
                 )}
               />
 
-              {/* Solely for Everycare */}
+              {/* Solely for Medicare Link */}
               <FormField
                 control={form.control}
                 name="solelyForEverycare"

@@ -742,7 +742,7 @@ S.M.A.R.T Goals for areas to focus on            </h3>
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-end gap-2">
-                          <Button
+                          <Button className="border border-solid border-black bg-black text-white hover:bg-black/90 hover:text-white"
                             onClick={() => openEdit(item)}
                             variant="outline"
                             size="icon"

@@ -538,7 +538,7 @@ const HolidayTab: React.FC<HolidayTabProps> = ({ formData }) => {
                   <Users className="h-5 w-5 text-green-600" />
                   Leave Allowance
                 </div>
-                <Button size="sm" onClick={handleOpenEditDialog}>
+                <Button className="border border-solid border-black bg-black text-white hover:bg-black/90 hover:text-white" size="sm" onClick={handleOpenEditDialog}>
                   Edit
                 </Button>
               </CardTitle>

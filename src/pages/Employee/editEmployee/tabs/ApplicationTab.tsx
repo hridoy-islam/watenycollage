@@ -180,7 +180,7 @@ const ApplicationTab: React.FC<ApplicationTabProps> = ({
               />
             </FormRow>
             <FormRow
-              label="Solely For Everycare"
+              label="Solely For Medicare Link"
               isSaving={isFieldSaving['solelyForEverycare']}
             >
               <EditableField
