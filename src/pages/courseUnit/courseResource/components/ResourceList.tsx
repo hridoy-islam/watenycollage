@@ -21,6 +21,14 @@ interface ResourceListProps {
   onEditResource: (resource: Resource) => void;
   onDeleteResource: (id: string) => void;
   applicationId: any;
+  /**
+   * The unit's class routine, shown at the top of the Lectures tab. Lectures
+   * keyed to a session are listed inside it, so only the ones that belong to
+   * no session are shown as cards below it.
+   */
+  lectureSessions?: React.ReactNode;
+  /** Sessions on the routine. Each one is a lecture, so the tab counts them. */
+  lectureCount?: number;
 }
 
 /**
@@ -70,7 +78,9 @@ const ResourceList: React.FC<ResourceListProps> = ({
   studentSubmissions = {},
   onEditResource,
   onDeleteResource,
-  applicationId
+  applicationId,
+  lectureSessions,
+  lectureCount
 }) => {
   const [search, setSearch] = useState('');
 
@@ -105,7 +115,16 @@ const ResourceList: React.FC<ResourceListProps> = ({
       items: learningOutcomes
     },
     { id: 'guides', label: 'Study guides', icon: BookOpen, items: studyGuides },
-    { id: 'lectures', label: 'Lectures', icon: BookAIcon, items: lectures },
+    {
+      id: 'lectures',
+      label: 'Lectures',
+      icon: BookAIcon,
+      items: lectures,
+      // Sessions, plus any older lecture that belongs to none.
+      count: lectureSessions
+        ? (lectureCount ?? 0) + lectures.filter((r) => !r.classRoutineId).length
+        : undefined
+    },
     {
       id: 'assignments',
       label: 'Assignments',
@@ -115,7 +134,9 @@ const ResourceList: React.FC<ResourceListProps> = ({
   ];
 
   // Open on the first tab that actually has something in it.
-  const defaultTab = tabs.find((tab) => tab.items.length > 0)?.id || 'outcomes';
+  const countOf = (tab: (typeof tabs)[number]) =>
+    'count' in tab && tab.count !== undefined ? tab.count : tab.items.length;
+  const defaultTab = tabs.find((tab) => countOf(tab) > 0)?.id || 'outcomes';
 
   const nothingMatched = search.trim() && filtered.length === 0;
 
@@ -180,7 +201,7 @@ const ResourceList: React.FC<ResourceListProps> = ({
                   <tab.icon className="h-4 w-4" />
                   <span>{tab.label}</span>
                   <span className="rounded-full bg-watney/10 px-1.5 py-0.5 text-[10px] font-semibold ">
-                    {tab.items.length}
+                    {countOf(tab)}
                   </span>
                 </TabsTrigger>
               ))}
@@ -188,7 +209,26 @@ const ResourceList: React.FC<ResourceListProps> = ({
 
             {tabs.map((tab) => (
               <TabsContent key={tab.id} value={tab.id} className="mt-4">
-                {tab.items.length === 0 ? (
+                {tab.id === 'lectures' && lectureSessions ? (
+                  <div className="space-y-4">
+                    {lectureSessions}
+                    {tab.items.some((r) => !r.classRoutineId) && (
+                      <Accordion type="multiple" className="w-full">
+                        {sortBySerialNumber(
+                          tab.items.filter((r) => !r.classRoutineId)
+                        ).map((resource) => (
+                          <ResourceCard
+                            key={resource._id}
+                            resource={resource}
+                            onEdit={onEditResource}
+                            onDelete={onDeleteResource}
+                            applicationId={applicationId}
+                          />
+                        ))}
+                      </Accordion>
+                    )}
+                  </div>
+                ) : tab.items.length === 0 ? (
                   <EmptyPanel label={tab.label} />
                 ) : tab.id === 'assignments' ? (
                   <div className="grid gap-3 lg:grid-cols-2">

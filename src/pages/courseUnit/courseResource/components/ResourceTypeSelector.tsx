@@ -2,7 +2,6 @@ import React from 'react';
 import {
   GraduationCap,
   BookOpen,
-  BookA as BookAIcon,
   FileText,
   Target,
   Check,
@@ -46,14 +45,8 @@ const ResourceTypeSelector: React.FC<ResourceTypeSelectorProps> = ({
       hint: 'Text or file',
       disabled: false
     },
-    {
-      type: 'lecture' as ResourceType,
-      icon: BookAIcon,
-      title: 'Lecture',
-      description: 'Lecture notes, slides or recordings for a session.',
-      hint: 'Text or file',
-      disabled: false
-    },
+    // No "Lecture" here: every class on the routine is a lecture, and its
+    // documents are uploaded from that class in the Lectures tab.
     {
       type: 'assignment' as ResourceType,
       icon: FileText,

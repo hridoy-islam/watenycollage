@@ -34,6 +34,7 @@ import {
 import ResourceTypeSelector from './components/ResourceTypeSelector';
 import ResourceForm from './components/ResourceForm';
 import ResourceList from './components/ResourceList';
+import ClassRoutineSessions from './components/ClassRoutineSessions';
 
 /**
  * A lecture's `classRoutineId` comes back populated from the API and goes back
@@ -132,6 +133,8 @@ function CourseModule() {
   const [unitGroupId, setUnitGroupId] = useState<string>('');
   const [unitTermId, setUnitTermId] = useState<string>('');
   const [resources, setResources] = useState<Resource[]>([]);
+  // Class routine sessions on this unit; each is a lecture.
+  const [lectureCount, setLectureCount] = useState(0);
   const [studentSubmissions, setStudentSubmissions] = useState<
     Record<string, any>
   >({});
@@ -271,6 +274,20 @@ function CourseModule() {
       fetchData();
     }
   }, [unitId, isStudent, user?._id]);
+
+  // The Lectures tab counts the unit's sessions. The list that holds them only
+  // mounts once its tab is open, so the count is asked for here up front.
+  useEffect(() => {
+    if (!unitId || loading) return;
+    const params: Record<string, string | number> = { unitId, limit: 1 };
+    if (id) params.courseId = id;
+    if (unitTermId) params.termId = unitTermId;
+    if (unitGroupId) params.groupId = unitGroupId;
+    axiosInstance
+      .get('/course-routine', { params })
+      .then((res) => setLectureCount(res.data?.data?.meta?.total ?? 0))
+      .catch((error) => console.error('Could not count lectures:', error));
+  }, [unitId, id, unitTermId, unitGroupId, loading]);
 
   // Initialize form when editing
   useEffect(() => {
@@ -633,6 +650,111 @@ function CourseModule() {
   };
 
 
+  /**
+   * Saves the documents uploaded against one class routine session. Each is a
+   * lecture keyed to the session, exactly what the Lecture form saves, so the
+   * rows are rebuilt from the material the API sends back. They are saved one
+   * after another: the first can create the unit material, and the rest have
+   * to land in that same material rather than each making their own.
+   */
+  const saveSessionDocuments = async (
+    routineId: string,
+    documents: { title: string; fileUrl: string; fileName: string }[]
+  ): Promise<boolean> => {
+    if (!id || !unitId || documents.length === 0) return false;
+    let saved = 0;
+    try {
+      const existing = await axiosInstance.get(
+        `/unit-material?unitId=${unitId}&limit=1`
+      );
+      let materialId =
+        existing.data?.data?.result?.[0]?._id || unitMaterial?._id;
+      let savedMaterial: any = null;
+
+      for (const document of documents) {
+        const response = await axiosInstance.post('/unit-material/resource', {
+          materialId,
+          courseId: id,
+          termId: unitTermId,
+          groupId: unitGroupId,
+          unitId,
+          resourceType: 'lecture',
+          resource: { ...document, classRoutineId: routineId }
+        });
+        savedMaterial = response.data?.data || savedMaterial;
+        materialId = savedMaterial?._id || materialId;
+        saved++;
+      }
+
+      if (savedMaterial) {
+        setUnitMaterial(savedMaterial);
+        setResources((prev) => [
+          ...mapMaterialToResources(savedMaterial, unitId),
+          ...prev.filter((r) => r.type === 'assignment')
+        ]);
+      }
+      toast({
+        title:
+          documents.length === 1
+            ? 'Document uploaded'
+            : `${documents.length} documents uploaded`
+      });
+      return true;
+    } catch (error) {
+      console.error('Save session document error:', error);
+      toast({
+        title: 'Failed to save the documents.',
+        description: saved
+          ? `${saved} of ${documents.length} were saved before the error.`
+          : undefined,
+        variant: 'destructive'
+      });
+      // Whatever did save should still show.
+      if (saved) fetchData();
+      return false;
+    }
+  };
+
+  /**
+   * Renames a session's material or swaps its file. The API replaces the
+   * whole lecture entry, so every field it holds is sent back, not only the
+   * ones that changed - leaving one out would erase it.
+   */
+  const updateSessionDocument = async (
+    resource: Resource,
+    changes: { title: string; fileUrl?: string; fileName?: string }
+  ): Promise<boolean> => {
+    if (!unitMaterial?._id) return false;
+    try {
+      const response = await axiosInstance.patch('/unit-material/resource', {
+        materialId: unitMaterial._id,
+        resourceId: resource._id,
+        resourceType: 'lecture',
+        resource: {
+          title: changes.title,
+          content: resource.content || undefined,
+          fileUrl: changes.fileUrl ?? resource.fileUrl ?? undefined,
+          fileName: changes.fileName ?? resource.fileName ?? undefined,
+          classRoutineId: routineIdOf(resource.classRoutineId)
+        }
+      });
+      const savedMaterial = response.data?.data;
+      if (savedMaterial) {
+        setUnitMaterial(savedMaterial);
+        setResources((prev) => [
+          ...mapMaterialToResources(savedMaterial, unitId),
+          ...prev.filter((r) => r.type === 'assignment')
+        ]);
+      }
+      toast({ title: 'Material updated' });
+      return true;
+    } catch (error) {
+      console.error('Update session document error:', error);
+      toast({ title: 'Failed to update the material.', variant: 'destructive' });
+      return false;
+    }
+  };
+
   const handleDeleteResource = async (id: string) => {
     const resource = resources.find((r) => r._id === id);
     if (!resource) return;
@@ -843,38 +965,31 @@ function CourseModule() {
 
       {/* Resources */}
       <div className="px-5 py-4">
-        {resources.length > 0 ? (
-          <ResourceList
-            resources={resources}
-            studentSubmissions={studentSubmissions}
-            onEditResource={handleEditResource}
-            onDeleteResource={handleDeleteResource}
-            applicationId={applicationId}
-          />
-        ) : (
-          <div className="rounded-xl border border-dashed border-gray-200 bg-watney/5 px-6 py-16 text-center">
-            <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-white text-watney shadow-sm">
-              <GraduationCap className="h-6 w-6" />
-            </span>
-            <h3 className="mt-3 text-base font-semibold text-black">
-              No resources yet
-            </h3>
-            <p className="mx-auto mt-1 max-w-sm text-xs text-black">
-              {isAdmin
-                ? 'Add an introduction, learning outcomes, study guides, lectures or assignments to build this unit out.'
-                : 'Your tutor has not published anything for this unit yet.'}
-            </p>
-            {isAdmin && (
-              <Button
-                size="sm"
-                onClick={() => setIsCreateDialogOpen(true)}
-                className="mt-4 bg-watney text-white hover:bg-watney/90"
-              >
-                <Plus className="mr-1.5 h-4 w-4" /> Add the first resource
-              </Button>
-            )}
-          </div>
-        )}
+        {/* Always shown, even before the unit has a resource: the Lectures
+            tab carries the class routine, which can exist on its own. */}
+        <ResourceList
+          lectureSessions={
+            <ClassRoutineSessions
+              courseId={id}
+              termId={unitTermId}
+              groupId={unitGroupId}
+              unitId={unitId}
+              resources={resources}
+              canManage={isAdmin}
+              uploaderId={user?._id}
+              onSaveDocuments={saveSessionDocuments}
+              onUpdateDocument={updateSessionDocument}
+              onDeleteDocument={handleDeleteResource}
+              onCountChange={setLectureCount}
+            />
+          }
+          lectureCount={lectureCount}
+          resources={resources}
+          studentSubmissions={studentSubmissions}
+          onEditResource={handleEditResource}
+          onDeleteResource={handleDeleteResource}
+          applicationId={applicationId}
+        />
       </div>
     </div>
   );
