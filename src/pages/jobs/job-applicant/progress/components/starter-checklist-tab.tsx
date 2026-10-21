@@ -14,6 +14,7 @@ import axiosInstance from '@/lib/axios';
 import { format } from 'date-fns';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { StarterCheckListPdf } from '@/pages/applicantModulesAdmin/starterCheckList/components/StarterChecklistPdf';
+import { DATE_FORMAT_FNS } from '@/lib/date-utils';
 
 interface StarterChecklistData {
   firstName: string;
@@ -41,7 +42,7 @@ interface Props {
 }
 
 const formatDate = (dateStr?: string) =>
-  dateStr ? format(new Date(dateStr), 'dd/MM/yyyy') : '—';
+  dateStr ? format(new Date(dateStr), DATE_FORMAT_FNS) : '—';
 
 export function StarterChecklistTab({ userId }: Props) {
   const navigate = useNavigate();
@@ -198,7 +199,7 @@ export function StarterChecklistTab({ userId }: Props) {
         )}
         {data.createdAt && (
           <p className="text-xs text-gray-400 pt-2 border-t">
-            Submitted: {format(new Date(data.createdAt), 'dd MMM yyyy')}
+            Submitted: {format(new Date(data.createdAt), DATE_FORMAT_FNS)}
           </p>
         )}
       </CardContent>

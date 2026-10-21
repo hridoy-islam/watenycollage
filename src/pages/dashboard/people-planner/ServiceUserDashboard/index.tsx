@@ -31,6 +31,7 @@ import axiosInstance from '@/lib/axios';
 import { cn } from '@/lib/utils';
 import { useNavigate, useParams } from 'react-router-dom';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
+import { DATE_FORMAT } from '@/lib/date-utils';
 
 // --- Interfaces ---
 
@@ -158,7 +159,7 @@ const ServiceUserDashboardPage = () => {
           </h1>
           <p className="mt-1 flex items-center gap-2 text-slate-500">
             <Calendar className="h-4 w-4 text-theme" />
-            {moment().format('dddd, Do MMMM YYYY')}
+            {moment().format(`dddd, ${DATE_FORMAT}`)}
           </p>
         </div>
       </div>

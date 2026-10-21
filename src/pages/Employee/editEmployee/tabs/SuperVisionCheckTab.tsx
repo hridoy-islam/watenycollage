@@ -42,6 +42,7 @@ import {
 } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
+import { DATE_FORMAT, DATE_FORMAT_FNS } from '@/lib/date-utils';
 
 // --- Interfaces ---
 
@@ -661,7 +662,7 @@ completionDate: new Date(
                   Scheduled Date
                 </Label>
                 <div className="text-lg font-semibold text-gray-900">
-                  {scheduledDate ? moment(scheduledDate).format('DD MMMM YYYY') : 'Not Set'}
+                  {scheduledDate ? moment(scheduledDate).format(DATE_FORMAT) : 'Not Set'}
                 </div>
               </div>
 
@@ -681,7 +682,7 @@ completionDate: new Date(
               {!showCompleteButton && completionDate && (
                 <div className="rounded-md bg-green-50 p-3 text-sm text-green-700 flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 mt-0.5" />
-                  <p>Last supervision completed on <strong>{moment(completionDate).format('DD MMM YYYY')}</strong></p>
+                  <p>Last supervision completed on <strong>{moment(completionDate).format(DATE_FORMAT)}</strong></p>
                 </div>
               )}
               
@@ -758,7 +759,7 @@ completionDate: new Date(
                                   : 'System'}
                               </span>
                               <span className="text-xs text-gray-500">
-                                {moment(entry.date).format('DD MMM YYYY')}
+                                {moment(entry.date).format(DATE_FORMAT)}
                               </span>
                             </div>
                           </TableCell>
@@ -827,7 +828,7 @@ completionDate: new Date(
               <DatePicker
                 selected={inputDate}
                 onChange={(date) => setInputDate(date)}
-                dateFormat="dd-MM-yyyy"
+                dateFormat={DATE_FORMAT_FNS}
                 className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-theme focus:outline-none focus:ring-2 focus:ring-theme"
                 placeholderText="Select date..."
                 // minDate={new Date()} 
@@ -886,7 +887,7 @@ completionDate: new Date(
               <DatePicker
                 selected={inputDate}
                 onChange={(date) => setInputDate(date)}
-                dateFormat="dd-MM-yyyy"
+                dateFormat={DATE_FORMAT_FNS}
                 className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-theme focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholderText="Select date..."
                 showMonthDropdown

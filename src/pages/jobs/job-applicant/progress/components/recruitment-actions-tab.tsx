@@ -35,6 +35,7 @@ import moment from "moment"
 import { useToast } from "@/components/ui/use-toast"
 import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer"
 import { EmailPDF } from "./email-pdf"
+import { DATE_FORMAT } from '@/lib/date-utils';
 
 interface EmailDraft {
   _id: string
@@ -276,7 +277,7 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
           value = String(value).toLowerCase()
         } else if (variable === "dateOfBirth" || variable.toLowerCase().includes("date")) {
           if (value && moment(value).isValid()) {
-            value = moment(value).format("DD MMM, YYYY")
+            value = moment(value).format(DATE_FORMAT)
           }
         } else {
           value = formatText(value)
@@ -285,9 +286,9 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
       replacedText = replacedText.replace(new RegExp(`\\[${variable}\\]`, "g"), value)
     })
 
-    const today = moment().format("DD MMM, YYYY")
+    const today = moment().format(DATE_FORMAT)
     const appDate = jobData?.createdAt
-      ? moment(jobData.createdAt).format("DD MMM, YYYY")
+      ? moment(jobData.createdAt).format(DATE_FORMAT)
       : ""
     const appStatus = formatText(jobData?.status || "")
     const appTitle = formatText(jobData?.jobId?.jobTitle || "")
@@ -849,10 +850,10 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
     <div className="space-y-6">
       {/* Recruit CTA */}
       <Card className="border border-watney/20 bg-watney/10 rounded-lg">
-        <CardContent className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
-          <div>
+        <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+          <div className="min-w-0">
             <p className="text-sm font-bold text-black">Ready to recruit this applicant?</p>
-            <p className="mt-0.5 text-xs text-gray-600">
+            <p className="mt-0.5 break-words text-xs text-gray-600">
               This converts {application?.firstName || "the applicant"} into an employee.
             </p>
           </div>
@@ -868,16 +869,16 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="border border-gray-200 rounded-lg">
-          <CardHeader className="border-b border-gray-200 px-6 py-4">
+        <Card className="min-w-0 overflow-hidden rounded-lg border border-gray-200">
+          <CardHeader className="border-b border-gray-200 px-4 py-4 sm:px-6">
             <CardTitle className="text-base font-bold text-black">Communication Mails</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             <Table>
               <TableHeader>
                 <TableRow className="border-b border-gray-200">
-                  <TableHead className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-black">Action</TableHead>
-                  <TableHead className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-black text-right">Status</TableHead>
+                  <TableHead className="px-4 py-3.5 text-xs font-bold uppercase tracking-wider text-black sm:px-6">Action</TableHead>
+                  <TableHead className="px-4 py-3.5 text-right text-xs font-bold uppercase tracking-wider text-black sm:px-6">Status</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -891,19 +892,21 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
                       }
                     }}
                   >
-                     <TableCell className="px-6 py-4">
-                       <span className="inline-flex items-center gap-3 text-sm font-medium text-black">
-                         {action.loading ? <Loader2 className="h-4 w-4 animate-spin" /> : action.icon}
+                     <TableCell className="px-4 py-4 align-top sm:px-6">
+                       <span className="inline-flex items-center gap-3 break-words text-sm font-medium text-black">
+                         <span className="shrink-0">
+                           {action.loading ? <Loader2 className="h-4 w-4 animate-spin" /> : action.icon}
+                         </span>
                          {action.label}
                        </span>
                        {action.description && (
-                         <span className="mt-0.5 block pl-7 text-xs text-gray-500">{action.description}</span>
+                         <span className="mt-0.5 block break-words pl-7 text-xs text-gray-500">{action.description}</span>
                        )}
                        {action.submitted && (
                          <span className="mt-0.5 block pl-7 text-xs font-medium text-green-700">Reference received</span>
                        )}
                      </TableCell>
-                     <TableCell className="px-6 py-4 text-right">
+                     <TableCell className="px-4 py-4 text-right align-top sm:px-6">
                        {action.isViewOnly ? (
                          <Button
                            size="sm"
@@ -914,8 +917,8 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
                            View
                          </Button>
                        ) : action.sent ? (
-                         <span className="inline-flex items-center gap-2">
-                           <span className="inline-flex items-center gap-1.5 text-sm font-bold text-white bg-green-600 px-2.5 py-1 rounded">
+                         <span className="flex flex-wrap items-center justify-end gap-2">
+                           <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded bg-green-600 px-2.5 py-1 text-sm font-bold text-white">
                              <Check className="h-3.5 w-3.5" /> Sent
                            </span>
                            <Button
@@ -995,16 +998,16 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
           </CardContent>
         </Card>
 
-        <Card className="border border-gray-200 rounded-lg">
-          <CardHeader className="border-b border-gray-200 px-6 py-4">
+        <Card className="min-w-0 overflow-hidden rounded-lg border border-gray-200">
+          <CardHeader className="border-b border-gray-200 px-4 py-4 sm:px-6">
             <CardTitle className="text-base font-bold text-black">Unlock Sections</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             <Table>
               <TableHeader>
                 <TableRow className="border-b border-gray-200">
-                  <TableHead className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-black">Section</TableHead>
-                  <TableHead className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-black text-right">Status</TableHead>
+                  <TableHead className="px-4 py-3.5 text-xs font-bold uppercase tracking-wider text-black sm:px-6">Section</TableHead>
+                  <TableHead className="px-4 py-3.5 text-right text-xs font-bold uppercase tracking-wider text-black sm:px-6">Status</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -1014,8 +1017,8 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
                     className={`cursor-pointer ${i !== unlockItems.length - 1 ? "border-b border-gray-200" : ""}`}
                     onClick={() => !item.done && handleUnlockAction(item.field)}
                   >
-                    <TableCell className="px-6 py-4">
-                      <span className="inline-flex items-center gap-3 text-sm font-medium text-black">
+                    <TableCell className="px-4 py-4 sm:px-6">
+                      <span className="inline-flex items-center gap-3 break-words text-sm font-medium text-black">
                         {unlockLoading[item.field] ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
                         ) : item.done ? (
@@ -1026,9 +1029,9 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
                         {item.label.replace("Unlock ", "")}
                       </span>
                     </TableCell>
-                    <TableCell className="px-6 py-4 text-right">
+                    <TableCell className="px-4 py-4 text-right sm:px-6">
                       {item.done ? (
-                        <span className="inline-flex items-center gap-1.5 text-sm font-bold text-white bg-green-600 px-2.5 py-1 rounded">
+                        <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded bg-green-600 px-2.5 py-1 text-sm font-bold text-white">
                           <Check className="h-3.5 w-3.5" /> Unlocked
                         </span>
                       ) : (
@@ -1187,8 +1190,8 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
             </div>
           ) : (
             <div className="flex h-full flex-col">
-              <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-                <div className="flex items-center gap-3">
+              <div className="flex items-center justify-between gap-2 border-b border-gray-200 px-4 py-4 sm:px-6">
+                <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3">
                   <DialogTitle className="text-lg font-semibold">Job Contract Template Editor</DialogTitle>
                   {applicationJob?.jobId?.jobTitle && (
                     <span className="rounded bg-watney/10 px-2.5 py-0.5 text-sm font-medium text-watney">
@@ -1201,9 +1204,9 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
                 </Button>
               </div>
 
-              <div className="flex flex-1 overflow-hidden">
+              <div className="flex flex-1 flex-col overflow-y-auto md:flex-row md:overflow-hidden">
                 {/* Left Panel */}
-                <div className="flex w-2/5 flex-col border-r border-gray-200">
+                <div className="flex w-full flex-col border-b border-gray-200 md:w-2/5 md:border-b-0 md:border-r">
                   <div className="flex-1 overflow-y-auto p-4 space-y-4">
                     <div>
                       <label className="mb-1 block text-sm font-medium text-gray-700">
@@ -1270,7 +1273,7 @@ export function RecruitmentActionsTab({ application, applicationJob, userId, app
                 </div>
 
                 {/* Right Panel - Preview */}
-                <div className="flex w-3/5 flex-col">
+                <div className="flex w-full min-w-0 flex-col md:w-3/5">
                   <div className="border-b border-gray-100 bg-white px-6 py-4">
                     <h3 className="text-base font-semibold text-gray-800">Contract Preview</h3>
                     <p className="text-xs text-gray-500">Preview how the contract will look with applicant data.</p>

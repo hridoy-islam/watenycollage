@@ -1,4 +1,6 @@
+import { DATE_FORMAT } from '@/lib/date-utils';
 import React from 'react';
+import moment from 'moment';
 import { Page, Text, View, Document, StyleSheet, Image } from '@react-pdf/renderer';
 
 // IMPORTANT: Define or import the interface for MedicalFormData
@@ -333,11 +335,7 @@ const formatDate = (dateString: string) => {
   if (!dateString) return "N/A";
 
   try {
-    return new Date(dateString).toLocaleDateString("en-GB", {
-      month: "2-digit",
-      day: "2-digit",
-      year: "numeric",
-    });
+    return moment(dateString).format(DATE_FORMAT);
   } catch {
     return dateString;
   }

@@ -58,6 +58,7 @@ import ScheduleTable from './components/ScheduleTable';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import moment from 'moment';
+import { DATE_FORMAT_FNS } from '@/lib/date-utils';
 
 // --- TYPES ---
 
@@ -697,7 +698,7 @@ export default function ServiceUserTask() {
                     }))
                   }
                   // FIX 1: Use 'dd' (lowercase) for Day of Month
-                  dateFormat="dd-MM-yyyy"
+                  dateFormat={DATE_FORMAT_FNS}
                   placeholderText="DD-MM-YYYY"
                   className="w-full rounded-xl h-12 border border-gray-300 px-3 py-2 text-sm"
                   showMonthDropdown
@@ -718,7 +719,7 @@ export default function ServiceUserTask() {
                     }))
                   }
                   // FIX 1: Use 'dd' (lowercase) for Day of Month
-                  dateFormat="dd-MM-yyyy"
+                  dateFormat={DATE_FORMAT_FNS}
                   placeholderText="DD-MM-YYYY"
                   className="w-full rounded-xl h-12 border border-gray-300 px-3 py-2 text-sm"
                   showMonthDropdown

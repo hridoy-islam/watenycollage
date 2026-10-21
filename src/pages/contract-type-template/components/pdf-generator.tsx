@@ -8,13 +8,14 @@ import {
   Image
 } from '@react-pdf/renderer';
 import moment from 'moment';
+import { DATE_FORMAT } from '@/lib/date-utils';
 
 const MOCK_DATA: Record<string, string> = {
   name: 'Mr John Doe',
   title: 'Mr',
   firstName: 'John',
   lastName: 'Doe',
-  dateOfBirth: moment('1990-05-15').format('DD/MM/YYYY'),
+  dateOfBirth: moment('1990-05-15').format(DATE_FORMAT),
   email: 'john.doe@example.com',
   phone: '+44 7700 900123',
   nationality: 'British',
@@ -27,15 +28,15 @@ const MOCK_DATA: Record<string, string> = {
   position: 'Care Worker',
   employmentType: 'full-time',
   noticePeriod: '1 month',
-  availableFromDate: '15/09/2025',
-  applicationDate: '01/09/2025',
+  availableFromDate: '15-09-2025',
+  applicationDate: '01-09-2025',
   jobTitle: 'Senior Care Assistant',
   admin: 'Watney College',
   adminEmail: 'info@watneycollege.co.uk',
   userSignature: '/signature.png',
     'signature id="1"': '/officer-signature.png', // 👈 will be rendered as an Image
 
-  todayDate: moment().format('DD/MM/YYYY')
+  todayDate: moment().format(DATE_FORMAT)
 };
 
 const styles = StyleSheet.create({

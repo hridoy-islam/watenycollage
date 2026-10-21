@@ -41,6 +41,7 @@ import {
 } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
+import { DATE_FORMAT, DATE_FORMAT_FNS } from '@/lib/date-utils';
 
 // --- Interfaces ---
 
@@ -444,7 +445,7 @@ function QACheckTab() {
         await axiosInstance.patch(`/qa/${qaCheckId}`, {
           ...payload,
           completionDate: null,
-          title: `QA Check Scheduled for ${moment(inputDate).format('DD/MM/YYYY')}`
+          title: `QA Check Scheduled for ${moment(inputDate).format(DATE_FORMAT)}`
         });
       }
 
@@ -721,7 +722,7 @@ function QACheckTab() {
                 </Label>
                 <div className="text-lg font-semibold text-gray-900">
                   {scheduledDate
-                    ? moment(scheduledDate).format('DD MMMM YYYY')
+                    ? moment(scheduledDate).format(DATE_FORMAT)
                     : 'Not Set'}
                 </div>
               </div>
@@ -745,7 +746,7 @@ function QACheckTab() {
                   <p>
                     Last QA completed on{' '}
                     <strong>
-                      {moment(completionDate).format('DD MMM YYYY')}
+                      {moment(completionDate).format(DATE_FORMAT)}
                     </strong>
                   </p>
                 </div>
@@ -852,7 +853,7 @@ function QACheckTab() {
                                   : 'System'}
                               </span>
                               <span className="text-xs text-gray-500">
-                                {moment(entry.date).format('DD MMM YYYY')}
+                                {moment(entry.date).format(DATE_FORMAT)}
                               </span>
                             </div>
                           </TableCell>
@@ -935,7 +936,7 @@ function QACheckTab() {
               <DatePicker
                 selected={inputDate}
                 onChange={(date) => setInputDate(date)}
-                dateFormat="dd-MM-yyyy"
+                dateFormat={DATE_FORMAT_FNS}
                 className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-theme focus:outline-none focus:ring-2 focus:ring-theme"
                 placeholderText="Select date..."
                 // minDate={new Date()}
@@ -1010,7 +1011,7 @@ function QACheckTab() {
               <DatePicker
                 selected={inputDate}
                 onChange={(date) => setInputDate(date)}
-                dateFormat="dd-MM-yyyy"
+                dateFormat={DATE_FORMAT_FNS}
                 className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-theme focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholderText="Select date..."
                 showMonthDropdown

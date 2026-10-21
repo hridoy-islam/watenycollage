@@ -34,6 +34,7 @@ import { useSelector } from 'react-redux';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
 import { useToast } from '@/components/ui/use-toast';
 import SignatureCanvas from 'react-signature-canvas';
+import { formatDate } from '@/lib/date-utils';
 
 // --- Zod Schema ---
 const simpleBoolean = z
@@ -651,9 +652,7 @@ export default function EditPostEmploymentMedicalForm() {
                       </FormLabel>
                       <p className="mt-1 text-gray-900">
                         {form.getValues('dateOfBirth')
-                          ? new Date(
-                              form.getValues('dateOfBirth')
-                            ).toLocaleDateString('en-GB')
+                          ? formatDate(form.getValues('dateOfBirth'))
                           : '—'}
                       </p>
                     </div>

@@ -42,6 +42,7 @@ import {
 } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
+import { DATE_FORMAT, DATE_FORMAT_FNS } from '@/lib/date-utils';
 
 // --- Interfaces ---
 
@@ -689,7 +690,7 @@ function DisciplinaryTab() {
                         status === 'overdue' ? 'text-red-600' : 'text-gray-900'
                       )}
                     >
-                      {moment(activeIssue.issueDeadline).format('DD MMMM YYYY')}
+                      {moment(activeIssue.issueDeadline).format(DATE_FORMAT)}
                     </div>
                   </div>
 
@@ -793,7 +794,7 @@ function DisciplinaryTab() {
                                     `${entry.updatedBy.firstName ?? ''} ${entry.updatedBy.lastName ?? ''}`.trim()
                                   : 'System'}
                               </span>
-                              {moment(entry.date).format('DD MMM YYYY')}
+                              {moment(entry.date).format(DATE_FORMAT)}
                             </div>
                           </TableCell>
                           <TableCell>
@@ -884,7 +885,7 @@ function DisciplinaryTab() {
                 <DatePicker
                   selected={inputDate}
                   onChange={(date) => setInputDate(date)}
-                  dateFormat="dd-MM-yyyy"
+                  dateFormat={DATE_FORMAT_FNS}
                   className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-theme focus:outline-none focus:ring-2 focus:ring-theme"
                   placeholderText="Select deadline..."
                   // minDate={new Date()}
@@ -1035,7 +1036,7 @@ function DisciplinaryTab() {
               <DatePicker
                 selected={inputDate}
                 onChange={(date) => setInputDate(date)}
-                dateFormat="dd-MM-yyyy"
+                dateFormat={DATE_FORMAT_FNS}
                 className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-theme focus:outline-none focus:ring-2 focus:ring-theme"
                 placeholderText="Select new date..."
                 // minDate={activeIssue?.issueDeadline ? new Date(activeIssue.issueDeadline) : new Date()}

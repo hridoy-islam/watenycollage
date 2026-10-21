@@ -18,6 +18,7 @@ import { useSelector } from 'react-redux';
 import SignatureCanvas from 'react-signature-canvas';
 import axiosInstance from '@/lib/axios';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
+import { DATE_FORMAT, DATE_FORMAT_FNS } from '@/lib/date-utils';
 
 type StepField = {
   key: string;
@@ -1349,7 +1350,7 @@ function getFieldDisplayValue(
   const value = getNestedValue(formData, field.key);
   if (field.type === 'date' && value) {
     try {
-      return moment(value as string).format('DD/MM/YYYY');
+      return moment(value as string).format(DATE_FORMAT);
     } catch {
       return String(value);
     }
@@ -1696,7 +1697,7 @@ function FieldRenderer({
     return (
       <div className="step-field space-y-2">
         <Label>
-          {field.label} (DD/MM/YYYY){' '}
+          {field.label} (DD-MM-YYYY){' '}
           {isRequired && <span className="text-red-500">*</span>}
         </Label>
         <DatePicker
@@ -1704,7 +1705,7 @@ function FieldRenderer({
           onChange={(date: Date | null) =>
             updateField(field.key, toISODateString(date))
           }
-          dateFormat="dd/MM/yyyy"
+          dateFormat={DATE_FORMAT_FNS}
           placeholderText="Pick a date"
           wrapperClassName="w-full"
           showMonthDropdown

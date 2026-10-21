@@ -23,6 +23,7 @@ import { useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import moment from 'moment';
 import { MoveLeft } from 'lucide-react';
+import { DATE_FORMAT } from '@/lib/date-utils';
 
 // Types
 interface Job {
@@ -156,7 +157,7 @@ export default function JobApplicationPage() {
         {/* Application Deadline */}
         <div className="mt-2 inline-flex items-center rounded-full bg-watney/10 px-3 py-1 text-xs sm:text-sm text-watney">
           <span>
-            Deadline: {moment(job.applicationDeadline).format('MMM Do, YYYY')}
+            Deadline: {moment(job.applicationDeadline).format(DATE_FORMAT)}
           </span>
         </div>
       </div>

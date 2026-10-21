@@ -26,6 +26,7 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
 import { DynamicPagination } from '@/components/shared/DynamicPagination';
+import { DATE_FORMAT } from '@/lib/date-utils';
 
 interface SignatureDoc {
   _id: string;
@@ -293,7 +294,7 @@ function SignatureDocumentTab() {
                     </TableCell>
                     <TableCell>
                       <span className="text-sm text-gray-600">
-                        {moment(doc.createdAt).format('DD MMM YYYY')}
+                        {moment(doc.createdAt).format(DATE_FORMAT)}
                       </span>
                     </TableCell>
 

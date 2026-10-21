@@ -7,6 +7,7 @@ import { ChevronLeft, User, ClipboardCheck, FileText, Heart, Activity, TrendingU
 import moment from 'moment';
 import axiosInstance from '@/lib/axios';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
+import { DATE_FORMAT } from '@/lib/date-utils';
 
 interface AssessmentData {
   [key: string]: any;
@@ -34,7 +35,7 @@ function formatVal(v: any): string {
 
 function formatDate(v: any): string {
   if (!v) return '—';
-  return moment(v as string).format('DD/MM/YYYY');
+  return moment(v as string).format(DATE_FORMAT);
 }
 
 // ---------------------------------------------

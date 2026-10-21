@@ -35,6 +35,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { cn } from '@/lib/utils';
 import moment from '@/lib/moment-setup';
 import { useScheduleStatus } from '@/context/scheduleStatusContext';
+import { DATE_FORMAT, DATE_FORMAT_FNS } from '@/lib/date-utils';
 
 // --- Interfaces ---
 
@@ -186,7 +187,7 @@ const VisaExpiryPage = () => {
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'N/A';
-    return moment(dateString).format('DD/MM/YYYY');
+    return moment(dateString).format(DATE_FORMAT);
   };
 
   // --- 5. Handlers ---
@@ -441,7 +442,7 @@ const VisaExpiryPage = () => {
                 <p>
                   Current Visa expires on{' '}
                   <span className="font-semibold">
-                    {moment(selectedEmployee.visaExpiry).format('DD MMM YYYY')}
+                    {moment(selectedEmployee.visaExpiry).format(DATE_FORMAT)}
                   </span>
                   .
                 </p>
@@ -457,7 +458,7 @@ const VisaExpiryPage = () => {
                 <DatePicker
                   selected={newStartDate}
                   onChange={(date) => setNewStartDate(date)}
-                  dateFormat="dd-MM-yyyy"
+                  dateFormat={DATE_FORMAT_FNS}
                   placeholderText="Select start date"
                   wrapperClassName="w-full"
                   showYearDropdown
@@ -477,7 +478,7 @@ const VisaExpiryPage = () => {
                 {selectedEmployee?.visaExpiry && (
                   <p className="text-xs text-gray-500">
                     Must be on or after{' '}
-                    {moment(selectedEmployee.visaExpiry).format('DD MMM YYYY')}
+                    {moment(selectedEmployee.visaExpiry).format(DATE_FORMAT)}
                   </p>
                 )}
               </div>
@@ -490,7 +491,7 @@ const VisaExpiryPage = () => {
                 <DatePicker
                   selected={newExpiryDate}
                   onChange={(date) => setNewExpiryDate(date)}
-                  dateFormat="dd-MM-yyyy"
+                  dateFormat={DATE_FORMAT_FNS}
                   placeholderText="Select new expiry date"
                   wrapperClassName="w-full"
                   showYearDropdown

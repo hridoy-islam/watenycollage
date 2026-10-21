@@ -30,6 +30,7 @@ import {
 } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
+import { DATE_FORMAT, DATE_FORMAT_FNS } from '@/lib/date-utils';
 
 // Interfaces based on your Mongoose Schema
 interface LogEntry {
@@ -596,7 +597,7 @@ passportExpiryDate: new Date(
                   {userData?.noRtwCheck  || leaverData.length > 0
                     ? 'N/A'
                     : currentExpiryDate
-                    ? moment(currentExpiryDate).format('DD MMMM YYYY')
+                    ? moment(currentExpiryDate).format(DATE_FORMAT)
                     : 'Not Set'}
                 </div>
               </div>
@@ -670,7 +671,7 @@ passportExpiryDate: new Date(
                                     : 'System'}
                                 </span>
                                 <span className="text-xs ">
-                                  {moment(entry.date).format('DD MMM YYYY')}
+                                  {moment(entry.date).format(DATE_FORMAT)}
                                 </span>
                               </div>
                               </div>
@@ -744,7 +745,7 @@ passportExpiryDate: new Date(
                 <p>
                   Current passport expires on{' '}
                   <span className="font-semibold">
-                    {moment(currentExpiryDate).format('DD MMM YYYY')}
+                    {moment(currentExpiryDate).format(DATE_FORMAT)}
                   </span>
                   .
                 </p>
@@ -772,7 +773,7 @@ passportExpiryDate: new Date(
                 <DatePicker
                   selected={newExpiryDate}
                   onChange={(date) => setNewExpiryDate(date)}
-                  dateFormat="dd-MM-yyyy"
+                  dateFormat={DATE_FORMAT_FNS}
                   className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholderText="Select expiry date..."
                   showMonthDropdown
@@ -793,7 +794,7 @@ passportExpiryDate: new Date(
                 />
                 {currentExpiryDate && (
                   <p className="text-xs text-gray-500">
-                    Must be after {moment(currentExpiryDate).format('DD MMM YYYY')}
+                    Must be after {moment(currentExpiryDate).format(DATE_FORMAT)}
                   </p>
                 )}
               </div>

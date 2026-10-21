@@ -1,3 +1,4 @@
+import { formatDate } from '@/lib/date-utils';
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
@@ -185,12 +186,7 @@ export default function AdminBankDetails() {
           {bankDetails.createdAt && (
             <div className="mt-8 pt-6 border-t border-gray-100">
               <p className="text-sm text-gray-500">
-                Submitted on: {new Date(bankDetails.createdAt).toLocaleString('en-GB', {
-                  day: '2-digit',
-                  month: 'short',
-                  year: 'numeric',
-                  
-                })}
+                Submitted on: {formatDate(bankDetails.createdAt)}
               </p>
             </div>
           )}

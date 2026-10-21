@@ -9,6 +9,7 @@ import Select from 'react-select';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import moment from '@/lib/moment-setup';
+import { DATE_FORMAT_FNS } from '@/lib/date-utils';
 
 interface EditableFieldProps {
   id: string;
@@ -162,7 +163,7 @@ if (type === 'date') {
               setFieldValue(formatted);
               onUpdate(formatted);
             }}
-            dateFormat="dd-MM-yyyy"
+            dateFormat={DATE_FORMAT_FNS}
             placeholderText="DD-MM-YYYY"
             dropdownMode="select"
             showYearDropdown

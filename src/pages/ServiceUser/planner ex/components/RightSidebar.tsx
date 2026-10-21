@@ -10,6 +10,7 @@ import {
   TableRow
 } from '@/components/ui/table';
 import type { ServiceUser, Employee, DayStats } from '@/types/planner';
+import { DATE_FORMAT_FNS } from '@/lib/date-utils';
 
 interface RightSidebarProps {
   isOpen: boolean;
@@ -37,7 +38,7 @@ export function RightSidebar({
           selected={selectedDate}
           onChange={(date: Date | null) => setSelectedDate(date || undefined)}
           inline
-          dateFormat="YYYY-MM-DD"
+          dateFormat={DATE_FORMAT_FNS}
           showMonthDropdown
           showYearDropdown
           dropdownMode="select"

@@ -33,6 +33,7 @@ import {
   pdf,
   Image
 } from '@react-pdf/renderer';
+import { DATE_FORMAT } from '@/lib/date-utils';
 
 // Types
 interface EmailDraft {
@@ -267,7 +268,7 @@ function ApplicantMailPage() {
         id: log._id,
         subject: log.subject,
         issuedBy: log.issuedBy?.name || log.issuedBy?._id || 'Unknown',
-        createdAt: moment(log.sentAt).format('DD MMM, YYYY'),
+        createdAt: moment(log.sentAt).format(DATE_FORMAT),
         status: log.status
       }));
 
@@ -335,7 +336,7 @@ function ApplicantMailPage() {
           id: res.data.data._id || Date.now().toString(),
           subject,
           issuedBy: user.name,
-          createdAt: moment().format('DD MMM, YYYY'),
+          createdAt: moment().format(DATE_FORMAT),
           status: 'pending'
         };
 
@@ -389,7 +390,7 @@ function ApplicantMailPage() {
     basicVariables.forEach((variable) => {
       let value = studentData?.[variable] || '';
       if (variable === 'dateOfBirth' && value) {
-        value = moment(value).format('DD MMM, YYYY');
+        value = moment(value).format(DATE_FORMAT);
       }
       // Admin overrides
       if (variable === 'admin') value = 'Watney College';
@@ -404,7 +405,7 @@ function ApplicantMailPage() {
     // 2. Replace [todayDate] directly
     replacedText = replacedText.replace(
       /\[todayDate\]/g,
-      moment().format('DD MMM, YYYY')
+      moment().format(DATE_FORMAT)
     );
 
     // 3. Handle course-related variables
@@ -419,7 +420,7 @@ function ApplicantMailPage() {
         const applicationStatus = data?.status || '';
         const applicationTitle = data?.jobId?.jobTitle || '';
         const applicationDate = data?.createdAt
-          ? moment(data.createdAt).format('DD MMM, YYYY')
+          ? moment(data.createdAt).format(DATE_FORMAT)
           : '';
 
         replacedText = replacedText

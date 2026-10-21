@@ -19,6 +19,7 @@ import {
   type Assessment,
   type Question
 } from '@/data/riskAssessment';
+import { formatDate } from '@/lib/date-utils';
 
 export default function RiskAssessmentDetailPage() {
   const { id } = useParams(); // ✅ from react-router-dom
@@ -270,7 +271,7 @@ export default function RiskAssessmentDetailPage() {
                   "Fill out the assessment to see my Risk Outcome Score"
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Assessment User • {new Date().toLocaleDateString()} • Active
+                  Assessment User • {formatDate(new Date())} • Active
                 </p>
               </div>
             </div>

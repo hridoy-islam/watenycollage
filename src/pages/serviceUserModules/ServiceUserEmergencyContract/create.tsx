@@ -34,6 +34,7 @@ import {
   CardDescription
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { DATE_FORMAT_FNS } from '@/lib/date-utils';
 
 type ContractType = 'GP' | 'Personal' | 'Professional';
 type ContactStatus = 'Priority' | 'Secondary' | 'Do not contact';
@@ -459,7 +460,7 @@ export default function CreateEmergencyContractPage() {
               onChange={(date: Date | null) =>
                 updateField('lpaDateAppointed', date)
               }
-              dateFormat="dd/MM/yyyy"
+              dateFormat={DATE_FORMAT_FNS}
               customInput={<CustomDateInput />}
               placeholderText="Select date"
               className="w-full"

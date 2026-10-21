@@ -34,6 +34,7 @@ import {
   TableRow
 } from '@/components/ui/table';
 import moment from '@/lib/moment-setup';
+import { DATE_FORMAT, DATE_FORMAT_FNS } from '@/lib/date-utils';
 
 interface HistoryEntry {
   _id: string;
@@ -242,7 +243,7 @@ function RtwPage() {
               <DatePicker
                 selected={startDate}
                 onChange={(date: Date | null) => setStartDate(date)}
-                dateFormat="dd-MM-yyyy"
+                dateFormat={DATE_FORMAT_FNS}
                 className="w-full rounded-md border border-gray-300 px-3 py-1 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                 placeholderText="Select start date"
                 wrapperClassName="w-full"
@@ -259,7 +260,7 @@ function RtwPage() {
               <DatePicker
                 selected={expiryDate}
                 onChange={(date: Date | null) => setExpiryDate(date)}
-                dateFormat="dd-MM-yyyy"
+                dateFormat={DATE_FORMAT_FNS}
                 className="w-full rounded-md border border-gray-300 px-3 py-1 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                 placeholderText="Select expiry date"
                 wrapperClassName="w-full"
@@ -307,7 +308,7 @@ function RtwPage() {
                       setShowNeedsCheck(false);
                     }
                   }}
-                  dateFormat="dd-MM-yyyy"
+                  dateFormat={DATE_FORMAT_FNS}
                   className={`w-full rounded-md border ${showNeedsCheck ? 'border-amber-300 bg-amber-50' : 'border-gray-300'} px-3 py-1 focus:border-blue-500 focus:ring-2 focus:ring-blue-500`}
                   wrapperClassName="w-full"
                   showMonthDropdown
@@ -405,7 +406,7 @@ function RtwPage() {
                         : entry.updatedBy}
                     </TableCell>
                     <TableCell className="text-right text-gray-600">
-                      {moment(entry.date).format('DD MMM YYYY')}
+                      {moment(entry.date).format(DATE_FORMAT)}
                     </TableCell>
                   </TableRow>
                 ))}

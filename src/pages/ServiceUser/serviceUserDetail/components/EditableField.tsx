@@ -8,6 +8,7 @@ import Select from 'react-select';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import moment from 'moment';
+import { DATE_FORMAT, DATE_FORMAT_FNS } from '@/lib/date-utils';
 
 interface EditableFieldProps {
   id: string;
@@ -70,7 +71,7 @@ export const EditableField: React.FC<EditableFieldProps> = ({
   const formatDate = (dateStr: string | number) => {
     if (!dateStr) return '';
     const m = moment(dateStr);
-    return m.isValid() ? m.format('DD-MM-YYYY') : dateStr.toString();
+    return m.isValid() ? m.format(DATE_FORMAT) : dateStr.toString();
   };
 
   const handleBlur = () => {
@@ -264,7 +265,7 @@ export const EditableField: React.FC<EditableFieldProps> = ({
             placeholderText={placeholder || 'Select date'}
             disabled={isSaving}
             className="w-full rounded-xl h-12 border border-gray-300 px-3 py-2 text-sm"
-            dateFormat="dd-MM-yyyy"
+            dateFormat={DATE_FORMAT_FNS}
             showMonthDropdown
             showYearDropdown
             dropdownMode="select"

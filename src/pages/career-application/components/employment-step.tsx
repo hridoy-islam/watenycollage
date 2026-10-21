@@ -25,6 +25,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import Select from 'react-select';
 import moment from 'moment';
 import { HelperTooltip } from '@/helper/HelperTooltip';
+import { DATE_FORMAT } from '@/lib/date-utils';
 
 // Helper function to calculate months between dates
 const monthsBetween = (a: Date, b: Date) =>
@@ -240,11 +241,7 @@ export const employmentSchema = z
                 code: z.ZodIssueCode.custom,
                 message: `Gap of ${gapMonths.toFixed(
                   1
-                )} months detected between jobs (ended ${endM.format(
-                  'DD/MM/YYYY'
-                )} → started ${startM.format(
-                  'DD/MM/YYYY'
-                )}). You must select 'Yes' for employment gaps.`,
+                )} months detected between jobs (ended ${endM.format(DATE_FORMAT)} → started ${startM.format(DATE_FORMAT)}). You must select 'Yes' for employment gaps.`,
                 path: [
                   'previousEmployments',
                   earlier.originalIndex,
@@ -280,11 +277,7 @@ export const employmentSchema = z
                 code: z.ZodIssueCode.custom,
                 message: `Gap of ${gapMonths.toFixed(
                   1
-                )} months detected between your last job (ended ${lastEnd.format(
-                  'DD/MM/YYYY'
-                )}) and your current job (started ${currentStart.format(
-                  'DD/MM/YYYY'
-                )}). You must select 'Yes' for employment gaps.`,
+                )} months detected between your last job (ended ${lastEnd.format(DATE_FORMAT)}) and your current job (started ${currentStart.format(DATE_FORMAT)}). You must select 'Yes' for employment gaps.`,
                 path: [
                   'previousEmployments',
                   mostRecent.originalIndex,
@@ -313,9 +306,7 @@ export const employmentSchema = z
               code: z.ZodIssueCode.custom,
               message: `Gap of ${gapMonths.toFixed(
                 1
-              )} months detected since your last job (ended ${lastEnd.format(
-                'DD/MM/YYYY'
-              )}). You must select 'Yes' for employment gaps.`,
+              )} months detected since your last job (ended ${lastEnd.format(DATE_FORMAT)}). You must select 'Yes' for employment gaps.`,
               path: [
                 'previousEmployments',
                 mostRecent.originalIndex,
@@ -596,10 +587,10 @@ export function EmploymentStep({
                               <FormItem>
                                 <FormLabel className="text-watney">
                                   <div>
-                                    Start Date (DD/MM/YYYY){' '}
+                                    Start Date (DD-MM-YYYY){' '}
                                     <span className="text-red-500">*</span>
                                   </div>
-                                  <HelperTooltip text="Select the date you started this position. Format: DD/MM/YYYY. Example: 11/01/2000." />
+                                  <HelperTooltip text="Select the date you started this position. Format: DD-MM-YYYY. Example: 11-01-2000." />
                                 </FormLabel>
                                 <FormControl>
                                   <CustomDatePicker
@@ -827,10 +818,10 @@ export function EmploymentStep({
                                   <FormItem>
                                     <FormLabel className="text-watney">
                                       <div>
-                                        Start Date (DD/MM/YYYY){' '}
+                                        Start Date (DD-MM-YYYY){' '}
                                         <span className="text-red-500">*</span>
                                       </div>
-                                      <HelperTooltip text="Select the date you started this previous job. Format: DD/MM/YYYY." />
+                                      <HelperTooltip text="Select the date you started this previous job. Format: DD-MM-YYYY." />
                                     </FormLabel>
                                     <FormControl>
                                       <CustomDatePicker
@@ -861,10 +852,10 @@ export function EmploymentStep({
                                   <FormItem>
                                     <FormLabel className="text-watney">
                                       <div>
-                                        End Date (DD/MM/YYYY){' '}
+                                        End Date (DD-MM-YYYY){' '}
                                         <span className="text-red-500">*</span>
                                       </div>
-                                      <HelperTooltip text="Select the date you ended this previous job. Format: DD/MM/YYYY." />
+                                      <HelperTooltip text="Select the date you ended this previous job. Format: DD-MM-YYYY." />
                                     </FormLabel>
                                     <FormControl>
                                       <CustomDatePicker

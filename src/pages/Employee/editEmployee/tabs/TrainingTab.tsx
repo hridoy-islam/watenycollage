@@ -44,6 +44,7 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/ui/tooltip';
+import { DATE_FORMAT, DATE_FORMAT_FNS } from '@/lib/date-utils';
 
 // --- Types ---
 
@@ -429,16 +430,12 @@ const TrainingTab: React.FC = () => {
                       </TableCell>
                       <TableCell>
                         {displayDates.assignedDate
-                          ? moment(displayDates.assignedDate).format(
-                              'DD MMM YYYY'
-                            )
+                          ? moment(displayDates.assignedDate).format(DATE_FORMAT)
                           : '-'}
                       </TableCell>
                       <TableCell>
                         {displayDates.expireDate
-                          ? moment(displayDates.expireDate).format(
-                              'DD MMM YYYY'
-                            )
+                          ? moment(displayDates.expireDate).format(DATE_FORMAT)
                           : '-'}
                       </TableCell>
                       <TableCell>
@@ -524,9 +521,9 @@ const TrainingTab: React.FC = () => {
                       }));
                       setDateOpenState((p) => ({ ...p, assigned: false }));
                     }}
-                    dateFormat="dd/MM/yyyy"
+                    dateFormat={DATE_FORMAT_FNS}
                     className="h-10 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
-                    placeholderText="DD/MM/YYYY"
+                    placeholderText="DD-MM-YYYY"
                     open={dateOpenState.assigned}
                     onInputClick={() =>
                       setDateOpenState((p) => ({ ...p, assigned: true }))
@@ -546,7 +543,7 @@ const TrainingTab: React.FC = () => {
                       formData.isOptional
                         ? 'Not Applicable'
                         : formData.expireDate
-                          ? moment(formData.expireDate).format('DD/MM/YYYY')
+                          ? moment(formData.expireDate).format(DATE_FORMAT)
                           : ''
                     }
                     placeholder={

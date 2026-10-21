@@ -39,6 +39,7 @@ import {
 } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
+import { DATE_FORMAT, DATE_FORMAT_FNS } from '@/lib/date-utils';
 
 interface UploadedFile {
   name: string;
@@ -609,7 +610,7 @@ function AppraisalTab() {
                   {userData?.noRtwCheck || leaverData.length > 0
                     ? 'N/A'
                     : currentCheckDate
-                      ? moment(currentCheckDate).format('DD MMMM YYYY')
+                      ? moment(currentCheckDate).format(DATE_FORMAT)
                       : 'Not Set'}
                 </div>
 
@@ -690,7 +691,7 @@ function AppraisalTab() {
                                     : 'System'}
                                 </span>
                                 <span className="text-xs ">
-                                  {moment(entry.date).format('DD MMM YYYY')}
+                                  {moment(entry.date).format(DATE_FORMAT)}
                                 </span>
                               </div>
                             </div>
@@ -764,7 +765,7 @@ function AppraisalTab() {
                 <p>
                   Current check expires on{' '}
                   <span className="font-semibold">
-                    {moment(currentCheckDate).format('DD MMM YYYY')}
+                    {moment(currentCheckDate).format(DATE_FORMAT)}
                   </span>
                   .
                 </p>
@@ -780,7 +781,7 @@ function AppraisalTab() {
               <DatePicker
                 selected={newCheckDate}
                 onChange={(date) => setNewCheckDate(date)}
-                dateFormat="dd-MM-yyyy"
+                dateFormat={DATE_FORMAT_FNS}
                 className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholderText="Select date..."
                 showMonthDropdown

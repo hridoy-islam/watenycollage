@@ -27,6 +27,7 @@ import { BlinkingDots } from '@/components/shared/blinking-dots';
 import DynamicPagination from '@/components/shared/DynamicPagination';
 import axiosInstance from '@/lib/axios';
 import { useNavigate } from 'react-router-dom';
+import { DATE_FORMAT } from '@/lib/date-utils';
 
 const PENDING_ASSESSMENT_KEY = 'pendingServiceUserAssessmentId';
 
@@ -152,7 +153,7 @@ export default function ServiceUserAssessmentPage() {
                 </TableCell>
                 <TableCell>
                   {assessment.dateOfAssessment
-                    ? moment(assessment.dateOfAssessment).format('DD/MM/YYYY')
+                    ? moment(assessment.dateOfAssessment).format(DATE_FORMAT)
                     : '—'}
                 </TableCell>
 

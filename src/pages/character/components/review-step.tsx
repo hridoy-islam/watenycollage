@@ -29,6 +29,7 @@ import { Progress } from '@/components/ui/progress';
 
 import type { TCareer } from '@/types/career';
 import React from 'react';
+import { DATE_FORMAT } from '@/lib/date-utils';
 
 const careerSchema = z
   .object({
@@ -222,7 +223,7 @@ export function ReviewStep({
   // Format helpers (unchanged)
   const formatDate = (date: Date | string | undefined) => {
     if (!date) return 'Not provided';
-    return moment(date).format('DD/MM/YYYY');
+    return moment(date).format(DATE_FORMAT);
   };
 
   const formatValue = (value: any): string => {
@@ -236,7 +237,7 @@ export function ReviewStep({
       value instanceof Date ||
       moment(value, moment.ISO_8601, true).isValid()
     ) {
-      return moment(value).format('DD-MM-YYYY');
+      return moment(value).format(DATE_FORMAT);
     }
     if (Array.isArray(value)) {
       if (value.length === 0) return 'None';

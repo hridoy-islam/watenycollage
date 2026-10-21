@@ -1,5 +1,6 @@
 import { Document, Page, Text, View, Image, StyleSheet } from "@react-pdf/renderer";
 import moment from "moment";
+import { DATE_FORMAT } from '@/lib/date-utils';
 
 const styles = StyleSheet.create({
   page: {
@@ -113,7 +114,7 @@ export const ReferenceDeclarationPdf = ({
           <Text style={styles.fieldLabel}>Date</Text>
           <View style={styles.fieldLine}>
             <Text style={styles.fieldValue}>
-              {date ? moment(date).format("DD/MM/YYYY") : DOTS}
+              {date ? moment(date).format(DATE_FORMAT) : DOTS}
             </Text>
           </View>
         </View>

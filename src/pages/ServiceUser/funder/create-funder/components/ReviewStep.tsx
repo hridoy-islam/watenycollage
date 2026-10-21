@@ -1,3 +1,4 @@
+import { formatDate } from '@/lib/date-utils';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { ServiceFunderFormData } from './validation';
@@ -14,18 +15,6 @@ import {
   FileInput,
 } from 'lucide-react';
 
-// 📅 Helper to format ISO date string to dd-MM-yyyy
-const formatDate = (isoString: string): string => {
-  const date = new Date(isoString);
-  if (isNaN(date.getTime())) return isoString; // fallback if invalid
-
-  const day = String(date.getDate()).padStart(2, '0');
-  const month = String(date.getMonth() + 1).padStart(2, '0'); // months are 0-indexed
-  const year = date.getFullYear();
-
-  return `${day}-${month}-${year}`;
-};
-
 // 🔠 Helper to smart-format any value for display
 const formatValue = (value: any): string => {
   if (value === null || value === undefined || value === '') {
@@ -39,7 +28,7 @@ const formatValue = (value: any): string => {
 
   // Handle ISO date strings
   if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z?$/.test(value)) {
-    return formatDate(value);
+    return formatDate(value, value);
   }
 
   // Handle react-select object: { value: 'abc', label: 'Abc' }

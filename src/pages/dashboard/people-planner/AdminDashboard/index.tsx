@@ -7,6 +7,7 @@ import axiosInstance from '@/lib/axios';
 import { Card, CardContent } from '@/components/ui/card';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { DATE_FORMAT } from '@/lib/date-utils';
 
 export default function PeoplePlannerAdminDashboardPage() {
   const [todaysSchedules, setTodaysSchedules] = useState<any[]>([]);
@@ -15,7 +16,7 @@ export default function PeoplePlannerAdminDashboardPage() {
   const navigate = useNavigate();
 
   const currentDate = moment();
-  const todayFormatted = currentDate.format('dddd, MMMM Do, YYYY');
+  const todayFormatted = currentDate.format(`dddd, ${DATE_FORMAT}`);
   const todayDateString = currentDate.format('YYYY-MM-DD');
 
   useEffect(() => {

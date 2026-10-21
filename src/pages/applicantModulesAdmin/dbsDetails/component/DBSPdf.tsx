@@ -1,3 +1,4 @@
+import { formatDate } from '@/lib/date-utils';
 // src/components/pdf/DBSPdf.tsx
 import { Document, Page, Text, View, Image, StyleSheet } from '@react-pdf/renderer';
 
@@ -128,11 +129,7 @@ const DBSPdf = ({ dbsDetails }: DBSPdfProps) => (
     <Text style={styles.label}>Date of Issue</Text>
     <Text style={styles.value}>
       {dbsDetails.dateOfIssue
-        ? new Date(dbsDetails.dateOfIssue).toLocaleDateString("en-GB", {
-            month: "2-digit",
-            day: "2-digit",
-            year: "numeric",
-          })
+        ? formatDate(dbsDetails.dateOfIssue)
         : "—"}
     </Text>
   </View>
@@ -141,11 +138,7 @@ const DBSPdf = ({ dbsDetails }: DBSPdfProps) => (
     <Text style={styles.label}>Expiry Date</Text>
     <Text style={styles.value}>
       {dbsDetails.expiryDate
-        ? new Date(dbsDetails.expiryDate).toLocaleDateString("en-GB", {
-            month: "2-digit",
-            day: "2-digit",
-            year: "numeric",
-          })
+        ? formatDate(dbsDetails.expiryDate)
         : "—"}
     </Text>
   </View>

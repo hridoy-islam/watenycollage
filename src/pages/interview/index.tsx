@@ -34,6 +34,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useToast } from '@/components/ui/use-toast';
 import InterviewPDF from './components/interview-pdf';
+import { DATE_FORMAT_FNS } from '@/lib/date-utils';
 
 interface User {
   title: string;
@@ -566,7 +567,7 @@ export default function InterviewAssessmentPage() {
                           shouldValidate: true
                         });
                     }}
-                    dateFormat="dd-MM-yyyy"
+                    dateFormat={DATE_FORMAT_FNS}
                     className={`w-full rounded-2xl h-12 border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                       !isEditing ? 'cursor-not-allowed bg-gray-100' : ''
                     }`}

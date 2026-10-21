@@ -6,6 +6,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { MoveLeft } from "lucide-react";
+import { formatDate } from '@/lib/date-utils';
 
 export default function SupportPlanDetailPage() {
   const { id } = useParams();
@@ -165,7 +166,7 @@ const navigate = useNavigate()
               }
               onChange={(e) => {
                 const date = e.target.value;
-                const formatted = date ? new Date(date).toLocaleDateString('en-GB') : "No date set";
+                const formatted = date ? formatDate(date) : "No date set";
                 handleChange("nextReview", formatted);
               }}
             />

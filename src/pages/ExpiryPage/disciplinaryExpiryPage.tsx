@@ -22,6 +22,7 @@ import axiosInstance from '@/lib/axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import moment from '@/lib/moment-setup';
+import { DATE_FORMAT } from '@/lib/date-utils';
 
 // --- Interfaces ---
 
@@ -110,7 +111,7 @@ const DisciplinaryExpiryPage = () => {
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'N/A';
-    return moment(dateString).format('DD MMM YYYY');
+    return moment(dateString).format(DATE_FORMAT);
   };
 
   return (

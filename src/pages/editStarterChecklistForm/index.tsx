@@ -26,6 +26,7 @@ import { BlinkingDots } from '@/components/shared/blinking-dots';
 import { CustomDatePicker } from '@/components/shared/CustomDatePicker';
 import { useToast } from '@/components/ui/use-toast';
 import SignatureCanvas from 'react-signature-canvas';
+import { formatDate } from '@/lib/date-utils';
 
 // --- SCHEMA ---
 const starterChecklistSchema = z
@@ -249,7 +250,7 @@ export default function EditStarterChecklistForm() {
 
   // Format DOB and ensure address/postcode
   const dob = user?.dateOfBirth
-    ? new Date(user.dateOfBirth).toLocaleDateString('en-GB')
+    ? formatDate(user.dateOfBirth)
     : '—';
   const address = user?.postalAddressLine1 || '—';
   const postcode = user?.postalPostCode || '—';
@@ -378,7 +379,7 @@ export default function EditStarterChecklistForm() {
                             <CustomDatePicker
                               selected={field.value}
                               onChange={field.onChange}
-                              placeholder="e.g. 15/10/2025"
+                              placeholder="e.g. 15-10-2025"
                             />
                           </FormControl>
                           <FormMessage />

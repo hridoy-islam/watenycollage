@@ -22,6 +22,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import 'react-datepicker/dist/react-datepicker.css';
 import { useSelector } from 'react-redux';
 import moment from '@/lib/moment-setup';
+import { DATE_FORMAT } from '@/lib/date-utils';
 
 // --- Interfaces ---
 
@@ -143,7 +144,7 @@ const SpotCheckExpiryPage = () => {
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'N/A';
-    return moment(dateString).format('DD MMM YYYY');
+    return moment(dateString).format(DATE_FORMAT);
   };
 
   // --- 5. Handlers ---

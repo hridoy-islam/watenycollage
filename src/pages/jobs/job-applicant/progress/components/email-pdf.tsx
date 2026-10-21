@@ -1,6 +1,7 @@
 import React from "react"
 import { Page, Text, View, Document, StyleSheet, Link } from "@react-pdf/renderer"
 import moment from "moment"
+import { DATE_TIME_FORMAT } from '@/lib/date-utils';
 
 const styles = StyleSheet.create({
   page: {
@@ -153,8 +154,8 @@ export function EmailPDF({
             <Text style={styles.headerLabel}>Sent:</Text>
             <Text style={styles.headerValue}>
               {sentDate
-                ? moment(sentDate).format("DD MMMM YYYY HH:mm")
-                : moment().format("DD MMMM YYYY HH:mm")}
+                ? moment(sentDate).format(DATE_TIME_FORMAT)
+                : moment().format(DATE_TIME_FORMAT)}
             </Text>
           </View>
           <View style={styles.headerRow}>

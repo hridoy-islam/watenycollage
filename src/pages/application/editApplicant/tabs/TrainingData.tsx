@@ -1,3 +1,4 @@
+import { formatDate } from '@/lib/date-utils';
 import React, { useEffect, useState } from 'react';
 import TabSection from '../TabSection';
 import { Input } from '@/components/ui/input';
@@ -219,7 +220,7 @@ const TrainingData = ({
                   ) : (
                     <div className="mt-1 text-gray-900">
                       {entry.completionDate
-                        ? new Date(entry.completionDate).toLocaleDateString('en-GB')
+                        ? formatDate(entry.completionDate)
                         : '-'}
                     </div>
                   )}

@@ -248,7 +248,7 @@ export function TrainingStep({
                           Completion Date{' '}
                           <span className="text-red-500">*</span>
                         </div>
-                        <HelperTooltip text="Enter the date you completed the training. Example: 06/15/2023" />
+                        <HelperTooltip text="Enter the date you completed the training. Example: 15-06-2023" />
                       </div>
                     </TableHead>
 
@@ -342,12 +342,12 @@ export function TrainingStep({
                                       onChange={(date) =>
                                         formField.onChange(date)
                                       }
-                                      placeholderText="DD/MM/YYYY"
+                                      placeholderText="DD-MM-YYYY"
                                       className=" w-full text-lg"
                                     />
                                   </FormControl>
                                   {/* <p className="text-md text-gray-400">
-                                    Example: 06/15/2023
+                                    Example: 15-06-2023
                                   </p> */}
                                   <FormMessage />
                                 </FormItem>
@@ -507,7 +507,7 @@ export function TrainingStep({
                               <span className="text-red-500">*</span>
                             )}
                           </div>
-                          <HelperTooltip text="Enter the date you completed the training. Example: 06/15/2023" />
+                          <HelperTooltip text="Enter the date you completed the training. Example: 15-06-2023" />
                         </div>
                       </Label>
                       <FormField
@@ -523,12 +523,12 @@ export function TrainingStep({
                                 <CustomDatePicker
                                   selected={selectedDate}
                                   onChange={(date) => formField.onChange(date)}
-                                  placeholderText="DD/MM/YYYY"
+                                  placeholderText="DD-MM-YYYY"
                                   className="h-12 w-full rounded-2xl text-lg"
                                 />
                               </FormControl>
                               {/* <p className="text-md text-gray-400">
-                                Example: 06/15/2023
+                                Example: 15-06-2023
                               </p> */}
                               <FormMessage />
                             </FormItem>

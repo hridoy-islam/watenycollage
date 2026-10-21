@@ -8,6 +8,7 @@ import {
   Image
 } from '@react-pdf/renderer';
 import moment from 'moment';
+import { DATE_FORMAT } from '@/lib/date-utils';
 
 // Mock data to replace variables and placeholders
 const MOCK_DATA: Record<string, string> = {
@@ -16,7 +17,7 @@ const MOCK_DATA: Record<string, string> = {
   firstName: 'Jane',
   lastName: 'Doe',
   phone: '+1 (555) 123-4567',
-  dateOfBirth: moment('1990-05-15').format('DD MMM, YYYY'),
+  dateOfBirth: moment('1990-05-15').format(DATE_FORMAT),
   email: 'jane.doe@example.com',
   nationality: 'American',
   countryOfResidence: 'Canada',
@@ -37,7 +38,7 @@ const MOCK_DATA: Record<string, string> = {
   applicationDate: '2025-05-15',
   'signature id="1"': '/demosign.png', // 👈 will be rendered as an Image
   'courseCode="1"': 'Computer Science',
-  todayDate: moment().format('DD MMM, YYYY'),
+  todayDate: moment().format(DATE_FORMAT),
   applicationTitle: 'Care Worker'
 };
 

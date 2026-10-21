@@ -47,6 +47,7 @@ import {
   Download
 } from 'lucide-react';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
+import { DATE_FORMAT, DATE_FORMAT_FNS } from '@/lib/date-utils';
 
 // --- Types ---
 type TCompletionRecord = {
@@ -607,21 +608,21 @@ const TrainingDetailsPage: React.FC = () => {
         <div>
           <span className="text-xs font-semibold uppercase text-black">Assigned Date</span>
           <p className="font-medium text-gray-800">
-            {data.assignedDate ? moment.utc(data.assignedDate).format('DD MMM, YYYY') : '-'}
+            {data.assignedDate ? moment.utc(data.assignedDate).format(DATE_FORMAT) : '-'}
           </p>
         </div>
         <div>
           <span className="text-xs font-semibold uppercase text-black">Expiry Date</span>
           <p className="font-medium text-gray-800">
             { data.expireDate 
-                ? moment.utc(data.expireDate).format('DD MMM, YYYY') 
+                ? moment.utc(data.expireDate).format(DATE_FORMAT) 
                 : '-'}
           </p>
         </div>
         <div>
           <span className="text-xs font-semibold uppercase text-black">Completed On</span>
           <p className={isLog ? 'font-medium text-green-600' : 'font-medium text-gray-800'}>
-            {data.completedAt ? moment.utc(data.completedAt).format('DD MMM, YYYY') : '-'}
+            {data.completedAt ? moment.utc(data.completedAt).format(DATE_FORMAT) : '-'}
           </p>
         </div>
 
@@ -672,7 +673,7 @@ const TrainingDetailsPage: React.FC = () => {
       ? moment
           .utc([reassignDate.getFullYear(), reassignDate.getMonth(), reassignDate.getDate()])
           .add(trainingRecord.trainingId.validityDays, 'days')
-          .format('DD-MM-YYYY')
+          .format(DATE_FORMAT)
       : '';
 
   const dialogTitleMap = {
@@ -782,7 +783,7 @@ const TrainingDetailsPage: React.FC = () => {
                     selected={formData.assignedDate}
                     onChange={(date) => setFormData({ ...formData, assignedDate: date })}
                     className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
-                    dateFormat="dd-MM-yyyy"
+                    dateFormat={DATE_FORMAT_FNS}
                     showMonthDropdown
                     showYearDropdown
                     preventOpenOnFocus
@@ -796,7 +797,7 @@ const TrainingDetailsPage: React.FC = () => {
                     className={cn(
                       'flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm'
                     )}
-                    dateFormat="dd-MM-yyyy"
+                    dateFormat={DATE_FORMAT_FNS}
                     showMonthDropdown
                     showYearDropdown
                     preventOpenOnFocus
@@ -856,7 +857,7 @@ const TrainingDetailsPage: React.FC = () => {
                     selected={formData.completedAt}
                     onChange={(date) => setFormData({ ...formData, completedAt: date })}
                     className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
-                    dateFormat="dd-MM-yyyy"
+                    dateFormat={DATE_FORMAT_FNS}
                     placeholderText="Select completion date"
                     showMonthDropdown
                     showYearDropdown
@@ -991,7 +992,7 @@ const TrainingDetailsPage: React.FC = () => {
                 onChange={(date) => setReassignDate(date)}
                 // minDate={minReassignDate}
                 className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
-                dateFormat="dd-MM-yyyy"
+                dateFormat={DATE_FORMAT_FNS}
                 placeholderText="Select start date"
                 showMonthDropdown
                 showYearDropdown

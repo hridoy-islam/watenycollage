@@ -34,6 +34,7 @@ import Select from 'react-select';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
 import DynamicPagination from '@/components/shared/DynamicPagination';
 import moment from 'moment';
+import { DATE_FORMAT } from '@/lib/date-utils';
 
 interface NeedOption {
   value: string;
@@ -258,7 +259,7 @@ export default function ServiceUserNeedPage() {
                     <TableCell>{item.note || '—'}</TableCell>
                     <TableCell>
                       {item.createdAt
-                        ? moment(item.createdAt).format('DD/MM/YYYY')
+                        ? moment(item.createdAt).format(DATE_FORMAT)
                         : '—'}
                     </TableCell>
                     <TableCell>

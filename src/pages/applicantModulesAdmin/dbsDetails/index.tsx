@@ -12,6 +12,7 @@ import { MoveLeft, Download, ExternalLink, Pen } from 'lucide-react';
 import axiosInstance from '@/lib/axios';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
 import { format } from 'date-fns';
+import { DATE_FORMAT_FNS } from '@/lib/date-utils';
 
 interface DBSDetails {
   disclosureNumber: string;
@@ -171,7 +172,7 @@ export default function AdminDBSDetails() {
               </p>
               <p className="mt-2 text-lg text-gray-900">
                 {dbsDetails.dateOfIssue
-                  ? format(new Date(dbsDetails.dateOfIssue), 'dd/MM/yyyy')
+                  ? format(new Date(dbsDetails.dateOfIssue), DATE_FORMAT_FNS)
                   : '—'}
               </p>
             </div>
@@ -182,7 +183,7 @@ export default function AdminDBSDetails() {
               </p>
               <p className="mt-2 text-lg text-gray-900">
                 {dbsDetails.expiryDate
-                  ? format(new Date(dbsDetails.expiryDate), 'dd/MM/yyyy')
+                  ? format(new Date(dbsDetails.expiryDate), DATE_FORMAT_FNS)
                   : '—'}
               </p>
             </div>
@@ -220,7 +221,7 @@ export default function AdminDBSDetails() {
                 Submitted On
               </p>
               <p className="mt-2 text-gray-700">
-                {format(new Date(dbsDetails.createdAt), 'dd MMM yyyy')}
+                {format(new Date(dbsDetails.createdAt), DATE_FORMAT_FNS)}
               </p>
             </div>
           )}

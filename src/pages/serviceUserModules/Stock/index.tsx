@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Plus, Package, Clock, Calendar, MoveLeft } from "lucide-react"
 import { Link, useNavigate } from "react-router-dom"
+import { formatDate } from '@/lib/date-utils';
 
 // Mock data for medications
 const mockMedications = {
@@ -131,7 +132,7 @@ function MedicationCard({ medication, type }: { medication: any; type: string })
                   {medication.stockCount} {medication.unit}
                 </Badge>
                 <span className="text-xs text-muted-foreground">
-                  Updated {new Date(medication.lastUpdated).toLocaleDateString()}
+                  Updated {formatDate(medication.lastUpdated)}
                 </span>
               </div>
             </div>

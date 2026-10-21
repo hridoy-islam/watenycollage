@@ -43,6 +43,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from "@/components/ui/badge";
 import moment from 'moment';
+import { DATE_FORMAT } from '@/lib/date-utils';
 
 // --- Types based on your Mongoose Model ---
 type DocumentCategory = 'General' | 'Legal' | 'Finance' | 'HR' | 'Technical';
@@ -417,7 +418,7 @@ export default function DocumentPage() {
                         <Badge className="font-normal">{doc.category}</Badge>
                     </TableCell>
                     <TableCell className="text-muted-foreground text-xs">
-                       {moment(doc.createdAt).format('DD MMM, YYYY')}
+                       {moment(doc.createdAt).format(DATE_FORMAT)}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-1">
@@ -481,7 +482,7 @@ export default function DocumentPage() {
                   <div className="flex flex-col">
                     <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-0.5">Uploaded On</span>
                     <span className="text-base font-semibold text-slate-900">
-  {moment(viewingDoc.createdAt).format('DD MMM, YYYY')}
+  {moment(viewingDoc.createdAt).format(DATE_FORMAT)}
 </span>
                   </div>
                 </div>

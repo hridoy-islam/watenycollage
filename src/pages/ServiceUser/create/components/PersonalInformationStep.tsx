@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { ServiceUserFormData } from './validation';
 import { FormField } from './FromField';
 import { countries } from '@/types';
+import { DATE_FORMAT_FNS } from '@/lib/date-utils';
 
 const typeOptions = [
   { value: 'individual', label: 'Individual' },
@@ -180,7 +181,7 @@ export const PersonalInformationStep: React.FC = () => {
                 }}
                 placeholderText="Select date of birth"
                 className="w-full rounded-xl h-12 border border-gray-300 px-3 py-2 text-sm"
-                dateFormat="dd-MM-yyyy"
+                dateFormat={DATE_FORMAT_FNS}
                 showMonthDropdown
                 showYearDropdown
                 dropdownMode="select"
@@ -263,7 +264,7 @@ export const PersonalInformationStep: React.FC = () => {
                 onChange={(date) => field.onChange(date ?? undefined)}
                 placeholderText="Select start date"
                 className="w-full rounded-xl h-12 border border-gray-300 px-3 py-2 text-sm"
-                dateFormat="dd-MM-yyyy"
+                dateFormat={DATE_FORMAT_FNS}
                 showMonthDropdown
                 showYearDropdown
                 dropdownMode="select"
@@ -285,7 +286,7 @@ export const PersonalInformationStep: React.FC = () => {
                 onChange={(date) => field.onChange(date ?? undefined)}
                 placeholderText="Select last duty date"
                 className="w-full rounded-xl h-12 border border-gray-300 px-3 py-2 text-sm"
-                dateFormat="dd-MM-yyyy"
+                dateFormat={DATE_FORMAT_FNS}
                 showMonthDropdown
                 showYearDropdown
                 dropdownMode="select"

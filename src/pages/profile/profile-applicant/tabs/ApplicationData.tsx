@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { CustomDatePicker } from '@/components/shared/CustomDatePicker';
 import { Checkbox } from '@/components/ui/checkbox';
 import { languages } from '@/types';
+import { formatDate } from '@/lib/date-utils';
 
 interface ApplicationDataProps {
   userData: User;
@@ -96,7 +97,7 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
             />
           ) : (
             localData.availableFromDate
-              ? new Date(localData.availableFromDate).toLocaleDateString('en-GB')
+              ? formatDate(localData.availableFromDate)
               : '-'
           ))}
 

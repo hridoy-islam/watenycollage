@@ -41,6 +41,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import moment from '@/lib/moment-setup';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
+import { DATE_FORMAT } from '@/lib/date-utils';
 
 // --- CONSTANTS ---
 export const REQUIRED_DOCUMENTS_LIST = [
@@ -1048,7 +1049,7 @@ export default function EmployeeDocumentTab() {
                     </TableCell>
                     <TableCell className="text-sm text-gray-500">
                       {doc.createdAt
-                        ? moment(doc.createdAt).format('DD MMM, YYYY')
+                        ? moment(doc.createdAt).format(DATE_FORMAT)
                         : '-'}
                     </TableCell>
                     <TableCell className="text-right">

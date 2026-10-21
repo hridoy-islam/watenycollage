@@ -15,6 +15,7 @@ import { BlinkingDots } from '@/components/shared/blinking-dots';
 import moment from 'moment';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { ReferencePdfDocument } from './components/ReferencePdfDocument';
+import { DATE_FORMAT } from '@/lib/date-utils';
 
 // Interfaces remain unchanged
 interface Reference {
@@ -165,7 +166,7 @@ export default function ApplicantReferencePage() {
   const formatDate = (dateString: string) => {
     if (!dateString) return 'N/A';
     try {
-      return new Date(dateString).toLocaleDateString('en-GB');
+      return moment(dateString).format(DATE_FORMAT);
     } catch {
       return dateString;
     }
@@ -440,7 +441,7 @@ const ReferenceContent = ({
 
             {referenceData?.createdAt && (
               <div className="pt-2 text-right text-sm text-muted-foreground">
-                Submitted on: {moment(referenceData.createdAt).format('DD MMM YYYY')}
+                Submitted on: {moment(referenceData.createdAt).format(DATE_FORMAT)}
               </div>
             )}
           </div>

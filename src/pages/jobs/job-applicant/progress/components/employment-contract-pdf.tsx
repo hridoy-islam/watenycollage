@@ -7,6 +7,7 @@ import {
   StyleSheet
 } from '@react-pdf/renderer';
 import { format } from 'date-fns';
+import { DATE_FORMAT_FNS } from '@/lib/date-utils';
 
 const styles = StyleSheet.create({
   page: {
@@ -335,8 +336,8 @@ export const EmploymentContractPdf = ({
       <Text style={styles.paragraph}>
         This statement dated{' '}
         {createdAt
-          ? format(new Date(createdAt), 'dd/MM/yyyy')
-          : '___/___/___'}{' '}
+          ? format(new Date(createdAt), DATE_FORMAT_FNS)
+          : '___-___-___'}{' '}
         sets out certain particulars of the terms and conditions which, in
         conjunction with the Staff Handbook, Policies & Procedures, Job
         Description and any other operating procedures, form part of the
@@ -376,8 +377,8 @@ export const EmploymentContractPdf = ({
               }}
             >
               {jobStartDate
-                ? format(new Date(jobStartDate), 'dd/MM/yyyy')
-                : '___/___/___'}
+                ? format(new Date(jobStartDate), DATE_FORMAT_FNS)
+                : '___-___-___'}
             </Text>{' '}
             (i.e. the day you undertook your first assignment). Employment with
             your previous employer does not count as part of your continuous
@@ -660,7 +661,7 @@ export const EmploymentContractPdf = ({
               <View style={styles.inlineFieldLine}>
                 {createdAt && (
                   <Text style={styles.signatureDateText}>
-                    {format(new Date(createdAt), 'dd/MM/yyyy')}
+                    {format(new Date(createdAt), DATE_FORMAT_FNS)}
                   </Text>
                 )}
               </View>
@@ -716,7 +717,7 @@ export const EmploymentContractPdf = ({
               <View style={styles.inlineFieldLine}>
                 {employerSignatureDate && (
                   <Text style={styles.signatureDateText}>
-                    {format(new Date(employerSignatureDate), 'dd/MM/yyyy')}
+                    {format(new Date(employerSignatureDate), DATE_FORMAT_FNS)}
                   </Text>
                 )}
               </View>

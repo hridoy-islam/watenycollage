@@ -1,5 +1,6 @@
 import { Document, Page, Text, View, Image, StyleSheet } from '@react-pdf/renderer';
 import { format } from 'date-fns';
+import { DATE_FORMAT_FNS } from '@/lib/date-utils';
 
 const styles = StyleSheet.create({
   page: {
@@ -163,7 +164,7 @@ export const ConfidentialityFormPdf = ({ name, signatureUrl, createdAt }: Confid
           <View style={styles.signatureField}>
             <Text style={styles.fieldLabel}>Date: </Text>
             <Text style={styles.fieldValue}>
-              {createdAt ? format(new Date(createdAt), 'dd/MM/yyyy') : '___/___/____'}
+              {createdAt ? format(new Date(createdAt), DATE_FORMAT_FNS) : '___-___-____'}
             </Text>
           </View>
         </View>

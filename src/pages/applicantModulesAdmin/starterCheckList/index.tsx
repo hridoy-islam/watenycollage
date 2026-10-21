@@ -14,6 +14,7 @@ import { BlinkingDots } from '@/components/shared/blinking-dots';
 import { format } from 'date-fns';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { StarterCheckListPdf } from './components/StarterChecklistPdf';
+import { DATE_FORMAT_FNS } from '@/lib/date-utils';
 
 // Define the expected shape of the checklist data
 interface StarterChecklistData {
@@ -106,7 +107,7 @@ export default function AdminStarterChecklist() {
 
   // Helper to format date
   const formatDate = (dateStr?: string) =>
-    dateStr ? format(new Date(dateStr), 'dd/MM/yyyy') : '';
+    dateStr ? format(new Date(dateStr), DATE_FORMAT_FNS) : '';
 
   // Helper for gender
   const renderGender = (gender: string) =>
@@ -293,7 +294,7 @@ export default function AdminStarterChecklist() {
           {checklist.createdAt && (
             <div className="pt-6 border-t border-gray-100">
               <p className="text-sm text-gray-500">
-                Submitted on: {format(new Date(checklist.createdAt), 'dd MMM yyyy')}
+                Submitted on: {format(new Date(checklist.createdAt), DATE_FORMAT_FNS)}
               </p>
             </div>
           )}

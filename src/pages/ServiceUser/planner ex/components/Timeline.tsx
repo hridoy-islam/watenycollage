@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import moment from 'moment';
 import { cn } from '@/lib/utils'; 
+import { DATE_FORMAT } from '@/lib/date-utils';
 
 // --- Constants ---
 const HEADER_HEIGHT_CLASS = "h-12"; 
@@ -140,7 +141,7 @@ export function Timeline({
     return { left: `${startPos}rem`, width: `${duration}rem` };
   };
 
-  const displayDate = selectedDate ? moment(selectedDate).format('MMMM Do, YYYY') : moment().format('MMMM Do, YYYY');
+  const displayDate = selectedDate ? moment(selectedDate).format(DATE_FORMAT) : moment().format(DATE_FORMAT);
 
   return (
     <div className="flex h-full w-full flex-col overflow-hidden rounded-lg border border-slate-200 shadow-sm relative z-0">
@@ -329,7 +330,7 @@ const DraggableScheduleBlock = ({ schedule, position, onClick, canDrag, resource
   const endTime = moment(schedule.endTime, 'HH:mm');
   const duration = moment.duration(endTime.diff(startTime));
   const durationString = `${Math.floor(duration.asHours())}h ${duration.minutes()}m`;
-  const formattedDate = moment(schedule.date).format('DD-MM-yyyy');
+  const formattedDate = moment(schedule.date).format(DATE_FORMAT);
   
   const employeeName = schedule.employee ? `${schedule.employee.firstName} ${schedule.employee.lastName}` : 'Unallocated';
   const clientName = schedule.serviceUser ? `${schedule.serviceUser.firstName} ${schedule.serviceUser.lastName}` : 'Unknown Client';

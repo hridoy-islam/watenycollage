@@ -14,6 +14,7 @@ import axiosInstance from '@/lib/axios';
 import moment from 'moment';
 import { DataTablePagination } from '@/components/shared/data-table-pagination';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
+import { DATE_FORMAT } from '@/lib/date-utils';
 
 function ApplicantLogsPage() {
   const navigate = useNavigate();
@@ -52,7 +53,7 @@ function ApplicantLogsPage() {
         id: log._id,
         action: log.action,
         // Using createdAt from the timestamps: true in your model
-        createdAt: moment(log.createdAt).format('DD MMM, YYYY'), 
+        createdAt: moment(log.createdAt).format(DATE_FORMAT), 
       }));
 
       setLogs(formattedLogs);

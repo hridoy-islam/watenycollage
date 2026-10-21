@@ -18,6 +18,7 @@ import { DataTablePagination } from '@/components/shared/data-table-pagination';
 import { JobDialog } from './components/job-dialog';
 import moment from 'moment';
 import { useNavigate } from 'react-router-dom';
+import { DATE_FORMAT } from '@/lib/date-utils';
 
 export default function JobPage() {
   const [jobs, setJobs] = useState<any>([]);
@@ -238,7 +239,7 @@ export default function JobPage() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    {moment(job.applicationDeadline).format('MM/DD/yyyy')}
+                    {moment(job.applicationDeadline).format(DATE_FORMAT)}
                   </TableCell>
                   <TableCell>
                     <Button

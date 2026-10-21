@@ -393,7 +393,7 @@ export function ApplicantDashboard({ user }: ApplicantDashboardProps) {
                                   {application.jobId?.applicationDeadline
                                     ? moment(
                                         application.jobId.applicationDeadline
-                                      ).format('DD MMM YYYY')
+                                      ).format(DATE_FORMAT)
                                     : 'N/A'}
                                 </TableCell>
                               </TableRow>
@@ -416,7 +416,7 @@ export function ApplicantDashboard({ user }: ApplicantDashboardProps) {
                             {application.jobId?.applicationDeadline
                               ? moment(
                                   application.jobId.applicationDeadline
-                                ).format('DD-MM-YYYY')
+                                ).format(DATE_FORMAT)
                               : 'N/A'}
                           </CardDescription>
                         </CardHeader>
@@ -460,9 +460,7 @@ export function ApplicantDashboard({ user }: ApplicantDashboardProps) {
                                 </TableCell>
                                 <TableCell>
                                   {job.applicationDeadline
-                                    ? moment(job.applicationDeadline).format(
-                                        'DD-MM-YYYY'
-                                      )
+                                    ? moment(job.applicationDeadline).format(DATE_FORMAT)
                                     : 'N/A'}
                                 </TableCell>
                                 <TableCell className="text-right">
@@ -490,9 +488,7 @@ export function ApplicantDashboard({ user }: ApplicantDashboardProps) {
                           <CardDescription>
                             Deadline:{' '}
                             {job.applicationDeadline
-                              ? moment(job.applicationDeadline).format(
-                                  'DD-MM-YYYY'
-                                )
+                              ? moment(job.applicationDeadline).format(DATE_FORMAT)
                               : 'N/A'}
                           </CardDescription>
                           <div className="mt-2 text-right">

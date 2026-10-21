@@ -1,3 +1,4 @@
+import { formatDate } from '@/lib/date-utils';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -144,7 +145,7 @@ export function BankDetailsTab({ userId }: Props) {
         </div>
         {data.createdAt && (
           <p className="text-xs text-gray-400 pt-2 border-t">
-            Submitted: {new Date(data.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+            Submitted: {formatDate(data.createdAt)}
           </p>
         )}
       </CardContent>

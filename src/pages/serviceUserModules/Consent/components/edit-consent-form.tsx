@@ -43,6 +43,7 @@ import {
   DialogFooter
 } from '@/components/ui/dialog';
 import { toast } from '@/components/ui/use-toast';
+import { DATE_FORMAT_FNS } from '@/lib/date-utils';
 
 interface TConsent {
   _id: string;
@@ -489,7 +490,7 @@ export default function EditConsentFormPage() {
                                 <DatePicker
                                   selected={field.value}
                                   onChange={(date) => field.onChange(date)}
-                                  dateFormat="dd MMM yyyy"
+                                  dateFormat={DATE_FORMAT_FNS}
                                   className="flex h-10 w-full rounded-md border border-gray-300 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                                   wrapperClassName="w-full"
                                   placeholderText="Select a date"

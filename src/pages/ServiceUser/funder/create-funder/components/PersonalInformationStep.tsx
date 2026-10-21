@@ -8,6 +8,7 @@ import { FormField } from './FromField';
 import { countries } from '@/types';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { DATE_FORMAT_FNS } from '@/lib/date-utils';
 
 const typeOptions = [
   { value: 'private', label: 'Private Client' },
@@ -237,7 +238,7 @@ export const PersonalInformationStep: React.FC = () => {
             onChange={(date) =>
               setValue('startDate', date ? date.toISOString() : '')
             }
-            dateFormat="dd-MM-yyyy"
+            dateFormat={DATE_FORMAT_FNS}
             placeholderText="Select start date"
             className="w-full rounded-xl h-12 border border-gray-300 px-3 py-2 text-sm"
             wrapperClassName="w-full"

@@ -1,3 +1,4 @@
+import { formatDate } from '@/lib/date-utils';
 import React, { useEffect, useState } from 'react';
 import TabSection from '../TabSection';
 import { User } from '../../../types/user.types';
@@ -221,7 +222,7 @@ const EducationData = ({
                   ) : (
                     <div className="mt-1 text-gray-900">
                       {entry.awardDate
-                        ? new Date(entry.awardDate).toLocaleDateString('en-GB')
+                        ? formatDate(entry.awardDate)
                         : '-'}
                     </div>
                   )}

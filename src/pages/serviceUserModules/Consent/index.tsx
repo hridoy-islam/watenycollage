@@ -45,6 +45,7 @@ import { Separator } from '@/components/ui/separator';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
 import { useSelector } from 'react-redux';
 import  DynamicPagination  from '@/components/shared/DynamicPagination';
+import { DATE_FORMAT_FNS } from '@/lib/date-utils';
 
 // Interface matching your Mongoose Model
 interface IConsentForm {
@@ -279,8 +280,7 @@ export default function ConsentPage() {
                           <span className="text-sm">
                             {format(
                               new Date(form.nextReviewDate),
-                              'dd MMM yyyy'
-                            )}
+                              DATE_FORMAT_FNS)}
                           </span>
                           {new Date(form.nextReviewDate) < new Date() && (
                             <AlertCircle
@@ -352,7 +352,7 @@ export default function ConsentPage() {
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4 text-muted-foreground" />
                       <span className="text-sm font-medium">
-                        {format(new Date(selectedRecord.createdAt), 'PPP')}
+                        {format(new Date(selectedRecord.createdAt), DATE_FORMAT_FNS)}
                       </span>
                     </div>
                   </div>
@@ -378,7 +378,7 @@ export default function ConsentPage() {
                       className={`text-sm font-medium ${selectedRecord.nextReviewDate && new Date(selectedRecord.nextReviewDate) < new Date() ? 'text-red-600' : ''}`}
                     >
                       {selectedRecord.nextReviewDate
-                        ? format(new Date(selectedRecord.nextReviewDate), 'PPP')
+                        ? format(new Date(selectedRecord.nextReviewDate), DATE_FORMAT_FNS)
                         : 'Not Set'}
                     </p>
                   </div>

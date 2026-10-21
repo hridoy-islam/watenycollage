@@ -53,6 +53,7 @@ import { BlinkingDots } from '@/components/shared/blinking-dots';
 import  DynamicPagination  from '@/components/shared/DynamicPagination';
 import axiosInstance from '@/lib/axios';
 import { toast } from '@/components/ui/use-toast';
+import { DATE_FORMAT, DATE_FORMAT_FNS } from '@/lib/date-utils';
 
 const getStatusStyles = (status: string) => {
   switch (status.toLowerCase()) {
@@ -824,7 +825,7 @@ setUserData(serviceUsersRes.data?.data || null);
                 <DatePicker
                   selected={filterFromDate}
                   onChange={(date) => setFilterFromDate(date)}
-                  dateFormat="dd-MM-yyyy"
+                  dateFormat={DATE_FORMAT_FNS}
                   placeholderText="From Date"
 className="w-full rounded-xl h-12 border border-gray-300 px-3 py-2 text-sm"
                    showMonthDropdown
@@ -838,7 +839,7 @@ className="w-full rounded-xl h-12 border border-gray-300 px-3 py-2 text-sm"
                  <DatePicker
                    selected={filterToDate}
                    onChange={(date) => setFilterToDate(date)}
-                   dateFormat="dd-MM-yyyy"
+                   dateFormat={DATE_FORMAT_FNS}
                    placeholderText="To Date"
                    className="w-full rounded-xl h-12 border border-gray-300 px-3 py-2 text-sm"
                   showMonthDropdown
@@ -1013,7 +1014,7 @@ className="w-full rounded-xl h-12 border border-gray-300 px-3 py-2 text-sm"
                                     startDate: date
                                   })
                                 }
-                                dateFormat="dd-MM-yyyy"
+                                dateFormat={DATE_FORMAT_FNS}
 className="w-full rounded-xl h-12 border border-gray-300 px-3 py-2 text-sm"
                                  showMonthDropdown
                                  showYearDropdown
@@ -1051,7 +1052,7 @@ className="w-full rounded-xl h-12 border border-gray-300 px-3 py-2 text-sm"
                                     endDate: date
                                   })
                                 }
-                                dateFormat="dd-MM-yyyy"
+                                dateFormat={DATE_FORMAT_FNS}
                                 className="w-full rounded-xl h-12 border border-gray-300 px-3 py-2 text-sm"
                                  showMonthDropdown
                                  showYearDropdown
@@ -1195,7 +1196,7 @@ className="w-full rounded-xl h-12 border border-gray-300 px-3 py-2 text-sm"
 
                           <TableCell className="py-3">
                             <span className="text-sm text-black">
-                              {moment(schedule.startDate).format('DD-MM-YYYY')}
+                              {moment(schedule.startDate).format(DATE_FORMAT)}
                             </span>
                           </TableCell>
 
@@ -1209,7 +1210,7 @@ className="w-full rounded-xl h-12 border border-gray-300 px-3 py-2 text-sm"
 
                           <TableCell className="py-3">
                             <span className="text-sm text-black">
-                              {moment(schedule.endDate).format('DD-MM-YYYY')}
+                              {moment(schedule.endDate).format(DATE_FORMAT)}
                             </span>
                           </TableCell>
                           <TableCell className="py-3">
@@ -1346,7 +1347,7 @@ className="w-full rounded-xl h-12 border border-gray-300 px-3 py-2 text-sm"
                   onChange={(date) =>
                     setFormData({ ...formData, fromDate: date })
                   }
-                  dateFormat="dd-MM-yyyy"
+                  dateFormat={DATE_FORMAT_FNS}
                   placeholderText="Select start date"
                   className="w-full rounded-xl h-12 border border-gray-300 px-3 py-2 text-sm"
                   showMonthDropdown
@@ -1363,7 +1364,7 @@ className="w-full rounded-xl h-12 border border-gray-300 px-3 py-2 text-sm"
                   onChange={(date) =>
                     setFormData({ ...formData, toDate: date })
                   }
-                  dateFormat="dd-MM-yyyy"
+                  dateFormat={DATE_FORMAT_FNS}
                   placeholderText="Select end date"
                   className="w-full rounded-xl h-12 border border-gray-300 px-3 py-2 text-sm"
                   showMonthDropdown
@@ -1490,7 +1491,7 @@ className="w-full rounded-xl h-12 border border-gray-300 px-3 py-2 text-sm"
                       : 'Unknown Service User'}
                   </p>
                   <p className="text-black/70">
-                    {moment(scheduleToDelete.startDate).format('DD-MM-YYYY')} •{' '}
+                    {moment(scheduleToDelete.startDate).format(DATE_FORMAT)} •{' '}
                     {scheduleToDelete.startTime} - {scheduleToDelete.endTime}
                   </p>
                 </div>

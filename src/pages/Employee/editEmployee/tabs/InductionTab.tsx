@@ -40,6 +40,7 @@ import {
 } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
+import { DATE_FORMAT, DATE_FORMAT_FNS } from '@/lib/date-utils';
 
 // --- Interfaces ---
 
@@ -651,7 +652,7 @@ function InductionTab() {
                 </Label>
                 <div className="text-lg font-semibold text-gray-900">
                   {currentInductionDate
-                    ? moment(currentInductionDate).format('DD MMMM YYYY')
+                    ? moment(currentInductionDate).format(DATE_FORMAT)
                     : 'Not Scheduled'}
                 </div>
               </div>
@@ -743,7 +744,7 @@ function InductionTab() {
                                   : 'System'}
                               </span>
                               <span className="text-xs text-gray-500">
-                                {moment(entry.date).format('DD MMM YYYY')}
+                                {moment(entry.date).format(DATE_FORMAT)}
                               </span>
                             </div>
                           </TableCell>
@@ -816,7 +817,7 @@ function InductionTab() {
               <DatePicker
                 selected={inputDate}
                 onChange={(date) => setInputDate(date)}
-                dateFormat="dd-MM-yyyy"
+                dateFormat={DATE_FORMAT_FNS}
                 className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-theme focus:outline-none focus:ring-2 focus:ring-theme"
                 placeholderText="Select date..."
                 minDate={new Date()}
@@ -926,7 +927,7 @@ function InductionTab() {
                   <DatePicker
                     selected={inputDate}
                     onChange={(date) => setInputDate(date)}
-                    dateFormat="dd-MM-yyyy"
+                    dateFormat={DATE_FORMAT_FNS}
                     className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-theme focus:outline-none focus:ring-2 focus:ring-theme"
                     placeholderText="Select new date..."
                     minDate={

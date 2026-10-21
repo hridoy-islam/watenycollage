@@ -14,6 +14,7 @@ import { BlinkingDots } from "@/components/shared/blinking-dots"
 import { PDFDownloadLink } from "@react-pdf/renderer"
 import { ReferencePdfDocument } from "@/pages/applicant-reference/components/ReferencePdfDocument"
 import moment from "moment"
+import { DATE_FORMAT } from '@/lib/date-utils';
 
 interface Reference {
   _id: string
@@ -123,11 +124,7 @@ export function RefereeConfirmationTab({ application }: RefereeConfirmationTabPr
   if (!dateString) return "N/A";
 
   try {
-    return new Date(dateString).toLocaleDateString("en-GB", {
-      month: "2-digit",
-      day: "2-digit",
-      year: "numeric",
-    });
+    return moment(dateString).format(DATE_FORMAT);
   } catch {
     return dateString;
   }
@@ -364,7 +361,7 @@ function ReferenceCard({
 
                   {referenceData.createdAt && (
                     <div className="pt-2 text-right text-sm text-muted-foreground">
-                      Submitted on: {moment(referenceData.createdAt).format("DD MMM YYYY")}
+                      Submitted on: {moment(referenceData.createdAt).format(DATE_FORMAT)}
                     </div>
                   )}
                 </div>

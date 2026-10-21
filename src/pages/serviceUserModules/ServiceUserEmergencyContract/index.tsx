@@ -43,6 +43,7 @@ import { Badge } from '@/components/ui/badge';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
 import DynamicPagination from '@/components/shared/DynamicPagination';
 import moment from 'moment';
+import { DATE_FORMAT } from '@/lib/date-utils';
 
 type ContractType = 'GP' | 'Personal' | 'Professional';
 
@@ -240,7 +241,7 @@ export default function ServiceUserEmergencyContractPage() {
                             <div className="flex items-center gap-2">
                               <Calendar className="h-3.5 w-3.5 text-gray-400" />
                               {item.createdAt
-                                ? moment(item.createdAt).format('DD/MM/YYYY')
+                                ? moment(item.createdAt).format(DATE_FORMAT)
                                 : '—'}
                             </div>
                           </TableCell>

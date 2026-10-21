@@ -36,6 +36,7 @@ import { BlinkingDots } from '@/components/shared/blinking-dots';
 import { DynamicPagination } from '@/components/shared/DynamicPagination';
 import axiosInstance from '@/lib/axios';
 import { toast } from '@/components/ui/use-toast';
+import { DATE_FORMAT, DATE_FORMAT_FNS } from '@/lib/date-utils';
 
 const getStatusStyles = (status: string) => {
   switch (status.toLowerCase()) {
@@ -99,7 +100,7 @@ const CustomDateInput = forwardRef(
         className={`h-5 w-5 ${!value ? 'text-white' : 'text-theme'}`}
       />
       <span className="text-lg">
-        {value ? moment(value).format('DD MMM YYYY') : placeholder}
+        {value ? moment(value).format(DATE_FORMAT) : placeholder}
       </span>
     </button>
   )
@@ -235,7 +236,7 @@ export default function ScheduleTable({ refresh }: any) {
                   selected={selectedDate}
                   onChange={handleDateChange}
                   customInput={<CustomDateInput placeholder="Filter by Date" />}
-                  dateFormat="dd MMM yyyy"
+                  dateFormat={DATE_FORMAT_FNS}
                   todayButton="Jump to Today"
                   popperClassName="react-datepicker-left"
                   placeholderText="Select a date"
@@ -273,7 +274,7 @@ export default function ScheduleTable({ refresh }: any) {
               </p>
               <p className="mt-2 text-center text-sm text-slate-500">
                 {selectedDate
-                  ? `There are no visits for ${moment(selectedDate).format('DD MMM YYYY')}`
+                  ? `There are no visits for ${moment(selectedDate).format(DATE_FORMAT)}`
                   : 'No scheduled visits available for this service user'}
               </p>
             </div>
@@ -317,7 +318,7 @@ export default function ScheduleTable({ refresh }: any) {
                         className="border-b border-slate-50 transition-colors hover:bg-slate-50/50"
                       >
                         <TableCell className="font-medium text-slate-600">
-                          {moment(service.date).format('DD MMM YYYY')}
+                          {moment(service.date).format(DATE_FORMAT)}
                         </TableCell>
 
                         <TableCell className="py-4 align-top">

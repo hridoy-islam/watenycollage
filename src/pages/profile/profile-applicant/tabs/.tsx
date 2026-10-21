@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { countries, nationalities } from "@/types";
 import { useSelector } from "react-redux";
 import { ImageUploader } from "../components/userImage-uploader";
+import { formatDate } from '@/lib/date-utils';
 
 interface PersonalDetailsProps {
   userData: User;
@@ -315,7 +316,7 @@ const PaymentData: React.FC<PersonalDetailsProps> = ({
               ) : (
                 <div className="mt-1 text-gray-900">
                   {localData.dateOfBirth
-                    ? new Date(localData.dateOfBirth).toLocaleDateString('en-GB')
+                    ? formatDate(localData.dateOfBirth)
                     : "-"}
                 </div>
               )}

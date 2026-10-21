@@ -14,6 +14,7 @@ import axiosInstance from '@/lib/axios';
 import { format } from 'date-fns';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { StatementOfUnderstandingPdf } from './statement-of-understanding-pdf';
+import { DATE_FORMAT_FNS } from '@/lib/date-utils';
 
 interface StatementOfUnderstanding {
   _id: string;
@@ -109,7 +110,7 @@ export function StatementOfUnderstandingTab({ userId }: Props) {
           ))}
         </div>
         {data.createdAt && (
-          <p className="mt-4 text-xs text-gray-400">Submitted: {format(new Date(data.createdAt), 'dd MMM yyyy')}</p>
+          <p className="mt-4 text-xs text-gray-400">Submitted: {format(new Date(data.createdAt), DATE_FORMAT_FNS)}</p>
         )}
       </CardContent>
     </Card>

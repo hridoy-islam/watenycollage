@@ -1,4 +1,6 @@
+import { DATE_FORMAT } from '@/lib/date-utils';
 import { useState, useEffect } from 'react';
+import moment from 'moment';
 import { useParams, useNavigate } from 'react-router-dom';
 import axiosInstance from '@/lib/axios';
 import {
@@ -99,7 +101,7 @@ export default function ReferenceDetailsPage() {
   const formatDate = (dateString: string) => {
     if (!dateString) return 'N/A';
     try {
-      return new Date(dateString).toLocaleDateString('en-GB');
+      return moment(dateString).format(DATE_FORMAT);
     } catch {
       return dateString;
     }

@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import Select from 'react-select';
 import { CustomDatePicker } from '@/components/shared/CustomDatePicker';
+import { formatDate } from '@/lib/date-utils';
 
 const EmploymentData = ({
   userData,
@@ -194,7 +195,7 @@ const EmploymentData = ({
                   ) : (
                     <div className="mt-1 text-gray-900">
                       {localData.currentEmployment?.startDate
-                        ? new Date(localData.currentEmployment.startDate).toLocaleDateString('en-GB')
+                        ? formatDate(localData.currentEmployment.startDate)
                         : '-'}
                     </div>
                   )}
@@ -375,7 +376,7 @@ const EmploymentData = ({
                           />
                         ) : (
                           <div className="mt-1 text-gray-900">
-                            {job.startDate ? new Date(job.startDate).toLocaleDateString('en-GB') : '-'}
+                            {job.startDate ? formatDate(job.startDate) : '-'}
                           </div>
                         )}
                       </div>
@@ -389,7 +390,7 @@ const EmploymentData = ({
                           />
                         ) : (
                           <div className="mt-1 text-gray-900">
-                            {job.endDate ? new Date(job.endDate).toLocaleDateString('en-GB') : '-'}
+                            {job.endDate ? formatDate(job.endDate) : '-'}
                           </div>
                         )}
                       </div>

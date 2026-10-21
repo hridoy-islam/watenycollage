@@ -1,4 +1,6 @@
+import { DATE_FORMAT, DATE_TIME_FORMAT } from '@/lib/date-utils';
 import { useEffect, useState } from 'react';
+import moment from 'moment';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Card,
@@ -140,7 +142,7 @@ interface MedicalFormData {
 }
 
 const formatDate = (dateStr?: string) =>
-  dateStr ? new Date(dateStr).toLocaleDateString('en-GB') : '—';
+  dateStr ? moment(dateStr).format(DATE_FORMAT) : '—';
 
 export default function AdminMedicalForm() {
   const { id } = useParams<{ id: string }>();
@@ -354,13 +356,7 @@ export default function AdminMedicalForm() {
               <p className="text-sm font-medium text-black/60">
                 Submitted on: 
                 <span className="font-semibold text-black ml-2">
-                  {new Date(data.createdAt).toLocaleString('en-GB', {
-                    day: '2-digit',
-                    month: 'short',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
+                  {moment(data.createdAt).format(DATE_TIME_FORMAT)}
                 </span>
               </p>
             </div>

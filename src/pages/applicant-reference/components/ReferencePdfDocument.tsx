@@ -10,6 +10,7 @@ import {
   Path,
 } from '@react-pdf/renderer';
 import moment from 'moment';
+import { DATE_FORMAT } from '@/lib/date-utils';
 
 const styles = StyleSheet.create({
   page: {
@@ -212,7 +213,7 @@ const TextOrLine = ({
 };
 
 // --- Logic Helpers ---
-const fmtDate = (d: string) => (d ? moment(d).format('MM/DD/yyyy') : '');
+const fmtDate = (d: string) => (d ? moment(d).format(DATE_FORMAT) : '');
 const isRating = (actual: string, target: string) =>
   String(actual || '')
     .toLowerCase()
@@ -477,7 +478,7 @@ const ProfessionalPage = ({ data }) => {
             ) : null}
           </View>
           <Text style={{ width: '50%' }}>
-Date (dd/MM/yyyy):
+Date :
             <Text style={{ fontFamily: 'Helvetica-Bold' }}>
               {' '}
               {fmtDate(safeData.createdAt || safeData.refereeDate)}
@@ -716,7 +717,7 @@ const PersonalPage = ({ data }) => {
             ) : null}
           </View>
           <Text style={{ width: '50%' }}>
-            Date (dd/MM/yyyy): <Text style={{ fontFamily: 'Helvetica-Bold' }}>{fmtDate(safeData.createdAt || safeData.refereeDate)}</Text>
+            Date (DD-MM-YYYY): <Text style={{ fontFamily: 'Helvetica-Bold' }}>{fmtDate(safeData.createdAt || safeData.refereeDate)}</Text>
           </Text>
         </View>
       </View>

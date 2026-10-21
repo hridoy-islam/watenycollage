@@ -1,6 +1,7 @@
 import { format, getMonth, getYear } from 'date-fns';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { DATE_FORMAT_FNS } from '@/lib/date-utils';
 
 interface CustomDatePickerProps {
   selected: Date | null;
@@ -49,7 +50,7 @@ const years = futureDate
       <DatePicker
         selected={selected}
         onChange={onChange}
-        dateFormat="dd/MM/yyyy"
+        dateFormat={DATE_FORMAT_FNS}
         disabled={disabled}
         popperClassName="z-[1001]"
         maxDate={futureDate ? undefined : new Date()}

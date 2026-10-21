@@ -232,7 +232,7 @@ export function EducationStep({
                       <span className="text-red-500">*</span>
                     </TableHead>
                     <TableHead className='text-lg'>
-                      Date of Award (DD/MM/YYYY){' '}
+                      Date of Award (DD-MM-YYYY){' '}
                       <span className="text-red-500">*</span>
                     </TableHead>
                     <TableHead className='text-lg'>
@@ -324,7 +324,7 @@ export function EducationStep({
                                   />
                                 </FormControl>
                                 <p className="text-md text-gray-400">
-                                  Example: 01/16/2022
+                                  Example: 16-01-2022
                                 </p>
                                 <FormMessage />
                               </FormItem>
@@ -489,7 +489,7 @@ export function EducationStep({
                               />
                             </FormControl>
                             <p className="text-md text-gray-400">
-                              Example: 01/16/2022
+                              Example: 16-01-2022
                             </p>
                             <FormMessage />
                           </FormItem>

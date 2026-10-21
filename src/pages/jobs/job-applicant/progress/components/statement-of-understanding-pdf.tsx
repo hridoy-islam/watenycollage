@@ -1,5 +1,6 @@
 import { Document, Page, Text, View, Image, StyleSheet } from '@react-pdf/renderer';
 import { format } from 'date-fns';
+import { DATE_FORMAT_FNS } from '@/lib/date-utils';
 
 const styles = StyleSheet.create({
   page: {
@@ -125,7 +126,7 @@ export const StatementOfUnderstandingPdf = ({
           <Text style={styles.fieldLabel}>Date:</Text>
           <Text style={styles.valueText}>
             {createdAt
-              ? format(new Date(createdAt), 'dd/MM/yyyy')
+              ? format(new Date(createdAt), DATE_FORMAT_FNS)
               : '..........................................................'}
           </Text>
         </View>

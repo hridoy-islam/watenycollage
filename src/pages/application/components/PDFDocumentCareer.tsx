@@ -1,3 +1,5 @@
+import { DATE_FORMAT } from '@/lib/date-utils';
+import moment from 'moment';
 import {
   Document,
   Page,
@@ -156,7 +158,7 @@ const formatDate = (dateString: string): string => {
 
   try {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-GB');
+    return moment(date).format(DATE_FORMAT);
   } catch {
     return dateString;
   }
@@ -184,7 +186,7 @@ const formatYear = (dateString: string): string => {
 
 // Get today's date
 const getTodaysDate = (): string => {
-  return new Date().toLocaleDateString('en-GB');
+  return moment().format(DATE_FORMAT);
 };
 
 // Capitalize first letter utility
@@ -350,7 +352,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
           {/* Row A6 */}
           <View style={styles.tableRow}>
             <View style={[styles.tableCol, { width: '30%' }]}>
-              <Text>Date Of Birth(DD/MM/YYYY)</Text>
+              <Text>Date Of Birth(DD-MM-YYYY)</Text>
             </View>
             <View style={[styles.tableCol, { width: '70%' }]}>
               <Text>{formatDate(data.dateOfBirth)}</Text>
@@ -641,7 +643,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
               <Text>Level / Qualification</Text>
             </View>
             <View style={[styles.tableColHeader, { width: '20%' }]}>
-              <Text>Award Date (DD/MM/YYYY)</Text>
+              <Text>Award Date (DD-MM-YYYY)</Text>
             </View>
             <View style={[styles.tableColHeader, { width: '30%' }]}>
               <Text>College/ University</Text>
@@ -942,7 +944,7 @@ const ApplicationFormPDF: React.FC<ApplicationFormPDFProps> = ({
               <Text>Signature</Text>
             </View>
             <View style={[styles.tableColHeader, { width: '30%' }]}>
-              <Text>Date (DD/MM/YYYY)</Text>
+              <Text>Date (DD-MM-YYYY)</Text>
             </View>
           </View>
           <View style={[styles.tableRow, { minHeight: 50 }]}>

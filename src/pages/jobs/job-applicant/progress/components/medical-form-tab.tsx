@@ -1,4 +1,6 @@
+import { DATE_FORMAT, DATE_TIME_FORMAT } from '@/lib/date-utils';
 import { useEffect, useState } from 'react';
+import moment from 'moment';
 import { useNavigate } from 'react-router-dom';
 import {
   Card,
@@ -27,11 +29,7 @@ const formatDate = (dateString: string) => {
   if (!dateString) return "N/A";
 
   try {
-    return new Date(dateString).toLocaleDateString("en-GB", {
-      month: "2-digit",
-      day: "2-digit",
-      year: "numeric",
-    });
+    return moment(dateString).format(DATE_FORMAT);
   } catch {
     return dateString;
   }
@@ -214,7 +212,7 @@ export function MedicalFormTab({ userId }: Props) {
         )}
         {data.createdAt && (
           <p className="text-xs text-gray-400 pt-2 border-t">
-            Submitted: {new Date(data.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+            Submitted: {moment(data.createdAt).format(DATE_TIME_FORMAT)}
           </p>
         )}
       </CardContent>

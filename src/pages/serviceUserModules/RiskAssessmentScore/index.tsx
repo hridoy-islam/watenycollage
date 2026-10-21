@@ -14,6 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { DATE_FORMAT_FNS } from '@/lib/date-utils';
 
 // Mock Data
 const riskAssessments = [
@@ -149,7 +150,7 @@ export default function RiskAssessmentScorePage() {
           onChange={(update) => {
             setDateRange(update as [Date | null, Date | null]);
           }}
-          dateFormat="dd MMM yyyy"
+          dateFormat={DATE_FORMAT_FNS}
           placeholderText="Select date range"
           className="w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           wrapperClassName="w-[20%]"

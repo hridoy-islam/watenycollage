@@ -36,6 +36,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { cn } from '@/lib/utils';
 import moment from '@/lib/moment-setup';
 import { useScheduleStatus } from '@/context/scheduleStatusContext';
+import { DATE_FORMAT, DATE_FORMAT_FNS } from '@/lib/date-utils';
 
 // --- Interfaces ---
 
@@ -187,7 +188,7 @@ const DbsExpiryPage = () => {
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'N/A';
-    return moment(dateString).format('DD/MM/YYYY');
+    return moment(dateString).format(DATE_FORMAT);
   };
 
   // --- 5. Handlers ---
@@ -448,7 +449,7 @@ const DbsExpiryPage = () => {
                 <p>
                   Current DBS expires on{' '}
                   <span className="font-semibold">
-                    {moment(selectedEmployee.dbsExpiry).format('DD MMM YYYY')}
+                    {moment(selectedEmployee.dbsExpiry).format(DATE_FORMAT)}
                   </span>
                   .
                 </p>
@@ -476,7 +477,7 @@ const DbsExpiryPage = () => {
                 <DatePicker
                   selected={newDateOfIssue}
                   onChange={handleIssueDateChange}
-                  dateFormat="dd-MM-yyyy"
+                  dateFormat={DATE_FORMAT_FNS}
                   placeholderText="Select issue date"
                   wrapperClassName="w-full"
                   showYearDropdown
@@ -495,7 +496,7 @@ const DbsExpiryPage = () => {
                 {selectedEmployee?.dbsExpiry && (
                   <p className="text-xs text-gray-500">
                     Must be on or after{' '}
-                    {moment(selectedEmployee.dbsExpiry).format('DD MMM YYYY')}
+                    {moment(selectedEmployee.dbsExpiry).format(DATE_FORMAT)}
                   </p>
                 )}
               </div>
@@ -508,7 +509,7 @@ const DbsExpiryPage = () => {
                 <DatePicker
                   selected={newExpiryDate}
                   onChange={(date) => setNewExpiryDate(date)}
-                  dateFormat="dd-MM-yyyy"
+                  dateFormat={DATE_FORMAT_FNS}
                   placeholderText="Select new expiry date"
                   wrapperClassName="w-full"
                   showYearDropdown

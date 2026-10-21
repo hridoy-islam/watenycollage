@@ -36,6 +36,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { cn } from '@/lib/utils';
 import moment from '@/lib/moment-setup';
 import { useScheduleStatus } from '@/context/scheduleStatusContext';
+import { DATE_FORMAT, DATE_FORMAT_FNS } from '@/lib/date-utils';
 
 // --- Interfaces ---
 
@@ -180,7 +181,7 @@ const { status, loading: loadingStats, refetchStatus } = useScheduleStatus();
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'N/A';
-    return moment(dateString).format('DD/MM/YYYY');
+    return moment(dateString).format(DATE_FORMAT);
   };
 
   // --- 5. Handlers ---
@@ -431,9 +432,7 @@ const { status, loading: loadingStats, refetchStatus } = useScheduleStatus();
                 <p>
                   Current passport expires on{' '}
                   <span className="font-semibold">
-                    {moment(selectedEmployee.passportExpiry).format(
-                      'DD MMM YYYY'
-                    )}
+                    {moment(selectedEmployee.passportExpiry).format(DATE_FORMAT)}
                   </span>
                   .
                 </p>
@@ -460,7 +459,7 @@ const { status, loading: loadingStats, refetchStatus } = useScheduleStatus();
               <DatePicker
                 selected={newExpiryDate}
                 onChange={(date) => setNewExpiryDate(date)}
-                dateFormat="dd-MM-yyyy"
+                dateFormat={DATE_FORMAT_FNS}
                 placeholderText="Select new expiry date"
                 wrapperClassName="w-full"
                 showYearDropdown

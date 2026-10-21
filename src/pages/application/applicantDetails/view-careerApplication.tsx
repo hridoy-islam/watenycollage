@@ -55,6 +55,7 @@ import { TermTab } from "./components/terms-tab"
 import { RecruitmentActionsTab } from "../../jobs/job-applicant/progress/components/recruitment-actions-tab"
 import { RefereeConfirmationTab } from "../../jobs/job-applicant/progress/components/referee-confirmation-tab"
 import { TabContent, VerticalTabs } from "./components/VerticalTab"
+import { DATE_FORMAT } from '@/lib/date-utils';
 
 
 
@@ -354,7 +355,7 @@ export default function ViewCareerApplicationPage() {
       return value.length > 0 ? `${value.length} items` : "None"
     }
     if (typeof value === "string" && moment(value, moment.ISO_8601, true).isValid()) {
-      return moment(value).format("DD-MM-YYYY")
+      return moment(value).format(DATE_FORMAT)
     }
     if (typeof value === "object") return "Complex data"
     if (typeof value === "string") {

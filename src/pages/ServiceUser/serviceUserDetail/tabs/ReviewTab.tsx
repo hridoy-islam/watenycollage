@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import moment from 'moment';
+import { DATE_FORMAT } from '@/lib/date-utils';
 
 interface SmartGoal {
   goalArea: string;
@@ -730,14 +731,12 @@ S.M.A.R.T Goals for areas to focus on            </h3>
                       </td>
                       <td className="px-4 py-3 text-gray-600">
                         {item.date
-                          ? moment(item.date).format('DD MMM YYYY')
+                          ? moment(item.date).format(DATE_FORMAT)
                           : '-'}
                       </td>
                       <td className="px-4 py-3 text-gray-600">
                         {item.approximateNextReviewDate
-                          ? moment(item.approximateNextReviewDate).format(
-                              'DD MMM YYYY'
-                            )
+                          ? moment(item.approximateNextReviewDate).format(DATE_FORMAT)
                           : '-'}
                       </td>
                       <td className="px-4 py-3">

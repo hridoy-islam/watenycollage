@@ -14,6 +14,7 @@ import axiosInstance from '@/lib/axios';
 import { format } from 'date-fns';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import DBSPdf from '@/pages/applicantModulesAdmin/dbsDetails/component/DBSPdf';
+import { DATE_FORMAT_FNS } from '@/lib/date-utils';
 
 interface DBSDetails {
   disclosureNumber: string;
@@ -78,8 +79,8 @@ export function DBSFormTab({ userId }: Props) {
     { label: 'Applicant Name', value: data?.name },
     { label: 'Applied For', value: data.jobPost },
     { label: 'Disclosure Number', value: data.disclosureNumber },
-    { label: 'Date of Issue', value: data.dateOfIssue ? format(new Date(data.dateOfIssue), 'dd/MM/yyyy') : '—' },
-    { label: 'Expiry Date', value: data.expiryDate ? format(new Date(data.expiryDate), 'dd/MM/yyyy') : '—' },
+    { label: 'Date of Issue', value: data.dateOfIssue ? format(new Date(data.dateOfIssue), DATE_FORMAT_FNS) : '—' },
+    { label: 'Expiry Date', value: data.expiryDate ? format(new Date(data.expiryDate), DATE_FORMAT_FNS) : '—' },
   ];
 
   return (
@@ -124,7 +125,7 @@ export function DBSFormTab({ userId }: Props) {
           )}
         </div>
         {data.createdAt && (
-          <p className="mt-4 text-xs text-gray-400">Submitted: {format(new Date(data.createdAt), 'dd MMM yyyy')}</p>
+          <p className="mt-4 text-xs text-gray-400">Submitted: {format(new Date(data.createdAt), DATE_FORMAT_FNS)}</p>
         )}
       </CardContent>
     </Card>

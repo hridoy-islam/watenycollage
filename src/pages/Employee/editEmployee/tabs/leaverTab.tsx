@@ -36,6 +36,7 @@ import {
   AlertDialogTitle
 } from '@/components/ui/alert-dialog';
 import moment from '@/lib/moment-setup';
+import { DATE_FORMAT, DATE_FORMAT_FNS } from '@/lib/date-utils';
 
 interface SettingsTabProps {
   formData: any;
@@ -379,7 +380,7 @@ terminationDate: new Date(
                 <p>
                   <span className="font-semibold">Termination Date:</span>{' '}
                   {leaverData.terminationDate
-                    ? moment(leaverData.terminationDate).format('DD MMM, YYYY')
+                    ? moment(leaverData.terminationDate).format(DATE_FORMAT)
                     : 'N/A'}
                 </p>
                 {leaverData.note && (
@@ -476,7 +477,7 @@ terminationDate: new Date(
                 }
                 className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-theme"
                 placeholderText="Select termination date"
-                dateFormat="dd-MM-yyyy"
+                dateFormat={DATE_FORMAT_FNS}
               />
               {leaverErrors.terminationDate && (
                 <p className="mt-1 text-xs text-red-500">

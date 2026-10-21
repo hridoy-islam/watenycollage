@@ -5,6 +5,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import moment from 'moment';
 import html2pdf from 'html2pdf.js';
+import { DATE_FORMAT, DATE_FORMAT_FNS } from '@/lib/date-utils';
 
 // Mock Data
 const mockLogs = [
@@ -74,7 +75,7 @@ export default function DailyLogs() {
 
     const opt = {
       margin: 10,
-      filename: `Anna_Logs_${moment().format('DD-MM-YYYY')}.pdf`,
+      filename: `Anna_Logs_${moment().format(DATE_FORMAT)}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { scale: 2 },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
@@ -113,8 +114,8 @@ export default function DailyLogs() {
               setStartDate(start);
               setEndDate(end);
             }}
-            placeholderText="Select date range (e.g. 01/08/2023 - 10/08/2023)"
-            dateFormat="dd/MM/yyyy"
+            placeholderText="Select date range (e.g. 01-08-2023 - 10-08-2023)"
+            dateFormat={DATE_FORMAT_FNS}
             isClearable
             maxDate={new Date()}
             className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
@@ -181,7 +182,7 @@ export default function DailyLogs() {
               {/* Log Header */}
               <div className="mb-4 flex flex-wrap items-center justify-between border-b border-gray-200 pb-3 text-sm text-gray-600">
                 <span className="font-medium">
-                  {moment(log.date).format('dddd, DD MMMM YYYY')} • {log.time}
+                  {moment(log.date).format(`dddd, ${DATE_FORMAT}`)} • {log.time}
                 </span>
                 <span>
                   Logged at: <strong>{log.loggedAt}</strong>

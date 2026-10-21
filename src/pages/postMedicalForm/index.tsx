@@ -34,6 +34,7 @@ import axiosInstance from '@/lib/axios';
 import { useSelector } from 'react-redux';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
 import SignatureCanvas from 'react-signature-canvas';
+import { formatDate } from '@/lib/date-utils';
 
 // --- Zod Schema ---
 const simpleBoolean = z
@@ -653,9 +654,7 @@ export default function PostEmploymentMedicalForm() {
                       </FormLabel>
                       <p className="mt-1 text-gray-900">
                         {form.getValues('dateOfBirth')
-                          ? new Date(
-                              form.getValues('dateOfBirth')
-                            ).toLocaleDateString('en-GB')
+                          ? formatDate(form.getValues('dateOfBirth'))
                           : '—'}
                       </p>
                     </div>

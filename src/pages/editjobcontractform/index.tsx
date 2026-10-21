@@ -18,6 +18,7 @@ import { BlinkingDots } from '@/components/shared/blinking-dots';
 import SignatureCanvas from 'react-signature-canvas';
 import { useToast } from '@/components/ui/use-toast';
 import { format } from 'date-fns';
+import { DATE_FORMAT_FNS } from '@/lib/date-utils';
 
 export default function EditJobContractForm() {
   const [submitting, setSubmitting] = useState(false);
@@ -37,7 +38,7 @@ export default function EditJobContractForm() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { id } = useParams();
-  const todayDate = format(new Date(), 'dd/MM/yyyy');
+  const todayDate = format(new Date(), DATE_FORMAT_FNS);
 
   const applicant = useMemo(() => userData || {}, [userData]);
 
@@ -47,11 +48,11 @@ export default function EditJobContractForm() {
       todayDate,
       name: `${applicant.firstName || ''} ${applicant.initial || ''} ${applicant.lastName || ''}`.trim(),
       jobTitle: job.jobTitle || '',
-      applicationDate: appJobData?.createdAt ? format(new Date(appJobData.createdAt), 'dd/MM/yyyy') : '',
+      applicationDate: appJobData?.createdAt ? format(new Date(appJobData.createdAt), DATE_FORMAT_FNS) : '',
       title: applicant.title || '',
       firstName: applicant.firstName || '',
       lastName: applicant.lastName || '',
-      dateOfBirth: applicant.dateOfBirth ? format(new Date(applicant.dateOfBirth), 'dd/MM/yyyy') : '',
+      dateOfBirth: applicant.dateOfBirth ? format(new Date(applicant.dateOfBirth), DATE_FORMAT_FNS) : '',
       email: applicant.email || '',
       phone: applicant.phone || '',
       nationality: applicant.nationality || '',
@@ -60,7 +61,7 @@ export default function EditJobContractForm() {
       postalCity: applicant.postalCity || '',
       postalPostCode: applicant.postalPostCode || '',
       postalCountry: applicant.postalCountry || '',
-      availableFromDate: applicant.availableFromDate ? format(new Date(applicant.availableFromDate), 'dd/MM/yyyy') : '',
+      availableFromDate: applicant.availableFromDate ? format(new Date(applicant.availableFromDate), DATE_FORMAT_FNS) : '',
       admin: 'Everycare Romford',
       adminEmail: 'admin@everycareromford.co.uk',
       userSignature: '',

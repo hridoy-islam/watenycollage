@@ -345,7 +345,7 @@ export default function EditDBSDetailsForm() {
                           <CustomDatePicker
                             selected={field.value}
                             onChange={field.onChange}
-                            placeholder="e.g. 15/10/2025"
+                            placeholder="e.g. 15-10-2025"
                           />
                         </FormControl>
                         <FormMessage />
@@ -367,7 +367,7 @@ export default function EditDBSDetailsForm() {
                           <CustomDatePicker
                             selected={field.value}
                             onChange={field.onChange}
-                            placeholder="e.g. 15/10/2028"
+                            placeholder="e.g. 15-10-2028"
                           futureDate={true}
                           />
                         </FormControl>

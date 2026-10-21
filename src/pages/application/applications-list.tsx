@@ -18,6 +18,7 @@ import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import Loader from '@/components/shared/loader';
 import moment from 'moment';
+import { DATE_FORMAT } from '@/lib/date-utils';
 
 export default function ApplicationListPage() {
   const [applications, setApplications] = useState<any>([]);
@@ -186,9 +187,7 @@ export default function ApplicationListPage() {
                       //   navigate(`/dashboard/applications/${application._id}`)
                       // }
                     >
-                      {moment(application.jobId?.applicationDeadline).format(
-                        'DD-MM-YYYY'
-                      )}{' '}
+                      {moment(application.jobId?.applicationDeadline).format(DATE_FORMAT)}{' '}
                     </TableCell>
                   )}
                   {(user.role === 'student' ||

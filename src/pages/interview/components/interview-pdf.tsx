@@ -1,3 +1,4 @@
+import { formatDate } from '@/lib/date-utils';
 import type React from 'react';
 import {
   Document,
@@ -355,11 +356,7 @@ const InterviewPDF: React.FC<PDFProps> = ({
           <View style={styles.candidateField}>
             <Text style={styles.fieldLabel}>Date and time:</Text>
             <Text style={styles.fieldValue}>
-              {interviewDate.toLocaleDateString('en-GB', {
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric'
-              })}
+              {formatDate(interviewDate)}
               {interviewTime ? ` at ${interviewTime}` : ''}
             </Text>
           </View>

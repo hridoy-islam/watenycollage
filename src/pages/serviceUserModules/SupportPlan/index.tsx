@@ -28,6 +28,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { PlusIcon, EditIcon, ChevronRightIcon, MoveLeft } from "lucide-react";
+import { formatDate } from '@/lib/date-utils';
 
 // Mock Data: Initial Support Plans
 const initialPlans = [
@@ -124,7 +125,7 @@ export default function SupportPlanPage() {
     const newPlan = {
       id: newPlanTitle.toLowerCase().replace(/\s+/g, "-"),
       title: newPlanTitle,
-      created: new Date().toLocaleDateString(),
+      created: formatDate(new Date()),
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       createdBy: "Yasmin Calasow",
       status: "active",

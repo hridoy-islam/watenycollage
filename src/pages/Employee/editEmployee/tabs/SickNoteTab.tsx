@@ -41,6 +41,7 @@ import {
 import moment from '@/lib/moment-setup';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
 import DynamicPagination from '@/components/shared/DynamicPagination';
+import { DATE_FORMAT, DATE_FORMAT_FNS } from '@/lib/date-utils';
 
 // --- Interfaces ---
 interface TSickNote {
@@ -385,7 +386,7 @@ export default function SickNoteTab() {
                       selectsStart
                       startDate={startDate}
                       endDate={endDate}
-                      dateFormat="dd MMM yyyy"
+                      dateFormat={DATE_FORMAT_FNS}
                       placeholderText="Select start date"
                       className="flex h-10 w-full rounded-md border border-gray-400 bg-gray-50 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                       required
@@ -406,7 +407,7 @@ export default function SickNoteTab() {
                       startDate={startDate}
                       endDate={endDate}
                       // minDate={startDate || undefined}
-                      dateFormat="dd MMM yyyy"
+                      dateFormat={DATE_FORMAT_FNS}
                       placeholderText="Select end date"
                       className="flex h-10 w-full rounded-md border border-gray-400 bg-gray-50 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                       required
@@ -584,12 +585,12 @@ export default function SickNoteTab() {
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-col text-sm text-gray-800">
-                      {moment(noteRecord.startDate).format('DD MMM, YYYY')}
+                      {moment(noteRecord.startDate).format(DATE_FORMAT)}
                     </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-col text-sm text-gray-800">
-                      {moment(noteRecord.endDate).format('DD MMM, YYYY')}
+                      {moment(noteRecord.endDate).format(DATE_FORMAT)}
                     </div>
                   </TableCell>
                   <TableCell>

@@ -1,3 +1,4 @@
+import { DATE_FORMAT } from '@/lib/date-utils';
 import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -303,12 +304,7 @@ const HolidayTab: React.FC<HolidayTabProps> = ({ formData }) => {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-GB', {
-      weekday: 'short',
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    });
+    return moment(dateString).format(`ddd, ${DATE_FORMAT}`);
   };
 
   const generateHolidayYears = (backward = 20, forward = 50) => {

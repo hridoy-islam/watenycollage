@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { CustomDatePicker } from '@/components/shared/CustomDatePicker';
 import { ImageUploader } from '../components/document-uploader';
 import { useSelector } from 'react-redux';
+import { formatDate } from '@/lib/date-utils';
 
 const EducationData = ({
   userData,
@@ -189,7 +190,7 @@ const EducationData = ({
                   ) : (
                     <div className="mt-1 text-gray-900">
                       {entry.awardDate
-                        ? new Date(entry.awardDate).toLocaleDateString('en-GB')
+                        ? formatDate(entry.awardDate)
                         : '-'}
                     </div>
                   )}

@@ -1,3 +1,4 @@
+import { formatDate } from '@/lib/date-utils';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -96,7 +97,7 @@ export function EcertFormTab({ userId }: Props) {
                 </p>
                 {ecert.createdAt && (
                   <p className="text-xs text-gray-400">
-                    {new Date(ecert.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                    {formatDate(ecert.createdAt)}
                   </p>
                 )}
               </div>

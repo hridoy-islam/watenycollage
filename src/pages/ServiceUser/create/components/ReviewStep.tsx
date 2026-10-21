@@ -1,3 +1,4 @@
+import { formatDate } from '@/lib/date-utils';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { ServiceUserFormData } from './validation';
@@ -99,7 +100,7 @@ export const ReviewStep: React.FC = () => {
 
                 const displayValue =
                   field.value instanceof Date
-                    ? field.value.toLocaleDateString()
+                    ? formatDate(field.value)
                     : typeof field.value === 'object' && field.value !== null
                       ? field.value.label || field.value.value
                       : field.value;

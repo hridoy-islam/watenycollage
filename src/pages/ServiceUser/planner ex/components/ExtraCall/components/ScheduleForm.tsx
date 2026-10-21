@@ -22,6 +22,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from '@/components/ui/use-toast';
 import { useParams } from 'react-router-dom';
 import moment from 'moment-timezone';
+import { DATE_FORMAT_FNS } from '@/lib/date-utils';
 
 const UK_TZ = "Europe/London";
 
@@ -531,7 +532,7 @@ export function ScheduleForm({
                         <DatePicker
                           selected={field.value}
                           onChange={field.onChange}
-                          dateFormat="dd/MM/yyyy"
+                          dateFormat={DATE_FORMAT_FNS}
                           className="w-full rounded-xl h-12 border border-gray-300 px-3 py-2 text-sm"
                           placeholderText="Select date"
                           wrapperClassName="w-full h-9"

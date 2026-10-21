@@ -20,6 +20,7 @@ import { Badge } from '@/components/ui/badge';
 import { useSelector } from 'react-redux';
 import moment from '@/lib/moment-setup';
 import DynamicPagination from '@/components/shared/DynamicPagination';
+import { DATE_FORMAT } from '@/lib/date-utils';
 
 interface OptionType {
   value: string;
@@ -191,7 +192,7 @@ export default function Employee() {
           'M/D/YYYY', 
           moment.ISO_8601
         ]);
-        return parsed.isValid() ? `\t${parsed.format('DD-MM-YYYY')}` : '';
+        return parsed.isValid() ? `\t${parsed.format(DATE_FORMAT)}` : '';
       };
 
       allEmployees.forEach((emp: any) => {
