@@ -27,6 +27,41 @@ const conversationKeyOf = (a: string, b: string) =>
 const appendUnique = (list: ChatMessage[], message: ChatMessage) =>
   list.some((m) => m._id === message._id) ? list : [...list, message];
 
+/**
+ * People opened from a contact card but not written to yet. The server only
+ * lists people a message has passed between, so without this a fresh chat
+ * would vanish from the list on a refresh. Per browser and per signed-in
+ * user; storage can be unavailable (private mode), which just means they are
+ * not remembered.
+ */
+const OPENED_LIMIT = 20;
+const openedKeyOf = (myId: string) => `messages:opened:${myId}`;
+
+const readOpened = (myId: string): string[] => {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(openedKeyOf(myId)) || '[]');
+    return Array.isArray(parsed) ? parsed.map(String) : [];
+  } catch {
+    return [];
+  }
+};
+
+const writeOpened = (myId: string, ids: string[]) => {
+  try {
+    localStorage.setItem(openedKeyOf(myId), JSON.stringify(ids.slice(0, OPENED_LIMIT)));
+  } catch {
+    // Not remembered - the chat still works.
+  }
+};
+
+const rememberOpened = (myId: string, id: string) =>
+  writeOpened(myId, [id, ...readOpened(myId).filter((x) => x !== id)]);
+
+const forgetOpened = (myId: string, id: string) => {
+  const ids = readOpened(myId);
+  if (ids.includes(id)) writeOpened(myId, ids.filter((x) => x !== id));
+};
+
 export default function MessagesPage() {
   const { user } = useSelector((state: any) => state.auth);
   const myId: string = user?._id ? String(user._id) : '';
@@ -74,14 +109,32 @@ export default function MessagesPage() {
   const loadContacts = useCallback(async () => {
     try {
       const res = await axiosInstance.get('/messages/contacts');
-      setContacts(res.data?.data || []);
+      const list: Contact[] = res.data?.data || [];
+
+      // Bring back the people opened but not yet written to.
+      const listed = new Set(list.map((c) => String(c._id)));
+      const opened = readOpened(myId);
+      opened.filter((id) => listed.has(id)).forEach((id) => forgetOpened(myId, id));
+      const missing = opened.filter((id) => !listed.has(id));
+      const results = await Promise.allSettled(
+        missing.map((id) => axiosInstance.get(`/messages/contacts/${id}`))
+      );
+      const restored: Contact[] = [];
+      results.forEach((result, i) => {
+        const contact = result.status === 'fulfilled' ? result.value.data?.data : null;
+        if (contact) restored.push(contact);
+        // No longer reachable (removed from the group, account gone).
+        else forgetOpened(myId, missing[i]);
+      });
+
+      setContacts([...list, ...restored]);
     } catch (error) {
       console.error('Failed to load contacts:', error);
       setContacts([]);
     } finally {
       setContactsLoading(false);
     }
-  }, []);
+  }, [myId]);
 
   useEffect(() => {
     if (myId) loadContacts();
@@ -109,6 +162,7 @@ export default function MessagesPage() {
       .then((res) => {
         const contact = res.data?.data;
         if (!cancelled && contact) {
+          rememberOpened(myId, String(contact._id));
           setContacts((prev) =>
             prev.some((c) => c._id === contact._id) ? prev : [contact, ...prev]
           );
@@ -128,7 +182,7 @@ export default function MessagesPage() {
     return () => {
       cancelled = true;
     };
-  }, [selectedId, contactsLoading, selectedContact, selectContact, toast]);
+  }, [selectedId, contactsLoading, selectedContact, selectContact, toast, myId]);
 
   // ── Conversation ─────────────────────────────────────────────────────
   const markRead = useCallback((otherId: string) => {
@@ -215,6 +269,8 @@ export default function MessagesPage() {
         });
         const message: ChatMessage = res.data?.data;
         if (message) {
+          // A real conversation now - the server lists them from here on.
+          forgetOpened(myId, selectedId);
           setMessages((prev) => appendUnique(prev, message));
           updateContactWith(selectedId, message, false);
           if (attachments.length) setFilesRefresh((n) => n + 1);
@@ -230,7 +286,7 @@ export default function MessagesPage() {
         return false;
       }
     },
-    [selectedId, toast, updateContactWith]
+    [selectedId, toast, updateContactWith, myId]
   );
 
   const sendTyping = useCallback(
