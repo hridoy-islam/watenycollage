@@ -6,6 +6,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { useToast } from '@/components/ui/use-toast';
 import axiosInstance from '@/lib/axios';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
+import { ClassMaterials, ClassLesson } from '@/components/shared/class-materials';
 import {
   CalendarDays,
   CalendarRange,
@@ -75,6 +76,8 @@ interface ClassEntry {
   teacherEmail?: string;
   status?: AttendanceStatus | undefined;
   remark?: string;
+  /** The materials uploaded for this session. */
+  lessons?: ClassLesson[];
 }
 
 interface StudentClassRoutineProps {
@@ -451,7 +454,8 @@ export function StudentClassRoutine({ studentId }: StudentClassRoutineProps) {
           teacherName: teacher?.name || '',
           teacherEmail: teacher?.email || '',
           status: matched?.status as AttendanceStatus | undefined,
-          remark: matched?.remark
+          remark: matched?.remark,
+          lessons: routine.lessons || []
         };
       });
 
@@ -1078,6 +1082,8 @@ export function StudentClassRoutine({ studentId }: StudentClassRoutineProps) {
                       {selected.remark}
                     </DetailRow>
                   )}
+
+                  <ClassMaterials lessons={selected.lessons} />
 
                   <div className="rounded-lg border border-gray-100 p-3">
                     <span className="text-[10px] font-semibold uppercase tracking-wide text-black">

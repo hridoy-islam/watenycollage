@@ -74,4 +74,5 @@ axiosInstance.interceptors.response.use(
   }
 );
 
+export { refreshToken };
 export default axiosInstance;

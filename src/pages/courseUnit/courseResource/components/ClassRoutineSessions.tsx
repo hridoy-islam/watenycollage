@@ -603,8 +603,11 @@ export default function ClassRoutineSessions({
       )}
 
       <Dialog open={!!uploadFor} onOpenChange={(open) => !open && closeUpload()}>
-        <DialogContent className="z-[9999] sm:max-w-[520px]">
-          <DialogHeader>
+        {/* A flex column capped to the screen: header and footer stay put and
+            only the body scrolls, however many files are picked. `min-w-0`
+            stops a long file name from widening the dialog. */}
+        <DialogContent className="z-[9999] flex max-h-[90vh] w-[calc(100vw-2rem)] flex-col sm:max-w-[520px]">
+          <DialogHeader className="shrink-0">
             <DialogTitle className="text-base font-semibold text-black">
               Upload materials — Lecture {uploadFor?.lectureNumber}
             </DialogTitle>
@@ -616,7 +619,7 @@ export default function ClassRoutineSessions({
 
           {uploadFor && <LectureStrip routine={uploadFor} />}
 
-          <div className="space-y-3">
+          <div className="-mr-2 min-h-0 min-w-0 flex-1 space-y-3 overflow-y-auto pr-2">
             <input
               ref={fileInputRef}
               type="file"
@@ -663,11 +666,11 @@ export default function ClassRoutineSessions({
                   {picked.length} file{picked.length === 1 ? '' : 's'} ready.
                   Change a name if students should see something else.
                 </p>
-                <ul className="max-h-60 space-y-1.5 overflow-y-auto">
+                <ul className="space-y-1.5">
                   {picked.map((item, i) => (
                     <li
                       key={`${item.file.name}-${i}`}
-                      className="flex items-start gap-2 rounded-md border border-gray-200 bg-gray-50 px-2.5 py-2"
+                      className="flex min-w-0 items-start gap-2 rounded-md border border-gray-200 bg-gray-50 px-2.5 py-2"
                     >
                       <FileText className="mt-1.5 h-4 w-4 shrink-0 text-watney" />
                       <div className="min-w-0 flex-1">
@@ -685,7 +688,10 @@ export default function ClassRoutineSessions({
                           aria-label={`Name shown to students for ${item.file.name}`}
                           className="h-8 bg-white text-xs"
                         />
-                        <p className="mt-1 truncate text-[10px] text-black">
+                        <p
+                          className="mt-1 truncate text-[10px] text-black"
+                          title={item.file.name}
+                        >
                           {item.file.name} · {formatSize(item.file.size)}
                         </p>
                       </div>
@@ -722,7 +728,7 @@ export default function ClassRoutineSessions({
             )}
           </div>
 
-          <DialogFooter className="gap-2 sm:gap-0">
+          <DialogFooter className="shrink-0 gap-2 sm:gap-0">
             <Button variant="outline" size="sm" onClick={closeUpload} disabled={saving}>
               Cancel
             </Button>
@@ -751,8 +757,8 @@ export default function ClassRoutineSessions({
       </Dialog>
 
       <Dialog open={!!editing} onOpenChange={(open) => !open && closeEdit()}>
-        <DialogContent className="z-[9999] sm:max-w-[520px]">
-          <DialogHeader>
+        <DialogContent className="z-[9999] flex max-h-[90vh] w-[calc(100vw-2rem)] flex-col sm:max-w-[520px]">
+          <DialogHeader className="shrink-0">
             <DialogTitle className="text-base font-semibold text-black">
               Edit material — Lecture {editing?.number}
             </DialogTitle>
@@ -764,7 +770,7 @@ export default function ClassRoutineSessions({
           {editing && <LectureStrip routine={editing.routine} />}
 
           {editing && (
-            <div className="space-y-4">
+            <div className="-mr-2 min-h-0 min-w-0 flex-1 space-y-4 overflow-y-auto pr-2">
               <div className="space-y-1.5">
                 <label
                   htmlFor="material-title"
@@ -804,7 +810,7 @@ export default function ClassRoutineSessions({
                         e.preventDefault();
                         if (!saving) pickReplacement(e.dataTransfer.files);
                       }}
-                      className={`flex items-center gap-3 rounded-lg border px-3 py-2.5 ${
+                      className={`flex min-w-0 flex-wrap items-center gap-3 rounded-lg border px-3 py-2.5 sm:flex-nowrap ${
                         replacement ? 'border-watney/40 bg-watney/5' : 'border-gray-200 bg-white'
                       }`}
                     >
@@ -814,7 +820,12 @@ export default function ClassRoutineSessions({
                         {style.ext.slice(0, 4)}
                       </span>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-xs font-medium text-black">
+                        {/* Long names wrap (at most two lines) instead of
+                            pushing the buttons out of the dialog. */}
+                        <p
+                          className="line-clamp-2 break-all text-xs font-medium text-black"
+                          title={name}
+                        >
                           {name || 'No file attached'}
                         </p>
                         <p className="text-[10px] text-black">
@@ -830,26 +841,21 @@ export default function ClassRoutineSessions({
                           variant="outline"
                           onClick={() => setReplacement(null)}
                           disabled={saving}
-                          className="h-7 text-[11px]"
+                          className="h-7 shrink-0 text-[11px]"
                         >
                           Keep current
                         </Button>
                       ) : (
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex shrink-0 items-center gap-1.5">
                           {editing.doc.fileUrl && (
                             <Button
-                              asChild
+                              type="button"
                               size="sm"
                               variant="outline"
                               className="h-7 text-[11px]"
+                              onClick={() => openMaterial(editing.doc)}
                             >
-                              <a
-                                href={editing.doc.fileUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                              >
-                                Open
-                              </a>
+                              Open
                             </Button>
                           )}
                           <Button
@@ -881,7 +887,7 @@ export default function ClassRoutineSessions({
             </div>
           )}
 
-          <DialogFooter className="gap-2 sm:gap-0">
+          <DialogFooter className="shrink-0 gap-2 sm:gap-0">
             <Button variant="outline" size="sm" onClick={closeEdit} disabled={saving}>
               Cancel
             </Button>
@@ -967,10 +973,12 @@ export default function ClassRoutineSessions({
                     </div>
                   );
                 }
-                // PDF and plain text: the browser's own viewer.
+                // PDF and plain text: the browser's own viewer. For a PDF,
+                // `toolbar=0` hides the viewer's toolbar (Chrome/Edge).
                 return (
                   <iframe
-                    src={url}
+                    key={url}
+                    src={kind === 'pdf' ? `${url}#toolbar=0&navpanes=0` : url}
                     title={previewing.title || 'Material'}
                     className="h-[70vh] w-full bg-white"
                   />

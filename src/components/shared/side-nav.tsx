@@ -22,16 +22,21 @@ import {
   User,
   CalendarClock,
   CalendarCheck,
-  LifeBuoy
+  LifeBuoy,
+  MessagesSquare
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 import axiosInstance from '@/lib/axios';
 import { TICKETS_READ_EVENT } from '@/pages/support-tickets/components/ticket-utils';
+import { socket, setupSocket } from '@/lib/socket';
+
+const MESSAGES_PATH = '/dashboard/messages';
 
 const adminLinks = [
   { path: '/dashboard/my-courses', label: 'My Courses', icon: BookOpen },
+  { path: MESSAGES_PATH, label: 'Messages', icon: MessagesSquare },
   { path: '/dashboard/student-applications', label: 'Student Applications', icon: Users },
   { path: '/dashboard/courses', label: 'Course', icon: BookOpen },
   { path: '/dashboard/assignments-feedback', label: 'Assignment', icon: ClipboardList },
@@ -73,8 +78,34 @@ export function SideNav() {
     };
   }, [user?.role, location.pathname]);
 
+  // Unread messages - read on every page change and kept current by the
+  // socket, so the count moves as messages arrive or are read elsewhere.
+  const [unreadMessages, setUnreadMessages] = useState(0);
+  useEffect(() => {
+    if (!user?._id || user?.role === 'applicant') return;
+    let cancelled = false;
+    const load = () =>
+      axiosInstance
+        .get('/messages/unread-count')
+        .then((res) => !cancelled && setUnreadMessages(res.data?.data?.unread || 0))
+        .catch(() => {});
+    const setup = () => setupSocket(user._id);
+    load();
+    setup();
+    socket.on('connect', setup);
+    socket.on('message:new', load);
+    socket.on('message:read', load);
+    return () => {
+      cancelled = true;
+      socket.off('connect', setup);
+      socket.off('message:new', load);
+      socket.off('message:read', load);
+    };
+  }, [user?._id, user?.role, location.pathname]);
+
   const teacherLinks = [
     { path: '/dashboard/my-courses', label: 'My Courses', icon: BookOpen },
+    { path: MESSAGES_PATH, label: 'Messages', icon: MessagesSquare },
     // { path: `/dashboard/teachers/courses/${user?._id}`, label: 'Courses', icon: BookOpen },
     { path: '/dashboard/teacher-assignments-feedback', label: 'Feedbacks', icon: MessageSquare },
     { path: '/dashboard/teacher/student-applications', label: 'Students', icon: Users },
@@ -83,6 +114,7 @@ export function SideNav() {
 
   const studentLinks = [
     { path: '/dashboard/my-courses', label: 'My Courses', icon: BookOpen },
+  
     { path: '/dashboard/student-routine', label: 'Class Routine', icon: CalendarClock },
     { path: '/dashboard/student-attendance', label: 'Attendance', icon: CalendarCheck },
     { path: '/dashboard/student-assignments', label: 'Assignments', icon: ClipboardList },
@@ -91,6 +123,9 @@ export function SideNav() {
     // this link is shown to students only - `studentLinks` is shared with
     // applicants, and offering them a page the API would refuse is worse than
     // not offering it.
+      ...(user?.role === 'student'
+      ? [{ path: MESSAGES_PATH, label: 'Messages', icon: MessagesSquare }]
+      : []),
     ...(user?.role === 'student'
       ? [{ path: '/dashboard/support-tickets', label: 'Raise Ticket', icon: LifeBuoy }]
       : []),
@@ -197,6 +232,14 @@ export function SideNav() {
                 title={`${unreadReplies} new ${unreadReplies === 1 ? 'reply' : 'replies'} on your tickets`}
               >
                 {unreadReplies}
+              </span>
+            )}
+            {path === MESSAGES_PATH && unreadMessages > 0 && (
+              <span
+                className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-600 px-1.5 text-[10px] font-bold text-white"
+                title={`${unreadMessages} unread ${unreadMessages === 1 ? 'message' : 'messages'}`}
+              >
+                {unreadMessages > 99 ? '99+' : unreadMessages}
               </span>
             )}
           </NavLink>

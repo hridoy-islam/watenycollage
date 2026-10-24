@@ -14,7 +14,6 @@ import {
   ArrowLeft,
   AlertCircle
 } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
 import { useEffectiveRole } from '@/hooks/use-effective-role';
 
 interface IntakeInfo {
@@ -164,7 +163,6 @@ function MyCoursesPage() {
     resolved: roleResolved
   } = useEffectiveRole();
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   const [loading, setLoading] = useState(true);
   const [courses, setCourses] = useState<CourseGroup[]>([]);
@@ -175,6 +173,16 @@ function MyCoursesPage() {
   // Fetch Courses
   // -------------------------------------------------------
 
+  // Having no courses can come back as an error status rather than an empty
+  // list, and that is not a failure worth telling the user about - the empty
+  // state already says it. Each request falls back to empty on its own, so a
+  // student with applications but no group placement still sees their courses.
+  const getOrEmpty = (url: string) =>
+    axiosInstance.get(url).catch((error) => {
+      console.error(`Failed to fetch ${url}:`, error);
+      return { data: {} as any };
+    });
+
   const fetchMyCourses = async () => {
     try {
       setLoading(true);
@@ -182,7 +190,7 @@ function MyCoursesPage() {
       const courseMap = new Map<string, CourseGroup>();
 
       if (isTeacher) {
-        const res = await axiosInstance.get(
+        const res = await getOrEmpty(
           `/teacher-courses/my-courses/${user?._id}`
         );
         const records: MyCourseRecord[] = res.data?.data || [];
@@ -233,10 +241,8 @@ function MyCoursesPage() {
         }
       } else {
         const [appRes, recordsRes] = await Promise.all([
-          axiosInstance.get(
-            `/application-course?studentId=${user?._id}&limit=all`
-          ),
-          axiosInstance.get(`/student-assign-group/my-courses/${user?._id}`)
+          getOrEmpty(`/application-course?studentId=${user?._id}&limit=all`),
+          getOrEmpty(`/student-assign-group/my-courses/${user?._id}`)
         ]);
 
         const appData = appRes.data?.data || {};
@@ -347,12 +353,7 @@ function MyCoursesPage() {
       setCourses(Array.from(courseMap.values()));
     } catch (error) {
       console.error('Failed to fetch my courses:', error);
-
-      toast({
-        title: 'Error',
-        description: 'Failed to load your courses.',
-        variant: 'destructive'
-      });
+      setCourses([]);
     } finally {
       setLoading(false);
     }

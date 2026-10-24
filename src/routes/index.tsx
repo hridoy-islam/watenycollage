@@ -48,6 +48,7 @@ import CourseModule from '@/pages/courseUnit/courseResource';
 import CourseResource from '@/pages/courseUnit/courseResource';
 import AssignmentDetailPage from '@/pages/assignment/assignmentDetails';
 import MyCoursesPage from '@/pages/myCourses';
+import MessagesPage from '@/pages/message';
 import StudentAttendancePage from '@/pages/studentAttendance';
 import { AssignmentFeedbackList } from '@/pages/pendingAssignmentFeedback';
 import { StudentAssignmentFeedbackList } from '@/pages/pendingAssignmentFeedbackStudent';
@@ -112,6 +113,7 @@ export default function AppRouter() {
         { path: 'my-courses', element: withRole(<MyCoursesPage />, ['admin', 'teacher', 'student']) },
         { path: 'my-courses/:id/terms/:tid/groups/:gid/units', element: withRole(<CourseUnitPage />, ['admin', 'teacher', 'student']) },
         { path: 'my-courses/:id/terms/:tid/groups/:gid/units/:unitId', element: withRole(<CourseResource />, ['admin', 'teacher', 'student']) },
+        { path: 'messages', element: withRole(<MessagesPage />, ['admin', 'teacher', 'student']) },
         { path: 'profile', element: <ProfilePage /> },
         { path: 'eu/student-form', element: withRole(<HomeStudentApplication />, ['admin']) },
         { path: 'international/student-form', element: withRole(<InternationalStudentApplication />, ['admin']) },
@@ -173,6 +175,7 @@ export default function AppRouter() {
         { path: 'my-courses', element: withRole(<MyCoursesPage />, ['student']) },
         { path: 'my-courses/:id/terms/:tid/groups/:gid/units', element: withRole(<CourseUnitPage />, ['student']) },
         { path: 'my-courses/:id/terms/:tid/groups/:gid/units/:unitId', element: withRole(<CourseResource />, ['student']) },
+        { path: 'messages', element: withRole(<MessagesPage />, ['student']) },
         { path: 'profile', element: withRole(<ProfilePage />, ['student','applicant']) },
         { path: 'eu/student-form', element: withRole(<HomeStudentApplication />, ['student']) },
         { path: 'international/student-form', element: withRole(<InternationalStudentApplication />, ['student']) },

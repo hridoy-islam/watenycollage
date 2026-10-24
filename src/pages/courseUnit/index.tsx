@@ -65,6 +65,10 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import Select from 'react-select';
 import { fetchTeacherOptions } from '@/lib/teachers';
 import { useEffectiveRole } from '@/hooks/use-effective-role';
+import {
+  UserContactDialog,
+  ContactPerson
+} from '@/components/shared/user-contact-dialog';
 
 // ── Types ────────────────────────────────────────────────────────────────
 
@@ -314,7 +318,7 @@ function IconAction({
       className={clsx(
         'flex h-8 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 text-xs font-medium transition-colors',
         tone === 'danger'
-          ? 'border-gray-200 text-black hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600'
+          ? 'border-none text-black hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600'
           : 'border-gray-200 text-black hover:border-watney/40 hover:bg-watney/5 hover:text-watney'
       )}
     >
@@ -348,6 +352,11 @@ function CourseUnitPage() {
   const [currentUnitId, setCurrentUnitId] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [unitToDelete, setUnitToDelete] = useState<CourseUnit | null>(null);
+  // The teacher or student whose contact card is open.
+  const [contactPerson, setContactPerson] = useState<{
+    person: ContactPerson;
+    roleLabel: string;
+  } | null>(null);
   const [unassignDialogOpen, setUnassignDialogOpen] = useState(false);
   const [memberToUnassign, setMemberToUnassign] = useState<{
     _id: string;
@@ -1378,7 +1387,29 @@ function CourseUnitPage() {
                                       return (
                                         <span
                                           key={item._id}
-                                          className="group inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white py-0.5 pl-0.5 pr-1.5 text-[11px] font-medium text-black"
+                                          role="button"
+                                          tabIndex={0}
+                                          title={`View ${name}`}
+                                          onClick={() =>
+                                            typeof item.teacherId === 'object' &&
+                                            setContactPerson({
+                                              person: item.teacherId as ContactPerson,
+                                              roleLabel: 'Teacher'
+                                            })
+                                          }
+                                          onKeyDown={(event) => {
+                                            if (
+                                              (event.key === 'Enter' || event.key === ' ') &&
+                                              typeof item.teacherId === 'object'
+                                            ) {
+                                              event.preventDefault();
+                                              setContactPerson({
+                                                person: item.teacherId as ContactPerson,
+                                                roleLabel: 'Teacher'
+                                              });
+                                            }
+                                          }}
+                                          className="group inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-gray-200 bg-white py-0.5 pl-0.5 pr-1.5 text-[11px] font-medium text-black transition-colors hover:border-watney/40 hover:bg-watney/5"
                                         >
                                           <span className="flex h-5 w-5 items-center justify-center rounded-full bg-watney/10 text-[9px] font-bold text-watney">
                                             {initialsOf(name)}
@@ -1388,25 +1419,26 @@ function CourseUnitPage() {
                                               {name}
                                             </span>
                                             {email && (
-                                              <a
-                                                href={`mailto:${email}`}
+                                              <p
+                                              
                                                 className="max-w-[160px] truncate text-[10px] font-normal text-black hover:text-watney hover:underline"
                                               >
                                                 {email}
-                                              </a>
+                                              </p>
                                             )}
                                           </span>
                                           {canEdit && (
                                             <button
                                               type="button"
                                               aria-label={`Unassign ${name}`}
-                                              onClick={() =>
+                                              onClick={(event) => {
+                                                event.stopPropagation();
                                                 openUnassignDialog(
                                                   item,
                                                   'teacher',
                                                   unit._id
-                                                )
-                                              }
+                                                );
+                                              }}
                                               className="text-black transition-colors hover:text-rose-500"
                                             >
                                               <X className="h-3 w-3" />
@@ -1876,7 +1908,29 @@ function CourseUnitPage() {
                     return (
                       <div
                         key={item._id}
-                        className="flex items-center justify-between gap-3 rounded-lg border border-gray-200 px-3 py-2.5 transition-colors hover:border-gray-200 hover:bg-watney/[0.02]"
+                        role="button"
+                        tabIndex={0}
+                        title={`View ${name}`}
+                        onClick={() =>
+                          typeof student === 'object' &&
+                          setContactPerson({
+                            person: student as ContactPerson,
+                            roleLabel: 'Student'
+                          })
+                        }
+                        onKeyDown={(event) => {
+                          if (
+                            (event.key === 'Enter' || event.key === ' ') &&
+                            typeof student === 'object'
+                          ) {
+                            event.preventDefault();
+                            setContactPerson({
+                              person: student as ContactPerson,
+                              roleLabel: 'Student'
+                            });
+                          }
+                        }}
+                        className="flex cursor-pointer items-center justify-between gap-3 rounded-lg border border-gray-200 px-3 py-2.5 transition-colors hover:border-watney/40 hover:bg-watney/5"
                       >
                         <div className="flex min-w-0 items-center gap-2.5">
                           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-watney/10 text-[11px] font-bold text-watney">
@@ -1894,12 +1948,14 @@ function CourseUnitPage() {
                           </div>
                         </div>
                         {canEdit && (
-                          <IconAction
-                            label="Unassign student"
-                            icon={UserMinus}
-                            tone="danger"
-                            onClick={() => openUnassignDialog(item, 'student')}
-                          />
+                          <span onClick={(event) => event.stopPropagation()}>
+                            <IconAction
+                              label="Unassign student"
+                              icon={UserMinus}
+                              tone="danger"
+                              onClick={() => openUnassignDialog(item, 'student')}
+                            />
+                          </span>
                         )}
                       </div>
                     );
@@ -2335,6 +2391,13 @@ function CourseUnitPage() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+      <UserContactDialog
+        open={Boolean(contactPerson)}
+        onOpenChange={(open) => !open && setContactPerson(null)}
+        person={contactPerson?.person || null}
+        roleLabel={contactPerson?.roleLabel}
+      />
     </div>
   );
 }

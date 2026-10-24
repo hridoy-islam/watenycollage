@@ -7,6 +7,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { useToast } from '@/components/ui/use-toast';
 import axiosInstance from '@/lib/axios';
 import { BlinkingDots } from '@/components/shared/blinking-dots';
+import { ClassMaterials, ClassLesson } from '@/components/shared/class-materials';
 import {
   ChevronLeft,
   ChevronRight,
@@ -47,6 +48,8 @@ interface RoutineEntry {
   courseId?: { _id: string; name: string } | string;
   groupId?: { _id: string; name: string } | string;
   termId?: { _id: string; name: string } | string;
+  /** The materials uploaded for this session. */
+  lessons?: ClassLesson[];
 }
 
 interface SheetStudent {
@@ -859,6 +862,11 @@ export function TeacherClassRoutine({ teacherId, user }: any) {
                 )}
               </DialogDescription>
             </DialogHeader>
+            {/* Outside the description: it holds buttons, and the
+                description renders as a paragraph. */}
+            <div className="mt-2">
+              <ClassMaterials lessons={selectedRoutine?.lessons} compact />
+            </div>
           </div>
 
           <ScrollArea className="flex-1 overflow-y-auto">
