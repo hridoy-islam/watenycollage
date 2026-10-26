@@ -120,7 +120,7 @@ export function TopNav() {
             {user?.name}
           </span>
           <div className="flex cursor-pointer flex-row items-center gap-4 text-[12px] font-medium text-black">
-            <span className="max-md:hidden">{user?.email}</span>
+            <span className="max-md:hidden">{user?.loginEmail || user?.email}</span>
             <span className="text-watney">My Profile</span>
           </div>
         </div>

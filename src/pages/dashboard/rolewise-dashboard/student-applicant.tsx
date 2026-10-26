@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import moment from 'moment';
 import clsx from 'clsx';
 import DatePicker from 'react-datepicker';
@@ -299,12 +299,12 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
   const [entryTab, setEntryTab] = useState<'details' | 'lessons'>('details');
 
   const [appliedRange, setAppliedRange] = useState<[Date | null, Date | null]>([
-    moment().startOf('isoWeek').toDate(),
-    moment().endOf('isoWeek').toDate()
+    moment().startOf('month').toDate(),
+    moment().endOf('month').toDate()
   ]);
   const [customRange, setCustomRange] = useState<[Date | null, Date | null]>([
-    moment().startOf('isoWeek').toDate(),
-    moment().endOf('isoWeek').toDate()
+    moment().startOf('month').toDate(),
+    moment().endOf('month').toDate()
   ]);
   const [isCustomMode, setIsCustomMode] = useState(false);
 
@@ -418,9 +418,51 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
     return days;
   }, [startDate, endDate]);
 
+  // A month is wider than the screen, so the timetable opens scrolled to
+  // today's column - just right of the sticky time column - rather than
+  // the 1st. A range without today in it opens at its start.
+  const calendarScrollRef = useRef<HTMLDivElement | null>(null);
+  const scrollToToday = useCallback(() => {
+    const container = calendarScrollRef.current;
+    if (!container) return;
+    const todayCell = container.querySelector<HTMLElement>(
+      'th[data-today="true"]'
+    );
+    const timeColumn = container.querySelector<HTMLElement>('th');
+    container.scrollLeft = todayCell
+      ? Math.max(0, todayCell.offsetLeft - (timeColumn?.offsetWidth || 0))
+      : 0;
+  }, []);
+  // The grid mounts again whenever the calendar tab is shown.
+  const setCalendarScroll = useCallback(
+    (node: HTMLDivElement | null) => {
+      calendarScrollRef.current = node;
+      if (node) requestAnimationFrame(scrollToToday);
+    },
+    [scrollToToday]
+  );
+  useEffect(() => {
+    requestAnimationFrame(scrollToToday);
+  }, [weekDays, scrollToToday]);
+
   const shiftRange = (daysCount: number) => {
     const [s, e] = appliedRange;
     if (!s || !e) return;
+    // A whole calendar month steps to the previous / next month, so
+    // October goes to November rather than 31 days on.
+    if (
+      moment(s).isSame(moment(s).startOf('month'), 'day') &&
+      moment(e).isSame(moment(s).endOf('month'), 'day')
+    ) {
+      const month = moment(s).add(daysCount < 0 ? -1 : 1, 'month');
+      const monthRange: [Date, Date] = [
+        month.clone().startOf('month').toDate(),
+        month.clone().endOf('month').toDate()
+      ];
+      setAppliedRange(monthRange);
+      setCustomRange(monthRange);
+      return;
+    }
     const nextRange: [Date, Date] = [
       moment(s).add(daysCount, 'days').toDate(),
       moment(e).add(daysCount, 'days').toDate()
@@ -436,6 +478,16 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
     ];
     setAppliedRange(thisWeek);
     setCustomRange(thisWeek);
+    setIsCustomMode(false);
+  };
+
+  const goThisMonth = () => {
+    const thisMonth: [Date, Date] = [
+      moment().startOf('month').toDate(),
+      moment().endOf('month').toDate()
+    ];
+    setAppliedRange(thisMonth);
+    setCustomRange(thisMonth);
     setIsCustomMode(false);
   };
 
@@ -941,6 +993,13 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                       This Week
                     </Button>
                     <Button
+                      variant="outline"
+                      className="h-8 rounded-md border border-gray-200 px-3 text-xs font-semibold transition-colors"
+                      onClick={goThisMonth}
+                    >
+                      This Month
+                    </Button>
+                    <Button
                       className="h-8 rounded-md bg-watney px-3 text-xs font-semibold text-white transition-colors hover:bg-watney/90"
                       onClick={goToday}
                     >
@@ -999,7 +1058,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                  * are waiting on the fetch, so there is nothing to swap the
                  * whole timetable out for.
                  */}
-                <div className="relative max-h-[650px] w-full min-w-0 max-w-full overflow-auto rounded-sm border border-gray-300 bg-white shadow-sm">
+                <div className="relative max-h-[650px] w-full min-w-0 max-w-full overflow-auto rounded-sm border border-gray-300 bg-white shadow-sm" ref={setCalendarScroll}>
                   <table className="w-max min-w-full border-collapse text-sm">
                     <thead className="sticky top-0 z-30 bg-slate-50">
                       <tr>
@@ -1014,6 +1073,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                           });
                           return (
                             <th
+                              data-today={today ? 'true' : undefined}
                               key={di}
                               style={{
                                 width: COLUMN_WIDTH,

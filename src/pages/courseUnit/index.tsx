@@ -459,6 +459,9 @@ function CourseUnitPage() {
   /** Registers are staff business; a student never sees the attendance tab. */
   const canSeeAttendance = isAdmin || isTeacher;
 
+  /** The cohort is staff business too; a student never sees the students tab. */
+  const canSeeStudents = user?.role !== 'student';
+
   // ── Fetch units & header meta ──────────────────────────────────────────
   const fetchUnitsData = useCallback(
     async (page = 1, limit = entriesPerPage) => {
@@ -1221,12 +1224,14 @@ function CourseUnitPage() {
                 <ClipboardCheck className="h-3.5 w-3.5" /> Attendance
               </TabsTrigger>
             )}
-            <TabsTrigger
-              value="students"
-              className="gap-1.5 rounded-lg text-xs data-[state=active]:bg-watney data-[state=active]:text-white"
-            >
-              <Users className="h-3.5 w-3.5" /> Students
-            </TabsTrigger>
+            {canSeeStudents && (
+              <TabsTrigger
+                value="students"
+                className="gap-1.5 rounded-lg text-xs data-[state=active]:bg-watney data-[state=active]:text-white"
+              >
+                <Users className="h-3.5 w-3.5" /> Students
+              </TabsTrigger>
+            )}
           </TabsList>
 
           {/* ── Units ──────────────────────────────────────────────────── */}
@@ -1863,6 +1868,7 @@ function CourseUnitPage() {
 
 
           {/* ── Cohort ─────────────────────────────────────────────────── */}
+          {canSeeStudents && (
           <TabsContent value="students" className="m-0">
             <section>
               <div className="flex flex-col gap-3 border-b border-gray-200 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
@@ -1964,6 +1970,7 @@ function CourseUnitPage() {
               )}
             </section>
           </TabsContent>
+          )}
         </Tabs>
 
         {/* ── Delete unit ──────────────────────────────────────────────── */}

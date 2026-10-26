@@ -261,7 +261,7 @@ export function SideNav() {
             {user?.name}
           </span>
           <div className="flex items-center justify-between">
-            <span className="text-[9px] text-gray-600  max-w-[130px]">{user?.email}</span>
+            <span className="text-[9px] text-gray-600  max-w-[130px]">{user?.loginEmail || user?.email}</span>
             {/* {isCompleted && (
               <span className="text-[11px] font-medium text-watney hover:underline">
                 My Profile

@@ -75,10 +75,10 @@ export default function VerifyPage({ user }) {
  const handleOtpSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
   const otpCode = otp.join('');
-  if (!user?.email) return setError('Email missing');
+  if (!(user?.loginEmail || user?.email)) return setError('Email missing');
 
   try {
-    const response = await dispatch(verifyEmail({ email: user.email, otp: otpCode }));
+    const response = await dispatch(verifyEmail({ email: user.loginEmail || user.email, otp: otpCode }));
 
     // Check if the response indicates success
     if (response.success) {
@@ -95,7 +95,7 @@ export default function VerifyPage({ user }) {
 
   const handleResendOtp = async () => {
     try {
-      await dispatch(resendOtp({ email: user?.email }));
+      await dispatch(resendOtp({ email: user?.loginEmail || user?.email }));
       setResendCooldown(30);
       setIsCooldownActive(true);
     } catch (err) {
@@ -148,7 +148,7 @@ export default function VerifyPage({ user }) {
           </h2>
           <p className="font-medium text-black">
             A verification code has been sent to <br />
-            <span className="text-sm font-bold">{user?.email}</span>
+            <span className="text-sm font-bold">{user?.loginEmail || user?.email}</span>
           </p>
           <p className="text-sm text-black">
             Please check your inbox and enter the verification code below to
